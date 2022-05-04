@@ -3,11 +3,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from SGGameSpace import SGGameSpace
+from SGCellCollection import SGCellCollection
 
 #Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
     def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32):
-        super().__init__(parent,0,12,0,0)
+        super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1
         self.id=name
@@ -17,13 +18,22 @@ class SGGrid(SGGameSpace):
         self.gap=gap
         self.size=size
         
-        self.startXbase=0
-        self.startYbase=12
+        self.startXBase=0
+        self.startYBase=0
+        
+        #We initialize the user interface related to the grid
+        self.initUI()
+       
+    def initUI(self): 
+        #Init the cellCollection
+        self.collectionOfCells=SGCellCollection(self,self.rows,self.columns,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+        
         
     #Drawing the game board with the cell
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
+        """"""
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         #Base of the gameBoard
         if(self.format=="square"):

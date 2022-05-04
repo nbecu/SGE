@@ -11,11 +11,11 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"horizontal")
 
-theFirstGrid=myModel.createGrid("basicGrid")
+theFirstGrid=myModel.createGrid("basicGrid",2,4)
 
 theFirstGrid.setColor(Qt.blue)
 
-theSecondGrid=myModel.createGrid("Grid2")
+theSecondGrid=myModel.createGrid("Grid2",8,1)
 
 
 theFirstGrid.setInPosition(2,1)

@@ -222,9 +222,9 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces[name]=aGrid
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aGrid)
-        aGrid.startXbase=newPos[0]
-        aGrid.startYbase=newPos[1]
-        aGrid.move(aGrid.startXbase,aGrid.startYbase)
+        aGrid.startXBase=newPos[0]
+        aGrid.startYBase=newPos[1]
+        aGrid.move(aGrid.startXBase,aGrid.startYBase)
         return aGrid
         
     #To get a gameSpace in particular
@@ -235,7 +235,7 @@ class SGModel(QtWidgets.QMainWindow):
     def applyPersonalLayout(self):
         self.layoutOfModel.ordered()
         for anElement in self.gameSpaces :
-            self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXbase,self.gameSpaces[anElement].startYbase)
+            self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYbase)
         
         
     #To set a different layout
