@@ -33,11 +33,14 @@ class SGGrid(SGGameSpace):
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
-        """"""
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         #Base of the gameBoard
         if(self.format=="square"):
             #We redefine the minimum size of the widget
+            self.setMinimumSize(int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
+            painter.drawRect(0,0, int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
+        elif(self.format=="hexagonal"):
+            """painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))"""
             self.setMinimumSize(int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
             painter.drawRect(0,0, int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
         painter.end()
@@ -82,3 +85,12 @@ class SGGrid(SGGameSpace):
     
     def getSizeYGlobal(self):
         return int(self.columns*self.size+(self.columns+1)*self.gap)+20
+    
+#-----------------------------------------------------------------------------------------
+#Definiton of the methods who the modeler will use
+
+    #Retourne la cellule demande de la grille
+    def getCell(self,aName):
+        return self.collectionOfCells.getCell(aName)
+    
+

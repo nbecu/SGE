@@ -9,6 +9,7 @@ from PyQt5.QtCore import *
 class SGCell(QtWidgets.QWidget):
     def __init__(self,parent,x,y,format,size,gap,startXBase,startYBase):
         super().__init__(parent)
+        self.parent=parent
         self.x=x
         self.y=y
         self.format=format
@@ -26,6 +27,17 @@ class SGCell(QtWidgets.QWidget):
         #Base of the gameBoard
         if(self.format=="square"):
             painter.drawRect(0,0,self.size,self.size)
+            self.move(self.startXBase,self.startYBase)
+        elif(self.format=="horizontal"):
+            points = QPolygon([
+               QPoint(int(self.size/2),  0),
+               QPoint(self.size,  int(self.size/3)),
+               QPoint(self.size,  int((self.size/3)*2)),
+               QPoint(int(self.size/2), self.size),
+               QPoint(0,  int((self.size/3)*2)),
+               QPoint(0,  int(self.size/3))
+            ])
+            painter.drawPolygon(points)
             self.move(self.startXBase,self.startYBase)
         painter.end()
         

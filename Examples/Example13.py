@@ -11,7 +11,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"horizontal")
 
-theFirstGrid=myModel.createGrid("basicGrid",2,4)
+theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal")
 
 theFirstGrid.setColor(Qt.blue)
 
@@ -33,14 +33,7 @@ myModel.applyPersonalLayout()
 """print(theFirstGrid.startXbase)
 print(theFirstGrid.startYbase)
 print(theSecondGrid.startXbase)
-print(theSecondGrid.startYbase)
-print(theFirstGrid.getCell("cell00").startXBase)
-print(theFirstGrid.getCell("cell10").startXBase)
-
-print(theSecondGrid.getCell("cell00").startXBase)
-print(theSecondGrid.getCell("cell10").startXBase)"""
-
-"""theFirstGrid.move(500,200)"""
+print(theSecondGrid.startYbase)"""
 
 
 myModel.show() 

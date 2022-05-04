@@ -27,7 +27,7 @@ class SGHorizontalLayout():
                 break;
             else:
                 size=size+self.listOfGameSpace[i].getSizeXGlobal()
-        return (size,20)
+        return (size,40)
     
     #Ordered all gameSpaces and reAllocate the space of the model
     def ordered(self):
@@ -37,10 +37,11 @@ class SGHorizontalLayout():
                 if i == self.listOfGameSpace[j].posXInLayout :
                     ordered.append(self.listOfGameSpace[j])
         self.listOfGameSpace=ordered
-        self.reAllocateSpace()  
+        return self.reAllocateSpace()  
     
     #Re allocate the space of the model
     def reAllocateSpace(self):
         for i in range(self.count) :
-            self.listOfGameSpace[i].startXbase = self.calculateSize(self.listOfGameSpace[i])[0] 
+            self.listOfGameSpace[i].startXBase = self.calculateSize(self.listOfGameSpace[i])[0] 
+            
     

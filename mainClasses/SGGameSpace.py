@@ -6,12 +6,12 @@ from PyQt5.QtCore import *
 
             
 class SGGameSpace(QtWidgets.QWidget):
-    def __init__(self,parent,startXbase,startYbase,posXInLayout,posYInLayout,isDraggable=False,backgroudColor=Qt.gray):
+    def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=False,backgroudColor=Qt.gray):
         super().__init__(parent)
         self.posXInLayout=posXInLayout
         self.posYInLayout=posYInLayout
-        self.startXbase=startXbase
-        self.startYbase=startYbase
+        self.startXBase=startXBase
+        self.startYBase=startYBase
         self.isDraggable = isDraggable
         self.backgroudColor = backgroudColor
         

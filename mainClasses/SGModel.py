@@ -233,9 +233,9 @@ class SGModel(QtWidgets.QMainWindow):
     
     #To get a gameSpace in particular
     def applyPersonalLayout(self):
-        self.layoutOfModel.ordered()
+        aDict=self.layoutOfModel.ordered()
         for anElement in self.gameSpaces :
-            self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYbase)
+            self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYBase)
         
         
     #To set a different layout
