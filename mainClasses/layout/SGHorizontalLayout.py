@@ -42,5 +42,5 @@ class SGHorizontalLayout():
     #Re allocate the space of the model
     def reAllocateSpace(self):
         for i in range(self.count) :
-            self.listOfGameSpace[i].startXbase = self.calculateSize(self.listOfGameSpace[i])[0]
+            self.listOfGameSpace[i].startXbase = self.calculateSize(self.listOfGameSpace[i])[0] 
     

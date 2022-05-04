@@ -59,13 +59,145 @@ class SGModel(QtWidgets.QMainWindow):
         
     #Create the menu of the menue 
     def createMenue(self):
-        #To be reimplemented
-        return True
+        self.menuBar().addAction(self.openSave)
+        
+        self.menuBar().addAction(self.save)
+        
+        self.menuBar().addAction(self.inspect)
+        
+        sep = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep)
+        
+        self.menuBar().addAction(self.play)
+        
+        sep2 = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep2)
+        
+        self.menuBar().addAction(self.zoomPlus)
+        
+        self.menuBar().addAction(self.zoomLess)
+        
+        self.menuBar().addAction(self.zoomToFit)
+        
+        sep3 = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep3)
+        
+        inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"),"&inspectElement")
+        """To be finished to be implementd"""
+        
+        povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"),"&pov")
+        """To be finished to be implementd"""
+        
+        graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"),"&graph")
+        """To be finished to be implementd"""
+        
+        sep4 = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep4)
+        
+        extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"),"&Extract")
+        extractMenu.addAction(self.extractPng)
+        extractMenu.addAction(self.extractSvg)
+        extractMenu.addAction(self.extractHtml)
+       
     
     #Create all the action related to the menu  
     def createAction(self):
-        #To be reimplemented
+        self.openSave = QAction(QIcon("./icon/ouvrir.png")," &open", self)
+        self.openSave.triggered.connect(self.openFromSave)
+        
+        self.save = QAction(QIcon("./icon/save.png")," &save", self)
+        self.save.setShortcut("Ctrl+s")
+        self.save.triggered.connect(self.saveTheGame)
+        
+        self.inspect = QAction(QIcon("./icon/inspect.png")," &inspectAll", self)
+        self.inspect.triggered.connect(self.inspectAll)
+        
+        self.play = QAction(QIcon("./icon/play.png")," &play", self)
+        self.play.triggered.connect(self.nextTurn)
+        
+        self.zoomPlus = QAction(QIcon("./icon/zoomPlus.png")," &zoomPlus", self)
+        self.zoomPlus.triggered.connect(self.zoomPlusModel)
+        
+        self.zoomLess = QAction(QIcon("./icon/zoomLess.png")," &zoomLess", self)
+        self.zoomLess.triggered.connect(self.zoomLessModel)
+        
+        self.zoomToFit = QAction(QIcon("./icon/zoomToFit.png")," &zoomToFit", self)
+        self.zoomToFit.triggered.connect(self.zoomFitModel)
+        
+        self.extractPng = QAction(" &ToPNG", self)
+        self.extractPng.triggered.connect(self.extractPngFromWidget)
+        self.extractSvg = QAction(" &ToSVG", self)
+        self.extractSvg.triggered.connect(self.extractSvgFromWidget)
+        self.extractHtml = QAction(" &ToHtml", self)
+        self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
+        
+         
+    #Create the function for the action of the menu
+    #Loading a Save
+    def openFromSave(self):
+        """To be implemented"""
         return True
+    
+    #Save the game in a file
+    def saveTheGame(self):
+        """To be implemented"""
+        return True
+    
+    #Inspect All of the variables of the game
+    def inspectAll(self):
+        """To be implemented"""
+        return True
+    
+    #Trigger the next turn
+    def nextTurn(self):
+        """To be implemented"""
+        return True
+    
+    #Trigger the zoom in
+    def zoomPlusModel(self):
+        for aGameSpace in self.gameSpaces:
+            self.gameSpaces[aGameSpace].zoomIn()
+            
+    
+    #Trigger the zoom out
+    def zoomLessModel(self):
+        for aGameSpace in self.gameSpaces:
+            self.gameSpaces[aGameSpace].zoomOut()
+    
+    #Trigger the basic zoom
+    def zoomFitModel(self):
+        #To be reworked
+        for aGameSpace in self.gameSpaces:
+            self.gameSpaces[aGameSpace].zoomFit()
+            
+     
+    #Extract the actual gameboard into png   
+    def extractPngFromWidget(self):
+        #To be reworked
+        self.window.grab().save("image.png")
+    
+    #Extract the actual gameboard into svg 
+    def extractSvgFromWidget(self):
+        generator = QSvgGenerator()
+        generator.setFileName("image.svg")
+        painter = QPainter(generator)
+        self.window.render( painter )
+        painter.end()
+    
+    #Extract the actual gameboard into html
+    def extractHtmlFromWidget(self):
+        """To be implemented"""
+        return True
+    
+    
+    #Event
+    #wheel event we zoom 
+    def wheelEvent(self,event):
+        if(event.angleDelta().y()==120):
+            self.zoomPlusModel()
+        else :
+            self.zoomLessModel()
+
     
     #Function to handle the drag of widget
     def dragEnterEvent(self, e):
@@ -73,7 +205,8 @@ class SGModel(QtWidgets.QMainWindow):
         
     def dropEvent(self, e):
         position = e.pos()
-
+        position.setX(position.x()-int(e.source().getSizeXGlobal()/2))
+        position.setY(position.y()-int(e.source().getSizeYGlobal()/2))
         e.source().move(position)
 
         e.setDropAction(Qt.MoveAction)
@@ -91,8 +224,6 @@ class SGModel(QtWidgets.QMainWindow):
         newPos=self.layoutOfModel.addGameSpace(aGrid)
         aGrid.startXbase=newPos[0]
         aGrid.startYbase=newPos[1]
-        print(aGrid.startXbase)
-        print(aGrid.startYbase)
         aGrid.move(aGrid.startXbase,aGrid.startYbase)
         return aGrid
         
