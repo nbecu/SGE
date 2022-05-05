@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 #Example of a simple
 
-myModel=SGModel(1080,960,"horizontal")
+myModel=SGModel(1080,960,"vertical")
 
 theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 

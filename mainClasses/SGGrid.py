@@ -59,10 +59,14 @@ class SGGrid(SGGameSpace):
     def zoomOut(self):
         self.zoom=self.zoom*0.9
         self.size=round(self.size-(self.zoom*10))
-        if(self.gap>2):
+        if(self.gap>2 and self.format=="square"):
             self.gap=round(self.gap-(self.zoom*1))
             for cell in self.collectionOfCells.getCells():
-                self.collectionOfCells.getCell(cell).zoomOut() 
+                self.collectionOfCells.getCell(cell).zoomOut()
+        else:
+            self.gap=round(self.gap-(self.zoom*1))
+            for cell in self.collectionOfCells.getCells():
+                self.collectionOfCells.getCell(cell).zoomOut()
         for cell in self.collectionOfCells.getCells() :
             self.collectionOfCells.getCell(cell).zoomOut() 
         self.update()

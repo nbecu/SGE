@@ -42,6 +42,7 @@ class SGVerticalLayout():
     #Re allocate the space of the model
     def reAllocateSpace(self):
         for i in range(self.count) :
-            self.listOfGameSpace[i].startYbase = self.calculateSize(self.listOfGameSpace[i])[1]
+            self.listOfGameSpace[i].startYBase = self.calculateSize(self.listOfGameSpace[i])[1] +20*i +20
+            
         
                     
