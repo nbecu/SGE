@@ -16,7 +16,7 @@ class SGCell(QtWidgets.QWidget):
         self.size=size
         self.gap=gap
         self.startXBase=int(startXBase+self.gap*(x)+self.size*(x)+self.gap) 
-        self.startYBase=int(startYBase+self.gap*(y)+self.size*(y)+self.gap)
+        self.startYBase=startXBase=int(startYBase+self.gap*(y)+self.size*(y)+self.gap)
         
         
         
