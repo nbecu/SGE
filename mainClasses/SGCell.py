@@ -28,7 +28,7 @@ class SGCell(QtWidgets.QWidget):
         if(self.format=="square"):
             painter.drawRect(0,0,self.size,self.size)
             self.move(self.startXBase,self.startYBase)
-        elif(self.format=="horizontal"):
+        elif(self.format=="hexagonal"):
             points = QPolygon([
                QPoint(int(self.size/2),  0),
                QPoint(self.size,  int(self.size/3)),
@@ -38,7 +38,10 @@ class SGCell(QtWidgets.QWidget):
                QPoint(0,  int(self.size/3))
             ])
             painter.drawPolygon(points)
-            self.move(self.startXBase,self.startYBase)
+            if(self.y%2==1):
+                self.move(self.startXBase+int(self.size/2)+int(self.gap/2),self.startYBase-int(self.size/2)+self.gap    -int(self.size/2)*(self.y-1) +self.gap*(self.y-1) )
+            else:
+                self.move(self.startXBase,self.startYBase-int(self.size/2)*self.y +self.gap*self.y)
         painter.end()
         
     def getId(self):

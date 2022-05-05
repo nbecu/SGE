@@ -11,7 +11,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"horizontal")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal")
+theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
 theFirstGrid.setColor(Qt.blue)
 

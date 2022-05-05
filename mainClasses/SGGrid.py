@@ -38,11 +38,11 @@ class SGGrid(SGGameSpace):
         if(self.format=="square"):
             #We redefine the minimum size of the widget
             self.setMinimumSize(int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
-            painter.drawRect(0,0, int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
+            painter.drawRect(0,0, int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap)) #-(int(self.size/2)*(self.columns-1)) -int(self.gap*(self.columns-1))
         elif(self.format=="hexagonal"):
-            """painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))"""
-            self.setMinimumSize(int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
-            painter.drawRect(0,0, int(self.rows*self.size+(self.rows+1)*self.gap+1), int(self.columns*self.size+(self.columns+1)*self.gap))
+            print( int((self.columns-4)*(self.size/3)+4*((self.size/3)*2)+2*self.gap))
+            self.setMinimumSize(int(self.rows*self.size+(self.rows+1)*self.gap+1)+int(self.size/2),         int(1500 ))
+            painter.drawRect(0,0, int(self.rows*self.size+(self.rows+1)*self.gap+1)+int(self.size/2),       int((self.columns*2-6)*(self.size/3)+4*((self.size/3)*2))) 
         painter.end()
         
     #Funtion to handle the zoom
@@ -81,7 +81,10 @@ class SGGrid(SGGameSpace):
         
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        return int(self.rows*self.size+(self.rows+1)*self.gap+1)+20
+        if(self.format=="square"):
+            return int(self.rows*self.size+(self.rows+1)*self.gap+1)+20
+        if(self.format=="hexagonal"):
+            return int(self.rows*self.size+(self.rows+1)*self.gap+1)+20 +int(self.size/2)
     
     def getSizeYGlobal(self):
         return int(self.columns*self.size+(self.columns+1)*self.gap)+20
