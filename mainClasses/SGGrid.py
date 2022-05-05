@@ -18,6 +18,9 @@ class SGGrid(SGGameSpace):
         self.gap=gap
         self.size=size
         
+        self.saveGap=gap
+        self.saveSize=size
+        
         self.startXBase=0
         self.startYBase=0
         
@@ -40,8 +43,8 @@ class SGGrid(SGGameSpace):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
             painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap)) #-(int(self.size/2)*(self.columns-1)) -int(self.gap*(self.columns-1))
         elif(self.format=="hexagonal"):
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),         int((self.rows*2-6)*(self.size/3)+4*((self.size/3)*2)) +self.gap)
-            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),       int((self.rows*2-6)*(self.size/3)+4*((self.size/3)*2)) +self.gap) 
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),         int((self.rows+1)*(self.size/3)*2) +self.gap*2)
+            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),       int((self.rows+1)*(self.size/3)*2) +self.gap*2) 
         painter.end()
         
     #Funtion to handle the zoom
@@ -49,6 +52,8 @@ class SGGrid(SGGameSpace):
         self.zoom=self.zoom*1.1
         self.size=round(self.size+(self.zoom*10))
         self.gap=round(self.gap+(self.zoom*1))
+        for cell in self.collectionOfCells.getCells() :
+            self.collectionOfCells.getCell(cell).zoomIn() 
         self.update()
     
     def zoomOut(self):
@@ -56,12 +61,18 @@ class SGGrid(SGGameSpace):
         self.size=round(self.size-(self.zoom*10))
         if(self.gap>2):
             self.gap=round(self.gap-(self.zoom*1))
+            for cell in self.collectionOfCells.getCells():
+                self.collectionOfCells.getCell(cell).zoomOut() 
+        for cell in self.collectionOfCells.getCells() :
+            self.collectionOfCells.getCell(cell).zoomOut() 
         self.update()
         
     def zoomFit(self):
         self.zoom=1
         self.size=self.saveSize
         self.gap=self.saveGap
+        for cell in self.collectionOfCells.getCells() :
+            self.collectionOfCells.getCell(cell).zoomFit() 
         self.update()
         
     #To handle the drag of the grid
@@ -81,12 +92,15 @@ class SGGrid(SGGameSpace):
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         if(self.format=="square"):
-            return int(self.columns*self.size+(self.columns+1)*self.gap+1)+20
+            return int(self.columns*self.size+(self.columns+1)*self.gap+1)
         if(self.format=="hexagonal"):
-            return int(self.columns*self.size+(self.columns+1)*self.gap+1)+20 +int(self.size/2)
+            return int(self.columns*self.size+(self.columns+1)*self.gap+1) +int(self.size/2)
     
     def getSizeYGlobal(self):
-        return int(self.rows*self.size+(self.rows+1)*self.gap)+20
+        if(self.format=="square"):
+            return int(self.rows*self.size+(self.rows+1)*self.gap)
+        if(self.format=="hexagonal"):
+            return int((self.rows+1)*(self.size/3)*2) +self.gap*2
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
