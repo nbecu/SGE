@@ -20,7 +20,7 @@ from PyQt5.QtCore import *
 
 #Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self,width,height,typeOfLayout="vertical",parent=None):
+    def __init__(self,width,height,typeOfLayout="vertical",x=3,y=3,parent=None):
         super().__init__()
         
         #Definition the size of the window ( temporary here)
@@ -42,7 +42,7 @@ class SGModel(QtWidgets.QMainWindow):
         elif(typeOfLayout=="horizontal"):
             self.layoutOfModel=SGHorizontalLayout()
         else:
-            self.layoutOfModel=SGGridLayout()
+            self.layoutOfModel=SGGridLayout(x,y)
         
         self.initUI()
     
@@ -222,6 +222,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces[name]=aGrid
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aGrid)
+        print(newPos)
         aGrid.startXBase=newPos[0]
         aGrid.startYBase=newPos[1]
         aGrid.move(aGrid.startXBase,aGrid.startYBase)

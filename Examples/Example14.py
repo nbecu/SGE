@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 #Example of a simple
 
-myModel=SGModel(1080,960,"horizontal")
+myModel=SGModel(1080,960,"Grid")
 
 theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
@@ -17,23 +17,19 @@ theFirstGrid.setColor(Qt.blue)
 
 theSecondGrid=myModel.createGrid("Grid2",8,1)
 
+thedGrid=myModel.createGrid("Grid3",8,1)
 
-theFirstGrid.setInPosition(2,1)
-
-theSecondGrid.setInPosition(1,1)
-
-"""print(theFirstGrid.startXbase)
-print(theFirstGrid.startYbase)
-print(theSecondGrid.startXbase)
-print(theSecondGrid.startYbase)"""
-
-myModel.applyPersonalLayout()   
+theSGrid=myModel.createGrid("Grid4",8,1)
 
 
-"""print(theFirstGrid.startXbase)
-print(theFirstGrid.startYbase)
-print(theSecondGrid.startXbase)
-print(theSecondGrid.startYbase)"""
+"""theFirstGrid.setInPosition(1,1)
+
+theSecondGrid.setInPosition(1,2)"""
+
+
+"""
+myModel.applyPersonalLayout()  """ 
+
 
 
 myModel.show() 
