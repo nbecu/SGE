@@ -23,17 +23,17 @@ thedGrid=myModel.createGrid("Grid3",8,12)
 
 theSGrid=myModel.createGrid("Grid4",8,1)
 
-"""
+
 theFirstGrid.setInPosition(1,3)
 
 theSGrid.setInPosition(1,2)
 
 theSecondGrid.setInPosition(1,1)
 
-thedGrid.setInPosition(2,1)
+thedGrid.setInPosition(1,4)
 
 
-myModel.applyPersonalLayout() """ 
+myModel.applyPersonalLayout() 
 
 
 

@@ -37,6 +37,7 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition for all gameSpaces
         self.gameSpaces={}
         #We create the layout
+        self.typeOfLayout=typeOfLayout
         if(typeOfLayout=="vertical"):
             self.layoutOfModel=SGVerticalLayout()
         elif(typeOfLayout=="horizontal"):
@@ -225,7 +226,14 @@ class SGModel(QtWidgets.QMainWindow):
         print(newPos)
         aGrid.startXBase=newPos[0]
         aGrid.startYBase=newPos[1]
-        aGrid.move(aGrid.startXBase,aGrid.startYBase)
+        if(self.typeOfLayout=="vertical"):
+            aGrid.move(aGrid.startXBase,aGrid.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aGrid))
+        elif(self.typeOfLayout=="horizontal"):
+            aGrid.move(aGrid.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aGrid),aGrid.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aGrid)
+            aGrid.move(aGrid.startXBase+20*pos[0],aGrid.startYBase+20*pos[1])
+        
         return aGrid
         
     #To get a gameSpace in particular
@@ -236,18 +244,27 @@ class SGModel(QtWidgets.QMainWindow):
     def applyPersonalLayout(self):
         aDict=self.layoutOfModel.ordered()
         for anElement in self.gameSpaces :
-            self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYBase)
+            if(self.typeOfLayout=="vertical"):
+                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYBase+20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]))
+            elif(self.typeOfLayout=="horizontal"):
+                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]),self.gameSpaces[anElement].startYBase)    
+            else:
+                pos=self.layoutOfModel.foundInLayout(self.gameSpaces[anElement])
+                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*pos[0],self.gameSpaces[anElement].startYBase+20*pos[1])
         
         
     #To set a different layout
     def setLayoutForModel(self,typeOfLayout):
         if(typeOfLayout=="vertical"):
+            self.typeOfLayout=typeOfLayout
             self.layoutOfModel=SGVerticalLayout()
             for anElement in self.gameSpaces :
                 self.layoutOfModel.addGameSpace(self.gameSpaces[anElement])
         elif(typeOfLayout=="horizontal"):
+            self.typeOfLayout=typeOfLayout
             self.layoutOfModel=SGHorizontalLayout()
             for anElement in self.gameSpaces :
                 self.layoutOfModel.addGameSpace(self.gameSpaces[anElement])    
         else:
+            self.typeOfLayout="grid"
             self.layoutOfModel=SGGridLayout()
