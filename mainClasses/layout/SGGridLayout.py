@@ -60,6 +60,38 @@ class SGGridLayout():
                     countX=countX+1
             count=count+1
         return None
+    
+    #Ordered all gameSpaces and reAllocate the space of the model
+    def ordered(self):
+        print(self.listOfGameSpace)
+        ordered=[]
+        for i in range(self.y):
+            ordered.append([])
+        
+        
+        for aList in self.listOfGameSpace :
+            for anElement in aList :
+                count=0
+                for aGameSpace in ordered[anElement.posYInLayout] :
+                    if aGameSpace.posXInLayout<anElement.posXInLayout:
+                        count=count+1
+                    
+                ordered[anElement.posYInLayout].insert(count,anElement)
+                    
+                    
+        self.listOfGameSpace=ordered
+        print(self.listOfGameSpace)
+        self.reAllocateSpace()  
+    
+    #Re allocate the space of the model
+    def reAllocateSpace(self):
+        """for i in range(self.count) :
+            self.listOfGameSpace[i].startYBase = self.calculateSize(self.listOfGameSpace[i])[1] +20*i +20"""
+        for aList in self.listOfGameSpace :
+            for anElement in aList :
+                size=self.calculateSize(anElement)
+                anElement.startXBase=size[0]
+                anElement.startYBase=size[1]
             
             
         

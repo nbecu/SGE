@@ -15,20 +15,25 @@ theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
 theFirstGrid.setColor(Qt.blue)
 
-theSecondGrid=myModel.createGrid("Grid2",8,1)
+theSecondGrid=myModel.createGrid("Grid2",8,8)
 
-thedGrid=myModel.createGrid("Grid3",8,1)
+theSecondGrid.setColor(Qt.green)
+
+thedGrid=myModel.createGrid("Grid3",8,12)
 
 theSGrid=myModel.createGrid("Grid4",8,1)
 
 
-"""theFirstGrid.setInPosition(1,1)
+theFirstGrid.setInPosition(1,3)
 
-theSecondGrid.setInPosition(1,2)"""
+theSGrid.setInPosition(1,2)
+
+theSecondGrid.setInPosition(1,1)
+
+thedGrid.setInPosition(2,1)
 
 
-"""
-myModel.applyPersonalLayout()  """ 
+myModel.applyPersonalLayout()  
 
 
 
