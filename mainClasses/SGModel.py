@@ -5,6 +5,7 @@ from win32api import GetSystemMetrics
 
 sys.path.insert(0, str(Path(__file__).parent))
 from SGGrid import SGGrid
+from SGVoid import SGVoid
 
 from layout.SGGridLayout import SGGridLayout
 from layout.SGHorizontalLayout import SGHorizontalLayout
@@ -234,6 +235,19 @@ class SGModel(QtWidgets.QMainWindow):
             aGrid.move(aGrid.startXBase+20*pos[0],aGrid.startYBase+20*pos[1])
         
         return aGrid
+    
+    #To create a void
+    def createVoid(self,name,sizeX=200,sizeY=200):
+        #Creation
+        aVoid = SGVoid(self,name,sizeX,sizeY)
+        self.gameSpaces[name]=aVoid
+        
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aVoid)
+        aVoid.startXBase=newPos[0]
+        aVoid.startYBase=newPos[1]
+        aVoid.move(aVoid.startXBase,aVoid.startYBase)
+        return aVoid
         
     #To get a gameSpace in particular
     def getGameSpace(self,name):
