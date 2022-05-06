@@ -82,7 +82,7 @@ class SGGrid(SGGameSpace):
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
     
-        if e.buttons() != Qt.RightButton:
+        if e.buttons() != Qt.LeftButton:
             return
 
         mimeData = QMimeData()
