@@ -63,7 +63,6 @@ class SGGridLayout():
     
     #Ordered all gameSpaces and reAllocate the space of the model
     def ordered(self):
-        print(self.listOfGameSpace)
         ordered=[]
         for i in range(self.y):
             ordered.append([])
@@ -80,7 +79,6 @@ class SGGridLayout():
                     
                     
         self.listOfGameSpace=ordered
-        print(self.listOfGameSpace)
         self.reAllocateSpace()  
     
     #Re allocate the space of the model

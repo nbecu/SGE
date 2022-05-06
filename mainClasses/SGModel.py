@@ -223,7 +223,6 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces[name]=aGrid
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aGrid)
-        print(newPos)
         aGrid.startXBase=newPos[0]
         aGrid.startYBase=newPos[1]
         if(self.typeOfLayout=="vertical"):
