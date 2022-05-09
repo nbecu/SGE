@@ -51,6 +51,16 @@ class SGVerticalLayout():
     def reAllocateSpace(self):
         for i in range(self.count) :
             self.listOfGameSpace[i].startYBase = self.calculateSize(self.listOfGameSpace[i])[1]
-            
+     
+    #To have the maximum value of the item displayed into the layout
+    def getMax(self):
+        maxX=0
+        maxY=0
+        for anElement in self.listOfGameSpace:
+            maxX = maxX+anElement.getSizeXGlobal()
+            if maxY< anElement.getSizeYGlobal() :
+                maxY=anElement.getSizeYGlobal()
+        return (maxX,maxY)
+              
         
                     

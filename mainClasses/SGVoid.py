@@ -29,8 +29,6 @@ class SGVoid(SGGameSpace):
     def zoomOut(self):
         return True
         
-    def zoomFit(self):
-        return True
     
     #To choose the inital pov
     def setInitialPov(self,nameOfPov):

@@ -169,9 +169,22 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the basic zoom
     def zoomFitModel(self):
-        #To be reworked
-        for aGameSpace in self.gameSpaces:
-            self.gameSpaces[aGameSpace].zoomFit()
+        firewall=0
+        while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
+            self.zoomLessModel()
+            firewall=firewall+1
+            self.applyPersonalLayout()
+            if firewall>5:
+                print("trigger fire")
+                break
+        while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
+            self.zoomPlusModel()
+            self.applyPersonalLayout()
+            if self.layoutOfModel.getMax()[0]>(self.width()) or self.layoutOfModel.getMax()[1]>self.height():
+                self.zoomLessModel()
+                break
+        
+        self.applyPersonalLayout()
             
      
     #Extract the actual gameboard into png   
@@ -214,6 +227,8 @@ class SGModel(QtWidgets.QMainWindow):
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
+
+    
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

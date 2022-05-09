@@ -52,7 +52,7 @@ class SGGrid(SGGameSpace):
     #Funtion to handle the zoom
     def zoomIn(self):
         self.zoom=self.zoom*1.1
-        self.size=round(self.size+(self.zoom*10))
+        print(self.size+(self.zoom*10))
         self.gap=round(self.gap+(self.zoom*1))
         for cell in self.collectionOfCells.getCells() :
             self.collectionOfCells.getCell(cell).zoomIn() 
@@ -71,14 +71,6 @@ class SGGrid(SGGameSpace):
                 self.collectionOfCells.getCell(cell).zoomOut()
         for cell in self.collectionOfCells.getCells() :
             self.collectionOfCells.getCell(cell).zoomOut() 
-        self.update()
-        
-    def zoomFit(self):
-        self.zoom=1
-        self.size=self.saveSize
-        self.gap=self.saveGap
-        for cell in self.collectionOfCells.getCells() :
-            self.collectionOfCells.getCell(cell).zoomFit() 
         self.update()
         
     #To handle the drag of the grid
