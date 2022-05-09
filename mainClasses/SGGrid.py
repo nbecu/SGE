@@ -43,7 +43,7 @@ class SGGrid(SGGameSpace):
         if(self.format=="square"):
             #We redefine the minimum size of the widget
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
-            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap)) #-(int(self.size/2)*(self.columns-1)) -int(self.gap*(self.columns-1))
+            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
         elif(self.format=="hexagonal"):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),         int((self.rows+1)*(self.size/3)*2) +self.gap*2)
             painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),       int((self.rows+1)*(self.size/3)*2) +self.gap*2) 
@@ -52,8 +52,8 @@ class SGGrid(SGGameSpace):
     #Funtion to handle the zoom
     def zoomIn(self):
         self.zoom=self.zoom*1.1
-        print(self.size+(self.zoom*10))
         self.gap=round(self.gap+(self.zoom*1))
+        self.size=round(self.size+(self.zoom*10))
         for cell in self.collectionOfCells.getCells() :
             self.collectionOfCells.getCell(cell).zoomIn() 
         self.update()

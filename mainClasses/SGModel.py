@@ -160,31 +160,33 @@ class SGModel(QtWidgets.QMainWindow):
     def zoomPlusModel(self):
         for aGameSpace in self.gameSpaces:
             self.gameSpaces[aGameSpace].zoomIn()
+            self.applyPersonalLayout()
+        self.applyPersonalLayout()
             
     
     #Trigger the zoom out
     def zoomLessModel(self):
         for aGameSpace in self.gameSpaces:
             self.gameSpaces[aGameSpace].zoomOut()
+            self.applyPersonalLayout()
+        self.applyPersonalLayout()
     
     #Trigger the basic zoom
     def zoomFitModel(self):
-        firewall=0
-        while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
-            self.zoomLessModel()
-            firewall=firewall+1
-            self.applyPersonalLayout()
-            if firewall>5:
-                print("trigger fire")
-                break
-        while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
-            self.zoomPlusModel()
-            self.applyPersonalLayout()
-            if self.layoutOfModel.getMax()[0]>(self.width()) or self.layoutOfModel.getMax()[1]>self.height():
+        if self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height():
+            while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
                 self.zoomLessModel()
-                break
-        
-        self.applyPersonalLayout()
+                self.applyPersonalLayout()
+        else :
+            while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
+                print()
+                self.zoomPlusModel()
+                self.applyPersonalLayout()
+                if self.layoutOfModel.getMax()[0]>(self.width()) and self.layoutOfModel.getMax()[1]>self.height():
+                    self.zoomLessModel()
+                    self.zoomLessModel()
+                    self.applyPersonalLayout()
+                    break
             
      
     #Extract the actual gameboard into png   
@@ -307,7 +309,6 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
-        print(self.gameSpaces)
         for anElement in list(self.gameSpaces.values()) :
             anElement.setInitialPov(nameOfPov)
 

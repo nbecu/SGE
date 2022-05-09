@@ -52,4 +52,14 @@ class SGHorizontalLayout():
         for i in range(self.count) :
             self.listOfGameSpace[i].startXBase = self.calculateSize(self.listOfGameSpace[i])[0]
             
+    #To have the maximum value of the item displayed into the layout
+    def getMax(self):
+        maxX=0
+        maxY=0
+        for anElement in self.listOfGameSpace:
+            maxY = maxY+anElement.getSizeYGlobal()
+            if maxX< anElement.getSizeXGlobal() :
+                maxX=anElement.getSizeXGlobal()
+        return (maxX,maxY)
+            
     

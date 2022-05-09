@@ -12,7 +12,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"horizontal")
 
-"""theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
+theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
 theFirstGrid=myModel.createGrid("2",15,10,"hexagonal")
 
@@ -20,9 +20,7 @@ theFirstGrid=myModel.createGrid("3",15,10,"hexagonal")
 
 theFirstGrid=myModel.createGrid("4",15,10,"hexagonal")
 
-theFirstGrid=myModel.createGrid("5",15,10,"hexagonal")"""
-
-theFirstGrid=myModel.createGrid("basicGrid",4,4,"square",3,10)
+theFirstGrid=myModel.createGrid("5",15,10,"hexagonal")
 
 
 
