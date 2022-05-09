@@ -1,3 +1,4 @@
+import random
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -118,5 +119,37 @@ class SGGrid(SGGameSpace):
     #Retourne la cellule demande de la grille
     def getCell(self,aName):
         return self.collectionOfCells.getCell(aName)
+    
+#To handle POV and placing on cell
+    #To define a value for all cells
+    def setValueForCells(self,nameOfPov,aValue):
+        for aCell in self.collectionOfCells.getCells():
+            aCell.attributs[nameOfPov]=aValue
+            
+    #To apply to a specific cell a value  
+    def setForXandY(self,nameOfPov,nameOfValue,aValueX,aValueY):
+        self.collectionOfCells.getCell("cell"+str(aValueX-1)+str(aValueY-1)).attributs[nameOfPov]=nameOfValue
+    
+    #To apply to a all row of cell a value
+    def setForX(self,nameOfPov,nameOfValue,aValueX):
+        for y in range(self.rows):
+            self.collectionOfCells.getCell("cell"+str(aValueX-1)+str(y)).attributs[nameOfPov]=nameOfValue
+    
+    #To apply to a all column of cell a value
+    def setForY(self,nameOfPov,nameOfValue,aValueY):
+        for x in range(self.columns):
+            self.collectionOfCells.getCell("cell"+str(x)+str(aValueY)).attributs[nameOfPov]=nameOfValue
+    
+    #To apply to some random cell a value
+    def setForRandom(self,nameOfPov,nameOfValue,numberOfRandom):
+        alreadyDone=list()
+        while len(alreadyDone)!=numberOfRandom:
+            aValueX=random.randint(0, self.columns-1)
+            aValueY=random.randint(0, self.rows-1)
+            if (aValueX,aValueY) not in alreadyDone:
+                alreadyDone.append((aValueX,aValueY))
+                self.collectionOfCells.getCell("cell"+str(aValueX)+str(aValueY)).attributs[nameOfPov]=nameOfValue
+  
+            
     
 
