@@ -27,6 +27,7 @@ class SGGrid(SGGameSpace):
         #We initialize the user interface related to the grid
         self.initUI()
        
+    #Initialize the user interface
     def initUI(self): 
         #Init the cellCollection
         self.collectionOfCells=SGCellCollection(self,self.columns,self.rows,self.format,self.size,self.gap,self.startXBase,self.startYBase)
@@ -105,6 +106,11 @@ class SGGrid(SGGameSpace):
             return int(self.rows*self.size+(self.rows+1)*self.gap)
         if(self.format=="hexagonal"):
             return int((self.rows+1)*(self.size/3)*2) +self.gap*2
+        
+        
+    #To choose the inital pov
+    def setInitialPov(self,nameOfPov):
+        self.collectionOfCells.nameOfPov=nameOfPov
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

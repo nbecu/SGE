@@ -7,20 +7,26 @@ from PyQt5.QtCore import *
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
-    def __init__(self,parent,x,y,format,size,gap,startXBase,startYBase):
+    def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase):
         super().__init__(parent)
+        #Basic initialize
         self.parent=parent
+        self.theCollection=theCollection
         self.x=x
         self.y=y
         self.format=format
         self.size=size
         self.gap=gap
-        
+        #Save the basic value for the zoom ( temporary)
         self.saveGap=gap
         self.saveSize=size
-        
+        #We place the default pos
         self.startXBase=startXBase
         self.startYBase=startYBase
+        #We init the dict of Attribute
+        self.attributs={}
+        
+        
 
         
         
@@ -30,7 +36,7 @@ class SGCell(QtWidgets.QWidget):
         self.startY=startXBase=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
         painter = QPainter() 
         painter.begin(self)
-        painter.setBrush(QBrush(Qt.red, Qt.SolidPattern))
+        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         #Base of the gameBoard
         if(self.format=="square"):
             painter.drawRect(0,0,self.size,self.size)
@@ -72,6 +78,16 @@ class SGCell(QtWidgets.QWidget):
         self.size=self.parent.size
         self.gap=self.parent.gap
         self.update()
+        
+    #To manage the attribute system of a cell
+    def getColor(self):
+        if self.theCollection.nameOfPov=="default" :
+            return self.theCollection.povs["default"]
+        else :
+            return self.theCollection.povs[self.theCollection.nameOfPov][self.attributs[self.theCollection.nameOfPov]]
+    
+    
+    
         
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

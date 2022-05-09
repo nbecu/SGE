@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Example of a simple
+#Example of POV with defining one pov with default
 
 myModel=SGModel(1080,960,"grid")
 
@@ -15,11 +15,9 @@ theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
 theFirstGrid.setColor(Qt.blue)
 
-theFirstVoid=myModel.createVoid("void1")
+myModel.setUpPovOn("Basic",{"1":Qt.green,"2":Qt.red},theFirstGrid,"2")
 
-theSecondGrid=myModel.createGrid("Grid2",8,8)
-
-theSecondGrid.setColor(Qt.green)
+myModel.setInitialPovGlobal("Basic")
 
 myModel.show() 
 

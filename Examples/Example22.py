@@ -7,19 +7,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Example of a simple
+#Example of POV
 
 myModel=SGModel(1080,960,"grid")
 
 theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
 theFirstGrid.setColor(Qt.blue)
-
-theFirstVoid=myModel.createVoid("void1")
-
-theSecondGrid=myModel.createGrid("Grid2",8,8)
-
-theSecondGrid.setColor(Qt.green)
 
 myModel.show() 
 

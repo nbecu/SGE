@@ -22,6 +22,23 @@ class SGGameSpace(QtWidgets.QWidget):
     def getSizeYGlobal(self):
         pass
     
+    #Trigger the zoom in
+    def zoomPlusModel(self):
+        pass
+            
+    
+    #Trigger the zoom out
+    def zoomLessModel(self):
+        pass
+    
+    #Trigger the basic zoom
+    def zoomFitModel(self):
+        pass
+    
+    #To choose the inital pov when the game start
+    def setInitialPov(self,nameOfPov):
+        pass
+    
     
     
 #-----------------------------------------------------------------------------------------

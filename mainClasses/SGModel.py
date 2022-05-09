@@ -1,6 +1,7 @@
 from asyncio.windows_events import NULL
 import sys 
 from pathlib import Path
+from sqlalchemy import null
 from win32api import GetSystemMetrics
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -217,6 +218,7 @@ class SGModel(QtWidgets.QMainWindow):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
+#For create elements
     #To create a grid
     def createGrid(self,name,rows=8, columns=8,format="square",gap=3,size=32):
         #Creation
@@ -248,6 +250,9 @@ class SGModel(QtWidgets.QMainWindow):
         aVoid.startYBase=newPos[1]
         aVoid.move(aVoid.startXBase,aVoid.startYBase)
         return aVoid
+    
+    #---------
+#Layout
         
     #To get a gameSpace in particular
     def getGameSpace(self,name):
@@ -281,3 +286,31 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             self.typeOfLayout="grid"
             self.layoutOfModel=SGGridLayout()
+            
+    #------
+#Pov
+
+    #To choose the global inital pov when the game start
+    def setInitialPovGlobal(self,nameOfPov):
+        print(self.gameSpaces)
+        for anElement in list(self.gameSpaces.values()) :
+            anElement.setInitialPov(nameOfPov)
+
+    #To choose the inital pov when the game start of a specific item
+    def setInitialPovOn(self,nameOfPov,anItem):
+        anItem.setInitialPov(nameOfPov)
+    
+    #To add a new POV
+    def setUpPovOn(self,aName,aDict,anItem,default=null):
+        if(isinstance(anItem,SGGrid)==True):
+            anItem.collectionOfCells.povs[aName]=aDict
+            for aCell in list(anItem.collectionOfCells.getCells().values()) :
+                if default ==null :
+                    aCell.attributs[aName]=list(aDict.keys())[0]
+                else:
+                    aCell.attributs[aName]=default
+                
+        
+    
+            
+    

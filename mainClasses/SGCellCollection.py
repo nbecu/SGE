@@ -12,6 +12,7 @@ import random
 #Class who is responsible of the declaration of cells
 class SGCellCollection():
     def __init__(self,parent,rows,columns,format,size,gap,startXBase,startYBase):
+        #Basic initialize
         self.parent=parent
         self.rows=rows
         self.columns=columns
@@ -21,18 +22,24 @@ class SGCellCollection():
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.cells={}
-        
+        #Initialize the different pov
+        self.nameOfPov="default"
+        self.povs={"default":Qt.gray}
+        #Initialize of the user interface
         self.initUI()
         
+    #Intialize all the cells who will be displayed
     def initUI(self):
         for i in range(self.rows):
             for j in range(self.columns):
-                aCell=SGCell(self.parent,i%self.rows,j%self.columns,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+                aCell=SGCell(self.parent,self,i%self.rows,j%self.columns,self.format,self.size,self.gap,self.startXBase,self.startYBase)
                 self.cells[aCell.getId()]=aCell
-        
+       
+    #To get all the cells of the collection 
     def getCells(self):
         return self.cells
     
+    #To get a cell in particular
     def getCell(self,aName):
         return self.cells[aName]
 
