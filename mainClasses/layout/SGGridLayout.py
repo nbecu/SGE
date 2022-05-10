@@ -25,7 +25,9 @@ class SGGridLayout():
     def addGameSpace(self,aGameSpace):
         self.count=self.count+1
         aListe = self.listOfGameSpace[((self.count-1)%self.y)]
+        aGameSpace.posYInLayout=((self.count-1)%self.y)
         if len(aListe)<self.x and self.foundInLayout(aGameSpace) is None:
+            aGameSpace.posXInLayout=len(aListe)
             aListe.append(aGameSpace)
         size=size=self.calculateSize(aGameSpace)
         return size
@@ -83,13 +85,31 @@ class SGGridLayout():
     
     #Re allocate the space of the model
     def reAllocateSpace(self):
-        """for i in range(self.count) :
-            self.listOfGameSpace[i].startYBase = self.calculateSize(self.listOfGameSpace[i])[1] +20*i +20"""
         for aList in self.listOfGameSpace :
             for anElement in aList :
                 size=self.calculateSize(anElement)
                 anElement.startXBase=size[0]
                 anElement.startYBase=size[1]
+    #To have the maximum value of the item displayed into the layout           
+    def getMax(self):
+        maxX=0
+        maxY=0
+        for aColumn in self.listOfGameSpace:
+            tempMaxY=0
+            for anElement in aColumn:
+                tempMaxY = tempMaxY+anElement.getSizeYGlobal()
+            if maxY<tempMaxY :
+                    maxY=tempMaxY
+                    
+        for i in range(self.x):
+            tempMaxX=0
+            for j in range(self.y):
+                if len(self.listOfGameSpace[j])>i :
+                    tempMaxX=tempMaxX+self.listOfGameSpace[j][i].getSizeXGlobal()
+            if maxX<tempMaxX:
+                maxX=tempMaxX
+            
+        return (maxX,maxY)
             
             
         

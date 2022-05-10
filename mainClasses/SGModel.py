@@ -160,26 +160,27 @@ class SGModel(QtWidgets.QMainWindow):
     def zoomPlusModel(self):
         for aGameSpace in self.gameSpaces:
             self.gameSpaces[aGameSpace].zoomIn()
-            self.applyPersonalLayout()
-        self.applyPersonalLayout()
+
             
     
     #Trigger the zoom out
     def zoomLessModel(self):
         for aGameSpace in self.gameSpaces:
             self.gameSpaces[aGameSpace].zoomOut()
-            self.applyPersonalLayout()
-        self.applyPersonalLayout()
     
     #Trigger the basic zoom
     def zoomFitModel(self):
+        print(self.layoutOfModel.getMax())
+        print(self.width())
+        print(self.height())
+        print("------")
         if self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height():
             while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
                 self.zoomLessModel()
                 self.applyPersonalLayout()
         else :
+            print(self.layoutOfModel.listOfGameSpace)
             while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
-                print()
                 self.zoomPlusModel()
                 self.applyPersonalLayout()
                 if self.layoutOfModel.getMax()[0]>(self.width()) and self.layoutOfModel.getMax()[1]>self.height():
@@ -187,6 +188,8 @@ class SGModel(QtWidgets.QMainWindow):
                     self.zoomLessModel()
                     self.applyPersonalLayout()
                     break
+
+
             
      
     #Extract the actual gameboard into png   

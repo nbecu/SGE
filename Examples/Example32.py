@@ -10,7 +10,7 @@ monApp=QtWidgets.QApplication([])
 #Example of zoomToFit
 
 
-myModel=SGModel(1080,960,"horizontal")
+myModel=SGModel(1080,960,"grid")
 
 theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
 
@@ -21,9 +21,6 @@ theFirstGrid=myModel.createGrid("3",15,10,"hexagonal")
 theFirstGrid=myModel.createGrid("4",15,10,"hexagonal")
 
 theFirstGrid=myModel.createGrid("5",15,10,"hexagonal")
-
-
-
 
 myModel.show() 
 
