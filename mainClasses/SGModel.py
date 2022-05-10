@@ -46,6 +46,8 @@ class SGModel(QtWidgets.QMainWindow):
             self.layoutOfModel=SGHorizontalLayout()
         else:
             self.layoutOfModel=SGGridLayout(x,y)
+            
+        self.numberOfZoom=2
         
         self.initUI()
     
@@ -158,6 +160,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the zoom in
     def zoomPlusModel(self):
+        self.numberOfZoom=self.numberOfZoom+1
         for aGameSpace in self.gameSpaces:
             self.gameSpaces[aGameSpace].zoomIn()
 
@@ -165,15 +168,13 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the zoom out
     def zoomLessModel(self):
-        for aGameSpace in self.gameSpaces:
-            self.gameSpaces[aGameSpace].zoomOut()
+        if self.numberOfZoom != 0 :
+            for aGameSpace in self.gameSpaces:
+                self.gameSpaces[aGameSpace].zoomOut()
+            self.numberOfZoom=self.numberOfZoom-1
     
     #Trigger the basic zoom
     def zoomFitModel(self):
-        print(self.layoutOfModel.getMax())
-        print(self.width())
-        print(self.height())
-        print("------")
         if self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height():
             while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
                 self.zoomLessModel()
