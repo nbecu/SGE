@@ -54,6 +54,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.selected=[None]
         #To keep in memory all the povs already displayed in the menue
         self.listOfPovsForMenu=[]
+        #Temporary variable for mini timeManager
+        self.listeOfActionForNextTurn=[]
         self.initUI()
     
     def initUI(self):
@@ -169,7 +171,10 @@ class SGModel(QtWidgets.QMainWindow):
     #Trigger the next turn
     def nextTurn(self):
         """To be implemented"""
-        return True
+        #TEMPORARY
+        for anAction in self.listeOfActionForNextTurn :
+            anAction(self)
+            
     
     #Trigger the zoom in
     def zoomPlusModel(self):
@@ -393,6 +398,9 @@ class SGModel(QtWidgets.QMainWindow):
             anAction.triggered.connect(lambda: self.setInitialPovGlobal(aName))
                 
         
-    
-            
+    #-----------------------------------------------------------        
+    def aTestForTimeManager(self):  
+        self.gameSpaces["basicGrid"].setForRandom("Basic","testDunNomLong",1)
+        self.update() 
+
     
