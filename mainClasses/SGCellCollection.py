@@ -5,7 +5,6 @@ from PyQt5.QtCore import *
 
 from SGCell import SGCell
 
-import random
 
 
    
@@ -38,7 +37,7 @@ class SGCellCollection():
     def getCells(self):
         return self.cells
     
-    #To get all the cells of the collection 
+    #To get all the povs of the collection 
     def getPovs(self):
         return self.povs
     

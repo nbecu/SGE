@@ -198,7 +198,6 @@ class SGModel(QtWidgets.QMainWindow):
                 self.zoomLessModel()
                 self.applyPersonalLayout()
         else :
-            print(self.layoutOfModel.listOfGameSpace)
             while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
                 self.zoomPlusModel()
                 self.applyPersonalLayout()
@@ -376,7 +375,6 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
-        print(nameOfPov)
         self.nameOfPov=nameOfPov
         self.update()
 

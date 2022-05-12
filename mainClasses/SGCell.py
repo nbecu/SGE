@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-
+from SGAgent import SGAgent
+from SGAgentCollection import SGAgentCollection
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
@@ -26,6 +27,19 @@ class SGCell(QtWidgets.QWidget):
         self.isDisplay=True
         #We init the dict of Attribute
         self.attributs={}
+        #We init the Collection for the futures Agents
+        self.collectionOfAgents=SGAgentCollection(self)
+        
+        #Temporary
+        if self.getId()=="cell00":
+            self.collectionOfAgents.addAgent(SGAgent(self,self.collectionOfAgents,"circleAgent",10,1))
+            self.collectionOfAgents.povs['Basic']={"12":Qt.white,"14":Qt.green}
+            for anAgent in list(self.collectionOfAgents.getAgents().values()) :
+                anAgent.attributs['Basic']=list({"12":Qt.white,"14":Qt.green}.keys())[0]
+
+            self.collectionOfAgents.povs['oui']={"22":Qt.black,"24":Qt.gray}
+            for anAgent in list(self.collectionOfAgents.getAgents().values()) :
+                anAgent.attributs['oui']=list({"22":Qt.black,"24":Qt.gray}.keys())[0]
         
         
 
@@ -34,7 +48,7 @@ class SGCell(QtWidgets.QWidget):
         
     def paintEvent(self,event):
         self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 
-        self.startY=startXBase=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
+        self.startY=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
