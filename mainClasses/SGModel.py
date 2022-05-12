@@ -48,11 +48,12 @@ class SGModel(QtWidgets.QMainWindow):
             self.layoutOfModel=SGHorizontalLayout()
         else:
             self.layoutOfModel=SGGridLayout(x,y)
-            
+        #To limit the number of zoom out of players
         self.numberOfZoom=2
-        
+        #To handle the selection of an item in a legend in a global way
         self.selected=[None]
-        
+        #To keep in memory all the povs already displayed in the menue
+        self.listOfPovsForMenu=[]
         self.initUI()
     
     def initUI(self):
@@ -96,8 +97,9 @@ class SGModel(QtWidgets.QMainWindow):
         inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"),"&inspectElement")
         """To be finished to be implementd"""
         
-        povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"),"&pov")
-        """To be finished to be implementd"""
+        self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"),"&pov")
+        
+
         
         graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"),"&graph")
         """To be finished to be implementd"""
@@ -109,6 +111,7 @@ class SGModel(QtWidgets.QMainWindow):
         extractMenu.addAction(self.extractPng)
         extractMenu.addAction(self.extractSvg)
         extractMenu.addAction(self.extractHtml)
+        
        
     
     #Create all the action related to the menu  
@@ -141,6 +144,10 @@ class SGModel(QtWidgets.QMainWindow):
         self.extractSvg.triggered.connect(self.extractSvgFromWidget)
         self.extractHtml = QAction(" &ToHtml", self)
         self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
+        
+        self.changeThePov= QAction(" &default", self)
+        self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
+        
         
          
     #Create the function for the action of the menu
@@ -364,7 +371,9 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
+        print(nameOfPov)
         self.nameOfPov=nameOfPov
+        self.update()
 
     
     #To add a new POV
@@ -376,6 +385,12 @@ class SGModel(QtWidgets.QMainWindow):
                     aCell.attributs[aName]=list(aDict.keys())[0]
                 else:
                     aCell.attributs[aName]=default
+        #Adding the Pov to the menue bar
+        if aName not in self.listOfPovsForMenu :
+            self.listOfPovsForMenu.append(aName)
+            anAction=QAction(" &"+aName, self)
+            self.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.setInitialPovGlobal(aName))
                 
         
     
