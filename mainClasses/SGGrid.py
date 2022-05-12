@@ -12,6 +12,7 @@ class SGGrid(SGGameSpace):
         super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1
+        self.parent=parent
         self.id=name
         self.rows=rows
         self.columns=columns
@@ -42,10 +43,10 @@ class SGGrid(SGGameSpace):
         #Base of the gameBoard
         if(self.format=="square"):
             #We redefine the minimum size of the widget
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+3, int(self.rows*self.size+(self.rows+1)*self.gap)+3)
             painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
         elif(self.format=="hexagonal"):
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),         int((self.rows+1)*(self.size/3)*2) +self.gap*2)
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2)+3,         int((self.rows+1)*(self.size/3)*2) +self.gap*2+3)
             painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),       int((self.rows+1)*(self.size/3)*2) +self.gap*2) 
         painter.end()
         
@@ -101,9 +102,12 @@ class SGGrid(SGGameSpace):
             return int((self.rows+1)*(self.size/3)*2) +self.gap*2
         
         
-    #To choose the inital pov
-    def setInitialPov(self,nameOfPov):
-        self.collectionOfCells.nameOfPov=nameOfPov
+    #To get all the values possible for legende
+    def getValuesForLegende(self):
+        return self.collectionOfCells.getPovs()
+        
+        
+        
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

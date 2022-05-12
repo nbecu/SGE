@@ -1,4 +1,5 @@
 from asyncio.windows_events import NULL
+from email.policy import default
 import sys 
 from pathlib import Path
 from sqlalchemy import null
@@ -7,6 +8,7 @@ from win32api import GetSystemMetrics
 sys.path.insert(0, str(Path(__file__).parent))
 from SGGrid import SGGrid
 from SGVoid import SGVoid
+from SGLegende import SGLegende
 
 from layout.SGGridLayout import SGGridLayout
 from layout.SGHorizontalLayout import SGHorizontalLayout
@@ -49,6 +51,8 @@ class SGModel(QtWidgets.QMainWindow):
             
         self.numberOfZoom=2
         
+        self.selected=[None]
+        
         self.initUI()
     
     def initUI(self):
@@ -60,6 +64,8 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition of the toolbar via a menue and the ac
         self.createAction()
         self.createMenue()
+        
+        self.nameOfPov="default"
         
         
     #Create the menu of the menue 
@@ -272,6 +278,51 @@ class SGModel(QtWidgets.QMainWindow):
         aVoid.move(aVoid.startXBase,aVoid.startYBase)
         return aVoid
     
+    
+    #To create a legende
+    def createLegendeAdmin(self):
+        #Creation
+        #On recup toute les valeurs de case
+        allElements={}
+        for anElement in self.gameSpaces :
+            dictOfElements=self.gameSpaces[anElement].getValuesForLegende()
+            if isinstance(self.gameSpaces[anElement],SGGrid):
+                allElements[anElement]=dictOfElements
+        
+        aLegende = SGLegende(self,"adminLegende",allElements)
+        self.gameSpaces["adminLegende"]=aLegende
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aLegende)
+        aLegende.startXBase=newPos[0]
+        aLegende.startYBase=newPos[1]
+        if(self.typeOfLayout=="vertical"):
+            aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
+        elif(self.typeOfLayout=="horizontal"):
+            aLegende.move(aLegende.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende),aLegende.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aLegende)
+            aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
+        return aLegende
+    
+    
+    #To create a legende
+    def createLegendeForPlayer(self,name,aListOfElement):
+        #Creation        
+        aLegende = SGLegende(self,"name",aListOfElement)
+        self.gameSpaces["name"]=aLegende
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aLegende)
+        aLegende.startXBase=newPos[0]
+        aLegende.startYBase=newPos[1]
+        if(self.typeOfLayout=="vertical"):
+            aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
+        elif(self.typeOfLayout=="horizontal"):
+            aLegende.move(aLegende.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende),aLegende.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aLegende)
+            aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
+        return aLegende
+    
     #---------
 #Layout
         
@@ -313,12 +364,8 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
-        for anElement in list(self.gameSpaces.values()) :
-            anElement.setInitialPov(nameOfPov)
+        self.nameOfPov=nameOfPov
 
-    #To choose the inital pov when the game start of a specific item
-    def setInitialPovOn(self,nameOfPov,anItem):
-        anItem.setInitialPov(nameOfPov)
     
     #To add a new POV
     def setUpPovOn(self,aName,aDict,anItem,default=null):

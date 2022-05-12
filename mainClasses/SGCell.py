@@ -23,6 +23,7 @@ class SGCell(QtWidgets.QWidget):
         #We place the default pos
         self.startXBase=startXBase
         self.startYBase=startYBase
+        self.isDisplay=True
         #We init the dict of Attribute
         self.attributs={}
         
@@ -37,10 +38,14 @@ class SGCell(QtWidgets.QWidget):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        if self.isDisplay==False:
+            painter.setPen(QPen(Qt.transparent,1));
+        else :
+            painter.setPen(QPen(Qt.black,1));
         #Base of the gameBoard
         if(self.format=="square"):
             painter.drawRect(0,0,self.size,self.size)
-            self.setMinimumSize(self.size,self.size)
+            self.setMinimumSize(self.size,self.size+1)
             self.move(self.startX,self.startY)
         elif(self.format=="hexagonal"):
             self.setMinimumSize(self.size,self.size)
@@ -81,10 +86,28 @@ class SGCell(QtWidgets.QWidget):
         
     #To manage the attribute system of a cell
     def getColor(self):
-        if self.theCollection.nameOfPov=="default" :
+        if self.isDisplay==False:
+            return Qt.transparent
+        if self.parent.parent.nameOfPov=="default" :
             return self.theCollection.povs["default"]
         else :
-            return self.theCollection.povs[self.theCollection.nameOfPov][self.attributs[self.theCollection.nameOfPov]]
+            return self.theCollection.povs[self.parent.parent.nameOfPov][self.attributs[self.parent.parent.nameOfPov]]
+        
+    #To handle the selection of an element int the legend
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.LeftButton:
+            #Something is selected
+            if self.parent.parent.selected[0]!=None :
+                #The delete Action
+                if self.parent.parent.selected[2]== "delete":
+                    self.parent.collectionOfCells.removeVisiblityCell(self.getId())
+                    self.update()
+                #The Replace cell and change value Action
+                elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
+                    self.isDisplay=True
+                    self.attributs[self.parent.parent.nameOfPov]=self.parent.parent.selected[2]
+                    self.update()
+        self.parent.parent.update()
     
     
     

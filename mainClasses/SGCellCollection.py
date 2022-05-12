@@ -23,7 +23,6 @@ class SGCellCollection():
         self.startYBase=startYBase
         self.cells={}
         #Initialize the different pov
-        self.nameOfPov="default"
         self.povs={"default":Qt.gray}
         #Initialize of the user interface
         self.initUI()
@@ -39,9 +38,19 @@ class SGCellCollection():
     def getCells(self):
         return self.cells
     
+    #To get all the cells of the collection 
+    def getPovs(self):
+        return self.povs
+    
     #To get a cell in particular
     def getCell(self,aName):
         return self.cells[aName]
+    
+    #To remove a cell in particular
+    def removeVisiblityCell(self,aName):
+        self.getCell(aName).isDisplay=False
+        self.parent.update()
+    
 
         
     

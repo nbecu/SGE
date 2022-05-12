@@ -18,6 +18,7 @@ theFirstGrid.setColor(Qt.blue)
 theSecondGrid=myModel.createGrid("Grid2",8,1)
 
 
+
 theFirstGrid.setInPosition(2,1)
 
 theSecondGrid.setInPosition(1,1)
