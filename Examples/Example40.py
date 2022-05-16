@@ -24,6 +24,9 @@ myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},theFi
 theFirstGrid.setForRandom("Forester",{"Forest":"Niv3"},30)
 myModel.setInitialPovGlobal("Forester")
 
+
+theFirstLegende=myModel.createLegendeAdmin()
+
 """
 theFirstLegende=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Basic":{"1":Qt.green}}})
 

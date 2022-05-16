@@ -26,12 +26,14 @@ class SGLegende(SGGameSpace):
             self.legendItemList[aKeyOfGamespace]=[]
             if self.parent.nameOfPov != "default":
                 for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
-                    y=y+1
                     if aKeyOfGamespace=="deleteButton":
+                        y=y+1
                         self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,"square",y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]))
-                    else:  
-                        self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]))
-        
+                    else: 
+                        for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
+                            y=y+1
+                            self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue]))
+    
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         if self.haveADeleteButton :
