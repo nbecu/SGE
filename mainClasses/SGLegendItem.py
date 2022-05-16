@@ -2,16 +2,18 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from sqlalchemy import null
 
 
    
 #Class who is responsible of the declaration a cell
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,texte="",color=Qt.black):
+    def __init__(self,parent,type,y,texte="",color=Qt.black,nameOfAttribut=None):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
         self.type=type
+        self.nameOfAttribut=nameOfAttribut
         self.texte=texte
         self.y=y
         self.color=color
@@ -75,6 +77,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 selectedItem=[self]
                 selectedItem.append(self.type)
                 selectedItem.append(self.texte)
+                selectedItem.append(self.nameOfAttribut)
                 self.parent.parent.selected=selectedItem
                 self.parent.update()
         self.update()

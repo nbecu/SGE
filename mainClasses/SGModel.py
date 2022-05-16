@@ -303,12 +303,17 @@ class SGModel(QtWidgets.QMainWindow):
         #Creation
         #We harvest all the case value
         allElements={}
+        listOfGrid=[]
         for anElement in self.gameSpaces :
             dictOfElements=self.gameSpaces[anElement].getValuesForLegende()
             if isinstance(self.gameSpaces[anElement],SGGrid):
+                listOfGrid.append(self.gameSpaces[anElement])
                 allElements[anElement]=dictOfElements
         
         aLegende = SGLegende(self,"adminLegende",allElements)
+        for aGrid in listOfGrid :
+            for anAgent in aGrid.collectionOfAcceptAgent :
+                aLegende.addAgentToTheLegend(anAgent)
         self.gameSpaces["adminLegende"]=aLegende
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegende)

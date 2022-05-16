@@ -1,3 +1,4 @@
+from tkinter.ttk import Separator
 from PyQt5 import QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
@@ -113,8 +114,17 @@ class SGCell(QtWidgets.QWidget):
                     self.update()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
+                    print("--------")
+                    print(self.attributs)
+                    
                     self.isDisplay=True
-                    self.attributs[self.parent.parent.nameOfPov]=self.parent.parent.selected[2]
+                    txt = self.parent.parent.selected[2]
+                    separator=str(self.parent.parent.selected[3])+" "
+                    value = txt.split(separator)
+                    self.attributs[self.parent.parent.nameOfPov]={}
+                    self.attributs[self.parent.parent.nameOfPov][self.parent.parent.selected[3]]={}
+                    self.attributs[self.parent.parent.nameOfPov][self.parent.parent.selected[3]]=value[1]
+                    print(self.attributs)
                     self.update()
         self.parent.parent.update()
     

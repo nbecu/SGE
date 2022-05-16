@@ -37,7 +37,7 @@ class SGLegende(SGGameSpace):
                     else: 
                         for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
                             self.y=self.y+1
-                            self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue]))
+                            self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],element))
             elif aKeyOfGamespace=="agents":
                 for anAgentName in self.elementsPov[aKeyOfGamespace]:
                     for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
