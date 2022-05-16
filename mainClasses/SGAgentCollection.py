@@ -8,7 +8,7 @@ class SGAgentCollection():
     def __init__(self,parent):
         #Basic initialize
         self.parent=parent
-        self.agents={}
+        self.agents=[]
         #Initialize the different pov
         self.povs={"default":Qt.black}
         
@@ -27,7 +27,7 @@ class SGAgentCollection():
     
     #To add an Agent 
     def addAgent(self,anAgent):
-        self.agents[anAgent.getId()]=anAgent
+        self.agents.append(anAgent)
     
     #To remove an Agent in particular
     def removeAgent(self,aName):

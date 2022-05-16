@@ -5,6 +5,9 @@ from PyQt5.QtCore import *
 
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
+from SGAgent import SGAgent
+
+import copy
 
 #Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
@@ -33,6 +36,7 @@ class SGGrid(SGGameSpace):
     def initUI(self): 
         #Init the cellCollection
         self.collectionOfCells=SGCellCollection(self,self.columns,self.rows,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+        self.collectionOfAcceptAgent={}
         
         
     #Drawing the game board with the cell
@@ -106,7 +110,15 @@ class SGGrid(SGGameSpace):
     def getValuesForLegende(self):
         return self.collectionOfCells.getPovs()
         
-        
+    #Agent function 
+    #To get all agents on the grid of a particular type
+    def getAgentsOfType(self,aType):
+        theList=[]
+        for aCell in  self.collectionOfCells.cells:
+            for anAgent in self.collectionOfCells.getCell(aCell).getAgentsOfType(aType):
+                theList.append(anAgent)
+        return theList
+                
         
     
 #-----------------------------------------------------------------------------------------
@@ -124,17 +136,17 @@ class SGGrid(SGGameSpace):
             
     #To apply to a specific cell a value  
     def setForXandY(self,nameOfPov,nameOfValue,aValueX,aValueY):
-        self.collectionOfCells.getCell("cell"+str(aValueX-1)+str(aValueY-1)).attributs[nameOfPov]=nameOfValue
+        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[nameOfPov]=nameOfValue
     
     #To apply to a all row of cell a value
     def setForX(self,nameOfPov,nameOfValue,aValueX):
         for y in range(self.rows):
-            self.collectionOfCells.getCell("cell"+str(aValueX-1)+str(y)).attributs[nameOfPov]=nameOfValue
+            self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[nameOfPov]=nameOfValue
     
     #To apply to a all column of cell a value
     def setForY(self,nameOfPov,nameOfValue,aValueY):
         for x in range(self.columns):
-            self.collectionOfCells.getCell("cell"+str(x)+str(aValueY)).attributs[nameOfPov]=nameOfValue
+            self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY)).attributs[nameOfPov]=nameOfValue
     
     #To apply to some random cell a value
     def setForRandom(self,nameOfPov,nameOfValue,numberOfRandom):
@@ -144,7 +156,17 @@ class SGGrid(SGGameSpace):
             aValueY=random.randint(0, self.rows-1)
             if (aValueX,aValueY) not in alreadyDone:
                 alreadyDone.append((aValueX,aValueY))
-                self.collectionOfCells.getCell("cell"+str(aValueX)+str(aValueY)).attributs[nameOfPov]=nameOfValue
+                self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[nameOfPov]=nameOfValue
+                
+#To handle the placing of agents
+    #To apply to a specific cell a value  
+    def addOnXandY(self,anAgentName,aValueX,aValueY):
+        anAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
+        anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
+        anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs
+        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).collectionOfAgents.addAgent(anAgent)
+        self.update()
+    
   
             
     

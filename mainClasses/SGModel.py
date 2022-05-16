@@ -1,9 +1,12 @@
 from asyncio.windows_events import NULL
 from email.policy import default
 import sys 
+import copy
 from pathlib import Path
 from sqlalchemy import null
 from win32api import GetSystemMetrics
+
+from mainClasses.SGAgent import SGAgent
 
 sys.path.insert(0, str(Path(__file__).parent))
 from SGGrid import SGGrid
@@ -181,6 +184,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.numberOfZoom=self.numberOfZoom+1
         for aGameSpace in self.gameSpaces:
             self.gameSpaces[aGameSpace].zoomIn()
+        self.update()
+
 
             
     
@@ -190,6 +195,8 @@ class SGModel(QtWidgets.QMainWindow):
             for aGameSpace in self.gameSpaces:
                 self.gameSpaces[aGameSpace].zoomOut()
             self.numberOfZoom=self.numberOfZoom-1
+        self.update()
+
     
     #Trigger the basic zoom
     def zoomFitModel(self):
@@ -206,6 +213,7 @@ class SGModel(QtWidgets.QMainWindow):
                     self.zoomLessModel()
                     self.applyPersonalLayout()
                     break
+        self.update()
 
 
             
@@ -334,6 +342,12 @@ class SGModel(QtWidgets.QMainWindow):
             aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
         return aLegende
     
+            
+    #To create a New kind of agents
+    def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrid,size=10):
+        for aGrid in listOfAcceptGrid:
+            self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=SGAgent(None,anAgentName,anAgentFormat,size)
+    
     #---------
 #Layout
         
@@ -353,22 +367,9 @@ class SGModel(QtWidgets.QMainWindow):
                 pos=self.layoutOfModel.foundInLayout(self.gameSpaces[anElement])
                 self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*pos[0],self.gameSpaces[anElement].startYBase+20*pos[1])
         
+
+            
         
-    #To set a different layout
-    def setLayoutForModel(self,typeOfLayout):
-        if(typeOfLayout=="vertical"):
-            self.typeOfLayout=typeOfLayout
-            self.layoutOfModel=SGVerticalLayout()
-            for anElement in self.gameSpaces :
-                self.layoutOfModel.addGameSpace(self.gameSpaces[anElement])
-        elif(typeOfLayout=="horizontal"):
-            self.typeOfLayout=typeOfLayout
-            self.layoutOfModel=SGHorizontalLayout()
-            for anElement in self.gameSpaces :
-                self.layoutOfModel.addGameSpace(self.gameSpaces[anElement])    
-        else:
-            self.typeOfLayout="grid"
-            self.layoutOfModel=SGGridLayout()
             
     #------
 #Pov
@@ -380,20 +381,43 @@ class SGModel(QtWidgets.QMainWindow):
 
     
     #To add a new POV
-    def setUpPovOn(self,aName,aDict,anItem,default=null):
+    def setUpPovOn(self,aNameOfPov,aDict,anItem,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
         if(isinstance(anItem,SGGrid)==True):
-            anItem.collectionOfCells.povs[aName]=aDict
+            anItem.collectionOfCells.povs[aNameOfPov]=aDict
             for aCell in list(anItem.collectionOfCells.getCells().values()) :
-                if default ==null :
-                    aCell.attributs[aName]=list(aDict.keys())[0]
-                else:
-                    aCell.attributs[aName]=default
+                if defaultAttributForPov ==null :
+                    for anAttributeIndex in range(len(list(aDict.keys()))) :
+                        if aNameOfPov not in aCell.attributs.keys() :
+                            aCell.attributs[aNameOfPov]={}
+                            aCell.attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}
+
+                        
+                     
+                elif defaultAttributForPov and DefaultValueAttribut is null:
+                    for anAttributeIndex in range(len(list(aDict.keys()))) :
+                        if aNameOfPov not in aCell.attributs.keys() :
+                            aCell.attributs[aNameOfPov]={}
+                            aCell.attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
+                else :
+                    for anAttributeIndex in range(len(list(aDict.keys()))) :
+                        if aNameOfPov not in aCell.attributs.keys() :
+                            aCell.attributs[aNameOfPov]={}
+                            aCell.attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
+        elif(isinstance(anItem,str)==True):
+            for aGrid in listOfGridToApply:
+                for anAgent in aGrid.collectionOfAcceptAgent :
+                    if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
+                        aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
+                        if default ==null :
+                            aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]=list(aDict.keys())[0]
+                        else:
+                            aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]=default
         #Adding the Pov to the menue bar
-        if aName not in self.listOfPovsForMenu :
-            self.listOfPovsForMenu.append(aName)
-            anAction=QAction(" &"+aName, self)
+        if aNameOfPov not in self.listOfPovsForMenu :
+            self.listOfPovsForMenu.append(aNameOfPov)
+            anAction=QAction(" &"+aNameOfPov, self)
             self.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.setInitialPovGlobal(aName))
+            anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
                 
         
     #-----------------------------------------------------------        

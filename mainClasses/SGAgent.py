@@ -3,16 +3,21 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+from mainClasses.SGAgentCollection import SGAgentCollection
+
 
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(QtWidgets.QWidget):
-    def __init__(self,parent,theCollection,format,size,number):
+    def __init__(self,parent,name,format,size):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
-        self.theCollection=theCollection
-        self.number=number
+        if(parent!=None):
+            self.theCollection=parent.collectionOfAgents
+        else:
+            self.theCollection=SGAgentCollection(None)
+        self.name=name
         self.format=format
         self.size=size
         #We place the default pos
@@ -27,19 +32,20 @@ class SGAgent(QtWidgets.QWidget):
         
         
     def paintEvent(self,event):
-        self.startX=int(self.startXBase+self.parent.gap*(self.parent.x)+self.parent.size*(self.parent.x)+self.parent.gap) 
-        self.startY=int(self.startYBase+self.parent.gap*(self.parent.y)+self.parent.size*(self.parent.y)+self.parent.gap)
         painter = QPainter() 
         painter.begin(self)
-        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
         if(self.format=="circleAgent"):
-            self.setMinimumSize(self.size+2,self.size+2)
-            painter.drawEllipse(self.startX, self.startY, self.size, self.size)
-            self.move(10,10)
+            self.setMinimumSize(self.size+1,self.size+1)
+            painter.drawEllipse(0,0,self.size,self.size)
+        if self.parent.format=="square":
+            self.move(4,4)
+        else :
+            self.move(8,8)
         painter.end()
-        
+    
     def getId(self):
-        return "agent"+str(self.number)
+        return "agent"+str(self.name)
     
 
     #Funtion to handle the zoom
@@ -61,12 +67,12 @@ class SGAgent(QtWidgets.QWidget):
             return self.theCollection.povs["default"]
         else :
             return self.theCollection.povs[self.parent.parent.parent.nameOfPov][self.attributs[self.parent.parent.parent.nameOfPov]]
-        
+    
+    #Set parent
+    def setParent(self,parent):
+        self.parent=parent
+        self.theCollection=parent.collectionOfAgents
 
-    
-    
-    
-        
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
     

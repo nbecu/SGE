@@ -24,23 +24,14 @@ class SGCell(QtWidgets.QWidget):
         #We place the default pos
         self.startXBase=startXBase
         self.startYBase=startYBase
+        self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 
+        self.startY=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
         self.isDisplay=True
         #We init the dict of Attribute
         self.attributs={}
         #We init the Collection for the futures Agents
         self.collectionOfAgents=SGAgentCollection(self)
-        
-        #Temporary
-        if self.getId()=="cell00":
-            self.collectionOfAgents.addAgent(SGAgent(self,self.collectionOfAgents,"circleAgent",10,1))
-            self.collectionOfAgents.povs['Basic']={"12":Qt.white,"14":Qt.green}
-            for anAgent in list(self.collectionOfAgents.getAgents().values()) :
-                anAgent.attributs['Basic']=list({"12":Qt.white,"14":Qt.green}.keys())[0]
 
-            self.collectionOfAgents.povs['oui']={"22":Qt.black,"24":Qt.gray}
-            for anAgent in list(self.collectionOfAgents.getAgents().values()) :
-                anAgent.attributs['oui']=list({"22":Qt.black,"24":Qt.gray}.keys())[0]
-        
         
 
         
@@ -79,7 +70,7 @@ class SGCell(QtWidgets.QWidget):
         painter.end()
         
     def getId(self):
-        return "cell"+str(self.x)+str(self.y)
+        return "cell"+str(self.x)+"-"+str(self.y)
     
 
     #Funtion to handle the zoom
@@ -105,8 +96,12 @@ class SGCell(QtWidgets.QWidget):
         if self.parent.parent.nameOfPov=="default" :
             return self.theCollection.povs["default"]
         else :
-            return self.theCollection.povs[self.parent.parent.nameOfPov][self.attributs[self.parent.parent.nameOfPov]]
-        
+            return self.theCollection.povs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]][self.attributs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]]]
+       
+    #To get the pov
+    def getPov(self):
+        return self.parent.parent.nameOfPov
+         
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
@@ -123,6 +118,16 @@ class SGCell(QtWidgets.QWidget):
                     self.update()
         self.parent.parent.update()
     
+    
+        #Agent function 
+    #To get all agents on the grid of a particular type
+    def getAgentsOfType(self,aNameOfAgent):
+        theList=[]
+        for anAgentName in self.collectionOfAgents.agents :
+            if self.collectionOfAgents.agents[anAgentName].name==aNameOfAgent:
+                theList.append(self.collectionOfAgents.agents[anAgentName])
+        return theList
+            
     
     
         
