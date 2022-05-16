@@ -15,12 +15,13 @@ myModel=SGModel(1080,960,"grid")
 theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal")
 
 
-theFirstGrid.setColor(Qt.green)
+theFirstGrid.setColor(Qt.gray)
 
 myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},theFirstGrid,"sea","reasonable")
 
 myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},theFirstGrid)
 
+theFirstGrid.setForRandom("Forester",{"Forest":"Niv3"},30)
 myModel.setInitialPovGlobal("Forester")
 
 """

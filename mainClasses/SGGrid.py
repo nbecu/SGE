@@ -130,33 +130,33 @@ class SGGrid(SGGameSpace):
     
 #To handle POV and placing on cell
     #To define a value for all cells
-    def setValueForCells(self,nameOfPov,aValue):
+    def setValueForCells(self,nameOfPov,aDictWithValue):
         for aCell in self.collectionOfCells.getCells():
-            aCell.attributs[nameOfPov]=aValue
+            aCell.attributs[nameOfPov]=aDictWithValue
             
     #To apply to a specific cell a value  
-    def setForXandY(self,nameOfPov,nameOfValue,aValueX,aValueY):
-        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[nameOfPov]=nameOfValue
+    def setForXandY(self,nameOfPov,aDictWithValue,aValueX,aValueY):
+        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[nameOfPov]=aDictWithValue
     
     #To apply to a all row of cell a value
-    def setForX(self,nameOfPov,nameOfValue,aValueX):
+    def setForX(self,nameOfPov,aDictWithValue,aValueX):
         for y in range(self.rows):
-            self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[nameOfPov]=nameOfValue
+            self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[nameOfPov]=aDictWithValue
     
     #To apply to a all column of cell a value
-    def setForY(self,nameOfPov,nameOfValue,aValueY):
+    def setForY(self,nameOfPov,aDictWithValue,aValueY):
         for x in range(self.columns):
-            self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY)).attributs[nameOfPov]=nameOfValue
+            self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY)).attributs[nameOfPov]=aDictWithValue
     
     #To apply to some random cell a value
-    def setForRandom(self,nameOfPov,nameOfValue,numberOfRandom):
+    def setForRandom(self,nameOfPov,aDictWithValue,numberOfRandom):
         alreadyDone=list()
         while len(alreadyDone)!=numberOfRandom:
             aValueX=random.randint(0, self.columns-1)
             aValueY=random.randint(0, self.rows-1)
             if (aValueX,aValueY) not in alreadyDone:
                 alreadyDone.append((aValueX,aValueY))
-                self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[nameOfPov]=nameOfValue
+                self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[nameOfPov]=aDictWithValue
                 
 #To handle the placing of agents
     #To apply to a specific cell a value  
