@@ -22,8 +22,12 @@ class SGLegendItem(QtWidgets.QWidget):
         painter.setBrush(QBrush(self.color, Qt.SolidPattern))
         if self.parent.parent.selected[0] == self :
             painter.setPen(QPen(Qt.red,2));
+            #Square cell
         if(self.type=="square") :   
             painter.drawRect(10, 0, 20, 20)
+        elif self.type=="circleAgent":
+            painter.drawEllipse(10, 0, 20, 20)
+        #Hexagonal square
         else:
             points = QPolygon([
                QPoint(20,  0),

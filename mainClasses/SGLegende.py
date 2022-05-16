@@ -1,11 +1,12 @@
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import true
+from sqlalchemy import null, true
 
 from SGGameSpace import SGGameSpace
 from SGLegendItem import SGLegendItem
 from mainClasses.SGCell import SGCell
+from SGGrid import SGGrid
 
 #Class who is responsible of the grid creation
 class SGLegende(SGGameSpace):
@@ -17,22 +18,33 @@ class SGLegende(SGGameSpace):
         self.legendItemList={}
         self.borderColor=borderColor
         self.haveADeleteButton=False
+        self.y=0
         self.initUI()
 
         
     def initUI(self):
-        y=0
+        self.y=0
         for aKeyOfGamespace in self.elementsPov :
             self.legendItemList[aKeyOfGamespace]=[]
-            if self.parent.nameOfPov != "default":
+            """print("--------------------")
+            print(self.id)
+            print(self.elementsPov)"""
+            if self.parent.nameOfPov != "default" and aKeyOfGamespace!="agents" :
                 for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
                     if aKeyOfGamespace=="deleteButton":
-                        y=y+1
-                        self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,"square",y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]))
+                        self.y=self.y+1
+                        self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]))
                     else: 
                         for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
-                            y=y+1
-                            self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue]))
+                            self.y=self.y+1
+                            self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue]))
+            elif aKeyOfGamespace=="agents":
+                for anAgentName in self.elementsPov[aKeyOfGamespace]:
+                    for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
+                        self.y=self.y+1
+                        anAgent=self.getFromWich(anAgentName)
+                        self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue]))
+     
     
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
@@ -92,6 +104,14 @@ class SGLegende(SGGameSpace):
         painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())        
         painter.end()
         
+    #Get from wich grid an Agent is from to create the legend
+    def getFromWich(self,anAgentName):
+        for aGameSpace in self.parent.gameSpaces :
+            if isinstance(self.parent.gameSpaces[aGameSpace],SGGrid) == True :
+                aResult = self.parent.gameSpaces[aGameSpace].getAgentOfTypeForLegend(anAgentName)
+                if aResult != null:
+                    return aResult
+        
     
     
         
@@ -108,6 +128,19 @@ class SGLegende(SGGameSpace):
                     for value in aListOfElement[aGameSpaceId][aPov][element]:
                         self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
         self.initUI()
+        
+#Adding agent to the legend
+    def addAgentToTheLegend(self,agentName):
+        if "agents" not in list(self.elementsPov.keys()) :
+            self.elementsPov["agents"]={}
+        if agentName not in self.elementsPov["agents"]:
+            if agentName not in list(self.elementsPov["agents"].keys()) :
+                self.elementsPov["agents"][agentName]={}
+            anAgentPovs=self.getFromWich(agentName).theCollection.povs
+            for aPov in anAgentPovs :
+                self.elementsPov["agents"][agentName][aPov]=anAgentPovs[aPov]
+        self.initUI()
+        
         
 #Adding the delete Button
     def addDeleteButton(self):

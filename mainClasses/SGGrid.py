@@ -2,6 +2,7 @@ import random
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from sqlalchemy import null, true
 
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
@@ -118,6 +119,13 @@ class SGGrid(SGGameSpace):
             for anAgent in self.collectionOfCells.getCell(aCell).getAgentsOfType(aType):
                 theList.append(anAgent)
         return theList
+    
+    #To get an agents on the grid of a particular type (use for the legendOnly)
+    def getAgentOfTypeForLegend(self,aType):
+        for anAgent in self.collectionOfAcceptAgent :
+            if anAgent ==aType:
+                return self.collectionOfAcceptAgent[anAgent]
+        return null
                 
         
     
