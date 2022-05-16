@@ -3,7 +3,7 @@ from email.policy import default
 import sys 
 import copy
 from pathlib import Path
-from sqlalchemy import null
+from sqlalchemy import false, null
 from win32api import GetSystemMetrics
 
 from mainClasses.SGAgent import SGAgent
@@ -301,7 +301,7 @@ class SGModel(QtWidgets.QMainWindow):
     #To create a legende
     def createLegendeAdmin(self):
         #Creation
-        #On recup toute les valeurs de case
+        #We harvest all the case value
         allElements={}
         for anElement in self.gameSpaces :
             dictOfElements=self.gameSpaces[anElement].getValuesForLegende()
@@ -381,52 +381,54 @@ class SGModel(QtWidgets.QMainWindow):
 
     
     #To add a new POV
-    def setUpPovOn(self,aNameOfPov,aDict,anItem,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
-        
-        if(isinstance(anItem,SGGrid)==True):
-            anItem.collectionOfCells.povs[aNameOfPov]=aDict
-            for aCell in list(anItem.collectionOfCells.getCells().values()) :
-                if defaultAttributForPov ==null :
-                    for anAttributeIndex in range(len(list(aDict.keys()))) :
-                        if aNameOfPov not in aCell.attributs.keys() :
-                            aCell.attributs[aNameOfPov]={}
-                            aCell.attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}                     
-                elif defaultAttributForPov and DefaultValueAttribut is null:
-                    for anAttributeIndex in range(len(list(aDict.keys()))) :
-                        if aNameOfPov not in aCell.attributs.keys() :
-                            aCell.attributs[aNameOfPov]={}
-                            aCell.attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
-                else :
-                    for anAttributeIndex in range(len(list(aDict.keys()))) :
-                        if aNameOfPov not in aCell.attributs.keys() :
-                            aCell.attributs[aNameOfPov]={}
-                            aCell.attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
-        elif(isinstance(anItem,str)==True):
-            for aGrid in listOfGridToApply:
-                for anAgent in aGrid.collectionOfAcceptAgent :
-                    if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-                        aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
-                        if defaultAttributForPov ==null :
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}                     
-                        elif defaultAttributForPov and DefaultValueAttribut is null:
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
-                        else :
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
-        #Adding the Pov to the menue bar
-        if aNameOfPov not in self.listOfPovsForMenu :
-            self.listOfPovsForMenu.append(aNameOfPov)
-            anAction=QAction(" &"+aNameOfPov, self)
-            self.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
+    def setUpPovOn(self,aNameOfPov,aDict,items,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
+        if not isinstance(items,list):
+            items=[items]
+        for anItem in items :
+            if(isinstance(anItem,SGGrid)==True):
+                anItem.collectionOfCells.povs[aNameOfPov]=aDict
+                for aCell in list(anItem.collectionOfCells.getCells().values()) :
+                    if defaultAttributForPov ==null :
+                        for anAttributeIndex in range(len(list(aDict.keys()))) :
+                            if aNameOfPov not in aCell.attributs.keys() :
+                                aCell.attributs[aNameOfPov]={}
+                                aCell.attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}                     
+                    elif defaultAttributForPov and DefaultValueAttribut is null:
+                        for anAttributeIndex in range(len(list(aDict.keys()))) :
+                            if aNameOfPov not in aCell.attributs.keys() :
+                                aCell.attributs[aNameOfPov]={}
+                                aCell.attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
+                    else :
+                        for anAttributeIndex in range(len(list(aDict.keys()))) :
+                            if aNameOfPov not in aCell.attributs.keys() :
+                                aCell.attributs[aNameOfPov]={}
+                                aCell.attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
+            elif(isinstance(anItem,str)==True):
+                for aGrid in listOfGridToApply:
+                    for anAgent in aGrid.collectionOfAcceptAgent :
+                        if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
+                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
+                            if defaultAttributForPov ==null :
+                                for anAttributeIndex in range(len(list(aDict.keys()))) :
+                                    if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
+                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
+                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}                     
+                            elif defaultAttributForPov and DefaultValueAttribut is null:
+                                for anAttributeIndex in range(len(list(aDict.keys()))) :
+                                    if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
+                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
+                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
+                            else :
+                                for anAttributeIndex in range(len(list(aDict.keys()))) :
+                                    if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
+                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
+                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
+            #Adding the Pov to the menue bar
+            if aNameOfPov not in self.listOfPovsForMenu :
+                self.listOfPovsForMenu.append(aNameOfPov)
+                anAction=QAction(" &"+aNameOfPov, self)
+                self.povMenu.addAction(anAction)
+                anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
                 
         
     #-----------------------------------------------------------        

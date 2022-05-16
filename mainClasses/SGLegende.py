@@ -101,6 +101,7 @@ class SGLegende(SGGameSpace):
 
 #To add Povs in a legend
     def addToTheLegende(self,aListOfElement):
+        #For the grid value
         for aGameSpaceId in aListOfElement:
             for aPov in aListOfElement[aGameSpaceId]:
                 for element in aListOfElement[aGameSpaceId][aPov] :
