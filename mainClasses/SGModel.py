@@ -309,6 +309,7 @@ class SGModel(QtWidgets.QMainWindow):
                 allElements[anElement]=dictOfElements
         
         aLegende = SGLegende(self,"adminLegende",allElements)
+        print(allElements)
         self.gameSpaces["adminLegende"]=aLegende
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegende)
@@ -326,9 +327,10 @@ class SGModel(QtWidgets.QMainWindow):
     
     #To create a legende
     def createLegendeForPlayer(self,name,aListOfElement):
-        #Creation        
-        aLegende = SGLegende(self,"name",aListOfElement)
-        self.gameSpaces["name"]=aLegende
+        #Creation 
+        print(aListOfElement)       
+        aLegende = SGLegende(self,name,aListOfElement)
+        self.gameSpaces[name]=aLegende
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegende)
         aLegende.startXBase=newPos[0]

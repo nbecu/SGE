@@ -101,19 +101,14 @@ class SGLegende(SGGameSpace):
 
 #To add Povs in a legend
     def addToTheLegende(self,aListOfElement):
-        """for aGameSpace in aListOfElement:
-            if aGameSpace in self.elementsPov:
-                for aPov in aListOfElement:
-                    if aPov in self.elementsPov[aGameSpace]:
-                        for aValue in aListOfElement[aGameSpace][aPov] :
-                            if aValue in self.legendItemList[aGameSpace][aPov]:
-                                self.elementPov
-                    else:
-                else:"""
         for aGameSpaceId in aListOfElement:
             for aPov in aListOfElement[aGameSpaceId]:
-                for values in aListOfElement[aGameSpaceId][aPov] :
-                    self.elementsPov[aGameSpaceId][aPov][values]=aListOfElement[aGameSpaceId][aPov][values]
+                for element in aListOfElement[aGameSpaceId][aPov] :
+                    for value in aListOfElement[aGameSpaceId][aPov][element]:
+                        print(element)
+                        print(value)
+                        self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
+        print(self.elementsPov)
         self.initUI()
         
 #Adding the delete Button

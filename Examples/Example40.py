@@ -26,13 +26,17 @@ myModel.setInitialPovGlobal("Forester")
 
 
 theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegende.addDeleteButton()
 
-"""
-theFirstLegende=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Basic":{"1":Qt.green}}})
 
-theFirstLegende.addToTheLegende({"basicGrid":{"Basic":{"testDunNomLong":Qt.red}}})
 
-theFirstLegende.addDeleteButton()"""
+theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
+
+theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
+
+theSecondLegend.addDeleteButton()
+
+
 """
 myModel.newAgent("circleTest","circleAgent",[theFirstGrid])
 
