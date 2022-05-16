@@ -105,10 +105,7 @@ class SGLegende(SGGameSpace):
             for aPov in aListOfElement[aGameSpaceId]:
                 for element in aListOfElement[aGameSpaceId][aPov] :
                     for value in aListOfElement[aGameSpaceId][aPov][element]:
-                        print(element)
-                        print(value)
                         self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
-        print(self.elementsPov)
         self.initUI()
         
 #Adding the delete Button

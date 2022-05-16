@@ -37,10 +37,10 @@ theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.re
 theSecondLegend.addDeleteButton()
 
 
-"""
+
 myModel.newAgent("circleTest","circleAgent",[theFirstGrid])
 
-myModel.setUpPovOn("Basic",{"1":Qt.red,"testDunNomLong":Qt.red},"circleTest","1",[theFirstGrid])
+myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"circleTest","sea","reasonable",[theFirstGrid])
 
 
 theFirstGrid.addOnXandY("circleTest",1,1)
@@ -50,7 +50,7 @@ theFirstGrid.addOnXandY("circleTest",4,2)
 theFirstGrid.addOnXandY("circleTest",10,9)
 theFirstGrid.addOnXandY("circleTest",1,8)
 
-"""
+
 
 
 myModel.show() 

@@ -34,7 +34,7 @@ class SGAgent(QtWidgets.QWidget):
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
-        painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
+        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         if(self.format=="circleAgent"):
             self.setMinimumSize(self.size+1,self.size+1)
             painter.drawEllipse(0,0,self.size,self.size)
@@ -66,7 +66,12 @@ class SGAgent(QtWidgets.QWidget):
         if self.parent.parent.parent.nameOfPov=="default" :
             return self.theCollection.povs["default"]
         else :
-            return self.theCollection.povs[self.parent.parent.parent.nameOfPov][self.attributs[self.parent.parent.parent.nameOfPov]]
+            return self.theCollection.povs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]][self.attributs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]]]
+
+           
+    #To get the pov
+    def getPov(self):
+        return self.parent.parent.parent.nameOfPov
     
     #Set parent
     def setParent(self,parent):
