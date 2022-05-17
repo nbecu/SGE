@@ -352,6 +352,7 @@ class SGModel(QtWidgets.QMainWindow):
     def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrid,size=10):
         for aGrid in listOfAcceptGrid:
             self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=SGAgent(None,anAgentName,anAgentFormat,size)
+            
     
     #---------
 #Layout
@@ -393,21 +394,20 @@ class SGModel(QtWidgets.QMainWindow):
             if(isinstance(anItem,SGGrid)==True):
                 anItem.collectionOfCells.povs[aNameOfPov]=aDict
                 for aCell in list(anItem.collectionOfCells.getCells().values()) :
-                    if defaultAttributForPov ==null :
-                        for anAttributeIndex in range(len(list(aDict.keys()))) :
-                            if aNameOfPov not in aCell.attributs.keys() :
-                                aCell.attributs[aNameOfPov]={}
-                                aCell.attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}                     
-                    elif defaultAttributForPov and DefaultValueAttribut is null:
-                        for anAttributeIndex in range(len(list(aDict.keys()))) :
-                            if aNameOfPov not in aCell.attributs.keys() :
-                                aCell.attributs[aNameOfPov]={}
-                                aCell.attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
-                    else :
-                        for anAttributeIndex in range(len(list(aDict.keys()))) :
-                            if aNameOfPov not in aCell.attributs.keys() :
-                                aCell.attributs[aNameOfPov]={}
-                                aCell.attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
+                        if aCell.attributs is None :
+                            aCell.attributs = {}
+                        if defaultAttributForPov ==null :
+                            for anAttributeIndex in range(len(list(aDict.keys()))) :
+                                if aNameOfPov not in aCell.attributs.keys() :
+                                    aCell.attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]       
+                        elif defaultAttributForPov and DefaultValueAttribut is null:
+                            for anAttributeIndex in range(len(list(aDict.keys()))) :
+                                if aNameOfPov not in aCell.attributs.keys() :
+                                    aCell.attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
+                        else :
+                            for anAttributeIndex in range(len(list(aDict.keys()))) :
+                                if aNameOfPov not in aCell.attributs.keys() :
+                                    aCell.attributs[defaultAttributForPov]=DefaultValueAttribut
             elif(isinstance(anItem,str)==True):
                 for aGrid in listOfGridToApply:
                     for anAgent in aGrid.collectionOfAcceptAgent :
@@ -415,19 +415,16 @@ class SGModel(QtWidgets.QMainWindow):
                             aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
                             if defaultAttributForPov ==null :
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
-                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
-                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={list(aDict.keys())[anAttributeIndex]:list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]}                     
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]={}
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]           
                             elif defaultAttributForPov and DefaultValueAttribut is null:
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
-                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
-                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={defaultAttributForPov:list(aDict[defaultAttributForPov].keys())[0]}
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
                             else :
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    if aNameOfPov not in aGrid.collectionOfAcceptAgent[anAgent].attributs.keys() :
-                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={}
-                                        aGrid.collectionOfAcceptAgent[anAgent].attributs[aNameOfPov]={defaultAttributForPov:DefaultValueAttribut}
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=DefaultValueAttribut
             #Adding the Pov to the menue bar
             if aNameOfPov not in self.listOfPovsForMenu :
                 self.listOfPovsForMenu.append(aNameOfPov)

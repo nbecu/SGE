@@ -29,7 +29,7 @@ class SGCell(QtWidgets.QWidget):
         self.startY=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
         self.isDisplay=True
         #We init the dict of Attribute
-        self.attributs={}
+        self.attributs=None
         #We init the Collection for the futures Agents
         self.collectionOfAgents=SGAgentCollection(self)
 
@@ -94,10 +94,10 @@ class SGCell(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        if self.parent.parent.nameOfPov=="default" :
-            return self.theCollection.povs["default"]
-        else :
-            return self.theCollection.povs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]][self.attributs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]]]
+        
+        for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()): 
+            if aVal in list(self.attributs.keys()):
+                return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
        
     #To get the pov
     def getPov(self):
@@ -114,18 +114,19 @@ class SGCell(QtWidgets.QWidget):
                     self.update()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
-                    print("--------")
-                    print(self.attributs)
-                    
                     self.isDisplay=True
                     txt = self.parent.parent.selected[2]
                     separator=str(self.parent.parent.selected[3])+" "
                     value = txt.split(separator)
-                    self.attributs[self.parent.parent.nameOfPov]={}
-                    self.attributs[self.parent.parent.nameOfPov][self.parent.parent.selected[3]]={}
-                    self.attributs[self.parent.parent.nameOfPov][self.parent.parent.selected[3]]=value[1]
-                    print(self.attributs)
+                    self.attributs[self.parent.parent.selected[3]]={}
+                    self.attributs[self.parent.parent.selected[3]]=value[1]
                     self.update()
+                else :
+                    if self.parent.parent.selected[3] in list(self.parent.collectionOfAcceptAgent.keys()):
+                        print(self.parent.parent.selected[3])
+                        self.parent.addOnXandY(str(self.parent.parent.selected[3]),self.x+1,self.y+1)
+                        self.parent.parent.update()
+                        print(self.collectionOfAgents.agents)
         self.parent.parent.update()
     
     

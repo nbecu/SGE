@@ -10,7 +10,7 @@ class SGAgentCollection():
         self.parent=parent
         self.agents=[]
         #Initialize the different pov
-        self.povs={"default":Qt.black}
+        self.povs={}
         
        
     #To get all the Agents of the collection 

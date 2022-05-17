@@ -63,10 +63,7 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
-        if self.parent.parent.parent.nameOfPov=="default" :
-            return self.theCollection.povs["default"]
-        else :
-            return self.theCollection.povs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]][self.attributs[self.getPov()][list(self.attributs[self.getPov()].keys())[0]]]
+            return self.theCollection.povs[self.getPov()][list(self.attributs.keys())[0]][self.attributs[list(self.attributs.keys())[0]]]
 
            
     #To get the pov

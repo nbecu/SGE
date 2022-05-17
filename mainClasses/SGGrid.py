@@ -138,33 +138,53 @@ class SGGrid(SGGameSpace):
     
 #To handle POV and placing on cell
     #To define a value for all cells
-    def setValueForCells(self,nameOfPov,aDictWithValue):
+    def setValueForCells(self,aDictWithValue):
         for aCell in self.collectionOfCells.getCells():
-            aCell.attributs[nameOfPov]=aDictWithValue
+            for aVal in list(aDictWithValue.keys()) :
+                if aVal in list(aCell.theCollection.povs[self.parent.nameOfPov].keys()) :
+                        for anAttribute in list(aCell.theCollection.povs[self.parent.nameOfPov].keys()):
+                            aCell.attributs.pop(anAttribute,None)
+            aCell.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
             
     #To apply to a specific cell a value  
-    def setForXandY(self,nameOfPov,aDictWithValue,aValueX,aValueY):
-        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[nameOfPov]=aDictWithValue
+    def setForXandY(self,aDictWithValue,aValueX,aValueY):
+        for aVal in list(aDictWithValue.keys()) :
+                if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()) :
+                    for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()):
+                        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs.pop(anAttribute,None)
+        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to a all row of cell a value
-    def setForX(self,nameOfPov,aDictWithValue,aValueX):
+    def setForX(self,aDictWithValue,aValueX):
         for y in range(self.rows):
-            self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[nameOfPov]=aDictWithValue
+            for aVal in list(aDictWithValue.keys()) :
+                if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.parent.nameOfPov].keys()) :
+                    for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.parent.nameOfPov].keys()):
+                        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs.pop(anAttribute,None)
+            self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to a all column of cell a value
-    def setForY(self,nameOfPov,aDictWithValue,aValueY):
+    def setForY(self,aDictWithValue,aValueY):
         for x in range(self.columns):
-            self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY)).attributs[nameOfPov]=aDictWithValue
+            for aVal in list(aDictWithValue.keys()) :
+                if aVal in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()) :
+                    for anAttribute in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()):
+                        self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs.pop(anAttribute,None)
+            self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to some random cell a value
-    def setForRandom(self,nameOfPov,aDictWithValue,numberOfRandom):
+    def setForRandom(self,aDictWithValue,numberOfRandom):
         alreadyDone=list()
         while len(alreadyDone)!=numberOfRandom:
             aValueX=random.randint(0, self.columns-1)
             aValueY=random.randint(0, self.rows-1)
             if (aValueX,aValueY) not in alreadyDone:
                 alreadyDone.append((aValueX,aValueY))
-                self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[nameOfPov]=aDictWithValue
+                for aVal in list(aDictWithValue.keys()) :
+                    if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.parent.nameOfPov].keys()) :
+                        for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.parent.nameOfPov].keys()):
+                            self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs.pop(anAttribute,None)
+                self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                 
 #To handle the placing of agents
     #To apply to a specific cell a value  
@@ -173,7 +193,8 @@ class SGGrid(SGGameSpace):
         anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
         anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs
         self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).collectionOfAgents.addAgent(anAgent)
-        self.update()
+
+        self.parent.update()
     
   
             

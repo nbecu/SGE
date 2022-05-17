@@ -22,7 +22,7 @@ class SGCellCollection():
         self.startYBase=startYBase
         self.cells={}
         #Initialize the different pov
-        self.povs={"default":Qt.gray}
+        self.povs={}
         #Initialize of the user interface
         self.initUI()
         
