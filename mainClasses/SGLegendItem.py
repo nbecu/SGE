@@ -82,13 +82,14 @@ class SGLegendItem(QtWidgets.QWidget):
                 self.parent.parent.selected=[None]
             #Selection of an item and suppresion of already selected Item
             else :
-                self.parent.parent.selected=[None]
-                selectedItem=[self]
-                selectedItem.append(self.type)
-                selectedItem.append(self.texte)
-                selectedItem.append(self.nameOfAttribut)
-                self.parent.parent.selected=selectedItem
-                self.parent.update()
+                if self.type!="None":
+                    self.parent.parent.selected=[None]
+                    selectedItem=[self]
+                    selectedItem.append(self.type)
+                    selectedItem.append(self.texte)
+                    selectedItem.append(self.nameOfAttribut)
+                    self.parent.parent.selected=selectedItem
+                    self.parent.parent.update()
         self.update()
         
     #To handle the drag of the grid
