@@ -69,9 +69,18 @@ theFirstGrid.setUpPov("addedPov",{"hopital":{"medecin":Qt.green,"interne":Qt.whi
 
 theFirstGrid.setValueForCells({"hopital":"medecin"})
 theSecondGrid.setValueForCells({"hopital":"medecin"})
-theFirstGrid.setValueForAgents("lac",{"hopital":"medecin"})
+theFirstGrid.setValueForAgents("lac",{"hopital":"interne"})
 
-theFirstGrid.setValueForModelAgents("lac",{"hopital":"interne"})
+
+theFirstGrid.setValueForModelAgents("lac",{"hopital":"medecin"})
+theFirstGrid.addOnXandY("lac",4,4)
+
+theFirstGrid.setValueAgentsOnCell("lac",{"hopital":"medecin"},"cell0-0")
+
+
+theFirstGrid.addOnXandY("lac",5,5)
+theFirstGrid.setForAnAgentOfCell("lac",{"hopital":"interne"},"cell4-4")
+
 
 
 myModel.show() 

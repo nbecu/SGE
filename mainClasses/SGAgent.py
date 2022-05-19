@@ -62,6 +62,8 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
+        """print(self.theCollection.povs)
+        print(self.attributs)"""
         for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 
             if aVal in list(self.attributs.keys()):
                 return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]

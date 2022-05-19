@@ -1,8 +1,9 @@
+from pickle import TRUE
 import random
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import false, null, true
 
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
@@ -230,12 +231,53 @@ class SGGrid(SGGameSpace):
                             anAgent.attributs.pop(anAttribute,None)
                 anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                 
-    #To define a value for all Agents
+    #To define a value for the model of an Agent
     def setValueForModelAgents(self,typeOfAgent,aDictWithValue):
             anAgent=self.collectionOfAcceptAgent[typeOfAgent]
-            for anAttribute in list(anAgent.theCollection.povs[self.parent.nameOfPov].keys()):
-                anAgent.attributs.pop(anAttribute,None)
+            #On cherche la pov et on suppr les valeur deja existante de la pov
+            for aPov in list(anAgent.theCollection.povs.keys()):
+                if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
+                    for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
+                        anAgent.attributs.pop(anAttribut,None)
             anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+            
+    #To define a value for all Agents of a cell
+    def setValueAgentsOnCell(self,typeOfAgent,aDictWithValue,aCellId):        
+        aCell=self.getCell(aCellId)
+        for anAgent in aCell.collectionOfAgents.agents:
+            if anAgent.format == typeOfAgent:
+                #On cherche la pov et on suppr les valeur deja existante de la pov
+                for aPov in list(anAgent.theCollection.povs.keys()):
+                    if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
+                        for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
+                            anAgent.attributs.pop(anAttribut,None)
+                anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+    
+    #To change the value of an unique agent on a cell
+    def setForAnAgentOfCell(self,typeOfAgent,aDictWithValue,aCellId):        
+        aCell=self.getCell(aCellId)
+        for anAgent in aCell.collectionOfAgents.agents:
+            if anAgent.name == typeOfAgent:
+                #On cherche la pov et on suppr les valeur deja existante de la pov
+                print("oui")
+                for aPov in list(anAgent.theCollection.povs.keys()):
+                    
+                    if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
+                        for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
+                            if anAttribut ==list(aDictWithValue.keys())[0]:
+                                if anAgent.attributs[anAttribut] == list(aDictWithValue.values())[0]: 
+                                    continue;
+                                else:
+                                    anAgent.attributs.pop(anAttribut,None)
+                                    anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]] 
+                                    return True
+                            else:
+                                anAgent.attributs.pop(anAttribut,None)
+                                anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]] 
+                                return True
+        return False                        
+                
+        
                 
     
     
