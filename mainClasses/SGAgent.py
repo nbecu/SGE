@@ -36,7 +36,6 @@ class SGAgent(QtWidgets.QWidget):
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         if(self.format=="circleAgent"):
-            self.setMinimumSize(self.size+1,self.size+1)
             painter.drawEllipse(0,0,self.size,self.size)
         if self.parent.format=="square":
             self.move(4,4)
@@ -63,7 +62,9 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
-            return self.theCollection.povs[self.getPov()][list(self.attributs.keys())[0]][self.attributs[list(self.attributs.keys())[0]]]
+        for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 
+            if aVal in list(self.attributs.keys()):
+                return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
 
            
     #To get the pov

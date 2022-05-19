@@ -122,12 +122,10 @@ class SGCell(QtWidgets.QWidget):
                     self.attributs[self.parent.parent.selected[3]]=value[1]
                     self.update()
                 else :
-                    if self.parent.parent.selected[3] in list(self.parent.collectionOfAcceptAgent.keys()):
-                        print(self.parent.parent.selected[3])
-                        self.parent.addOnXandY(str(self.parent.parent.selected[3]),self.x+1,self.y+1)
-                        self.parent.parent.update()
-                        print(self.collectionOfAgents.agents)
-        self.parent.parent.update()
+                    if self.parent.parent.selected[2] in list(self.parent.collectionOfAcceptAgent.keys()):
+                        anAgentName=str(self.parent.parent.selected[2])
+                        self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                        
     
     
         #Agent function 

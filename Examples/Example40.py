@@ -26,17 +26,15 @@ myModel.setInitialPovGlobal("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 
-theFirstGrid.setForXandY({"Forest":"Niv3"},1,1)
 
-
-print(theFirstGrid.collectionOfCells.cells["cell0-0"].attributs)
 
 
 
 
 myModel.newAgent("lac","circleAgent",[theFirstGrid])
 
-myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
+myModel.setUpPovOn("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
+myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid])
 
 
 theFirstLegende=myModel.createLegendeAdmin()
@@ -44,6 +42,7 @@ theFirstLegende.addDeleteButton()
 
 
 
+"""
 theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
 
 theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
@@ -51,15 +50,10 @@ theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.re
 theSecondLegend.addAgentToTheLegend("lac")
 
 
-theSecondLegend.addDeleteButton()
+theSecondLegend.addDeleteButton()"""
 
 theFirstGrid.addOnXandY("lac",1,1)
-theFirstGrid.addOnXandY("lac",2,2)
-theFirstGrid.addOnXandY("lac",7,7)
-theFirstGrid.addOnXandY("lac",4,2)
-theFirstGrid.addOnXandY("lac",10,9)
-theFirstGrid.addOnXandY("lac",1,8)
-
+theFirstGrid.addOnXandY("lac",2,2,"deep sea")
 
 
 

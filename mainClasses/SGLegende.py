@@ -25,25 +25,37 @@ class SGLegende(SGGameSpace):
     def initUI(self):
         self.y=0
         for aKeyOfGamespace in self.elementsPov :
+            #On efface ceux deja existant
+            if aKeyOfGamespace in list(self.legendItemList.keys()):
+                if len(self.legendItemList[aKeyOfGamespace]) !=0:
+                    for anElement in reversed(range(len(self.legendItemList[aKeyOfGamespace]))):
+                        self.legendItemList[aKeyOfGamespace][anElement].deleteLater()
+                        del self.legendItemList[aKeyOfGamespace][anElement]
             self.legendItemList[aKeyOfGamespace]=[]
-            """print("--------------------")
-            print(self.id)
-            print(self.elementsPov)"""
+            #On affiche les nouveaux
             if self.parent.nameOfPov != "default" and aKeyOfGamespace!="agents" :
                 for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
                     if aKeyOfGamespace=="deleteButton":
                         self.y=self.y+1
-                        self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]))
+                        anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element])
+                        self.legendItemList[aKeyOfGamespace].append(anItem)
+                        anItem.show()
                     else: 
                         for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
                             self.y=self.y+1
-                            self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],element))
+                            anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],element)
+                            self.legendItemList[aKeyOfGamespace].append(anItem)
+                            anItem.show()
             elif aKeyOfGamespace=="agents":
                 for anAgentName in self.elementsPov[aKeyOfGamespace]:
-                    for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
-                        self.y=self.y+1
-                        anAgent=self.getFromWich(anAgentName)
-                        self.legendItemList[aKeyOfGamespace].append(SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],anAgent.name))
+                    for element in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov]:
+                        for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
+                            self.y=self.y+1
+                            anAgent=self.getFromWich(anAgentName)
+                            anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue)
+                            self.legendItemList[aKeyOfGamespace].append(anItem)
+                            anItem.show()
+
      
     
     #Funtion to have the global size of a gameSpace  
@@ -101,7 +113,9 @@ class SGLegende(SGGameSpace):
         painter.setPen(QPen(self.borderColor,1));
         #Draw the corner of the legende
         self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-        painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())        
+        painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+
+
         painter.end()
         
     #Get from wich grid an Agent is from to create the legend
@@ -110,6 +124,7 @@ class SGLegende(SGGameSpace):
             if isinstance(self.parent.gameSpaces[aGameSpace],SGGrid) == True :
                 aResult = self.parent.gameSpaces[aGameSpace].getAgentOfTypeForLegend(anAgentName)
                 if aResult != null:
+    
                     return aResult
         
     

@@ -151,7 +151,6 @@ class SGModel(QtWidgets.QMainWindow):
         self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
         
         self.changeThePov= QAction(" &default", self)
-        self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
         
         
          
@@ -383,7 +382,11 @@ class SGModel(QtWidgets.QMainWindow):
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
         self.nameOfPov=nameOfPov
+        for anGameSpace in self.gameSpaces:
+            if isinstance(self.gameSpaces[anGameSpace],SGLegende):
+                self.gameSpaces[anGameSpace].initUI()
         self.update()
+        
 
     
     #To add a new POV
@@ -435,7 +438,7 @@ class SGModel(QtWidgets.QMainWindow):
         
     #-----------------------------------------------------------        
     def aTestForTimeManager(self):  
-        self.gameSpaces["basicGrid"].setForRandom("Basic","testDunNomLong",1)
+        self.gameSpaces["basicGrid"].setForRandom({"Forest":"Niv3"},1)
         self.update() 
 
     

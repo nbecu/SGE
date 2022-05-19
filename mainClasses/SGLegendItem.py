@@ -17,6 +17,8 @@ class SGLegendItem(QtWidgets.QWidget):
         self.texte=texte
         self.y=y
         self.color=color
+        self.setGeometry(0,0,100,100)
+        self.setMinimumSize(100,100)
         
     def paintEvent(self,event):
         painter = QPainter() 
