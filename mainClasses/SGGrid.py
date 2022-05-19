@@ -8,6 +8,9 @@ from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
 from SGAgent import SGAgent
 
+
+from PyQt5.QtWidgets import QAction
+
 import copy
 
 #Class who is responsible of the grid creation
@@ -139,7 +142,7 @@ class SGGrid(SGGameSpace):
 #To handle POV and placing on cell
     #To define a value for all cells
     def setValueForCells(self,aDictWithValue):
-        for aCell in self.collectionOfCells.getCells():
+        for aCell in list(self.collectionOfCells.getCells().values()):
             for aVal in list(aDictWithValue.keys()) :
                 if aVal in list(aCell.theCollection.povs[self.parent.nameOfPov].keys()) :
                         for anAttribute in list(aCell.theCollection.povs[self.parent.nameOfPov].keys()):
@@ -199,6 +202,42 @@ class SGGrid(SGGameSpace):
                         anAgent.attributs[anAttribut]=aValueForAgent
         anAgent.show()
         self.update()
+        
+#To add a specific pov 
+    def setUpPov(self,aNameOfPov,aDictOfValue,theTypeOfObjectToApply="cells",theNameOfTheAgent="circleAgent"):
+        #We apply the news pov
+        if(theTypeOfObjectToApply=="cells"):
+            self.collectionOfCells.povs[aNameOfPov]=aDictOfValue
+        elif theTypeOfObjectToApply == "agents":
+            for anAgentIt in self.collectionOfAcceptAgent :
+                if self.collectionOfAcceptAgent[anAgentIt].name ==theNameOfTheAgent:
+                    self.collectionOfAcceptAgent[anAgentIt].theCollection.povs[aNameOfPov]=aDictOfValue
+        self.parent.updateLegendeAdmin()
+        #Adding the Pov to the menue bar
+        if aNameOfPov not in self.parent.listOfPovsForMenu :
+            self.parent.listOfPovsForMenu.append(aNameOfPov)
+            anAction=QAction(" &"+aNameOfPov, self)
+            self.parent.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.parent.setInitialPovGlobal(aNameOfPov))
+            
+    #To define a value for all Agents
+    def setValueForAgents(self,typeOfAgent,aDictWithValue):
+        for aCell in list(self.collectionOfCells.getCells().values()):
+            for anAgent in aCell.getAgentsOfType(typeOfAgent):
+                for aVal in list(aDictWithValue.keys()) :
+                    if aVal in list(anAgent.theCollection.povs[self.parent.nameOfPov].keys()) :
+                        for anAttribute in list(anAgent.theCollection.povs[self.parent.nameOfPov].keys()):
+                            anAgent.attributs.pop(anAttribute,None)
+                anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+                
+    #To define a value for all Agents
+    def setValueForModelAgents(self,typeOfAgent,aDictWithValue):
+            anAgent=self.collectionOfAcceptAgent[typeOfAgent]
+            for anAttribute in list(anAgent.theCollection.povs[self.parent.nameOfPov].keys()):
+                anAgent.attributs.pop(anAttribute,None)
+            anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+                
+    
     
   
             

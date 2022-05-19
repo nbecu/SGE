@@ -78,6 +78,16 @@ class SGAgent(QtWidgets.QWidget):
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
+
+
+    def setUpAgentValue(self,aDictOfValue):
+        for anAttribut in aDictOfValue:
+            if anAttribut in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
+                for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
+                    self.attributs[aVal]=[]
+                for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
+                    del self.attributs[aVal]
+                self.attributs[anAttribut]=aDictOfValue[anAttribut]
     
 
         

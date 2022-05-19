@@ -305,8 +305,8 @@ class SGModel(QtWidgets.QMainWindow):
         allElements={}
         listOfGrid=[]
         for anElement in self.gameSpaces :
-            dictOfElements=self.gameSpaces[anElement].getValuesForLegende()
             if isinstance(self.gameSpaces[anElement],SGGrid):
+                dictOfElements=self.gameSpaces[anElement].getValuesForLegende()
                 listOfGrid.append(self.gameSpaces[anElement])
                 allElements[anElement]=dictOfElements
         
@@ -327,6 +327,13 @@ class SGModel(QtWidgets.QMainWindow):
             pos=self.layoutOfModel.foundInLayout(aLegende)
             aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
         return aLegende
+    
+    #To update the admin legende when the modeler add a new pov after the creation of the legende 
+    def updateLegendeAdmin(self):
+        if "adminLegende" in list(self.gameSpaces.keys()):
+            self.gameSpaces["adminLegende"].deleteLater()
+            del self.gameSpaces["adminLegende"]
+        self.createLegendeAdmin()
     
     
     #To create a legende
@@ -391,7 +398,7 @@ class SGModel(QtWidgets.QMainWindow):
 
     
     #To add a new POV
-    def setUpPovOn(self,aNameOfPov,aDict,items,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
+    def setUpCellValueAndPov(self,aNameOfPov,aDict,items,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
         if not isinstance(items,list):
             items=[items]
         for anItem in items :

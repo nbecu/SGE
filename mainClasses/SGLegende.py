@@ -56,13 +56,14 @@ class SGLegende(SGGameSpace):
                                 anItem.show()
             elif aKeyOfGamespace=="agents":
                 for anAgentName in self.elementsPov[aKeyOfGamespace]:
-                    for element in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov]:
-                        for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
-                            self.y=self.y+1
-                            anAgent=self.getFromWich(anAgentName)
-                            anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue)
-                            self.legendItemList[aKeyOfGamespace].append(anItem)
-                            anItem.show()
+                    if self.parent.nameOfPov in self.elementsPov[aKeyOfGamespace][anAgentName]:
+                        for element in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov]:
+                            for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
+                                self.y=self.y+1
+                                anAgent=self.getFromWich(anAgentName)
+                                anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue)
+                                self.legendItemList[aKeyOfGamespace].append(anItem)
+                                anItem.show()
 
      
     

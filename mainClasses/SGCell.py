@@ -94,7 +94,6 @@ class SGCell(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        
         for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()): 
             if aVal in list(self.attributs.keys()):
                 return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
@@ -132,7 +131,7 @@ class SGCell(QtWidgets.QWidget):
     #To get all agents on the grid of a particular type
     def getAgentsOfType(self,aNameOfAgent):
         theList=[]
-        for anAgentName in self.collectionOfAgents.agents :
+        for anAgentName in range(len(self.collectionOfAgents.agents)) :
             if self.collectionOfAgents.agents[anAgentName].name==aNameOfAgent:
                 theList.append(self.collectionOfAgents.agents[anAgentName])
         return theList
@@ -142,6 +141,16 @@ class SGCell(QtWidgets.QWidget):
         
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
+
+    def setUpCellValue(self,aDictOfValue):
+        for anAttribut in aDictOfValue:
+            if anAttribut in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                    self.attributs[aVal]=[]
+                for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                    del self.attributs[aVal]
+                self.attributs[anAttribut]=aDictOfValue[anAttribut]
+
     
 
         

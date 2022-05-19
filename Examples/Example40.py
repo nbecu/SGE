@@ -17,9 +17,9 @@ theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
 theSecondGrid=myModel.createGrid("secondGrid",10,10,"square")
 
 
-myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
+myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
-myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid,theSecondGrid])
+myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid,theSecondGrid])
 
 myModel.setInitialPovGlobal("Forester")
 
@@ -32,8 +32,8 @@ theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 
 myModel.newAgent("lac","circleAgent",[theFirstGrid])
 
-myModel.setUpPovOn("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
-myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid])
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
+myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid])
 
 
 theFirstLegende=myModel.createLegendeAdmin()
@@ -54,6 +54,24 @@ theSecondLegend.addDeleteButton()
 theFirstGrid.addOnXandY("lac",1,1)
 theFirstGrid.addOnXandY("lac",2,2,"deep sea")
 
+
+theFirstGrid.getCell("cell0-0").setUpCellValue({"Forest":"Niv3"})
+
+theFirstGrid.getCell("cell0-0").setUpCellValue({"sea":"deep sea"})
+
+theFirstGrid.getCell("cell0-0").getAgentsOfType("lac")[0].setUpAgentValue({"sea":"deep sea"})
+
+theFirstGrid.setUpPov("addedPov",{"hopital":{"medecin":Qt.green,"interne":Qt.white}})
+
+theSecondGrid.setUpPov("addedPov",{"hopital":{"medecin":Qt.green,"interne":Qt.white}})
+
+theFirstGrid.setUpPov("addedPov",{"hopital":{"medecin":Qt.green,"interne":Qt.white}},"agents","lac")
+
+theFirstGrid.setValueForCells({"hopital":"medecin"})
+theSecondGrid.setValueForCells({"hopital":"medecin"})
+theFirstGrid.setValueForAgents("lac",{"hopital":"medecin"})
+
+theFirstGrid.setValueForModelAgents("lac",{"hopital":"interne"})
 
 
 myModel.show() 

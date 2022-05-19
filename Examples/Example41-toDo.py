@@ -16,8 +16,8 @@ theFirstGrid=myModel.createGrid("basicGrid",10,10,"square")
 theFirstGrid.setColor(Qt.gray) 
 
 myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
-## Dans cette méthode du définit l'attribut et le pov . Du coup il faudrait que le nom de la méthode soit setUpCellValueAndPov
 # Par ailleurs, il me semble que ce setUpCellValueAndPovce devrait s'appliquer sur une grid , et pas sur le modèle, non ?
+# Enfaite c'est deja le cas ( je l'applique sur le model afin de pouvoir appliquer une pov sur plusieurs grille )
 # Et je pense qu'il est important d'avoir aussi la possibilité de décomposer la méthode setUpCellValueAndPov  en 2 étapes, d'abord setUpCellValu (juste pour définir les attribuuts ett leurs valeurs), puis setUpPov pour définir  les couleurs associés aux valeurs des attributs 
 theFirstGrid.setCellsValue("landUse",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 
