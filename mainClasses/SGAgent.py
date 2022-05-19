@@ -62,8 +62,6 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
-        """print(self.theCollection.povs)
-        print(self.attributs)"""
         for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 
             if aVal in list(self.attributs.keys()):
                 return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
@@ -77,6 +75,19 @@ class SGAgent(QtWidgets.QWidget):
     def setParent(self,parent):
         self.parent=parent
         self.theCollection=parent.collectionOfAgents
+        
+    #To handle the selection of an element int the legend
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.LeftButton:
+            #Something is selected
+            if self.parent.parent.parent.selected[0]!=None :
+                #The delete Action
+                if self.parent.parent.parent.selected[2]== "delete":
+                    for anAgent in self.parent.collectionOfAgents.agents :
+                        if anAgent == self :
+                            anAgent.deleteLater()
+                            del anAgent
+                    self.update()
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

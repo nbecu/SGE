@@ -259,7 +259,6 @@ class SGGrid(SGGameSpace):
         for anAgent in aCell.collectionOfAgents.agents:
             if anAgent.name == typeOfAgent:
                 #On cherche la pov et on suppr les valeur deja existante de la pov
-                print("oui")
                 for aPov in list(anAgent.theCollection.povs.keys()):
                     
                     if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
