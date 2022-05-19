@@ -32,8 +32,6 @@ theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 theFirstGrid.setForXandY({"Forest":"Niv3"},1,1)
 
 
-print(theFirstGrid.collectionOfCells.cells["cell0-0"].attributs)
-
 
 
 

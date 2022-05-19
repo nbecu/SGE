@@ -41,18 +41,19 @@ class SGLegende(SGGameSpace):
         anItem.show()
         for aKeyOfGamespace in self.elementsPov :
             if self.parent.nameOfPov != "default" and aKeyOfGamespace!="agents" :
-                for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
-                    if aKeyOfGamespace=="deleteButton":
-                        self.y=self.y+1
-                        anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element])
-                        self.legendItemList[aKeyOfGamespace].append(anItem)
-                        anItem.show()
-                    else: 
-                        for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
+                if self.parent.nameOfPov in self.elementsPov[aKeyOfGamespace]:
+                    for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
+                        if aKeyOfGamespace=="deleteButton":
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],element)
+                            anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element])
                             self.legendItemList[aKeyOfGamespace].append(anItem)
                             anItem.show()
+                        else: 
+                            for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],element)
+                                self.legendItemList[aKeyOfGamespace].append(anItem)
+                                anItem.show()
             elif aKeyOfGamespace=="agents":
                 for anAgentName in self.elementsPov[aKeyOfGamespace]:
                     for element in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov]:
@@ -114,16 +115,17 @@ class SGLegende(SGGameSpace):
         
     #Drawing the legende
     def paintEvent(self,event):
-        painter = QPainter() 
-        painter.begin(self)
-        painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
-        painter.setPen(QPen(self.borderColor,1));
-        #Draw the corner of the legende
-        self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-        painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+        if len(self.elementsPov)!=0:
+            painter = QPainter() 
+            painter.begin(self)
+            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            painter.setPen(QPen(self.borderColor,1));
+            #Draw the corner of the legende
+            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
 
-        painter.end()
+            painter.end()
         
     #Get from wich grid an Agent is from to create the legend
     def getFromWich(self,anAgentName):
