@@ -35,6 +35,7 @@ class SGAgent(QtWidgets.QWidget):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        self.setGeometry(0,0,self.size+1,self.size+1)
         if(self.format=="circleAgent"):
             painter.drawEllipse(0,0,self.size,self.size)
         if self.parent.format=="square":
@@ -83,10 +84,10 @@ class SGAgent(QtWidgets.QWidget):
             if self.parent.parent.parent.selected[0]!=None :
                 #The delete Action
                 if self.parent.parent.parent.selected[2]== "delete":
-                    for anAgent in self.parent.collectionOfAgents.agents :
-                        if anAgent == self :
-                            anAgent.deleteLater()
-                            del anAgent
+                    for i in reversed(range(len(self.parent.collectionOfAgents.agents))):
+                        if self.parent.collectionOfAgents.agents[i] == self :
+                            self.parent.collectionOfAgents.agents[i].deleteLater()
+                            del self.parent.collectionOfAgents.agents[i]
                     self.update()
 
 #-----------------------------------------------------------------------------------------

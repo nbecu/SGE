@@ -109,8 +109,13 @@ class SGCell(QtWidgets.QWidget):
             if self.parent.parent.selected[0]!=None :
                 #The delete Action
                 if self.parent.parent.selected[2]== "delete":
+                    if len(self.collectionOfAgents.agents) !=0:
+                        for i in reversed(range(len(self.collectionOfAgents.agents))):
+                            self.collectionOfAgents.agents[i].deleteLater()
+                            del self.collectionOfAgents.agents[i]
                     self.parent.collectionOfCells.removeVisiblityCell(self.getId())
-                    self.update()
+                    self.show()
+                    self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
                     self.isDisplay=True
@@ -123,7 +128,8 @@ class SGCell(QtWidgets.QWidget):
                 else :
                     if self.parent.parent.selected[2] in list(self.parent.collectionOfAcceptAgent.keys()):
                         anAgentName=str(self.parent.parent.selected[2])
-                        self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                        if self.isDisplay==True :
+                            self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                         
     
     
