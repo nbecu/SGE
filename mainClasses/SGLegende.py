@@ -33,6 +33,13 @@ class SGLegende(SGGameSpace):
                         del self.legendItemList[aKeyOfGamespace][anElement]
             self.legendItemList[aKeyOfGamespace]=[]
             #On affiche les nouveaux
+            #On affiche le nom de la legende
+        self.y=self.y+1
+        anItem=SGLegendItem(self,"None",self.y,self.id)
+        self.legendItemList["Title"]=[]
+        self.legendItemList["Title"].append(anItem)
+        anItem.show()
+        for aKeyOfGamespace in self.elementsPov :
             if self.parent.nameOfPov != "default" and aKeyOfGamespace!="agents" :
                 for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
                     if aKeyOfGamespace=="deleteButton":

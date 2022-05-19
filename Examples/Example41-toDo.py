@@ -51,7 +51,7 @@ theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"F
 #faudrait ajouteer un initulé en haut de la légende (par défaut ce serai Forester ou admin, mais le modeler pourrait aussi spécifier un intitulé custom )
 theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
 theSecondLegend.addAgentToTheLegend("lac")
-#theSecondLegend.addDeleteButton()
+
 
 theFirstGrid.addOnXandY("lac",1,1)
 theFirstGrid.addOnXandY("lac",2,2)
@@ -60,7 +60,6 @@ theFirstGrid.addOnXandY("lac",4,2)
 theFirstGrid.addOnXandY("lac",10,9)
 theFirstGrid.addOnXandY("lac",1,8)
 
-##Le placement des pions depuis la legende ne fonctionne pas
 
 
 myModel.show() 

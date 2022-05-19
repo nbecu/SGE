@@ -26,13 +26,14 @@ class SGLegendItem(QtWidgets.QWidget):
         painter.setBrush(QBrush(self.color, Qt.SolidPattern))
         if self.parent.parent.selected[0] == self :
             painter.setPen(QPen(Qt.red,2));
-            #Square cell
+        #Square cell
         if(self.type=="square") :   
             painter.drawRect(10, 0, 20, 20)
+        #Circle agent
         elif self.type=="circleAgent":
             painter.drawEllipse(10, 0, 20, 20)
         #Hexagonal square
-        else:
+        elif self.type=="hexagonal":
             points = QPolygon([
                QPoint(20,  0),
                QPoint(30,  7),
@@ -42,7 +43,15 @@ class SGLegendItem(QtWidgets.QWidget):
                QPoint(10,  7)
             ])
             painter.drawPolygon(points)
-        painter.drawText(QRect(40,5,150,15), Qt.AlignLeft, self.texte)
+        
+        if self.type =="None":
+            aFont=QFont("Verdana",10)
+            aFont.setUnderline(True)
+            painter.setFont(aFont)
+            painter.drawText(QRect(15,0,150,20), Qt.AlignLeft, self.texte)
+        else :
+            painter.setFont(QFont("Verdana",8))
+            painter.drawText(QRect(40,5,150,15), Qt.AlignLeft, self.texte)
         self.setMinimumSize(200,200)
         self.move(10,self.y*20+5*self.y)
         painter.end()

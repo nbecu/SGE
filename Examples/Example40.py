@@ -42,7 +42,7 @@ theFirstLegende.addDeleteButton()
 
 
 
-"""
+
 theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
 
 theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
@@ -50,7 +50,7 @@ theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.re
 theSecondLegend.addAgentToTheLegend("lac")
 
 
-theSecondLegend.addDeleteButton()"""
+theSecondLegend.addDeleteButton()
 
 theFirstGrid.addOnXandY("lac",1,1)
 theFirstGrid.addOnXandY("lac",2,2,"deep sea")
