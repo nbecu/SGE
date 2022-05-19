@@ -17,8 +17,6 @@ class SGLegendItem(QtWidgets.QWidget):
         self.texte=texte
         self.y=y
         self.color=color
-        self.setGeometry(0,0,100,100)
-        self.setMinimumSize(100,100)
         
     def paintEvent(self,event):
         painter = QPainter() 
@@ -48,11 +46,11 @@ class SGLegendItem(QtWidgets.QWidget):
             aFont=QFont("Verdana",10)
             aFont.setUnderline(True)
             painter.setFont(aFont)
-            painter.drawText(QRect(15,0,150,20), Qt.AlignLeft, self.texte)
+            painter.drawText(QRect(15,0,self.parent.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
         else :
             painter.setFont(QFont("Verdana",8))
-            painter.drawText(QRect(40,5,150,15), Qt.AlignLeft, self.texte)
-        self.setMinimumSize(200,200)
+            painter.drawText(QRect(40,5,self.parent.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
+        self.setMinimumSize(self.parent.getSizeXGlobal()-50,10)
         self.move(10,self.y*20+5*self.y)
         painter.end()
         
@@ -92,6 +90,12 @@ class SGLegendItem(QtWidgets.QWidget):
                 self.parent.parent.selected=selectedItem
                 self.parent.update()
         self.update()
+        
+    #To handle the drag of the grid
+    def mouseMoveEvent(self, e):
+        if e.buttons() != Qt.LeftButton:
+            return
+                    
 
         
 #-----------------------------------------------------------------------------------------

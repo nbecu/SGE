@@ -52,9 +52,11 @@ class SGCell(QtWidgets.QWidget):
         if(self.format=="square"):
             painter.drawRect(0,0,self.size,self.size)
             self.setMinimumSize(self.size,self.size+1)
+            self.setGeometry(0,0,self.size+1,self.size+1)
             self.move(self.startX,self.startY)
         elif(self.format=="hexagonal"):
             self.setMinimumSize(self.size,self.size)
+            self.setGeometry(0,0,self.size+1,self.size+1)
             points = QPolygon([
                QPoint(int(self.size/2),  0),
                QPoint(self.size,  int(self.size/3)),
@@ -130,6 +132,11 @@ class SGCell(QtWidgets.QWidget):
                         anAgentName=str(self.parent.parent.selected[2])
                         if self.isDisplay==True :
                             self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                            
+    #To handle the drag of the grid
+    def mouseMoveEvent(self, e):
+        if e.buttons() != Qt.LeftButton:
+            return
                         
     
     

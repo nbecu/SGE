@@ -64,6 +64,7 @@ class SGLegende(SGGameSpace):
                                 anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue)
                                 self.legendItemList[aKeyOfGamespace].append(anItem)
                                 anItem.show()
+            self.setMinimumSize(self.getSizeXGlobal(),10)
 
      
     
@@ -71,11 +72,11 @@ class SGLegende(SGGameSpace):
     def getSizeXGlobal(self):
         if self.haveADeleteButton :
             if len(self.getLongest()) > len("delete"):
-                return 70+len(self.getLongest())*5
+                return 70+len(self.getLongest())*5+50
             else:
-                return 70+len("delete")*5
+                return 70+len("delete")*5+50
         else :
-            return 70+len(self.getLongest())*5
+            return 70+len(self.getLongest())*5+50
     
     def getLongest(self):
         longestWord=""
