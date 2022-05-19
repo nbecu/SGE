@@ -326,6 +326,7 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             pos=self.layoutOfModel.foundInLayout(aLegende)
             aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
+        aLegende.addDeleteButton()
         return aLegende
     
     #To update the admin legende when the modeler add a new pov after the creation of the legende 
@@ -333,7 +334,8 @@ class SGModel(QtWidgets.QMainWindow):
         if "adminLegende" in list(self.gameSpaces.keys()):
             self.gameSpaces["adminLegende"].deleteLater()
             del self.gameSpaces["adminLegende"]
-        self.createLegendeAdmin()
+        aLegende=self.createLegendeAdmin()
+        aLegende.addDeleteButton()
     
     
     #To create a legende

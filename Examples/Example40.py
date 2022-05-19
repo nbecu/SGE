@@ -37,7 +37,6 @@ myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gr
 
 
 theFirstLegende=myModel.createLegendeAdmin()
-theFirstLegende.addDeleteButton()
 
 
 
