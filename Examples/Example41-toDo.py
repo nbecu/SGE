@@ -13,7 +13,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1080,960,"grid")
 
 theFirstGrid=myModel.createGrid("basicGrid",10,10,"square")
-theFirstGrid.setColor(Qt.gray) # faudrait pouvoir sett la couleur dans un paramètre de la foncton createGrid au dessus
+theFirstGrid.setColor(Qt.gray) 
 
 myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 ## Dans cette méthode du définit l'attribut et le pov . Du coup il faudrait que le nom de la méthode soit setUpCellValueAndPov
@@ -23,7 +23,7 @@ theFirstGrid.setCellsValue("landUse",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"N
 
 
 myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid])
-# le chgt à pov Fireman génère une erreur
+
 
 
 myModel.setInitialPovGlobal("Forester")

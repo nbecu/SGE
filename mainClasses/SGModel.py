@@ -265,9 +265,10 @@ class SGModel(QtWidgets.QMainWindow):
 
 #For create elements
     #To create a grid
-    def createGrid(self,name,rows=8, columns=8,format="square",gap=3,size=32):
+    def createGrid(self,name,rows=8, columns=8,format="square",color=Qt.gray,gap=3,size=30):
         #Creation
         aGrid = SGGrid(self,name,rows, columns,format,gap,size)
+        aGrid.setColor(color)
         self.gameSpaces[name]=aGrid
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aGrid)

@@ -12,11 +12,10 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal")
+theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
 
 theSecondGrid=myModel.createGrid("secondGrid",10,10,"square")
 
-theFirstGrid.setColor(Qt.gray)
 
 myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
