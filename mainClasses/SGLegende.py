@@ -61,7 +61,7 @@ class SGLegende(SGGameSpace):
                             for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
                                 self.y=self.y+1
                                 anAgent=self.getFromWich(anAgentName)
-                                anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue)
+                                anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name+" "+aValue,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],anAgent.name)
                                 self.legendItemList[aKeyOfGamespace].append(anItem)
                                 anItem.show()
             self.setMinimumSize(self.getSizeXGlobal(),10)

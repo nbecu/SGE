@@ -101,7 +101,6 @@ class SGCell(QtWidgets.QWidget):
     def dropEvent(self, e):
         if e.source().name in self.parent.collectionOfAcceptAgent :
             #We remove the agent of the actual cell
-            print(self.collectionOfAgents.agents)
             e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
             e.source().deleteLater()
             #We add the agent to the new cell
@@ -144,14 +143,32 @@ class SGCell(QtWidgets.QWidget):
                     txt = self.parent.parent.selected[2]
                     separator=str(self.parent.parent.selected[3])+" "
                     value = txt.split(separator)
-                    self.attributs[self.parent.parent.selected[3]]={}
-                    self.attributs[self.parent.parent.selected[3]]=value[1]
-                    self.update()
+                    theKey=""
+                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                        if value[1] in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
+                            theKey=anAttribute
+                            break
+                    aDictWithValue={theKey:value[1]}    
+                    for aVal in list(aDictWithValue.keys()) :
+                        if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
+                                for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                                    self.attributs.pop(anAttribute,None)
+                    self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+                    self.update()            
                 else :
-                    if self.parent.parent.selected[2] in list(self.parent.collectionOfAcceptAgent.keys()):
-                        anAgentName=str(self.parent.parent.selected[2])
+                    txt = self.parent.parent.selected[2]
+                    separator=str(self.parent.parent.selected[3])+" "
+                    value = txt.split(separator)
+                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                        if value[1] in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
+                            theKey=anAttribute
+                            break
+                    aDictWithValue={theKey:value[1]} 
+                    if self.parent.parent.selected[3] in list(self.parent.collectionOfAcceptAgent.keys()):
+                        anAgentName=str(self.parent.parent.selected[3])
                         if self.isDisplay==True :
-                            self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                            anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                            anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                             
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
