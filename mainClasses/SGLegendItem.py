@@ -30,6 +30,16 @@ class SGLegendItem(QtWidgets.QWidget):
         #Circle agent
         elif self.type=="circleAgent":
             painter.drawEllipse(10, 0, 20, 20)
+        elif self.type=="squareAgent":
+            painter.drawRect(10, 0, 20, 20)
+        elif self.type=="ellipseAgent1":
+            painter.drawEllipse(10, 5, 20, 10)
+        elif self.type=="ellipseAgent2":
+            painter.drawEllipse(15, 0, 10, 20)
+        elif self.type=="rectAgent1":
+            painter.drawRect(10, 5, 20, 10)
+        elif self.type=="rectAgent2":
+            painter.drawRect(15, 0, 10, 20)
         #Hexagonal square
         elif self.type=="hexagonal":
             points = QPolygon([

@@ -9,6 +9,8 @@ from mainClasses.SGAgentCollection import SGAgentCollection
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(QtWidgets.QWidget):
+    
+#FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1
     def __init__(self,parent,name,format,size):
         super().__init__(parent)
         #Basic initialize
@@ -38,6 +40,24 @@ class SGAgent(QtWidgets.QWidget):
         self.setGeometry(0,0,self.size+1,self.size+1)
         if(self.format=="circleAgent"):
             painter.drawEllipse(0,0,self.size,self.size)
+        elif self.format=="squareAgent":
+            painter.drawRect(0,0,self.size,self.size)
+        elif self.format=="ellipseAgent1": 
+            self.setGeometry(0,0,self.size*2+1,self.size+1)
+            painter.drawEllipse(0,0,self.size*2,self.size)
+        elif self.format=="ellipseAgent2": 
+            self.setGeometry(0,0,self.size+1,self.size*2+1)
+            painter.drawEllipse(0,0,self.size,self.size*2)
+        elif self.format=="rectAgent1": 
+            self.setGeometry(0,0,self.size*2+1,self.size+1)
+            painter.drawRect(0,0,self.size*2,self.size)
+        elif self.format=="rectAgent2": 
+            self.setGeometry(0,0,self.size+1,self.size*2+1)
+            painter.drawRect(0,0,self.size,self.size*2)
+            
+        
+        
+        
         if self.parent.format=="square":
             self.move(round(self.size/2),round(self.size/2))
         else :
