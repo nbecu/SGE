@@ -183,8 +183,10 @@ class SGCell(QtWidgets.QWidget):
                         if self.isDisplay==True :
                             anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                             anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
-                            """anAgent.x=QMouseEvent.pos().x()
-                            anAgent.x=QMouseEvent.pos().y()"""
+                            anAgent.x=QMouseEvent.pos().x()
+                            anAgent.y=QMouseEvent.pos().y()
+                            anAgent.update()
+                            anAgent.show()
                             
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
