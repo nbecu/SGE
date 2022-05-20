@@ -10,7 +10,7 @@ from mainClasses.SGAgentCollection import SGAgentCollection
 #Class who is responsible of the declaration a Agent
 class SGAgent(QtWidgets.QWidget):
     
-#FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1
+#FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,parent,name,format,size):
         super().__init__(parent)
         #Basic initialize
@@ -54,6 +54,40 @@ class SGAgent(QtWidgets.QWidget):
         elif self.format=="rectAgent2": 
             self.setGeometry(0,0,self.size+1,self.size*2+1)
             painter.drawRect(0,0,self.size,self.size*2)
+        elif self.format=="triangleAgent1": 
+            self.setGeometry(0,0,self.size+1,self.size+1)
+            points = QPolygon([
+               QPoint(round(self.size/2),0),
+               QPoint(0,self.size),
+               QPoint(self.size,  self.size)
+            ])
+            painter.drawPolygon(points)
+        elif self.format=="triangleAgent2": 
+            self.setGeometry(0,0,self.size+1,self.size+1)
+            points = QPolygon([
+               QPoint(0,0),
+               QPoint(self.size,0),
+               QPoint(round(self.size/2),self.size)
+            ])
+            painter.drawPolygon(points)
+        elif self.format=="arrowAgent1": 
+            self.setGeometry(0,0,self.size+1,self.size+1)
+            points = QPolygon([
+               QPoint(round(self.size/2),0),
+               QPoint(0,self.size),
+               QPoint(round(self.size/2),round(self.size/3)*2),
+               QPoint(self.size,  self.size)
+            ])
+            painter.drawPolygon(points)
+        elif self.format=="arrowAgent2": 
+            self.setGeometry(0,0,self.size+1,self.size+1)
+            points = QPolygon([
+               QPoint(0,0),
+               QPoint(round(self.size/2),round(self.size/3)),
+               QPoint(self.size,0),
+               QPoint(round(self.size/2),self.size)
+            ])
+            painter.drawPolygon(points)
             
         
         

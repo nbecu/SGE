@@ -44,7 +44,21 @@ myModel.newAgent("lac6","rectAgent2",[theFirstGrid])
 
 myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac6","sea","reasonable",[theFirstGrid])
 
+myModel.newAgent("lac7","triangleAgent1",[theFirstGrid])
 
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac7","sea","reasonable",[theFirstGrid])
+
+myModel.newAgent("lac8","triangleAgent2",[theFirstGrid])
+
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac8","sea","reasonable",[theFirstGrid])
+
+myModel.newAgent("lac9","arrowAgent1",[theFirstGrid])
+
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac9","sea","reasonable",[theFirstGrid])
+
+myModel.newAgent("lac10","arrowAgent2",[theFirstGrid])
+
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac10","sea","reasonable",[theFirstGrid])
 
 
 theFirstLegende=myModel.createLegendeAdmin()

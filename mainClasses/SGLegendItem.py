@@ -27,7 +27,7 @@ class SGLegendItem(QtWidgets.QWidget):
         #Square cell
         if(self.type=="square") :   
             painter.drawRect(10, 0, 20, 20)
-        #Circle agent
+        #agent
         elif self.type=="circleAgent":
             painter.drawEllipse(10, 0, 20, 20)
         elif self.type=="squareAgent":
@@ -40,6 +40,36 @@ class SGLegendItem(QtWidgets.QWidget):
             painter.drawRect(10, 5, 20, 10)
         elif self.type=="rectAgent2":
             painter.drawRect(15, 0, 10, 20)
+        elif self.type=="triangleAgent1": 
+            points = QPolygon([
+               QPoint(20,7),
+               QPoint(15,17),
+               QPoint(25,17)
+            ])
+            painter.drawPolygon(points)
+        elif self.type=="triangleAgent2": 
+            points = QPolygon([           
+               QPoint(25,7),
+               QPoint(15,7),
+               QPoint(20,17)
+            ])
+            painter.drawPolygon(points)
+        elif self.type=="arrowAgent1": 
+            points = QPolygon([
+               QPoint(20,7),
+               QPoint(15,17),
+               QPoint(20,14),
+               QPoint(25,17)
+            ])
+            painter.drawPolygon(points)
+        elif self.type=="arrowAgent2": 
+            points = QPolygon([           
+               QPoint(25,7),
+               QPoint(20,10),
+               QPoint(15,7),
+               QPoint(20,17)
+            ])
+            painter.drawPolygon(points)
         #Hexagonal square
         elif self.type=="hexagonal":
             points = QPolygon([
