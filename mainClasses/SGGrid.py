@@ -203,6 +203,7 @@ class SGGrid(SGGameSpace):
                         anAgent.attributs[anAttribut]=aValueForAgent
         anAgent.show()
         self.update()
+        return anAgent
         
 #To add a specific pov 
     def setUpPov(self,aNameOfPov,aDictOfValue,theTypeOfObjectToApply="cells",theNameOfTheAgent="circleAgent"):

@@ -32,6 +32,8 @@ class SGCell(QtWidgets.QWidget):
         self.attributs=None
         #We init the Collection for the futures Agents
         self.collectionOfAgents=SGAgentCollection(self)
+        #We allow the drops for the agents
+        self.setAcceptDrops(True)
 
         
 
@@ -91,6 +93,24 @@ class SGCell(QtWidgets.QWidget):
         self.size=self.parent.size
         self.gap=self.parent.gap
         self.update()
+        
+    #Function to handle the drag of widget
+    def dragEnterEvent(self, e):
+        e.accept()
+        
+    def dropEvent(self, e):
+        if e.source().name in self.parent.collectionOfAcceptAgent :
+            #We remove the agent of the actual cell
+            print(self.collectionOfAgents.agents)
+            e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
+            e.source().deleteLater()
+            #We add the agent to the new cell
+            theAgent=self.parent.addOnXandY(e.source().name,self.x+1,self.y+1)
+            theAgent.attributs=e.source().attributs
+            theAgent.show()
+
+        e.setDropAction(Qt.MoveAction)
+        e.accept()
         
     #To manage the attribute system of a cell
     def getColor(self):

@@ -445,6 +445,9 @@ class SGModel(QtWidgets.QMainWindow):
                 self.povMenu.addAction(anAction)
                 anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
                 
+                        
+                    
+                
         
     #-----------------------------------------------------------        
     def aTestForTimeManager(self):  

@@ -144,6 +144,22 @@ class SGAgent(QtWidgets.QWidget):
                             del self.parent.collectionOfAgents.agents[i]
                     self.update()
 
+    #To handle the drag of the agent
+    def mouseMoveEvent(self, e):
+    
+        if e.buttons() != Qt.LeftButton:
+            return
+
+        mimeData = QMimeData()
+
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.rect().topLeft())
+
+        drag.exec_(Qt.MoveAction) 
+        
+            
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
