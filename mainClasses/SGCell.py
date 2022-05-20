@@ -80,13 +80,25 @@ class SGCell(QtWidgets.QWidget):
 
     #Funtion to handle the zoom
     def zoomIn(self):
+        oldSize=self.size
         self.size=self.parent.size
         self.gap=self.parent.gap
+        for anAgent in self.collectionOfAgents.agents:
+            coeffX=anAgent.x/oldSize
+            anAgent.x=int(self.size*coeffX)
+            coeffY=anAgent.y/oldSize
+            anAgent.y=int(self.size*coeffY)
         self.update()
     
     def zoomOut(self):
+        oldSize=self.size
         self.size=self.parent.size
         self.gap=self.parent.gap
+        for anAgent in self.collectionOfAgents.agents:
+            coeffX=anAgent.x/oldSize
+            anAgent.x=int(self.size*coeffX)
+            coeffY=anAgent.y/oldSize
+            anAgent.y=int(self.size*coeffY)
         self.update()
         
     def zoomFit(self):
@@ -105,6 +117,8 @@ class SGCell(QtWidgets.QWidget):
             e.source().deleteLater()
             #We add the agent to the new cell
             theAgent=self.parent.addOnXandY(e.source().name,self.x+1,self.y+1)
+            theAgent.x=e.pos().x()
+            theAgent.y=e.pos().y()
             theAgent.attributs=e.source().attributs
             theAgent.show()
 
@@ -169,6 +183,8 @@ class SGCell(QtWidgets.QWidget):
                         if self.isDisplay==True :
                             anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                             anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
+                            """anAgent.x=QMouseEvent.pos().x()
+                            anAgent.x=QMouseEvent.pos().y()"""
                             
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
