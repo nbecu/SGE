@@ -30,10 +30,10 @@ theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 
 
 
-myModel.newAgent("lac","circleAgent",[theFirstGrid])
+myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
-myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid])
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid,theSecondGrid])
+myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid,theSecondGrid])
 
 
 theFirstLegende=myModel.createLegendeAdmin()
@@ -69,6 +69,7 @@ theFirstGrid.setUpPov("addedPov",{"hopital":{"medecin":Qt.green,"interne":Qt.whi
 theFirstGrid.setValueForCells({"hopital":"medecin"})
 theSecondGrid.setValueForCells({"hopital":"medecin"})
 theFirstGrid.setValueForAgents("lac",{"hopital":"interne"})
+theSecondGrid.setValueForAgents("lac",{"hopital":"interne"})
 
 
 theFirstGrid.setValueForModelAgents("lac",{"hopital":"medecin"})

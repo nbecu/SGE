@@ -39,9 +39,9 @@ class SGAgent(QtWidgets.QWidget):
         if(self.format=="circleAgent"):
             painter.drawEllipse(0,0,self.size,self.size)
         if self.parent.format=="square":
-            self.move(4,4)
+            self.move(round(self.size/2),round(self.size/2))
         else :
-            self.move(8,8)
+            self.move(round(self.parent.size/3),round(self.parent.size/3))
         painter.end()
     
     def getId(self):
