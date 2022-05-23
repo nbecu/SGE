@@ -7,6 +7,7 @@ from sqlalchemy import false, null
 from win32api import GetSystemMetrics
 
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGTimeManager import SGTimeManager
 
 sys.path.insert(0, str(Path(__file__).parent))
 from SGGrid import SGGrid
@@ -57,8 +58,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.selected=[None]
         #To keep in memory all the povs already displayed in the menue
         self.listOfPovsForMenu=[]
-        #Temporary variable for mini timeManager
-        self.listeOfActionForNextTurn=[]
+        #To handle the flow of time in the game
+        self.timeManager=SGTimeManager()
         self.initUI()
     
     def initUI(self):
@@ -172,10 +173,8 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the next turn
     def nextTurn(self):
-        """To be implemented"""
-        #TEMPORARY
-        for anAction in self.listeOfActionForNextTurn :
-            anAction(self)
+        self.timeManager.nextPhase()
+
             
     
     #Trigger the zoom in
@@ -449,9 +448,11 @@ class SGModel(QtWidgets.QMainWindow):
                     
                 
         
-    #-----------------------------------------------------------        
-    def aTestForTimeManager(self):  
-        self.gameSpaces["basicGrid"].setForRandom({"Forest":"Niv3"},1)
-        self.update() 
+    #-----------------------------------------------------------  
+    #TimeManager functions
+    
+    def getTimeManager(self):
+        return self.timeManager      
+    
 
     
