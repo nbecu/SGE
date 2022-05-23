@@ -29,7 +29,11 @@ myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":
 
 theFirstLegende=myModel.createLegendeAdmin()
 
-myModel.timeManager.addGamePhase("theOnlyPhase",0,[],[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
+myModel.timeManager.addGamePhase("theFirstPhase",0,[],[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
+
+myModel.timeManager.addGamePhase("theSecondPhase",1,[],[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},3)],[lambda: myModel.getTimeManager().verifNumberOfRound(3)])
+
+myModel.timeManager.addGamePhase("theThirdPhase",2,[],[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
 
 
 

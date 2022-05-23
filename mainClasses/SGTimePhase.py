@@ -1,7 +1,7 @@
 
 
 class SGTimePhase():
-    def __init__(self,name,orderNumber,activePlayers=[],nextStepAction=[],conditionOfTrigger=[True]):
+    def __init__(self,name,orderNumber,activePlayers=[],nextStepAction=[],conditionOfTrigger=[]):
         self.name=name
         self.orderNumber=orderNumber
         self.activePlayers=activePlayers
