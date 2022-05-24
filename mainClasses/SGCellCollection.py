@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from SGCell import SGCell
+from mainClasses.SGCell import SGCell
 
 
 

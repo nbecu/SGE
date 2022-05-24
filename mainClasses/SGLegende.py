@@ -149,8 +149,14 @@ class SGLegende(SGGameSpace):
     def addToTheLegende(self,aListOfElement):
         #For the grid value
         for aGameSpaceId in aListOfElement:
+            if aGameSpaceId not in list(self.elementsPov.keys()):
+                self.elementsPov[aGameSpaceId]={}
             for aPov in aListOfElement[aGameSpaceId]:
+                if aPov not in list(self.elementsPov[aGameSpaceId].keys()):
+                    self.elementsPov[aGameSpaceId][aPov]={}
                 for element in aListOfElement[aGameSpaceId][aPov] :
+                    if element not in list(self.elementsPov[aGameSpaceId][aPov].keys()):
+                        self.elementsPov[aGameSpaceId][aPov][element]={}
                     for value in aListOfElement[aGameSpaceId][aPov][element]:
                         self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
         self.initUI()

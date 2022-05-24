@@ -6,13 +6,20 @@ from pathlib import Path
 from sqlalchemy import false, null
 from win32api import GetSystemMetrics
 
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGTimeManager import SGTimeManager
+
 
 sys.path.insert(0, str(Path(__file__).parent))
+from SGAgent import SGAgent
+from SGPlayer import SGPlayer
+from SGTimeManager import SGTimeManager
+
 from SGGrid import SGGrid
 from SGVoid import SGVoid
 from SGLegende import SGLegende
+
+from gameAction.SGCreate import SGCreate
+from gameAction.SGUpdate import SGUpdate
+from gameAction.SGDelete import SGDelete
 
 from layout.SGGridLayout import SGGridLayout
 from layout.SGHorizontalLayout import SGHorizontalLayout
@@ -60,6 +67,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.listOfPovsForMenu=[]
         #To handle the flow of time in the game
         self.timeManager=SGTimeManager()
+        #List of players
+        self.collectionOfPlayers={}
         self.initUI()
     
     def initUI(self):
@@ -359,7 +368,21 @@ class SGModel(QtWidgets.QMainWindow):
     #To create a New kind of agents
     def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrid,size=10):
         for aGrid in listOfAcceptGrid:
-            self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=SGAgent(None,anAgentName,anAgentFormat,size)
+            anAgent=SGAgent(None,anAgentName,anAgentFormat,size)
+            self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=anAgent
+        return anAgent
+            
+    
+    #To create a newPlayer
+    def newPlayer(self,name):
+        player=SGPlayer(self,name)
+        self.collectionOfPlayers[name]=player
+        return player
+        
+    #To get a player
+    def getPlayer(self,name):
+        return self.collectionOfPlayers[name]
+
             
     
     #---------
@@ -452,7 +475,23 @@ class SGModel(QtWidgets.QMainWindow):
     #TimeManager functions
     
     def getTimeManager(self):
-        return self.timeManager      
+        return self.timeManager   
+    
+    #-----------------------------------------------------------  
+    #Game mechanics function 
+    
+    def createCreateAction(self,anObjectType,aNumber,listOfRestriction=[]):
+        return SGCreate(anObjectType,aNumber,listOfRestriction) 
+    
+    #-----------------------------------------------------------  
+    #Getter
+    
+    def getGrids(self):
+        listOfGrid=[]
+        for aGameSpace in list(self.gameSpaces.values()) :
+            if isinstance(aGameSpace,SGGrid):
+                listOfGrid.append(aGameSpace)
+        return listOfGrid 
     
 
     

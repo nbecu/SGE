@@ -15,13 +15,7 @@ class SGTimeManager():
         else:
             self.actualPhase=0
             
-        print("------")
-        print(self.actualPhase)
-        print("------")
         thePhase= self.orderGamePhases[self.actualPhase]
-        print(thePhase.name)
-        print(self.actualRound)
-        print(self.actualPhase)
         #Ajouter verifier les conditions
         doThePhase=True
         if len(thePhase.conditionOfTrigger)!=0:
@@ -50,7 +44,7 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,orderNumber,activePlayers=[],nextStepAction=[],conditionOfTrigger=[]):
+    def addGamePhase(self,name,orderNumber,activePlayers="all",nextStepAction=[],conditionOfTrigger=[]):
         aPhase=SGTimePhase(name,orderNumber,activePlayers,nextStepAction,conditionOfTrigger)
         self.orderGamePhases.insert(orderNumber,aPhase)
         

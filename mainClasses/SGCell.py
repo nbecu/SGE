@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from SGAgent import SGAgent
-from SGAgentCollection import SGAgentCollection
+from mainClasses.SGAgent import SGAgent
+from mainClasses.SGAgentCollection import SGAgentCollection
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
