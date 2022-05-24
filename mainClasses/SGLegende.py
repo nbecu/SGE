@@ -162,7 +162,7 @@ class SGLegende(SGGameSpace):
         self.initUI()
         
 #Adding agent to the legend
-    def addAgentToTheLegend(self,agentName):
+    def addAgentToTheLegend(self,agentName,aDictOfAcceptedValue={}):
         if "agents" not in list(self.elementsPov.keys()) :
             self.elementsPov["agents"]={}
         if agentName not in self.elementsPov["agents"]:
@@ -170,7 +170,20 @@ class SGLegende(SGGameSpace):
                 self.elementsPov["agents"][agentName]={}
             anAgentPovs=self.getFromWich(agentName).theCollection.povs
             for aPov in anAgentPovs :
-                self.elementsPov["agents"][agentName][aPov]=anAgentPovs[aPov]
+                #If we take all
+                if len(aDictOfAcceptedValue)==0:
+                    self.elementsPov["agents"][agentName][aPov]=anAgentPovs[aPov]
+                #If we apply a filter
+                else :
+                    for anAttribut in anAgentPovs[aPov]:
+                        for anElement in aDictOfAcceptedValue:
+                            if anElement == anAttribut :
+                                if aPov not in self.elementsPov["agents"][agentName]:
+                                    self.elementsPov["agents"][agentName][aPov]={}
+                                self.elementsPov["agents"][agentName][aPov][anElement]={}
+                                for aValue in anAgentPovs[aPov][anAttribut]:
+                                    if aValue in aDictOfAcceptedValue[anAttribut]:
+                                        self.elementsPov["agents"][agentName][aPov][anElement][aValue]=anAgentPovs[aPov][anAttribut][aValue]
         self.initUI()
         
         

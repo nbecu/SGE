@@ -275,7 +275,12 @@ class SGGrid(SGGameSpace):
                                 anAgent.attributs.pop(anAttribut,None)
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]] 
                                 return True
-        return False                        
+        return False   
+    
+    #To get a cell of the grid
+    def getACell(self):        
+        return self.collectionOfCells.getCells()[list(self.collectionOfCells.getCells().keys())[0]]
+                  
                 
         
                 

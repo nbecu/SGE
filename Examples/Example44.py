@@ -42,7 +42,8 @@ theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.re
 
 
 thePlayer=myModel.newPlayer("oui")
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,10))
+thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,10,{"sea":["reasonable"]}))
+thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),10))
 
 
 

@@ -480,8 +480,8 @@ class SGModel(QtWidgets.QMainWindow):
     #-----------------------------------------------------------  
     #Game mechanics function 
     
-    def createCreateAction(self,anObjectType,aNumber,listOfRestriction=[]):
-        return SGCreate(anObjectType,aNumber,listOfRestriction) 
+    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
+        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
     
     #-----------------------------------------------------------  
     #Getter
