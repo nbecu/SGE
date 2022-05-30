@@ -153,15 +153,7 @@ class SGAgent(QtWidgets.QWidget):
                     self.update()
                 #Change the value of agent   
                 elif self.parent.parent.parent.selected[1]== "circleAgent" or self.parent.parent.parent.selected[1]=="squareAgent" or self.parent.parent.parent.selected[1]== "ellipseAgent1" or self.parent.parent.parent.selected[1]=="ellipseAgent2" or self.parent.parent.parent.selected[1]== "rectAgent1" or self.parent.parent.parent.selected[1]=="rectAgent2" or self.parent.parent.parent.selected[1]== "triangleAgent1" or self.parent.parent.parent.selected[1]=="triangleAgent2" or self.parent.parent.parent.selected[1]== "arrowAgent1" or self.parent.parent.parent.selected[1]=="arrowAgent2":
-                    txt = self.parent.parent.parent.selected[2]
-                    separator=str(self.parent.parent.parent.selected[3])+" "
-                    value = txt.split(separator)
-                    theKey=""
-                    for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
-                        if value[1] in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov][anAttribute].keys()) :
-                            theKey=anAttribute
-                            break
-                    aDictWithValue={theKey:value[1]}    
+                    aDictWithValue={self.parent.parent.parent.selected[4]:self.parent.parent.parent.selected[3]}    
                     for aVal in list(aDictWithValue.keys()) :
                         if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                                 for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):

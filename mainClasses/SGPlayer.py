@@ -31,6 +31,8 @@ class SGPlayer():
             self.legende.addToTheLegende(aDict,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGAgent):
+            print(aGameAction.anObject.name)
+            print(aGameAction.aDictOfAcceptedValue)
             self.legende.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)   
         return aGameAction

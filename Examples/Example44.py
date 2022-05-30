@@ -33,7 +33,9 @@ theFirstLegende=myModel.createLegendeAdmin()
 thePlayer=myModel.newPlayer("oui")
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,1,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]))
 thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),2,{"sea":["reasonable"]}))
+
 thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea"]}))
+thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}))
 
 
 
@@ -48,7 +50,9 @@ myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGame
 """theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{})
 theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
 theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
-"""
+
+theSecondLegend.addAgentToTheLegend("lac",{'boat':['old']})
+theSecondLegend.addAgentToTheLegend("lac",{'boat':['new']})"""
 
 
 
