@@ -142,6 +142,17 @@ class SGCell(QtWidgets.QWidget):
         if QMouseEvent.button() == Qt.LeftButton:
             #Something is selected
             if self.parent.parent.selected[0]!=None :
+                #We shearch if the player have the rights
+                thePlayer=self.parent.parent.getPlayer()
+                authorisation=False
+                if self.parent.parent.selected[0].isFromAdmin():
+                    authorisation=True
+                elif thePlayer is not None :
+                    theAction=thePlayer.getGameActionOn(self)
+                    if theAction is not None:
+                        authorisation=theAction.getAuthorize(self)
+                        if authorisation : 
+                            theAction.use()
                 #The delete Action
                 if self.parent.parent.selected[2]== "delete":
                     if len(self.collectionOfAgents.agents) !=0:
@@ -153,15 +164,6 @@ class SGCell(QtWidgets.QWidget):
                     self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
-                    thePlayer=self.parent.parent.getPlayer()
-                    authorisation=False
-                    if self.parent.parent.selected[0].isFromAdmin():
-                        authorisation=True
-                    elif thePlayer is not None :
-                        theAction=thePlayer.getGameActionOn(self)
-                        if theAction is not None:
-                            authorisation=theAction.getAuthorize()
-                            theAction.use()
                     if  authorisation :
                             self.isDisplay=True
                             value =self.parent.parent.selected[3]
@@ -180,16 +182,7 @@ class SGCell(QtWidgets.QWidget):
                               
                 #For agent placement and replace the value         
                 else :
-                    thePlayer=self.parent.parent.getPlayer()
-                    authorisation=False
-                    if self.parent.parent.selected[0].isFromAdmin():
-                        authorisation=True
-                    elif thePlayer is not None :
-                        theAction=thePlayer.getGameActionOn(self)
-                        if theAction is not None:
-                            authorisation=theAction.getAuthorize()
-                            theAction.use()
-                    print(authorisation)
+                    
                     if  authorisation :
                         aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
                         if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
@@ -233,9 +226,11 @@ class SGCell(QtWidgets.QWidget):
                     del self.attributs[aVal]
                 self.attributs[anAttribut]=aDictOfValue[anAttribut]
 
-    
-
-        
+    def checkValue(self,aDictOfValue):
+        theKey=list(aDictOfValue.keys())[0] 
+        if theKey in list(self.attributs.keys()):
+            return aDictOfValue[theKey]==self.attributs[theKey]
+        return False
     
         
     

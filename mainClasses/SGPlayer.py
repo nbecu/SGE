@@ -24,7 +24,7 @@ class SGPlayer():
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
     
-    def addGameAction(self,aGameAction,aDictOfAcceptedValue={}):
+    def addGameAction(self,aGameAction):
         if isinstance(aGameAction.anObject,SGCell):
             theParent=aGameAction.anObject.parent.id
             aDict={theParent:aGameAction.anObject.theCollection.povs}
@@ -46,6 +46,10 @@ class SGPlayer():
                 elif isinstance(aGameAction,SGCreate) and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) :
                     return aGameAction 
                 #Update
+                #of a cell
+                if isinstance(aGameAction,SGUpdate) and (anItem.isDisplay==True) and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    return aGameAction
+                
                 #Delete
                 #Else
                 

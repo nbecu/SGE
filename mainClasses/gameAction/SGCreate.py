@@ -1,5 +1,3 @@
-
-
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
@@ -21,11 +19,14 @@ class SGCreate():
     def use(self):
         self.numberUsed= self.numberUsed+1
         
-    def getAuthorize(self):
+    def getAuthorize(self,anObject):
+        returnValue=True
+        #We check each condition 
+        for aCond in self.restrictions:
+            returnValue=returnValue and aCond(anObject)
         if self.numberUsed+1>self.number:
-            return False
-        else:
-            return True
+            returnValue=False
+        return returnValue
 
     
     

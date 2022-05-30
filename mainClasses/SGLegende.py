@@ -165,7 +165,8 @@ class SGLegende(SGGameSpace):
                         else :
                             for anElement in aDictOfAcceptedValue:
                                 if anElement == element :
-                                    self.elementsPov[aGameSpaceId][aPov][anElement]={}
+                                    if len(self.elementsPov[aGameSpaceId][aPov][anElement])==0 :
+                                        self.elementsPov[aGameSpaceId][aPov][anElement]={}
                                     if value in aDictOfAcceptedValue[anElement]:
                                         self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
             self.initUI()

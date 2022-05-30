@@ -8,7 +8,7 @@ from sqlalchemy import null
    
 #Class who is responsible of the declaration a cell
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut=None,nameOfAttribut=None):
+    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut=""):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent

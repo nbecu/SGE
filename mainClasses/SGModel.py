@@ -484,6 +484,9 @@ class SGModel(QtWidgets.QMainWindow):
     def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
     
+    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
+        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
+    
     #-----------------------------------------------------------  
     #Getter
     
