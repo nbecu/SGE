@@ -8,11 +8,12 @@ from sqlalchemy import null
    
 #Class who is responsible of the declaration a cell
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,texte="",color=Qt.black,nameOfAttribut=None):
+    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut=None,nameOfAttribut=None):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
         self.type=type
+        self.valueOfAttribut=valueOfAttribut
         self.nameOfAttribut=nameOfAttribut
         self.texte=texte
         self.y=y
@@ -125,9 +126,11 @@ class SGLegendItem(QtWidgets.QWidget):
                 if self.type!="None":
                     self.parent.parent.selected=[None]
                     selectedItem=[self]
-                    selectedItem.append(self.type)
+                    selectedItem.append(self.type) 
                     selectedItem.append(self.texte)
+                    selectedItem.append(self.valueOfAttribut)
                     selectedItem.append(self.nameOfAttribut)
+                    selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
                     self.parent.parent.selected=selectedItem
                     self.parent.parent.update()
         self.update()
@@ -136,6 +139,10 @@ class SGLegendItem(QtWidgets.QWidget):
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return
+    
+    #To test is it from the admin Legend
+    def isFromAdmin(self):
+        return self.parent.id=="adminLegende"
                     
 
         

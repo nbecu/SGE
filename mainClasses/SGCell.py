@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGAgentCollection import SGAgentCollection
+from SGAgent import SGAgent
+from SGAgentCollection import SGAgentCollection
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
@@ -153,41 +153,55 @@ class SGCell(QtWidgets.QWidget):
                     self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
-                    self.isDisplay=True
-                    txt = self.parent.parent.selected[2]
-                    separator=str(self.parent.parent.selected[3])+" "
-                    value = txt.split(separator)
-                    theKey=""
-                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                        if value[1] in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
-                            theKey=anAttribute
-                            break
-                    aDictWithValue={theKey:value[1]}    
-                    for aVal in list(aDictWithValue.keys()) :
-                        if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
-                                for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                                    self.attributs.pop(anAttribute,None)
-                    self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-                    self.update()            
+                    thePlayer=self.parent.parent.getPlayer()
+                    authorisation=False
+                    if self.parent.parent.selected[0].isFromAdmin():
+                        authorisation=True
+                    elif thePlayer is not None :
+                        theAction=thePlayer.getGameActionOn(self)
+                        if theAction is not None:
+                            authorisation=theAction.getAuthorize()
+                            theAction.use()
+                    if  authorisation :
+                            self.isDisplay=True
+                            value =self.parent.parent.selected[3]
+                            theKey=""
+                            for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                                if value in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
+                                    theKey=anAttribute
+                                    break
+                            aDictWithValue={theKey:value}    
+                            for aVal in list(aDictWithValue.keys()) :
+                                if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
+                                        for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                                            self.attributs.pop(anAttribute,None)
+                            self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+                            self.update() 
+                              
+                #For agent placement and replace the value         
                 else :
-                    txt = self.parent.parent.selected[2]
-                    separator=str(self.parent.parent.selected[3])+" "
-                    value = txt.split(separator)
-                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                        if value[1] in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
-                            theKey=anAttribute
-                            break
-                    aDictWithValue={theKey:value[1]} 
-                    if self.parent.parent.selected[3] in list(self.parent.collectionOfAcceptAgent.keys()):
-                        anAgentName=str(self.parent.parent.selected[3])
-                        if self.isDisplay==True :
-                            anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
-                            anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
-                            anAgent.x=QMouseEvent.pos().x()
-                            anAgent.y=QMouseEvent.pos().y()
-                            anAgent.update()
-                            anAgent.show()
-                            
+                    thePlayer=self.parent.parent.getPlayer()
+                    authorisation=False
+                    if self.parent.parent.selected[0].isFromAdmin():
+                        authorisation=True
+                    elif thePlayer is not None :
+                        theAction=thePlayer.getGameActionOn(self)
+                        if theAction is not None:
+                            authorisation=theAction.getAuthorize()
+                            theAction.use()
+                    print(authorisation)
+                    if  authorisation :
+                        aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
+                        if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
+                            anAgentName=str(self.parent.parent.selected[5])
+                            if self.isDisplay==True :
+                                
+                                anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                                anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
+                                anAgent.x=QMouseEvent.pos().x()
+                                anAgent.y=QMouseEvent.pos().y()
+                                anAgent.update()
+                                anAgent.show()
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:

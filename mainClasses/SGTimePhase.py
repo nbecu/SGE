@@ -1,10 +1,10 @@
 
 
 class SGTimePhase():
-    def __init__(self,name,orderNumber,activePlayers="all",nextStepAction=[],conditionOfTrigger=[]):
+    def __init__(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
         self.name=name
         self.orderNumber=orderNumber
-        self.activePlayers=activePlayers
+        self.activePlayer=activePlayer
         self.nextStepAction=nextStepAction
         self.conditionOfTrigger=conditionOfTrigger
         
@@ -15,8 +15,8 @@ class SGTimePhase():
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    def setActivePlayers(self,activePlayers):
-        self.activePlayers=activePlayers
+    def setActivePlayers(self,activePlayer):
+        self.activePlayer=activePlayer
         
 
         

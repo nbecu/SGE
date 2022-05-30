@@ -66,9 +66,10 @@ class SGModel(QtWidgets.QMainWindow):
         #To keep in memory all the povs already displayed in the menue
         self.listOfPovsForMenu=[]
         #To handle the flow of time in the game
-        self.timeManager=SGTimeManager()
+        self.timeManager=SGTimeManager(self)
         #List of players
         self.collectionOfPlayers={}
+        self.actualPlayer=None
         self.initUI()
     
     def initUI(self):
@@ -492,6 +493,9 @@ class SGModel(QtWidgets.QMainWindow):
             if isinstance(aGameSpace,SGGrid):
                 listOfGrid.append(aGameSpace)
         return listOfGrid 
+    
+    def getPlayer(self):
+        return self.actualPlayer     
     
 
     

@@ -5,7 +5,7 @@ from sqlalchemy import null, true
 
 from SGGameSpace import SGGameSpace
 from SGLegendItem import SGLegendItem
-from mainClasses.SGCell import SGCell
+from SGCell import SGCell
 from SGGrid import SGGrid
 
 #Class who is responsible of the grid creation
@@ -51,7 +51,7 @@ class SGLegende(SGGameSpace):
                         else: 
                             for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
                                 self.y=self.y+1
-                                anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],element)
+                                anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],aValue,element)
                                 self.legendItemList[aKeyOfGamespace].append(anItem)
                                 anItem.show()
             elif aKeyOfGamespace=="agents":
@@ -61,7 +61,7 @@ class SGLegende(SGGameSpace):
                             for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
                                 self.y=self.y+1
                                 anAgent=self.getFromWich(anAgentName)
-                                anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name+" "+aValue,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],anAgent.name)
+                                anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name+" "+element+" "+aValue,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue,element)
                                 self.legendItemList[aKeyOfGamespace].append(anItem)
                                 anItem.show()
             self.setMinimumSize(self.getSizeXGlobal(),10)
@@ -146,7 +146,7 @@ class SGLegende(SGGameSpace):
 #Definiton of the methods who the modeler will use
 
 #To add Povs in a legend
-    def addToTheLegende(self,aListOfElement):
+    def addToTheLegende(self,aListOfElement,aDictOfAcceptedValue={}):
         #For the grid value
         for aGameSpaceId in aListOfElement:
             if aGameSpaceId not in list(self.elementsPov.keys()):
@@ -158,8 +158,17 @@ class SGLegende(SGGameSpace):
                     if element not in list(self.elementsPov[aGameSpaceId][aPov].keys()):
                         self.elementsPov[aGameSpaceId][aPov][element]={}
                     for value in aListOfElement[aGameSpaceId][aPov][element]:
-                        self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
-        self.initUI()
+                        #If we take all
+                        if len(aDictOfAcceptedValue)==0:
+                            self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
+                        #If we apply a filter
+                        else :
+                            for anElement in aDictOfAcceptedValue:
+                                if anElement == element :
+                                    self.elementsPov[aGameSpaceId][aPov][anElement]={}
+                                    if value in aDictOfAcceptedValue[anElement]:
+                                        self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
+            self.initUI()
         
 #Adding agent to the legend
     def addAgentToTheLegend(self,agentName,aDictOfAcceptedValue={}):

@@ -1,5 +1,9 @@
 
 
+from mainClasses.SGAgent import SGAgent
+from mainClasses.SGCell import SGCell
+
+
 class SGCreate():
     def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[]):
         self.anObject=anObject
@@ -7,6 +11,11 @@ class SGCreate():
         self.numberUsed=0
         self.aDictOfAcceptedValue=aDictOfAcceptedValue
         self.restrictions=restrictions
+        if isinstance(anObject,SGAgent):
+            self.name=anObject.getId()
+        elif isinstance(anObject,SGCell):
+            self.name=anObject.parent
+            
         
     #Function which increment the number of use
     def use(self):

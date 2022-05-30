@@ -1,8 +1,9 @@
-from mainClasses.SGTimePhase import SGTimePhase
+from SGTimePhase import SGTimePhase
 
 class SGTimeManager():
     
-    def __init__(self):
+    def __init__(self,parent):
+        self.parent=parent
         self.actualRound = 0
         self.actualPhase = -1
         self.orderGamePhases=[]
@@ -16,15 +17,17 @@ class SGTimeManager():
             self.actualPhase=0
             
         thePhase= self.orderGamePhases[self.actualPhase]
-        #Ajouter verifier les conditions
+        #Add conditions
         doThePhase=True
         if len(thePhase.conditionOfTrigger)!=0:
             for aCondition in thePhase.conditionOfTrigger:
                 doThePhase=doThePhase and aCondition()
         if self.actualPhase==len(self.orderGamePhases)-1:
             self.actualRound=self.actualRound+1
+        #we change the active player
+        self.parent.actualPlayer=thePhase.activePlayer
         if doThePhase :
-            #Ajouter les joueurs actifs qui joue 
+            #Add Action of players 
             if len(thePhase.nextStepAction) !=0:
                 for aChange in thePhase.nextStepAction:
                     aChange()
@@ -44,8 +47,10 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,orderNumber,activePlayers="all",nextStepAction=[],conditionOfTrigger=[]):
-        aPhase=SGTimePhase(name,orderNumber,activePlayers,nextStepAction,conditionOfTrigger)
+    def addGamePhase(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
+        aPhase=SGTimePhase(name,orderNumber,activePlayer,nextStepAction,conditionOfTrigger)
+        if orderNumber == 0 :
+            self.parent.actualPlayer=activePlayer
         self.orderGamePhases.insert(orderNumber,aPhase)
         
     #To verify a number of round

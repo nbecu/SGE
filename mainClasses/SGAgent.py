@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from mainClasses.SGAgentCollection import SGAgentCollection
+from SGAgentCollection import SGAgentCollection
 
 
    
@@ -197,6 +197,11 @@ class SGAgent(QtWidgets.QWidget):
                 for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                     del self.attributs[aVal]
                 self.attributs[anAttribut]=aDictOfValue[anAttribut]
+                
+      
+                
+                
+                
     
 
         
