@@ -128,9 +128,16 @@ class SGLegendItem(QtWidgets.QWidget):
                     selectedItem=[self]
                     selectedItem.append(self.type) 
                     selectedItem.append(self.texte)
-                    selectedItem.append(self.valueOfAttribut)
-                    selectedItem.append(self.nameOfAttribut)
+                    if self.texte.find('Remove ')!=-1 :
+                        txt=self.texte.replace("Remove ","")
+                        txt=txt.replace(self.valueOfAttribut+" ","")
+                        selectedItem.append(txt)
+                        selectedItem.append(self.valueOfAttribut)
+                    else: 
+                        selectedItem.append(self.valueOfAttribut)
+                        selectedItem.append(self.nameOfAttribut)
                     selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
+                    print(selectedItem)
                     self.parent.parent.selected=selectedItem
                     self.parent.parent.update()
         self.update()

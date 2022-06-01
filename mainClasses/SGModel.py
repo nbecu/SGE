@@ -335,7 +335,7 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             pos=self.layoutOfModel.foundInLayout(aLegende)
             aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
-        aLegende.addDeleteButton()
+        aLegende.addDeleteButton("Delete")
         return aLegende
     
     #To update the admin legende when the modeler add a new pov after the creation of the legende 
@@ -486,6 +486,9 @@ class SGModel(QtWidgets.QMainWindow):
     
     def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
         return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
+    
+    def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
+        return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
     
     #-----------------------------------------------------------  
     #Getter

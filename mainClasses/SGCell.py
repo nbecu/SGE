@@ -149,19 +149,21 @@ class SGCell(QtWidgets.QWidget):
                     authorisation=True
                 elif thePlayer is not None :
                     theAction=thePlayer.getGameActionOn(self)
+                    print(theAction)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
                         if authorisation : 
                             theAction.use()
                 #The delete Action
-                if self.parent.parent.selected[2]== "delete":
-                    if len(self.collectionOfAgents.agents) !=0:
-                        for i in reversed(range(len(self.collectionOfAgents.agents))):
-                            self.collectionOfAgents.agents[i].deleteLater()
-                            del self.collectionOfAgents.agents[i]
-                    self.parent.collectionOfCells.removeVisiblityCell(self.getId())
-                    self.show()
-                    self.repaint()
+                if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
+                    if authorisation : 
+                        if len(self.collectionOfAgents.agents) !=0:
+                            for i in reversed(range(len(self.collectionOfAgents.agents))):
+                                self.collectionOfAgents.agents[i].deleteLater()
+                                del self.collectionOfAgents.agents[i]
+                        self.parent.collectionOfCells.removeVisiblityCell(self.getId())
+                        self.show()
+                        self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
                     if  authorisation :
@@ -182,7 +184,6 @@ class SGCell(QtWidgets.QWidget):
                               
                 #For agent placement and replace the value         
                 else :
-                    
                     if  authorisation :
                         aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
                         if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):

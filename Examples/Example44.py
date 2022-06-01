@@ -7,8 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Simple example of the timeManager
-
+#Simple example
 
 myModel=SGModel(1080,960,"grid")
 
@@ -26,39 +25,22 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
 myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
-
 theFirstLegende=myModel.createLegendeAdmin()
-
 
 thePlayer=myModel.newPlayer("oui")
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,1,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]))
 thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),2,{"sea":["reasonable"]}))
 
-thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea"]}))
+thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]}))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}))
 
-
-
+thePlayer.addGameAction(myModel.createDeleteAction(theFirstGrid.getACell(),2,{"sea":["reasonable","deep sea"]}))
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 
 myModel.timeManager.addGamePhase("theSecondPhase",1,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},3)],[lambda: myModel.getTimeManager().verifNumberOfRound(3)])
 
 myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
-
-
-"""theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{})
-theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
-theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
-
-theSecondLegend.addAgentToTheLegend("lac",{'boat':['old']})
-theSecondLegend.addAgentToTheLegend("lac",{'boat':['new']})"""
-
-
-
-
-
-
 
 myModel.show() 
 

@@ -45,7 +45,7 @@ class SGLegende(SGGameSpace):
                     for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
                         if aKeyOfGamespace=="deleteButton":
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element])
+                            anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][1],self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][0])
                             self.legendItemList[aKeyOfGamespace].append(anItem)
                             anItem.show()
                         else: 
@@ -173,10 +173,6 @@ class SGLegende(SGGameSpace):
         
 #Adding agent to the legend
     def addAgentToTheLegend(self,agentName,aDictOfAcceptedValue={}):
-        print(self.id)
-        print(agentName)
-        print(aDictOfAcceptedValue)
-
         if "agents" not in list(self.elementsPov.keys()) :
             self.elementsPov["agents"]={}
         if agentName not in self.elementsPov["agents"]:
@@ -199,18 +195,30 @@ class SGLegende(SGGameSpace):
                             for aValue in anAgentPovs[aPov][anAttribut]:
                                 if aValue in aDictOfAcceptedValue[anAttribut]:
                                     self.elementsPov["agents"][agentName][aPov][anElement][aValue]=anAgentPovs[aPov][anAttribut][aValue]
-        print(self.elementsPov)
-        print("-------------------")
         self.initUI()
         
         
 #Adding the delete Button
-    def addDeleteButton(self):
+    def addDeleteButton(self,name,elementsAllowed="all"):
         self.haveADeleteButton=True
-        self.elementsPov["deleteButton"]={}
-        for aGameSpaceId in self.elementsPov:
-            for aPov in self.elementsPov[aGameSpaceId]:
-                self.elementsPov["deleteButton"][aPov]={"delete":Qt.yellow}
+        if "deleteButton" not in self.elementsPov:
+            self.elementsPov["deleteButton"]={}
+            
+        if elementsAllowed == "all":
+            for aGameSpaceId in self.elementsPov:
+                for aPov in self.elementsPov[aGameSpaceId]:
+                    self.elementsPov["deleteButton"][aPov]={name+" "+elementsAllowed:["all",Qt.yellow]}
+        else:
+            for aGameSpaceId in self.elementsPov:
+                if aGameSpaceId != "agents" and aGameSpaceId!= "deleteButton":
+                    for aPov in self.parent.getGameSpace(aGameSpaceId).collectionOfCells.povs:
+                        for elementOriginal in self.parent.getGameSpace(aGameSpaceId).collectionOfCells.povs[aPov]:
+                            for elementFound in elementsAllowed:
+                                if elementFound == elementOriginal :
+                                    if aPov not in self.elementsPov["deleteButton"]:
+                                        self.elementsPov["deleteButton"][aPov]={}
+                                    for val in elementsAllowed[elementFound] :
+                                        self.elementsPov["deleteButton"][aPov][str(name)+" "+str(elementFound)+" "+str(val)]=[str(elementFound),Qt.yellow]
         self.initUI()
         
         

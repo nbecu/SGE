@@ -145,7 +145,7 @@ class SGAgent(QtWidgets.QWidget):
             #Something is selected
             if self.parent.parent.parent.selected[0]!=None :
                 #The delete Action
-                if self.parent.parent.parent.selected[2]== "delete":
+                if self.parent.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.parent.selected[2].split()[0]== "Remove":
                     for i in reversed(range(len(self.parent.collectionOfAgents.agents))):
                         if self.parent.collectionOfAgents.agents[i] == self :
                             self.parent.collectionOfAgents.agents[i].deleteLater()
