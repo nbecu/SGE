@@ -57,6 +57,14 @@ class SGTimeManager():
     def verifNumberOfRound(self,aNumber):
         return self.actualRound==aNumber
     
+    #To verify if the number of round is peer 
+    def isPeer(self):
+        return self.actualRound%2==0
+    
+    #To verify if the number of round is odd
+    def isOdd(self):
+        return self.actualRound%2==1
+    
     
   
             

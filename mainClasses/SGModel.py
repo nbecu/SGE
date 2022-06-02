@@ -189,9 +189,9 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the zoom in
     def zoomPlusModel(self):
-        self.numberOfZoom=self.numberOfZoom+1
-        for aGameSpace in self.gameSpaces:
-            self.gameSpaces[aGameSpace].zoomIn()
+        self.setNumberOfZoom(self.numberOfZoom+1)
+        for aGameSpaceName in self.gameSpaces:
+            self.gameSpaces[aGameSpaceName].zoomIn()
         self.update()
 
 
@@ -200,19 +200,21 @@ class SGModel(QtWidgets.QMainWindow):
     #Trigger the zoom out
     def zoomLessModel(self):
         if self.numberOfZoom != 0 :
-            for aGameSpace in self.gameSpaces:
-                self.gameSpaces[aGameSpace].zoomOut()
-            self.numberOfZoom=self.numberOfZoom-1
+            for aGameSpaceName in self.gameSpaces:
+                self.gameSpaces[aGameSpaceName].zoomOut()
+            self.setNumberOfZoom(self.numberOfZoom-1)
         self.update()
 
     
     #Trigger the basic zoom
     def zoomFitModel(self):
+        #if the window to display is to big we zoom out and reapply the layout
         if self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height():
             while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
                 self.zoomLessModel()
                 self.applyPersonalLayout()
         else :
+            #if the window to display is to small we zoom in and out when we over do it once and then reapply the layout
             while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
                 self.zoomPlusModel()
                 self.applyPersonalLayout()
@@ -246,7 +248,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     
     #Event
-    #wheel event we zoom 
+    #wheel event we zoom in or out
     def wheelEvent(self,event):
         if(event.angleDelta().y()==120):
             self.zoomPlusModel()
@@ -276,21 +278,19 @@ class SGModel(QtWidgets.QMainWindow):
     #To create a grid
     def createGrid(self,name,rows=8, columns=8,format="square",color=Qt.gray,gap=3,size=30):
         #Creation
-        aGrid = SGGrid(self,name,rows, columns,format,gap,size)
-        aGrid.setColor(color)
+        aGrid = SGGrid(self,name,rows, columns,format,gap,size,color)
         self.gameSpaces[name]=aGrid
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aGrid)
-        aGrid.startXBase=newPos[0]
-        aGrid.startYBase=newPos[1]
+        aGrid.setStartXBase(newPos[0])
+        aGrid.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
-            aGrid.move(aGrid.startXBase,aGrid.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aGrid))
+            aGrid.move(aGrid.getStartXBase(),aGrid.getStartYBase()+20*self.layoutOfModel.getNumberOfAnElement(aGrid))
         elif(self.typeOfLayout=="horizontal"):
-            aGrid.move(aGrid.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aGrid),aGrid.startYBase)    
+            aGrid.move(aGrid.getStartXBase()+20*self.layoutOfModel.getNumberOfAnElement(aGrid),aGrid.getStartYBase())    
         else:
             pos=self.layoutOfModel.foundInLayout(aGrid)
-            aGrid.move(aGrid.startXBase+20*pos[0],aGrid.startYBase+20*pos[1])
-        
+            aGrid.move(aGrid.getStartXBase()+20*pos[0],aGrid.getStartYBase()+20*pos[1])
         return aGrid
     
     #To create a void
@@ -301,9 +301,9 @@ class SGModel(QtWidgets.QMainWindow):
         
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aVoid)
-        aVoid.startXBase=newPos[0]
-        aVoid.startYBase=newPos[1]
-        aVoid.move(aVoid.startXBase,aVoid.startYBase)
+        aVoid.setStartXBase(newPos[0])
+        aVoid.setStartYBase(newPos[1])
+        aVoid.move(aVoid.getStartXBase(),aVoid.getStartYBase())
         return aVoid
     
     
@@ -312,22 +312,17 @@ class SGModel(QtWidgets.QMainWindow):
         #Creation
         #We harvest all the case value
         allElements={}
-        listOfGrid=[]
-        for anElement in self.gameSpaces :
-            if isinstance(self.gameSpaces[anElement],SGGrid):
-                dictOfElements=self.gameSpaces[anElement].getValuesForLegende()
-                listOfGrid.append(self.gameSpaces[anElement])
-                allElements[anElement]=dictOfElements
-        
+        for anElement in self.getGrids() :
+            allElements[anElement.id]=anElement.getValuesForLegende()
         aLegende = SGLegende(self,"adminLegende",allElements)
-        for aGrid in listOfGrid :
+        for aGrid in self.getGrids() :
             for anAgent in aGrid.collectionOfAcceptAgent :
                 aLegende.addAgentToTheLegend(anAgent)
         self.gameSpaces["adminLegende"]=aLegende
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegende)
-        aLegende.startXBase=newPos[0]
-        aLegende.startYBase=newPos[1]
+        aLegende.setStartXBase(newPos[0])
+        aLegende.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
             aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
         elif(self.typeOfLayout=="horizontal"):
@@ -354,8 +349,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces[name]=aLegende
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegende)
-        aLegende.startXBase=newPos[0]
-        aLegende.startYBase=newPos[1]
+        aLegende.setStartXBase(newPos[0])
+        aLegende.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
             aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
         elif(self.typeOfLayout=="horizontal"):
@@ -393,9 +388,9 @@ class SGModel(QtWidgets.QMainWindow):
     def getGameSpace(self,name):
         return self.gameSpaces[name]
     
-    #To get a gameSpace in particular
+    #To apply the layout to all the current game spaces
     def applyPersonalLayout(self):
-        aDict=self.layoutOfModel.ordered()
+        self.layoutOfModel.ordered()
         for anElement in self.gameSpaces :
             if(self.typeOfLayout=="vertical"):
                 self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYBase+20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]))
@@ -415,14 +410,12 @@ class SGModel(QtWidgets.QMainWindow):
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
         self.nameOfPov=nameOfPov
-        for anGameSpace in self.gameSpaces:
-            if isinstance(self.gameSpaces[anGameSpace],SGLegende):
-                self.gameSpaces[anGameSpace].initUI()
+        for anGameSpace in self.getLegends():
+            self.gameSpaces[anGameSpace].initUI()
         self.update()
         
-
     
-    #To add a new POV
+    #To add a new POV and apply a value to cell
     def setUpCellValueAndPov(self,aNameOfPov,aDict,items,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
         if not isinstance(items,list):
             items=[items]
@@ -468,6 +461,26 @@ class SGModel(QtWidgets.QMainWindow):
                 self.povMenu.addAction(anAction)
                 anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
                 
+                
+    #To add a new POV and apply a value to cell
+    def setUpPov(self,aNameOfPov,aDict,items,listOfGridToApply=None):
+        if not isinstance(items,list):
+            items=[items]
+        for anItem in items :
+            if(isinstance(anItem,SGGrid)==True):
+                anItem.collectionOfCells.povs[aNameOfPov]=aDict
+            elif(isinstance(anItem,str)==True):
+                for aGrid in listOfGridToApply:
+                    for anAgent in aGrid.collectionOfAcceptAgent :
+                        if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
+                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
+            #Adding the Pov to the menue bar
+            if aNameOfPov not in self.listOfPovsForMenu :
+                self.listOfPovsForMenu.append(aNameOfPov)
+                anAction=QAction(" &"+aNameOfPov, self)
+                self.povMenu.addAction(anAction)
+                anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
+                
                         
                     
                 
@@ -493,6 +506,7 @@ class SGModel(QtWidgets.QMainWindow):
     #-----------------------------------------------------------  
     #Getter
     
+    #To get all type of gameSpace who are grids
     def getGrids(self):
         listOfGrid=[]
         for aGameSpace in list(self.gameSpaces.values()) :
@@ -500,8 +514,20 @@ class SGModel(QtWidgets.QMainWindow):
                 listOfGrid.append(aGameSpace)
         return listOfGrid 
     
-    def getPlayer(self):
-        return self.actualPlayer     
+    #To get all type of gameSpace who are legends
+    def getLegends(self):
+        listOfLegende=[]
+        for aGameSpace in list(self.gameSpaces.values()) :
+            if isinstance(aGameSpace,SGLegende):
+                listOfLegende.append(aGameSpace)
+        return listOfLegende 
+
+    
+    #To change the number of zoom we actually are
+    def setNumberOfZoom(self,number):
+        self.numberOfZoom = number    
+    
+
     
 
     

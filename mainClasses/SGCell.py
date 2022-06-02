@@ -29,7 +29,7 @@ class SGCell(QtWidgets.QWidget):
         self.startY=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
         self.isDisplay=True
         #We init the dict of Attribute
-        self.attributs=None
+        self.attributs={}
         #We init the Collection for the futures Agents
         self.collectionOfAgents=SGAgentCollection(self)
         #We allow the drops for the agents

@@ -34,6 +34,18 @@ class SGGameSpace(QtWidgets.QWidget):
         pass
     
     
+    #The getter and setter
+    def getStartXBase(self):
+        return self.startXBase
+    
+    def getStartYBase(self):
+        return self.startYBase
+    
+    def setStartXBase(self,number):
+        self.startXBase = number
+    
+    def setStartYBase(self,number):
+        self.startYBase = number
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
