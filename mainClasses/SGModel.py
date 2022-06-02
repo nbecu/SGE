@@ -376,8 +376,12 @@ class SGModel(QtWidgets.QMainWindow):
         return player
         
     #To get a player
-    def getPlayer(self,name):
+    def getAPlayer(self,name):
         return self.collectionOfPlayers[name]
+    
+    #To get the player
+    def getPlayer(self):
+        return self.actualPlayer
 
             
     
@@ -494,14 +498,14 @@ class SGModel(QtWidgets.QMainWindow):
     #-----------------------------------------------------------  
     #Game mechanics function 
     
-    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
-        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
+    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
-    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
-        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
+    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
-    def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[]):
-        return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction) 
+    def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     #-----------------------------------------------------------  
     #Getter

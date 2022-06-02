@@ -52,16 +52,17 @@ class SGPlayer():
                 elif isinstance(aGameAction,SGUpdate) and self.parent.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.parent.selected[1] in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
                     return aGameAction
                 #Delete of a Cell
-                elif isinstance(aGameAction,SGDelete) and (anItem.isDisplay==True) and self.parent.selected[1] in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                elif isinstance(aGameAction,SGDelete) and (anItem.isDisplay==True) and self.parent.selected[1] in ['square','hexagonal'] and self.parent.selected[3]in list(anItem.attributs.values()) : 
                     return aGameAction
                 
         elif isinstance(anItem,SGAgent):
-            #Update of an Angent
-            if isinstance(aGameAction,SGUpdate)and self.parent.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
-                return aGameAction
-            #Delete of an Agent
-            elif isinstance(aGameAction,SGDelete) and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
-                return aGameAction
+            for aGameAction in self.gameActions :
+                #Update of an Angent
+                if isinstance(aGameAction,SGUpdate)and self.parent.selected[2].find("Remove ")==-1 and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    return aGameAction
+                #Delete of an Agent
+                elif isinstance(aGameAction,SGDelete) and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    return aGameAction
 
                  
 

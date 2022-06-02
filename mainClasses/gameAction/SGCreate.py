@@ -1,9 +1,10 @@
+from email import feedparser
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
 
 class SGCreate():
-    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[]):
+    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
@@ -13,6 +14,8 @@ class SGCreate():
             self.name=anObject.getId()
         elif isinstance(anObject,SGCell):
             self.name=anObject.parent
+        self.feedback=feedBack
+        self.conditionOfFeedBack=conditionOfFeedBack
             
         
     #Function which increment the number of use

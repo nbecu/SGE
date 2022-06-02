@@ -138,9 +138,13 @@ class SGGrid(SGGameSpace):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #Retourne la cellule demande de la grille
+    #Retourn the cell
     def getCell(self,aName):
         return self.collectionOfCells.getCell(aName)
+    
+    #Retourn the from the coordonate
+    def getCellFromCoordonate(self,x, y):
+        return self.getCell("cell"+str(x-1)+'-'+str(y-1))
     
 #To handle POV and placing on cell
     #To define a value for all cells

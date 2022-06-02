@@ -28,7 +28,8 @@ myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"
 theFirstLegende=myModel.createLegendeAdmin()
 
 thePlayer=myModel.newPlayer("oui")
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,1,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]))
+"""thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.parent.addOnXandY("lac",1,1) ] ,[lambda aCell: aCell.parent.getCellFromCoordonate(1,1).checkValue({"sea":"reasonable"}) ]  ))"""
+thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordonate(1,1).checkValue({"sea":"reasonable"}) ]))
 thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),2,{"sea":["reasonable"]}))
 
 thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]}))

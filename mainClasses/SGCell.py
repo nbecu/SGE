@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from sqlalchemy import true
 
 from SGAgent import SGAgent
 from SGAgentCollection import SGAgentCollection
@@ -145,11 +146,11 @@ class SGCell(QtWidgets.QWidget):
                 #We shearch if the player have the rights
                 thePlayer=self.parent.parent.getPlayer()
                 authorisation=False
+                theAction = None
                 if self.parent.parent.selected[0].isFromAdmin():
                     authorisation=True
                 elif thePlayer is not None :
                     theAction=thePlayer.getGameActionOn(self)
-                    print(theAction)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
                         if authorisation : 
@@ -163,24 +164,30 @@ class SGCell(QtWidgets.QWidget):
                                 del self.collectionOfAgents.agents[i]
                         self.parent.collectionOfCells.removeVisiblityCell(self.getId())
                         self.show()
+                        #We now check the feedBack of the actions if it have some
+                        if theAction is not None:
+                            self.feedBack(theAction)
                         self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
                     if  authorisation :
-                            self.isDisplay=True
-                            value =self.parent.parent.selected[3]
-                            theKey=""
-                            for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                                if value in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
-                                    theKey=anAttribute
-                                    break
-                            aDictWithValue={theKey:value}    
-                            for aVal in list(aDictWithValue.keys()) :
-                                if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
-                                        for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                                            self.attributs.pop(anAttribute,None)
-                            self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-                            self.update() 
+                        self.isDisplay=True
+                        value =self.parent.parent.selected[3]
+                        theKey=""
+                        for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                            if value in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
+                                theKey=anAttribute
+                                break
+                        aDictWithValue={theKey:value}    
+                        for aVal in list(aDictWithValue.keys()) :
+                            if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
+                                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                                        self.attributs.pop(anAttribute,None)
+                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+                        #We now check the feedBack of the actions if it have some
+                        if theAction is not None:
+                            self.feedBack(theAction)   
+                        self.update() 
                               
                 #For agent placement and replace the value         
                 else :
@@ -189,13 +196,26 @@ class SGCell(QtWidgets.QWidget):
                         if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
                             anAgentName=str(self.parent.parent.selected[5])
                             if self.isDisplay==True :
-                                
                                 anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                                 anAgent.x=QMouseEvent.pos().x()
                                 anAgent.y=QMouseEvent.pos().y()
                                 anAgent.update()
                                 anAgent.show()
+                            #We now check the feedBack of the actions if it have some
+                            if theAction is not None:
+                                self.feedBack(theAction)
+                                    
+    #Apply the feedBack of a gameMechanics
+    def feedBack(self, theAction):
+        booleanForFeedback=True
+        for anCondition in theAction.conditionOfFeedBack :
+            booleanForFeedback=booleanForFeedback and anCondition(self)
+        print(booleanForFeedback)
+        if booleanForFeedback :
+            for aFeedback in  theAction.feedback :
+                aFeedback(self)
+                            
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
@@ -232,6 +252,9 @@ class SGCell(QtWidgets.QWidget):
         if theKey in list(self.attributs.keys()):
             return aDictOfValue[theKey]==self.attributs[theKey]
         return False
+    
+    def changeValue(self,aDictOfValue):
+       self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
     
         
     
