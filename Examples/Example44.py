@@ -15,11 +15,11 @@ theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
 
 theSecondGrid=myModel.createGrid("theSecondGrid",4,4,"square",Qt.gray)
 
-myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
+myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
 myModel.setInitialPovGlobal("Forester")
 
-theFirstGrid.setForRandom({"Forest":"Niv3"},30)
+theFirstGrid.setForRandom({"Forest":"Niv1"},30)
 
 anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
@@ -42,6 +42,8 @@ myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.ge
 myModel.timeManager.addGamePhase("theSecondPhase",1,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},3)],[lambda: myModel.getTimeManager().verifNumberOfRound(3)])
 
 myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
+
+myModel.timeManager.addGamePhase("theFourthPhase",4,None,[lambda: myModel.getGameSpace("basicGrid").makeEvolve(["Forest"]),lambda: myModel.getGameSpace("basicGrid").makeDecrease(["sea"])])
 
 myModel.show() 
 

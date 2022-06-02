@@ -293,6 +293,28 @@ class SGGrid(SGGameSpace):
     def getACell(self):        
         return self.collectionOfCells.getCells()[list(self.collectionOfCells.getCells().keys())[0]]
      
+     
+    #To grow all attributs of cells of one type
+    def makeEvolve(self,listOfAttributsToMakeEvolve):
+        for aCell in list(self.collectionOfCells.getCells().values()) :
+            for anAttribut in listOfAttributsToMakeEvolve:
+                if anAttribut in list(aCell.attributs.keys()) :
+                    for aPov in aCell.theCollection.povs:
+                        found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
+                        if found!=-1 and found+1 != len(aCell.theCollection.povs[aPov][anAttribut]):
+                            aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found+1]
+                            
+    #To decrease all attributs of cells of one type
+    def makeDecrease(self,listOfAttributsToMakeDecrease):
+        for aCell in list(self.collectionOfCells.getCells().values()) :
+            for anAttribut in listOfAttributsToMakeDecrease:
+                if anAttribut in list(aCell.attributs.keys()) :
+                    for aPov in aCell.theCollection.povs:
+                        found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
+                        if found!=-1 and found != 0:
+                            aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
+       
+     
                 
         
                 
