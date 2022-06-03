@@ -216,6 +216,22 @@ class SGGrid(SGGameSpace):
         anAgent.show()
         self.update()
         return anAgent
+    
+    #to add agent on multiple cell depending of their value
+    def addAgentOnValue(self,anAgentName,aDictValueForAgent,aValueForAgent=None):
+        cells=self.getCellOfValue(aDictValueForAgent)
+        for cell in cells :
+            anAgent=SGAgent(cell,anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
+            anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
+            anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs.copy()
+            cell.collectionOfAgents.addAgent(anAgent)
+            if aValueForAgent is not None :
+                for anAttribut in self.collectionOfCells.povs[self.parent.nameOfPov] :
+                        if aValueForAgent in list(self.collectionOfCells.povs[self.parent.nameOfPov][anAttribut].keys()) :
+                            anAgent.attributs[anAttribut]=aValueForAgent
+            anAgent.show()
+            self.update()
+        return anAgent
         
 #To add a specific pov 
     def setUpPov(self,aNameOfPov,aDictOfValue,theTypeOfObjectToApply="cells",theNameOfTheAgent="circleAgent"):
@@ -313,6 +329,17 @@ class SGGrid(SGGameSpace):
                         found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
                         if found!=-1 and found != 0:
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
+                            
+    #to get all cells who respect certain value
+    def getCellOfValue(self,aDictValueForAgent):
+        result=[]
+        for cell in list(self.collectionOfCells.cells.values()):
+            aKey= list(aDictValueForAgent.keys())[0]
+            if aKey in cell.attributs :
+                if aDictValueForAgent[aKey]==cell.attributs[aKey]:
+                    result.append(cell)
+        return result
+                    
        
      
                 

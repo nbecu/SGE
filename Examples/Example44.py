@@ -21,9 +21,12 @@ myModel.setInitialPovGlobal("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv1"},30)
 
+theFirstGrid.setForRandom({"Forest":"Niv2"},4)
+
 anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
 myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
+
 
 theFirstLegende=myModel.createLegendeAdmin()
 
@@ -44,6 +47,8 @@ myModel.timeManager.addGamePhase("theSecondPhase",1,None,[lambda: myModel.getGam
 myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
 
 myModel.timeManager.addGamePhase("theFourthPhase",4,None,[lambda: myModel.getGameSpace("basicGrid").makeEvolve(["Forest"]),lambda: myModel.getGameSpace("basicGrid").makeDecrease(["sea"])])
+
+myModel.timeManager.addGamePhase("the5Phase",5,None,[lambda: myModel.getGameSpace("basicGrid").addAgentOnValue('lac',{"Forest":"Niv2"})])
 
 myModel.show() 
 
