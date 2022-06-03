@@ -12,6 +12,7 @@ from SGAgent import SGAgent
 
 from PyQt5.QtWidgets import QAction
 
+
 import copy
 
 #Class who is responsible of the grid creation
@@ -339,6 +340,30 @@ class SGGrid(SGGameSpace):
                 if aDictValueForAgent[aKey]==cell.attributs[aKey]:
                     result.append(cell)
         return result
+    
+    #to move all of a kind of agent radomly
+    def moveRadomlyAgent(self,anAgentName):
+        listOfAgentToMove=[]
+        listCells=self.collectionOfCells.getCellsDisplay()
+        for cell in listCells:
+            for anAgent in cell.getAgentsOfType(anAgentName):
+                listOfAgentToMove.append(anAgent)
+        while len(listOfAgentToMove)!=0 :
+            agent=listOfAgentToMove.pop()
+            oldPlace=agent.parent
+            newPlace=oldPlace
+            while newPlace==oldPlace:
+                newPlace=listCells[random.randint(0,len(listCells)-1)]
+            #We remove the agent of the actual cell
+            agent.parent.collectionOfAgents.agents.pop(agent.parent.collectionOfAgents.agents.index(agent))
+            agent.deleteLater()
+            #We add the agent to the new cell
+            theAgent=self.addOnXandY(agent.name,newPlace.x+1,newPlace.y+1)
+            theAgent.x=agent.x
+            theAgent.y=agent.y
+            theAgent.attributs=agent.attributs
+            theAgent.show()
+
                     
        
      

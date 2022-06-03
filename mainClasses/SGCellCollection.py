@@ -49,6 +49,14 @@ class SGCellCollection():
     def removeVisiblityCell(self,aName):
         self.getCell(aName).isDisplay=False
         self.parent.update()
+        
+    #To get all cells who is displayed
+    def getCellsDisplay(self):
+        res=[]
+        for cell in list(self.cells.values()):
+            if cell.isDisplay ==True:
+                res.append(cell)
+        return res
     
 
         
