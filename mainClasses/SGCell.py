@@ -247,14 +247,41 @@ class SGCell(QtWidgets.QWidget):
                     del self.attributs[aVal]
                 self.attributs[anAttribut]=aDictOfValue[anAttribut]
 
+    #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
         theKey=list(aDictOfValue.keys())[0] 
         if theKey in list(self.attributs.keys()):
             return aDictOfValue[theKey]==self.attributs[theKey]
         return False
     
+    #To change the value
     def changeValue(self,aDictOfValue):
        self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
+     
+    #To delete a kind of Agent on the cell   
+    def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+        if len(self.collectionOfAgents.agents) !=0:
+            nbrDelete=0
+            aListOfAgent = self.getAgent(nameOfAgent)
+            if numberOfDelete ==0:
+                numberOfDelete=len(aListOfAgent)
+            while len(aListOfAgent) !=0 and numberOfDelete>nbrDelete :
+                for agent in aListOfAgent:
+                    if agent.name==nameOfAgent:
+                        test=True
+                        for cond in condition:
+                            test = cond(self) and test
+                        if test:
+                            nbrDelete=nbrDelete+1
+                            agent.deleteLater()
+                            del agent
+        self.show()
     
         
-    
+    #To get all of a kind of agent on a cell 
+    def getAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+        listOfAgent=[]
+        for agent in self.collectionOfAgents.agents:
+            if agent.name ==nameOfAgent:
+                listOfAgent.append(agent)
+        return  listOfAgent

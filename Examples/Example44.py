@@ -35,7 +35,7 @@ thePlayer=myModel.newPlayer("Gertrude")
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordonate(1,1).checkValue({"sea":"reasonable"}) ]))
 thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),2,{"sea":["reasonable"]}))
 
-thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]}))
+thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]},[],[lambda aCell: aCell.deleteAgent("lac")]))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}))
 
 thePlayer.addGameAction(myModel.createDeleteAction(theFirstGrid.getACell(),2,{"sea":["reasonable","deep sea"]}))
@@ -52,6 +52,8 @@ myModel.timeManager.addGamePhase("the5Phase",5,None,[lambda: myModel.getGameSpac
 
 myModel.timeManager.addGamePhase("the6Phase",6,None,[lambda: myModel.getGameSpace("basicGrid").moveRadomlyAgent("lac")])
 
+"""myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").moveRadomlyAgent("lac")])
+"""
 
 myModel.show() 
 
