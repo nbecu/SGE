@@ -266,6 +266,7 @@ class SGCell(QtWidgets.QWidget):
             if numberOfDelete ==0:
                 numberOfDelete=len(aListOfAgent)
             while len(aListOfAgent) !=0 and numberOfDelete>nbrDelete :
+                aListOfAgent = self.getAgent(nameOfAgent)
                 for agent in aListOfAgent:
                     if agent.name==nameOfAgent:
                         test=True
@@ -274,7 +275,9 @@ class SGCell(QtWidgets.QWidget):
                         if test:
                             nbrDelete=nbrDelete+1
                             agent.deleteLater()
+                            self.collectionOfAgents.agents.remove(agent)
                             del agent
+                            break
         self.show()
     
         
