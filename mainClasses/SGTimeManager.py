@@ -10,11 +10,13 @@ class SGTimeManager():
         
     #To increment the time of the game
     def nextPhase(self):
+        
         if self.actualPhase+2 <= len(self.orderGamePhases):
             if len(self.orderGamePhases)!=1:
                 self.actualPhase = self.actualPhase +1
         else:
             self.actualPhase=0
+
             
         thePhase= self.orderGamePhases[self.actualPhase]
         #Add conditions

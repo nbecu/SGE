@@ -212,7 +212,6 @@ class SGCell(QtWidgets.QWidget):
         booleanForFeedback=True
         for anCondition in theAction.conditionOfFeedBack :
             booleanForFeedback=booleanForFeedback and anCondition(self)
-        print(booleanForFeedback)
         if booleanForFeedback :
             for aFeedback in  theAction.feedback :
                 aFeedback(self)
@@ -261,7 +260,6 @@ class SGCell(QtWidgets.QWidget):
      
     #To delete a kind of Agent on the cell   
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
-        print("begin delete")
         if len(self.collectionOfAgents.agents) !=0:
             nbrDelete=0
             count=0
@@ -275,18 +273,14 @@ class SGCell(QtWidgets.QWidget):
                     if agent.name==nameOfAgent:
                         test=True
                         for cond in condition:
-                            print(cond)
-                            print(cond(self))
                             test = cond(self) and test
-                            print(self.attributs)
-                            print(self.checkValue({"Forest":"Niv2"}))
-                            print("------------")
                         if test:
                             nbrDelete=nbrDelete+1
                             agent.deleteLater()
                             self.collectionOfAgents.agents.remove(agent)
                             del agent
                             break
+            return nbrDelete
         self.show()
     
         

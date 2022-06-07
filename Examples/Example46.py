@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Simple example
+#Simple example of suppr agent through the time manager
 
 myModel=SGModel(1080,960,"grid")
 
@@ -44,17 +44,13 @@ thePlayer.addGameAction(myModel.createDeleteAction(theFirstGrid.getACell(),2,{"s
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 
-myModel.timeManager.addGamePhase("theSecondPhase",1,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},3)],[lambda: myModel.getTimeManager().verifNumberOfRound(3)])
+"""myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac")])
 
-myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
 
-myModel.timeManager.addGamePhase("theFourthPhase",4,None,[lambda: myModel.getGameSpace("basicGrid").makeEvolve(["Forest"]),lambda: myModel.getGameSpace("basicGrid").makeDecrease(["sea"])])
+myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac",2)])"""
 
-myModel.timeManager.addGamePhase("the5Phase",5,None,[lambda: myModel.getGameSpace("basicGrid").addAgentOnValue('lac',{"Forest":"Niv2"})])
+myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac",2,[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ])])
 
-myModel.timeManager.addGamePhase("the6Phase",6,None,[lambda: myModel.getGameSpace("basicGrid").moveRadomlyAgent("lac")])
-
-myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac")])
 
 
 myModel.show() 

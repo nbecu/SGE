@@ -1,3 +1,4 @@
+from itertools import count
 from pickle import TRUE
 import random
 from PyQt5 import QtWidgets 
@@ -363,6 +364,19 @@ class SGGrid(SGGameSpace):
             theAgent.y=agent.y
             theAgent.attributs=agent.attributs
             theAgent.show()
+            
+    #To delete a kind of Agent on hte grid  
+    def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+        aListOfAgent= self.getAgentsOfType(nameOfAgent)
+        count=0
+        nbrDelete=0
+        if numberOfDelete==0:
+            numberOfDelete=len(aListOfAgent)
+        while numberOfDelete>nbrDelete and len(aListOfAgent)!=0 and count!=len(aListOfAgent):
+            nbr=aListOfAgent[count].parent.deleteAgent(nameOfAgent,numberOfDelete,condition)
+            nbrDelete=nbrDelete+nbr
+            count=count+1
+        self.show()
 
                     
        

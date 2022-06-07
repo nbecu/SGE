@@ -184,7 +184,6 @@ class SGAgent(QtWidgets.QWidget):
         booleanForFeedback=True
         for anCondition in theAction.conditionOfFeedBack :
             booleanForFeedback=booleanForFeedback and anCondition(self)
-        print(booleanForFeedback)
         if booleanForFeedback :
             for aFeedback in  theAction.feedback :
                 aFeedback(self)
@@ -217,6 +216,7 @@ class SGAgent(QtWidgets.QWidget):
                 for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                     del self.attributs[aVal]
                 self.attributs[anAttribut]=aDictOfValue[anAttribut]
+            
                 
       
                 
