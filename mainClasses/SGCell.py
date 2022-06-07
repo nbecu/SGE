@@ -158,19 +158,22 @@ class SGCell(QtWidgets.QWidget):
                 #The delete Action
                 if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
                     if authorisation : 
+                        #We now check the feedBack of the actions if it have some
+                        if theAction is not None:
+                            self.feedBack(theAction)
                         if len(self.collectionOfAgents.agents) !=0:
                             for i in reversed(range(len(self.collectionOfAgents.agents))):
                                 self.collectionOfAgents.agents[i].deleteLater()
                                 del self.collectionOfAgents.agents[i]
                         self.parent.collectionOfCells.removeVisiblityCell(self.getId())
                         self.show()
-                        #We now check the feedBack of the actions if it have some
-                        if theAction is not None:
-                            self.feedBack(theAction)
                         self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
                     if  authorisation :
+                        #We now check the feedBack of the actions if it have some
+                        if theAction is not None:
+                            self.feedBack(theAction) 
                         self.isDisplay=True
                         value =self.parent.parent.selected[3]
                         theKey=""
@@ -183,10 +186,7 @@ class SGCell(QtWidgets.QWidget):
                             if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
-                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-                        #We now check the feedBack of the actions if it have some
-                        if theAction is not None:
-                            self.feedBack(theAction)   
+                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.update() 
                               
                 #For agent placement and replace the value         
@@ -196,15 +196,16 @@ class SGCell(QtWidgets.QWidget):
                         if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
                             anAgentName=str(self.parent.parent.selected[5])
                             if self.isDisplay==True :
+                                #We now check the feedBack of the actions if it have some
+                                if theAction is not None:
+                                    self.feedBack(theAction)
                                 anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                                 anAgent.x=QMouseEvent.pos().x()
                                 anAgent.y=QMouseEvent.pos().y()
                                 anAgent.update()
                                 anAgent.show()
-                            #We now check the feedBack of the actions if it have some
-                            if theAction is not None:
-                                self.feedBack(theAction)
+                            
                                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -260,18 +261,26 @@ class SGCell(QtWidgets.QWidget):
      
     #To delete a kind of Agent on the cell   
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+        print("begin delete")
         if len(self.collectionOfAgents.agents) !=0:
             nbrDelete=0
+            count=0
             aListOfAgent = self.getAgent(nameOfAgent)
             if numberOfDelete ==0:
                 numberOfDelete=len(aListOfAgent)
-            while len(aListOfAgent) !=0 and numberOfDelete>nbrDelete :
+            while len(aListOfAgent) !=0 and numberOfDelete>nbrDelete and count!=len(aListOfAgent) :
+                count=count+1
                 aListOfAgent = self.getAgent(nameOfAgent)
                 for agent in aListOfAgent:
                     if agent.name==nameOfAgent:
                         test=True
                         for cond in condition:
+                            print(cond)
+                            print(cond(self))
                             test = cond(self) and test
+                            print(self.attributs)
+                            print(self.checkValue({"Forest":"Niv2"}))
+                            print("------------")
                         if test:
                             nbrDelete=nbrDelete+1
                             agent.deleteLater()

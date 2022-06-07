@@ -35,7 +35,9 @@ thePlayer=myModel.newPlayer("Gertrude")
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordonate(1,1).checkValue({"sea":"reasonable"}) ]))
 thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),2,{"sea":["reasonable"]}))
 
-thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]},[],[lambda aCell: aCell.deleteAgent("lac",1)]))
+thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]},[],[lambda aCell: aCell.deleteAgent("lac",1,[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ])]))
+
+#thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]},[],[lambda aCell: aCell.deleteAgent("lac",1)]))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}))
 
 thePlayer.addGameAction(myModel.createDeleteAction(theFirstGrid.getACell(),2,{"sea":["reasonable","deep sea"]}))

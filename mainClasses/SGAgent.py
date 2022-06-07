@@ -158,25 +158,25 @@ class SGAgent(QtWidgets.QWidget):
                             theAction.use()
                 #The delete Action
                 if self.parent.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.parent.selected[2].split()[0]== "Remove":
+                    #We now check the feedBack of the actions if it have some
+                    if theAction is not None:
+                            self.feedBack(theAction)
                     for i in reversed(range(len(self.parent.collectionOfAgents.agents))):
                         if self.parent.collectionOfAgents.agents[i] == self :
                             self.parent.collectionOfAgents.agents[i].deleteLater()
                             del self.parent.collectionOfAgents.agents[i]
-                    #We now check the feedBack of the actions if it have some
-                    if theAction is not None:
-                            self.feedBack(theAction)
                     self.update()
                 #Change the value of agent   
                 elif self.parent.parent.parent.selected[1]== "circleAgent" or self.parent.parent.parent.selected[1]=="squareAgent" or self.parent.parent.parent.selected[1]== "ellipseAgent1" or self.parent.parent.parent.selected[1]=="ellipseAgent2" or self.parent.parent.parent.selected[1]== "rectAgent1" or self.parent.parent.parent.selected[1]=="rectAgent2" or self.parent.parent.parent.selected[1]== "triangleAgent1" or self.parent.parent.parent.selected[1]=="triangleAgent2" or self.parent.parent.parent.selected[1]== "arrowAgent1" or self.parent.parent.parent.selected[1]=="arrowAgent2":
+                    #We now check the feedBack of the actions if it have some
+                    if theAction is not None:
+                            self.feedBack(theAction)
                     aDictWithValue={self.parent.parent.parent.selected[4]:self.parent.parent.parent.selected[3]}    
                     for aVal in list(aDictWithValue.keys()) :
                         if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                                 for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                                     self.attributs.pop(anAttribute,None)
                     self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-                    #We now check the feedBack of the actions if it have some
-                    if theAction is not None:
-                            self.feedBack(theAction)
                     self.update()
                     
     #Apply the feedBack of a gameMechanics
