@@ -192,6 +192,7 @@ class SGCell(QtWidgets.QWidget):
                 #For agent placement and replace the value         
                 else :
                     if  authorisation :
+                        print(self.getId())
                         aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
                         if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
                             anAgentName=str(self.parent.parent.selected[5])
@@ -291,3 +292,184 @@ class SGCell(QtWidgets.QWidget):
             if agent.name ==nameOfAgent:
                 listOfAgent.append(agent)
         return  listOfAgent
+    
+    
+    #To get the neighbor cells
+    def getNeighborCell(self,type="moore",rangeNeighbor=1,emptyList=[]): 
+        isFirst=False
+        if len(emptyList)==0:
+            isFirst=True
+        """emptyList.append("cell"+str(self.x)+"-"+str(self.y))"""
+
+        emptyList.append(self)
+        listOfCell=[]
+        if rangeNeighbor !=0:
+            if self.format=="hexagonal":
+                if self.y%2==0 :
+                    #Top Left
+                    if self.x-1>=0 and self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Bottom Left
+                    if self.x-1>=0 and self.y+1<=self.parent.rows:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Top
+                    if  self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Left
+                    if  self.x-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Right
+                    if  self.x+1<=self.parent.columns:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Bottom
+                    if  self.y+1<=self.parent.rows:
+                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                else:
+                    #Top Right
+                    if self.x+1<=self.parent.columns and self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Bottom Right
+                    if self.x+1<=self.parent.columns and self.y+1<=self.parent.rows:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell) 
+                    #Top
+                    if  self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Left
+                    if  self.x-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Right
+                    if  self.x+1<=self.parent.columns:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                    #Bottom
+                    if  self.y+1<=self.parent.rows:
+                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            listOfCell.append(cell)
+                for cell in listOfCell:
+                    cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                    
+            else:
+                if type=="moore":
+                    #Top Left
+                    if self.x-1>=0 and self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                    #Top Right
+                    if self.x+1<=self.parent.columns and self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                    #Bottom Left
+                    if self.x-1>=0 and self.y+1<=self.parent.rows:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                    #Bottom Right
+                    if self.x+1<=self.parent.columns and self.y+1<=self.parent.rows:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList) 
+                    #Top
+                    if  self.y-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                    #Left
+                    if  self.x-1>=0:
+                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList) 
+                    #Right
+                    if  self.x+1<=self.parent.columns:
+                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                    #Bottom
+                    if  self.y+1<=self.parent.rows-1:
+                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                        if cell not in emptyList:
+                            cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
+                elif type=="neumann":
+                    self.getNeumannNeighbor(rangeNeighbor,emptyList,origin="init")
+            
+        if isFirst :
+            emptyList.remove(self)
+        return emptyList
+        """for oui in emptyList:
+            if len(oui.getAgentsOfType("lac"))==0:
+                oui.parent.addOnXandY("lac",oui.x+1,oui.y+1)"""
+                    
+    def getNeumannNeighbor(self,rangeNeighbor,emptyList=[],origin="init"):
+        print(origin)
+        emptyList.append(self)
+        if rangeNeighbor >0:
+            if origin=="init":
+                emptyList.remove(self)
+                #Top
+                if  self.y-1>=0:
+                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
+                #Left
+                if  self.x-1>=0:
+                    print("cell"+str(self.x-1)+"-"+str(self.y))
+                    cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
+                #Right
+                if  self.x+1<=self.parent.columns-1:
+                    cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'right')
+                #Bottom
+                if  self.y+1<=self.parent.rows-1:
+                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'bottom') 
+            elif origin == "top":
+                #Top
+                if  self.y-1>=0:
+                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
+            elif origin=="bottom":
+                #Bottom
+                if  self.y+1<=self.parent.rows-1:
+                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'bottom') 
+            elif origin =="right":
+                #Right
+                if  self.x+1<=self.parent.columns-1:
+                    cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'right')
+            elif origin =='left':
+                if  self.x-1>=0:
+                    cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                    if cell not in emptyList:
+                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
+        

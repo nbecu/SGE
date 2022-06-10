@@ -415,7 +415,7 @@ class SGModel(QtWidgets.QMainWindow):
     def setInitialPovGlobal(self,nameOfPov):
         self.nameOfPov=nameOfPov
         for anGameSpace in self.getLegends():
-            self.gameSpaces[anGameSpace].initUI()
+            self.gameSpaces[anGameSpace.id].initUI()
         self.update()
         
     

@@ -7,16 +7,26 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Example of a simple
+#Simple example
+#Declaration du model
+myModel=SGModel(1080,960)
 
-myModel=SGModel(640,480,"horizontal")
-
+#Declaration de la grille
 theFirstGrid=myModel.createGrid("basicGrid")
 
-theFirstGrid.setColor(Qt.blue)
+#Declaration d'une POV ( FORESTER ) et assignation d'une valeur par default a toute les cellule
+myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.blue,"Niv3":Qt.green}},[theFirstGrid])
 
-theSecondGrid=myModel.createGrid("Grid2")
+#On initie la POV au lancement a FORESTER
+myModel.setInitialPovGlobal("Forester")
 
+#On assign une autre valeur a 30 cellule aléatoirement
+theFirstGrid.setForRandom({"Forest":"Niv3"},38)
+
+#On ajoute une legende ADMIN genere automatiquement
+myModel.createLegendeAdmin()
+
+#On ouvre le model
 myModel.show() 
 
 sys.exit(monApp.exec_())

@@ -365,7 +365,7 @@ class SGGrid(SGGameSpace):
             theAgent.attributs=agent.attributs
             theAgent.show()
             
-    #To delete a kind of Agent on hte grid  
+    #To delete a kind of Agent on thee grid  
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
         aListOfAgent= self.getAgentsOfType(nameOfAgent)
         count=0
@@ -377,6 +377,32 @@ class SGGrid(SGGameSpace):
             nbrDelete=nbrDelete+nbr
             count=count+1
         self.show()
+    
+    #To return all agent of a type in neighborhood
+    def getNeighborAgent(self,x,y,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        x=x-1
+        y=y-1
+        result=[]
+        print(self.getCell("cell"+str(x)+"-"+str(y)).getId())
+        for cell in self.getCell("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor,rangeNeighbor):
+            for agent in cell.getAgentsOfType(agentName):
+                result.append(agent)
+        return result
+    
+    #To return all agent in neighborhood
+    def getNeighborAllAgent(self,x,y,typeNeighbor="moore",rangeNeighbor=1):
+        x=x-1
+        y=y-1
+        result=[]
+        for cell in self.getCell("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor,rangeNeighbor):
+            for agentName in list(self.collectionOfAcceptAgent.keys()):
+                for agent in cell.getAgentsOfType(agentName):
+                    result.append(agent)
+        return result
+       
+       
+    
+        
 
                     
        
