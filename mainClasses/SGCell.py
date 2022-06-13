@@ -193,8 +193,7 @@ class SGCell(QtWidgets.QWidget):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.update() 
-                        print(self.owner)
-                #For agent placement and replace the value         
+                #For agent placement         
                 else :
                     if  authorisation :
                         aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
@@ -208,11 +207,11 @@ class SGCell(QtWidgets.QWidget):
                                     self.owner=self.parent.parent.actualPlayer
                                 anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
-                                anAgent.x=QMouseEvent.pos().x()
-                                anAgent.y=QMouseEvent.pos().y()
+                                anAgent.x=QMouseEvent.pos().x()-round(anAgent.size/2)
+                                anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
                                 anAgent.update()
                                 anAgent.show()
-                                print(self.owner)
+
                             
                                     
     #Apply the feedBack of a gameMechanics
@@ -430,7 +429,6 @@ class SGCell(QtWidgets.QWidget):
                 oui.parent.addOnXandY("lac",oui.x+1,oui.y+1)"""
                     
     def getNeumannNeighbor(self,rangeNeighbor,emptyList=[],origin="init"):
-        print(origin)
         emptyList.append(self)
         if rangeNeighbor >0:
             if origin=="init":
@@ -442,7 +440,6 @@ class SGCell(QtWidgets.QWidget):
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
                 #Left
                 if  self.x-1>=0:
-                    print("cell"+str(self.x-1)+"-"+str(self.y))
                     cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
@@ -480,3 +477,13 @@ class SGCell(QtWidgets.QWidget):
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
         
+        
+        
+        
+    #Function to check the ownership  of the cell          
+    def isMine(self):
+        return self.owner==self.parent.parent.actualPlayer
+    
+    #Function to check the ownership  of the cell          
+    def isMineOrAdmin(self):
+        return self.owner==self.parent.parent.actualPlayer or self.owner=="admin"

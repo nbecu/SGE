@@ -219,6 +219,16 @@ class SGAgent(QtWidgets.QWidget):
                 for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                     del self.attributs[aVal]
                 self.attributs[anAttribut]=aDictOfValue[anAttribut]
+                
+    #Function to check the ownership  of the agent          
+    def isMine(self):
+        print(self.owner)
+        print(self.parent.parent.parent.actualPlayer)
+        return self.owner==self.parent.parent.parent.actualPlayer
+    
+    #Function to check the ownership  of the agent          
+    def isMineOrAdmin(self):
+        return self.owner==self.parent.parent.parent.actualPlayer or self.owner=="admin"
             
                 
       

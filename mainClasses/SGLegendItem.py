@@ -137,7 +137,6 @@ class SGLegendItem(QtWidgets.QWidget):
                         selectedItem.append(self.valueOfAttribut)
                         selectedItem.append(self.nameOfAttribut)
                     selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
-                    print(selectedItem)
                     self.parent.parent.selected=selectedItem
                     self.parent.parent.update()
         self.update()

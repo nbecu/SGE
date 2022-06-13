@@ -24,6 +24,7 @@ class SGUpdate():
         returnValue=True
         #We check each condition 
         for aCond in self.restrictions:
+            print(aCond(anObject))
             returnValue=returnValue and aCond(anObject)
         if self.numberUsed+1>self.number:
             returnValue=False
