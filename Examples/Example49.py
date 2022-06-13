@@ -32,7 +32,7 @@ theFirstLegende=myModel.createLegendeAdmin()
 
 thePlayer=myModel.newPlayer("Gertrude")
 
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})] ))
+thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]} ))
 
 thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]},[lambda aCell : aCell.isMineOrAdmin()]))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMine()]))

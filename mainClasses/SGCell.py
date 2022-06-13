@@ -203,12 +203,12 @@ class SGCell(QtWidgets.QWidget):
                                 #We now check the feedBack of the actions if it have some
                                 if theAction is not None:
                                     self.feedBack(theAction)
-                                if self.parent.parent.selected[0].parent.id!="adminLegende":
-                                    self.owner=self.parent.parent.actualPlayer
                                 anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                                 anAgent.x=QMouseEvent.pos().x()-round(anAgent.size/2)
                                 anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
+                                if self.parent.parent.selected[0].parent.id!="adminLegende":
+                                    anAgent.owner=self.parent.parent.actualPlayer
                                 anAgent.update()
                                 anAgent.show()
 
