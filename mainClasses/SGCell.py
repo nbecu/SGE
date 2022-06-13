@@ -487,3 +487,11 @@ class SGCell(QtWidgets.QWidget):
     #Function to check the ownership  of the cell          
     def isMineOrAdmin(self):
         return self.owner==self.parent.parent.actualPlayer or self.owner=="admin"
+    
+    #Function to change the ownership         
+    def makeOwner(self,newOwner):
+        self.owner=newOwner
+        
+    #Function get the ownership        
+    def getProperty(self):
+        self.owner=self.parent.parent.actualPlayer
