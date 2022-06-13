@@ -383,16 +383,44 @@ class SGGrid(SGGameSpace):
         x=x-1
         y=y-1
         result=[]
-        print(self.getCell("cell"+str(x)+"-"+str(y)).getId())
         for cell in self.getCell("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor,rangeNeighbor):
             for agent in cell.getAgentsOfType(agentName):
                 result.append(agent)
         return result
     
+    #To return if a type of agent is in neighborhood
+    def haveAgentInNeighborhood(self,x,y,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        return len(self.getNeighborAgent(x,y,agentName,typeNeighbor,rangeNeighbor))>=1
+    
     #To return all agent in neighborhood
     def getNeighborAllAgent(self,x,y,typeNeighbor="moore",rangeNeighbor=1):
         x=x-1
         y=y-1
+        result=[]
+        for cell in self.getCell("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor,rangeNeighbor):
+            for agentName in list(self.collectionOfAcceptAgent.keys()):
+                for agent in cell.getAgentsOfType(agentName):
+                    result.append(agent)
+        return result
+    
+    #To return all agent of a type in neighborhood
+    def getNeighborAgentThroughCell(self,aCell,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        x=aCell.x
+        y=aCell.y
+        result=[]
+        for cell in self.getCell("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor,rangeNeighbor):
+            for agent in cell.getAgentsOfType(agentName):
+                result.append(agent)
+        return result
+    
+    #To return if a type of agent is in neighborhood through a cell
+    def haveAgentInNeighborhoodThroughCell(self,aCell,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        return len(self.getNeighborAgentThroughCell(aCell,agentName,typeNeighbor,rangeNeighbor))>=1
+    
+    #To return all agent in neighborhood through a cell
+    def getNeighborAllAgentThroughCell(self,aCell,typeNeighbor="moore",rangeNeighbor=1):
+        x=aCell.x
+        y=aCell.y
         result=[]
         for cell in self.getCell("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor,rangeNeighbor):
             for agentName in list(self.collectionOfAcceptAgent.keys()):

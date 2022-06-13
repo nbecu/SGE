@@ -48,8 +48,9 @@ myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpac
 
 """myModel.getGameSpace("basicGrid").getCell('cell0-0').getNeighborCell("moore",2)"""
 theFirstGrid.addOnXandY("lac",1,2)
-print(myModel.getGameSpace("basicGrid").getNeighborAgent(1,1,"lac"))
-
+"""print(myModel.getGameSpace("basicGrid").getNeighborAgent(1,1,"lac"))"""
+"""print(myModel.getGameSpace("basicGrid").haveAgentInNeighborhood(1,1,"lac"))"""
+"""print(myModel.getGameSpace("basicGrid").haveAgentInNeighborhoodThroughCell(myModel.getGameSpace("basicGrid").getCell('cell0-0'),"lac"))"""
 myModel.show() 
 
 sys.exit(monApp.exec_())
