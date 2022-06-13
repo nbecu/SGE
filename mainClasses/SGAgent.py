@@ -32,7 +32,9 @@ class SGAgent(QtWidgets.QWidget):
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.x=0
-        self.y=0       
+        self.y=0   
+        #We define an owner 
+        self.owner="admin"    
         
 
         
@@ -201,6 +203,7 @@ class SGAgent(QtWidgets.QWidget):
         drag.setHotSpot(e.pos() - self.rect().topLeft())
 
         drag.exec_(Qt.MoveAction) 
+    
         
             
 

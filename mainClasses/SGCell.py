@@ -7,6 +7,7 @@ from sqlalchemy import true
 
 from SGAgent import SGAgent
 from SGAgentCollection import SGAgentCollection
+
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
@@ -35,6 +36,8 @@ class SGCell(QtWidgets.QWidget):
         self.collectionOfAgents=SGAgentCollection(self)
         #We allow the drops for the agents
         self.setAcceptDrops(True)
+        #We define an owner
+        self.owner="admin"
 
         
 
@@ -173,7 +176,9 @@ class SGCell(QtWidgets.QWidget):
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
-                            self.feedBack(theAction) 
+                            self.feedBack(theAction)
+                        if self.parent.parent.selected[0].parent.id!="adminLegende":
+                             self.owner=self.parent.parent.actualPlayer
                         self.isDisplay=True
                         value =self.parent.parent.selected[3]
                         theKey=""
@@ -188,11 +193,10 @@ class SGCell(QtWidgets.QWidget):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.update() 
-                              
+                        print(self.owner)
                 #For agent placement and replace the value         
                 else :
                     if  authorisation :
-                        print(self.getId())
                         aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
                         if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
                             anAgentName=str(self.parent.parent.selected[5])
@@ -200,12 +204,15 @@ class SGCell(QtWidgets.QWidget):
                                 #We now check the feedBack of the actions if it have some
                                 if theAction is not None:
                                     self.feedBack(theAction)
+                                if self.parent.parent.selected[0].parent.id!="adminLegende":
+                                    self.owner=self.parent.parent.actualPlayer
                                 anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                                 anAgent.x=QMouseEvent.pos().x()
                                 anAgent.y=QMouseEvent.pos().y()
                                 anAgent.update()
                                 anAgent.show()
+                                print(self.owner)
                             
                                     
     #Apply the feedBack of a gameMechanics
