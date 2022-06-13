@@ -38,6 +38,12 @@ class SGCreate():
 
     def addRestrictions(self,aRestriction):
         self.restrictions.append(aRestriction)
+    
+    def addFeedback(self,aFeedback):
+        self.feedback.append(aFeedback)
+        
+    def addConditionOfFeedBack(self,aCondition):
+        self.conditionOfFeedBack.append(aCondition)
         
     def reset(self):
         self.numberUsed=0

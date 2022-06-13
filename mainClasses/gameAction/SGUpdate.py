@@ -27,7 +27,6 @@ class SGUpdate():
             returnValue=returnValue and aCond(anObject)
         if self.numberUsed+1>self.number:
             returnValue=False
-        print(returnValue)
         return returnValue
 
     
@@ -37,6 +36,12 @@ class SGUpdate():
 
     def addRestrictions(self,aRestriction):
         self.restrictions.append(aRestriction)
+    
+    def addFeedback(self,aFeedback):
+        self.feedback.append(aFeedback)
+        
+    def addConditionOfFeedBack(self,aCondition):
+        self.conditionOfFeedBack.append(aCondition)
         
     def reset(self):
         self.numberUsed=0

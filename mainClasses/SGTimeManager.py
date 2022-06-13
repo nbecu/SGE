@@ -54,6 +54,7 @@ class SGTimeManager():
         if orderNumber == 0 :
             self.parent.actualPlayer=activePlayer
         self.orderGamePhases.insert(orderNumber,aPhase)
+        return aPhase
         
     #To verify a number of round
     def verifNumberOfRound(self,aNumber):

@@ -23,16 +23,14 @@ class SGTimePhase():
     def setNextStepAction(self,nextStepAction):
         self.nextStepAction=nextStepAction
         
-    def addNextStepAction(self,nextStepAction):
-        for anAction in nextStepAction:
-            self.activePlayers.append(anAction)
+    def addNextStepAction(self,anAction):
+        self.nextStepAction.append(anAction)
         
     def setConditionOfTrigger(self,conditionOfTrigger):
         self.conditionOfTrigger=conditionOfTrigger
         
-    def addConditionOfTrigger(self,conditionOfTrigger):
-        for aCondition in conditionOfTrigger:
-            self.activePlayers.append(aCondition)
+    def addConditionOfTrigger(self,aConditionOfTrigger):
+            self.conditionOfTrigger.append(aConditionOfTrigger)
     
     
   
