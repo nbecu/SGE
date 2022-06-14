@@ -32,13 +32,15 @@ theFirstLegende=myModel.createLegendeAdmin()
 
 thePlayer=myModel.newPlayer("Gertrude")
 
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]} ))
+thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,5,{"boat":["old"]} ))
 
 aGameAction = thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea"]}))
 aGameAction.addRestrictions(lambda aCell : aCell.isMineOrAdmin())
 aGameAction.addFeedback(lambda aCell: aCell.getProperty())
 thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["reasonable"]},[lambda aCell : aCell.isMine()]))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()]))
+
+action=thePlayer.addGameAction(myModel.createMooveAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()],[lambda aCell : aCell.changeValue({"sea": "deep sea"})]))
 
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])

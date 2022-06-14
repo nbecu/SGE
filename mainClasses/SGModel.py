@@ -20,6 +20,7 @@ from SGLegende import SGLegende
 from gameAction.SGCreate import SGCreate
 from gameAction.SGUpdate import SGUpdate
 from gameAction.SGDelete import SGDelete
+from gameAction.SGMove import SGMove
 
 from layout.SGGridLayout import SGGridLayout
 from layout.SGHorizontalLayout import SGHorizontalLayout
@@ -506,6 +507,9 @@ class SGModel(QtWidgets.QMainWindow):
     
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
+    
+    def createMooveAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        return SGMove(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     #-----------------------------------------------------------  
     #Getter

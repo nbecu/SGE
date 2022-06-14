@@ -116,6 +116,11 @@ class SGCell(QtWidgets.QWidget):
         
     def dropEvent(self, e):
         if e.source().name in self.parent.collectionOfAcceptAgent :
+            thePlayer=self.parent.parent.getPlayer()
+            theAction=None
+            if thePlayer is not None :
+                theAction=thePlayer.getMooveActionOn(e.source())
+                self.feedBack(theAction)
             #We remove the agent of the actual cell
             e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
             e.source().deleteLater()

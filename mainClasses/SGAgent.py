@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from sqlalchemy import true
 
 from SGAgentCollection import SGAgentCollection
 
@@ -197,14 +198,25 @@ class SGAgent(QtWidgets.QWidget):
     
         if e.buttons() != Qt.LeftButton:
             return
+        
+        thePlayer=self.parent.parent.parent.getPlayer()
+        authorisation=False
+        theAction=None
+        if thePlayer is not None :
+            theAction=thePlayer.getMooveActionOn(self)
+            if theAction is not None:
+                authorisation=theAction.getAuthorize(self)
+                if authorisation : 
+                    theAction.use()
+        if authorisation:
 
-        mimeData = QMimeData()
+            mimeData = QMimeData()
 
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
+            drag = QDrag(self)
+            drag.setMimeData(mimeData)
+            drag.setHotSpot(e.pos() - self.rect().topLeft())
 
-        drag.exec_(Qt.MoveAction) 
+            drag.exec_(Qt.MoveAction) 
     
         
             

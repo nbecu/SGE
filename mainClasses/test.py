@@ -1,3 +1,1 @@
-oui="texte"
-txt=oui.replace("te","")
-print(txt)
+print(['new'] in ['new'])
