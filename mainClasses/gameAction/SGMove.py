@@ -2,7 +2,7 @@ from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
 class SGMove():
-    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
@@ -14,6 +14,8 @@ class SGMove():
             self.name=anObject.parent
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
+        self.feedbackAgent=feedbackAgent
+        self.conditionOfFeedBackAgent=conditionOfFeedBackAgent
             
         
     #Function which increment the number of use
@@ -42,6 +44,12 @@ class SGMove():
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
+        
+    def addFeedbackAgent(self,aFeedback):
+        self.feedbackAgent.append(aFeedback)
+        
+    def addConditionOfFeedBackAgent(self,aCondition):
+        self.conditionOfFeedBackAgent.append(aCondition)
         
     def reset(self):
         self.numberUsed=0

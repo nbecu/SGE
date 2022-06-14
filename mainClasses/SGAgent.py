@@ -249,6 +249,21 @@ class SGAgent(QtWidgets.QWidget):
     #Function get the ownership        
     def getProperty(self):
         self.owner=self.parent.parent.parent.actualPlayer
+        
+    #Function to change the value      
+    def changeValue(self,aDictOfValue):
+        for aVal in list(aDictOfValue.keys()) :
+            if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
+                    for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
+                        self.attributs.pop(anAttribute,None)
+        self.attributs[list(aDictOfValue.keys())[0]]=aDictOfValue[list(aDictOfValue.keys())[0]]
+        
+        
+    #Function to check the value      
+    def checkValue(self,aDictOfValue):
+        if list(aDictOfValue.keys())[0] in list(self.attributs.keys()) :
+            return self.attributs[list(aDictOfValue.keys())[0]]==list(aDictOfValue.values())[0]
+        return False
     
             
                 

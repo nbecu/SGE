@@ -120,7 +120,7 @@ class SGCell(QtWidgets.QWidget):
             theAction=None
             if thePlayer is not None :
                 theAction=thePlayer.getMooveActionOn(e.source())
-                self.feedBack(theAction)
+                self.feedBack(theAction,e.source())
             #We remove the agent of the actual cell
             e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
             e.source().deleteLater()
@@ -220,13 +220,21 @@ class SGCell(QtWidgets.QWidget):
                             
                                     
     #Apply the feedBack of a gameMechanics
-    def feedBack(self, theAction):
+    def feedBack(self, theAction,theAgentForMoveGM=None):
         booleanForFeedback=True
+        booleanForFeedbackAgent=True
         for anCondition in theAction.conditionOfFeedBack :
             booleanForFeedback=booleanForFeedback and anCondition(self)
         if booleanForFeedback :
             for aFeedback in  theAction.feedback :
                 aFeedback(self)
+        if theAgentForMoveGM is not None :
+            for anCondition in theAction.conditionOfFeedBackAgent :
+                booleanForFeedbackAgent=booleanForFeedbackAgent and anCondition(self,theAgentForMoveGM)
+            if booleanForFeedbackAgent :
+                for aFeedback in  theAction.feedbackAgent :
+                    aFeedback(theAgentForMoveGM)
+            
                             
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
