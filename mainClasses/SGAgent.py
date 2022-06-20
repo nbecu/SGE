@@ -4,10 +4,10 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import true
+from sqlalchemy import true, values
 
 from SGAgentCollection import SGAgentCollection
-
+from SGOldValue import SGOldValue
 
    
 #Class who is responsible of the declaration a Agent
@@ -34,8 +34,12 @@ class SGAgent(QtWidgets.QWidget):
         self.methodOfPlacement=methodOfPlacement
         self.x=0
         self.y=0   
-        #We define an owner 
+        #We define an owner by default
         self.owner="admin"    
+        #We define variable to handle an history 
+        self.history={}
+        self.history["value"]=[]
+        self.history["coordonates"]=[]
         
 
         
@@ -173,6 +177,8 @@ class SGAgent(QtWidgets.QWidget):
                 #Change the value of agent   
                 elif self.parent.parent.parent.selected[1]== "circleAgent" or self.parent.parent.parent.selected[1]=="squareAgent" or self.parent.parent.parent.selected[1]== "ellipseAgent1" or self.parent.parent.parent.selected[1]=="ellipseAgent2" or self.parent.parent.parent.selected[1]== "rectAgent1" or self.parent.parent.parent.selected[1]=="rectAgent2" or self.parent.parent.parent.selected[1]== "triangleAgent1" or self.parent.parent.parent.selected[1]=="triangleAgent2" or self.parent.parent.parent.selected[1]== "arrowAgent1" or self.parent.parent.parent.selected[1]=="arrowAgent2":
                     if  authorisation :
+                        if len(self.history["value"])==0:
+                            self.history["value"].append(SGOldValue(0,0,self.attributs))
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                                 self.feedBack(theAction)
@@ -181,6 +187,7 @@ class SGAgent(QtWidgets.QWidget):
                             if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
+                                        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                         self.update()
                     
@@ -252,11 +259,14 @@ class SGAgent(QtWidgets.QWidget):
         
     #Function to change the value      
     def changeValue(self,aDictOfValue):
+        if len(self.history["value"])==0:
+            self.history["value"].append(SGOldValue(0,0,self.attributs))
         for aVal in list(aDictOfValue.keys()) :
             if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                     for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                         self.attributs.pop(anAttribute,None)
         self.attributs[list(aDictOfValue.keys())[0]]=aDictOfValue[list(aDictOfValue.keys())[0]]
+        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
         
         
     #Function to check the value      
@@ -265,15 +275,46 @@ class SGAgent(QtWidgets.QWidget):
             return self.attributs[list(aDictOfValue.keys())[0]]==list(aDictOfValue.values())[0]
         return False
     
-            
-                
-      
-                
-                
-                
     
-
+    #Function get if the agent have change the value in       
+    def haveChangeValue(self,numberOfRound=1):
+        haveChange=False
+        if not len(self.history["value"]) ==0:
+            for anItem in self.history["value"].reverse():
+                if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
+                    if not anItem.thingsSave == self.attributs:
+                        haveChange=True
+                        break
+                elif anItem.roundNumber== self.parent.parent.timeManager.actualRound-numberOfRound:
+                    if anItem.phaseNumber<=self.parent.parent.timeManager.actualPhase:
+                        if not anItem.thingsSave == self.attributs:
+                            haveChange=True
+                            break
+        return haveChange
+    
+    #Function get if the agent have change the value in       
+    def haveMoove(self,numberOfRound=1):
+        haveChange=False
+        if not len(self.history["coordonates"]) ==0:
+            for anItem in self.history["coordonates"].reverse():
+                if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
+                    if not anItem.thingsSave == self.attributs:
+                        haveChange=True
+                        break
+                elif anItem.roundNumber== self.parent.parent.timeManager.actualRound-numberOfRound:
+                    if anItem.phaseNumber<=self.parent.parent.timeManager.actualPhase:
+                        if not anItem.thingsSave == self.attributs:
+                            haveChange=True
+                            break
+        return haveChange
         
-    
-        
-    
+    #Function to check the old value of an Agent       
+    def checkPrecedenteValue(self,precedentValue):
+        if not len(self.history["value"]) ==0:
+            for aVal in list(self.history["value"][len(self.history["value"])].thingsSave.keys()) :
+                if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
+                    return self.history["value"][len(self.history["value"])].thingsSave[aVal]
+        else: 
+            for aVal in list(self.attributs.keys()) :
+                if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
+                    return self.attributs[aVal]

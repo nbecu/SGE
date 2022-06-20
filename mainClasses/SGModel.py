@@ -1,9 +1,7 @@
-from asyncio.windows_events import NULL
 from email.policy import default
 import sys 
 import copy
 from pathlib import Path
-from sqlalchemy import false, null
 from win32api import GetSystemMetrics
 
 
@@ -29,7 +27,7 @@ from layout.SGVerticalLayout import SGVerticalLayout
 
 from PyQt5 import QtWidgets
 from PyQt5.QtSvg import * 
-from PyQt5.QtWidgets import QApplication, QWidget,QFileDialog,QAction
+from PyQt5.QtWidgets import  QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
@@ -96,11 +94,17 @@ class SGModel(QtWidgets.QMainWindow):
         
         sep = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep)
+        self.menuBar().addAction(self.backward)
         
-        self.menuBar().addAction(self.play)
+        self.menuBar().addAction(self.forward)
         
         sep2 = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep2)
+        
+        self.menuBar().addAction(self.play)
+        
+        sep3 = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep3)
         
         self.menuBar().addAction(self.zoomPlus)
         
@@ -108,8 +112,8 @@ class SGModel(QtWidgets.QMainWindow):
         
         self.menuBar().addAction(self.zoomToFit)
         
-        sep3 = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep3)
+        sep4 = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep4)
         
         inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"),"&inspectElement")
         """To be finished to be implementd"""
@@ -121,8 +125,8 @@ class SGModel(QtWidgets.QMainWindow):
         graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"),"&graph")
         """To be finished to be implementd"""
         
-        sep4 = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep4)
+        sep5 = QAction('|', self, enabled=False)
+        self.menuBar().addAction(sep5)
         
         extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"),"&Extract")
         extractMenu.addAction(self.extractPng)
@@ -139,6 +143,12 @@ class SGModel(QtWidgets.QMainWindow):
         self.save = QAction(QIcon("./icon/save.png")," &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
+        
+        self.backward = QAction(QIcon("./icon/backwardArrow.png")," &backward", self)
+        self.backward.triggered.connect(self.backwardAction)
+        
+        self.forward = QAction(QIcon("./icon/forwardArrow.png")," &forward", self)
+        self.forward.triggered.connect(self.forwardAction)
         
         self.inspect = QAction(QIcon("./icon/inspect.png")," &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)
@@ -181,6 +191,17 @@ class SGModel(QtWidgets.QMainWindow):
     def inspectAll(self):
         """To be implemented"""
         return True
+    
+    #Make the game go to precedent state
+    def backwardAction(self):
+        """To be implemented"""
+        return True
+    
+    #Make the game go to next step
+    def forwardAction(self):
+        """To be implemented"""
+        return True
+    
     
     #Trigger the next turn
     def nextTurn(self):
@@ -421,7 +442,7 @@ class SGModel(QtWidgets.QMainWindow):
         
     
     #To add a new POV and apply a value to cell
-    def setUpCellValueAndPov(self,aNameOfPov,aDict,items,defaultAttributForPov=null,DefaultValueAttribut=null,listOfGridToApply=None):
+    def setUpCellValueAndPov(self,aNameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridToApply=None):
         if not isinstance(items,list):
             items=[items]
         for anItem in items :
@@ -430,11 +451,11 @@ class SGModel(QtWidgets.QMainWindow):
                 for aCell in list(anItem.collectionOfCells.getCells().values()) :
                         if aCell.attributs is None :
                             aCell.attributs = {}
-                        if defaultAttributForPov ==null :
+                        if defaultAttributForPov ==None :
                             for anAttributeIndex in range(len(list(aDict.keys()))) :
                                 if aNameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]       
-                        elif defaultAttributForPov and DefaultValueAttribut is null:
+                        elif defaultAttributForPov and DefaultValueAttribut is None:
                             for anAttributeIndex in range(len(list(aDict.keys()))) :
                                 if aNameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
@@ -447,11 +468,11 @@ class SGModel(QtWidgets.QMainWindow):
                     for anAgent in aGrid.collectionOfAcceptAgent :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
                             aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
-                            if defaultAttributForPov ==null :
+                            if defaultAttributForPov ==None :
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]={}
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]           
-                            elif defaultAttributForPov and DefaultValueAttribut is null:
+                            elif defaultAttributForPov and DefaultValueAttribut is None:
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]

@@ -47,6 +47,9 @@ myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.ge
 
 myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac",2,[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ])])
 
+#Ajout de condition de victoire
+myModel.timeManager.addEndGameCondition(lambda: myModel.timeManager.verifNumberOfRound(8))
+
 myModel.show() 
 
 sys.exit(monApp.exec_())

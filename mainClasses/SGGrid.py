@@ -1,10 +1,7 @@
-from itertools import count
-from pickle import TRUE
 import random
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import false, null, true
 
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
@@ -12,7 +9,7 @@ from SGAgent import SGAgent
 
 
 from PyQt5.QtWidgets import QAction
-
+from SGOldValue import SGOldValue
 
 import copy
 
@@ -133,7 +130,7 @@ class SGGrid(SGGameSpace):
         for anAgent in self.collectionOfAcceptAgent :
             if anAgent ==aType:
                 return self.collectionOfAcceptAgent[anAgent]
-        return null
+        return None
                 
         
     
@@ -205,7 +202,7 @@ class SGGrid(SGGameSpace):
                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                 
 #To handle the placing of agents
-    #To apply to a specific cell a value  
+    #To apply to a specific cell an agent  
     def addOnXandY(self,anAgentName,aValueX,aValueY,aValueForAgent=None):
         anAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
         anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
@@ -222,6 +219,7 @@ class SGGrid(SGGameSpace):
     #to add agent on multiple cell depending of their value
     def addAgentOnValue(self,anAgentName,aDictValueForAgent,aValueForAgent=None):
         cells=self.getCellOfValue(aDictValueForAgent)
+        listOfAgent=[]
         for cell in cells :
             anAgent=SGAgent(cell,anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
             anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
@@ -233,7 +231,8 @@ class SGGrid(SGGameSpace):
                             anAgent.attributs[anAttribut]=aValueForAgent
             anAgent.show()
             self.update()
-        return anAgent
+            listOfAgent.append(anAgent)
+        return listOfAgent
         
 #To add a specific pov 
     def setUpPov(self,aNameOfPov,aDictOfValue,theTypeOfObjectToApply="cells",theNameOfTheAgent="circleAgent"):
@@ -320,7 +319,10 @@ class SGGrid(SGGameSpace):
                     for aPov in aCell.theCollection.povs:
                         found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
                         if found!=-1 and found+1 != len(aCell.theCollection.povs[aPov][anAttribut]):
+                            if len(self.history["value"])==0:
+                                self.history["value"].append(SGOldValue(0,0,self.attributs))
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found+1]
+                            self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
                             
     #To decrease all attributs of cells of one type
     def makeDecrease(self,listOfAttributsToMakeDecrease):
@@ -330,7 +332,10 @@ class SGGrid(SGGameSpace):
                     for aPov in aCell.theCollection.povs:
                         found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
                         if found!=-1 and found != 0:
+                            if len(self.history["value"])==0:
+                                self.history["value"].append(SGOldValue(0,0,self.attributs))
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
+                            self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
                             
     #to get all cells who respect certain value
     def getCellOfValue(self,aDictValueForAgent):
@@ -360,9 +365,15 @@ class SGGrid(SGGameSpace):
             agent.deleteLater()
             #We add the agent to the new cell
             theAgent=self.addOnXandY(agent.name,newPlace.x+1,newPlace.y+1)
+            theAgent.history=agent.history
+            if len(theAgent.history["coordonates"])==0:
+                theAgent.history["coordonates"].append(SGOldValue(0,0,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)))
             theAgent.x=agent.x
             theAgent.y=agent.y
+            theAgent.history["coordonates"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)))
             theAgent.attributs=agent.attributs
+            
+            
             theAgent.show()
             
     #To delete a kind of Agent on thee grid  

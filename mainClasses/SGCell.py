@@ -3,11 +3,11 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import true
+
 
 from SGAgent import SGAgent
 from SGAgentCollection import SGAgentCollection
-
+from SGOldValue import SGOldValue
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
@@ -38,6 +38,9 @@ class SGCell(QtWidgets.QWidget):
         self.setAcceptDrops(True)
         #We define an owner
         self.owner="admin"
+        #We define variables to handle the history 
+        self.history={}
+        self.history["value"]=[]
 
         
 
@@ -116,6 +119,8 @@ class SGCell(QtWidgets.QWidget):
         
     def dropEvent(self, e):
         if e.source().name in self.parent.collectionOfAcceptAgent :
+            if len(self.history["coordonates"])==0:
+                self.history["coordonates"].append(SGOldValue(0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)))           
             thePlayer=self.parent.parent.getPlayer()
             theAction=None
             if thePlayer is not None :
@@ -129,6 +134,7 @@ class SGCell(QtWidgets.QWidget):
             theAgent.x=e.pos().x()
             theAgent.y=e.pos().y()
             theAgent.attributs=e.source().attributs
+            theAgent.history['coordonates'].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)))
             theAgent.show()
 
         e.setDropAction(Qt.MoveAction)
@@ -166,6 +172,8 @@ class SGCell(QtWidgets.QWidget):
                 #The delete Action
                 if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
                     if authorisation : 
+                        if len(self.history["value"])==0:
+                            self.history["value"].append(SGOldValue(0,0,self.attributs))
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                             self.feedBack(theAction)
@@ -174,12 +182,15 @@ class SGCell(QtWidgets.QWidget):
                                 self.collectionOfAgents.agents[i].deleteLater()
                                 del self.collectionOfAgents.agents[i]
                         self.parent.collectionOfCells.removeVisiblityCell(self.getId())
+                        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,"deleted"))
                         self.show()
                         self.repaint()
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
+                        if len(self.history["value"])==0:
+                            self.history["value"].append(SGOldValue(0,0,self.attributs))
                         if theAction is not None:
                             self.feedBack(theAction)
                         if self.parent.parent.selected[0].parent.id!="adminLegende":
@@ -197,6 +208,7 @@ class SGCell(QtWidgets.QWidget):
                                     for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
+                        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
                         self.update() 
                 #For agent placement         
                 else :
@@ -214,6 +226,8 @@ class SGCell(QtWidgets.QWidget):
                                 anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
                                 if self.parent.parent.selected[0].parent.id!="adminLegende":
                                     anAgent.owner=self.parent.parent.actualPlayer
+                                anAgent.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,anAgent.attributs))
+                                anAgent.history["coordonates"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)))
                                 anAgent.update()
                                 anAgent.show()
 
@@ -276,7 +290,10 @@ class SGCell(QtWidgets.QWidget):
     
     #To change the value
     def changeValue(self,aDictOfValue):
-       self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
+        if len(self.history["value"])==0:
+            self.history["value"].append(SGOldValue(0,0,self.attributs))
+        self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
+        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
      
     #To delete a kind of Agent on the cell   
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
@@ -508,3 +525,20 @@ class SGCell(QtWidgets.QWidget):
     #Function get the ownership        
     def getProperty(self):
         self.owner=self.parent.parent.actualPlayer
+        
+        
+    #Function get if the cell have change the value in       
+    def haveChangeValue(self,numberOfRound=1):
+        haveChange=False
+        if not len(self.history["value"]) ==0:
+            for anItem in self.history["value"].reverse():
+                if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
+                    if not anItem.thingsSave == self.attributs:
+                        haveChange=True
+                        break
+                elif anItem.roundNumber== self.parent.parent.timeManager.actualRound-numberOfRound:
+                    if anItem.phaseNumber<=self.parent.parent.timeManager.actualPhase:
+                        if not anItem.thingsSave == self.attributs:
+                            haveChange=True
+                            break
+        return haveChange
