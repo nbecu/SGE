@@ -20,7 +20,7 @@ class SGPlayer():
         self.initLegende()
         
     def initLegende(self):
-        self.legende=self.parent.createLegendeForPlayer(self.name+" Legende",{})
+        self.legende=self.parent.createLegendeForPlayer(self.name,{},self.name)
             
     
     

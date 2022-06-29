@@ -10,11 +10,12 @@ from SGGrid import SGGrid
 
 #Class who is responsible of the grid creation
 class SGLegende(SGGameSpace):
-    def __init__(self,parent,name,elementPov,borderColor=Qt.black,backgroundColor=Qt.transparent):
+    def __init__(self,parent,name,elementPov,playerName,borderColor=Qt.black,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
         self.parent=parent
         self.elementsPov=elementPov
+        self.playerName=playerName
         self.legendItemList={}
         self.borderColor=borderColor
         self.haveADeleteButton=False
@@ -117,18 +118,24 @@ class SGLegende(SGGameSpace):
         
     #Drawing the legende
     def paintEvent(self,event):
-        if len(self.elementsPov)!=0:
-            painter = QPainter() 
-            painter.begin(self)
-            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor,1));
-            #Draw the corner of the legende
-            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+        if self.checkDisplay():
+            if len(self.elementsPov)!=0:
+                painter = QPainter() 
+                painter.begin(self)
+                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+                painter.setPen(QPen(self.borderColor,1));
+                #Draw the corner of the legende
+                self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+                painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
 
-            painter.end()
+                painter.end()
+
         
+    #Check if it have to be displayed
+    def checkDisplay(self):
+        return self.parent.whoIAm==self.playerName
+    
     #Get from wich grid an Agent is from to create the legend
     def getFromWich(self,anAgentName):
         for aGameSpace in self.parent.gameSpaces :

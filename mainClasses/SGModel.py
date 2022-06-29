@@ -1,8 +1,12 @@
+
 from email.policy import default
+from logging.config import listen
 import sys 
 import copy
 from pathlib import Path
 from win32api import GetSystemMetrics
+from paho.mqtt import client as mqtt_client
+import threading ,queue
 
 
 
@@ -69,7 +73,13 @@ class SGModel(QtWidgets.QMainWindow):
         #List of players
         self.collectionOfPlayers={}
         self.actualPlayer=None
+        #Wich instance is it 
+        self.whoIAm=""
+        self.listOfSubChannel=[]
+        self.timer= QTimer()
+        self.timer.timeout.connect(self.eventTime)
         self.initUI()
+        
     
     def initUI(self):
         #Definition of the view through the a widget
@@ -82,8 +92,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.createMenue()
         
         self.nameOfPov="default"
-        
-        
+
     #Create the menu of the menue 
     def createMenue(self):
         self.menuBar().addAction(self.openSave)
@@ -336,7 +345,7 @@ class SGModel(QtWidgets.QMainWindow):
         allElements={}
         for anElement in self.getGrids() :
             allElements[anElement.id]=anElement.getValuesForLegende()
-        aLegende = SGLegende(self,"adminLegende",allElements)
+        aLegende = SGLegende(self,"adminLegende",allElements,"Admin")
         for aGrid in self.getGrids() :
             for anAgent in aGrid.collectionOfAcceptAgent :
                 aLegende.addAgentToTheLegend(anAgent)
@@ -365,9 +374,9 @@ class SGModel(QtWidgets.QMainWindow):
     
     
     #To create a legende
-    def createLegendeForPlayer(self,name,aListOfElement):
+    def createLegendeForPlayer(self,name,aListOfElement,playerName):
         #Creation        
-        aLegende = SGLegende(self,name,aListOfElement)
+        aLegende = SGLegende(self,name,aListOfElement,playerName)
         self.gameSpaces[name]=aLegende
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegende)
@@ -555,8 +564,152 @@ class SGModel(QtWidgets.QMainWindow):
     #To change the number of zoom we actually are
     def setNumberOfZoom(self,number):
         self.numberOfZoom = number    
+        
+    #To change the number of zoom we actually are
+    def iAm(self,aNameOfPlayer):
+        self.whoIAm=aNameOfPlayer
+        
+    #To open and launch the game
+    def launch(self):
+        self.initMQTT()
+        self.show()
+        
+    def handleMessageMainThread(self):
+            msg = str(self.q.get())
+            print(msg)
+            info=eval(str(msg)[2:-1])
+            print("process un message")
+            if len(info)==1:
+                self.listOfSubChannel.append(info[0])
+                self.client.publish(self.whoIAm,self.submitMessage())
+            else:
+                allCells=[]
+                for aGrid in self.getGrids():
+                    for aCell in list(aGrid.collectionOfCells.getCells().values()):
+                        allCells.append(aCell)
+                    
+                for i in range(len(info[0])):
+                    allCells[i].isDisplay=info[0][i][0]
+                    allCells[i].attributs=info[0][i][1]
+                    allCells[i].owner=info[0][i][2]
+                    """allCells[i].history=info[0][i][3]"""
+                    if len(info[0][i][4]) !=0:
+                        for j in range(len(info[0][i][4])):
+                            allCells[i].deleteAllAgent()
+                            agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
+                            agent.attributs=info[0][i][4][j][1]
+                            agent.owner=info[0][i][4][j][2]
+                            """agent.history=info[0][i][4][j][3]"""
+                if len(self.listOfSubChannel) != len(info[1]):
+                    print("---------------------")
+                    print(info[1])
+                    for subs in info[1]:
+                        if subs not in self.listOfSubChannel and subs !=self.whoIAm:
+                            self.client.subscribe(subs)
+                            self.listOfSubChannel.append(subs)
+        
+    #MQTT BAsic function 
+    def connect_mqtt(self):
+        def on_connect(client, userdata, flags, rc):
+            if rc == 0:
+                print("Connected to MQTT Broker!")
+            else:
+                print("Failed to connect, return code %d\n", rc)
+                
+        print("connectMQTT")
+        self.client = mqtt_client.Client(self.whoIAm)
+        self.client.on_connect = on_connect
+        self.q = queue.Queue()
+        self.t1 = threading.Thread(target=self.handleClientThread,args=())
+        self.t1.start()
+        self.timer.start(100)
+        self.client.connect("localhost", 1883)
+        self.client.user_data_set(self)
     
+    def handleClientThread(self):
+        while True:
+            self.client.loop(.1)
+    
+        
+    def initMQTT(self):
+        def on_message(client, userdata, msg):
+            userdata.q.put(msg.payload)
+            
+        
+        
+        self.connect_mqtt()
+        
+        #IF not admin Request which channel to sub
+        if self.whoIAm!="Admin":
+            print("on est notAdmin")
+            self.client.subscribe("Admin")
+            print("onSub a admin")
+            self.client.on_message = on_message
+            print("on publie sur newPlayer"+str([self.whoIAm]))
+            self.client.publish("newPlayer",str([self.whoIAm]))
+        #If Admin
+        else:
+            print("On Est admin")
+            self.client.subscribe("newPlayer")
+            print("on sub au newPlayer")
+            self.client.on_message = on_message
 
+            
+    
+            
+        
+                       
+    def submitMessage(self):
+        print(self.whoIAm+" send un message")
+        message="["
+        allCells=[]
+        for aGrid in self.getGrids():
+            for aCell in list(aGrid.collectionOfCells.getCells().values()):
+                allCells.append(aCell)
+        for i in range(len(allCells)):
+            message=message+"["
+            message=message+str(allCells[i].isDisplay)
+            message=message+","
+            message=message+str(allCells[i].attributs)
+            message=message+","
+            message=message+"'"+str(allCells[i].owner)+"'"
+            """message=message+","
+            message=message+str(allCells[i].history)"""
+            message=message+","
+            message=message+"'histo'"
+            message=message+","
+            message=message+"["
+            theAgents =allCells[i].collectionOfAgents.getAgents()
+            for j in range(len(theAgents)):
+                print("envoie agent "+str(j))
+                message=message+"["
+                message=message+"'"+str(theAgents[j].name)+"'"
+                message=message+","
+                message=message+str(theAgents[j].attributs)
+                message=message+","
+                message=message+"'"+str(theAgents[j].owner)+"'"
+                """message=message+","
+                message=message+str(theAgents[j].history)"""
+                message=message+","
+                message=message+"'histo'"
+                message=message+"]"
+                if j != len(theAgents):
+                    message=message+","
+            message=message+"]"
+            message=message+"]"
+            if i != len(allCells):
+                message=message+","
+        message=message+"]"
+        message=message+","
+        message=message+str(self.listOfSubChannel)
+        return message
+        
+        
+    def eventTime(self):
+        if not self.q.empty():
+            self.handleMessageMainThread()
+            
+        
     
 
     

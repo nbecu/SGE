@@ -187,9 +187,12 @@ class SGAgent(QtWidgets.QWidget):
                             if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
-                                        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
+                                        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs))
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                         self.update()
+                        
+                        
+        self.parent.parent.client.publish(self.parent.parent.parnet.whoIAm,self.parent.parent.submitMessage())
                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -266,7 +269,7 @@ class SGAgent(QtWidgets.QWidget):
                     for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                         self.attributs.pop(anAttribute,None)
         self.attributs[list(aDictOfValue.keys())[0]]=aDictOfValue[list(aDictOfValue.keys())[0]]
-        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
+        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs))
         
         
     #Function to check the value      

@@ -20,81 +20,82 @@ class SGLegendItem(QtWidgets.QWidget):
         self.color=color
         
     def paintEvent(self,event):
-        painter = QPainter() 
-        painter.begin(self)
-        painter.setBrush(QBrush(self.color, Qt.SolidPattern))
-        if self.parent.parent.selected[0] == self :
-            painter.setPen(QPen(Qt.red,2));
-        #Square cell
-        if(self.type=="square") :   
-            painter.drawRect(10, 0, 20, 20)
-        #agent
-        elif self.type=="circleAgent":
-            painter.drawEllipse(10, 0, 20, 20)
-        elif self.type=="squareAgent":
-            painter.drawRect(10, 0, 20, 20)
-        elif self.type=="ellipseAgent1":
-            painter.drawEllipse(10, 5, 20, 10)
-        elif self.type=="ellipseAgent2":
-            painter.drawEllipse(15, 0, 10, 20)
-        elif self.type=="rectAgent1":
-            painter.drawRect(10, 5, 20, 10)
-        elif self.type=="rectAgent2":
-            painter.drawRect(15, 0, 10, 20)
-        elif self.type=="triangleAgent1": 
-            points = QPolygon([
-               QPoint(20,7),
-               QPoint(15,17),
-               QPoint(25,17)
-            ])
-            painter.drawPolygon(points)
-        elif self.type=="triangleAgent2": 
-            points = QPolygon([           
-               QPoint(25,7),
-               QPoint(15,7),
-               QPoint(20,17)
-            ])
-            painter.drawPolygon(points)
-        elif self.type=="arrowAgent1": 
-            points = QPolygon([
-               QPoint(20,7),
-               QPoint(15,17),
-               QPoint(20,14),
-               QPoint(25,17)
-            ])
-            painter.drawPolygon(points)
-        elif self.type=="arrowAgent2": 
-            points = QPolygon([           
-               QPoint(25,7),
-               QPoint(20,10),
-               QPoint(15,7),
-               QPoint(20,17)
-            ])
-            painter.drawPolygon(points)
-        #Hexagonal square
-        elif self.type=="hexagonal":
-            points = QPolygon([
-               QPoint(20,  0),
-               QPoint(30,  7),
-               QPoint(30,  14),
-               QPoint(20, 20),
-               QPoint(10, 14),
-               QPoint(10,  7)
-            ])
-            painter.drawPolygon(points)
-        
-        if self.type =="None":
-            aFont=QFont("Verdana",10)
-            aFont.setUnderline(True)
-            painter.setFont(aFont)
-            painter.drawText(QRect(15,0,self.parent.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
-        else :
-            painter.setFont(QFont("Verdana",8))
-            painter.drawText(QRect(40,5,self.parent.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
-        self.setMinimumSize(self.parent.getSizeXGlobal()-50,10)
-        self.move(10,self.y*20+5*self.y)
-        painter.end()
-        
+        if self.parent.checkDisplay():
+            painter = QPainter() 
+            painter.begin(self)
+            painter.setBrush(QBrush(self.color, Qt.SolidPattern))
+            if self.parent.parent.selected[0] == self :
+                painter.setPen(QPen(Qt.red,2));
+            #Square cell
+            if(self.type=="square") :   
+                painter.drawRect(10, 0, 20, 20)
+            #agent
+            elif self.type=="circleAgent":
+                painter.drawEllipse(10, 0, 20, 20)
+            elif self.type=="squareAgent":
+                painter.drawRect(10, 0, 20, 20)
+            elif self.type=="ellipseAgent1":
+                painter.drawEllipse(10, 5, 20, 10)
+            elif self.type=="ellipseAgent2":
+                painter.drawEllipse(15, 0, 10, 20)
+            elif self.type=="rectAgent1":
+                painter.drawRect(10, 5, 20, 10)
+            elif self.type=="rectAgent2":
+                painter.drawRect(15, 0, 10, 20)
+            elif self.type=="triangleAgent1": 
+                points = QPolygon([
+                QPoint(20,7),
+                QPoint(15,17),
+                QPoint(25,17)
+                ])
+                painter.drawPolygon(points)
+            elif self.type=="triangleAgent2": 
+                points = QPolygon([           
+                QPoint(25,7),
+                QPoint(15,7),
+                QPoint(20,17)
+                ])
+                painter.drawPolygon(points)
+            elif self.type=="arrowAgent1": 
+                points = QPolygon([
+                QPoint(20,7),
+                QPoint(15,17),
+                QPoint(20,14),
+                QPoint(25,17)
+                ])
+                painter.drawPolygon(points)
+            elif self.type=="arrowAgent2": 
+                points = QPolygon([           
+                QPoint(25,7),
+                QPoint(20,10),
+                QPoint(15,7),
+                QPoint(20,17)
+                ])
+                painter.drawPolygon(points)
+            #Hexagonal square
+            elif self.type=="hexagonal":
+                points = QPolygon([
+                QPoint(20,  0),
+                QPoint(30,  7),
+                QPoint(30,  14),
+                QPoint(20, 20),
+                QPoint(10, 14),
+                QPoint(10,  7)
+                ])
+                painter.drawPolygon(points)
+            
+            if self.type =="None":
+                aFont=QFont("Verdana",10)
+                aFont.setUnderline(True)
+                painter.setFont(aFont)
+                painter.drawText(QRect(15,0,self.parent.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
+            else :
+                painter.setFont(QFont("Verdana",8))
+                painter.drawText(QRect(40,5,self.parent.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
+            self.setMinimumSize(self.parent.getSizeXGlobal()-50,10)
+            self.move(10,self.y*20+5*self.y)
+            painter.end()
+            
     def getId(self):
         return "cell"+str(self.x)+str(self.y)
     
