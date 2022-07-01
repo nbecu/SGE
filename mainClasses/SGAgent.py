@@ -213,12 +213,15 @@ class SGAgent(QtWidgets.QWidget):
         thePlayer=self.parent.parent.parent.getPlayer()
         authorisation=False
         theAction=None
-        if thePlayer is not None :
+        if self.parent.parent.parent.whoIAm=="Admin":
+            authorisation=true
+        elif thePlayer is not None :
             theAction=thePlayer.getMooveActionOn(self)
             if theAction is not None:
                 authorisation=theAction.getAuthorize(self)
                 if authorisation : 
                     theAction.use()
+        
         if authorisation:
 
             mimeData = QMimeData()

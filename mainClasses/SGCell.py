@@ -125,7 +125,8 @@ class SGCell(QtWidgets.QWidget):
             theAction=None
             if thePlayer is not None :
                 theAction=thePlayer.getMooveActionOn(e.source())
-                self.feedBack(theAction,e.source())
+                if not self.parent.parent.whoIAm=="Admin":
+                    self.feedBack(theAction,e.source())
             #We remove the agent of the actual cell
             e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
             e.source().deleteLater()
