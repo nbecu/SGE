@@ -45,7 +45,7 @@ action=thePlayer.addGameAction(myModel.createMooveAction(anAgentLac,2,{"boat":["
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)])
 
-myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac",2,[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ])])
+myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},15)])
 
 #Ajout de condition de victoire
 myModel.timeManager.addEndGameCondition(lambda: myModel.timeManager.verifNumberOfRound(8))
