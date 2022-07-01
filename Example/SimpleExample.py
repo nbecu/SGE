@@ -16,7 +16,9 @@ theSecondGrid=myModel.createGrid("secondGrid",10,10,"square",Qt.gray)
 
 theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
 
-myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
+myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow}},[theFirstGrid],"Forest","Niv1")
+
+myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theSecondGrid],"sea","reasonable")
 
 myModel.setInitialPovGlobal("Forester")
 
