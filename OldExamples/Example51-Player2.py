@@ -43,14 +43,14 @@ thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}
 action=thePlayer.addGameAction(myModel.createMooveAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()],[lambda aCell : aCell.changeValue({"sea": "deep sea"})],[],[lambda agent: agent.changeValue({"boat":"old"})],[lambda aCell,agent : aCell.checkValue({"sea": "deep sea"})]))
 
 
-myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
+myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)])
 
 myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac",2,[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ])])
 
 #Ajout de condition de victoire
 myModel.timeManager.addEndGameCondition(lambda: myModel.timeManager.verifNumberOfRound(8))
 
-myModel.iAm("Admin")
+myModel.iAm("Gertrude")
 
 myModel.launch() 
 

@@ -1,5 +1,5 @@
 
-
+#Class who define a gaming phase
 class SGTimePhase():
     def __init__(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
         self.name=name

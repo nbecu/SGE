@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from SGGameSpace import SGGameSpace
 
 
-#Class who is responsible of the grid creation
+#Class who is responsible of the void creation in interface for layout management
 class SGVoid(SGGameSpace):
     def __init__(self,parent,name,sizeX=200,sizeY=200):
         super().__init__(parent,0,0,0,0,False,Qt.transparent)

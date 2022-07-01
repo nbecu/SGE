@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 
 
 
-            
+#Class that manage the grid layout
 class SGGridLayout():
     def __init__(self,x,y):
         self.count=0
@@ -44,7 +44,6 @@ class SGGridLayout():
             if i<ligneTrouve :
                 sizeY=sizeY+self.listOfGameSpace[colonneTrouve][i].getSizeYGlobal()
         #We shearch the size of the row so in X
-        
         for i in range(self.x):
             if i<colonneTrouve :
                 sizeX=sizeX+self.listOfGameSpace[i][ligneTrouve].getSizeXGlobal()
@@ -90,6 +89,8 @@ class SGGridLayout():
                 size=self.calculateSize(anElement)
                 anElement.startXBase=size[0]
                 anElement.startYBase=size[1]
+                
+                
     #To have the maximum value of the item displayed into the layout           
     def getMax(self):
         maxX=0

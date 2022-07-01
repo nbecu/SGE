@@ -8,7 +8,7 @@ from SGLegendItem import SGLegendItem
 from SGCell import SGCell
 from SGGrid import SGGrid
 
-#Class who is responsible of the grid creation
+#Class who is responsible of the legende creation 
 class SGLegende(SGGameSpace):
     def __init__(self,parent,name,elementPov,playerName,borderColor=Qt.black,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
@@ -22,19 +22,16 @@ class SGLegende(SGGameSpace):
         self.y=0
         self.initUI()
 
-        
+
     def initUI(self):
         self.y=0
         for aKeyOfGamespace in self.elementsPov :
-            #On efface ceux deja existant
             if aKeyOfGamespace in list(self.legendItemList.keys()):
                 if len(self.legendItemList[aKeyOfGamespace]) !=0:
                     for anElement in reversed(range(len(self.legendItemList[aKeyOfGamespace]))):
                         self.legendItemList[aKeyOfGamespace][anElement].deleteLater()
                         del self.legendItemList[aKeyOfGamespace][anElement]
             self.legendItemList[aKeyOfGamespace]=[]
-            #On affiche les nouveaux
-            #On affiche le nom de la legende
         self.y=self.y+1
         anItem=SGLegendItem(self,"None",self.y,self.id)
         self.legendItemList["Title"]=[]

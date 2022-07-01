@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null
 
+#Class that manage the vertical layout
 class SGVerticalLayout():
     def __init__(self):
         self.count=0

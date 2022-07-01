@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-
+#Class that manage the collection of agent
 class SGAgentCollection():
     def __init__(self,parent):
         #Basic initialize

@@ -1,6 +1,7 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
+#Class who manage the game mechanics of mooving
 class SGMove():
     def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
         self.anObject=anObject
@@ -22,6 +23,7 @@ class SGMove():
     def use(self):
         self.numberUsed= self.numberUsed+1
         
+    #Function to test if the game action could be use
     def getAuthorize(self,anObject):
         returnValue=True
         #We check each condition 

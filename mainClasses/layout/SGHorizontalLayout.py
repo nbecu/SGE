@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-
+#Class that manage the horizontal layout
 class SGHorizontalLayout():
     def __init__(self):
         self.count=0

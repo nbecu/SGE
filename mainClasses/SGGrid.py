@@ -9,7 +9,6 @@ from SGAgent import SGAgent
 
 
 from PyQt5.QtWidgets import QAction
-from SGOldValue import SGOldValue
 
 import copy
 
@@ -320,9 +319,9 @@ class SGGrid(SGGameSpace):
                         found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
                         if found!=-1 and found+1 != len(aCell.theCollection.povs[aPov][anAttribut]):
                             if len(self.history["value"])==0:
-                                self.history["value"].append(SGOldValue(0,0,self.attributs))
+                                self.history["value"].append([0,0,self.attributs])
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found+1]
-                            self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
+                            self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
                             
     #To decrease all attributs of cells of one type
     def makeDecrease(self,listOfAttributsToMakeDecrease):
@@ -333,9 +332,9 @@ class SGGrid(SGGameSpace):
                         found=list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(aCell.attributs[anAttribut])
                         if found!=-1 and found != 0:
                             if len(self.history["value"])==0:
-                                self.history["value"].append(SGOldValue(0,0,self.attributs))
+                                self.history["value"].append([0,0,self.attributs])
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
-                            self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs))
+                            self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
                             
     #to get all cells who respect certain value
     def getCellOfValue(self,aDictValueForAgent):
@@ -367,10 +366,10 @@ class SGGrid(SGGameSpace):
             theAgent=self.addOnXandY(agent.name,newPlace.x+1,newPlace.y+1)
             theAgent.history=agent.history
             if len(theAgent.history["coordonates"])==0:
-                theAgent.history["coordonates"].append(SGOldValue(0,0,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)))
+                theAgent.history["coordonates"].append([0,0,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
             theAgent.x=agent.x
             theAgent.y=agent.y
-            theAgent.history["coordonates"].append(SGOldValue(self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)))
+            theAgent.history["coordonates"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
             theAgent.attributs=agent.attributs
             
             
@@ -438,6 +437,13 @@ class SGGrid(SGGameSpace):
                 for agent in cell.getAgentsOfType(agentName):
                     result.append(agent)
         return result
+    
+    #To check if the grid have agent
+    def haveAgents(self):
+        for cell in self.collectionOfCells.getCells().values():
+            if len(cell.collectionOfAgents.agents)!=0:
+                return True
+        return False
        
        
     

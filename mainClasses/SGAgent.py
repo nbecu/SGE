@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 from sqlalchemy import true, values
 
 from SGAgentCollection import SGAgentCollection
-from SGOldValue import SGOldValue
+
 
    
 #Class who is responsible of the declaration a Agent
@@ -44,7 +44,7 @@ class SGAgent(QtWidgets.QWidget):
 
         
         
-        
+    #Drawing function
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
@@ -113,6 +113,7 @@ class SGAgent(QtWidgets.QWidget):
         self.move(self.x,self.y)
         painter.end()
     
+    
     def getId(self):
         return "agent"+str(self.name)
     
@@ -178,7 +179,7 @@ class SGAgent(QtWidgets.QWidget):
                 elif self.parent.parent.parent.selected[1]== "circleAgent" or self.parent.parent.parent.selected[1]=="squareAgent" or self.parent.parent.parent.selected[1]== "ellipseAgent1" or self.parent.parent.parent.selected[1]=="ellipseAgent2" or self.parent.parent.parent.selected[1]== "rectAgent1" or self.parent.parent.parent.selected[1]=="rectAgent2" or self.parent.parent.parent.selected[1]== "triangleAgent1" or self.parent.parent.parent.selected[1]=="triangleAgent2" or self.parent.parent.parent.selected[1]== "arrowAgent1" or self.parent.parent.parent.selected[1]=="arrowAgent2":
                     if  authorisation :
                         if len(self.history["value"])==0:
-                            self.history["value"].append(SGOldValue(0,0,self.attributs))
+                            self.history["value"].append([0,0,self.attributs])
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                                 self.feedBack(theAction)
@@ -187,12 +188,12 @@ class SGAgent(QtWidgets.QWidget):
                             if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
-                                        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs))
+                                        self.history["value"].append([self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs])
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                         self.update()
                         
                         
-        self.parent.parent.client.publish(self.parent.parent.parnet.whoIAm,self.parent.parent.submitMessage())
+        self.parent.parent.parent.client.publish(self.parent.parent.parent.whoIAm,self.parent.parent.parent.submitMessage())
                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -234,7 +235,7 @@ class SGAgent(QtWidgets.QWidget):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-
+    #To set the value of an agent without the pov
     def setUpAgentValue(self,aDictOfValue):
         for anAttribut in aDictOfValue:
             if anAttribut in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
@@ -263,13 +264,13 @@ class SGAgent(QtWidgets.QWidget):
     #Function to change the value      
     def changeValue(self,aDictOfValue):
         if len(self.history["value"])==0:
-            self.history["value"].append(SGOldValue(0,0,self.attributs))
+            self.history["value"].append([0,0,self.attributs])
         for aVal in list(aDictOfValue.keys()) :
             if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
                     for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                         self.attributs.pop(anAttribute,None)
         self.attributs[list(aDictOfValue.keys())[0]]=aDictOfValue[list(aDictOfValue.keys())[0]]
-        self.history["value"].append(SGOldValue(self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs))
+        self.history["value"].append([self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs])
         
         
     #Function to check the value      

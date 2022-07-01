@@ -9,7 +9,7 @@ from gameAction.SGMove import SGMove
 import copy
 
 
-
+#Class that handle the player
 class SGPlayer():
     def __init__(self,theModel,name,actions=[]):
         self.parent=theModel

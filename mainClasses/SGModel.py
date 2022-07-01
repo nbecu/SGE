@@ -78,6 +78,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.listOfSubChannel=[]
         self.timer= QTimer()
         self.timer.timeout.connect(self.eventTime)
+        self.haveToBeClose=False
         self.initUI()
         
     
@@ -215,6 +216,12 @@ class SGModel(QtWidgets.QMainWindow):
     #Trigger the next turn
     def nextTurn(self):
         self.timeManager.nextPhase()
+        
+    def closeEvent(self, event):
+        print("trigger")
+        self.haveToBeClose=True
+        self.client.disconnect()
+        self.close()
 
             
     
@@ -574,41 +581,55 @@ class SGModel(QtWidgets.QMainWindow):
         self.initMQTT()
         self.show()
         
+    #Dunction that process the message
     def handleMessageMainThread(self):
             msg = str(self.q.get())
             print(msg)
             info=eval(str(msg)[2:-1])
             print("process un message")
             if len(info)==1:
-                self.listOfSubChannel.append(info[0])
+                if msg not in self.listOfSubChannel:
+                    self.listOfSubChannel.append(info[0])
+                self.client.subscribe(info[0])
                 self.client.publish(self.whoIAm,self.submitMessage())
             else:
-                allCells=[]
-                for aGrid in self.getGrids():
-                    for aCell in list(aGrid.collectionOfCells.getCells().values()):
-                        allCells.append(aCell)
+                if info[2]!= self.whoIAm:
+                    allCells=[]
+                    for aGrid in self.getGrids():
+                        for aCell in list(aGrid.collectionOfCells.getCells().values()):
+                            allCells.append(aCell)
+                        
+                    for i in range(len(info[0])):
+                        allCells[i].isDisplay=info[0][i][0]
+                        allCells[i].attributs=info[0][i][1]
+                        allCells[i].owner=info[0][i][2]
+                        allCells[i].history=info[0][i][3]
+                        if allCells[i].x==0 and allCells[i].y==0:
+                            if allCells[i].parent.haveAgents():
+                                for aCell in allCells[i].parent.collectionOfCells.getCells().values():
+                                    aCell.deleteAllAgent()
+                        if len(info[0][i][4]) !=0:
+                            for j in range(len(info[0][i][4])):
+                                agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
+                                agent.attributs=info[0][i][4][j][1]
+                                agent.owner=info[0][i][4][j][2]
+                                agent.history=info[0][i][4][j][3]
+                                agent.x=info[0][i][4][j][4]
+                                agent.y=info[0][i][4][j][5]
+                    #We change the time manager
+                    self.timeManager.actualPhase=info[1][0]
+                    self.timeManager.actualRound=info[1][1]
+                    #We subscribe 
+                    for sub in info[3]:
+                        if sub != self.whoIAm:
+                            self.client.subscribe(sub)
+                    if self.timeManager.actualPhase==0:
+                        #We reset GM
+                        for gm in self.getGM():
+                            gm.reset()
                     
-                for i in range(len(info[0])):
-                    allCells[i].isDisplay=info[0][i][0]
-                    allCells[i].attributs=info[0][i][1]
-                    allCells[i].owner=info[0][i][2]
-                    """allCells[i].history=info[0][i][3]"""
-                    if len(info[0][i][4]) !=0:
-                        for j in range(len(info[0][i][4])):
-                            allCells[i].deleteAllAgent()
-                            agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
-                            agent.attributs=info[0][i][4][j][1]
-                            agent.owner=info[0][i][4][j][2]
-                            """agent.history=info[0][i][4][j][3]"""
-                if len(self.listOfSubChannel) != len(info[1]):
-                    print("---------------------")
-                    print(info[1])
-                    for subs in info[1]:
-                        if subs not in self.listOfSubChannel and subs !=self.whoIAm:
-                            self.client.subscribe(subs)
-                            self.listOfSubChannel.append(subs)
         
-    #MQTT BAsic function 
+    #MQTT BAsic function to  connect to the broker
     def connect_mqtt(self):
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
@@ -626,11 +647,15 @@ class SGModel(QtWidgets.QMainWindow):
         self.client.connect("localhost", 1883)
         self.client.user_data_set(self)
     
+    #Thread that handle the listen of the client 
     def handleClientThread(self):
         while True:
             self.client.loop(.1)
+            if self.haveToBeClose==True:
+                break
     
-        
+     
+    #Init the MQTT client   
     def initMQTT(self):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
@@ -643,22 +668,23 @@ class SGModel(QtWidgets.QMainWindow):
         if self.whoIAm!="Admin":
             print("on est notAdmin")
             self.client.subscribe("Admin")
-            print("onSub a admin")
+            print("onSub a Admin")
             self.client.on_message = on_message
-            print("on publie sur newPlayer"+str([self.whoIAm]))
+            self.listOfSubChannel.append(self.whoIAm)
             self.client.publish("newPlayer",str([self.whoIAm]))
         #If Admin
         else:
             print("On Est admin")
             self.client.subscribe("newPlayer")
-            print("on sub au newPlayer")
+            print("onSub a newPlayer")
             self.client.on_message = on_message
+            
 
             
     
             
         
-                       
+    #Send a message                   
     def submitMessage(self):
         print(self.whoIAm+" send un message")
         message="["
@@ -673,10 +699,8 @@ class SGModel(QtWidgets.QMainWindow):
             message=message+str(allCells[i].attributs)
             message=message+","
             message=message+"'"+str(allCells[i].owner)+"'"
-            """message=message+","
-            message=message+str(allCells[i].history)"""
             message=message+","
-            message=message+"'histo'"
+            message=message+str(allCells[i].history)
             message=message+","
             message=message+"["
             theAgents =allCells[i].collectionOfAgents.getAgents()
@@ -688,10 +712,12 @@ class SGModel(QtWidgets.QMainWindow):
                 message=message+str(theAgents[j].attributs)
                 message=message+","
                 message=message+"'"+str(theAgents[j].owner)+"'"
-                """message=message+","
-                message=message+str(theAgents[j].history)"""
                 message=message+","
-                message=message+"'histo'"
+                message=message+str(theAgents[j].history)
+                message=message+","
+                message=message+str(theAgents[j].x)
+                message=message+","
+                message=message+str(theAgents[j].y)
                 message=message+"]"
                 if j != len(theAgents):
                     message=message+","
@@ -701,13 +727,35 @@ class SGModel(QtWidgets.QMainWindow):
                 message=message+","
         message=message+"]"
         message=message+","
+        message=message+"["
+        message=message+str(self.timeManager.actualPhase)
+        message=message+","
+        message=message+str(self.timeManager.actualRound)
+        message=message+","
+        message=message+"]"
+        message=message+","
+        message=message+"["
+        message=message+"'"+str(self.whoIAm)+"'"
+        message=message+"]"
+        message=message+","
         message=message+str(self.listOfSubChannel)
+        print(message)
         return message
         
-        
+    #Event that append at every end of the timer ( litteral )  
     def eventTime(self):
         if not self.q.empty():
             self.handleMessageMainThread()
+     
+     #Return all the GM of players 
+    def getGM(self):
+        listOfGm=[]
+        for player in self.collectionOfPlayers.values() :
+            for gm in player.gameActions:
+                listOfGm.append(gm)
+        return listOfGm
+    
+    
             
         
     

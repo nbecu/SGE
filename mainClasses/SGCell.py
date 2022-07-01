@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 
 from SGAgent import SGAgent
 from SGAgentCollection import SGAgentCollection
-from SGOldValue import SGOldValue
+
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
@@ -119,8 +119,8 @@ class SGCell(QtWidgets.QWidget):
         
     def dropEvent(self, e):
         if e.source().name in self.parent.collectionOfAcceptAgent :
-            if len(self.history["coordonates"])==0:
-                self.history["coordonates"].append(SGOldValue(0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)))           
+            if len(e.source().history["coordonates"])==0:
+                e.source().history["coordonates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
             thePlayer=self.parent.parent.getPlayer()
             theAction=None
             if thePlayer is not None :
@@ -134,10 +134,10 @@ class SGCell(QtWidgets.QWidget):
             theAgent.x=e.pos().x()
             theAgent.y=e.pos().y()
             theAgent.attributs=e.source().attributs
-            theAgent.history['coordonates'].append(SGOldValue(self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)))
+            theAgent.history['coordonates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
             theAgent.show()
             
-            self.parent.parent.client.publish(self.parent.whoIAm,self.parent.parent.submitMessage())
+            self.parent.parent.client.publish(self.parent.parent.whoIAm,self.parent.parent.submitMessage())
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
@@ -175,7 +175,7 @@ class SGCell(QtWidgets.QWidget):
                 if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
                     if authorisation : 
                         if len(self.history["value"])==0:
-                            self.history["value"].append(SGOldValue(0,0,self.attributs))
+                            self.history["value"].append([0,0,self.attributs])
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                             self.feedBack(theAction)
@@ -184,7 +184,7 @@ class SGCell(QtWidgets.QWidget):
                                 self.collectionOfAgents.agents[i].deleteLater()
                                 del self.collectionOfAgents.agents[i]
                         self.parent.collectionOfCells.removeVisiblityCell(self.getId())
-                        self.history["value"].append(SGOldValue(self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,"deleted"))
+                        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,"deleted"])
                         self.show()
                         self.repaint()
                 #The Replace cell and change value Action
@@ -192,7 +192,7 @@ class SGCell(QtWidgets.QWidget):
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
-                            self.history["value"].append(SGOldValue(0,0,self.attributs))
+                            self.history["value"].append([0,0,self.attributs])
                         if theAction is not None:
                             self.feedBack(theAction)
                         if self.parent.parent.selected[0].parent.id!="adminLegende":
@@ -210,7 +210,7 @@ class SGCell(QtWidgets.QWidget):
                                     for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append(SGOldValue(self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs))
+                        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
                         self.update() 
                 #For agent placement         
                 else :
@@ -228,8 +228,8 @@ class SGCell(QtWidgets.QWidget):
                                 anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
                                 if self.parent.parent.selected[0].parent.id!="adminLegende":
                                     anAgent.owner=self.parent.parent.actualPlayer
-                                anAgent.history["value"].append(SGOldValue(self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,anAgent.attributs))
-                                anAgent.history["coordonates"].append(SGOldValue(self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)))
+                                anAgent.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,anAgent.attributs])
+                                anAgent.history["coordonates"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)])
                                 anAgent.update()
                                 anAgent.show()
                                 
@@ -295,9 +295,9 @@ class SGCell(QtWidgets.QWidget):
     #To change the value
     def changeValue(self,aDictOfValue):
         if len(self.history["value"])==0:
-            self.history["value"].append(SGOldValue(0,0,self.attributs))
+            self.history["value"].append([0,0,self.attributs])
         self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
-        self.history["value"].append(SGOldValue(self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs))
+        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
      
     #To delete a kind of Agent on the cell   
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):

@@ -6,7 +6,7 @@ from sqlalchemy import null
 
 
    
-#Class who is responsible of the declaration a cell
+#Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
     def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut=""):
         super().__init__(parent)
@@ -19,6 +19,7 @@ class SGLegendItem(QtWidgets.QWidget):
         self.y=y
         self.color=color
         
+    #Drawing function
     def paintEvent(self,event):
         if self.parent.checkDisplay():
             painter = QPainter() 

@@ -1,6 +1,7 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
+#Class who manage the game mechanics of Update
 class SGUpdate():
     def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
         self.anObject=anObject
@@ -19,7 +20,8 @@ class SGUpdate():
     #Function which increment the number of use
     def use(self):
         self.numberUsed= self.numberUsed+1
-        
+    
+    #Function to test if the game action could be use    
     def getAuthorize(self,anObject):
         returnValue=True
         #We check each condition 

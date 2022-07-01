@@ -1,5 +1,6 @@
 from SGTimePhase import SGTimePhase
 
+#Class that handle the overall management of time 
 class SGTimeManager():
     
     def __init__(self,parent):
@@ -17,11 +18,14 @@ class SGTimeManager():
                 if len(self.orderGamePhases)!=1:
                     self.actualPhase = self.actualPhase +1
             else:
+                #We reset GM
+                for gm in self.parent.getGM():
+                    gm.reset()
                 self.actualPhase=0
 
                 
             thePhase= self.orderGamePhases[self.actualPhase]
-            #Add conditions
+            #check conditions
             doThePhase=True
             if len(thePhase.conditionOfTrigger)!=0:
                 for aCondition in thePhase.conditionOfTrigger:
@@ -31,11 +35,13 @@ class SGTimeManager():
             #we change the active player
             self.parent.actualPlayer=thePhase.activePlayer
             if doThePhase :
-                #Add Action of players 
+                #We make the changement
                 if len(thePhase.nextStepAction) !=0:
                     for aChange in thePhase.nextStepAction:
                         aChange()
+                self.parent.client.publish(self.parent.whoIAm,self.parent.submitMessage())
             else:
+                self.parent.client.publish(self.parent.whoIAm,self.parent.submitMessage())
                 self.nextPhase()
         
     #To handle the victory Condition and the passment of turn    
@@ -44,7 +50,13 @@ class SGTimeManager():
         self.nextPhase()
         
 
-        
+    def checkEndGame(self):
+        endGame=False
+        for aCond in self.conditionOfEndGame:
+            endGame=endGame or aCond()
+        if endGame :
+            print("C'est finit !")
+        return endGame
     
     
 #-----------------------------------------------------------------------------------------
@@ -62,14 +74,7 @@ class SGTimeManager():
     def addEndGameCondition(self,aCondition):
         self.conditionOfEndGame.append(aCondition)
         
-    def checkEndGame(self):
-        endGame=False
-        for aCond in self.conditionOfEndGame:
-            endGame=endGame or aCond()
-        if endGame :
-            print("C'est finit !")
-        return endGame
-        
+
     #To verify a number of round
     def verifNumberOfRound(self,aNumber):
         return self.actualRound==aNumber

@@ -1,6 +1,7 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
+#Class who manage the game mechanics of delete
 class SGDelete():
     def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
         self.anObject=anObject
@@ -20,6 +21,7 @@ class SGDelete():
     def use(self):
         self.numberUsed= self.numberUsed+1
         
+    #Function to test if the game action could be use
     def getAuthorize(self,anObject):
         returnValue=True
         #We check each condition 
