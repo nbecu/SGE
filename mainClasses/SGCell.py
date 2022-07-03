@@ -136,7 +136,8 @@ class SGCell(QtWidgets.QWidget):
             theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
             theAgent.show()
             
-            self.parent.parent.client.publish(self.parent.parent.whoIAm,self.parent.parent.submitMessage())
+            self.model.publishEntitiesState()
+            
 
         e.setDropAction(Qt.MoveAction)
         e.accept()

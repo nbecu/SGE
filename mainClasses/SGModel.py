@@ -39,7 +39,7 @@ from PyQt5.QtCore import *
 
 #Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self,width,height,typeOfLayout="vertical",x=3,y=3,parent=None):
+    def __init__(self,width,height,typeOfLayout=None,x=3,y=3,parent=None):
         super().__init__()
         
         #Definition the size of the window ( temporary here)
@@ -221,7 +221,8 @@ class SGModel(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         print("trigger")
         self.haveToBeClose=True
-        self.client.disconnect()
+        if hasattr(self, 'client'):
+            self.client.disconnect()
         self.close()
 
             
@@ -453,38 +454,38 @@ class SGModel(QtWidgets.QMainWindow):
     #To choose the global inital pov when the game start
     def setInitialPovGlobal(self,nameOfPov):
         self.nameOfPov=nameOfPov
-        for anGameSpace in self.getLegends():
-            self.gameSpaces[anGameSpace.id].initUI()
+        for aGameSpace in self.getLegends():
+            self.gameSpaces[aGameSpace.id].initUI()
         self.update()
         
     
     #To add a new POV and apply a value to cell
-    def setUpCellValueAndPov(self,aNameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridToApply=None):
+    def setUpCellValueAndPov(self,nameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridToApply=None):
         if not isinstance(items,list):
             items=[items]
         for anItem in items :
             if(isinstance(anItem,SGGrid)==True):
-                anItem.collectionOfCells.povs[aNameOfPov]=aDict
+                anItem.collectionOfCells.povs[nameOfPov]=aDict
                 for aCell in list(anItem.collectionOfCells.getCells().values()) :
                         if aCell.attributs is None :
                             aCell.attributs = {}
                         if defaultAttributForPov ==None :
                             for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aCell.attributs.keys() :
+                                if nameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]       
                         elif defaultAttributForPov and DefaultValueAttribut is None:
                             for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aCell.attributs.keys() :
+                                if nameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
                         else :
                             for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aCell.attributs.keys() :
+                                if nameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[defaultAttributForPov]=DefaultValueAttribut
             elif(isinstance(anItem,str)==True):
                 for aGrid in listOfGridToApply:
                     for anAgent in aGrid.collectionOfAcceptAgent :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
+                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=aDict
                             if defaultAttributForPov ==None :
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]={}
@@ -497,32 +498,55 @@ class SGModel(QtWidgets.QMainWindow):
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=DefaultValueAttribut
-            #Adding the Pov to the menue bar
-            if aNameOfPov not in self.listOfPovsForMenu :
-                self.listOfPovsForMenu.append(aNameOfPov)
-                anAction=QAction(" &"+aNameOfPov, self)
-                self.povMenu.addAction(anAction)
-                anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
-                
-                
-    #To add a new POV and apply a value to cell
-    def setUpPov(self,aNameOfPov,aDict,items,listOfGridToApply=None):
-        if not isinstance(items,list):
-            items=[items]
-        for anItem in items :
-            if(isinstance(anItem,SGGrid)==True):
-                anItem.collectionOfCells.povs[aNameOfPov]=aDict
-            elif(isinstance(anItem,str)==True):
-                for aGrid in listOfGridToApply:
+            #Adding the Pov to the menu bar
+            self.addPovinMenuBar(nameOfPov)
+            
+    #Adding the Pov to the menu bar
+    def addPovinMenuBar(self,nameOfPov):
+        if nameOfPov not in self.listOfPovsForMenu :
+            self.listOfPovsForMenu.append(nameOfPov)
+            anAction=QAction(" &"+nameOfPov, self)
+            self.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.setInitialPovGlobal(nameOfPov))
+        #if this is the pov is the first pov to be declared, than set it as the initial pov 
+        if len(self.listOfPovsForMenu) == 1:
+             self.setInitialPovGlobal(nameOfPov) 
+
+    #To add a new POV 
+    def setUpPov(self,nameOfPov,dictOfValuAndColor,listOfGridsToApply=None):
+        if listOfGridsToApply==None:
+            listOfGridsToApply = [list(self.gameSpaces.values())[0]] #get the fisrt value of the dict
+        if not isinstance(listOfGridsToApply,list):
+            listOfGridsToApply=[listOfGridsToApply]
+        for aGrid in listOfGridsToApply :
+            if(isinstance(aGrid,SGGrid)==True):
+                aGrid.collectionOfCells.povs[nameOfPov]=dictOfValuAndColor
+            elif(isinstance(aGrid,str)==True):
+                # the pow is applied to somthing else than a grid
+                for aGrid in listOfGridsToApply:
                     for anAgent in aGrid.collectionOfAcceptAgent :
-                        if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
+                        if aGrid.collectionOfAcceptAgent[anAgent].name ==aGrid:
+                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=dictOfValuAndColor
             #Adding the Pov to the menue bar
-            if aNameOfPov not in self.listOfPovsForMenu :
-                self.listOfPovsForMenu.append(aNameOfPov)
-                anAction=QAction(" &"+aNameOfPov, self)
-                self.povMenu.addAction(anAction)
-                anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
+            self.addPovinMenuBar(nameOfPov)
+            
+    # def setUpPov_OLD(self,aNameOfPov,aDict,items,listOfGridToApply=None):
+    #     if not isinstance(items,list):
+    #         items=[items]
+    #     for anItem in items :
+    #         if(isinstance(anItem,SGGrid)==True):
+    #             anItem.collectionOfCells.povs[aNameOfPov]=aDict
+    #         elif(isinstance(anItem,str)==True):
+    #             for aGrid in listOfGridToApply:
+    #                 for anAgent in aGrid.collectionOfAcceptAgent :
+    #                     if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
+    #                         aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
+    #         #Adding the Pov to the menue bar
+    #         if aNameOfPov not in self.listOfPovsForMenu :
+    #             self.listOfPovsForMenu.append(aNameOfPov)
+    #             anAction=QAction(" &"+aNameOfPov, self)
+    #             self.povMenu.addAction(anAction)
+    #             anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
                 
                         
                     

@@ -194,7 +194,7 @@ class SGAgent(QtWidgets.QWidget):
                         self.update()
                         
                         
-        self.parent.parent.parent.client.publish(self.parent.parent.parent.whoIAm,self.parent.parent.parent.submitMessage())
+        self.parent.parent.parent.publishEntitiesState()
         #self.model.publishEntitiesState()
                     
     #Apply the feedBack of a gameMechanics
