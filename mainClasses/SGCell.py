@@ -11,7 +11,7 @@ from SGAgentCollection import SGAgentCollection
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
-    def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase,model=None):
+    def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent

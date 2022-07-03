@@ -35,7 +35,7 @@ myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"
 theFirstLegend=myModel.createLegendAdmin()
 
 #On declare une joueuse qui possederas des GM et cela genereras sa Legend en consequence 
-thePlayer=myModel.newPlayer("Gertrude")
+thePlayer=myModel.createPlayer("Gertrude")
 
 #On declare les mecha du joueur
 

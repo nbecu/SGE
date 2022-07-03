@@ -30,7 +30,7 @@ myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"
 
 theFirstLegend=myModel.createLegendAdmin()
 
-thePlayer=myModel.newPlayer("Gertrude")
+thePlayer=myModel.createPlayer("Gertrude")
 
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,5,{"boat":["old"]} ))
 
@@ -40,7 +40,7 @@ aGameAction.addFeedback(lambda aCell: aCell.getProperty())
 thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["reasonable"]},[lambda aCell : aCell.isMine()]))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()]))
 
-action=thePlayer.addGameAction(myModel.createMooveAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()],[lambda aCell : aCell.changeValue({"sea": "deep sea"})],[],[lambda agent: agent.changeValue({"boat":"old"})],[lambda aCell,agent : aCell.checkValue({"sea": "deep sea"})]))
+action=thePlayer.addGameAction(myModel.createMoveAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()],[lambda aCell : aCell.changeValue({"sea": "deep sea"})],[],[lambda agent: agent.changeValue({"boat":"old"})],[lambda aCell,agent : aCell.checkValue({"sea": "deep sea"})]))
 
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)])

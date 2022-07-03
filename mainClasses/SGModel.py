@@ -9,8 +9,6 @@ from win32api import GetSystemMetrics
 from paho.mqtt import client as mqtt_client
 import threading ,queue
 
-
-
 sys.path.insert(0, str(Path(__file__).parent))
 from SGAgent import SGAgent
 from SGPlayer import SGPlayer
@@ -39,16 +37,31 @@ from PyQt5.QtCore import *
 
 #Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self,width,height,typeOfLayout=None,x=3,y=3,parent=None):
+    def __init__(self,width,height,typeOfLayout=None,x=3,y=3,parent=None,name="Simulation of a boardGame",windowTitle=None):
+        """
+        Declaration of a new model
+
+        Args:
+            width (int): width of the main window
+            height (int): height of the main window
+            typeOfLayout ("vertical", "horizontal" or "grid"): the type of layout used to position the different graphic elements of the simulation
+            x (int, optional): used only for grid layout. defines the number layout grid width
+            y (int, optional): used only for grid layout. defines the number layout grid height
+            name (str, optional): the name of the model.
+            windowTitle (str, optional): the title of the main window of the simulation.
+        """
         super().__init__()
-        
         #Definition the size of the window ( temporary here)
         screensize = GetSystemMetrics(0),GetSystemMetrics(1)
         self.setGeometry(int((screensize[0]/2)-width/2),int((screensize[1]/2)-height/2),width,height)
         #Init of variable of the Model
-        self.name="Simulation of a boardGame"
+        self.name=name
         #Definition of the title of the window ( temporary) 
-        self.setWindowTitle(self.name)
+        if windowTitle is None:
+            self.windowTitle = self.name
+        else:
+            self.windowTitle = windowTitle
+        self.setWindowTitle(self.windowTitle)
         #We allow the drag in this widget
         self.setAcceptDrops(True)
         
@@ -91,12 +104,12 @@ class SGModel(QtWidgets.QMainWindow):
         self.window.setLayout(self.layout)
         #Definition of the toolbar via a menue and the ac
         self.createAction()
-        self.createMenue()
+        self.createMenu()
         
         self.nameOfPov="default"
 
     #Create the menu of the menue 
-    def createMenue(self):
+    def createMenu(self):
         self.menuBar().addAction(self.openSave)
         
         self.menuBar().addAction(self.save)
@@ -316,7 +329,22 @@ class SGModel(QtWidgets.QMainWindow):
 
 #For create elements
     #To create a grid
-    def createGrid(self,name,rows=8, columns=8,format="square",color=Qt.gray,gap=3,size=30):
+    def createGrid(self,name,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30):
+        """
+        Create a grid that contains cells
+
+        Args:
+            name (st): name of the grid.
+            columns (int): number of columns (width).
+            rows (int): number of rows (height).
+            format ("square", "hexagonal"): shape of the cells. Defaults to "square".
+            color (a color, optional): background color of the grid . Defaults to Qt.gray.
+            gap (int, optional): gap size between cells. Defaults to 0.
+            size (int, optional): size of the cells. Defaults to 30.
+
+        Returns:
+            aGrid: the grid created with its cells
+        """
         #Creation
         aGrid = SGGrid(self,name,rows, columns,format,gap,size,color)
         self.gameSpaces[name]=aGrid
@@ -409,8 +437,8 @@ class SGModel(QtWidgets.QMainWindow):
         return anAgent
             
     
-    #To create a newPlayer
-    def newPlayer(self,name):
+    #To create a createPlayer
+    def createPlayer(self,name):
         player=SGPlayer(self,name)
         self.collectionOfPlayers[name]=player
         return player
@@ -570,7 +598,7 @@ class SGModel(QtWidgets.QMainWindow):
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
-    def createMooveAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
+    def createMoveAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
         return SGMove(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack,feedbackAgent,conditionOfFeedBackAgent) 
     
     #-----------------------------------------------------------  
@@ -698,12 +726,12 @@ class SGModel(QtWidgets.QMainWindow):
             print("onSub a Admin")
             self.client.on_message = on_message
             self.listOfSubChannel.append(self.whoIAm)
-            self.client.publish("newPlayer",str([self.whoIAm]))
+            self.client.publish("createPlayer",str([self.whoIAm]))
         #If Admin
         else:
             print("On Est admin")
-            self.client.subscribe("newPlayer")
-            print("onSub a newPlayer")
+            self.client.subscribe("createPlayer")
+            print("onSub a createPlayer")
             self.client.on_message = on_message
             
 

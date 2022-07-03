@@ -65,6 +65,6 @@ theFirstLegend=myModel.createLegendAdmin()
 
 myModel.iAm("Admin")
 
-myModel.launch() 
+myModel.launch_withoutMqtt() 
 
 sys.exit(monApp.exec_())

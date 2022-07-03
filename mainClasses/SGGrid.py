@@ -14,7 +14,7 @@ import copy
 
 #Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None, model=None):
+    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None):
         super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1

@@ -5,6 +5,7 @@ class SGTimeManager():
     
     def __init__(self,parent):
         self.parent=parent
+        self.model=parent
         self.actualRound = 0
         self.actualPhase = 0
         self.orderGamePhases=[]
@@ -40,9 +41,9 @@ class SGTimeManager():
                     if len(thePhase.nextStepAction) !=0:
                         for aChange in thePhase.nextStepAction:
                             aChange()
-                    self.parent.client.publish(self.parent.whoIAm,self.parent.submitMessage())
+                    self.model.publishEntitiesState()
                 else:
-                    self.parent.client.publish(self.parent.whoIAm,self.parent.submitMessage())
+                    self.model.publishEntitiesState()
                     self.nextPhase()
         
     #To handle the victory Condition and the passment of turn    

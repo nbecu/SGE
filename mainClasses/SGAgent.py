@@ -14,7 +14,7 @@ from SGAgentCollection import SGAgentCollection
 class SGAgent(QtWidgets.QWidget):
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,size,methodOfPlacement="random",model=None):
+    def __init__(self,parent,name,format,size,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
