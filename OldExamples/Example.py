@@ -23,8 +23,8 @@ myModel.setInitialPovGlobal("Forester")
 #On assign une autre valeur a 30 cellule aléatoirement
 theFirstGrid.setForRandom({"Forest":"Niv3"},38)
 
-#On ajoute une legende ADMIN genere automatiquement
-myModel.createLegendeAdmin()
+#On ajoute une Legend ADMIN genere automatiquement
+myModel.createLegendAdmin()
 
 #On ouvre le model
 myModel.show() 

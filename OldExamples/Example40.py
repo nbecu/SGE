@@ -36,14 +36,14 @@ myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":
 myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid,theSecondGrid])
 
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 
 
 
-theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
+theSecondLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
 
-theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
+theSecondLegend.addToTheLegend({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
 
 theSecondLegend.addAgentToTheLegend("lac")
 

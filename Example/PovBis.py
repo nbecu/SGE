@@ -37,7 +37,7 @@ myModel.setUpPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac",[theFir
 
 theFirstGrid.addOnXandY("lac",1,1)
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 

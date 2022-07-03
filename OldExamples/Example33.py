@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Example of add a legende admin
+#Example of add a Legend admin
 
 
 myModel=SGModel(1080,960,"grid")
@@ -54,11 +54,11 @@ theFirstGrid4.setInPosition(2,2)
 
 myModel.setInitialPovGlobal("Basic")
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
-theFirstLegende.addDeleteButton()
+theFirstLegend.addDeleteButton()
 
-theFirstLegende.setInPosition(1,2)
+theFirstLegend.setInPosition(1,2)
 
 myModel.applyPersonalLayout() 
 

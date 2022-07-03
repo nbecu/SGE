@@ -14,7 +14,7 @@ from SGAgentCollection import SGAgentCollection
 class SGAgent(QtWidgets.QWidget):
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,size,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,size,methodOfPlacement="random",model=None):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
@@ -22,6 +22,7 @@ class SGAgent(QtWidgets.QWidget):
             self.theCollection=parent.collectionOfAgents
         else:
             self.theCollection=SGAgentCollection(None)
+ #       self.model=parent.model
         self.name=name
         self.format=format
         self.size=size
@@ -39,7 +40,7 @@ class SGAgent(QtWidgets.QWidget):
         #We define variable to handle an history 
         self.history={}
         self.history["value"]=[]
-        self.history["coordonates"]=[]
+        self.history["coordinates"]=[]
         
 
         
@@ -194,6 +195,7 @@ class SGAgent(QtWidgets.QWidget):
                         
                         
         self.parent.parent.parent.client.publish(self.parent.parent.parent.whoIAm,self.parent.parent.parent.submitMessage())
+        #self.model.publishEntitiesState()
                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -302,8 +304,8 @@ class SGAgent(QtWidgets.QWidget):
     #Function get if the agent have change the value in       
     def haveMoove(self,numberOfRound=1):
         haveChange=False
-        if not len(self.history["coordonates"]) ==0:
-            for anItem in self.history["coordonates"].reverse():
+        if not len(self.history["coordinates"]) ==0:
+            for anItem in self.history["coordinates"].reverse():
                 if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
                     if not anItem.thingsSave == self.attributs:
                         haveChange=True

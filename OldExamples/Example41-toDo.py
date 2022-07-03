@@ -40,14 +40,14 @@ myModel.newAgent("lac","circleAgent",[theFirstGrid])
 myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
 ## meme remarque que pour attribut et pov des cellule
 
-theFirstLegende=myModel.createLegendeAdmin()
-theFirstLegende.addDeleteButton()
+theFirstLegend=myModel.createLegendAdmin()
+theFirstLegend.addDeleteButton()
 
 
 
-theSecondLegend=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
+theSecondLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Forester":{"Forest":{"Niv3":Qt.green}}}})
 #faudrait ajouteer un initulé en haut de la légende (par défaut ce serai Forester ou admin, mais le modeler pourrait aussi spécifier un intitulé custom )
-theSecondLegend.addToTheLegende({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
+theSecondLegend.addToTheLegend({"basicGrid":{"Forester":{"Forest":{"Niv2":Qt.red}}}})
 theSecondLegend.addAgentToTheLegend("lac")
 
 

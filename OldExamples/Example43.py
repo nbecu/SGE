@@ -27,7 +27,7 @@ myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid,theSecondGrid])
 
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,[],[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 

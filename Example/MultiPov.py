@@ -22,7 +22,7 @@ myModel.setInitialPovGlobal("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 myModel.iAm("Admin")
 

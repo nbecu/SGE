@@ -28,7 +28,7 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 thePlayer=myModel.newPlayer("Gertrude")
 

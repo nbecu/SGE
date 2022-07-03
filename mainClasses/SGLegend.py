@@ -8,8 +8,8 @@ from SGLegendItem import SGLegendItem
 from SGCell import SGCell
 from SGGrid import SGGrid
 
-#Class who is responsible of the legende creation 
-class SGLegende(SGGameSpace):
+#Class who is responsible of the Legend creation 
+class SGLegend(SGGameSpace):
     def __init__(self,parent,name,elementPov,playerName,borderColor=Qt.black,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
@@ -97,7 +97,7 @@ class SGLegende(SGGameSpace):
     def zoomOut(self):
         return True
     
-    #To handle the drag of the legende
+    #To handle the drag of the Legend
     def mouseMoveEvent(self, e):
     
         if e.buttons() != Qt.LeftButton:
@@ -113,7 +113,7 @@ class SGLegende(SGGameSpace):
     
     
         
-    #Drawing the legende
+    #Drawing the Legend
     def paintEvent(self,event):
         if self.checkDisplay():
             if len(self.elementsPov)!=0:
@@ -121,7 +121,7 @@ class SGLegende(SGGameSpace):
                 painter.begin(self)
                 painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
                 painter.setPen(QPen(self.borderColor,1));
-                #Draw the corner of the legende
+                #Draw the corner of the Legend
                 self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
                 painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
@@ -150,7 +150,7 @@ class SGLegende(SGGameSpace):
 #Definiton of the methods who the modeler will use
 
 #To add Povs in a legend
-    def addToTheLegende(self,aListOfElement,aDictOfAcceptedValue={}):
+    def addToTheLegend(self,aListOfElement,aDictOfAcceptedValue={}):
         #For the grid value
         for aGameSpaceId in aListOfElement:
             if aGameSpaceId not in list(self.elementsPov.keys()):

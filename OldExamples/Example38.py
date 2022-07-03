@@ -23,11 +23,11 @@ myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid)
 
 myModel.setInitialPovGlobal("Basic")
 
-theFirstLegende=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Basic":{"1":Qt.green}}})
+theFirstLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Basic":{"1":Qt.green}}})
 
-theFirstLegende.addToTheLegende({"basicGrid":{"Basic":{"testDunNomLong":Qt.red}}})
+theFirstLegend.addToTheLegend({"basicGrid":{"Basic":{"testDunNomLong":Qt.red}}})
 
-theFirstLegende.addDeleteButton()
+theFirstLegend.addDeleteButton()
 
 myModel.newAgent("circleTest","circleAgent",[theFirstGrid])
 

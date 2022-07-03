@@ -31,7 +31,7 @@ theFirstGrid.setForY({"Risk":"low"},8)
 myModel.setUpPov("Fireman",{"Risk":{"low":Qt.yellow,"high":Qt.red}},[theFirstGrid])
 
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 myModel.show() 
 

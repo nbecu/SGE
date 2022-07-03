@@ -31,10 +31,10 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 #On initie une pov pour ce dit agent
 myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
-#on genere la legende admin qui a tout les droits 
-theFirstLegende=myModel.createLegendeAdmin()
+#on genere la Legend admin qui a tout les droits 
+theFirstLegend=myModel.createLegendAdmin()
 
-#On declare une joueuse qui possederas des GM et cela genereras sa legende en consequence 
+#On declare une joueuse qui possederas des GM et cela genereras sa Legend en consequence 
 thePlayer=myModel.newPlayer("Gertrude")
 
 #On declare les mecha du joueur

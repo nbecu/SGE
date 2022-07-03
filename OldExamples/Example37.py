@@ -54,14 +54,14 @@ theFirstGrid4.setInPosition(2,2)
 
 myModel.setInitialPovGlobal("Basic")
 
-theFirstLegende=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Basic":{"1":Qt.green}}})
+theFirstLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Basic":{"1":Qt.green}}})
 
-theFirstLegende.addToTheLegende({"basicGrid":{"Basic":{"testDunNomLong":Qt.red}}})
+theFirstLegend.addToTheLegend({"basicGrid":{"Basic":{"testDunNomLong":Qt.red}}})
 
-theFirstLegende.addDeleteButton()
+theFirstLegend.addDeleteButton()
 
 
-theFirstLegende.setInPosition(1,2)
+theFirstLegend.setInPosition(1,2)
 
 myModel.applyPersonalLayout() 
 

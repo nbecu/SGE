@@ -11,10 +11,11 @@ from SGAgentCollection import SGAgentCollection
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
-    def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase):
+    def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase,model=None):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
+        self.model=parent.model
         self.theCollection=theCollection
         self.x=x
         self.y=y
@@ -41,11 +42,8 @@ class SGCell(QtWidgets.QWidget):
         #We define variables to handle the history 
         self.history={}
         self.history["value"]=[]
+  
 
-        
-
-        
-        
         
     def paintEvent(self,event):
         self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 
@@ -119,8 +117,8 @@ class SGCell(QtWidgets.QWidget):
         
     def dropEvent(self, e):
         if e.source().name in self.parent.collectionOfAcceptAgent :
-            if len(e.source().history["coordonates"])==0:
-                e.source().history["coordonates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
+            if len(e.source().history["coordinates"])==0:
+                e.source().history["coordinates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
             thePlayer=self.parent.parent.getPlayer()
             theAction=None
             if thePlayer is not None :
@@ -135,7 +133,7 @@ class SGCell(QtWidgets.QWidget):
             theAgent.x=e.pos().x()
             theAgent.y=e.pos().y()
             theAgent.attributs=e.source().attributs
-            theAgent.history['coordonates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
+            theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
             theAgent.show()
             
             self.parent.parent.client.publish(self.parent.parent.whoIAm,self.parent.parent.submitMessage())
@@ -196,7 +194,7 @@ class SGCell(QtWidgets.QWidget):
                             self.history["value"].append([0,0,self.attributs])
                         if theAction is not None:
                             self.feedBack(theAction)
-                        if self.parent.parent.selected[0].parent.id!="adminLegende":
+                        if self.parent.parent.selected[0].parent.id!="adminLegend":
                              self.owner=self.parent.parent.actualPlayer
                         self.isDisplay=True
                         value =self.parent.parent.selected[3]
@@ -227,15 +225,14 @@ class SGCell(QtWidgets.QWidget):
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                                 anAgent.x=QMouseEvent.pos().x()-round(anAgent.size/2)
                                 anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
-                                if self.parent.parent.selected[0].parent.id!="adminLegende":
+                                if self.parent.parent.selected[0].parent.id!="adminLegend":
                                     anAgent.owner=self.parent.parent.actualPlayer
                                 anAgent.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,anAgent.attributs])
-                                anAgent.history["coordonates"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)])
+                                anAgent.history["coordinates"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)])
                                 anAgent.update()
                                 anAgent.show()
-                                
-                                
-        self.parent.parent.client.publish(self.parent.parent.whoIAm,self.parent.parent.submitMessage())
+
+            self.model.publishEntitiesState()
                             
                                     
     #Apply the feedBack of a gameMechanics

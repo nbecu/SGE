@@ -28,7 +28,7 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 thePlayer=myModel.newPlayer("Gertrude")
 """thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.parent.addOnXandY("lac",1,1) ] ,[lambda aCell: aCell.parent.getCellFromCoordonate(1,1).checkValue({"sea":"reasonable"}) ]  ))"""

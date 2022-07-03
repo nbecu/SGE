@@ -41,6 +41,8 @@ theFirstLegend=myModel.createLegendAdmin()
 
 myModel.timeManager.addGamePhase("theFirstPhase",0,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 
-myModel.show() 
+myModel.iAm("Admin")
+
+myModel.launch_withoutMqtt()  
 
 sys.exit(monApp.exec_())

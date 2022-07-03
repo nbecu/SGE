@@ -4,6 +4,7 @@ from logging.config import listen
 import sys 
 import copy
 from pathlib import Path
+from pyrsistent import s
 from win32api import GetSystemMetrics
 from paho.mqtt import client as mqtt_client
 import threading ,queue
@@ -17,7 +18,7 @@ from SGTimeManager import SGTimeManager
 
 from SGGrid import SGGrid
 from SGVoid import SGVoid
-from SGLegende import SGLegende
+from SGLegend import SGLegend
 
 from gameAction.SGCreate import SGCreate
 from gameAction.SGUpdate import SGUpdate
@@ -345,58 +346,58 @@ class SGModel(QtWidgets.QMainWindow):
         return aVoid
     
     
-    #To create a legende
-    def createLegendeAdmin(self):
+    #To create a Legend
+    def createLegendAdmin(self):
         #Creation
         #We harvest all the case value
         allElements={}
         for anElement in self.getGrids() :
-            allElements[anElement.id]=anElement.getValuesForLegende()
-        aLegende = SGLegende(self,"adminLegende",allElements,"Admin")
+            allElements[anElement.id]=anElement.getValuesForLegend()
+        aLegend = SGLegend(self,"adminLegend",allElements,"Admin")
         for aGrid in self.getGrids() :
             for anAgent in aGrid.collectionOfAcceptAgent :
-                aLegende.addAgentToTheLegend(anAgent)
-        self.gameSpaces["adminLegende"]=aLegende
+                aLegend.addAgentToTheLegend(anAgent)
+        self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aLegende)
-        aLegende.setStartXBase(newPos[0])
-        aLegende.setStartYBase(newPos[1])
+        newPos=self.layoutOfModel.addGameSpace(aLegend)
+        aLegend.setStartXBase(newPos[0])
+        aLegend.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
-            aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
+            aLegend.move(aLegend.startXBase,aLegend.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegend))
         elif(self.typeOfLayout=="horizontal"):
-            aLegende.move(aLegende.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende),aLegende.startYBase)    
+            aLegend.move(aLegend.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegend),aLegend.startYBase)    
         else:
-            pos=self.layoutOfModel.foundInLayout(aLegende)
-            aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
-        aLegende.addDeleteButton("Delete")
-        return aLegende
+            pos=self.layoutOfModel.foundInLayout(aLegend)
+            aLegend.move(aLegend.startXBase+20*pos[0],aLegend.startYBase+20*pos[1])
+        aLegend.addDeleteButton("Delete")
+        return aLegend
     
-    #To update the admin legende when the modeler add a new pov after the creation of the legende 
-    def updateLegendeAdmin(self):
-        if "adminLegende" in list(self.gameSpaces.keys()):
-            self.gameSpaces["adminLegende"].deleteLater()
-            del self.gameSpaces["adminLegende"]
-        aLegende=self.createLegendeAdmin()
-        aLegende.addDeleteButton()
+    #To update the admin Legend when the modeler add a new pov after the creation of the Legend 
+    def updateLegendAdmin(self):
+        if "adminLegend" in list(self.gameSpaces.keys()):
+            self.gameSpaces["adminLegend"].deleteLater()
+            del self.gameSpaces["adminLegend"]
+        aLegend=self.createLegendAdmin()
+        aLegend.addDeleteButton()
     
     
-    #To create a legende
-    def createLegendeForPlayer(self,name,aListOfElement,playerName):
+    #To create a Legend
+    def createLegendForPlayer(self,name,aListOfElement,playerName):
         #Creation        
-        aLegende = SGLegende(self,name,aListOfElement,playerName)
-        self.gameSpaces[name]=aLegende
+        aLegend = SGLegend(self,name,aListOfElement,playerName)
+        self.gameSpaces[name]=aLegend
         #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aLegende)
-        aLegende.setStartXBase(newPos[0])
-        aLegende.setStartYBase(newPos[1])
+        newPos=self.layoutOfModel.addGameSpace(aLegend)
+        aLegend.setStartXBase(newPos[0])
+        aLegend.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
-            aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
+            aLegend.move(aLegend.startXBase,aLegend.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegend))
         elif(self.typeOfLayout=="horizontal"):
-            aLegende.move(aLegende.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende),aLegende.startYBase)    
+            aLegend.move(aLegend.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegend),aLegend.startYBase)    
         else:
-            pos=self.layoutOfModel.foundInLayout(aLegende)
-            aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
-        return aLegende
+            pos=self.layoutOfModel.foundInLayout(aLegend)
+            aLegend.move(aLegend.startXBase+20*pos[0],aLegend.startYBase+20*pos[1])
+        return aLegend
     
             
     #To create a New kind of agents
@@ -561,11 +562,11 @@ class SGModel(QtWidgets.QMainWindow):
     
     #To get all type of gameSpace who are legends
     def getLegends(self):
-        listOfLegende=[]
+        listOfLegend=[]
         for aGameSpace in list(self.gameSpaces.values()) :
-            if isinstance(aGameSpace,SGLegende):
-                listOfLegende.append(aGameSpace)
-        return listOfLegende 
+            if isinstance(aGameSpace,SGLegend):
+                listOfLegend.append(aGameSpace)
+        return listOfLegend 
 
     
     #To change the number of zoom we actually are
@@ -579,6 +580,10 @@ class SGModel(QtWidgets.QMainWindow):
     #To open and launch the game
     def launch(self):
         self.initMQTT()
+        self.show()
+
+    #To open and launch the game without a mqtt broker
+    def launch_withoutMqtt(self):
         self.show()
         
     #Dunction that process the message
@@ -629,7 +634,7 @@ class SGModel(QtWidgets.QMainWindow):
                             gm.reset()
                     
         
-    #MQTT BAsic function to  connect to the broker
+    #MQTT Basic function to  connect to the broker
     def connect_mqtt(self):
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
@@ -658,10 +663,8 @@ class SGModel(QtWidgets.QMainWindow):
     #Init the MQTT client   
     def initMQTT(self):
         def on_message(client, userdata, msg):
-            userdata.q.put(msg.payload)
-            
-        
-        
+            userdata.q.put(msg.payload) 
+                
         self.connect_mqtt()
         
         #IF not admin Request which channel to sub
@@ -680,8 +683,10 @@ class SGModel(QtWidgets.QMainWindow):
             self.client.on_message = on_message
             
 
-            
-    
+    #publish on mqtt broker thee state of all entities of the world
+    def publishEntitiesState(self):
+        if hasattr(self, 'client'):
+            self.client.publish(self.whoIAm,self.submitMessage())
             
         
     #Send a message                   

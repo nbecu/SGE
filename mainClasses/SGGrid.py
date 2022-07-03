@@ -14,11 +14,12 @@ import copy
 
 #Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None):
+    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None, model=None):
         super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1
         self.parent=parent
+        self.model=parent
         self.id=name
         self.rows=rows
         self.columns=columns
@@ -111,8 +112,8 @@ class SGGrid(SGGameSpace):
             return int((self.rows+1)*(self.size/3)*2) +self.gap*2
         
         
-    #To get all the values possible for legende
-    def getValuesForLegende(self):
+    #To get all the values possible for Legend
+    def getValuesForLegend(self):
         return self.collectionOfCells.getPovs()
         
     #Agent function 
@@ -242,7 +243,7 @@ class SGGrid(SGGameSpace):
             for anAgentIt in self.collectionOfAcceptAgent :
                 if self.collectionOfAcceptAgent[anAgentIt].name ==theNameOfTheAgent:
                     self.collectionOfAcceptAgent[anAgentIt].theCollection.povs[aNameOfPov]=aDictOfValue
-        self.parent.updateLegendeAdmin()
+        self.parent.updateLegendAdmin()
         #Adding the Pov to the menue bar
         if aNameOfPov not in self.parent.listOfPovsForMenu :
             self.parent.listOfPovsForMenu.append(aNameOfPov)
@@ -365,11 +366,11 @@ class SGGrid(SGGameSpace):
             #We add the agent to the new cell
             theAgent=self.addOnXandY(agent.name,newPlace.x+1,newPlace.y+1)
             theAgent.history=agent.history
-            if len(theAgent.history["coordonates"])==0:
-                theAgent.history["coordonates"].append([0,0,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
+            if len(theAgent.history["coordinates"])==0:
+                theAgent.history["coordinates"].append([0,0,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
             theAgent.x=agent.x
             theAgent.y=agent.y
-            theAgent.history["coordonates"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
+            theAgent.history["coordinates"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
             theAgent.attributs=agent.attributs
             
             

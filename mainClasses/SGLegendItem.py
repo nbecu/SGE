@@ -150,7 +150,7 @@ class SGLegendItem(QtWidgets.QWidget):
     
     #To test is it from the admin Legend
     def isFromAdmin(self):
-        return self.parent.id=="adminLegende"
+        return self.parent.id=="adminLegend"
                     
 
         

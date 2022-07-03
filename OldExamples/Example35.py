@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Example of add a legende personalise
+#Example of add a Legend personalise
 
 
 myModel=SGModel(1080,960,"grid")
@@ -54,11 +54,11 @@ theFirstGrid4.setInPosition(2,2)
 
 myModel.setInitialPovGlobal("Basic")
 
-theFirstLegende=myModel.createLegendeForPlayer("theTestLegende",{"basicGrid":{"Basic":{"1":Qt.green}}})
+theFirstLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Basic":{"1":Qt.green}}})
 
-theFirstLegende.addToTheLegende({"basicGrid":{"Basic":{"12":Qt.gray}}})
+theFirstLegend.addToTheLegend({"basicGrid":{"Basic":{"12":Qt.gray}}})
 
-theFirstLegende.setInPosition(1,2)
+theFirstLegend.setInPosition(1,2)
 
 myModel.applyPersonalLayout() 
 

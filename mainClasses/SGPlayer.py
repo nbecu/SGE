@@ -1,4 +1,4 @@
-from SGLegende import SGLegende
+from SGLegend import SGLegend
 from SGAgent import SGAgent
 from SGCell import SGCell
 from gameAction.SGDelete import SGDelete
@@ -17,10 +17,10 @@ class SGPlayer():
         self.actions=actions
         self.gameActions=[]
         
-        self.initLegende()
+        self.initLegend()
         
-    def initLegende(self):
-        self.legende=self.parent.createLegendeForPlayer(self.name,{},self.name)
+    def initLegend(self):
+        self.Legend=self.parent.createLegendForPlayer(self.name,{},self.name)
             
     
     
@@ -29,15 +29,15 @@ class SGPlayer():
     
     def addGameAction(self,aGameAction):
         if isinstance(aGameAction,SGDelete):
-            self.legende.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
+            self.Legend.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGCell):
             theParent=aGameAction.anObject.parent.id
             aDict={theParent:aGameAction.anObject.theCollection.povs}
-            self.legende.addToTheLegende(aDict,aGameAction.aDictOfAcceptedValue)
+            self.Legend.addToTheLegend(aDict,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGAgent):
-            self.legende.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
+            self.Legend.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)   
         return aGameAction
     

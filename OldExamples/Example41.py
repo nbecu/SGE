@@ -61,7 +61,7 @@ myModel.newAgent("lac10","arrowAgent2",[theFirstGrid])
 myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac10","sea","reasonable",[theFirstGrid])
 
 
-theFirstLegende=myModel.createLegendeAdmin()
+theFirstLegend=myModel.createLegendAdmin()
 
 
 
