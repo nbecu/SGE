@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 #Simple example of checking the ownership
 
-myModel=SGModel(1080,960,"grid")
+myModel=SGModel(1080,960,"grid", windowTitle="à vous de jouer Player1")
 
 theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
 
