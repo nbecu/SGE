@@ -11,7 +11,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="à vous de jouer")
 
-aGrid=myModel.createGrid("the name of the grid",10,10,"hexagonal",size=60)
+aGrid=myModel.createGrid("the name of the grid",10,10,"hexagonal",size=100, gap=2)
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
