@@ -88,7 +88,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.collectionOfPlayers={}
         self.actualPlayer=None
         #Wich instance is it 
-        self.whoIAm=""
+        self.whoIAm="Admin"
         self.listOfSubChannel=[]
         self.timer= QTimer()
         self.timer.timeout.connect(self.eventTime)
@@ -638,7 +638,7 @@ class SGModel(QtWidgets.QMainWindow):
     def launch_withoutMqtt(self):
         self.show()
         
-    #Dunction that process the message
+    #Function that process the message
     def handleMessageMainThread(self):
             msg = str(self.q.get())
             print(msg)
@@ -735,7 +735,7 @@ class SGModel(QtWidgets.QMainWindow):
             self.client.on_message = on_message
             
 
-    #publish on mqtt broker thee state of all entities of the world
+    #publish on mqtt broker the state of all entities of the world
     def publishEntitiesState(self):
         if hasattr(self, 'client'):
             self.client.publish(self.whoIAm,self.submitMessage())

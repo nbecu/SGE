@@ -131,8 +131,8 @@ class SGLegend(SGGameSpace):
         
     #Check if it have to be displayed
     def checkDisplay(self):
-        return self.parent.whoIAm==self.playerName
-    
+        return self.parent.whoIAm==self.playerName or self.forceDisplay 
+
     #Get from wich grid an Agent is from to create the legend
     def getFromWich(self,anAgentName):
         for aGameSpace in self.parent.gameSpaces :

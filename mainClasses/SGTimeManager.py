@@ -13,7 +13,7 @@ class SGTimeManager():
         
     #To increment the time of the game
     def nextPhase(self):
-        if (self.orderGamePhases[self.actualPhase].activePlayer is not None and self.parent.whoIAm==self.orderGamePhases[self.actualPhase].activePlayer.name ) or self.parent.whoIAm=="Admin" :
+        if len(self.orderGamePhases) != 0 and ((self.orderGamePhases[self.actualPhase].activePlayer is not None and self.parent.whoIAm==self.orderGamePhases[self.actualPhase].activePlayer.name ) or self.parent.whoIAm=="Admin") :
             end = self.checkEndGame()
             if not end :
                 if self.actualPhase+2 <= len(self.orderGamePhases):
@@ -37,7 +37,7 @@ class SGTimeManager():
                 #we change the active player
                 self.parent.actualPlayer=thePhase.activePlayer
                 if doThePhase :
-                    #We make the changement
+                    #We make the change
                     if len(thePhase.nextStepAction) !=0:
                         for aChange in thePhase.nextStepAction:
                             aChange()

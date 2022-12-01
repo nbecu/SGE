@@ -29,6 +29,7 @@ myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"
 
 
 theFirstLegend=myModel.createLegendAdmin()
+theFirstLegend.forceDisplay=True
 
 thePlayer=myModel.createPlayer("Gertrude")
 

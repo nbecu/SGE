@@ -6,7 +6,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
-#removed the default values : grid and initialPov
 
 
 myModel=SGModel(800,800, windowTitle="à vous de jouer")
@@ -24,7 +23,8 @@ p1= myModel.createPlayer("farmer")
 p1.addGameAction(myModel.createUpdateAction(aGrid.getACell(),2,{"landUse":"grass"}))
 myModel.timeManager.addGamePhase("the First Phase",0,p1)
 
-#theFirstLegend=myModel.createLegendAdmin()
+
+theFirstLegend=myModel.createLegendAdmin()
 
 myModel.iAm("farmer")
 

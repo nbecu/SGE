@@ -22,7 +22,7 @@ myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"fo
 myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}},[aGrid])
 #should implement -> have a pov that depends on the value of 2 attributes . Ex. if landUse is grass and presenceBush=true than color is brown
 
-myModel.setInitialPovGlobal("povLandUse")
+myModel.setInitialPovGlobal("povLandUse2")
 
 myModel.launch_withoutMqtt() 
 

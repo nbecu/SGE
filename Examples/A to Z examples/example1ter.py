@@ -20,9 +20,6 @@ aGrid.setForRandom({"landUse":"shrub"},10)
 
 myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}},[aGrid])
 myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}},[aGrid])
-#should implement -> have a pov that depends on the value of 2 attributes . Ex. if landUse is grass and presenceBush=true than color is brown
-
-myModel.setInitialPovGlobal("povLandUse")
 
 myModel.launch_withoutMqtt() 
 
