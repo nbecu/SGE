@@ -19,7 +19,7 @@ myModel.setUpPovOn("Basic",{"1":Qt.green,"2":Qt.red},theFirstGrid,"2")
 
 myModel.setUpPovOn("SecondBasic",{"1":Qt.blue,"2":Qt.black},theFirstGrid,"2")
 
-myModel.setInitialPovGlobal("Basic")
+myModel.setInitialPov("Basic")
 
 myModel.show() 
 

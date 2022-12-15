@@ -18,7 +18,7 @@ myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red
 
 myModel.setUpCellValueAndPov("Fireman",{"Risk":{"high":Qt.red,"low":Qt.yellow}},[theFirstGrid],"Risk","low")
 
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 

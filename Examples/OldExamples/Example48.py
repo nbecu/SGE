@@ -19,7 +19,7 @@ theSecondGrid=myModel.createGrid("theSecondGrid",8,10,"square",Qt.gray)
 #Declare une POV Applique aux deux grille 
 myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 #Initie la pov par default
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 #Applique certaine valeur a des case de la premiere grille
 theFirstGrid.setForRandom({"Forest":"Niv1"},30)

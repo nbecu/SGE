@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 #Simple example of checking the ownership
 
-myModel=SGModel(1080,960,"grid", windowTitle="à vous de jouer Player1")
+myModel=SGModel(1080,960,"grid", windowTitle="A board with hexagonal cells Player1")
 
 theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
 
@@ -17,7 +17,7 @@ theSecondGrid=myModel.createGrid("theSecondGrid",8,10,"square",Qt.gray)
 
 myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv1"},30)
 

@@ -21,7 +21,7 @@ myModel.setUpPovOn("Basic",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.bl
 
 myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid)
 
-myModel.setInitialPovGlobal("Basic")
+myModel.setInitialPov("Basic")
 
 theFirstLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Basic":{"1":Qt.green}}})
 

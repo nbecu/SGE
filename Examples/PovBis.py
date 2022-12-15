@@ -26,7 +26,7 @@ theFirstGrid.setForRandom({"Forest":"Niv3"},3)
 
 myModel.setUpPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid])
 
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 #For the Agent
 anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid])

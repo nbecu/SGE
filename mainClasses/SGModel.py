@@ -329,18 +329,18 @@ class SGModel(QtWidgets.QMainWindow):
 
 #For create elements
     #To create a grid
-    def createGrid(self,name,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30):
+    def createGrid(self,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30,name=""):
         """
         Create a grid that contains cells
 
         Args:
-            name (st): name of the grid.
             columns (int): number of columns (width).
             rows (int): number of rows (height).
             format ("square", "hexagonal"): shape of the cells. Defaults to "square".
             color (a color, optional): background color of the grid . Defaults to Qt.gray.
             gap (int, optional): gap size between cells. Defaults to 0.
             size (int, optional): size of the cells. Defaults to 30.
+            name (st): name of the grid.
 
         Returns:
             aGrid: the grid created with its cells
@@ -480,7 +480,7 @@ class SGModel(QtWidgets.QMainWindow):
 #Pov
 
     #To choose the global inital pov when the game start
-    def setInitialPovGlobal(self,nameOfPov):
+    def setInitialPov(self,nameOfPov):
         self.nameOfPov=nameOfPov
         for aGameSpace in self.getLegends():
             self.gameSpaces[aGameSpace.id].initUI()
@@ -535,10 +535,10 @@ class SGModel(QtWidgets.QMainWindow):
             self.listOfPovsForMenu.append(nameOfPov)
             anAction=QAction(" &"+nameOfPov, self)
             self.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.setInitialPovGlobal(nameOfPov))
+            anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
         #if this is the pov is the first pov to be declared, than set it as the initial pov 
         if len(self.listOfPovsForMenu) == 1:
-             self.setInitialPovGlobal(nameOfPov) 
+             self.setInitialPov(nameOfPov) 
 
     #To add a new POV 
     def setUpPov(self,nameOfPov,dictOfValuAndColor,listOfGridsToApply=None):
@@ -555,7 +555,7 @@ class SGModel(QtWidgets.QMainWindow):
                     for anAgent in aGrid.collectionOfAcceptAgent :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==aGrid:
                             aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=dictOfValuAndColor
-            #Adding the Pov to the menue bar
+            #Adding the Pov to the menu bar
             self.addPovinMenuBar(nameOfPov)
             
     # def setUpPov_OLD(self,aNameOfPov,aDict,items,listOfGridToApply=None):

@@ -18,7 +18,7 @@ theFirstGrid=myModel.createGrid("basicGrid")
 myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.blue,"Niv3":Qt.green}},[theFirstGrid])
 
 #On initie la POV au lancement a FORESTER
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 #On assign une autre valeur a 30 cellule aléatoirement
 theFirstGrid.setForRandom({"Forest":"Niv3"},38)

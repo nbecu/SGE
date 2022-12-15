@@ -17,7 +17,7 @@ theSecondGrid=myModel.createGrid("theSecondGrid",8,10,"square",Qt.gray)
 
 myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv1"},30)
 

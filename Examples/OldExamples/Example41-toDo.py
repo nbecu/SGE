@@ -26,7 +26,7 @@ myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theF
 
 
 
-myModel.setInitialPovGlobal("Forester")
+myModel.setInitialPov("Forester")
 
 theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 theFirstGrid.setForXandY({"Forest":"Niv3"},1,1)

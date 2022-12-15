@@ -18,7 +18,7 @@ theFirstGrid.setColor(Qt.blue)
 
 myModel.setUpPovOn("Basic",{"1":Qt.green,"2":Qt.red,"3":Qt.black},theFirstGrid)
 
-myModel.setInitialPovGlobal("Basic")
+myModel.setInitialPov("Basic")
 
 theFirstGrid.setForX("Basic","2",3)
 

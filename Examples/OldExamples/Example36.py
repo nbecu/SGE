@@ -52,7 +52,7 @@ theFirstGrid4.setInPosition(2,2)
 
 
 
-myModel.setInitialPovGlobal("Basic")
+myModel.setInitialPov("Basic")
 
 theFirstLegend=myModel.createLegendForPlayer("theTestLegend",{"basicGrid":{"Basic":{"1":Qt.green}}})
 
