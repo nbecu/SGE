@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -12,14 +12,14 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal")
+theFirstGrid=myModel.createGrid(10,10,"hexagonal")
 
 
 theFirstGrid.setColor(Qt.green)
 
-myModel.setUpPovOn("Basic",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.black}},theFirstGrid)
+myModel.setUpPov("Basic",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.black}},theFirstGrid)
 
-myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid)
+myModel.setUpPov("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid)
 
 myModel.setInitialPov("Basic")
 
@@ -31,7 +31,7 @@ theFirstLegend.addDeleteButton()
 
 myModel.newAgent("circleTest","circleAgent",[theFirstGrid])
 
-myModel.setUpPovOn("Basic",{"1":Qt.red,"testDunNomLong":Qt.red},"circleTest","1",[theFirstGrid])
+myModel.setUpPov("Basic",{"1":Qt.red,"testDunNomLong":Qt.red},"circleTest","1",[theFirstGrid])
 
 
 theFirstGrid.addOnXandY("circleTest",1,1)

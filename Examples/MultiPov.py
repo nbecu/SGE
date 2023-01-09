@@ -12,11 +12,11 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
+theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray)
 
-myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
+myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 
-myModel.setUpCellValueAndPov("Fireman",{"Risk":{"high":Qt.red,"low":Qt.yellow}},[theFirstGrid],"Risk","low")
+myModel.setUpEntityValueAndPov("Fireman",{"Risk":{"high":Qt.red,"low":Qt.yellow}},[theFirstGrid],"Risk","low")
 
 myModel.setInitialPov("Forester")
 

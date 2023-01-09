@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -12,14 +12,14 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
+theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray)
 
 theSecondGrid=myModel.createGrid("secondGrid",10,10,"square")
 
 
-myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
+myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
-myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid,theSecondGrid])
+myModel.setUpEntityValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid,theSecondGrid])
 
 myModel.setInitialPov("Forester")
 
@@ -32,8 +32,8 @@ theFirstGrid.setForRandom({"Forest":"Niv3"},30)
 
 myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid,theSecondGrid])
-myModel.setUpCellValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid,theSecondGrid])
+myModel.setUpEntityValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid,theSecondGrid])
+myModel.setUpEntityValueAndPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},"lac","FireRisk","Niv2",[theFirstGrid,theSecondGrid])
 
 
 theFirstLegend=myModel.createLegendAdmin()

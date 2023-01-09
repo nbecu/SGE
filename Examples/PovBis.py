@@ -12,7 +12,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1080,960,"grid")
 
 #For the grid
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
+theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray)
 
 theFirstGrid.setValueForCells({"Forest":"Niv1"})
 

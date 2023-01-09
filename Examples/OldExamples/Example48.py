@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -12,12 +12,12 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1080,960,"grid")
 
 #On declare deux grilles
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
+theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray)
 
-theSecondGrid=myModel.createGrid("theSecondGrid",8,10,"square",Qt.gray)
+theSecondGrid=myModel.createGrid(8,10,"square",Qt.gray)
 
 #Declare une POV Applique aux deux grille 
-myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
+myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 #Initie la pov par default
 myModel.setInitialPov("Forester")
 
@@ -29,7 +29,7 @@ theFirstGrid.setForRandom({"Forest":"Niv2"},4)
 #On declare un nouveau model d'agent/ pion positionable sur les deux grilles
 anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 #On initie une pov pour ce dit agent
-myModel.setUpCellValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
+myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
 #on genere la Legend admin qui a tout les droits 
 theFirstLegend=myModel.createLegendAdmin()

@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -12,7 +12,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",15,10,"hexagonal")
+theFirstGrid=myModel.createGrid(15,10,"hexagonal")
 
 theFirstGrid2=myModel.createGrid("qs",15,10,"hexagonal")
 theFirstGrid3=myModel.createGrid("ds",15,10,"hexagonal")
@@ -20,21 +20,21 @@ theFirstGrid4=myModel.createGrid("dqs",15,10,"hexagonal")
 
 theFirstGrid.setColor(Qt.blue)
 
-myModel.setUpPovOn("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid)
+myModel.setUpPov("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid)
 
-myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid)
+myModel.setUpPov("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid)
 
-myModel.setUpPovOn("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid2)
+myModel.setUpPov("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid2)
 
-myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid2)
+myModel.setUpPov("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid2)
 
-myModel.setUpPovOn("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid3)
+myModel.setUpPov("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid3)
 
-myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid3)
+myModel.setUpPov("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid3)
 
-myModel.setUpPovOn("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid4)
+myModel.setUpPov("Basic",{"1":Qt.green,"testDunNomLong":Qt.red,"3":Qt.red},theFirstGrid4)
 
-myModel.setUpPovOn("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid4)
+myModel.setUpPov("oui",{"test":Qt.gray,"test2":Qt.black},theFirstGrid4)
 
 theFirstGrid.setInPosition(1,1)
 

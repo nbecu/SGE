@@ -7,13 +7,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Simple example of suppr agent and placing 
+#Simple example
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray)
+theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray, name="basicGrid")
 
-theSecondGrid=myModel.createGrid(8,10,"square",Qt.gray)
+theSecondGrid=myModel.createGrid(4,4,"square",Qt.gray)
 
 myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
@@ -41,16 +41,22 @@ thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"s
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}))
 
 thePlayer.addGameAction(myModel.createDeleteAction(theFirstGrid.getACell(),2,{"sea":["reasonable","deep sea"]}))
-""
+
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 
-myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac",2,[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ])])
+myModel.timeManager.addGamePhase("theSecondPhase",1,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},3)],[lambda: myModel.getTimeManager().verifNumberOfRound(3)])
 
-"""myModel.getGameSpace("basicGrid").getCell('cell0-0').getNeighborCell("moore",2)"""
-theFirstGrid.addOnXandY("lac",1,2)
-"""print(myModel.getGameSpace("basicGrid").getNeighborAgent(1,1,"lac"))"""
-"""print(myModel.getGameSpace("basicGrid").haveAgentInNeighborhood(1,1,"lac"))"""
-"""print(myModel.getGameSpace("basicGrid").haveAgentInNeighborhoodThroughCell(myModel.getGameSpace("basicGrid").getCell('cell0-0'),"lac"))"""
+myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
+
+# myModel.timeManager.addGamePhase("theFourthPhase",4,None,[lambda: myModel.getGameSpace("basicGrid").makeEvolve(["Forest"]),lambda: myModel.getGameSpace("basicGrid").makeDecrease(["sea"])])
+
+myModel.timeManager.addGamePhase("the5Phase",5,None,[lambda: myModel.getGameSpace("basicGrid").addAgentOnValue('lac',{"Forest":"Niv2"})])
+
+myModel.timeManager.addGamePhase("the6Phase",6,None,[lambda: myModel.getGameSpace("basicGrid").moveRadomlyAgent("lac")])
+
+myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac")])
+
+myModel.iAm("Gertrude")
 myModel.show() 
 
 sys.exit(monApp.exec_())

@@ -430,8 +430,8 @@ class SGModel(QtWidgets.QMainWindow):
     
             
     #To create a New kind of agents
-    def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrid,size=10):
-        for aGrid in listOfAcceptGrid:
+    def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrids,size=10):
+        for aGrid in listOfAcceptGrids:
             anAgent=SGAgent(None,anAgentName,anAgentFormat,size)
             self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=anAgent
         return anAgent
@@ -488,7 +488,11 @@ class SGModel(QtWidgets.QMainWindow):
         
     
     #To add a new POV and apply a value to cell
-    def setUpCellValueAndPov(self,nameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridToApply=None):
+    def setUpEntityValueAndPov(self,nameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridsToApply=None):
+        if listOfGridsToApply==None:
+            listOfGridsToApply = [list(self.gameSpaces.values())[0]] #get the fisrt value of the dict
+        if not isinstance(listOfGridsToApply,list):
+            listOfGridsToApply=[listOfGridsToApply]        
         if not isinstance(items,list):
             items=[items]
         for anItem in items :
@@ -510,7 +514,7 @@ class SGModel(QtWidgets.QMainWindow):
                                 if nameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[defaultAttributForPov]=DefaultValueAttribut
             elif(isinstance(anItem,str)==True):
-                for aGrid in listOfGridToApply:
+                for aGrid in listOfGridsToApply:
                     for anAgent in aGrid.collectionOfAcceptAgent :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
                             aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=aDict
@@ -550,7 +554,7 @@ class SGModel(QtWidgets.QMainWindow):
             if(isinstance(aGrid,SGGrid)==True):
                 aGrid.collectionOfCells.povs[nameOfPov]=dictOfValuAndColor
             elif(isinstance(aGrid,str)==True):
-                # the pow is applied to somthing else than a grid
+                # the pov is applied to something else than a grid
                 for aGrid in listOfGridsToApply:
                     for anAgent in aGrid.collectionOfAcceptAgent :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==aGrid:

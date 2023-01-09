@@ -65,18 +65,20 @@ class SGCell(QtWidgets.QWidget):
             self.setMinimumSize(self.size,self.size)
             self.setGeometry(0,0,self.size+1,self.size+1)
             points = QPolygon([
-               QPoint(int(self.size/2),  0),
-               QPoint(self.size,  int(self.size/3)),
-               QPoint(self.size,  int((self.size/3)*2)),
-               QPoint(int(self.size/2), self.size),
-               QPoint(0,  (int((self.size/3)*2))),
-               QPoint(0,  int(self.size/3))
+                QPoint(int(self.size/2), 0),
+                QPoint(self.size, int(self.size/4)),
+                QPoint(self.size, int(3*self.size/4)),
+                QPoint(int(self.size/2), self.size),
+                QPoint(0, int(3*self.size/4)),
+                QPoint(0, int(self.size/4))              
             ])
             painter.drawPolygon(points)
-            if(self.y%2==1):
-                self.move((self.startX+int(self.size/2)+int(self.gap/2) ), (self.startY-int(self.size/2)+self.gap    -int(self.size/2)*(self.y-1) +self.gap*(self.y-1)) )
+            if(self.y%2!=1):
+                # y paires /  sachant que la première valeur de y est 0
+                self.move(self.startX  ,   int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
             else:
-                self.move(self.startX,(self.startY-int(self.size/2)*self.y +self.gap*self.y))
+                self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                
         painter.end()
         
     def getId(self):

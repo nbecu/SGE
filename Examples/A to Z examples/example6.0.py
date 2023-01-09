@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(800,800, windowTitle="A board with hexagonal cells")
+myModel=SGModel(800,800, windowTitle="Adding a player with game actions")
 
 aGrid=myModel.createGrid(7,10,"square",size=60, gap=2)
 aGrid.setValueForCells({"landUse":"grass"})

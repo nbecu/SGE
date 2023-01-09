@@ -8,9 +8,9 @@ from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(830,830)
+myModel=SGModel(1530,830)
 
-aGrid=myModel.createGrid(10,10,"square",Qt.gray,size=75)
+aGrid=myModel.createGrid(20,10,"square",Qt.gray,size=75)
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)

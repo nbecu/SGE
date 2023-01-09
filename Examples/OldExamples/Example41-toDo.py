@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -12,17 +12,17 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"square")
+theFirstGrid=myModel.createGrid(10,10,"square")
 theFirstGrid.setColor(Qt.gray) 
 
-myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
+myModel.setUpPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 # Par ailleurs, il me semble que ce setUpCellValueAndPovce devrait s'appliquer sur une grid , et pas sur le modèle, non ?
 # Enfaite c'est deja le cas ( je l'applique sur le model afin de pouvoir appliquer une pov sur plusieurs grille )
 # Et je pense qu'il est important d'avoir aussi la possibilité de décomposer la méthode setUpCellValueAndPov  en 2 étapes, d'abord setUpCellValu (juste pour définir les attribuuts ett leurs valeurs), puis setUpPov pour définir  les couleurs associés aux valeurs des attributs 
 theFirstGrid.setCellsValue("landUse",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 
 
-myModel.setUpPovOn("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid])
+myModel.setUpPov("Fireman",{"FireRisk":{"Niv2":Qt.black,"Niv1":Qt.gray}},[theFirstGrid])
 
 
 
@@ -37,7 +37,7 @@ theFirstGrid.setForXandY({"Forest":"Niv3"},1,1)
 
 myModel.newAgent("lac","circleAgent",[theFirstGrid])
 
-myModel.setUpPovOn("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
+myModel.setUpPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
 ## meme remarque que pour attribut et pov des cellule
 
 theFirstLegend=myModel.createLegendAdmin()

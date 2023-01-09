@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -11,7 +11,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"horizontal")
 
-theFirstGrid=myModel.createGrid("basicGrid",2,4)
+theFirstGrid=myModel.createGrid(2,4)
 
 theFirstGrid.setColor(Qt.blue)
 

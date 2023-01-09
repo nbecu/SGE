@@ -54,10 +54,10 @@ class SGGrid(SGGameSpace):
         if(self.format=="square"):
             #We redefine the minimum size of the widget
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+3, int(self.rows*self.size+(self.rows+1)*self.gap)+3)
-            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
+            painter.drawRect(0,0,int(self.columns*self.size+(self.columns+1)*self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
         elif(self.format=="hexagonal"):
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2)+3,         int((self.rows+1)*(self.size/3)*2) +self.gap*2+3)
-            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),       int((self.rows+1)*(self.size/3)*2) +self.gap*2) 
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2)+3,  int( self.size*0.75*self.rows + (self.gap * (self.rows +1))  + self.size/4 + 3) )
+            painter.drawRect(0,0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(self.size/2),  int( self.size*0.75*self.rows + (self.gap * (self.rows +1))  + self.size/4 ) ) 
         painter.end()
         
     #Funtion to handle the zoom
@@ -142,7 +142,7 @@ class SGGrid(SGGameSpace):
         return self.collectionOfCells.getCell(aName)
     
     #Retourn the from the coordonate
-    def getCellFromCoordonate(self,x, y):
+    def getCellFromCoordinates(self,x, y):
         return self.getCell("cell"+str(x-1)+'-'+str(y-1))
     
 #To handle POV and placing on cell
@@ -347,8 +347,8 @@ class SGGrid(SGGameSpace):
                     result.append(cell)
         return result
     
-    #to move all of a kind of agent radomly
-    def moveRadomlyAgent(self,anAgentName):
+    #to move all of a kind of agent randomly
+    def moveRandomlyAgent(self,anAgentName):
         listOfAgentToMove=[]
         listCells=self.collectionOfCells.getCellsDisplay()
         for cell in listCells:
@@ -376,7 +376,7 @@ class SGGrid(SGGameSpace):
             
             theAgent.show()
             
-    #To delete a kind of Agent on thee grid  
+    #To delete a kind of Agent on the grid  
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
         aListOfAgent= self.getAgentsOfType(nameOfAgent)
         count=0
