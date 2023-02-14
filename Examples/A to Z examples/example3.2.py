@@ -12,7 +12,7 @@ myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
 # You can change the specifications of the grid cells 
 # For example you can change the shape of the cells
 # As well as the number of cells (in column and in row), the size of a cell, the space in between cells...
-aGrid=myModel.createGrid(10,10,"hexagonal",size=30, gap=2)
+aGrid=myModel.createGrid(10,10,"hexagonal",size=30, gap=2,moveable=False)
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)

@@ -329,7 +329,7 @@ class SGModel(QtWidgets.QMainWindow):
 
 #For create elements
     #To create a grid
-    def createGrid(self,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30,name=""):
+    def createGrid(self,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30,name="",moveable=True):
         """
         Create a grid that contains cells
 
@@ -341,12 +341,13 @@ class SGModel(QtWidgets.QMainWindow):
             gap (int, optional): gap size between cells. Defaults to 0.
             size (int, optional): size of the cells. Defaults to 30.
             name (st): name of the grid.
+            moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
 
         Returns:
             aGrid: the grid created with its cells
         """
         #Creation
-        aGrid = SGGrid(self,name,rows, columns,format,gap,size,color)
+        aGrid = SGGrid(self,name,rows, columns,format,gap,size,color,moveable)
         self.gameSpaces[name]=aGrid
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aGrid)

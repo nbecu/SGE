@@ -14,7 +14,7 @@ import copy
 
 #Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None):
+    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None,moveable=True):
         super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1
@@ -26,12 +26,14 @@ class SGGrid(SGGameSpace):
         self.format=format
         self.gap=gap
         self.size=size
+        self.moveable=moveable
         
         self.saveGap=gap
         self.saveSize=size
         
         self.startXBase=0
         self.startYBase=0
+
         
         if aColor != "None":
             self.setColor(aColor)
@@ -86,18 +88,21 @@ class SGGrid(SGGameSpace):
         
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
-    
+        if self.moveable==False:
+            return
         if e.buttons() != Qt.LeftButton:
             return
-
+        
         mimeData = QMimeData()
 
         drag = QDrag(self)
         drag.setMimeData(mimeData)
         drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-        drag.exec_(Qt.MoveAction)
         
+        drag.exec_(Qt.MoveAction)
+
+    
+
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         if(self.format=="square"):
