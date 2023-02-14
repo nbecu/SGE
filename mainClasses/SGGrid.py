@@ -93,30 +93,43 @@ class SGGrid(SGGameSpace):
         if e.buttons() != Qt.LeftButton:
             return
         
-        
+        # To get the clic position 
         def getPos(self , e):
             x = e.pos().x()
             y = e.pos().y()
             return x,y
+        
+        #To get the coordinate of the grid center 
+        def getCPos(self,e):
+            point=self.mapToGlobal(self.rect().center())
+            xc=point.x()
+            yc=point.y()
+            return xc,yc
 
-        def getTargetpos(self,e):
-            layout = self.widget.layout()
-            target = QApplication.widgetAt(self.mapToGlobal(e.pos()))
-            targetIndex = layout.indexOf(target)
-            targetPos = layout.getItemPosition(targetIndex)
-            return targetPos
+        '''#To move the grid after dragging
+        def move(self, x, y): 
+           self.setGeometry(QRect(x, y, self.width(), self.height()))
+           
+        self.move(x,y)'''
+        
         
         mimeData = QMimeData()
 
         drag = QDrag(self)
         drag.setMimeData(mimeData)
-        clicPos=getPos(self,e)
-        print(clicPos)
         drag.setHotSpot(e.pos() - self.rect().topLeft())
-        
+
+        x,y=getPos(self,e)
+        xc,yc=getCPos(self,e)
+
         drag.exec_(Qt.MoveAction)
 
-    
+        xf,yf=getCPos(self,e)
+        point=QPoint(xf+(xc-x),yf+(yc-y))
+        print(point)
+
+        #self.moveCenter(point)
+
 
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
