@@ -93,10 +93,25 @@ class SGGrid(SGGameSpace):
         if e.buttons() != Qt.LeftButton:
             return
         
+        
+        def getPos(self , e):
+            x = e.pos().x()
+            y = e.pos().y()
+            return x,y
+
+        def getTargetpos(self,e):
+            layout = self.widget.layout()
+            target = QApplication.widgetAt(self.mapToGlobal(e.pos()))
+            targetIndex = layout.indexOf(target)
+            targetPos = layout.getItemPosition(targetIndex)
+            return targetPos
+        
         mimeData = QMimeData()
 
         drag = QDrag(self)
         drag.setMimeData(mimeData)
+        clicPos=getPos(self,e)
+        print(clicPos)
         drag.setHotSpot(e.pos() - self.rect().topLeft())
         
         drag.exec_(Qt.MoveAction)
