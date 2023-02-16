@@ -2,7 +2,6 @@ import random
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
 from SGAgent import SGAgent
@@ -14,7 +13,7 @@ import copy
 
 #Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=32,aColor=None,moveable=True):
+    def __init__(self,parent,name,rows=8, columns=8,format="square",gap=3,size=30,aColor=None,moveable=True):
         super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1
@@ -88,48 +87,52 @@ class SGGrid(SGGameSpace):
         
     #To handle the drag of the grid
     def mouseMoveEvent(self, e):
+
         if self.moveable==False:
             return
         if e.buttons() != Qt.LeftButton:
             return
         
-        # To get the clic position 
-        def getPos(self , e):
-            x = e.pos().x()
-            y = e.pos().y()
-            return x,y
+        # To get the clic position in GameSpace
+        def getPos(e):
+            clic = QMouseEvent.windowPos(e)
+            xclic = int(clic.x())
+            yclic = int(clic.y())
+            return xclic,yclic
         
-        #To get the coordinate of the grid center 
-        def getCPos(self,e):
-            point=self.mapToGlobal(self.rect().center())
-            xc=point.x()
-            yc=point.y()
-            return xc,yc
+        #To get the coordinate of the grid upleft corner in GameSpace
+        def getCPos(self):
+            left=self.x()
+            up=self.y()
+            return left,up
 
-        '''#To move the grid after dragging
-        def move(self, x, y): 
-           self.setGeometry(QRect(x, y, self.width(), self.height()))
-           
-        self.move(x,y)'''
-        
-        
+        # To convert the upleft corner to center coordinates
+        def toCenter(self,left,up):
+            xC = int(left+(self.columns/2*self.size)+((self.columns+1)/2*self.gap))
+            yC = int(up+(self.rows/2*self.size)+((self.rows+1)/2*self.gap))
+            return xC,yC
+
+
         mimeData = QMimeData()
-
         drag = QDrag(self)
         drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-        x,y=getPos(self,e)
-        xc,yc=getCPos(self,e)
+        drag.setHotSpot(e.pos() - self.pos())
+        
+        xclic,yclic = getPos(e)
+        left,up = getCPos(self)
+        xC,yC = toCenter(self,left,up)
 
         drag.exec_(Qt.MoveAction)
 
-        xf,yf=getCPos(self,e)
-        point=QPoint(xf+(xc-x),yf+(yc-y))
-        print(point)
+        leftf,upf = getCPos(self)
+        xCorr = xclic-xC
+        yCorr = yclic-yC
 
-        #self.moveCenter(point)
+        newX=leftf-xCorr
+        newY=upf-yCorr
 
+        self.move(newX,newY)
+        
 
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
