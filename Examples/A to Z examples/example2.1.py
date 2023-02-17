@@ -9,7 +9,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="About legend (2)")
 
-aGrid=myModel.createGrid(10,10,"square",size=60, gap=2)
+aGrid=myModel.createGrid(10,10,"square",size=60, gap=2,name='mygrid')
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
@@ -22,9 +22,13 @@ theFirstLegend=myModel.createLegendAdmin()
 # create a player
 myModel.createPlayer("Player 1")
 # create a legend for this player, according to the POVs
-myModel.createLegendForPlayer('Player 1 Legend','povlandUse','Player 1')
+#Player1Leg=myModel.createLegendForPlayer("Player1Legend",{"mygrid":{'povLandUse':{"grass":Qt.green}}},"Player 1")
+#Player1Leg.addDeleteButton('Delete')
+
+
 # to have the Player 1 view 
-myModel.iAm("Name of the player")
+myModel.iAm("Player 1")
+#myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 
 
