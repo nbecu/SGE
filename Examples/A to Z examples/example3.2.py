@@ -7,12 +7,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
+myModel=SGModel(860,700, windowTitle="Nobody can move my grid")
 
 # You can change the specifications of the grid cells 
-# For example you can change the shape of the cells
-# As well as the number of cells (in column and in row), the size of a cell, the space in between cells...
-aGrid=myModel.createGrid(12,5,"square", size=30, gap=4, moveable=True)
+# You can choose if the player can move the grid with moveable True/False
+aGrid=myModel.createGrid(12,5,"square", size=30, gap=4, moveable=False)
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)

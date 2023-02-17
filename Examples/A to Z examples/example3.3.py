@@ -7,12 +7,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
+myModel=SGModel(860,700, windowTitle="The VERY BIG moveable grid of hexagonal cells")
 
 # You can change the specifications of the grid cells 
-# For example you can change the shape of the cells
-# As well as the number of cells (in column and in row), the size of a cell, the space in between cells...
-aGrid=myModel.createGrid(12,8,"hexagonal",size=100, gap=2)
+aGrid=myModel.createGrid(12,8,"hexagonal",size=100, gap=2,moveable=True)
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
