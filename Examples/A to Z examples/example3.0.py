@@ -7,15 +7,18 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 
+# You can add a title to the main window of your simulation/game
 myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
 
 # You can change the specifications of the grid cells 
 # For example you can change the shape of the cells
-# As well as the number of cells (in column and in row), the size of a cell, the space in between cells...
-aGrid=myModel.createGrid(10,10,"hexagonal",size=60)
+aGrid=myModel.createGrid(10,10,"hexagonal",size=30)
+
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
+""" aGrid.setForY({"landUse":"forest"},3)
+aGrid.setForY({"landUse":"forest"},5) """
 aGrid.setForRandom({"landUse":"shrub"},10)
 
 myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
