@@ -8,9 +8,9 @@ from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1530,830)
+myModel=SGModel(1530,830, windowTitle="About pov (1)")
 
-aGrid=myModel.createGrid(20,10,"square",Qt.gray,size=75)
+aGrid=myModel.createGrid(10,10,"square",Qt.gray,size=75)
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
@@ -20,8 +20,8 @@ aGrid.setForRandom({"landUse":"shrub"},10)
 #A pov allow to define the color displayed for a certain value of a given attribute of the cell
 #In this example there are two pov: povLandUse and povLandUse2
 myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}},[aGrid])
-myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}},[aGrid])
-#should implement -> have a pov that depends on the value of 2 attributes . Ex. if landUse is grass and presenceBush=true than color is brown
+myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}},[aGrid])
+
 
 myModel.setInitialPov("povLandUse")
 
