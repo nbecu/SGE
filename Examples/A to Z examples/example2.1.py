@@ -7,8 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="My first simulation/game")
-# You can add a title to the main window of your simulation/game
+myModel=SGModel(860,700, windowTitle="About legend (2)")
 
 aGrid=myModel.createGrid(10,10,"square",size=60, gap=2)
 aGrid.setValueForCells({"landUse":"grass"})
@@ -20,11 +19,11 @@ myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"fo
 myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
 
 theFirstLegend=myModel.createLegendAdmin()
-# the admin's legend enables to change all the entities without restrictions
-# it will be displayed only for an Admin user.
-# By default, a model user is an Admin user
-# To specify another status add the instruction -> myModel.iAm("Name of the player")
-# To come back to Admin user status, type the instruction -> myModel.iAm("Admin")
+# create a player
+myModel.createPlayer("Player 1")
+# create a legend for this player, according to the POVs
+myModel.createLegendForPlayer('Player 1 Legend','povlandUse','Player 1')
+# to have the Player 1 view 
 myModel.iAm("Name of the player")
 
 myModel.launch_withoutMqtt() 
