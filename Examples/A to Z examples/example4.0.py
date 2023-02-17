@@ -8,7 +8,7 @@ from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="A simulation/game with agents")
+myModel=SGModel(860,700, windowTitle="A simulation/game with one agent")
 
 aGrid=myModel.createGrid(10,10,"square",size=60, gap=2)
 aGrid.setValueForCells({"landUse":"grass"})
@@ -19,13 +19,12 @@ aGrid.setForRandom({"landUse":"shrub"},10)
 myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
 
 # On top of the cells, you can add agents
-# An agent has a location which is the cell on which it is placed. An agent can move (or be moved) to another location
+# An agent has a location which is the cell on which it is placed. 
+# An agent can move (or be moved) to another location.
 # As for a cell, the modeller can specify attributes and values for each atttribute, as well as pov
 myModel.newAgent("sheep","arrowAgent1",[aGrid])
 myModel.setUpEntityValueAndPov("povLandUse",{"health":{"good":Qt.blue}},"sheep")
-# myModel.setUpCellValueAndPov("povLandUse",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac2","sea","reasonable",[aGrid])
-# myModel.newAgent("lac10","arrowAgent2",[aGrid])
-# myModel.setUpCellValueAndPov("povLandUse",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac10","sea","reasonable",[aGrid])
+
 
   
 theFirstLegend=myModel.createLegendAdmin()
