@@ -21,11 +21,11 @@ myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"fo
 theFirstLegend=myModel.createLegendAdmin()
 theFirstLegend=myModel.createLegendAdmin()
 myModel.createPlayer("Player 1")
-myModel.createLegendForPlayer('Player 1 Legend','povlandUse','Player 1')
+myModel.createLegendForPlayer(name='Player 1 Legend',aListOfElement='landUse',playerName='Player 1')
 # to have the Player 1 view 
 myModel.iAm("Name of the player")
 # To come back to Admin user status, type the instruction -> myModel.iAm("Admin")
-myModel.iAm("Admin")
+#myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 
 
