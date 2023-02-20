@@ -24,7 +24,7 @@ theFirstGrid.setForY({"Forest":"Niv2"},1)
 
 theFirstGrid.setForRandom({"Forest":"Niv3"},3)
 
-myModel.setUpPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid])
+myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid])
 
 myModel.setInitialPov("Forester")
 
@@ -33,9 +33,9 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid])
 
 theFirstGrid.setValueForModelAgents("lac",{"boat":"new"})
 
-myModel.setUpPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac",[theFirstGrid])
+myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac",listOfGridsToApply=[theFirstGrid])
 
-theFirstGrid.addOnXandY("lac",1,1)
+theFirstGrid.addOnXandY("lac",5,2)
 
 theFirstLegend=myModel.createLegendAdmin()
 
