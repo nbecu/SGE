@@ -31,30 +31,8 @@ myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}}
 theFirstLegend=myModel.createLegendAdmin()
 
 thePlayer=myModel.createPlayer("Gertrude")
+#Create a Game Action permits to give interaction between cell and agents like here : if you place a certain agent on a certain type of cell, the cell updates to a new status
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
-thePlayer.addGameAction(myModel.createCreateAction(theFirstGrid.getACell(),2,{"sea":["reasonable"]}))
-
-thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea","reasonable"]},[],[lambda aCell: aCell.deleteAgent("lac",1)],[lambda aCell: aCell.checkValue({"Forest":"Niv2"}) ]))
-thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]}))
-
-thePlayer.addGameAction(myModel.createDeleteAction(theFirstGrid.getACell(),2,{"sea":["reasonable","deep sea"]}))
-
-
-
-myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
-
-'''myModel.timeManager.addGamePhase("theSecondPhase",1,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv2"},3)],[lambda: myModel.getTimeManager().verifNumberOfRound(3)])
-
-myModel.timeManager.addGamePhase("theThirdPhase",2,None,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv3"},10)],[lambda: myModel.getTimeManager().actualRound ==1])
-
-myModel.timeManager.addGamePhase("the5Phase",5,None,[lambda: myModel.getGameSpace("basicGrid").addAgentOnValue('lac',{"Forest":"Niv2"})])
-
-myModel.timeManager.addGamePhase("the6Phase",6,None,[lambda: myModel.getGameSpace("basicGrid").moveRadomlyAgent("lac")])
-
-myModel.timeManager.addGamePhase("the7Phase",7,None,[lambda: myModel.getGameSpace("basicGrid").deleteAgent("lac")])
-'''
-
 myModel.iAm("Gertrude")
 myModel.show() 
 
