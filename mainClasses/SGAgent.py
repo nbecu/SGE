@@ -14,7 +14,7 @@ from SGAgentCollection import SGAgentCollection
 class SGAgent(QtWidgets.QWidget):
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,size,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,size1,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
@@ -25,7 +25,7 @@ class SGAgent(QtWidgets.QWidget):
  #       self.model=parent.model
         self.name=name
         self.format=format
-        self.size=size
+        self.size=size1
         #We place the default pos
         self.startXBase=0
         self.startYBase=0
@@ -231,6 +231,10 @@ class SGAgent(QtWidgets.QWidget):
             drag = QDrag(self)
             drag.setMimeData(mimeData)
             drag.setHotSpot(e.pos() - self.rect().topLeft())
+
+            '''pixmap = QPixmap(self.size)
+            self.render(pixmap)
+            drag.setPixmap(pixmap)'''
 
             drag.exec_(Qt.MoveAction) 
     

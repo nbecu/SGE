@@ -29,8 +29,6 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
 myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
-theFirstGrid.setForRandom({"lac",7})
-
 theFirstLegend=myModel.createLegendAdmin()
 
 thePlayer=myModel.createPlayer("Gertrude")
@@ -42,6 +40,16 @@ thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,numberofAction,{"b
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 
 thePlayer.addGameAction(myModel.createDeleteAction(anAgentLac,1,))
+
+thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,5,{"boat":["old"]} ))
+
+aGameAction = thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea"]}))
+aGameAction.addRestrictions(lambda aCell : aCell.isMineOrAdmin())
+aGameAction.addFeedback(lambda aCell: aCell.getProperty())
+thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["reasonable"]},[lambda aCell : aCell.isMine()]))
+thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()]))
+
+action=thePlayer.addGameAction(myModel.createMoveAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()],[lambda aCell : aCell.changeValue({"sea": "deep sea"})],[],[lambda agent: agent.changeValue({"boat":"old"})],[lambda aCell,agent : aCell.checkValue({"sea": "deep sea"})]))
 
 myModel.iAm("Gertrude")
 myModel.show() 
