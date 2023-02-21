@@ -7,6 +7,8 @@ from SGGameSpace import SGGameSpace
 from SGLegendItem import SGLegendItem
 from SGCell import SGCell
 from SGGrid import SGGrid
+from gameAction import SGCreate
+from SGCreate import getNumberUsed
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):

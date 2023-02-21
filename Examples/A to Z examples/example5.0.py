@@ -15,6 +15,8 @@ theFirstGrid=myModel.createGrid(10,10,"hexagonal",Qt.gray, name="basicGrid")
 
 theSecondGrid=myModel.createGrid(4,4,"square",Qt.gray)
 
+testLabel= myModel.createGameActionController()
+
 myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid,theSecondGrid],"sea","reasonable")
 
 myModel.setInitialPov("Forester")
@@ -27,15 +29,19 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid,theSecondGrid])
 
 myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid,theSecondGrid])
 
+theFirstGrid.setForRandom({"lac",7})
 
 theFirstLegend=myModel.createLegendAdmin()
 
 thePlayer=myModel.createPlayer("Gertrude")
+
 # A game action is a rule to interact wit hthe grid, here only two agents can be placed
 # it also permits to give interaction between cell and agents like here : if you place a certain agent on a certain type of cell, the cell updates to a new status
-
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,2,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
+numberofAction=2
+thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,numberofAction,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
 myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
+
+#thePlayer.addGameAction(myModel.createDeleteAction())
 
 myModel.iAm("Gertrude")
 myModel.show() 
