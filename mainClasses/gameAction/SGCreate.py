@@ -48,6 +48,9 @@ class SGCreate():
         
     def reset(self):
         self.numberUsed=0
+
+    def getnumberUsed(self):
+        return self.numberUsed
         
     
 
