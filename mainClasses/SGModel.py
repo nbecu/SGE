@@ -451,8 +451,8 @@ class SGModel(QtWidgets.QMainWindow):
     #To get the player
     def getPlayer(self):
         return self.actualPlayer
+    
 
-            
     
     #---------
 #Layout
