@@ -19,12 +19,12 @@ myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"fo
 myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
 
 theFirstLegend=myModel.createLegendAdmin()
-# create a player
+"""# create a player
 myModel.createPlayer("Player 1")
 # create a legend for this player, according to the POVs
 #Player1Leg=myModel.createLegendForPlayer("Player1Legend",{"mygrid":{'povLandUse':{"grass":Qt.green}}},"Player 1")
 #Player1Leg.addDeleteButton('Delete')
-
+"""
 
 # to have the Player 1 view 
 myModel.iAm("Player 1")
