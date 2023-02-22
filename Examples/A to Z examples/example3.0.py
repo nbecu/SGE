@@ -1,10 +1,7 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from mainClasses.SGModel import SGModel
-from PyQt5 import QtWidgets 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 # You can add a title to the main window of your simulation/game
