@@ -14,7 +14,7 @@ from SGAgentCollection import SGAgentCollection
 class SGAgent(QtWidgets.QWidget):
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,size1,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,size,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
@@ -25,7 +25,7 @@ class SGAgent(QtWidgets.QWidget):
  #       self.model=parent.model
         self.name=name
         self.format=format
-        self.size=size1
+        self.size=size
         #We place the default pos
         self.startXBase=0
         self.startYBase=0
@@ -225,7 +225,7 @@ class SGAgent(QtWidgets.QWidget):
                     theAction.use()
         
         if authorisation:
-
+            print(str(self.x)+","+str(self.y))
             mimeData = QMimeData()
 
             drag = QDrag(self)
@@ -236,7 +236,14 @@ class SGAgent(QtWidgets.QWidget):
             self.render(pixmap)
             drag.setPixmap(pixmap)'''
 
-            drag.exec_(Qt.MoveAction) 
+            drag.exec_(Qt.MoveAction)
+            if self.parent.format =='square':
+                print("square")
+                print(type(self))
+                #self.moveto(self.parent.size-5,abs(5-self.parent.size))
+            else:
+                print("hexa")
+             
     
         
             

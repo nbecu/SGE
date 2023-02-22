@@ -21,9 +21,7 @@ myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"fo
 # As for a cell, the modeller can specify attributes and values for each atttribute, as well as pov
 myModel.newAgent("sheep","arrowAgent1",[aGrid])
 myModel.setUpEntityValueAndPov("povLandUse",{"health":{"good":Qt.blue}},"sheep")
-
-
-  
+ 
 theFirstLegend=myModel.createLegendAdmin()
 
 myModel.iAm("Admin")
