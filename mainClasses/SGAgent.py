@@ -153,7 +153,7 @@ class SGAgent(QtWidgets.QWidget):
         if QMouseEvent.button() == Qt.LeftButton:
             #Something is selected
             if self.parent.parent.parent.selected[0]!=None :
-                #We shearch if the player have the rights
+                #We search if the player have the rights
                 thePlayer=self.parent.parent.parent.getPlayer()
                 authorisation=False
                 theAction=None
