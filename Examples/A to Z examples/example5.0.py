@@ -34,10 +34,10 @@ thePlayer=myModel.createPlayer("Gertrude")
 # it also permits to give interaction between cell and agents like here : if you place a certain agent on a certain type of cell, the cell updates to a new status
 numberofAction=2
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,numberofAction,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
-myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
+#myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer,[lambda: myModel.getGameSpace("basicGrid").setForRandom({"Forest":"Niv1"},3)])
 
 thePlayer.addGameAction(myModel.createDeleteAction(anAgentLac,1,))
-
+"""
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,5,{"boat":["old"]} ))
 
 aGameAction = thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea"]}))
@@ -47,7 +47,7 @@ thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"s
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()]))
 
 action=thePlayer.addGameAction(myModel.createMoveAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()],[lambda aCell : aCell.changeValue({"sea": "deep sea"})],[],[lambda agent: agent.changeValue({"boat":"old"})],[lambda aCell,agent : aCell.checkValue({"sea": "deep sea"})]))
-
+"""
 myModel.iAm("Gertrude")
 myModel.show() 
 

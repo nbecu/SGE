@@ -239,8 +239,7 @@ class SGAgent(QtWidgets.QWidget):
             drag.exec_(Qt.MoveAction)
             if self.parent.format =='square':
                 print("square")
-                print(type(self))
-                #self.moveto(self.parent.size-5,abs(5-self.parent.size))
+                #QPolygon.moveto()
             else:
                 print("hexa")
              
