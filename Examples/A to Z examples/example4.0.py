@@ -13,16 +13,22 @@ aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
 aGrid.setForRandom({"landUse":"shrub"},10)
 
-myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
+myModel.setUpPov("Farmer",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
+myModel.setUpPov("Visitor",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
 
 # On top of the cells, you can add agents
 # An agent has a location which is the cell on which it is placed. 
 # An agent can move (or be moved) to another location.
 # As for a cell, the modeller can specify attributes and values for each atttribute, as well as pov
 myModel.newAgent("sheep","arrowAgent1",[aGrid])
-myModel.setUpEntityValueAndPov("povLandUse",{"health":{"good":Qt.blue}},"sheep")
+myModel.setUpEntityValueAndPov("Farmer",{"health":{"good":Qt.blue,"bad":Qt.red}},"sheep")
+myModel.setUpEntityValueAndPov("Visitor",{"health":{"good":Qt.blue,"bad":Qt.blue}},"sheep")
 
-aGrid.addOnXandY("sheep",4,2) 
+"""numberofsheep=4
+for i in range(numberofsheep):
+    aGrid.addOnRandom('sheep')"""
+
+aGrid.addOnRandom('sheep',7)
 theFirstLegend=myModel.createLegendAdmin()
 
 myModel.iAm("Admin")

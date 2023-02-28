@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
 from SGAgent import SGAgent
+from SGAgentCollection import SGAgentCollection
 
 
 from PyQt5.QtWidgets import QAction
@@ -251,6 +252,23 @@ class SGGrid(SGGameSpace):
         anAgent.show()
         self.update()
         return anAgent
+    
+    """def addOnRandom(self,anAgentName):
+        listCells=self.collectionOfCells.getCellsDisplay()
+        newPlace=listCells[random.randint(0,len(listCells)-1)]
+        print(str(newPlace))
+        theAgent=self.addOnXandY(anAgentName,newPlace.x+1,newPlace.y+1)
+        return theAgent"""
+    def addOnRandom(self,anAgentName,Occurence):
+        Agentlist=[]
+        for i in range(Occurence):
+            listCells=self.collectionOfCells.getCellsDisplay()
+            newPlace=listCells[random.randint(0,len(listCells)-1)]
+            print(str(newPlace))
+            theAgent=self.addOnXandY(anAgentName,newPlace.x+1,newPlace.y+1)
+            Agentlist.append(theAgent)
+        return Agentlist
+
     
     #to add agent on multiple cell depending of their value
     def addAgentOnValue(self,anAgentName,aDictValueForAgent,aValueForAgent=None):

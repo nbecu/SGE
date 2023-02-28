@@ -25,7 +25,7 @@ myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer)
 
 # you can create a GameAction for your player to interact with the grid
 # it also permits to give interaction between cell and agents like here : if you place a certain agent on a certain type of cell, the cell updates to a new status
-numberofAction=2
+numberofAction=7
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,numberofAction,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
 
 myModel.iAm("Player1")
