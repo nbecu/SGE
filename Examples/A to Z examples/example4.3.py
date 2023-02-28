@@ -18,17 +18,10 @@ anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid])
 myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid])
 theFirstLegend=myModel.createLegendAdmin()
 
-# Agents can be also placed by a player
-# After calling your player and set time à 0
-thePlayer=myModel.createPlayer("Player1")
-myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer)
+# You can add Agents directly on cell at initialisation with cell row and column:
+theFirstGrid.addOnXandY("lac",5,8)
+theFirstGrid.addOnXandY("lac",2,7)
 
-# you can create a GameAction for your player to interact with the grid
-# it also permits to give interaction between cell and agents like here : if you place a certain agent on a certain type of cell, the cell updates to a new status
-numberofAction=2
-thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,numberofAction,{"boat":["old"]},[lambda aCell: aCell.checkValue({"sea":"reasonable"})]  ,  [lambda aCell: aCell.changeValue({"sea": "deep sea"})]  , [lambda aCell: aCell.parent.getCellFromCoordinates(1,1).checkValue({"sea":"reasonable"}) ]))
-
-myModel.iAm("Player1")
 myModel.show() 
 
 sys.exit(monApp.exec_())
