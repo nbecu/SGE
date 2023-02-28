@@ -167,12 +167,14 @@ class SGCell(QtWidgets.QWidget):
                 theAction = None
                 if self.parent.parent.selected[0].isFromAdmin():
                     authorisation=True
+
                 elif thePlayer is not None :
                     theAction=thePlayer.getGameActionOn(self)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
                         if authorisation : 
                             theAction.use()
+         
                 #The delete Action
                 if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
                     if authorisation : 
@@ -189,6 +191,7 @@ class SGCell(QtWidgets.QWidget):
                         self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,"deleted"])
                         self.show()
                         self.repaint()
+
                 #The Replace cell and change value Action
                 elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
                     if  authorisation :
@@ -213,7 +216,8 @@ class SGCell(QtWidgets.QWidget):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
-                        self.update() 
+                        self.update()
+
                 #For agent placement         
                 else :
                     if  authorisation :

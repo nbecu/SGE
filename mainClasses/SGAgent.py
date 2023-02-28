@@ -211,7 +211,6 @@ class SGAgent(QtWidgets.QWidget):
     
         if e.buttons() != Qt.LeftButton:
             return
-        
         thePlayer=self.parent.parent.parent.getPlayer()
         authorisation=False
         theAction=None
@@ -242,6 +241,7 @@ class SGAgent(QtWidgets.QWidget):
                 #QPolygon.moveto()
             else:
                 print("hexa")
+            print('move done')
              
     
         

@@ -123,6 +123,7 @@ class SGLegendItem(QtWidgets.QWidget):
             #Already selected
             if self.parent.parent.selected[0]==self :
                 self.parent.parent.selected=[None]
+
             #Selection of an item and suppresion of already selected Item
             else :
                 if self.type!="None":
