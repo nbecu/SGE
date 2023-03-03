@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from SGAgent import SGAgent
 from SGPlayer import SGPlayer
 from SGTimeManager import SGTimeManager
+from SGAgentCollection import SGAgentCollection
 
 from SGGrid import SGGrid
 from SGVoid import SGVoid
@@ -68,6 +69,8 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition of variable
         #Definition for all gameSpaces
         self.gameSpaces={}
+        #Definition of the AgentCollection
+        self.listofcollection={}
         #We create the layout
         self.typeOfLayout=typeOfLayout
         if(typeOfLayout=="vertical"):
@@ -431,12 +434,16 @@ class SGModel(QtWidgets.QMainWindow):
     
             
     #To create a New kind of agents
-    def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrids,size=10):
-        for aGrid in listOfAcceptGrids:
-            anAgent=SGAgent(None,anAgentName,anAgentFormat,size)
-            self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=anAgent
-        return anAgent
-            
+    def newAgentCollection(self,anAgentCollectionName,anAgentCollectionFormat,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
+        anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionFormat,anAgentCollectionDefaultSize,dictOfAttributs)
+        self.listofcollection[anAgentCollectionName]=anAgentCollection
+        SGAgentCollection.addToCollection(self,name=anAgentCollectionName)
+        return anAgentCollection
+    
+    def newAgent(self,anAgentCollection,anAgentID):
+        aAgent=SGAgent(self,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
+        SGAgentCollection.addAnAgentToHisCollection(self,aAgent.name,anAgentCollection.name)
+        return aAgent
     
     #To create a createPlayer
     def createPlayer(self,name):

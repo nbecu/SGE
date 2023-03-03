@@ -7,30 +7,32 @@ from PyQt5.QtCore import *
 from sqlalchemy import true, values
 
 from SGAgentCollection import SGAgentCollection
-
+from SGCell import SGCell
 
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(QtWidgets.QWidget):
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,size,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id=None,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
-        if(parent!=None):
-            self.theCollection=parent.collectionOfAgents
+        #self.theCollection=SGAgentCollection(None)
+
+        """if(parent!=None):
+            self.theCollection=parent.classOfAgents
         else:
             self.theCollection=SGAgentCollection(None)
- #       self.model=parent.model
+        self.model=parent.model"""
         self.name=name
         self.format=format
-        self.size=size
+        self.size=defaultsize
         #We place the default pos
         self.startXBase=0
         self.startYBase=0
         #We init the dict of Attribute
-        self.attributs={}
+        self.dictOfAttributs=dictOfAttributs
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.x=0
@@ -41,6 +43,7 @@ class SGAgent(QtWidgets.QWidget):
         self.history={}
         self.history["value"]=[]
         self.history["coordinates"]=[]
+        self.id=None
         
 
         
@@ -105,18 +108,22 @@ class SGAgent(QtWidgets.QWidget):
         
         
         if self.x==0 and self.y==0 :
-            if self.parent.format=="square":
-                self.x= random.randint(0, self.parent.rect().bottomRight().x()-(round(self.size/2))*2)
-                self.y= random.randint(0, self.parent.rect().bottomRight().y()-(round(self.size/2))*2)
+            if SGCell.getFormat(SGCell)=="square":
+                self.x= random.randint(0, SGCell.rect().bottomRight().x()-(round(self.size/2))*2)
+                self.y= random.randint(0, SGCell.rect().bottomRight().y()-(round(self.size/2))*2)
             else :
-                self.x=random.randint(0, self.parent.rect().bottomRight().x()-(round(self.size/3))*2)
-                self.y=round(self.parent.size/3)+random.randint(0, self.parent.rect().bottomRight().y()-(round(self.parent.size/3))*2)
+                self.x=random.randint(0, SGCell.rect().bottomRight().x()-(round(self.size/3))*2)
+                self.y=round(SGCell.size/3)+random.randint(0, SGCell.rect().bottomRight().y()-(round(SGCell.size/3))*2)
         self.move(self.x,self.y)
         painter.end()
     
     
     def getId(self):
-        return "agent"+str(self.name)
+        if self.id!=None:
+            return "id = "+str(self.id)
+        else:
+            self.id=str(SGAgentCollection.listofcollection.index[self.name])
+            return "agent"+self.id
     
 
     #Funtion to handle the zoom
@@ -134,9 +141,13 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
-        for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 
+        #for aValue in self.dictOfAttributs[SGAgentCollection[self.name]]
+        return Qt.red
+
+
+        """for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 
             if aVal in list(self.attributs.keys()):
-                return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
+            return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]"""
 
            
     #To get the pov

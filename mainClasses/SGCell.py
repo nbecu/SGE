@@ -4,8 +4,6 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-
-from SGAgent import SGAgent
 from SGAgentCollection import SGAgentCollection
 
    
@@ -43,7 +41,9 @@ class SGCell(QtWidgets.QWidget):
         self.history={}
         self.history["value"]=[]
   
-
+    # to extract the format of the cell
+    def getFormat(self):
+        return str(self.format)
         
     def paintEvent(self,event):
         self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 

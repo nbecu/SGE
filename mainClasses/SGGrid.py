@@ -241,10 +241,12 @@ class SGGrid(SGGameSpace):
 #To handle the placing of agents
     #To apply to a specific cell an agent  
     def addOnXandY(self,anAgentName,aValueX,aValueY,aValueForAgent=None):
-        anAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
+        agentClass=self.parent.classOfAgents[anAgentName]
+        agentClass.theCollection.addAgent(anAgent)
+ #SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
         anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
         anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs.copy()
-        self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).collectionOfAgents.addAgent(anAgent)
+        #self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).collectionOfAgents.addAgent(anAgent)
         if aValueForAgent is not None :
             for anAttribut in self.collectionOfCells.povs[self.parent.nameOfPov] :
                     if aValueForAgent in list(self.collectionOfCells.povs[self.parent.nameOfPov][anAttribut].keys()) :

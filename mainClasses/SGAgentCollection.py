@@ -8,11 +8,18 @@ class SGAgentCollection():
     def __init__(self,parent):
         #Basic initialize
         self.parent=parent
-        self.agents=[]
+        self.listofcollection={}
         #Initialize the different pov
         self.povs={}
         
-       
+    #To add a new collection
+    def addToCollection(self,name):
+        self.listofcollection[name]=[]
+
+    #To add a new Agent to his collection  
+    def addAnAgentToHisCollection(self,anAgentName,CollectionName):
+        self.listofcollection[str(CollectionName)]=anAgentName
+    
     #To get all the Agents of the collection 
     def getAgents(self):
         return self.agents
