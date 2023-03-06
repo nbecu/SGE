@@ -8,6 +8,7 @@ from pyrsistent import s
 from win32api import GetSystemMetrics
 from paho.mqtt import client as mqtt_client
 import threading ,queue
+import random
 
 sys.path.insert(0, str(Path(__file__).parent))
 from SGAgent import SGAgent
@@ -70,7 +71,8 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition for all gameSpaces
         self.gameSpaces={}
         #Definition of the AgentCollection
-        self.listofcollection={}
+        self.CollectionList={}
+        self.AgentList={}
         #We create the layout
         self.typeOfLayout=typeOfLayout
         if(typeOfLayout=="vertical"):
@@ -388,7 +390,7 @@ class SGModel(QtWidgets.QMainWindow):
             allElements[anElement.id]=anElement.getValuesForLegend()
         aLegend = SGLegend(self,"adminLegend",allElements,"Admin")
         for aGrid in self.getGrids() :
-            for anAgent in aGrid.collectionOfAcceptAgent :
+            for anAgent in self.listofAgents : 
                 aLegend.addAgentToTheLegend(anAgent)
         self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
@@ -434,18 +436,30 @@ class SGModel(QtWidgets.QMainWindow):
     
             
     #To create a New kind of agents
-    def newAgentCollection(self,anAgentCollectionName,anAgentCollectionFormat,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
-        anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionFormat,anAgentCollectionDefaultSize,dictOfAttributs)
-        self.listofcollection[anAgentCollectionName]=[]
-        SGAgentCollection.addToCollection(self,name=anAgentCollectionName)
+    def newAgentCollection(self,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
+        anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize,dictOfAttributs)
+        self.CollectionList={str(anAgentCollectionName):{"Shape":anAgentCollectionShape,"DefaultSize":anAgentCollectionDefaultSize,"AttributList":dictOfAttributs}}
         return anAgentCollection
     
-    def newAgent(self,anAgentCollection,anAgentID,aValueX,aValueY):
-        coord=SGGrid.getCellFromCoordinates(self=SGGrid,x=aValueX,y=aValueY)
-        aAgent=SGAgent(coord,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
-        self.listofcollection[anAgentCollection.name]={anAgentID:aAgent.dictOfAttributs}
-        SGAgentCollection.addAnAgentToHisCollection(self,aAgent.name,anAgentCollection.name)
+    def newAgent(self,aGrid,anAgentCollection,anAgentID,ValueX=None,ValueY=None):
+        if ValueX==None:
+            ValueX=random.randint(0, aGrid.columns)
+            if ValueX<0:
+                ValueX=abs(ValueX)
+        if ValueY==None:
+            ValueY=random.randint(0, aGrid.rows)
+            if ValueY<0:
+                ValueY=abs(ValueY)
+        Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
+        aAgent=SGAgent(Cellparent,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
+        self.AgentList={
+            str(anAgentID):{}
+        }
+        print(aAgent.dictOfAttributs)
         return aAgent
+    
+    def updateAgent(self,anAgentCollection,anAgentID,attribut,value):
+        return#self.listofcollection[anAgentCollection.name][anAgentID][attribut]=value
     
     
     #To create a createPlayer

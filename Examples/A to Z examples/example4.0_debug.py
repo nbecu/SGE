@@ -15,12 +15,20 @@ aGrid.setForRandom({"landUse":"shrub"},10)
 
 myModel.setUpPov("Farmer",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
 myModel.setUpPov("Visitor",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
+
+
+Mouton=myModel.newAgentCollection(anAgentCollectionName="Mouton",anAgentCollectionShape="circleAgent",dictOfAttributs={"health":{"good","bad"},"age":{"baby","adult","elder"}})
+
+myModel.newAgent(aGrid,Mouton,'M01',None,None)
+myModel.newAgent(aGrid,Mouton,'M02',None,None)
+
+
+
+
+#myModel.updateAgent(Mouton,'M02','health','bad')
+
 #theFirstLegend=myModel.createLegendAdmin()
 
-Mouton=myModel.newAgentCollection(anAgentCollectionName="Mouton",anAgentCollectionFormat="circleAgent")
-myModel.newAgent(Mouton,'M01',4,4)
-
-#print(str(myModel.listofcollection[0][0]))
 
 
 

@@ -107,7 +107,7 @@ class SGAgent(QtWidgets.QWidget):
             
         
         
-        if self.x==0 and self.y==0 :
+        """if self.x==0 and self.y==0 :
             if SGCell.geometry=="square":
                 self.x= random.randint(0,SGCell.parent.width-1)
                 self.y= random.randint(0,SGCell.parent.height-1)
@@ -115,7 +115,7 @@ class SGAgent(QtWidgets.QWidget):
             else :
                 self.x=random.randint(0, SGCell.geometry.x()-(round(self.size/3))*2)
                 self.y=round(SGCell.geometry.size/3)+random.randint(0, SGCell.geometry.y()-(round(SGCell.geometry.size/3))*2)
-        self.move(self.x,self.y)
+        self.move(self.x,self.y)"""
         painter.end()
     
     
@@ -143,7 +143,7 @@ class SGAgent(QtWidgets.QWidget):
     #To manage the attribute system of an Agent
     def getColor(self):
         #for aValue in self.dictOfAttributs[SGAgentCollection[self.name]]
-        return Qt.red
+        return Qt.magenta
 
 
         """for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 

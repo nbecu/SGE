@@ -175,12 +175,15 @@ class SGGrid(SGGameSpace):
 #Definiton of the methods who the modeler will use
 
     #Retourn the cell
-    def getCell(self,aName):
-        return self.collectionOfCells.getCell(aName)
+    def getCell(self,aCellName):
+        return self.collectionOfCells.getCell(self,aCellName)
     
     #Retourn the from the coordonate
     def getCellFromCoordinates(self,x, y):
-        return self.getCell(self,"cell"+str(x-1)+'-'+str(y-1))
+        CellName="cell"+str(x-1)+'-'+str(y-1)
+        Cells=self.collectionOfCells.getCells()
+        Cell=Cells[CellName]
+        return Cell
     
 #To handle POV and placing on cell
     #To define a value for all cells
@@ -240,7 +243,7 @@ class SGGrid(SGGameSpace):
                 
 #To handle the placing of agents
     #To apply to a specific cell an agent  
-    def addOnXandY(self,anAgentCollectionName,anAgentID,aValueX,aValueY,AttributValue=None):
+    '''def addOnXandY(self,anAgentCollectionName,anAgentID,aValueX,aValueY,AttributValue=None):
         Agent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentID,)
  #SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
         anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
@@ -252,7 +255,7 @@ class SGGrid(SGGameSpace):
                         anAgent.attributs[anAttribut]=aValueForAgent
         anAgent.show()
         self.update()
-        return anAgent
+        return anAgent'''
     
     """def addOnRandom(self,anAgentName):
         listCells=self.collectionOfCells.getCellsDisplay()
@@ -260,7 +263,7 @@ class SGGrid(SGGameSpace):
         print(str(newPlace))
         theAgent=self.addOnXandY(anAgentName,newPlace.x+1,newPlace.y+1)
         return theAgent"""
-    def addOnRandom(self,anAgentName,Occurence):
+    '''def addOnRandom(self,anAgentName,Occurence):
         Agentlist=[]
         for i in range(Occurence):
             listCells=self.collectionOfCells.getCellsDisplay()
@@ -268,7 +271,7 @@ class SGGrid(SGGameSpace):
             print(str(newPlace))
             theAgent=self.addOnXandY(anAgentName,newPlace.x+1,newPlace.y+1)
             Agentlist.append(theAgent)
-        return Agentlist
+        return Agentlist'''
 
     
     #to add agent on multiple cell depending of their value

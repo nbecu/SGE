@@ -8,21 +8,22 @@ class SGAgentCollection():
     def __init__(self,parent):
         #Basic initialize
         self.parent=parent
-        self.listofcollection={}
+        #self.listofcollection={}
+        #self.listofAgents={}
         #Initialize the different pov
         self.povs={}
         
     #To add a new collection
     def addToCollection(self,name):
-        self.listofcollection[name]=[]
+        self.listofcollection={str(name)}
 
     #To add a new Agent to his collection  
-    def addAnAgentToHisCollection(self,anAgentName,CollectionName):
-        self.listofcollection[str(CollectionName)]=anAgentName
+    def addAnAgentToHisCollection(self,anAgentID,CollectionName):
+        self.listofcollection={str(CollectionName):str(anAgentID)}
     
     #To get all the Agents of the collection 
     def getAgents(self):
-        return self.agents
+        return self.listofAgents
     
     #To get all the povs of the collection 
     def getPovs(self):
@@ -30,11 +31,11 @@ class SGAgentCollection():
     
     #To get an Agent in particular
     def getAgent(self,aName):
-        return self.agents[aName]
+        return self.listofAgents[aName]
     
     #To add an Agent 
     def addAgent(self,anAgent):
-        self.agents.append(anAgent)
+        self.listofAgents[anAgent.id]=anAgent
     
     #To remove an Agent in particular
     def removeAgent(self,aName):
