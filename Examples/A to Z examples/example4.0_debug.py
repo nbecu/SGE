@@ -18,10 +18,9 @@ myModel.setUpPov("Visitor",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest
 #theFirstLegend=myModel.createLegendAdmin()
 
 Mouton=myModel.newAgentCollection(anAgentCollectionName="Mouton",anAgentCollectionFormat="circleAgent")
-myModel.newAgent(Mouton,'M01')
+myModel.newAgent(Mouton,'M01',4,4)
 
-print(str(Mouton))
-
+#print(str(myModel.listofcollection[0][0]))
 
 
 

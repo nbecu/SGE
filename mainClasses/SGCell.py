@@ -17,7 +17,7 @@ class SGCell(QtWidgets.QWidget):
         self.theCollection=theCollection
         self.x=x
         self.y=y
-        self.format=format
+        self.shape=format
         self.size=size
         self.gap=gap
         #Save the basic value for the zoom ( temporary)
@@ -42,8 +42,8 @@ class SGCell(QtWidgets.QWidget):
         self.history["value"]=[]
   
     # to extract the format of the cell
-    def getFormat(self):
-        return str(self.format)
+    def getShape(self):
+        return self.shape
         
     def paintEvent(self,event):
         self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 
@@ -56,12 +56,12 @@ class SGCell(QtWidgets.QWidget):
         else :
             painter.setPen(QPen(Qt.black,1));
         #Base of the gameBoard
-        if(self.format=="square"):
+        if(self.shape=="square"):
             painter.drawRect(0,0,self.size,self.size)
             self.setMinimumSize(self.size,self.size+1)
             self.setGeometry(0,0,self.size+1,self.size+1)
             self.move(self.startX,self.startY)
-        elif(self.format=="hexagonal"):
+        elif(self.shape=="hexagonal"):
             self.setMinimumSize(self.size,self.size)
             self.setGeometry(0,0,self.size+1,self.size+1)
             points = QPolygon([
@@ -349,7 +349,7 @@ class SGCell(QtWidgets.QWidget):
         emptyList.append(self)
         listOfCell=[]
         if rangeNeighbor !=0:
-            if self.format=="hexagonal":
+            if self.shape=="hexagonal":
                 if self.y%2==0 :
                     #Top Left
                     if self.x-1>=0 and self.y-1>=0:

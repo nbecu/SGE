@@ -436,14 +436,17 @@ class SGModel(QtWidgets.QMainWindow):
     #To create a New kind of agents
     def newAgentCollection(self,anAgentCollectionName,anAgentCollectionFormat,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
         anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionFormat,anAgentCollectionDefaultSize,dictOfAttributs)
-        self.listofcollection[anAgentCollectionName]=anAgentCollection
+        self.listofcollection[anAgentCollectionName]=[]
         SGAgentCollection.addToCollection(self,name=anAgentCollectionName)
         return anAgentCollection
     
-    def newAgent(self,anAgentCollection,anAgentID):
-        aAgent=SGAgent(self,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
+    def newAgent(self,anAgentCollection,anAgentID,aValueX,aValueY):
+        coord=SGGrid.getCellFromCoordinates(self=SGGrid,x=aValueX,y=aValueY)
+        aAgent=SGAgent(coord,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
+        self.listofcollection[anAgentCollection.name]={anAgentID:aAgent.dictOfAttributs}
         SGAgentCollection.addAnAgentToHisCollection(self,aAgent.name,anAgentCollection.name)
         return aAgent
+    
     
     #To create a createPlayer
     def createPlayer(self,name):

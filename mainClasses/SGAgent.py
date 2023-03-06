@@ -108,12 +108,13 @@ class SGAgent(QtWidgets.QWidget):
         
         
         if self.x==0 and self.y==0 :
-            if SGCell.getFormat(SGCell)=="square":
-                self.x= random.randint(0, SGCell.rect().bottomRight().x()-(round(self.size/2))*2)
-                self.y= random.randint(0, SGCell.rect().bottomRight().y()-(round(self.size/2))*2)
-            else :
-                self.x=random.randint(0, SGCell.rect().bottomRight().x()-(round(self.size/3))*2)
-                self.y=round(SGCell.size/3)+random.randint(0, SGCell.rect().bottomRight().y()-(round(SGCell.size/3))*2)
+            if SGCell.geometry=="square":
+                self.x= random.randint(0,SGCell.parent.width-1)
+                self.y= random.randint(0,SGCell.parent.height-1)
+                print(str(self.x)+','+str(self.y))
+            '''else :
+                self.x=random.randint(0, SGCell.geometry.x()-(round(self.size/3))*2)
+                self.y=round(SGCell.geometry.size/3)+random.randint(0, SGCell.geometry.y()-(round(SGCell.geometry.size/3))*2)'''
         self.move(self.x,self.y)
         painter.end()
     

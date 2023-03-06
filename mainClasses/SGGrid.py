@@ -34,19 +34,19 @@ class SGGrid(SGGameSpace):
         self.startXBase=0
         self.startYBase=0
 
-        
         if aColor != "None":
             self.setColor(aColor)
+            
         #We initialize the user interface related to the grid
         self.initUI()
        
     #Initialize the user interface
     def initUI(self): 
         #Init the cellCollection
-        self.collectionOfCells=SGCellCollection(self,self.columns,self.rows,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+        self.collectionOfCells=SGCellCollection(self,self.columns,self.rows,self.format,self.size,self.gap,self.startXBase,self.startYBase)    
         self.collectionOfAcceptAgent={}
-        
-        
+
+
     #Drawing the game board with the cell
     def paintEvent(self,event):
         painter = QPainter() 
@@ -180,7 +180,7 @@ class SGGrid(SGGameSpace):
     
     #Retourn the from the coordonate
     def getCellFromCoordinates(self,x, y):
-        return self.getCell("cell"+str(x-1)+'-'+str(y-1))
+        return self.getCell(self,"cell"+str(x-1)+'-'+str(y-1))
     
 #To handle POV and placing on cell
     #To define a value for all cells
@@ -240,9 +240,8 @@ class SGGrid(SGGameSpace):
                 
 #To handle the placing of agents
     #To apply to a specific cell an agent  
-    def addOnXandY(self,anAgentName,aValueX,aValueY,aValueForAgent=None):
-        agentClass=self.parent.classOfAgents[anAgentName]
-        agentClass.theCollection.addAgent(anAgent)
+    def addOnXandY(self,anAgentCollectionName,anAgentID,aValueX,aValueY,AttributValue=None):
+        Agent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentID,)
  #SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
         anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
         anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs.copy()
