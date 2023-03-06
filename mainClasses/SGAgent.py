@@ -112,9 +112,9 @@ class SGAgent(QtWidgets.QWidget):
                 self.x= random.randint(0,SGCell.parent.width-1)
                 self.y= random.randint(0,SGCell.parent.height-1)
                 print(str(self.x)+','+str(self.y))
-            '''else :
+            else :
                 self.x=random.randint(0, SGCell.geometry.x()-(round(self.size/3))*2)
-                self.y=round(SGCell.geometry.size/3)+random.randint(0, SGCell.geometry.y()-(round(SGCell.geometry.size/3))*2)'''
+                self.y=round(SGCell.geometry.size/3)+random.randint(0, SGCell.geometry.y()-(round(SGCell.geometry.size/3))*2)
         self.move(self.x,self.y)
         painter.end()
     
