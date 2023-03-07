@@ -436,12 +436,40 @@ class SGModel(QtWidgets.QMainWindow):
     
             
     #To create a New kind of agents
-    def newAgentSpecie(self,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
-        anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize,dictOfAttributs,None)
-        self.AgentSpecies={str(anAgentCollectionName):{"Shape":anAgentCollectionShape,"DefaultSize":anAgentCollectionDefaultSize,"AttributList":dictOfAttributs}}
-        return anAgentCollection
+    def newAgentSpecies(self,aSpeciesName,aSpeciesShape,dictOfAttributs=None,aSpeciesDefaultSize=10):
+        """
+        Create a new specie of Agents.
+
+        Args:
+            aSpeciesName (str) : the species name
+            aSpeciesShape (str) : the species shape in list : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
+            dictofAttributs (dict) : all the species attributs with all the values
+            aSpeciesDefaultSize (int) : the species shape size (Default=10)
+
+        Return:
+            a nested dict for the species
+            a species
+        
+        """
+        aAgentSpecies=SGAgent(None,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
+        self.AgentSpecies={str(aSpeciesName):{"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs}}
+        return aAgentSpecies
     
-    def newAgent(self,aGrid,anAgentCollection,ValueX=None,ValueY=None):
+    def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None):
+        """
+        Create a new Agent in the associated species.
+
+        Args:
+            aGrid (var) : the grid you want your agent in
+            aAgentSpecies (var) : the species of your agent
+            ValueX (int) : Column position in grid (Default=Random)
+            ValueY (int) : Row position in grid (Default=Random)
+
+        Return:
+            a new nest in the species dict for the agent
+            a agent
+        
+        """
         anAgentID=self.IDincr+1
         self.IDincr=+1
         if ValueX==None:
@@ -453,15 +481,15 @@ class SGModel(QtWidgets.QMainWindow):
             if ValueY<0:
                 ValueY=abs(ValueY)
         Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
-        aAgent=SGAgent(Cellparent,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
-        self.AgentSpecies={str(anAgentCollection.name): {'AgentList':
-            {str(anAgentID):{'position':aAgent.parent,'specie':aAgent.name,'size':aAgent.size,
+        aAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        self.AgentSpecies={str(aAgentSpecies.name): {'AgentList':
+            {str(anAgentID):{'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
                             'attributs':{}}}}
         }
         return aAgent
     
-    def updateAgent(self,anAgentCollection,anAgentID,attribut,value):
-        return#self.listofcollection[anAgentCollection.name][anAgentID][attribut]=value
+    def updateAgent(self,aAgentSpecies,anAgentID,attribut,value):
+        return#self.listofcollection[aAgentSpecies.name][anAgentID][attribut]=value
     
     
     #To create a createPlayer
