@@ -14,7 +14,7 @@ from SGCell import SGCell
 class SGAgent(QtWidgets.QWidget):
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id=None,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
@@ -43,7 +43,7 @@ class SGAgent(QtWidgets.QWidget):
         self.history={}
         self.history["value"]=[]
         self.history["coordinates"]=[]
-        self.id=None
+        self.id=id
         
 
         

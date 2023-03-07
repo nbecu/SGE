@@ -71,8 +71,8 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition for all gameSpaces
         self.gameSpaces={}
         #Definition of the AgentCollection
-        self.CollectionList={}
-        self.AgentList={}
+        self.AgentSpecies={}
+        self.IDincr=0
         #We create the layout
         self.typeOfLayout=typeOfLayout
         if(typeOfLayout=="vertical"):
@@ -436,12 +436,14 @@ class SGModel(QtWidgets.QMainWindow):
     
             
     #To create a New kind of agents
-    def newAgentCollection(self,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
-        anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize,dictOfAttributs)
-        self.CollectionList={str(anAgentCollectionName):{"Shape":anAgentCollectionShape,"DefaultSize":anAgentCollectionDefaultSize,"AttributList":dictOfAttributs}}
+    def newAgentSpecie(self,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize=10,dictOfAttributs=None):
+        anAgentCollection=SGAgent(None,anAgentCollectionName,anAgentCollectionShape,anAgentCollectionDefaultSize,dictOfAttributs,None)
+        self.AgentSpecies={str(anAgentCollectionName):{"Shape":anAgentCollectionShape,"DefaultSize":anAgentCollectionDefaultSize,"AttributList":dictOfAttributs}}
         return anAgentCollection
     
-    def newAgent(self,aGrid,anAgentCollection,anAgentID,ValueX=None,ValueY=None):
+    def newAgent(self,aGrid,anAgentCollection,ValueX=None,ValueY=None):
+        anAgentID=self.IDincr+1
+        self.IDincr=+1
         if ValueX==None:
             ValueX=random.randint(0, aGrid.columns)
             if ValueX<0:
@@ -452,10 +454,10 @@ class SGModel(QtWidgets.QMainWindow):
                 ValueY=abs(ValueY)
         Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
         aAgent=SGAgent(Cellparent,anAgentCollection.name,anAgentCollection.format,anAgentCollection.size,anAgentCollection.dictOfAttributs,id=anAgentID)
-        self.AgentList={
-            str(anAgentID):{}
+        self.AgentSpecies={str(anAgentCollection.name): {'AgentList':
+            {str(anAgentID):{'position':aAgent.parent,'specie':aAgent.name,'size':aAgent.size,
+                            'attributs':{}}}}
         }
-        print(aAgent.dictOfAttributs)
         return aAgent
     
     def updateAgent(self,anAgentCollection,anAgentID,attribut,value):

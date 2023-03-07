@@ -17,10 +17,10 @@ myModel.setUpPov("Farmer",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest
 myModel.setUpPov("Visitor",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
 
 
-Mouton=myModel.newAgentCollection(anAgentCollectionName="Mouton",anAgentCollectionShape="circleAgent",dictOfAttributs={"health":{"good","bad"},"age":{"baby","adult","elder"}})
+Mouton=myModel.newAgentSpecie(anAgentCollectionName="Mouton",anAgentCollectionShape="circleAgent",dictOfAttributs={"health":{"good","bad"},"age":{"baby","adult","elder"}})
 
-myModel.newAgent(aGrid,Mouton,'M01',None,None)
-myModel.newAgent(aGrid,Mouton,'M02',None,None)
+myModel.newAgent(aGrid,Mouton,None,None)
+myModel.newAgent(aGrid,Mouton,None,None)
 
 
 
