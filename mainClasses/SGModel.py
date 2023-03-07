@@ -442,7 +442,7 @@ class SGModel(QtWidgets.QMainWindow):
 
         Args:
             aSpeciesName (str) : the species name
-            aSpeciesShape (str) : the species shape in list : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
+            aSpeciesShape (str) : the species shape (see list in doc)
             dictofAttributs (dict) : all the species attributs with all the values
             aSpeciesDefaultSize (int) : the species shape size (Default=10)
 
