@@ -451,10 +451,11 @@ class SGModel(QtWidgets.QMainWindow):
             a species
         
         """
-        aAgentSpecies=SGAgent(None,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
-        self.AgentSpecies={str(aSpeciesName):{"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs}}
+        aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
+        aAgentSpecies.me='collec'
+        self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs}}
         return aAgentSpecies
-    
+
     def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None):
         """
         Create a new Agent in the associated species.
@@ -475,17 +476,20 @@ class SGModel(QtWidgets.QMainWindow):
         if ValueX==None:
             ValueX=random.randint(0, aGrid.columns)
             if ValueX<0:
-                ValueX=abs(ValueX)
+                ValueX=+1
         if ValueY==None:
             ValueY=random.randint(0, aGrid.rows)
             if ValueY<0:
-                ValueY=abs(ValueY)
+                ValueY=+1
         Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
         aAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        aAgent.me='agent'
+        aAgent.species=str(aAgentSpecies.name)
         self.AgentSpecies={str(aAgentSpecies.name): {'AgentList':
-            {str(anAgentID):{'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
+            {str(anAgentID):{"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
                             'attributs':{}}}}
         }
+        
         return aAgent
     
     def updateAgent(self,aAgentSpecies,anAgentID,attribut,value):

@@ -43,7 +43,10 @@ class SGAgent(QtWidgets.QWidget):
         self.history={}
         self.history["value"]=[]
         self.history["coordinates"]=[]
+        #We define the identification parameters
+        self.me=0
         self.id=id
+        self.species=0
         
 
         
@@ -262,15 +265,31 @@ class SGAgent(QtWidgets.QWidget):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
+    #To set up a POV
+    def setUpPov(self,nameofPOV,concernedAtt,dictOfColor):
+        if self.parent.AgentSpecies[str(self.name)]['me']=='collec':
+            self.parent.AgentSpecies={str(self.name):{"POV":{str(nameofPOV):nameofPOV,str(concernedAtt):dictOfColor}}}
+        else:
+            print("Warning, a POV can be only define on a Species")
+        
+
+    def updateAgentValue(self,attribut,value):
+        if self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['me']=='agent':
+            self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs']={str(attribut):str(value)}
+        else:
+            print("Warning")
+
+            #self.AgentSpecies={str(aAgentSpecies.name): {'AgentList':{str(anAgentID):{"me":aAgent.me
+
     #To set the value of an agent without the pov
-    def setUpAgentValue(self,aDictOfValue):
+    '''def setUpAgentValue(self,aDictOfValue):
         for anAttribut in aDictOfValue:
             if anAttribut in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                 for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                     self.attributs[aVal]=[]
                 for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
                     del self.attributs[aVal]
-                self.attributs[anAttribut]=aDictOfValue[anAttribut]
+                self.attributs[anAttribut]=aDictOfValue[anAttribut]'''
                 
     #Function to check the ownership  of the agent          
     def isMine(self):
