@@ -17,12 +17,17 @@ myModel.setUpPov("Farmer",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest
 myModel.setUpPov("Visitor",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
 
 
-Mouton=myModel.newAgentSpecies("Mouton","circleAgent",{"health":{"good","bad"},"age":{"baby","adult","elder"}})
-Mouton.setUpPov("Veto","health",{'good':Qt.blue,'bad':Qt.red})
+Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"age":{"baby","adult","elder"}})
+Moutons.setUpPov("Veto","health",{'good':Qt.blue,'bad':Qt.red})
+Moutons.setUpPov("Child","health",{'good':Qt.blue,'bad':Qt.blue})
 
-myModel.newAgent(aGrid,Mouton,3,7)
-m2=myModel.newAgent(aGrid,Mouton,6,3)
+m1=myModel.newAgent(aGrid,Moutons,3,7)
+m2=myModel.newAgent(aGrid,Moutons,6,3)
 m2.updateAgentValue('health','bad')
+m1.updateAgentValue('health','good')
+print(myModel.AgentSpecies['Moutons'])
+
+
 
 
 

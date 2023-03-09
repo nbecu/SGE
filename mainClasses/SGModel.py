@@ -453,7 +453,10 @@ class SGModel(QtWidgets.QMainWindow):
         """
         aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
         aAgentSpecies.me='collec'
-        self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs}}
+        aAgentSpecies.isDisplay=False
+        self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{}}}
+        print(self.AgentSpecies)
+        print('==================')
         return aAgentSpecies
 
     def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None):
@@ -484,11 +487,10 @@ class SGModel(QtWidgets.QMainWindow):
         Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
         aAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
         aAgent.me='agent'
+        aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
-        self.AgentSpecies={str(aAgentSpecies.name): {'AgentList':
-            {str(anAgentID):{"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
-                            'attributs':{}}}}
-        }
+        self.AgentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
+                            'attributs':{}}
         
         return aAgent
     
@@ -572,7 +574,7 @@ class SGModel(QtWidgets.QMainWindow):
                             for anAttributeIndex in range(len(list(aDict.keys()))) :
                                 if nameOfPov not in aCell.attributs.keys() :
                                     aCell.attributs[defaultAttributForPov]=DefaultValueAttribut
-            elif(isinstance(anItem,str)==True):
+            '''elif(isinstance(anItem,str)==True):
                 for aGrid in listOfGridsToApply:
                     for anAgent in aGrid.collectionOfAcceptAgent :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
@@ -588,7 +590,7 @@ class SGModel(QtWidgets.QMainWindow):
                             else :
                                 for anAttributeIndex in range(len(list(aDict.keys()))) :
                                     aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=DefaultValueAttribut
+                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=DefaultValueAttribut'''
             #Adding the Pov to the menu bar
             self.addPovinMenuBar(nameOfPov)
             
@@ -615,7 +617,7 @@ class SGModel(QtWidgets.QMainWindow):
             elif(isinstance(aGrid,str)==True):
                 # the pov is applied to something else than a grid
                 for aGrid in listOfGridsToApply:
-                    for anAgent in aGrid.collectionOfAcceptAgent :
+                    for anAgent in self.AgentSpecies :
                         if aGrid.collectionOfAcceptAgent[anAgent].name ==aGrid:
                             aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=dictOfValuAndColor
             #Adding the Pov to the menu bar

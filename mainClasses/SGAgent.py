@@ -47,6 +47,7 @@ class SGAgent(QtWidgets.QWidget):
         self.me=0
         self.id=id
         self.species=0
+        self.isDisplay=bool
         
 
         
@@ -145,15 +146,17 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
-        #for aValue in self.dictOfAttributs[SGAgentCollection[self.name]]
-        return Qt.magenta
-
-
-        """for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()): 
-            if aVal in list(self.attributs.keys()):
-            return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]"""
-
-           
+        if self.isDisplay==False:
+            return Qt.transparent
+        for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()):
+            for aPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
+                if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
+                    path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                    return self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
+                else: 
+                    return self.parent.parent.parent.AgentSpecies[self.species]['DefaultColor']
+        #return Qt.magenta
+       
     #To get the pov
     def getPov(self):
         return self.parent.parent.parent.nameOfPov
@@ -268,7 +271,7 @@ class SGAgent(QtWidgets.QWidget):
     #To set up a POV
     def setUpPov(self,nameofPOV,concernedAtt,dictOfColor):
         if self.parent.AgentSpecies[str(self.name)]['me']=='collec':
-            self.parent.AgentSpecies={str(self.name):{"POV":{str(nameofPOV):nameofPOV,str(concernedAtt):dictOfColor}}}
+            self.parent.AgentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
         else:
             print("Warning, a POV can be only define on a Species")
         
