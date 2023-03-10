@@ -455,8 +455,8 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies.me='collec'
         aAgentSpecies.isDisplay=False
         self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{}}}
-        print(self.AgentSpecies)
-        print('==================')
+        #print(self.AgentSpecies)
+        #print('==================')
         return aAgentSpecies
 
     def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None):
@@ -606,22 +606,23 @@ class SGModel(QtWidgets.QMainWindow):
              self.setInitialPov(nameOfPov) 
 
     #To add a new POV 
-    def setUpPov(self,nameOfPov,dictOfValuAndColor,listOfGridsToApply=None):
+    def setUpPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
         if listOfGridsToApply==None:
             listOfGridsToApply = [list(self.gameSpaces.values())[0]] #get the fisrt value of the dict
         if not isinstance(listOfGridsToApply,list):
             listOfGridsToApply=[listOfGridsToApply]
         for aGrid in listOfGridsToApply :
             if(isinstance(aGrid,SGGrid)==True):
-                aGrid.collectionOfCells.povs[nameOfPov]=dictOfValuAndColor
-            elif(isinstance(aGrid,str)==True):
-                # the pov is applied to something else than a grid
-                for aGrid in listOfGridsToApply:
-                    for anAgent in self.AgentSpecies :
-                        if aGrid.collectionOfAcceptAgent[anAgent].name ==aGrid:
-                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=dictOfValuAndColor
-            #Adding the Pov to the menu bar
-            self.addPovinMenuBar(nameOfPov)
+                aGrid.collectionOfCells.povs[nameOfPov]={aAtt:DictofColors}
+        self.addPovinMenuBar(nameOfPov)
+
+
+
+        """                # the pov is applied to something else than a grid
+                for aSpecies in self.AgentSpecies.keys() :
+                    for anAgent in self.AgentSpecies[aSpecies]['AgentList'].keys():
+                        SGAgent.getColor(anAgent)"""
+
             
     # def setUpPov_OLD(self,aNameOfPov,aDict,items,listOfGridToApply=None):
     #     if not isinstance(items,list):

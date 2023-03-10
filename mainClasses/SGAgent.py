@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true, values
+from PyQt5.QtWidgets import  QAction
 
 from SGAgentCollection import SGAgentCollection
 from SGCell import SGCell
@@ -146,16 +147,19 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
+        defcol=Qt.white
         if self.isDisplay==False:
             return Qt.transparent
         for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()):
             for aPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
-                if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
-                    path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                    return self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
-                else: 
-                    return self.parent.parent.parent.AgentSpecies[self.species]['DefaultColor']
-        #return Qt.magenta
+                if aPov == self.parent.parent.parent.nameOfPov:
+                    if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
+                        path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                        return self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
+                else:
+                    return defcol
+                
+            return defcol
        
     #To get the pov
     def getPov(self):
@@ -272,8 +276,16 @@ class SGAgent(QtWidgets.QWidget):
     def setUpPov(self,nameofPOV,concernedAtt,dictOfColor):
         if self.parent.AgentSpecies[str(self.name)]['me']=='collec':
             self.parent.AgentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
+            self.addPovinMenuBar(nameofPOV)
         else:
             print("Warning, a POV can be only define on a Species")
+
+    def addPovinMenuBar(self,nameOfPov):
+        if nameOfPov not in self.parent.listOfPovsForMenu :
+            self.parent.listOfPovsForMenu.append(nameOfPov)
+            anAction=QAction(" &"+nameOfPov, self)
+            self.parent.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.parent.setInitialPov(nameOfPov))
         
 
     def updateAgentValue(self,attribut,value):

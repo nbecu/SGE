@@ -148,10 +148,14 @@ class SGCell(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()): 
-            if aVal in list(self.attributs.keys()):
-                return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
-       
+        if self.parent.parent.nameOfPov not in self.theCollection.povs.keys():
+            return Qt.white
+        else:
+            for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                if aVal in list(self.attributs.keys()):
+                    return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
+        return Qt.white
+
     #To get the pov
     def getPov(self):
         return self.parent.parent.nameOfPov
