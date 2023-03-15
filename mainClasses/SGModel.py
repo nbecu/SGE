@@ -15,6 +15,7 @@ from SGAgent import SGAgent
 from SGPlayer import SGPlayer
 from SGTimeManager import SGTimeManager
 from SGAgentCollection import SGAgentCollection
+from SGTimeLabel import SGTimeLabel
 
 from SGGrid import SGGrid
 from SGVoid import SGVoid
@@ -389,10 +390,10 @@ class SGModel(QtWidgets.QMainWindow):
         for anElement in self.getGrids() :
             allElements[anElement.id]=anElement.getValuesForLegend()
         aLegend = SGLegend(self,"adminLegend",allElements,"Admin")
-        for aGrid in self.getGrids() :
+        '''for aGrid in self.getGrids() :
             for anAgent in self.listofAgents : 
                 aLegend.addAgentToTheLegend(anAgent)
-        self.gameSpaces["adminLegend"]=aLegend
+        self.gameSpaces["adminLegend"]=aLegend'''
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
         aLegend.setStartXBase(newPos[0])
@@ -454,12 +455,12 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
         aAgentSpecies.me='collec'
         aAgentSpecies.isDisplay=False
-        self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{}}}
+        self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':{}}}
         #print(self.AgentSpecies)
         #print('==================')
         return aAgentSpecies
 
-    def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None):
+    def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None,aID=None,aDictofAttributs=None):
         """
         Create a new Agent in the associated species.
 
@@ -473,9 +474,16 @@ class SGModel(QtWidgets.QMainWindow):
             a new nest in the species dict for the agent
             a agent
         
+        
         """
-        anAgentID=self.IDincr+1
-        self.IDincr=+1
+        if aID is None:
+            anAgentID=self.IDincr+1
+            self.IDincr=+1
+        else:
+            anAgentID=aID
+        if aDictofAttributs is None:
+            aDictofAttributs={}
+
         if ValueX==None:
             ValueX=random.randint(0, aGrid.columns)
             if ValueX<0:
@@ -490,13 +498,30 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
         self.AgentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
-                            'attributs':{}}
+                            'attributs':aDictofAttributs,"AgentObject":aAgent
+                            }
         
         return aAgent
     
     def updateAgent(self,aAgentSpecies,anAgentID,attribut,value):
         return#self.listofcollection[aAgentSpecies.name][anAgentID][attribut]=value
     
+    def updateAgentPosition(self,aGrid,theAgent,theCell):
+        """theAgent.parent=theCell
+        print(theAgent.getId())
+        print(theAgent.parent.getId())
+        theAgent.move(1,1)
+        theAgent.show()"""
+        Cellparent=theCell
+        aAgent=SGAgent(Cellparent,theAgent.name,theAgent.format,theAgent.size,theAgent.dictOfAttributs,id=theAgent.id)
+        aAgent.me='agent'
+        aAgent.isDisplay=True
+        aAgent.species=str(theAgent.name)
+        self.AgentSpecies[str(theAgent.name)]['AgentList'][str(theAgent.id)]={"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
+                            'attributs':{},"AgentObject":aAgent
+                            }
+        aAgent.show()
+        return aAgent
     
     #To create a createPlayer
     def createPlayer(self,name):
@@ -511,6 +536,36 @@ class SGModel(QtWidgets.QMainWindow):
     #To get the player
     def getPlayer(self):
         return self.actualPlayer
+    
+    #To create a GameBoard
+    def addTimeLabel(self,name):
+        aTimeLabel=SGTimeLabel(self,name)
+        self.myTimeLabel=aTimeLabel
+        self.gameSpaces[name]=aTimeLabel
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aTimeLabel)
+        aTimeLabel.setStartXBase(newPos[0])
+        aTimeLabel.setStartYBase(newPos[1])
+        if(self.typeOfLayout=="vertical"):
+            aTimeLabel.move(aTimeLabel.startXBase,aTimeLabel.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aTimeLabel))
+        elif(self.typeOfLayout=="horizontal"):
+            aTimeLabel.move(aTimeLabel.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aTimeLabel),aTimeLabel.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aTimeLabel)
+            aTimeLabel.move(aTimeLabel.startXBase+20*pos[0],aTimeLabel.startYBase+20*pos[1])
+
+        return aTimeLabel
+    
+    
+    def getActualRound(self):
+        return self.timeManager.actualRound
+    
+    def getActualPhase(self):
+        return self.timeManager.actualPhase
+    
+
+
+
     
 
     
@@ -650,7 +705,9 @@ class SGModel(QtWidgets.QMainWindow):
     #TimeManager functions
     
     def getTimeManager(self):
-        return self.timeManager   
+        return self.timeManager
+
+
     
     #-----------------------------------------------------------  
     #Game mechanics function 

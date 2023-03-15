@@ -243,19 +243,13 @@ class SGGrid(SGGameSpace):
                 
 #To handle the placing of agents
     #To apply to a specific cell an agent  
-    '''def addOnXandY(self,anAgentCollectionName,anAgentID,aValueX,aValueY,AttributValue=None):
-        Agent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentID,)
- #SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
-        anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
-        anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs.copy()
-        #self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).collectionOfAgents.addAgent(anAgent)
-        if aValueForAgent is not None :
-            for anAttribut in self.collectionOfCells.povs[self.parent.nameOfPov] :
-                    if aValueForAgent in list(self.collectionOfCells.povs[self.parent.nameOfPov][anAttribut].keys()) :
-                        anAgent.attributs[anAttribut]=aValueForAgent
-        anAgent.show()
+    def addOnXandY(self,anAgent,aValueX,aValueY):
+        NewAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgent.species,anAgent.format,anAgent.size,self.parent.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['attributs'],anAgent.id)
+        self.parent.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['position']=self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1))
+        NewAgent.show()
+        
         self.update()
-        return anAgent'''
+        return anAgent
     
     """def addOnRandom(self,anAgentName):
         listCells=self.collectionOfCells.getCellsDisplay()

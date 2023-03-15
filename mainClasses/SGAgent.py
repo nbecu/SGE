@@ -54,6 +54,7 @@ class SGAgent(QtWidgets.QWidget):
         
         
     #Drawing function
+    
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
@@ -151,15 +152,22 @@ class SGAgent(QtWidgets.QWidget):
         if self.isDisplay==False:
             return Qt.transparent
         for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()):
+            #print(list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()))
+            #print('Att = '+str(aAtt))
             for aPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
+                #print('aPov = '+str(aPov))
                 if aPov == self.parent.parent.parent.nameOfPov:
+                    #print(str(aPov)+'='+str(self.parent.parent.parent.nameOfPov))
                     if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
                         path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        return self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
+                        theColor=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
+                        self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)]
+                        return theColor
                 else:
-                    return defcol
-                
-            return defcol
+                    if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']):
+                        path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                        return self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+        return defcol
        
     #To get the pov
     def getPov(self):
@@ -258,7 +266,7 @@ class SGAgent(QtWidgets.QWidget):
             drag.setPixmap(pixmap)'''
 
             drag.exec_(Qt.MoveAction)
-            if self.parent.format =='square':
+            if self.parent.shape =='square':
                 print("square")
                 #QPolygon.moveto()
             else:
@@ -290,7 +298,7 @@ class SGAgent(QtWidgets.QWidget):
 
     def updateAgentValue(self,attribut,value):
         if self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['me']=='agent':
-            self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs']={str(attribut):str(value)}
+            self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs'][str(attribut)]=str(value)
         else:
             print("Warning")
 

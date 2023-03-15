@@ -6,8 +6,8 @@ class SGTimeManager():
     def __init__(self,parent):
         self.parent=parent
         self.model=parent
-        self.actualRound = 0
-        self.actualPhase = 0
+        self.actualRound = int()
+        self.actualPhase = int()
         self.orderGamePhases=[]
         self.conditionOfEndGame=[]
         
@@ -45,6 +45,8 @@ class SGTimeManager():
                 else:
                     self.model.publishEntitiesState()
                     self.nextPhase()
+        self.model.myTimeLabel.updateTimeLabel(self.actualRound,self.actualPhase)
+
         
     #To handle the victory Condition and the passment of turn    
     def next(self):
@@ -60,7 +62,14 @@ class SGTimeManager():
             print("C'est finit !")
         return endGame
     
+    def getRoundNumber(self):
+        print(type(self.actualRound))
+        return self.actualRound 
     
+    def getPhaseNumber(self):
+        return self.actualPhase
+
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 

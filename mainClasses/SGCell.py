@@ -112,37 +112,41 @@ class SGCell(QtWidgets.QWidget):
         self.size=self.parent.size
         self.gap=self.parent.gap
         self.update()
+
+    def convert_coordinates(self, global_pos: QPoint) -> QPoint:
+    # Convertit les coordonnées globales en coordonnées locales
+        local_pos = self.mapFromGlobal(global_pos)
+        return local_pos
         
     #Function to handle the drag of widget
     def dragEnterEvent(self, e):
         e.accept()
         
     def dropEvent(self, e):
-        if e.source().name in self.parent.collectionOfAcceptAgent :
-            if len(e.source().history["coordinates"])==0:
-                e.source().history["coordinates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
-            thePlayer=self.parent.parent.getPlayer()
-            theAction=None
-            if thePlayer is not None :
-                theAction=thePlayer.getMooveActionOn(e.source())
-                if not self.parent.parent.whoIAm=="Admin":
-                    self.feedBack(theAction,e.source())
-            #We remove the agent of the actual cell
-            e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
-            e.source().deleteLater()
-            #We add the agent to the new cell
-            theAgent=self.parent.addOnXandY(e.source().name,self.x+1,self.y+1)
-            theAgent.x=e.pos().x()
-            theAgent.y=e.pos().y()
-            theAgent.attributs=e.source().attributs
-            theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
-            theAgent.show()
-            
-            self.model.publishEntitiesState()
+        e.accept()
+        if len(e.source().history["coordinates"])==0:
+            e.source().history["coordinates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
+        thePlayer=self.parent.parent.getPlayer()
+        theAction=None
+        if thePlayer is not None :
+            theAction=thePlayer.getMooveActionOn(e.source())
+            if not self.parent.parent.whoIAm=="Admin":
+                self.feedBack(theAction,e.source())
+        #We remove the agent of the actual cell
+        e.source().deleteLater()
+        #We add the agent to the new cell
+        theAgent=self.parent.parent.newAgent(self.parent,e.source().species,self.x+1,self.y+1,e.source().id,self.parent.parent.AgentSpecies[str(e.source().species)]['AgentList'][str(e.source().id)]['attributs'])
+        '''theAgent=self.parent.addOnXandY(e.source(),self.x+1,self.y+1)
+        theAgent.x=e.pos().x()
+        theAgent.y=e.pos().y()'''
+        #theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
+        theAgent.show()
+        self.model.publishEntitiesState()
             
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
+        return theAgent
         
     #To manage the attribute system of a cell
     def getColor(self):
