@@ -153,10 +153,15 @@ class SGCell(QtWidgets.QWidget):
         if self.isDisplay==False:
             return Qt.transparent
         if self.parent.parent.nameOfPov not in self.theCollection.povs.keys():
-            return Qt.white
+            
+            for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                    if aVal in list(self.attributs.keys()):
+                        return self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
         else:
             for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
                 if aVal in list(self.attributs.keys()):
+                    self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
                     return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
         return Qt.white
 

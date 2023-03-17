@@ -18,6 +18,8 @@ class SGTimeLabel(SGGameSpace):
         self.y=0
         self.round=0
         self.phase=0
+        self.listOfLabels=0
+        self.moveable=True
         self.initUI()
         
 
@@ -27,10 +29,13 @@ class SGTimeLabel(SGGameSpace):
         self.labelTitle = QtWidgets.QLabel(self)
         self.label1 = QtWidgets.QLabel(self)
         self.label2 = QtWidgets.QLabel(self)
+        
 
         self.labelTitle.setText('IN-GAME TIME')
-        self.label1.setText('Round number: 0')
-        self.label2.setText('Phase number: 0')
+        self.label1.setText('Round Number: 1')
+        self.label2.setText('Phase Number: 1')
+
+        self.listOfLabels=['IN-GAME TIME','Round number: 0','Phase number: 0']
 
         self.label1.setFixedHeight(self.label1.fontMetrics().boundingRect(self.label1.text()).height())
         self.label1.setFixedWidth(self.label1.fontMetrics().boundingRect(self.label1.text()).width())
@@ -54,6 +59,35 @@ class SGTimeLabel(SGGameSpace):
         # Définir le layout pour le widget
         self.setLayout(layout)
         self.show()
+#Funtion to have the global size of a gameSpace  
+    def getSizeXGlobal(self):
+        return 70+len(self.getLongest())*5
+    
+    def getLongest(self):
+        longest_word = ''
+        for word in self.listOfLabels:
+            if len(word) > len(longest_word):
+                longest_word = word
+        return longest_word
+    
+    def getSizeYGlobal(self):
+        somme=30
+        for word in self.listOfLabels :
+            somme= somme+ 2*len(word)
+        return somme
+    
+    def paintEvent(self,event):
+        if len(self.listOfLabels)!=0:
+            painter = QPainter() 
+            painter.begin(self)
+            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            painter.setPen(QPen(self.borderColor,1));
+            #Draw the corner of the Legend
+            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+
+
+            painter.end()
         
     def updateTimeLabel(self,actualRound,actualPhase):
         self.label1.setText('Round Number : {}'.format(actualRound))
@@ -64,8 +98,18 @@ class SGTimeLabel(SGGameSpace):
 
         self.label2.setFixedHeight(self.label2.fontMetrics().boundingRect(self.label2.text()).height())
         self.label2.setFixedWidth(self.label2.fontMetrics().boundingRect(self.label2.text()).width())
-        
-        
 
 
-    
+    #To handle the drag of the grid
+    def mouseMoveEvent(self, e):
+
+        if self.moveable==False:
+            return
+        if e.buttons() != Qt.LeftButton:
+            return
+        
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.pos())
+        drag.exec_(Qt.MoveAction)

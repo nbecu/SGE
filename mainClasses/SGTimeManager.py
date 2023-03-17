@@ -6,8 +6,8 @@ class SGTimeManager():
     def __init__(self,parent):
         self.parent=parent
         self.model=parent
-        self.actualRound = int()
-        self.actualPhase = int()
+        self.actualRound = 1
+        self.actualPhase = 1
         self.orderGamePhases=[]
         self.conditionOfEndGame=[]
         
@@ -19,11 +19,13 @@ class SGTimeManager():
                 if self.actualPhase+2 <= len(self.orderGamePhases):
                     if len(self.orderGamePhases)!=1:
                         self.actualPhase = self.actualPhase +1
+                        self.model.myTimeLabel.updateTimeLabel(self.actualRound,self.actualPhase)
+
                 else:
                     #We reset GM
                     for gm in self.parent.getGM():
                         gm.reset()
-                    self.actualPhase=0
+                    self.actualPhase=1
 
                     
                 thePhase= self.orderGamePhases[self.actualPhase]
@@ -32,8 +34,10 @@ class SGTimeManager():
                 if len(thePhase.conditionOfTrigger)!=0:
                     for aCondition in thePhase.conditionOfTrigger:
                         doThePhase=doThePhase and aCondition()
-                if self.actualPhase==len(self.orderGamePhases)-1:
-                    self.actualRound=self.actualRound+1
+                if self.actualPhase == 1 and len(self.orderGamePhases) > 1:
+                    self.actualRound += 1
+                    self.model.myTimeLabel.updateTimeLabel(self.actualRound,self.actualPhase)
+            
                 #we change the active player
                 self.parent.actualPlayer=thePhase.activePlayer
                 if doThePhase :
@@ -45,7 +49,8 @@ class SGTimeManager():
                 else:
                     self.model.publishEntitiesState()
                     self.nextPhase()
-        self.model.myTimeLabel.updateTimeLabel(self.actualRound,self.actualPhase)
+                    print('récursion')
+       
 
         
     #To handle the victory Condition and the passment of turn    
@@ -59,11 +64,10 @@ class SGTimeManager():
         for aCond in self.conditionOfEndGame:
             endGame=endGame or aCond()
         if endGame :
-            print("C'est finit !")
+            print("C'est fini !")
         return endGame
     
     def getRoundNumber(self):
-        print(type(self.actualRound))
         return self.actualRound 
     
     def getPhaseNumber(self):
