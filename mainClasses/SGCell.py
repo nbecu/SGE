@@ -139,6 +139,7 @@ class SGCell(QtWidgets.QWidget):
         '''theAgent=self.parent.addOnXandY(e.source(),self.x+1,self.y+1)
         theAgent.x=e.pos().x()
         theAgent.y=e.pos().y()'''
+        
         #theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
         theAgent.show()
         self.model.publishEntitiesState()
@@ -152,19 +153,21 @@ class SGCell(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        if self.parent.parent.nameOfPov not in self.theCollection.povs.keys():
-            
+        
+        if self.parent.parent.nameOfPov in self.theCollection.povs.keys():
+            self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
             for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
                 if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                    if aVal in list(self.attributs.keys()):
-                        return self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
+                     return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
+        
         else:
-            for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                if aVal in list(self.attributs.keys()):
-                    self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
-                    return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
-        return Qt.white
-
+            if self.theCollection.povs['selectedPov'] is not None:
+                for aVal in list(self.theCollection.povs['selectedPov'].keys()):
+                    if aVal in list(self.theCollection.povs['selectedPov'].keys()):
+                        return self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
+            else: 
+                return Qt.white
+                
     #To get the pov
     def getPov(self):
         return self.parent.parent.nameOfPov

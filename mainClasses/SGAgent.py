@@ -148,26 +148,53 @@ class SGAgent(QtWidgets.QWidget):
         
     #To manage the attribute system of an Agent
     def getColor(self):
-        defcol=Qt.white
         if self.isDisplay==False:
             return Qt.transparent
-        for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()):
-            #print(list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()))
-            #print('Att = '+str(aAtt))
-            for aPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
-                #print('aPov = '+str(aPov))
-                if aPov == self.parent.parent.parent.nameOfPov:
-                    #print(str(aPov)+'='+str(self.parent.parent.parent.nameOfPov))
-                    if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
+        actualPov= self.getPov()
+        if actualPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
+            self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']=self.parent.parent.parent.AgentSpecies[self.species]['POV'][actualPov]
+            for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][actualPov].keys()):
+                if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][actualPov].keys()):
+                    path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                    theColor=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
+                    return theColor
+
+        else:
+            if self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'] is not None:
+                for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'].keys()):
+                    if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'].keys()):
                         path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        theColor=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
-                        self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)]
-                        return theColor
-                    else:
-                        if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']):
-                            path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                            return self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
-        return defcol
+                        theColor=self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+                return theColor
+            
+            else:
+                return Qt.white
+
+
+
+
+
+
+
+
+
+
+
+                '''defcol=Qt.white
+                
+                for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()):
+                    for aPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
+                        if aPov == self.parent.parent.parent.nameOfPov:
+                            if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
+                                path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                                theColor=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
+                                self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)]
+                                return theColor
+                            else:
+                                if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']):
+                                    path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                                    return self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+                return defcol'''
        
     #To get the pov
     def getPov(self):
@@ -261,20 +288,8 @@ class SGAgent(QtWidgets.QWidget):
             drag.setMimeData(mimeData)
             drag.setHotSpot(e.pos() - self.rect().topLeft())
 
-            '''pixmap = QPixmap(self.size)
-            self.render(pixmap)
-            drag.setPixmap(pixmap)'''
-
             drag.exec_(Qt.MoveAction)
-            if self.parent.shape =='square':
-                print("square")
-                #QPolygon.moveto()
-            else:
-                print("hexa")
-            print('move done')
-             
-    
-        
+     
             
 
 #-----------------------------------------------------------------------------------------

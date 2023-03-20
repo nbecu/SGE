@@ -49,7 +49,6 @@ class SGTimeManager():
                 else:
                     self.model.publishEntitiesState()
                     self.nextPhase()
-                    print('récursion')
        
 
         
