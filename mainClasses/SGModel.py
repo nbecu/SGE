@@ -73,6 +73,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces={}
         #Definition of the AgentCollection
         self.AgentSpecies={}
+        self.AgentList=self.getAgentList()
         self.IDincr=0
         #We create the layout
         self.typeOfLayout=typeOfLayout
@@ -88,6 +89,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.selected=[None]
         #To keep in memory all the povs already displayed in the menue
         self.listOfPovsForMenu=[]
+        self.AgentPOVList=self.getAgentPOVList()
         #To handle the flow of time in the game
         self.timeManager=SGTimeManager(self)
         #List of players
@@ -386,14 +388,16 @@ class SGModel(QtWidgets.QMainWindow):
     def createLegendAdmin(self):
         #Creation
         #We harvest all the case value
-        allElements={}
+        CellElements={}
         for anElement in self.getGrids() :
-            allElements[anElement.id]=anElement.getValuesForLegend()
-        aLegend = SGLegend(self,"adminLegend",allElements,"Admin")
+            CellElements[anElement.id]=anElement.getValuesForLegend()
+        AgentList=self.AgentList
+        AgentPOVList=self.AgentPOVList
+        aLegend = SGLegend(self,"adminLegend",CellElements,"Admin",AgentList,AgentPOVList)
         '''for aGrid in self.getGrids() :
-            for anAgent in self.listofAgents : 
-                aLegend.addAgentToTheLegend(anAgent)
-        self.gameSpaces["adminLegend"]=aLegend'''
+            for anAgent in self.AgentList : 
+                aLegend.addAgentToTheLegend(anAgent)'''
+        self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
         aLegend.setStartXBase(newPos[0])
@@ -503,8 +507,13 @@ class SGModel(QtWidgets.QMainWindow):
         
         return aAgent
     
-    def updateAgent(self,aAgentSpecies,anAgentID,attribut,value):
-        return#self.listofcollection[aAgentSpecies.name][anAgentID][attribut]=value
+    def getAgentList(self):
+        agent_list = []
+        for animal, sub_dict in self.AgentSpecies.items():
+            for agent_id, agent_dict in sub_dict['AgentList'].items():
+                agent_list.append(agent_dict['AgentObject'])
+        self.AgentList=agent_list
+        return self.AgentList
     
     def updateAgentPosition(self,aGrid,theAgent,theCell):
         """theAgent.parent=theCell
@@ -660,6 +669,7 @@ class SGModel(QtWidgets.QMainWindow):
         if len(self.listOfPovsForMenu) == 1:
              self.setInitialPov(nameOfPov) 
 
+
     #To add a new POV 
     def setUpPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
         if listOfGridsToApply==None:
@@ -671,6 +681,14 @@ class SGModel(QtWidgets.QMainWindow):
                 aGrid.collectionOfCells.povs[nameOfPov]={aAtt:DictofColors}
         self.addPovinMenuBar(nameOfPov)
 
+    # To get the list of Agent POV
+    def getAgentPOVList(self):
+        list_POV={}
+        for species in self.AgentSpecies.keys():
+            if "POV" in self.AgentSpecies[species]:
+                list_POV[species]=self.AgentSpecies[species]['POV']
+        self.AgentPOVList=list_POV
+        return self.AgentPOVList
 
 
         """                # the pov is applied to something else than a grid

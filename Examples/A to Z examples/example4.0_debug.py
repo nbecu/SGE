@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent", typeOfLayout ="grid")
 
-aGrid=myModel.createGrid(10,10,"square",size=60, gap=2)
+aGrid=myModel.createGrid(10,10,"square",size=60, gap=2,name='grid1')
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
@@ -28,14 +28,9 @@ m2.updateAgentValue('health','good')
 m1.updateAgentValue('health','bad')
 m2.updateAgentValue('hunger','good')
 m1.updateAgentValue('hunger','bad')
-#print(myModel.AgentSpecies)
+print(myModel.AgentSpecies)
 
-agent_list = []
-for animal, sub_dict in myModel.AgentSpecies.items():
-    for agent_id, agent_dict in sub_dict['AgentList'].items():
-        agent_list.append(agent_dict['AgentObject'])
 
-#print(agent_list)
 theFirstLegend=myModel.createLegendAdmin()
 
 GameRounds=myModel.addTimeLabel('Rounds&Phases')

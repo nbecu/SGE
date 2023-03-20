@@ -12,11 +12,13 @@ from SGGrid import SGGrid
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):
-    def __init__(self,parent,name,elementPov,playerName,borderColor=Qt.black,backgroundColor=Qt.transparent):
+    def __init__(self,parent,name,elementPov,playerName,AgentList,AgentPOVList,borderColor=Qt.black,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
         self.parent=parent
         self.elementsPov=elementPov
+        self.AgentList=AgentList
+        self.AgentPOVList=AgentPOVList
         self.playerName=playerName
         self.legendItemList={}
         self.borderColor=borderColor
@@ -54,19 +56,30 @@ class SGLegend(SGGameSpace):
                                 anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],aValue,element)
                                 self.legendItemList[aKeyOfGamespace].append(anItem)
                                 anItem.show()
-            elif aKeyOfGamespace=="agents":
-                for anAgentName in self.elementsPov[aKeyOfGamespace]:
-                    if self.parent.nameOfPov in self.elementsPov[aKeyOfGamespace][anAgentName]:
-                        for element in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov]:
-                            for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
-                                self.y=self.y+1
-                                anAgent=self.getFromWich(anAgentName)
-                                anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name+" "+element+" "+aValue,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue,element)
-                                self.legendItemList[aKeyOfGamespace].append(anItem)
-                                anItem.show()
             self.setMinimumSize(self.getSizeXGlobal(),10)
+        for anAgent in self.AgentList:
+            for Species in self.AgentPOVList.keys():
+                if anAgent.species == Species:
+                    for aPov in self.AgentPOVList[Species].keys():
+                        if aPov in list(self.parent.nameOfPov):
+                            for anAtt in self.AgentPOVList[Species][self.parent.nameOfPov].keys():
+                                for aValue in self.AgentPOVList[Species][aPov][anAtt].keys():
+                                    self.y=self.y+1
+                                    aColor=self.AgentPOVList[Species][aPov][anAtt][aValue]
+                                    anItem=SGLegendItem(self,anAgent.format,self.y,Species+anAtt+aValue,aColor,aValue,anAtt)
+                                    self.legendItemList[aKeyOfGamespace].append(anItem)
+                                    anItem.show()
 
-     
+    """elif aKeyOfGamespace=="agents":
+            for anAgentName in self.elementsPov[aKeyOfGamespace]:
+                if self.parent.nameOfPov in self.elementsPov[aKeyOfGamespace][anAgentName]:
+                    for element in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov]:
+                        for aValue in self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element]:
+                            self.y=self.y+1
+                            anAgent=self.getFromWich(anAgentName)
+                            anItem=SGLegendItem(self,anAgent.format,self.y,anAgent.name+" "+element+" "+aValue,self.elementsPov[aKeyOfGamespace][anAgentName][self.parent.nameOfPov][element][aValue],aValue,element)
+                            self.legendItemList[aKeyOfGamespace].append(anItem)
+                            anItem.show()"""
     
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
