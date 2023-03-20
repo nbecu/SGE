@@ -12,8 +12,8 @@ aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
 aGrid.setForRandom({"landUse":"shrub"},10)
 
-myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
-myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
+myModel.setUpPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.setUpPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 theFirstLegend=myModel.createLegendAdmin()
 """# create a player
@@ -24,7 +24,7 @@ myModel.createPlayer("Player 1")
 """
 
 # to have the Player 1 view 
-myModel.iAm("Player 1")
+#myModel.iAm("Player 1")
 #myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 

@@ -171,31 +171,6 @@ class SGAgent(QtWidgets.QWidget):
                 return Qt.white
 
 
-
-
-
-
-
-
-
-
-
-                '''defcol=Qt.white
-                
-                for aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['AttributList'].keys()):
-                    for aPov in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'].keys()):
-                        if aPov == self.parent.parent.parent.nameOfPov:
-                            if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['POV'][aPov].keys()):
-                                path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                                theColor=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)][str(aAtt)][str(path)]
-                                self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']=self.parent.parent.parent.AgentSpecies[self.species]['POV'][str(aPov)]
-                                return theColor
-                            else:
-                                if aAtt in list(self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV']):
-                                    path=self.parent.parent.parent.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                                    return self.parent.parent.parent.AgentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
-                return defcol'''
-       
     #To get the pov
     def getPov(self):
         return self.parent.parent.parent.nameOfPov
