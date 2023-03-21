@@ -31,7 +31,6 @@ m2.updateAgentValue('health','good')
 
 
 
-# addding a second specie
 Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
 Vaches.setUpPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 v1=myModel.newAgent(aGrid,Vaches,2,2)
@@ -39,14 +38,30 @@ v1.updateAgentValue('health','good')
 
 theFirstLegend=myModel.createLegendAdmin()
 
+# Testing other programatic changes on the cell and agents
 GameRounds=myModel.addTimeLabel('Rounds&Phases')
 myModel.timeManager.addGamePhase('début',1)
-myModel.timeManager.addGamePhase('milieu',2,
-                                 None,
-                                 [lambda: m1.updateAgentValue('health','good')])
-myModel.timeManager.addGamePhase('fin',3,
-                                  None,
-                                 [lambda: m1.updateAgentValue('health','bad')])
+myModel.timeManager.addGamePhase('milieu',2,None,
+                                 [lambda: m1.updateAgentValue('health','good'),
+                                 lambda: v1.updateAgentValue('health','bad')])
+myModel.timeManager.addGamePhase('fin',3,None,
+                                 [lambda: m1.updateAgentValue('health','bad'),
+                                lambda: v1.updateAgentValue('health','good')])
+myModel.timeManager.addGamePhase('fin2',4,None,
+                                    [lambda: aGrid.setForRandom({"landUse":"shrub"},20)],[lambda: myModel.getTimeManager().actualRound == 3 ])
+myModel.timeManager.addGamePhase('fin2',4,None,
+                                    [lambda: aGrid.setForRandom({"landUse":"forest"},6)],[lambda: myModel.getTimeManager().verifNumberOfRound(5) ])
+# myModel.timeManager.addGamePhase('fin des fins',5,None,
+#                                     [lambda: aGrid.addAgentOnValue("Moutons",{"health":"bad"})])      --->  Does not work
+# myModel.timeManager.addGamePhase('fin des fins',5,None,
+#                                     [lambda: aGrid.moveRandomlyAgent("Moutons")])   --->  Does not work
+# myModel.timeManager.addGamePhase('fin des fins',5,None,
+#                                     [lambda: aGrid.deleteAgent("Moutons")])  --->  Does not work
+
+
+# To test later
+# [lambda: myModel.getGameSpace("basicGrid").makeEvolve(["Forest"])
+# [lambda: myModel.getGameSpace("basicGrid").makeDecrease(["sea"])])
 
 
 myModel.iAm("Admin")

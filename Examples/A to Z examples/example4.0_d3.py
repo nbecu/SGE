@@ -5,9 +5,9 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent")
+myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent", typeOfLayout ="grid")
 
-aGrid=myModel.createGrid(10,10,"square",size=60, gap=2)
+aGrid=myModel.createGrid(10,10,"square",size=60, gap=2,name='grid1')
 aGrid.setValueForCells({"landUse":"grass"})
 aGrid.setForX({"landUse":"forest"},1)
 aGrid.setForX({"landUse":"forest"},2)
@@ -24,30 +24,31 @@ Moutons.setUpPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
 m2=myModel.newAgent(aGrid,Moutons,6,3)
-m2.updateAgentValue('health','good')
 m1.updateAgentValue('health','bad')
-m2.updateAgentValue('hunger','good')
 m1.updateAgentValue('hunger','bad')
-#print(myModel.AgentSpecies)
+m2.updateAgentValue('hunger','good')
+m2.updateAgentValue('health','good')
 
-agent_list = []
-for animal, sub_dict in myModel.AgentSpecies.items():
-    for agent_id, agent_dict in sub_dict['AgentList'].items():
-        agent_list.append(agent_dict['AgentObject'])
 
-#print(agent_list)
+
+# addding a second specie
+Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
+Vaches.setUpPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+v1=myModel.newAgent(aGrid,Vaches,2,2)
+v1.updateAgentValue('health','good')
+
 theFirstLegend=myModel.createLegendAdmin()
 
 GameRounds=myModel.addTimeLabel('Rounds&Phases')
-myModel.timeManager.addGamePhase('Phase 1',1)
-myModel.timeManager.addGamePhase('Phase 2',2,
+myModel.timeManager.addGamePhase('début',1)
+myModel.timeManager.addGamePhase('milieu',2,
                                  None,
-#                               trying to specify a condition of application of the setForRandom --> but it doesn't work
-                                 [lambda: aGrid.setForRandom({"landUse":"shrub"},3)],[lambda aCell: aCell.checkValue({"landUse":"grass"})])
-                                 
-myModel.timeManager.addGamePhase('Phase 3',3,
-                                 None,
-                                 [lambda: aGrid.setForRandom({"landUse":"forest"},1)])
+                                 [lambda: m1.updateAgentValue('health','good'),
+                                 lambda: v1.updateAgentValue('health','bad')])
+myModel.timeManager.addGamePhase('fin',3,
+                                  None,
+                                 [lambda: m1.updateAgentValue('health','bad'),
+                                lambda: v1.updateAgentValue('health','good')])
 
 
 myModel.iAm("Admin")
