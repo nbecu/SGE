@@ -27,6 +27,8 @@ class SGGrid(SGGameSpace):
         self.gap=gap
         self.size=size
         self.moveable=moveable
+
+        self.currentPOV={'Cell':{},'Agent':{}}
         
         self.saveGap=gap
         self.saveSize=size
@@ -43,7 +45,10 @@ class SGGrid(SGGameSpace):
     #Initialize the user interface
     def initUI(self): 
         #Init the cellCollection
-        self.collectionOfCells=SGCellCollection(self,self.columns,self.rows,self.format,self.size,self.gap,self.startXBase,self.startYBase)    
+        self.collectionOfCells=SGCellCollection(self,self.columns,self.rows,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+        # Init the current POV
+        
+
         
 
 
@@ -168,8 +173,31 @@ class SGGrid(SGGameSpace):
             if anAgent ==aType:
                 return self.collectionOfAcceptAgent[anAgent]
         return None
-                
-        
+
+    # To initialise current POV
+    def initCurrentPOV(self):
+        for aCell in self.collectionOfCells.getCells().values():
+            listcles = list(aCell.theCollection.povs.keys())
+            self.currentPOV['Cell'] = aCell.theCollection.povs[listcles[0]]
+
+        for animal, sub_dict in self.parent.AgentSpecies.items():
+            self.currentPOV['Agent'][animal] = sub_dict['POV'][list(sub_dict['POV'].keys())[0]]
+
+        print(self.currentPOV)
+
+
+    # To get the current POV
+    def getCurrentPOV(self):
+        for animal, sub_dict in self.parent.AgentSpecies.items():
+            for pov in sub_dict['POV'].items():
+                if self.parent.nameOfPov == pov:
+                    self.currentPOV['Agent'][animal]=pov
+        for aCell in list(self.collectionOfCells.getCells().values()):
+            for pov in aCell.theCollection.povs:
+                if self.parent.nameOfPov == pov:
+                    self.currentPOV['Cell']=aCell.theCollection.povs[pov]
+
+        print(self.currentPOV)            
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
