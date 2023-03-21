@@ -459,7 +459,7 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
         aAgentSpecies.me='collec'
         aAgentSpecies.isDisplay=False
-        self.AgentSpecies={str(aSpeciesName):{"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}}
+        self.AgentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
         #print(self.AgentSpecies)
         #print('==================')
         return aAgentSpecies

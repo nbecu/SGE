@@ -34,7 +34,7 @@ m1.updateAgentValue('hunger','bad')
 Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
 Vaches.setUpPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 v1=myModel.newAgent(aGrid,Vaches,2,2)
-
+print(myModel.AgentSpecies)
 
 theFirstLegend=myModel.createLegendAdmin()
 
