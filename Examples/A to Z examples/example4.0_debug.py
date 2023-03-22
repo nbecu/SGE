@@ -28,7 +28,6 @@ m2.updateAgentValue('health','good')
 m1.updateAgentValue('health','bad')
 m2.updateAgentValue('hunger','good')
 m1.updateAgentValue('hunger','bad')
-print(myModel.AgentSpecies)
 
 
 theFirstLegend=myModel.createLegendAdmin()

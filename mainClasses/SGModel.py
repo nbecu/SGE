@@ -390,8 +390,10 @@ class SGModel(QtWidgets.QMainWindow):
         CellElements={}
         for anElement in self.getGrids() :
             CellElements[anElement.id]=anElement.getValuesForLegend()
-        AgentList=self.AgentList
-        AgentPOVList=self.AgentPOVList
+        AgentList=self.getAgentList()
+        print('INPUTS AGENTS')
+        print(AgentList)
+        AgentPOVList=self.getAgentPOVList()
         aLegend = SGLegend(self,"adminLegend",CellElements,"Admin",AgentList,AgentPOVList)
         '''for aGrid in self.getGrids() :
             for anAgent in self.AgentList : 
@@ -509,6 +511,7 @@ class SGModel(QtWidgets.QMainWindow):
     def getAgentList(self):
         agent_list = []
         for animal, sub_dict in self.AgentSpecies.items():
+            print(animal)
             for agent_id, agent_dict in sub_dict['AgentList'].items():
                 agent_list.append(agent_dict['AgentObject'])
         self.AgentList=agent_list
