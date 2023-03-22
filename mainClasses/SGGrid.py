@@ -167,12 +167,6 @@ class SGGrid(SGGameSpace):
                 theList.append(anAgent)
         return theList
     
-    #To get an agents on the grid of a particular type (use for the legendOnly)
-    def getAgentOfTypeForLegend(self,aType):
-        for anAgent in self.collectionOfAcceptAgent :
-            if anAgent ==aType:
-                return self.collectionOfAcceptAgent[anAgent]
-        return None
 
     # To initialise current POV
     def initCurrentPOV(self):
@@ -272,6 +266,7 @@ class SGGrid(SGGameSpace):
 #To handle the placing of agents
     #To apply to a specific cell an agent  
     def addOnXandY(self,anAgent,aValueX,aValueY):
+        # NEED TO BE REWORKED #
         NewAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgent.species,anAgent.format,anAgent.size,self.parent.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['attributs'],anAgent.id)
         self.parent.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['position']=self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1))
         NewAgent.show()
@@ -319,10 +314,10 @@ class SGGrid(SGGameSpace):
         #We apply the news pov
         if(theTypeOfObjectToApply=="cells"):
             self.collectionOfCells.povs[aNameOfPov]=aDictOfValue
-        elif theTypeOfObjectToApply == "agents":
+        '''elif theTypeOfObjectToApply == "agents":
             for anAgentIt in self.collectionOfAcceptAgent :
                 if self.collectionOfAcceptAgent[anAgentIt].name ==theNameOfTheAgent:
-                    self.collectionOfAcceptAgent[anAgentIt].theCollection.povs[aNameOfPov]=aDictOfValue
+                    self.collectionOfAcceptAgent[anAgentIt].theCollection.povs[aNameOfPov]=aDictOfValue'''
         self.parent.updateLegendAdmin()
         #Adding the Pov to the menue bar
         if aNameOfPov not in self.parent.listOfPovsForMenu :
@@ -426,35 +421,7 @@ class SGGrid(SGGameSpace):
                 if aDictValueForAgent[aKey]==cell.attributs[aKey]:
                     result.append(cell)
         return result
-    
-    #to move all of a kind of agent randomly
-    def moveRandomlyAgent(self,anAgentName):
-        listOfAgentToMove=[]
-        listCells=self.collectionOfCells.getCellsDisplay()
-        for cell in listCells:
-            for anAgent in cell.getAgentsOfType(anAgentName):
-                listOfAgentToMove.append(anAgent)
-        while len(listOfAgentToMove)!=0 :
-            agent=listOfAgentToMove.pop()
-            oldPlace=agent.parent
-            newPlace=oldPlace
-            while newPlace==oldPlace:
-                newPlace=listCells[random.randint(0,len(listCells)-1)]
-            #We remove the agent of the actual cell
-            agent.parent.collectionOfAgents.agents.pop(agent.parent.collectionOfAgents.agents.index(agent))
-            agent.deleteLater()
-            #We add the agent to the new cell
-            theAgent=self.addOnXandY(agent.name,newPlace.x+1,newPlace.y+1)
-            theAgent.history=agent.history
-            if len(theAgent.history["coordinates"])==0:
-                theAgent.history["coordinates"].append([0,0,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
-            theAgent.x=agent.x
-            theAgent.y=agent.y
-            theAgent.history["coordinates"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,oldPlace.parent.id+"-"+str(oldPlace.x)+"-"+str(oldPlace.y)])
-            theAgent.attributs=agent.attributs
-            
-            
-            theAgent.show()
+
             
     #To delete a kind of Agent on the grid  
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):

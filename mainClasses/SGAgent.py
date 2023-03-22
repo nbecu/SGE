@@ -126,11 +126,6 @@ class SGAgent(QtWidgets.QWidget):
     #To get the pov
     def getPov(self):
         return self.parent.parent.parent.nameOfPov
-    
-    #Set parent
-    def setParent(self,parent):
-        self.parent=parent
-        self.theCollection=parent.collectionOfAgents
         
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):

@@ -39,7 +39,7 @@ from PyQt5.QtCore import *
 
 #Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self,width,height,typeOfLayout=None,x=3,y=3,parent=None,name="Simulation of a boardGame",windowTitle=None):
+    def __init__(self,width,height,typeOfLayout=None,x=3,y=3,name="Simulation of a boardGame",windowTitle=None):
         """
         Declaration of a new model
 
@@ -98,7 +98,6 @@ class SGModel(QtWidgets.QMainWindow):
         self.whoIAm="Admin"
         self.listOfSubChannel=[]
         self.timer= QTimer()
-        self.timer.timeout.connect(self.eventTime)
         self.haveToBeClose=False
         self.initUI()
         
@@ -384,20 +383,22 @@ class SGModel(QtWidgets.QMainWindow):
     
     
     #To create a Legend
-    def createLegendAdmin(self):
+    def createLegendAdmin(self,Name='adminLegend'):
+        """
+        To create an Admin Legend (with all the cell and agent values)
+        
+        Args:
+        Name (str): name of the Legend (default : adminLegend)
+
+        """
         #Creation
         #We harvest all the case value
         CellElements={}
         for anElement in self.getGrids() :
             CellElements[anElement.id]=anElement.getValuesForLegend()
         AgentList=self.getAgentList()
-        print('INPUTS AGENTS')
-        print(AgentList)
         AgentPOVList=self.getAgentPOVList()
-        aLegend = SGLegend(self,"adminLegend",CellElements,"Admin",AgentList,AgentPOVList)
-        '''for aGrid in self.getGrids() :
-            for anAgent in self.AgentList : 
-                aLegend.addAgentToTheLegend(anAgent)'''
+        aLegend = SGLegend(self,Name,CellElements,"Admin",AgentList,AgentPOVList)
         self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
@@ -420,27 +421,8 @@ class SGModel(QtWidgets.QMainWindow):
             del self.gameSpaces["adminLegend"]
         aLegend=self.createLegendAdmin()
         aLegend.addDeleteButton()
-    
-    
-    #To create a Legend
-    def createLegendForPlayer(self,name,aListOfElement,playerName):
-        #Creation        
-        aLegend = SGLegend(self,name,aListOfElement,playerName)
-        self.gameSpaces[name]=aLegend
-        #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aLegend)
-        aLegend.setStartXBase(newPos[0])
-        aLegend.setStartYBase(newPos[1])
-        if(self.typeOfLayout=="vertical"):
-            aLegend.move(aLegend.startXBase,aLegend.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegend))
-        elif(self.typeOfLayout=="horizontal"):
-            aLegend.move(aLegend.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegend),aLegend.startYBase)    
-        else:
-            pos=self.layoutOfModel.foundInLayout(aLegend)
-            aLegend.move(aLegend.startXBase+20*pos[0],aLegend.startYBase+20*pos[1])
-        return aLegend
-    
-            
+
+
     #To create a New kind of agents
     def newAgentSpecies(self,aSpeciesName,aSpeciesShape,dictOfAttributs=None,aSpeciesDefaultSize=10):
         """
@@ -518,6 +500,7 @@ class SGModel(QtWidgets.QMainWindow):
         return self.AgentList
     
     def updateAgentPosition(self,aGrid,theAgent,theCell):
+        # NEED TO BE REWORKED #
         """theAgent.parent=theCell
         print(theAgent.getId())
         print(theAgent.parent.getId())
@@ -534,22 +517,18 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.show()
         return aAgent
     
-    #To create a createPlayer
-    def createPlayer(self,name):
-        player=SGPlayer(self,name)
-        self.collectionOfPlayers[name]=player
-        return player
-        
-    #To get a player
-    def getAPlayer(self,name):
-        return self.collectionOfPlayers[name]
-    
     #To get the player
     def getPlayer(self):
         return self.actualPlayer
-    
+
     #To create a GameBoard
-    def addTimeLabel(self,name):
+    def addTimeLabel(self,name='Rounds&Phases'):
+        """
+        Create the visual time board of the game
+
+        Args:
+        name (str) : name of the widget (default: "Rounds&Phases")
+        """
         aTimeLabel=SGTimeLabel(self,name)
         self.myTimeLabel=aTimeLabel
         self.gameSpaces[name]=aTimeLabel
@@ -612,54 +591,7 @@ class SGModel(QtWidgets.QMainWindow):
         for aGameSpace in self.getLegends():
             self.gameSpaces[aGameSpace.id].initUI()
         self.update()
-        
-    
-    #To add a new POV and apply a value to cell
-    def setUpEntityValueAndPov(self,nameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridsToApply=None):
-        if listOfGridsToApply==None:
-            listOfGridsToApply = [list(self.gameSpaces.values())[0]] #get the fisrt value of the dict
-        if not isinstance(listOfGridsToApply,list):
-            listOfGridsToApply=[listOfGridsToApply]        
-        if not isinstance(items,list):
-            items=[items]
-        for anItem in items :
-            if(isinstance(anItem,SGGrid)==True):
-                anItem.collectionOfCells.povs[nameOfPov]=aDict
-                for aCell in list(anItem.collectionOfCells.getCells().values()) :
-                        if aCell.attributs is None :
-                            aCell.attributs = {}
-                        if defaultAttributForPov ==None :
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if nameOfPov not in aCell.attributs.keys() :
-                                    aCell.attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]       
-                        elif defaultAttributForPov and DefaultValueAttribut is None:
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if nameOfPov not in aCell.attributs.keys() :
-                                    aCell.attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
-                        else :
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if nameOfPov not in aCell.attributs.keys() :
-                                    aCell.attributs[defaultAttributForPov]=DefaultValueAttribut
-            '''elif(isinstance(anItem,str)==True):
-                for aGrid in listOfGridsToApply:
-                    for anAgent in aGrid.collectionOfAcceptAgent :
-                        if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[nameOfPov]=aDict
-                            if defaultAttributForPov ==None :
-                                for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]           
-                            elif defaultAttributForPov and DefaultValueAttribut is None:
-                                for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
-                            else :
-                                for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=DefaultValueAttribut'''
-            #Adding the Pov to the menu bar
-            self.addPovinMenuBar(nameOfPov)
-            
+          
     #Adding the Pov to the menu bar
     def addPovinMenuBar(self,nameOfPov):
         if nameOfPov not in self.listOfPovsForMenu :
@@ -691,44 +623,13 @@ class SGModel(QtWidgets.QMainWindow):
                 list_POV[species]=self.AgentSpecies[species]['POV']
         self.AgentPOVList=list_POV
         return self.AgentPOVList
-
-
-        """                # the pov is applied to something else than a grid
-                for aSpecies in self.AgentSpecies.keys() :
-                    for anAgent in self.AgentSpecies[aSpecies]['AgentList'].keys():
-                        SGAgent.getColor(anAgent)"""
-
-            
-    # def setUpPov_OLD(self,aNameOfPov,aDict,items,listOfGridToApply=None):
-    #     if not isinstance(items,list):
-    #         items=[items]
-    #     for anItem in items :
-    #         if(isinstance(anItem,SGGrid)==True):
-    #             anItem.collectionOfCells.povs[aNameOfPov]=aDict
-    #         elif(isinstance(anItem,str)==True):
-    #             for aGrid in listOfGridToApply:
-    #                 for anAgent in aGrid.collectionOfAcceptAgent :
-    #                     if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-    #                         aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
-    #         #Adding the Pov to the menue bar
-    #         if aNameOfPov not in self.listOfPovsForMenu :
-    #             self.listOfPovsForMenu.append(aNameOfPov)
-    #             anAction=QAction(" &"+aNameOfPov, self)
-    #             self.povMenu.addAction(anAction)
-    #             anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
-                
-                        
-                    
-                
-        
+ 
     #-----------------------------------------------------------  
     #TimeManager functions
     
     def getTimeManager(self):
         return self.timeManager
 
-
-    
     #-----------------------------------------------------------  
     #Game mechanics function 
     
@@ -771,183 +672,17 @@ class SGModel(QtWidgets.QMainWindow):
     #To change the number of zoom we actually are
     def iAm(self,aNameOfPlayer):
         self.whoIAm=aNameOfPlayer
-        
-    #To open and launch the game
-    def launch(self):
-        self.initMQTT()
-        self.show()
 
     #To open and launch the game without a mqtt broker
     def launch_withoutMqtt(self):
         self.show()
-        
-    #Function that process the message
-    def handleMessageMainThread(self):
-            msg = str(self.q.get())
-            print(msg)
-            info=eval(str(msg)[2:-1])
-            print("process un message")
-            if len(info)==1:
-                if msg not in self.listOfSubChannel:
-                    self.listOfSubChannel.append(info[0])
-                self.client.subscribe(info[0])
-                self.client.publish(self.whoIAm,self.submitMessage())
-            else:
-                if info[2]!= self.whoIAm:
-                    allCells=[]
-                    for aGrid in self.getGrids():
-                        for aCell in list(aGrid.collectionOfCells.getCells().values()):
-                            allCells.append(aCell)
-                        
-                    for i in range(len(info[0])):
-                        allCells[i].isDisplay=info[0][i][0]
-                        allCells[i].attributs=info[0][i][1]
-                        allCells[i].owner=info[0][i][2]
-                        allCells[i].history=info[0][i][3]
-                        if allCells[i].x==0 and allCells[i].y==0:
-                            if allCells[i].parent.haveAgents():
-                                for aCell in allCells[i].parent.collectionOfCells.getCells().values():
-                                    aCell.deleteAllAgent()
-                        if len(info[0][i][4]) !=0:
-                            for j in range(len(info[0][i][4])):
-                                agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
-                                agent.attributs=info[0][i][4][j][1]
-                                agent.owner=info[0][i][4][j][2]
-                                agent.history=info[0][i][4][j][3]
-                                agent.x=info[0][i][4][j][4]
-                                agent.y=info[0][i][4][j][5]
-                    #We change the time manager
-                    self.timeManager.actualPhase=info[1][0]
-                    self.timeManager.actualRound=info[1][1]
-                    #We subscribe 
-                    for sub in info[3]:
-                        if sub != self.whoIAm:
-                            self.client.subscribe(sub)
-                    if self.timeManager.actualPhase==0:
-                        #We reset GM
-                        for gm in self.getGM():
-                            gm.reset()
-                    
-        
-    #MQTT Basic function to  connect to the broker
-    def connect_mqtt(self):
-        def on_connect(client, userdata, flags, rc):
-            if rc == 0:
-                print("Connected to MQTT Broker!")
-            else:
-                print("Failed to connect, return code %d\n", rc)
-                
-        print("connectMQTT")
-        self.client = mqtt_client.Client(self.whoIAm)
-        self.client.on_connect = on_connect
-        self.q = queue.Queue()
-        self.t1 = threading.Thread(target=self.handleClientThread,args=())
-        self.t1.start()
-        self.timer.start(100)
-        self.client.connect("localhost", 1883)
-        self.client.user_data_set(self)
-    
-    #Thread that handle the listen of the client 
-    def handleClientThread(self):
-        while True:
-            self.client.loop(.1)
-            if self.haveToBeClose==True:
-                break
-    
-     
-    #Init the MQTT client   
-    def initMQTT(self):
-        def on_message(client, userdata, msg):
-            userdata.q.put(msg.payload) 
-                
-        self.connect_mqtt()
-        
-        #IF not admin Request which channel to sub
-        if self.whoIAm!="Admin":
-            print("on est notAdmin")
-            self.client.subscribe("Admin")
-            print("onSub a Admin")
-            self.client.on_message = on_message
-            self.listOfSubChannel.append(self.whoIAm)
-            self.client.publish("createPlayer",str([self.whoIAm]))
-        #If Admin
-        else:
-            print("On Est admin")
-            self.client.subscribe("createPlayer")
-            print("onSub a createPlayer")
-            self.client.on_message = on_message
-            
 
-    #publish on mqtt broker the state of all entities of the world
-    def publishEntitiesState(self):
-        if hasattr(self, 'client'):
-            self.client.publish(self.whoIAm,self.submitMessage())
-            
-        
-    #Send a message                   
-    def submitMessage(self):
-        print(self.whoIAm+" send un message")
-        message="["
-        allCells=[]
-        for aGrid in self.getGrids():
-            for aCell in list(aGrid.collectionOfCells.getCells().values()):
-                allCells.append(aCell)
-        for i in range(len(allCells)):
-            message=message+"["
-            message=message+str(allCells[i].isDisplay)
-            message=message+","
-            message=message+str(allCells[i].attributs)
-            message=message+","
-            message=message+"'"+str(allCells[i].owner)+"'"
-            message=message+","
-            message=message+str(allCells[i].history)
-            message=message+","
-            message=message+"["
-            theAgents =allCells[i].collectionOfAgents.getAgents()
-            for j in range(len(theAgents)):
-                print("envoie agent "+str(j))
-                message=message+"["
-                message=message+"'"+str(theAgents[j].name)+"'"
-                message=message+","
-                message=message+str(theAgents[j].attributs)
-                message=message+","
-                message=message+"'"+str(theAgents[j].owner)+"'"
-                message=message+","
-                message=message+str(theAgents[j].history)
-                message=message+","
-                message=message+str(theAgents[j].x)
-                message=message+","
-                message=message+str(theAgents[j].y)
-                message=message+"]"
-                if j != len(theAgents):
-                    message=message+","
-            message=message+"]"
-            message=message+"]"
-            if i != len(allCells):
-                message=message+","
-        message=message+"]"
-        message=message+","
-        message=message+"["
-        message=message+str(self.timeManager.actualPhase)
-        message=message+","
-        message=message+str(self.timeManager.actualRound)
-        message=message+","
-        message=message+"]"
-        message=message+","
-        message=message+"["
-        message=message+"'"+str(self.whoIAm)+"'"
-        message=message+"]"
-        message=message+","
-        message=message+str(self.listOfSubChannel)
-        print(message)
-        return message
-        
-    #Event that append at every end of the timer ( litteral )  
-    def eventTime(self):
-        if not self.q.empty():
-            self.handleMessageMainThread()
+
      
-     #Return all the GM of players 
+
+    #Return all the GM of players 
+
+
     def getGM(self):
         listOfGm=[]
         for player in self.collectionOfPlayers.values() :

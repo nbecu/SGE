@@ -141,7 +141,6 @@ class SGCell(QtWidgets.QWidget):
         
         #theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
         theAgent.show()
-        self.model.publishEntitiesState()
             
 
         e.setDropAction(Qt.MoveAction)
@@ -254,7 +253,6 @@ class SGCell(QtWidgets.QWidget):
                                 anAgent.update()
                                 anAgent.show()
 
-            self.model.publishEntitiesState()
                             
                                     
     #Apply the feedBack of a gameMechanics

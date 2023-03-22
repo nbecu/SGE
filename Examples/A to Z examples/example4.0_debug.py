@@ -34,7 +34,7 @@ theFirstLegend=myModel.createLegendAdmin()
 aGrid.initCurrentPOV()
 aGrid.getCurrentPOV()
 
-GameRounds=myModel.addTimeLabel('Rounds&Phases')
+GameRounds=myModel.addTimeLabel()
 myModel.timeManager.addGamePhase('Phase 1',1)
 myModel.timeManager.addGamePhase('Phase 2',2)
 myModel.timeManager.addGamePhase('Phase 3',3)

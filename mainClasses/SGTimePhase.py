@@ -11,15 +11,12 @@ class SGTimePhase():
 
         
     
-    
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
     def setActivePlayers(self,activePlayer):
         self.activePlayer=activePlayer
-        
-
-        
+    
     def setNextStepAction(self,nextStepAction):
         self.nextStepAction=nextStepAction
         

@@ -188,32 +188,6 @@ class SGLegend(SGGameSpace):
                                         self.elementsPov[aGameSpaceId][aPov][element][value]=aListOfElement[aGameSpaceId][aPov][element][value]
             self.initUI()
         
-#Adding agent to the legend
-    def addAgentToTheLegend(self,agentName,aDictOfAcceptedValue={}):
-        if "agents" not in list(self.elementsPov.keys()) :
-            self.elementsPov["agents"]={}
-        if agentName not in self.elementsPov["agents"]:
-            self.elementsPov["agents"][agentName]={}
-        anAgentPovs=self.getFromWich(agentName).theCollection.povs
-        for aPov in anAgentPovs :
-            #If we take all
-            
-            if len(aDictOfAcceptedValue)==0:
-                self.elementsPov["agents"][agentName][aPov]=anAgentPovs[aPov]
-            #If we apply a filter
-            else :
-                for anAttribut in anAgentPovs[aPov]:
-                    for anElement in aDictOfAcceptedValue:
-                        if anElement == anAttribut :
-                            if aPov not in self.elementsPov["agents"][agentName]:
-                                self.elementsPov["agents"][agentName][aPov]={}
-                            if len(self.elementsPov["agents"][agentName][aPov]) == 0 :
-                                self.elementsPov["agents"][agentName][aPov][anElement]={}
-                            for aValue in anAgentPovs[aPov][anAttribut]:
-                                if aValue in aDictOfAcceptedValue[anAttribut]:
-                                    self.elementsPov["agents"][agentName][aPov][anElement][aValue]=anAgentPovs[aPov][anAttribut][aValue]
-        self.initUI()
-        
         
 #Adding the delete Button
     def addDeleteButton(self,name,elementsAllowed="all"):

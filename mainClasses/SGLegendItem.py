@@ -155,11 +155,6 @@ class SGLegendItem(QtWidgets.QWidget):
                     
 
         
-#-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use
-    
-
-        
     
         
     

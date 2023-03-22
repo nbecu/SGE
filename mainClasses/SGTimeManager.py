@@ -46,9 +46,7 @@ class SGTimeManager():
                     if len(thePhase.nextStepAction) !=0:
                         for aChange in thePhase.nextStepAction:
                             aChange()
-                    self.model.publishEntitiesState()
                 else:
-                    self.model.publishEntitiesState()
                     self.nextPhase()
        
 
