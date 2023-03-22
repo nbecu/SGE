@@ -41,6 +41,7 @@ myModel.timeManager.addGamePhase('Phase 2',2)
 myModel.timeManager.addGamePhase('Phase 3',3)
 myModel.timeManager.addGamePhase('Phase 4',4)
 myModel.timeManager.addGamePhase('Phase 5',5)
+myModel.timeManager.checkGameOrderPhase()
 
 
 myModel.iAm("Admin")

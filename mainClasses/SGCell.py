@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from SGAgentCollection import SGAgentCollection
+
 
    
 #Class who is responsible of the declaration a cell
@@ -32,7 +32,6 @@ class SGCell(QtWidgets.QWidget):
         #We init the dict of Attribute
         self.attributs={}
         #We init the Collection for the futures Agents
-        self.collectionOfAgents=SGAgentCollection(self)
         #We allow the drops for the agents
         self.setAcceptDrops(True)
         #We define an owner

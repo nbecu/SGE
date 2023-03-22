@@ -1,14 +1,8 @@
-import random
-
 from PyQt5 import QtWidgets 
-from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import true, values
+from sqlalchemy import true
 from PyQt5.QtWidgets import  QAction
-
-from SGAgentCollection import SGAgentCollection
-from SGCell import SGCell
 
    
 #Class who is responsible of the declaration a Agent
@@ -19,13 +13,6 @@ class SGAgent(QtWidgets.QWidget):
         super().__init__(parent)
         #Basic initialize
         self.parent=parent
-        #self.theCollection=SGAgentCollection(None)
-
-        """if(parent!=None):
-            self.theCollection=parent.classOfAgents
-        else:
-            self.theCollection=SGAgentCollection(None)
-        self.model=parent.model"""
         self.name=name
         self.format=format
         self.size=defaultsize
@@ -51,8 +38,6 @@ class SGAgent(QtWidgets.QWidget):
         self.isDisplay=bool
         
 
-        
-        
     #Drawing function
     
     def paintEvent(self,event):
@@ -110,41 +95,8 @@ class SGAgent(QtWidgets.QWidget):
                QPoint(round(self.size/2),self.size)
             ])
             painter.drawPolygon(points)
-            
-        
-        
-        """if self.x==0 and self.y==0 :
-            if SGCell.geometry=="square":
-                self.x= random.randint(0,SGCell.parent.width-1)
-                self.y= random.randint(0,SGCell.parent.height-1)
-                print(str(self.x)+','+str(self.y))
-            else :
-                self.x=random.randint(0, SGCell.geometry.x()-(round(self.size/3))*2)
-                self.y=round(SGCell.geometry.size/3)+random.randint(0, SGCell.geometry.y()-(round(SGCell.geometry.size/3))*2)
-        self.move(self.x,self.y)"""
         painter.end()
-    
-    
-    def getId(self):
-        if self.id!=None:
-            return "id = "+str(self.id)
-        else:
-            self.id=str(SGAgentCollection.listofcollection.index[self.name])
-            return "agent"+self.id
-    
 
-    #Funtion to handle the zoom
-    def zoomIn(self):
-        #To be reworked
-        return True
-    
-    def zoomOut(self):
-        #To be reworked
-        return True
-        
-    def zoomFit(self):
-        #To be reworked
-        return True
         
     #To manage the attribute system of an Agent
     def getColor(self):
@@ -227,7 +179,6 @@ class SGAgent(QtWidgets.QWidget):
                         
                         
         self.parent.parent.parent.publishEntitiesState()
-        #self.model.publishEntitiesState()
                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -294,15 +245,6 @@ class SGAgent(QtWidgets.QWidget):
 
             #self.AgentSpecies={str(aAgentSpecies.name): {'AgentList':{str(anAgentID):{"me":aAgent.me
 
-    #To set the value of an agent without the pov
-    '''def setUpAgentValue(self,aDictOfValue):
-        for anAttribut in aDictOfValue:
-            if anAttribut in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
-                for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
-                    self.attributs[aVal]=[]
-                for aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
-                    del self.attributs[aVal]
-                self.attributs[anAttribut]=aDictOfValue[anAttribut]'''
                 
     #Function to check the ownership  of the agent          
     def isMine(self):
@@ -319,41 +261,6 @@ class SGAgent(QtWidgets.QWidget):
     #Function get the ownership        
     def getProperty(self):
         self.owner=self.parent.parent.parent.actualPlayer
-        
-    #Function to change the value      
-    def changeValue(self,aDictOfValue):
-        if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.attributs])
-        for aVal in list(aDictOfValue.keys()) :
-            if aVal in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()) :
-                    for anAttribute in list(self.theCollection.povs[self.parent.parent.parent.nameOfPov].keys()):
-                        self.attributs.pop(anAttribute,None)
-        self.attributs[list(aDictOfValue.keys())[0]]=aDictOfValue[list(aDictOfValue.keys())[0]]
-        self.history["value"].append([self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.timeManager.actualPhase,self.attributs])
-        
-        
-    #Function to check the value      
-    def checkValue(self,aDictOfValue):
-        if list(aDictOfValue.keys())[0] in list(self.attributs.keys()) :
-            return self.attributs[list(aDictOfValue.keys())[0]]==list(aDictOfValue.values())[0]
-        return False
-    
-    
-    #Function get if the agent have change the value in       
-    def haveChangeValue(self,numberOfRound=1):
-        haveChange=False
-        if not len(self.history["value"]) ==0:
-            for anItem in self.history["value"].reverse():
-                if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
-                    if not anItem.thingsSave == self.attributs:
-                        haveChange=True
-                        break
-                elif anItem.roundNumber== self.parent.parent.timeManager.actualRound-numberOfRound:
-                    if anItem.phaseNumber<=self.parent.parent.timeManager.actualPhase:
-                        if not anItem.thingsSave == self.attributs:
-                            haveChange=True
-                            break
-        return haveChange
     
     #Function get if the agent have change the value in       
     def haveMoove(self,numberOfRound=1):

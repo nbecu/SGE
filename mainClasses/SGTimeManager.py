@@ -10,6 +10,7 @@ class SGTimeManager():
         self.actualPhase = 1
         self.orderGamePhases=[]
         self.conditionOfEndGame=[]
+        self.addGamePhase('Initialisation',0)
         
     #To increment the time of the game
     def nextPhase(self):
@@ -101,6 +102,10 @@ class SGTimeManager():
     def isOdd(self):
         return self.actualRound%2==1
     
+    def checkGameOrderPhase(self):
+        for phase in self.orderGamePhases:
+            print(str(phase.name))
+
     
   
             

@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from SGGameSpace import SGGameSpace
 from SGCellCollection import SGCellCollection
 from SGAgent import SGAgent
-from SGAgentCollection import SGAgentCollection
+
 
 
 from PyQt5.QtWidgets import QAction

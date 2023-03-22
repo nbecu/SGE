@@ -14,7 +14,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 from SGAgent import SGAgent
 from SGPlayer import SGPlayer
 from SGTimeManager import SGTimeManager
-from SGAgentCollection import SGAgentCollection
 from SGTimeLabel import SGTimeLabel
 
 from SGGrid import SGGrid
