@@ -31,8 +31,7 @@ m1.updateAgentValue('hunger','bad')
 
 
 theFirstLegend=myModel.createLegendAdmin()
-aGrid.initCurrentPOV()
-aGrid.getCurrentPOV()
+
 
 GameRounds=myModel.addTimeLabel()
 myModel.timeManager.addGamePhase('Phase 1',1)

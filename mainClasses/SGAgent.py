@@ -126,6 +126,10 @@ class SGAgent(QtWidgets.QWidget):
     #To get the pov
     def getPov(self):
         return self.parent.parent.parent.nameOfPov
+    
+    # To get the pov via grid
+    def getPov2(self):
+        return self.parent.parent.getCurrentPOV()
         
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
@@ -172,8 +176,7 @@ class SGAgent(QtWidgets.QWidget):
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                         self.update()
                         
-                        
-        self.parent.parent.parent.publishEntitiesState()
+
                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -218,6 +221,16 @@ class SGAgent(QtWidgets.QWidget):
 
     #To set up a POV
     def setUpPov(self,nameofPOV,concernedAtt,dictOfColor):
+        """
+        Declare a new Point of View for the Species.
+
+        Args:
+            self (Species object): aSpecies
+            nameOfPov (str): name of POV, will appear in the interface
+            concernedAtt (str): name of the attribut concerned by the declaration
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            
+        """
         if self.parent.AgentSpecies[str(self.name)]['me']=='collec':
             self.parent.AgentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
             self.addPovinMenuBar(nameofPOV)
@@ -233,12 +246,18 @@ class SGAgent(QtWidgets.QWidget):
         
 
     def updateAgentValue(self,attribut,value):
+        """
+        Update a Agent attribut value
+
+        Args:
+            attribut (str): attribut concerned by the update
+            value (str): value previously declared in the species, to update
+        """
         if self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['me']=='agent':
             self.parent.parent.parent.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs'][str(attribut)]=str(value)
         else:
             print("Warning")
 
-            #self.AgentSpecies={str(aAgentSpecies.name): {'AgentList':{str(anAgentID):{"me":aAgent.me
 
                 
     #Function to check the ownership  of the agent          

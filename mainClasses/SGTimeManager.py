@@ -102,7 +102,7 @@ class SGTimeManager():
     
     def checkGameOrderPhase(self):
         for phase in self.orderGamePhases:
-            print(str(phase.name))
+            pass #print(str(phase.name))
 
     
   

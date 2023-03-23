@@ -45,7 +45,6 @@ class SGGridLayout():
                 sizeY=sizeY+self.listOfGameSpace[colonneTrouve][i].getSizeYGlobal()
         #We shearch the size of the row so in X
         for i in range(self.x):
-            print(self.listOfGameSpace[i])
             if i<colonneTrouve :
                 sizeX=sizeX+self.listOfGameSpace[i][ligneTrouve].getSizeXGlobal()
         return (sizeX,sizeY)

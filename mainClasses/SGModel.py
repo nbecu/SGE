@@ -443,8 +443,6 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies.me='collec'
         aAgentSpecies.isDisplay=False
         self.AgentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
-        #print(self.AgentSpecies)
-        #print('==================')
         return aAgentSpecies
 
     def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None,aID=None,aDictofAttributs=None):
@@ -493,7 +491,6 @@ class SGModel(QtWidgets.QMainWindow):
     def getAgentList(self):
         agent_list = []
         for animal, sub_dict in self.AgentSpecies.items():
-            print(animal)
             for agent_id, agent_dict in sub_dict['AgentList'].items():
                 agent_list.append(agent_dict['AgentObject'])
         self.AgentList=agent_list
@@ -606,6 +603,16 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To add a new POV 
     def setUpPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
+        """
+        Declare a new Point of View for cells.
+
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+            
+        """
         if listOfGridsToApply==None:
             listOfGridsToApply = [list(self.gameSpaces.values())[0]] #get the fisrt value of the dict
         if not isinstance(listOfGridsToApply,list):

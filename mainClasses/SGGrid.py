@@ -182,6 +182,13 @@ class SGGrid(SGGameSpace):
 
     # To get the current POV
     def getCurrentPOV(self):
+        """"
+        Get the actual POV displayed by the model for a grid
+
+        Args:
+            category (str): "Cell" or "Agent" (default:"Cell")
+        
+        """
         for animal, sub_dict in self.parent.AgentSpecies.items():
             for pov in sub_dict['POV'].items():
                 if self.parent.nameOfPov == pov:
@@ -191,7 +198,8 @@ class SGGrid(SGGameSpace):
                 if self.parent.nameOfPov == pov:
                     self.currentPOV['Cell']=aCell.theCollection.povs[pov]
 
-        print(self.currentPOV)            
+        print(self.currentPOV)
+        return self.currentPOV           
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
@@ -210,6 +218,13 @@ class SGGrid(SGGameSpace):
 #To handle POV and placing on cell
     #To define a value for all cells
     def setValueForCells(self,aDictWithValue):
+        """
+        Applies the same attribut value (and color) for all the cells
+
+        Args:
+            aDictWithValue (dict) : a dict with an attribut and its value
+
+        """
         for aCell in list(self.collectionOfCells.getCells().values()):
             for aVal in list(aDictWithValue.keys()) :
                 if len(aCell.theCollection.povs) !=0:
@@ -221,6 +236,15 @@ class SGGrid(SGGameSpace):
             
     #To apply to a specific cell a value  
     def setForXandY(self,aDictWithValue,aValueX,aValueY):
+        """
+        Applies the same attribut value (and color) for a specific cell
+
+        Args:
+            aDictWithValue (dict) : a dict with an attribut and its value
+            aValueX (int): a row number
+            aValueY (int): a column number
+
+        """
         for aVal in list(aDictWithValue.keys()) :
             if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs) !=0:
                 if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()) :
@@ -230,6 +254,14 @@ class SGGrid(SGGameSpace):
     
     #To apply to a all row of cell a value
     def setForX(self,aDictWithValue,aValueX):
+        """
+        Applies the same attribut value (and color) for a specific row
+
+        Args:
+            aDictWithValue (dict) : a dict with an attribut and its value
+            aValueX (int): a row number
+
+        """
         for y in range(self.rows):
             if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs) !=0:
                 for aVal in list(aDictWithValue.keys()) :
@@ -240,6 +272,14 @@ class SGGrid(SGGameSpace):
     
     #To apply to a all column of cell a value
     def setForY(self,aDictWithValue,aValueY):
+        """
+        Applies the same attribut value (and color) for a specific column
+
+        Args:
+            aDictWithValue (dict) : a dict with an attribut and its value
+            aValueY (int): a column number
+
+        """
         for x in range(self.columns):
             for aVal in list(aDictWithValue.keys()) :
                 if len(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs) !=0:
@@ -250,6 +290,13 @@ class SGGrid(SGGameSpace):
     
     #To apply to some random cell a value
     def setForRandom(self,aDictWithValue,numberOfRandom):
+        """
+        Applies the same attribut value (and color) for a random number of cells
+
+        Args:
+            aDictWithValue (dict) : a dict with an attribut and its value
+            numberOfRandom (int): number of cells
+        """
         alreadyDone=list()
         while len(alreadyDone)!=numberOfRandom:
             aValueX=random.randint(0, self.columns-1)
