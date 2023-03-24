@@ -89,22 +89,22 @@ class SGCell(QtWidgets.QWidget):
         oldSize=self.size
         self.size=self.parent.size
         self.gap=self.parent.gap
-        for anAgent in self.collectionOfAgents.agents:
+        """for anAgent in self.collectionOfAgents.agents:
             coeffX=anAgent.x/oldSize
             anAgent.x=int(self.size*coeffX)
             coeffY=anAgent.y/oldSize
-            anAgent.y=int(self.size*coeffY)
+            anAgent.y=int(self.size*coeffY)"""
         self.update()
     
     def zoomOut(self):
         oldSize=self.size
         self.size=self.parent.size
         self.gap=self.parent.gap
-        for anAgent in self.collectionOfAgents.agents:
+        """for anAgent in self.collectionOfAgents.agents:
             coeffX=anAgent.x/oldSize
             anAgent.x=int(self.size*coeffX)
             coeffY=anAgent.y/oldSize
-            anAgent.y=int(self.size*coeffY)
+            anAgent.y=int(self.size*coeffY)"""
         self.update()
         
     def zoomFit(self):
