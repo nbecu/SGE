@@ -18,7 +18,7 @@ class SGTimeLabel(SGGameSpace):
         self.y=0
         self.round=0
         self.phase=0
-        self.listOfLabels=0
+        self.labels=0
         self.moveable=True
         self.initUI()
         
@@ -35,7 +35,7 @@ class SGTimeLabel(SGGameSpace):
         self.label1.setText('Round Number: 1')
         self.label2.setText('Phase Number: 1')
 
-        self.listOfLabels=['IN-GAME TIME','Round number: 0','Phase number: 0']
+        self.labels=['IN-GAME TIME','Round number: 0','Phase number: 0']
 
         self.label1.setFixedHeight(self.label1.fontMetrics().boundingRect(self.label1.text()).height())
         self.label1.setFixedWidth(self.label1.fontMetrics().boundingRect(self.label1.text()).width())
@@ -65,19 +65,19 @@ class SGTimeLabel(SGGameSpace):
     
     def getLongest(self):
         longest_word = ''
-        for word in self.listOfLabels:
+        for word in self.labels:
             if len(word) > len(longest_word):
                 longest_word = word
         return longest_word
     
     def getSizeYGlobal(self):
         somme=30
-        for word in self.listOfLabels :
+        for word in self.labels :
             somme= somme+ 2*len(word)
         return somme
     
     def paintEvent(self,event):
-        if len(self.listOfLabels)!=0:
+        if len(self.labels)!=0:
             painter = QPainter() 
             painter.begin(self)
             painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
