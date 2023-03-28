@@ -72,7 +72,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces={}
         #Definition of the AgentCollection
         self.AgentSpecies={}
-        self.AgentList=self.getAgentList()
+        self.agents=self.getAgents()
         self.IDincr=0
         #We create the layout
         self.typeOfLayout=typeOfLayout
@@ -88,12 +88,11 @@ class SGModel(QtWidgets.QMainWindow):
         self.selected=[None]
         #To keep in memory all the povs already displayed in the menue
         self.listOfPovsForMenu=[]
-        self.AgentPOVList=self.getAgentPOVList()
+        self.AgentPOVs=self.getAgentPOVs()
         #To handle the flow of time in the game
         self.timeManager=SGTimeManager(self)
         #List of players
-        self.collectionOfPlayers={}
-        self.actualPlayer=None
+        self.players={}
         #Wich instance is it 
         self.whoIAm="Admin"
         self.listOfSubChannel=[]
@@ -287,12 +286,12 @@ class SGModel(QtWidgets.QMainWindow):
 
             
      
-    #Extract the actual gameboard into png   
+    #Extract the current gameboard into png   
     def extractPngFromWidget(self):
         #To be reworked
         self.window.grab().save("image.png")
     
-    #Extract the actual gameboard into svg 
+    #Extract the current gameboard into svg 
     def extractSvgFromWidget(self):
         generator = QSvgGenerator()
         generator.setFileName("image.svg")
@@ -300,7 +299,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.window.render( painter )
         painter.end()
     
-    #Extract the actual gameboard into html
+    #Extract the current gameboard into html
     def extractHtmlFromWidget(self):
         """To be implemented"""
         return True
@@ -396,9 +395,9 @@ class SGModel(QtWidgets.QMainWindow):
         CellElements={}
         for anElement in self.getGrids() :
             CellElements[anElement.id]=anElement.getValuesForLegend()
-        AgentList=self.getAgentList()
-        AgentPOVList=self.getAgentPOVList()
-        aLegend = SGLegend(self,Name,CellElements,"Admin",AgentList,AgentPOVList)
+        agents=self.getAgents()
+        AgentPOVs=self.getAgentPOVs()
+        aLegend = SGLegend(self,Name,CellElements,"Admin",agents,AgentPOVs)
         self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
@@ -488,13 +487,13 @@ class SGModel(QtWidgets.QMainWindow):
         
         return aAgent
     
-    def getAgentList(self):
+    def getAgents(self):
         agent_list = []
         for animal, sub_dict in self.AgentSpecies.items():
             for agent_id, agent_dict in sub_dict['AgentList'].items():
                 agent_list.append(agent_dict['AgentObject'])
-        self.AgentList=agent_list
-        return self.AgentList
+        self.agents=agent_list
+        return self.agents
     
     def updateAgentPosition(self,aGrid,theAgent,theCell):
         # NEED TO BE REWORKED #
@@ -515,9 +514,13 @@ class SGModel(QtWidgets.QMainWindow):
         return aAgent
     
     #To get the player
-    def getPlayer(self):
-        return self.actualPlayer
-
+    def getCurrentPlayer(self):
+        if len(self.timeManager.orderGamePhases) < self.timeManager.currentPhase:
+            thePhase=self.timeManager.orderGamePhases[self.timeManager.currentPhase]
+            return thePhase.activePlayer
+        else:
+            return None
+    
     #To create a GameBoard
     def addTimeLabel(self,name='Rounds&Phases'):
         """
@@ -544,11 +547,11 @@ class SGModel(QtWidgets.QMainWindow):
         return aTimeLabel
     
     
-    def getActualRound(self):
-        return self.timeManager.actualRound
+    def getCurrentRound(self):
+        return self.timeManager.currentRound
     
-    def getActualPhase(self):
-        return self.timeManager.actualPhase
+    def getCurrentPhase(self):
+        return self.timeManager.currentPhase
     
 
 
@@ -623,13 +626,13 @@ class SGModel(QtWidgets.QMainWindow):
         self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV
-    def getAgentPOVList(self):
+    def getAgentPOVs(self):
         list_POV={}
         for species in self.AgentSpecies.keys():
             if "POV" in self.AgentSpecies[species]:
                 list_POV[species]=self.AgentSpecies[species]['POV']
-        self.AgentPOVList=list_POV
-        return self.AgentPOVList
+        self.AgentPOVs=list_POV
+        return self.AgentPOVs
  
     #-----------------------------------------------------------  
     #TimeManager functions
@@ -672,11 +675,11 @@ class SGModel(QtWidgets.QMainWindow):
         return listOfLegend 
 
     
-    #To change the number of zoom we actually are
+    #To change the number of zoom we currently are
     def setNumberOfZoom(self,number):
         self.numberOfZoom = number    
         
-    #To change the number of zoom we actually are
+    #To change the number of zoom we currently are
     def iAm(self,aNameOfPlayer):
         self.whoIAm=aNameOfPlayer
 
@@ -692,7 +695,7 @@ class SGModel(QtWidgets.QMainWindow):
 
     def getGM(self):
         listOfGm=[]
-        for player in self.collectionOfPlayers.values() :
+        for player in self.players.values() :
             for gm in player.gameActions:
                 listOfGm.append(gm)
         return listOfGm

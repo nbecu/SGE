@@ -174,7 +174,7 @@ class SGGrid(SGGameSpace):
             listcles = list(aCell.theCollection.povs.keys())
             self.currentPOV['Cell'] = aCell.theCollection.povs[listcles[0]]
 
-        for animal, sub_dict in self.parent.AgentSpecies.items():
+        for animal, sub_dict in self.model.AgentSpecies.items():
             self.currentPOV['Agent'][animal] = sub_dict['POV'][list(sub_dict['POV'].keys())[0]]
 
         print(self.currentPOV)
@@ -189,13 +189,13 @@ class SGGrid(SGGameSpace):
             category (str): "Cell" or "Agent" (default:"Cell")
         
         """
-        for animal, sub_dict in self.parent.AgentSpecies.items():
+        for animal, sub_dict in self.model.AgentSpecies.items():
             for pov in sub_dict['POV'].items():
-                if self.parent.nameOfPov == pov:
+                if self.model.nameOfPov == pov:
                     self.currentPOV['Agent'][animal]=pov
         for aCell in list(self.collectionOfCells.getCells().values()):
             for pov in aCell.theCollection.povs:
-                if self.parent.nameOfPov == pov:
+                if self.model.nameOfPov == pov:
                     self.currentPOV['Cell']=aCell.theCollection.povs[pov]
 
         print(self.currentPOV)
@@ -228,8 +228,8 @@ class SGGrid(SGGameSpace):
         for aCell in list(self.collectionOfCells.getCells().values()):
             for aVal in list(aDictWithValue.keys()) :
                 if len(aCell.theCollection.povs) !=0:
-                    if aVal in list(aCell.theCollection.povs[self.parent.nameOfPov].keys()) :
-                            for anAttribute in list(aCell.theCollection.povs[self.parent.nameOfPov].keys()):
+                    if aVal in list(aCell.theCollection.povs[self.model.nameOfPov].keys()) :
+                            for anAttribute in list(aCell.theCollection.povs[self.model.nameOfPov].keys()):
                                 aCell.attributs.pop(anAttribute,None)
             
             aCell.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
@@ -247,8 +247,8 @@ class SGGrid(SGGameSpace):
         """
         for aVal in list(aDictWithValue.keys()) :
             if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs) !=0:
-                if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()) :
-                    for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()):
+                if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()) :
+                    for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()):
                         self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs.pop(anAttribute,None)
         self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
@@ -265,8 +265,8 @@ class SGGrid(SGGameSpace):
         for y in range(self.rows):
             if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs) !=0:
                 for aVal in list(aDictWithValue.keys()) :
-                    if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.parent.nameOfPov].keys()) :
-                        for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.parent.nameOfPov].keys()):
+                    if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.model.nameOfPov].keys()) :
+                        for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.model.nameOfPov].keys()):
                             self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs.pop(anAttribute,None)
             self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
@@ -283,8 +283,8 @@ class SGGrid(SGGameSpace):
         for x in range(self.columns):
             for aVal in list(aDictWithValue.keys()) :
                 if len(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs) !=0:
-                    if aVal in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()) :
-                        for anAttribute in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.parent.nameOfPov].keys()):
+                    if aVal in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()) :
+                        for anAttribute in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()):
                             self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs.pop(anAttribute,None)
             self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
@@ -305,8 +305,8 @@ class SGGrid(SGGameSpace):
                 alreadyDone.append((aValueX,aValueY))
                 for aVal in list(aDictWithValue.keys()) :
                     if len(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs) !=0:
-                        if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.parent.nameOfPov].keys()) :
-                            for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.parent.nameOfPov].keys()):
+                        if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.model.nameOfPov].keys()) :
+                            for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.model.nameOfPov].keys()):
                                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs.pop(anAttribute,None)
                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                 
@@ -314,8 +314,8 @@ class SGGrid(SGGameSpace):
     #To apply to a specific cell an agent  
     def addOnXandY(self,anAgent,aValueX,aValueY):
         # NEED TO BE REWORKED #
-        NewAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgent.species,anAgent.format,anAgent.size,self.parent.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['attributs'],anAgent.id)
-        self.parent.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['position']=self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1))
+        NewAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgent.species,anAgent.format,anAgent.size,self.model.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['attributs'],anAgent.id)
+        self.model.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['position']=self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1))
         NewAgent.show()
         
         self.update()
@@ -348,8 +348,8 @@ class SGGrid(SGGameSpace):
             anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs.copy()
             cell.collectionOfAgents.addAgent(anAgent)
             if aValueForAgent is not None :
-                for anAttribut in self.collectionOfCells.povs[self.parent.nameOfPov] :
-                        if aValueForAgent in list(self.collectionOfCells.povs[self.parent.nameOfPov][anAttribut].keys()) :
+                for anAttribut in self.collectionOfCells.povs[self.model.nameOfPov] :
+                        if aValueForAgent in list(self.collectionOfCells.povs[self.model.nameOfPov][anAttribut].keys()) :
                             anAgent.attributs[anAttribut]=aValueForAgent
             anAgent.show()
             self.update()
@@ -365,21 +365,21 @@ class SGGrid(SGGameSpace):
             for anAgentIt in self.collectionOfAcceptAgent :
                 if self.collectionOfAcceptAgent[anAgentIt].name ==theNameOfTheAgent:
                     self.collectionOfAcceptAgent[anAgentIt].theCollection.povs[aNameOfPov]=aDictOfValue'''
-        self.parent.updateLegendAdmin()
+        self.model.updateLegendAdmin()
         #Adding the Pov to the menue bar
-        if aNameOfPov not in self.parent.listOfPovsForMenu :
-            self.parent.listOfPovsForMenu.append(aNameOfPov)
+        if aNameOfPov not in self.model.listOfPovsForMenu :
+            self.model.listOfPovsForMenu.append(aNameOfPov)
             anAction=QAction(" &"+aNameOfPov, self)
-            self.parent.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.parent.setInitialPovGlobal(aNameOfPov))
+            self.model.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.model.setInitialPovGlobal(aNameOfPov))
             
     #To define a value for all Agents
     def setValueForAgents(self,typeOfAgent,aDictWithValue):
         for aCell in list(self.collectionOfCells.getCells().values()):
             for anAgent in aCell.getAgentsOfType(typeOfAgent):
                 for aVal in list(aDictWithValue.keys()) :
-                    if aVal in list(anAgent.theCollection.povs[self.parent.nameOfPov].keys()) :
-                        for anAttribute in list(anAgent.theCollection.povs[self.parent.nameOfPov].keys()):
+                    if aVal in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()) :
+                        for anAttribute in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()):
                             anAgent.attributs.pop(anAttribute,None)
                 anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
                 
@@ -444,7 +444,7 @@ class SGGrid(SGGameSpace):
                             if len(self.history["value"])==0:
                                 self.history["value"].append([0,0,self.attributs])
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found+1]
-                            self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
+                            #self.history["value"].append([self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
                             
     #To decrease all attributs of cells of one type
     def makeDecrease(self,listOfAttributsToMakeDecrease):
@@ -457,7 +457,7 @@ class SGGrid(SGGameSpace):
                             if len(self.history["value"])==0:
                                 self.history["value"].append([0,0,self.attributs])
                             aCell.attributs[anAttribut]=list(aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
-                            self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
+                            #self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
                             
     #to get all cells who respect certain value
     def getCellOfValue(self,aDictValueForAgent):
@@ -468,20 +468,6 @@ class SGGrid(SGGameSpace):
                 if aDictValueForAgent[aKey]==cell.attributs[aKey]:
                     result.append(cell)
         return result
-
-            
-    #To delete a kind of Agent on the grid  
-    def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
-        aListOfAgent= self.getAgentsOfType(nameOfAgent)
-        count=0
-        nbrDelete=0
-        if numberOfDelete==0:
-            numberOfDelete=len(aListOfAgent)
-        while numberOfDelete>nbrDelete and len(aListOfAgent)!=0 and count!=len(aListOfAgent):
-            nbr=aListOfAgent[count].parent.deleteAgent(nameOfAgent,numberOfDelete,condition)
-            nbrDelete=nbrDelete+nbr
-            count=count+1
-        self.show()
     
     #To return all agent of a type in neighborhood
     def getNeighborAgent(self,x,y,agentName,typeNeighbor="moore",rangeNeighbor=1):

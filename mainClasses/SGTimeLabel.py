@@ -13,7 +13,7 @@ class SGTimeLabel(SGGameSpace):
     def __init__(self,parent,name,borderColor=Qt.black,backgroundColor=Qt.darkGray):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
-        self.parent=parent
+        self.timeManager=parent.timeManager
         self.borderColor=borderColor
         self.y=0
         self.round=0
@@ -89,9 +89,9 @@ class SGTimeLabel(SGGameSpace):
 
             painter.end()
         
-    def updateTimeLabel(self,actualRound,actualPhase):
-        self.label1.setText('Round Number : {}'.format(actualRound))
-        self.label2.setText('Phase Number : {}'.format(actualPhase))
+    def updateTimeLabel(self,currentRound,currentPhase):
+        self.label1.setText('Round Number : {}'.format(currentRound))
+        self.label2.setText('Phase Number : {}'.format(currentPhase))
 
         self.label1.setFixedHeight(self.label1.fontMetrics().boundingRect(self.label1.text()).height())
         self.label1.setFixedWidth(self.label1.fontMetrics().boundingRect(self.label1.text()).width())

@@ -14,8 +14,8 @@ aGrid.setForX({"landUse":"forest"},2)
 aGrid.setForRandom({"landUse":"shrub"},10)
 
 
-myModel.setUpPov("ICanSeeShrub",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}},[aGrid])
-myModel.setUpPov("ICantSeeShrub",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}},[aGrid])
+myModel.setUpPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen},[aGrid])
+myModel.setUpPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen},[aGrid])
 
 
 #You can change the initial pov displayed with the instruction setInitialPov()

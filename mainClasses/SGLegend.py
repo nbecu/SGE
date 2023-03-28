@@ -15,13 +15,13 @@ class SGLegend(SGGameSpace):
     def __init__(self,parent,name,elementPov,playerName,AgentList,AgentPOVList,borderColor=Qt.black,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
-        self.parent=parent
+        self.model=parent
         self.elementsPov=elementPov
         self.elementsPov['agents']=AgentList
         self.AgentList=AgentList
         self.AgentPOVList=AgentPOVList
         self.playerName=playerName
-        self.legendItemList={}
+        self.legendItems={}
         self.borderColor=borderColor
         self.haveADeleteButton=False
         self.y=0
@@ -31,31 +31,31 @@ class SGLegend(SGGameSpace):
     def initUI(self):
         self.y=0
         for aKeyOfGamespace in self.elementsPov :
-            if aKeyOfGamespace in list(self.legendItemList.keys()):
-                if len(self.legendItemList[aKeyOfGamespace]) !=0:
-                    for anElement in reversed(range(len(self.legendItemList[aKeyOfGamespace]))):
-                        self.legendItemList[aKeyOfGamespace][anElement].deleteLater()
-                        del self.legendItemList[aKeyOfGamespace][anElement]
-            self.legendItemList[aKeyOfGamespace]=[]
+            if aKeyOfGamespace in list(self.legendItems.keys()):
+                if len(self.legendItems[aKeyOfGamespace]) !=0:
+                    for anElement in reversed(range(len(self.legendItems[aKeyOfGamespace]))):
+                        self.legendItems[aKeyOfGamespace][anElement].deleteLater()
+                        del self.legendItems[aKeyOfGamespace][anElement]
+            self.legendItems[aKeyOfGamespace]=[]
         self.y=self.y+1
         anItem=SGLegendItem(self,"None",self.y,self.id)
-        self.legendItemList["Title"]=[]
-        self.legendItemList["Title"].append(anItem)
+        self.legendItems["Title"]=[]
+        self.legendItems["Title"].append(anItem)
         anItem.show()
         for aKeyOfGamespace in self.elementsPov :
-            if self.parent.nameOfPov != "default" and aKeyOfGamespace!="agents" :
-                if self.parent.nameOfPov in self.elementsPov[aKeyOfGamespace]:
-                    for element in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov]:
+            if self.model.nameOfPov != "default" and aKeyOfGamespace!="agents" :
+                if self.model.nameOfPov in self.elementsPov[aKeyOfGamespace]:
+                    for element in self.elementsPov[aKeyOfGamespace][self.model.nameOfPov]:
                         if aKeyOfGamespace=="deleteButton":
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][1],self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][0])
-                            self.legendItemList[aKeyOfGamespace].append(anItem)
+                            anItem=SGLegendItem(self,"square",self.y,element,self.elementsPov[aKeyOfGamespace][self.model.nameOfPov][element][1],self.elementsPov[aKeyOfGamespace][self.model.nameOfPov][element][0])
+                            self.legendItems[aKeyOfGamespace].append(anItem)
                             anItem.show()
                         else: 
-                            for aValue in self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element]:
+                            for aValue in self.elementsPov[aKeyOfGamespace][self.model.nameOfPov][element]:
                                 self.y=self.y+1
-                                anItem=SGLegendItem(self,self.parent.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.parent.nameOfPov][element][aValue],aValue,element)
-                                self.legendItemList[aKeyOfGamespace].append(anItem)
+                                anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,element+" "+aValue,self.elementsPov[aKeyOfGamespace][self.model.nameOfPov][element][aValue],aValue,element)
+                                self.legendItems[aKeyOfGamespace].append(anItem)
                                 anItem.show()
             elif aKeyOfGamespace == "agents":
                 added_items = set()
@@ -63,8 +63,8 @@ class SGLegend(SGGameSpace):
                     for Species in self.AgentPOVList.keys():
                         if anAgent.species == Species:
                             for aPov in self.AgentPOVList[Species].keys():
-                                if aPov == self.parent.nameOfPov:
-                                    for anAtt in self.AgentPOVList[Species][self.parent.nameOfPov].keys():
+                                if aPov == self.model.nameOfPov:
+                                    for anAtt in self.AgentPOVList[Species][self.model.nameOfPov].keys():
                                         for aValue in self.AgentPOVList[Species][aPov][anAtt].keys():
                                             item_key = Species + anAtt + aValue
                                             if item_key not in added_items:
@@ -72,7 +72,7 @@ class SGLegend(SGGameSpace):
                                                 self.y = self.y + 1
                                                 aColor = self.AgentPOVList[Species][aPov][anAtt][aValue]
                                                 anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)
-                                                self.legendItemList[aKeyOfGamespace].append(anItem)
+                                                self.legendItems[aKeyOfGamespace].append(anItem)
                                                 anItem.show()
                                                 added_items.add(item_key)
 
@@ -91,16 +91,16 @@ class SGLegend(SGGameSpace):
     
     def getLongest(self):
         longestWord=""
-        for key in self.legendItemList :
-            for element in self.legendItemList[key] :
+        for key in self.legendItems :
+            for element in self.legendItems[key] :
                 if len(element.texte)>len(longestWord):
                     longestWord=element.texte
         return longestWord
     
     def getSizeYGlobal(self):
         somme=30
-        for key in self.legendItemList :
-            somme= somme+ 27*len(self.legendItemList[key])
+        for key in self.legendItems :
+            somme= somme+ 27*len(self.legendItems[key])
         return somme
     
     #Funtion to handle the zoom
@@ -144,13 +144,13 @@ class SGLegend(SGGameSpace):
         
     #Check if it have to be displayed
     def checkDisplay(self):
-        return self.parent.whoIAm==self.playerName or self.forceDisplay 
+        return self.model.whoIAm==self.playerName or self.forceDisplay 
 
     #Get from wich grid an Agent is from to create the legend
     def getFromWich(self,anAgentName):
-        for aGameSpace in self.parent.gameSpaces :
-            if isinstance(self.parent.gameSpaces[aGameSpace],SGGrid) == True :
-                aResult = self.parent.gameSpaces[aGameSpace].getAgentOfTypeForLegend(anAgentName)
+        for aGameSpace in self.model.gameSpaces :
+            if isinstance(self.model.gameSpaces[aGameSpace],SGGrid) == True :
+                aResult = self.model.gameSpaces[aGameSpace].getAgentOfTypeForLegend(anAgentName)
                 if aResult != null:
     
                     return aResult
@@ -202,8 +202,8 @@ class SGLegend(SGGameSpace):
         else:
             for aGameSpaceId in self.elementsPov:
                 if aGameSpaceId != "agents" and aGameSpaceId!= "deleteButton":
-                    for aPov in self.parent.getGameSpace(aGameSpaceId).collectionOfCells.povs:
-                        for elementOriginal in self.parent.getGameSpace(aGameSpaceId).collectionOfCells.povs[aPov]:
+                    for aPov in self.model.getGameSpace(aGameSpaceId).collectionOfCells.povs:
+                        for elementOriginal in self.model.getGameSpace(aGameSpaceId).collectionOfCells.povs[aPov]:
                             for elementFound in elementsAllowed:
                                 if elementFound == elementOriginal :
                                     if aPov not in self.elementsPov["deleteButton"]:

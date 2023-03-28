@@ -48,7 +48,7 @@ myModel.timeManager.addGamePhase('fin',3,None,
                                  [lambda: m1.updateAgentValue('health','bad'),
                                 lambda: v1.updateAgentValue('health','good')])
 myModel.timeManager.addGamePhase('fin2',4,None,
-                                    [lambda: aGrid.setForRandom({"landUse":"shrub"},20)],[lambda: myModel.getTimeManager().actualRound == 3 ])
+                                    [lambda: aGrid.setForRandom({"landUse":"shrub"},20)],[lambda: myModel.getTimeManager().currentRound == 3 ])
 myModel.timeManager.addGamePhase('fin2',4,None,
                                     [lambda: aGrid.setForRandom({"landUse":"forest"},6)],[lambda: myModel.getTimeManager().verifNumberOfRound(5) ])
 # myModel.timeManager.addGamePhase('fin des fins',5,None,

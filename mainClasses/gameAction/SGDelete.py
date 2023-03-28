@@ -12,7 +12,7 @@ class SGDelete():
         if isinstance(anObject,SGAgent):
             self.name=anObject.getId()
         elif isinstance(anObject,SGCell):
-            self.name=anObject.parent
+            self.name=anObject.grid
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
             

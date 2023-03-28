@@ -4,43 +4,42 @@ from SGTimePhase import SGTimePhase
 class SGTimeManager():
     
     def __init__(self,parent):
-        self.parent=parent
         self.model=parent
-        self.actualRound = 1
-        self.actualPhase = 1
+        self.currentRound = 1
+        self.currentPhase = 1
         self.orderGamePhases=[]
         self.conditionOfEndGame=[]
         self.addGamePhase('Initialisation',0)
         
     #To increment the time of the game
     def nextPhase(self):
-        if len(self.orderGamePhases) != 0 and ((self.orderGamePhases[self.actualPhase].activePlayer is not None and self.parent.whoIAm==self.orderGamePhases[self.actualPhase].activePlayer.name ) or self.parent.whoIAm=="Admin") :
+        if len(self.orderGamePhases) != 0 and ((self.orderGamePhases[self.currentPhase].activePlayer is not None and self.model.whoIAm==self.orderGamePhases[self.currentPhase].activePlayer.name ) or self.model.whoIAm=="Admin") :
             end = self.checkEndGame()
             if not end :
-                if self.actualPhase+2 <= len(self.orderGamePhases):
+                if self.currentPhase+2 <= len(self.orderGamePhases):
                     if len(self.orderGamePhases)!=1:
-                        self.actualPhase = self.actualPhase +1
-                        self.model.myTimeLabel.updateTimeLabel(self.actualRound,self.actualPhase)
+                        self.currentPhase = self.currentPhase +1
+                        self.model.myTimeLabel.updateTimeLabel(self.currentRound,self.currentPhase)
 
                 else:
                     #We reset GM
-                    for gm in self.parent.getGM():
+                    for gm in self.model.getGM():
                         gm.reset()
-                    self.actualPhase=1
+                    self.currentPhase=1
 
                     
-                thePhase= self.orderGamePhases[self.actualPhase]
+                thePhase= self.orderGamePhases[self.currentPhase]
                 #check conditions
                 doThePhase=True
                 if len(thePhase.conditionOfTrigger)!=0:
                     for aCondition in thePhase.conditionOfTrigger:
                         doThePhase=doThePhase and aCondition()
-                if self.actualPhase == 1 and len(self.orderGamePhases) > 1:
-                    self.actualRound += 1
-                    self.model.myTimeLabel.updateTimeLabel(self.actualRound,self.actualPhase)
+                if self.currentPhase == 1 and len(self.orderGamePhases) > 1:
+                    self.currentRound += 1
+                    self.model.myTimeLabel.updateTimeLabel(self.currentRound,self.currentPhase)
             
                 #we change the active player
-                self.parent.actualPlayer=thePhase.activePlayer
+                self.model.currentPlayer=thePhase.activePlayer
                 if doThePhase :
                     #We make the change
                     if len(thePhase.nextStepAction) !=0:
@@ -66,10 +65,10 @@ class SGTimeManager():
         return endGame
     
     def getRoundNumber(self):
-        return self.actualRound 
+        return self.currentRound 
     
     def getPhaseNumber(self):
-        return self.actualPhase
+        return self.currentPhase
 
 
 #-----------------------------------------------------------------------------------------
@@ -79,7 +78,7 @@ class SGTimeManager():
     def addGamePhase(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
         aPhase=SGTimePhase(name,orderNumber,activePlayer,nextStepAction,conditionOfTrigger)
         if orderNumber == 0 :
-            self.parent.actualPlayer=activePlayer
+            self.model.actualPlayer=activePlayer
         self.orderGamePhases.insert(orderNumber,aPhase)
         return aPhase
     
@@ -90,15 +89,15 @@ class SGTimeManager():
 
     #To verify a number of round
     def verifNumberOfRound(self,aNumber):
-        return self.actualRound==aNumber
+        return self.currentRound==aNumber
     
     #To verify if the number of round is peer 
     def isPeer(self):
-        return self.actualRound%2==0
+        return self.currentRound%2==0
     
     #To verify if the number of round is odd
     def isOdd(self):
-        return self.actualRound%2==1
+        return self.currentRound%2==1
     
     def checkGameOrderPhase(self):
         for phase in self.orderGamePhases:

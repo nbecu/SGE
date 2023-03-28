@@ -12,8 +12,7 @@ class SGCell(QtWidgets.QWidget):
     def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase):
         super().__init__(parent)
         #Basic initialize
-        self.parent=parent
-        self.model=parent.model
+        self.grid=parent
         self.theCollection=theCollection
         self.x=x
         self.y=y
@@ -87,8 +86,8 @@ class SGCell(QtWidgets.QWidget):
     #Funtion to handle the zoom
     def zoomIn(self):
         oldSize=self.size
-        self.size=self.parent.size
-        self.gap=self.parent.gap
+        self.size=self.grid.size
+        self.gap=self.grid.gap
         """for anAgent in self.collectionOfAgents.agents:
             coeffX=anAgent.x/oldSize
             anAgent.x=int(self.size*coeffX)
@@ -98,8 +97,8 @@ class SGCell(QtWidgets.QWidget):
     
     def zoomOut(self):
         oldSize=self.size
-        self.size=self.parent.size
-        self.gap=self.parent.gap
+        self.size=self.grid.size
+        self.gap=self.grid.gap
         """for anAgent in self.collectionOfAgents.agents:
             coeffX=anAgent.x/oldSize
             anAgent.x=int(self.size*coeffX)
@@ -108,8 +107,8 @@ class SGCell(QtWidgets.QWidget):
         self.update()
         
     def zoomFit(self):
-        self.size=self.parent.size
-        self.gap=self.parent.gap
+        self.size=self.grid.size
+        self.gap=self.grid.gap
         self.update()
 
     def convert_coordinates(self, global_pos: QPoint) -> QPoint:
@@ -123,23 +122,23 @@ class SGCell(QtWidgets.QWidget):
         
     def dropEvent(self, e):
         e.accept()
-        if len(e.source().history["coordinates"])==0:
-            e.source().history["coordinates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
-        thePlayer=self.parent.parent.getPlayer()
+        #if len(e.source().history["coordinates"])==0:
+            #e.source().history["coordinates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
+        thePlayer=self.grid.model.getPlayer()
         theAction=None
         if thePlayer is not None :
             theAction=thePlayer.getMooveActionOn(e.source())
-            if not self.parent.parent.whoIAm=="Admin":
+            if not self.grid.model.whoIAm=="Admin":
                 self.feedBack(theAction,e.source())
         #We remove the agent of the actual cell
         e.source().deleteLater()
         #We add the agent to the new cell
-        theAgent=self.parent.parent.newAgent(self.parent,e.source().species,self.x+1,self.y+1,e.source().id,self.parent.parent.AgentSpecies[str(e.source().species)]['AgentList'][str(e.source().id)]['attributs'])
-        '''theAgent=self.parent.addOnXandY(e.source(),self.x+1,self.y+1)
+        theAgent=self.grid.model.newAgent(self.grid,e.source().species,self.x+1,self.y+1,e.source().id,self.grid.model.AgentSpecies[str(e.source().species)]['AgentList'][str(e.source().id)]['attributs'])
+        '''theAgent=self.grid.addOnXandY(e.source(),self.x+1,self.y+1)
         theAgent.x=e.pos().x()
         theAgent.y=e.pos().y()'''
         
-        #theAgent.history['coordinates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
+        #theAgent.history['coordinates'].append([self.grid.model.timeManager.actualRound,self.grid.model.timeManager.actualPhase,self.cell.id+'-'+str(self.x)+'-'+str(self.y)])
         theAgent.show()
             
 
@@ -152,10 +151,10 @@ class SGCell(QtWidgets.QWidget):
         if self.isDisplay==False:
             return Qt.transparent
         
-        if self.parent.parent.nameOfPov in self.theCollection.povs.keys():
+        if self.grid.model.nameOfPov in self.theCollection.povs.keys():
             self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
-            for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+            for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                      return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
         
         else:
@@ -168,18 +167,18 @@ class SGCell(QtWidgets.QWidget):
                 
     #To get the pov
     def getPov(self):
-        return self.parent.parent.nameOfPov
+        return self.grid.model.nameOfPov
          
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
             #Something is selected
-            if self.parent.parent.selected[0]!=None :
+            if self.grid.model.selected[0]!=None :
                 #We shearch if the player have the rights
-                thePlayer=self.parent.parent.getPlayer()
+                thePlayer=self.grid.model.getCurrentPlayer()
                 authorisation=False
                 theAction = None
-                if self.parent.parent.selected[0].isFromAdmin():
+                if self.grid.model.selected[0].isFromAdmin():
                     authorisation=True
 
                 elif thePlayer is not None :
@@ -190,7 +189,7 @@ class SGCell(QtWidgets.QWidget):
                             theAction.use()
          
                 #The delete Action
-                if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
+                if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
                     if authorisation : 
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
@@ -201,55 +200,55 @@ class SGCell(QtWidgets.QWidget):
                             for i in reversed(range(len(self.collectionOfAgents.agents))):
                                 self.collectionOfAgents.agents[i].deleteLater()
                                 del self.collectionOfAgents.agents[i]
-                        self.parent.collectionOfCells.removeVisiblityCell(self.getId())
-                        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,"deleted"])
+                        self.grid.collectionOfCells.removeVisiblityCell(self.getId())
+                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
                         self.show()
                         self.repaint()
 
                 #The Replace cell and change value Action
-                elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
+                elif self.grid.model.selected[1]== "square" or self.grid.model.selected[1]=="hexagonal":
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
                         if theAction is not None:
                             self.feedBack(theAction)
-                        if self.parent.parent.selected[0].parent.id!="adminLegend":
-                             self.owner=self.parent.parent.actualPlayer
+                        if self.grid.model.selected[0].legend.id!="adminLegend":
+                             self.owner=self.grid.model.actualPlayer
                         self.isDisplay=True
-                        value =self.parent.parent.selected[3]
+                        value =self.grid.model.selected[3]
                         theKey=""
-                        for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                            if value in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
+                        for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                            if value in list(self.theCollection.povs[self.grid.model.nameOfPov][anAttribute].keys()) :
                                 theKey=anAttribute
                                 break
                         aDictWithValue={theKey:value}    
                         for aVal in list(aDictWithValue.keys()) :
-                            if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
-                                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                            if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()) :
+                                    for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
+                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
                         self.update()
 
                 #For agent placement         
                 else :
                     if  authorisation :
-                        aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
-                        if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
-                            anAgentName=str(self.parent.parent.selected[5])
+                        aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
+                        if self.grid.model.selected[5] in list(self.grid.collectionOfAcceptAgent.keys()):
+                            anAgentName=str(self.grid.model.selected[5])
                             if self.isDisplay==True :
                                 #We now check the feedBack of the actions if it have some
                                 if theAction is not None:
                                     self.feedBack(theAction)
-                                anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
+                                anAgent=self.grid.addOnXandY(anAgentName,self.x+1,self.y+1,self.grid.parent.selected[3])
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
                                 anAgent.x=QMouseEvent.pos().x()-round(anAgent.size/2)
                                 anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
-                                if self.parent.parent.selected[0].parent.id!="adminLegend":
-                                    anAgent.owner=self.parent.parent.actualPlayer
-                                anAgent.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,anAgent.attributs])
-                                anAgent.history["coordinates"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)])
+                                if self.grid.model.selected[0].legend.id!="adminLegend":
+                                    anAgent.owner=self.grid.model.actualPlayer
+                                anAgent.history["value"].append([self.grid.model.timeManager.actualRound,self.grid.model.timeManager.actualPhase,anAgent.attributs])
+                                anAgent.history["coordinates"].append([self.grid.model.timeManager.actualRound,self.grid.model.timeManager.actualPhase,self.grid.id+"-"+str(self.x)+"-"+str(self.y)])
                                 anAgent.update()
                                 anAgent.show()
 
@@ -296,10 +295,10 @@ class SGCell(QtWidgets.QWidget):
 
     def setUpCellValue(self,aDictOfValue):
         for anAttribut in aDictOfValue:
-            if anAttribut in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+            if anAttribut in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                     self.attributs[aVal]=[]
-                for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                     del self.attributs[aVal]
                 self.attributs[anAttribut]=aDictOfValue[anAttribut]
 
@@ -314,8 +313,8 @@ class SGCell(QtWidgets.QWidget):
     def changeValue(self,aDictOfValue):
         if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.attributs])
-        self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
-        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
+        self.grid.setForXandY(aDictOfValue,self.x+1,self.y+1)
+        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
      
     #To delete a kind of Agent on the cell   
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
@@ -366,63 +365,63 @@ class SGCell(QtWidgets.QWidget):
                 if self.y%2==0 :
                     #Top Left
                     if self.x-1>=0 and self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Bottom Left
-                    if self.x-1>=0 and self.y+1<=self.parent.rows:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
+                    if self.x-1>=0 and self.y+1<=self.grid.rows:
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Top
                     if  self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Left
                     if  self.x-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Right
-                    if  self.x+1<=self.parent.columns:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                    if  self.x+1<=self.grid.columns:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Bottom
-                    if  self.y+1<=self.parent.rows:
-                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                    if  self.y+1<=self.grid.rows:
+                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                 else:
                     #Top Right
-                    if self.x+1<=self.parent.columns and self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
+                    if self.x+1<=self.grid.columns and self.y-1>=0:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Bottom Right
-                    if self.x+1<=self.parent.columns and self.y+1<=self.parent.rows:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
+                    if self.x+1<=self.grid.columns and self.y+1<=self.grid.rows:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             listOfCell.append(cell) 
                     #Top
                     if  self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Left
                     if  self.x-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Right
-                    if  self.x+1<=self.parent.columns:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                    if  self.x+1<=self.grid.columns:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                     #Bottom
-                    if  self.y+1<=self.parent.rows:
-                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                    if  self.y+1<=self.grid.rows:
+                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             listOfCell.append(cell)
                 for cell in listOfCell:
@@ -432,42 +431,42 @@ class SGCell(QtWidgets.QWidget):
                 if type=="moore":
                     #Top Left
                     if self.x-1>=0 and self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
                     #Top Right
-                    if self.x+1<=self.parent.columns and self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
+                    if self.x+1<=self.grid.columns and self.y-1>=0:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
                     #Bottom Left
-                    if self.x-1>=0 and self.y+1<=self.parent.rows:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
+                    if self.x-1>=0 and self.y+1<=self.grid.rows:
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
                     #Bottom Right
-                    if self.x+1<=self.parent.columns and self.y+1<=self.parent.rows:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
+                    if self.x+1<=self.grid.columns and self.y+1<=self.grid.rows:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList) 
                     #Top
                     if  self.y-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
                     #Left
                     if  self.x-1>=0:
-                        cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList) 
                     #Right
-                    if  self.x+1<=self.parent.columns:
-                        cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                    if  self.x+1<=self.grid.columns:
+                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
                     #Bottom
-                    if  self.y+1<=self.parent.rows-1:
-                        cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                    if  self.y+1<=self.grid.rows-1:
+                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
                         if cell not in emptyList:
                             cell.getNeighborCell(type,rangeNeighbor-1,emptyList)
                 elif type=="neumann":
@@ -478,7 +477,7 @@ class SGCell(QtWidgets.QWidget):
         return emptyList
         """for oui in emptyList:
             if len(oui.getAgentsOfType("lac"))==0:
-                oui.parent.addOnXandY("lac",oui.x+1,oui.y+1)"""
+                oui.grid.addOnXandY("lac",oui.x+1,oui.y+1)"""
                     
     def getNeumannNeighbor(self,rangeNeighbor,emptyList=[],origin="init"):
         emptyList.append(self)
@@ -487,45 +486,45 @@ class SGCell(QtWidgets.QWidget):
                 emptyList.remove(self)
                 #Top
                 if  self.y-1>=0:
-                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
                 #Left
                 if  self.x-1>=0:
-                    cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                    cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
                 #Right
-                if  self.x+1<=self.parent.columns-1:
-                    cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                if  self.x+1<=self.grid.columns-1:
+                    cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'right')
                 #Bottom
-                if  self.y+1<=self.parent.rows-1:
-                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                if  self.y+1<=self.grid.rows-1:
+                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'bottom') 
             elif origin == "top":
                 #Top
                 if  self.y-1>=0:
-                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y-1))
+                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
             elif origin=="bottom":
                 #Bottom
-                if  self.y+1<=self.parent.rows-1:
-                    cell=self.parent.getCell("cell"+str(self.x)+"-"+str(self.y+1))
+                if  self.y+1<=self.grid.rows-1:
+                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'bottom') 
             elif origin =="right":
                 #Right
-                if  self.x+1<=self.parent.columns-1:
-                    cell=self.parent.getCell("cell"+str(self.x+1)+"-"+str(self.y))
+                if  self.x+1<=self.grid.columns-1:
+                    cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'right')
             elif origin =='left':
                 if  self.x-1>=0:
-                    cell=self.parent.getCell("cell"+str(self.x-1)+"-"+str(self.y))
+                    cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
                     if cell not in emptyList:
                         cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
         
@@ -534,11 +533,11 @@ class SGCell(QtWidgets.QWidget):
         
     #Function to check the ownership  of the cell          
     def isMine(self):
-        return self.owner==self.parent.parent.actualPlayer
+        return self.owner==self.grid.model.actualPlayer
     
     #Function to check the ownership  of the cell          
     def isMineOrAdmin(self):
-        return self.owner==self.parent.parent.actualPlayer or self.owner=="admin"
+        return self.owner==self.grid.model.actualPlayer or self.owner=="admin"
     
     #Function to change the ownership         
     def makeOwner(self,newOwner):
@@ -546,7 +545,7 @@ class SGCell(QtWidgets.QWidget):
         
     #Function get the ownership        
     def getProperty(self):
-        self.owner=self.parent.parent.actualPlayer
+        self.owner=self.grid.model.actualPlayer
         
         
     #Function get if the cell have change the value in       
@@ -554,12 +553,12 @@ class SGCell(QtWidgets.QWidget):
         haveChange=False
         if not len(self.history["value"]) ==0:
             for anItem in self.history["value"].reverse():
-                if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
+                if anItem.roundNumber> self.grid.model.timeManager.currentRound-numberOfRound:
                     if not anItem.thingsSave == self.attributs:
                         haveChange=True
                         break
-                elif anItem.roundNumber== self.parent.parent.timeManager.actualRound-numberOfRound:
-                    if anItem.phaseNumber<=self.parent.parent.timeManager.actualPhase:
+                elif anItem.roundNumber== self.grid.model.timeManager.currentRound-numberOfRound:
+                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhase:
                         if not anItem.thingsSave == self.attributs:
                             haveChange=True
                             break

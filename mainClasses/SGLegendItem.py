@@ -11,7 +11,7 @@ class SGLegendItem(QtWidgets.QWidget):
     def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut=""):
         super().__init__(parent)
         #Basic initialize
-        self.parent=parent
+        self.legend=parent
         self.type=type
         self.valueOfAttribut=valueOfAttribut
         self.nameOfAttribut=nameOfAttribut
@@ -21,11 +21,11 @@ class SGLegendItem(QtWidgets.QWidget):
         
     #Drawing function
     def paintEvent(self,event):
-        if self.parent.checkDisplay():
+        if self.legend.checkDisplay():
             painter = QPainter() 
             painter.begin(self)
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
-            if self.parent.parent.selected[0] == self :
+            if self.legend.model.selected[0] == self :
                 painter.setPen(QPen(Qt.red,2));
             #Square cell
             if(self.type=="square") :   
@@ -89,11 +89,11 @@ class SGLegendItem(QtWidgets.QWidget):
                 aFont=QFont("Verdana",10)
                 aFont.setUnderline(True)
                 painter.setFont(aFont)
-                painter.drawText(QRect(15,0,self.parent.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
+                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
             else :
                 painter.setFont(QFont("Verdana",8))
-                painter.drawText(QRect(40,5,self.parent.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
-            self.setMinimumSize(self.parent.getSizeXGlobal()-50,10)
+                painter.drawText(QRect(40,5,self.legend.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
+            self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
             self.move(10,self.y*20+5*self.y)
             painter.end()
             
@@ -121,13 +121,13 @@ class SGLegendItem(QtWidgets.QWidget):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
             #Already selected
-            if self.parent.parent.selected[0]==self :
-                self.parent.parent.selected=[None]
+            if self.legend.model.selected[0]==self :
+                self.legend.model.selected=[None]
 
             #Selection of an item and suppresion of already selected Item
             else :
                 if self.type!="None":
-                    self.parent.parent.selected=[None]
+                    self.legend.model.selected=[None]
                     selectedItem=[self]
                     selectedItem.append(self.type) 
                     selectedItem.append(self.texte)
@@ -140,8 +140,8 @@ class SGLegendItem(QtWidgets.QWidget):
                         selectedItem.append(self.valueOfAttribut)
                         selectedItem.append(self.nameOfAttribut)
                     selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
-                    self.parent.parent.selected=selectedItem
-                    self.parent.parent.update()
+                    self.legend.model.selected=selectedItem
+                    self.legend.model.update()
         self.update()
         
     #To handle the drag of the grid
@@ -151,7 +151,7 @@ class SGLegendItem(QtWidgets.QWidget):
     
     #To test is it from the admin Legend
     def isFromAdmin(self):
-        return self.parent.id=="adminLegend"
+        return self.legend.id=="adminLegend"
                     
 
         
