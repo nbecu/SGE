@@ -338,7 +338,7 @@ class SGGrid(SGGameSpace):
         return Agentlist'''
 
     
-    #to add agent on multiple cell depending of their value
+    '''#to add agent on multiple cell depending of their value
     def addAgentOnValue(self,anAgentName,aDictValueForAgent,aValueForAgent=None):
         cells=self.getCellOfValue(aDictValueForAgent)
         listOfAgent=[]
@@ -354,7 +354,7 @@ class SGGrid(SGGameSpace):
             anAgent.show()
             self.update()
             listOfAgent.append(anAgent)
-        return listOfAgent
+        return listOfAgent'''
         
 #To add a specific pov 
     def setUpPov(self,aNameOfPov,aDictOfValue,theTypeOfObjectToApply="cells",theNameOfTheAgent="circleAgent"):
@@ -426,8 +426,9 @@ class SGGrid(SGGameSpace):
                                 anAgent.attributs.pop(anAttribut,None)
                                 anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]] 
                                 return True
-        return False   
-    
+        return False
+
+
     #To get a cell of the grid
     def getACell(self):        
         return self.collectionOfCells.getCells()[list(self.collectionOfCells.getCells().keys())[0]]

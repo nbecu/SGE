@@ -3,7 +3,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
+from SGAgent import SGAgent
+import re
 
 
    
@@ -235,22 +236,19 @@ class SGCell(QtWidgets.QWidget):
                 else :
                     if  authorisation :
                         aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
-                        if self.grid.model.selected[5] in list(self.grid.collectionOfAcceptAgent.keys()):
-                            anAgentName=str(self.grid.model.selected[5])
-                            if self.isDisplay==True :
-                                #We now check the feedBack of the actions if it have some
-                                if theAction is not None:
-                                    self.feedBack(theAction)
-                                anAgent=self.grid.addOnXandY(anAgentName,self.x+1,self.y+1,self.grid.parent.selected[3])
-                                anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
-                                anAgent.x=QMouseEvent.pos().x()-round(anAgent.size/2)
-                                anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
-                                if self.grid.model.selected[0].legend.id!="adminLegend":
-                                    anAgent.owner=self.grid.model.actualPlayer
-                                anAgent.history["value"].append([self.grid.model.timeManager.actualRound,self.grid.model.timeManager.actualPhase,anAgent.attributs])
-                                anAgent.history["coordinates"].append([self.grid.model.timeManager.actualRound,self.grid.model.timeManager.actualPhase,self.grid.id+"-"+str(self.x)+"-"+str(self.y)])
-                                anAgent.update()
-                                anAgent.show()
+                        Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
+                        if self.isDisplay==True :
+                            #We now check the feedBack of the actions if it have some
+                            if theAction is not None:
+                                self.feedBack(theAction)
+                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.AgentSpecies[Species]['Shape'],defaultsize=self.grid.model.AgentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.AgentSpecies[Species]['AttributList'],id=None)
+                            self.grid.model.addAgent(self.grid,theSpecies,aDictWithValue,method=None,cell=self)
+                            #if self.grid.model.selected[0].legend.id!="adminLegend":
+                            #    anAgent.owner=self.grid.model.actualPlayer
+                            #anAgent.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,anAgent.attributs])
+                            #anAgent.history["coordinates"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.grid.id+"-"+str(self.x)+"-"+str(self.y)])
+                            self.update()
+                            self.grid.model.update()
 
                             
                                     
@@ -317,7 +315,7 @@ class SGCell(QtWidgets.QWidget):
         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
      
     #To delete a kind of Agent on the cell   
-    def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+    '''def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
         if len(self.collectionOfAgents.agents) !=0:
             nbrDelete=0
             count=0
@@ -339,7 +337,7 @@ class SGCell(QtWidgets.QWidget):
                             del agent
                             break
             return nbrDelete
-        self.show()
+        self.show()'''
     
         
     #To get all of a kind of agent on a cell 

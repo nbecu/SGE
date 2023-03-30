@@ -13,7 +13,7 @@ class SGAgent(QtWidgets.QWidget):
         super().__init__(parent)
         #Basic initialize
         self.cell=parent
-        self.model=parent
+        self.tomodel=parent
         self.name=name
         self.format=format
         self.size=defaultsize
@@ -232,18 +232,18 @@ class SGAgent(QtWidgets.QWidget):
             DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
             
         """
-        if self.model.AgentSpecies[str(self.name)]['me']=='collec':
-            self.model.AgentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
+        if self.tomodel.AgentSpecies[str(self.name)]['me']=='collec':
+            self.tomodel.AgentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
             self.addPovinMenuBar(nameofPOV)
         else:
             print("Warning, a POV can be only define on a Species")
 
     def addPovinMenuBar(self,nameOfPov):
-        if nameOfPov not in self.model.listOfPovsForMenu :
-            self.model.listOfPovsForMenu.append(nameOfPov)
+        if nameOfPov not in self.tomodel.listOfPovsForMenu :
+            self.tomodel.listOfPovsForMenu.append(nameOfPov)
             anAction=QAction(" &"+nameOfPov, self)
-            self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
+            self.tomodel.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.tomodel.setInitialPov(nameOfPov))
         
 
     def updateAgentValue(self,attribut,value):

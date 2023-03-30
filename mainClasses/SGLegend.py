@@ -68,7 +68,7 @@ class SGLegend(SGGameSpace):
                                         for aValue in self.AgentPOVList[Species][aPov][anAtt].keys():
                                             item_key = Species + anAtt + aValue
                                             if item_key not in added_items:
-                                                text ='['+ Species +'] '+ anAtt +' : ' + aValue
+                                                text = Species +' : '+ anAtt +' : ' + aValue
                                                 self.y = self.y + 1
                                                 aColor = self.AgentPOVList[Species][aPov][anAtt][aValue]
                                                 anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)

@@ -419,7 +419,7 @@ class SGModel(QtWidgets.QMainWindow):
             self.gameSpaces["adminLegend"].deleteLater()
             del self.gameSpaces["adminLegend"]
         aLegend=self.createLegendAdmin()
-        aLegend.addDeleteButton()
+        aLegend.addDeleteButton('Delete')
 
 
     #To create a New kind of agents
@@ -463,8 +463,10 @@ class SGModel(QtWidgets.QMainWindow):
         if aID is None:
             anAgentID=self.IDincr+1
             self.IDincr=+1
+
         else:
             anAgentID=aID
+
         if aDictofAttributs is None:
             aDictofAttributs={}
 
@@ -481,19 +483,26 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.me='agent'
         aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
-        self.AgentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
+        self.AgentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.cell,'species':aAgent.name,'size':aAgent.size,
                             'attributs':aDictofAttributs,"AgentObject":aAgent
                             }
+        for key in aAgentSpecies.dictOfAttributs:
+            val=list(aAgentSpecies.dictOfAttributs[key])[0]
+            aAgent.updateAgentValue(key,val)
         
         return aAgent
     
     def getAgents(self):
         agent_list = []
+        id_list=[]
         for animal, sub_dict in self.AgentSpecies.items():
             for agent_id, agent_dict in sub_dict['AgentList'].items():
                 agent_list.append(agent_dict['AgentObject'])
+                id_list.append(agent_id)
+        self.ids=id_list
         self.agents=agent_list
         return self.agents
+
     
     def updateAgentPosition(self,aGrid,theAgent,theCell):
         # NEED TO BE REWORKED #
@@ -513,6 +522,66 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.show()
         return aAgent
     
+    # To add an Agent with attributs values
+    def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1,method='random',cell=None):
+        if aDictOfAttributsWithValues==None:
+            aDictOfAttributsWithValues={}
+        for i in range(numberOfAgent):
+            incr=len(self.getAgents())
+            self.IDincr=+incr
+            anAgentID=self.IDincr+1
+            if method=='random':
+                ValueX=random.randint(0, aGrid.columns)
+                if ValueX<=0:
+                    ValueX=+1
+                ValueY=random.randint(0, aGrid.rows)
+                if ValueY<=0:
+                    ValueY=+1
+                Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
+            else:
+                Cellparent=cell
+            anAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+            anAgent.me='agent'
+            anAgent.isDisplay=True
+            anAgent.species=str(aAgentSpecies.name)
+            self.AgentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
+                            'attributs':aDictOfAttributsWithValues,"AgentObject":anAgent}
+            
+            for key in aAgentSpecies.dictOfAttributs:
+                if key not in aDictOfAttributsWithValues:
+                    val=list(aAgentSpecies.dictOfAttributs[key])[0]
+                    anAgent.updateAgentValue(key,val)
+
+            anAgent.show()
+            self.update()
+        pass
+    
+    # To add an Agent on a particular Cell type
+
+    # IN PROGRESS #
+
+    # To delete an Agent
+    def deleteAgent(self,anAgentID,condition=[]):
+        AgentPaths=[]
+        if len(self.getAgents()) !=0:
+            # harvest of all agents
+            for animal, sub_dict in self.AgentSpecies.items():
+                for agent_id, agent_dict in sub_dict['AgentList'].items():
+                    AgentPath={agent_id:agent_dict}
+                    AgentPaths.append(AgentPath)
+            # find the agent
+            for paths in AgentPaths:
+                for key in paths:
+                    if anAgentID==str(key):
+                        aAgent=paths[str(key)]['AgentObject']
+                        print(aAgent)
+                        break
+            aAgent.deleteLater()
+            self.update()
+            self.updateLegendAdmin()
+        self.show()
+
+
     #To get the player
     def getCurrentPlayer(self):
         if len(self.timeManager.orderGamePhases) < self.timeManager.currentPhase:
