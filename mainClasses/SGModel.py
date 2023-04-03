@@ -489,9 +489,10 @@ class SGModel(QtWidgets.QMainWindow):
         self.AgentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.cell,'species':aAgent.name,'size':aAgent.size,
                             'attributs':aDictofAttributs,"AgentObject":aAgent
                             }
-        for key in aAgentSpecies.dictOfAttributs:
-            val=list(aAgentSpecies.dictOfAttributs[key])[0]
-            aAgent.updateAgentValue(key,val)
+        if aDictofAttributs is None:
+            for key in aAgentSpecies.dictOfAttributs:
+                val=list(aAgentSpecies.dictOfAttributs[key])[0]
+                aAgent.updateAgentValue(key,val)
         
         return aAgent
     

@@ -122,30 +122,33 @@ class SGCell(QtWidgets.QWidget):
         e.accept()
         
     def dropEvent(self, e):
+        oldAgent=0
+        AgentSpecie=0
         e.accept()
-        #if len(e.source().history["coordinates"])==0:
-            #e.source().history["coordinates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
-        thePlayer=self.grid.model.getPlayer()
+        thePlayer=self.grid.model.getCurrentPlayer()
         theAction=None
         if thePlayer is not None :
             theAction=thePlayer.getMooveActionOn(e.source())
             if not self.grid.model.whoIAm=="Admin":
                 self.feedBack(theAction,e.source())
-        #We remove the agent of the actual cell
-        e.source().deleteLater()
-        #We add the agent to the new cell
-        theAgent=self.grid.model.newAgent(self.grid,e.source().species,self.x+1,self.y+1,e.source().id,self.grid.model.AgentSpecies[str(e.source().species)]['AgentList'][str(e.source().id)]['attributs'])
-        '''theAgent=self.grid.addOnXandY(e.source(),self.x+1,self.y+1)
-        theAgent.x=e.pos().x()
-        theAgent.y=e.pos().y()'''
-        
-        #theAgent.history['coordinates'].append([self.grid.model.timeManager.actualRound,self.grid.model.timeManager.actualPhase,self.cell.id+'-'+str(self.x)+'-'+str(self.y)])
+        oldAgent=e.source()
+        '''for attribute, value in vars(oldAgent).items():
+            print(f"{attribute}: {value}")'''
+
+        for instance in SGAgent.instances:
+            if instance.me=='collec' and instance.name==oldAgent.name:
+                AgentSpecie=instance
+                break
+
+        print(self.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x+1,self.y+1,oldAgent.id,self.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
         theAgent.show()
-            
+        
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
-        return theAgent
+        e.source().deleteLater()
+        
         
     #To manage the attribute system of a cell
     def getColor(self):

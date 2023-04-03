@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import  QAction
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(QtWidgets.QWidget):
+    instances=[]
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,methodOfPlacement="random"):
@@ -37,6 +38,7 @@ class SGAgent(QtWidgets.QWidget):
         self.id=id
         self.species=0
         self.isDisplay=bool
+        self.instances.append(self)
         
 
     #Drawing function
