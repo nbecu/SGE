@@ -15,6 +15,7 @@ from SGAgent import SGAgent
 from SGPlayer import SGPlayer
 from SGTimeManager import SGTimeManager
 from SGTimeLabel import SGTimeLabel
+from SGMessageBox import SGMessageBox
 
 from SGGrid import SGGrid
 from SGVoid import SGVoid
@@ -70,6 +71,7 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition of variable
         #Definition for all gameSpaces
         self.gameSpaces={}
+        self.messageBoxes=[]
         #Definition of the AgentCollection
         self.AgentSpecies={}
         self.agents=self.getAgents()
@@ -239,6 +241,7 @@ class SGModel(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         print("trigger")
         self.haveToBeClose=True
+        self.getMessageBoxHistory(self.messageBoxes)
         if hasattr(self, 'client'):
             self.client.disconnect()
         self.close()
@@ -590,7 +593,7 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             return None
     
-    #To create a GameBoard
+    #To create a Time Label
     def addTimeLabel(self,name='Rounds&Phases'):
         """
         Create the visual time board of the game
@@ -614,6 +617,36 @@ class SGModel(QtWidgets.QMainWindow):
             aTimeLabel.move(aTimeLabel.startXBase+20*pos[0],aTimeLabel.startYBase+20*pos[1])
 
         return aTimeLabel
+    
+    #To create a Message Box
+    def addMessageBox(self,name='Message Box',textToWrite='Welcome in the game !'):
+        """
+        Create a message box
+
+        Args:
+        name (str) : name of the widget (default: "Message Box")
+        textToWrite (str) : displayed text in the widget (default: "Welcome in the game!")
+        """
+        aMessageBox=SGMessageBox(self,name,textToWrite)
+        self.messageBoxes.append(aMessageBox)
+        self.gameSpaces[name]=aMessageBox
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aMessageBox)
+        aMessageBox.setStartXBase(newPos[0])
+        aMessageBox.setStartYBase(newPos[1])
+        if(self.typeOfLayout=="vertical"):
+            aMessageBox.move(aMessageBox.startXBase,aMessageBox.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aMessageBox))
+        elif(self.typeOfLayout=="horizontal"):
+            aMessageBox.move(aMessageBox.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aMessageBox),aMessageBox.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aMessageBox)
+            aMessageBox.move(aMessageBox.startXBase+20*pos[0],aMessageBox.startYBase+20*pos[1])
+
+        return aMessageBox
+    
+    def getMessageBoxHistory(self,MessageBoxes):
+        for aMessageBox in MessageBoxes:
+            print(str(aMessageBox.id)+' : '+str(aMessageBox.history))
     
     
     def getCurrentRound(self):

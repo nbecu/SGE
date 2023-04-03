@@ -40,22 +40,22 @@ theFirstLegend=myModel.createLegendAdmin()
 
 # Testing other programatic changes on the cell and agents
 GameRounds=myModel.addTimeLabel('Rounds&Phases')
-myModel.timeManager.addGamePhase('début',1)
-myModel.timeManager.addGamePhase('milieu',2,None,
+myModel.timeManager.addGamePhase('début')
+myModel.timeManager.addGamePhase('milieu',None,
                                  [lambda: m1.updateAgentValue('health','good'),
                                  lambda: v1.updateAgentValue('health','bad')])
-myModel.timeManager.addGamePhase('fin',3,None,
+myModel.timeManager.addGamePhase('fin',None,
                                  [lambda: m1.updateAgentValue('health','bad'),
                                 lambda: v1.updateAgentValue('health','good')])
-myModel.timeManager.addGamePhase('fin2',4,None,
+myModel.timeManager.addGamePhase('fin2',None,
                                     [lambda: aGrid.setForRandom({"landUse":"shrub"},20)],[lambda: myModel.getTimeManager().currentRound == 3 ])
-myModel.timeManager.addGamePhase('fin2',4,None,
+myModel.timeManager.addGamePhase('fin2',None,
                                     [lambda: aGrid.setForRandom({"landUse":"forest"},6)],[lambda: myModel.getTimeManager().verifNumberOfRound(5) ])
-# myModel.timeManager.addGamePhase('fin des fins',5,None,
+# myModel.timeManager.addGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.addAgentOnValue("Moutons",{"health":"bad"})])      --->  Does not work
-# myModel.timeManager.addGamePhase('fin des fins',5,None,
+# myModel.timeManager.addGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.moveRandomlyAgent("Moutons")])   --->  Does not work
-# myModel.timeManager.addGamePhase('fin des fins',5,None,
+# myModel.timeManager.addGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.deleteAgent("Moutons")])  --->  Does not work
 
 

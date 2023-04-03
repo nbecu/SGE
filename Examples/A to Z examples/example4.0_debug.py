@@ -40,12 +40,13 @@ theFirstLegend=myModel.createLegendAdmin()
 
 
 GameRounds=myModel.addTimeLabel()
-myModel.timeManager.addGamePhase('Phase 1',1)
-myModel.timeManager.addGamePhase('Phase 2',2)
-myModel.timeManager.addGamePhase('Phase 3',3)
-myModel.timeManager.addGamePhase('Phase 4',4,None,[lambda: myModel.addAgent(aGrid,Moutons,{'health':'good'},numberOfAgent=2)])
-myModel.timeManager.addGamePhase('Phase 5',5)
-myModel.timeManager.checkGameOrderPhase()
+myModel.timeManager.addGamePhase('Phase 1')
+myModel.timeManager.addGamePhase('Phase 2')
+myModel.timeManager.addGamePhase('Phase 3')
+myModel.timeManager.addGamePhase('Phase 4',None,[lambda: myModel.addAgent(aGrid,Moutons,{'health':'good'},numberOfAgent=2)])
+myModel.timeManager.addGamePhase('Phase 5')
+
+MessageBox=myModel.addMessageBox()
 
 
 myModel.iAm("Admin")

@@ -1,12 +1,10 @@
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import true
 
 from SGGameSpace import SGGameSpace
-from SGTimeManager import SGTimeManager
-from SGTimePhase import SGTimePhase
-from SGGrid import SGGrid
+
 
 #Class who is responsible of the Legend creation 
 class SGTimeLabel(SGGameSpace):
@@ -16,8 +14,6 @@ class SGTimeLabel(SGGameSpace):
         self.timeManager=parent.timeManager
         self.borderColor=borderColor
         self.y=0
-        self.round=0
-        self.phase=0
         self.labels=0
         self.moveable=True
         self.initUI()
@@ -29,19 +25,25 @@ class SGTimeLabel(SGGameSpace):
         self.labelTitle = QtWidgets.QLabel(self)
         self.label1 = QtWidgets.QLabel(self)
         self.label2 = QtWidgets.QLabel(self)
+        self.label3 = QtWidgets.QLabel(self)
         
 
-        self.labelTitle.setText('IN-GAME TIME')
-        self.label1.setText('Round Number: 1')
-        self.label2.setText('Phase Number: 1')
+        self.labelTitle.setText(self.id)
+        self.label1.setText('Round Number: Not started')
+        self.label2.setText('Phase Number: Not started')
+        currentPhase=self.timeManager.phases[int(self.timeManager.currentPhase)-1]
+        self.label3.setText(currentPhase.name)
 
-        self.labels=['IN-GAME TIME','Round number: 0','Phase number: 0']
+        self.labels=['IN-GAME TIME','Round number: 0','Phase number: 0','Phase name']
 
         self.label1.setFixedHeight(self.label1.fontMetrics().boundingRect(self.label1.text()).height())
         self.label1.setFixedWidth(self.label1.fontMetrics().boundingRect(self.label1.text()).width())
 
         self.label2.setFixedHeight(self.label2.fontMetrics().boundingRect(self.label2.text()).height())
         self.label2.setFixedWidth(self.label2.fontMetrics().boundingRect(self.label2.text()).width())
+
+        self.label3.setFixedHeight(self.label3.fontMetrics().boundingRect(self.label3.text()).height())
+        self.label3.setFixedWidth(self.label3.fontMetrics().boundingRect(self.label3.text()).width())
 
         self.labelTitle.setFixedHeight(self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).height())
         self.labelTitle.setFixedWidth(self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).width())
@@ -55,11 +57,14 @@ class SGTimeLabel(SGGameSpace):
         layout.addWidget(self.label1)
         layout.addSpacing(10000)
         layout.addWidget(self.label2)
+        layout.addSpacing(10000)
+        layout.addWidget(self.label3)
 
         # Définir le layout pour le widget
         self.setLayout(layout)
         self.show()
-#Funtion to have the global size of a gameSpace  
+
+    #Function to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         return 70+len(self.getLongest())*5
     
@@ -89,9 +94,11 @@ class SGTimeLabel(SGGameSpace):
 
             painter.end()
         
-    def updateTimeLabel(self,currentRound,currentPhase):
-        self.label1.setText('Round Number : {}'.format(currentRound))
-        self.label2.setText('Phase Number : {}'.format(currentPhase))
+    def updateTimeLabel(self):
+        self.label1.setText('Round Number : {}'.format(self.timeManager.currentRound))
+        self.label2.setText('Phase Number : {}'.format(self.timeManager.currentPhase))
+        currentPhase=self.timeManager.phases[int(self.timeManager.currentPhase)]
+        self.label3.setText(currentPhase.name)
 
         self.label1.setFixedHeight(self.label1.fontMetrics().boundingRect(self.label1.text()).height())
         self.label1.setFixedWidth(self.label1.fontMetrics().boundingRect(self.label1.text()).width())
@@ -99,8 +106,11 @@ class SGTimeLabel(SGGameSpace):
         self.label2.setFixedHeight(self.label2.fontMetrics().boundingRect(self.label2.text()).height())
         self.label2.setFixedWidth(self.label2.fontMetrics().boundingRect(self.label2.text()).width())
 
+        self.label3.setFixedHeight(self.label3.fontMetrics().boundingRect(self.label3.text()).height())
+        self.label3.setFixedWidth(self.label3.fontMetrics().boundingRect(self.label3.text()).width())
 
-    #To handle the drag of the grid
+
+    #To handle the drag of the widget
     def mouseMoveEvent(self, e):
 
         if self.moveable==False:

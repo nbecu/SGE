@@ -7,19 +7,19 @@ class SGTimeManager():
         self.model=parent
         self.currentRound = 1
         self.currentPhase = 1
-        self.orderGamePhases=[]
+        self.phases=[]
         self.conditionOfEndGame=[]
         self.addGamePhase('Initialisation',0)
         
     #To increment the time of the game
     def nextPhase(self):
-        if len(self.orderGamePhases) != 0 and ((self.orderGamePhases[self.currentPhase].activePlayer is not None and self.model.whoIAm==self.orderGamePhases[self.currentPhase].activePlayer.name ) or self.model.whoIAm=="Admin") :
+        if len(self.phases) != 0 and ((self.phases[self.currentPhase].activePlayer is not None and self.model.whoIAm==self.phases[self.currentPhase].activePlayer.name ) or self.model.whoIAm=="Admin") :
             end = self.checkEndGame()
             if not end :
-                if self.currentPhase+2 <= len(self.orderGamePhases):
-                    if len(self.orderGamePhases)!=1:
+                if self.currentPhase+2 <= len(self.phases):
+                    if len(self.phases)!=1:
                         self.currentPhase = self.currentPhase +1
-                        self.model.myTimeLabel.updateTimeLabel(self.currentRound,self.currentPhase)
+                        self.model.myTimeLabel.updateTimeLabel()
 
                 else:
                     #We reset GM
@@ -28,15 +28,15 @@ class SGTimeManager():
                     self.currentPhase=1
 
                     
-                thePhase= self.orderGamePhases[self.currentPhase]
+                thePhase= self.phases[self.currentPhase]
                 #check conditions
                 doThePhase=True
                 if len(thePhase.conditionOfTrigger)!=0:
                     for aCondition in thePhase.conditionOfTrigger:
                         doThePhase=doThePhase and aCondition()
-                if self.currentPhase == 1 and len(self.orderGamePhases) > 1:
+                if self.currentPhase == 1 and len(self.phases) > 1:
                     self.currentRound += 1
-                    self.model.myTimeLabel.updateTimeLabel(self.currentRound,self.currentPhase)
+                    self.model.myTimeLabel.updateTimeLabel()
             
                 #we change the active player
                 self.model.currentPlayer=thePhase.activePlayer
@@ -75,11 +75,11 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
-        aPhase=SGTimePhase(name,orderNumber,activePlayer,nextStepAction,conditionOfTrigger)
-        if orderNumber == 0 :
+    def addGamePhase(self,name,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
+        aPhase=SGTimePhase(name,activePlayer,nextStepAction,conditionOfTrigger)
+        if activePlayer == None :
             self.model.actualPlayer=activePlayer
-        self.orderGamePhases.insert(orderNumber,aPhase)
+        self.phases.append(aPhase)
         return aPhase
     
     #To add a condition to end the game
@@ -98,10 +98,6 @@ class SGTimeManager():
     #To verify if the number of round is odd
     def isOdd(self):
         return self.currentRound%2==1
-    
-    def checkGameOrderPhase(self):
-        for phase in self.orderGamePhases:
-            pass #print(str(phase.name))
 
     
   

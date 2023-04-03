@@ -37,11 +37,11 @@ m1.updateAgentValue('hunger','bad')
 theFirstLegend=myModel.createLegendAdmin()
 
 GameRounds=myModel.addTimeLabel('Rounds&Phases')
-myModel.timeManager.addGamePhase('Phase 1',1)
-myModel.timeManager.addGamePhase('Phase 2',2)
-myModel.timeManager.addGamePhase('Phase 3',3)
-myModel.timeManager.addGamePhase('Phase 4',4)
-myModel.timeManager.addGamePhase('Phase 5',5)
+myModel.timeManager.addGamePhase('Phase 1')
+myModel.timeManager.addGamePhase('Phase 2')
+myModel.timeManager.addGamePhase('Phase 3')
+myModel.timeManager.addGamePhase('Phase 4')
+myModel.timeManager.addGamePhase('Phase 5')
 
 
 myModel.iAm("Admin")

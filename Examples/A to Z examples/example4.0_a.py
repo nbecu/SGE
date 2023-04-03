@@ -39,11 +39,11 @@ for animal, sub_dict in myModel.AgentSpecies.items():
 theFirstLegend=myModel.createLegendAdmin()
 
 GameRounds=myModel.addTimeLabel('Rounds&Phases')
-myModel.timeManager.addGamePhase('Phase 1',1)
-myModel.timeManager.addGamePhase('Phase 2',2,
+myModel.timeManager.addGamePhase('Phase 1')
+myModel.timeManager.addGamePhase('Phase 2',
                                  None,
                                  [lambda: aGrid.setForRandom({"landUse":"shrub"},3)])
-myModel.timeManager.addGamePhase('Phase 3',3,
+myModel.timeManager.addGamePhase('Phase 3',
                                  None,
                                  [lambda: aGrid.setForRandom({"landUse":"forest"},1)])
 

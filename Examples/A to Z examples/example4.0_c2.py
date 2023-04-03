@@ -24,18 +24,11 @@ Moutons.setUpPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
 m2=myModel.newAgent(aGrid,Moutons,6,3)
-m1.updateAgentValue('health','bad')
-m1.updateAgentValue('hunger','bad')
-m2.updateAgentValue('hunger','good')
 m2.updateAgentValue('health','good')
+m1.updateAgentValue('health','bad')
+m2.updateAgentValue('hunger','good')
+m1.updateAgentValue('hunger','bad')
 
-
-
-# addding a second specie
-Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
-Vaches.setUpPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-v1=myModel.newAgent(aGrid,Vaches,2,2)
-v1.updateAgentValue('health','good')
 
 theFirstLegend=myModel.createLegendAdmin()
 
@@ -44,13 +37,9 @@ myModel.timeManager.addGamePhase('début')
 myModel.timeManager.addGamePhase('milieu',
                                  None,
                                  [lambda: m1.updateAgentValue('health','good')])
-myModel.timeManager.addGamePhase('milieu2', None,
-                                 [lambda: v1.updateAgentValue('health','bad')])
 myModel.timeManager.addGamePhase('fin',
                                   None,
                                  [lambda: m1.updateAgentValue('health','bad')])
-myModel.timeManager.addGamePhase('fin2', None,
-                                 [lambda: v1.updateAgentValue('health','good')])
 
 myModel.iAm("Admin")
 

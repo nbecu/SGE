@@ -21,7 +21,7 @@ theFirstLegend=myModel.createLegendAdmin()
 # Agents can be also placed by a player
 # After calling your player and set time à 0
 thePlayer=myModel.createPlayer("Player1")
-myModel.timeManager.addGamePhase("theFirstPhase",0,thePlayer)
+myModel.timeManager.addGamePhase("theFirstPhase",thePlayer)
 
 # you can create a GameAction for your player to interact with the grid
 # it also permits to give interaction between cell and agents like here : if you place a certain agent on a certain type of cell, the cell updates to a new status

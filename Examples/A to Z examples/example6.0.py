@@ -22,7 +22,7 @@ p1= myModel.createPlayer("farmer")
 p1.addGameAction(myModel.createUpdateAction(aGrid.getACell(),2,{"landUse":"grass"}))
 
 # A game phase allow to specify which user can play during the given phase
-myModel.timeManager.addGamePhase("the First Phase",0,p1)
+myModel.timeManager.addGamePhase("the First Phase",p1)
 
 #theFirstLegend=myModel.createLegendAdmin()
 myModel.iAm("farmer")
