@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
+from PyQt5.QtWidgets import QMenu, QAction
 
 from SGGameSpace import SGGameSpace
 
@@ -51,7 +52,7 @@ class SGMessageBox(SGGameSpace):
         self.show()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.close_widget)
+        self.customContextMenuRequested.connect(self.show_menu)
         self.history.append(self.text.text())
 
 
@@ -99,6 +100,16 @@ class SGMessageBox(SGGameSpace):
             drag.exec_(Qt.MoveAction)
 
 
-    def close_widget(self, clic):
-        if self.rect().contains(clic):
-            self.close()
+    def show_menu(self, point):
+        menu = QMenu(self)
+
+        option1 = QAction("Inspect", self)
+        option1.triggered.connect(lambda: print("One day this will inspected something"))
+        menu.addAction(option1)
+
+        option2 = QAction("Close", self)
+        option2.triggered.connect(self.close)
+        menu.addAction(option2)
+
+        if self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))

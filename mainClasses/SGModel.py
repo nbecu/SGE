@@ -587,8 +587,8 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To get the player
     def getCurrentPlayer(self):
-        if len(self.timeManager.orderGamePhases) < self.timeManager.currentPhase:
-            thePhase=self.timeManager.orderGamePhases[self.timeManager.currentPhase]
+        if len(self.timeManager.phases) < self.timeManager.currentPhase:
+            thePhase=self.timeManager.phases[self.timeManager.currentPhase]
             return thePhase.activePlayer
         else:
             return None
