@@ -34,7 +34,8 @@ m2.updateAgentValue('hunger','good')
 m1.updateAgentValue('hunger','bad')
 
 
-myModel.moveAgent(aGrid,m1)
+
+myModel.moveAgent(aGrid,m1,numberOfMovement=3)
 
 theFirstLegend=myModel.createLegendAdmin()
 

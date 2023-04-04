@@ -509,7 +509,7 @@ class SGModel(QtWidgets.QMainWindow):
         return self.agents
 
     
-    def moveAgent(self,aGrid,anAgent,valueX=None,valueY=None,rule='moore'):
+    def moveAgent(self,aGrid,anAgent,valueX=None,valueY=None,numberOfMovement=1):
         """
         Model action to move an Agent.
 
@@ -517,24 +517,31 @@ class SGModel(QtWidgets.QMainWindow):
             aGrid (instance): the grid where the action take place
             anAgent (instance): agent subject to move
             valueX / value Y (int): coordinates of the cell
-            rule : "moore" or "neumann" only if valueX/valueY==None
+            numberOfMouvement (int): number of movement in one action
         """
-        oldAgent=anAgent
-        for instance in SGAgent.instances:
-            if instance.me=='collec' and instance.name==oldAgent.name:
-                AgentSpecie=instance
-                break
-        print(AgentSpecie)
-        if valueX == None and valueY==None:
-            print(oldAgent.cell)
-            neighbors=oldAgent.cell.getNeighborCells(rule)
-            print(neighbors)
-            newCell=random.choice(neighbors)
-            print(newCell)
-            print(newCell.x,newCell.y)
-        theAgent=self.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-        theAgent.show()
-        oldAgent.deleteLater()
+        for i in range(numberOfMovement):
+            if i>0:
+                oldAgent=theAgent
+            else:
+                oldAgent=anAgent
+            for instance in SGAgent.instances:
+                if instance.me=='collec' and instance.name==oldAgent.name:
+                    AgentSpecie=instance
+                    break
+            print(AgentSpecie)
+            if valueX == None and valueY==None:
+                print(oldAgent.cell)
+                neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
+                print(neighbors)
+                newCell=random.choice(neighbors)
+                print(newCell)
+                print(newCell.x,newCell.y)
+            else:
+                newCell=aGrid.getCellFromCoordinates(valueX,valueY)
+            oldAgent.deleteLater()
+            theAgent=self.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+            theAgent.show()
+            
         pass
     
     # To add an Agent with attributs values

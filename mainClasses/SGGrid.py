@@ -27,6 +27,7 @@ class SGGrid(SGGameSpace):
         self.gap=gap
         self.size=size
         self.moveable=moveable
+        self.rule='moore'
 
         self.currentPOV={'Cell':{},'Agent':{}}
         
