@@ -414,6 +414,7 @@ class SGModel(QtWidgets.QMainWindow):
             pos=self.layoutOfModel.foundInLayout(aLegend)
             aLegend.move(aLegend.startXBase+20*pos[0],aLegend.startYBase+20*pos[1])
         aLegend.addDeleteButton("Delete")
+        self.applyPersonalLayout()
         return aLegend
     
     #To update the admin Legend when the modeler add a new pov after the creation of the Legend 
@@ -452,8 +453,8 @@ class SGModel(QtWidgets.QMainWindow):
         Create a new Agent in the associated species.
 
         Args:
-            aGrid (var) : the grid you want your agent in
-            aAgentSpecies (var) : the species of your agent
+            aGrid (instance) : the grid you want your agent in
+            aAgentSpecies (instance) : the species of your agent
             ValueX (int) : Column position in grid (Default=Random)
             ValueY (int) : Row position in grid (Default=Random)
 
@@ -508,23 +509,33 @@ class SGModel(QtWidgets.QMainWindow):
         return self.agents
 
     
-    def updateAgentPosition(self,aGrid,theAgent,theCell):
-        # NEED TO BE REWORKED #
-        """theAgent.parent=theCell
-        print(theAgent.getId())
-        print(theAgent.parent.getId())
-        theAgent.move(1,1)
-        theAgent.show()"""
-        Cellparent=theCell
-        aAgent=SGAgent(Cellparent,theAgent.name,theAgent.format,theAgent.size,theAgent.dictOfAttributs,id=theAgent.id)
-        aAgent.me='agent'
-        aAgent.isDisplay=True
-        aAgent.species=str(theAgent.name)
-        self.AgentSpecies[str(theAgent.name)]['AgentList'][str(theAgent.id)]={"me":aAgent.me,'position':aAgent.parent,'species':aAgent.name,'size':aAgent.size,
-                            'attributs':{},"AgentObject":aAgent
-                            }
-        aAgent.show()
-        return aAgent
+    def moveAgent(self,aGrid,anAgent,valueX=None,valueY=None,rule='moore'):
+        """
+        Model action to move an Agent.
+
+        args:
+            aGrid (instance): the grid where the action take place
+            anAgent (instance): agent subject to move
+            valueX / value Y (int): coordinates of the cell
+            rule : "moore" or "neumann" only if valueX/valueY==None
+        """
+        oldAgent=anAgent
+        for instance in SGAgent.instances:
+            if instance.me=='collec' and instance.name==oldAgent.name:
+                AgentSpecie=instance
+                break
+        print(AgentSpecie)
+        if valueX == None and valueY==None:
+            print(oldAgent.cell)
+            neighbors=oldAgent.cell.getNeighborCells(rule)
+            print(neighbors)
+            newCell=random.choice(neighbors)
+            print(newCell)
+            print(newCell.x,newCell.y)
+        theAgent=self.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+        theAgent.show()
+        oldAgent.deleteLater()
+        pass
     
     # To add an Agent with attributs values
     def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1,method='random',cell=None):
@@ -617,6 +628,8 @@ class SGModel(QtWidgets.QMainWindow):
             pos=self.layoutOfModel.foundInLayout(aTimeLabel)
             aTimeLabel.move(aTimeLabel.startXBase+20*pos[0],aTimeLabel.startYBase+20*pos[1])
 
+        self.applyPersonalLayout()
+
         return aTimeLabel
     
     #To create a Message Box
@@ -642,6 +655,8 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             pos=self.layoutOfModel.foundInLayout(aMessageBox)
             aMessageBox.move(aMessageBox.startXBase+20*pos[0],aMessageBox.startYBase+20*pos[1])
+        
+        self.applyPersonalLayout()
 
         return aMessageBox
     

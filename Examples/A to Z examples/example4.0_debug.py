@@ -34,7 +34,7 @@ m2.updateAgentValue('hunger','good')
 m1.updateAgentValue('hunger','bad')
 
 
-#myModel.deleteAgent('2')
+myModel.moveAgent(aGrid,m1)
 
 theFirstLegend=myModel.createLegendAdmin()
 

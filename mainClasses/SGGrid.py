@@ -210,7 +210,9 @@ class SGGrid(SGGameSpace):
     
     #Retourn the from the coordonate
     def getCellFromCoordinates(self,x, y):
-        CellName="cell"+str(x-1)+'-'+str(y-1)
+        if x < 0 or x >= self.rows or y < 0 or y >= self.columns:
+            return None
+        CellName="cell"+str(x)+'-'+str(y)
         Cells=self.collectionOfCells.getCells()
         Cell=Cells[CellName]
         return Cell
