@@ -1,10 +1,10 @@
 
 #Class who define a gaming phase
 class SGTimePhase():
-    def __init__(self,name,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
+    def __init__(self,name,activePlayer=None,modelActions=[],conditionOfTrigger=[]):
         self.name=name
         self.activePlayer=activePlayer
-        self.nextStepAction=nextStepAction
+        self.modelActions=modelActions
         self.conditionOfTrigger=conditionOfTrigger
         
 
@@ -19,8 +19,8 @@ class SGTimePhase():
     def setNextStepAction(self,nextStepAction):
         self.nextStepAction=nextStepAction
         
-    def addNextStepAction(self,anAction):
-        self.nextStepAction.append(anAction)
+    def setModelActions(self,anAction):
+        self.modelActions.append(anAction)
         
     def setConditionOfTrigger(self,conditionOfTrigger):
         self.conditionOfTrigger=conditionOfTrigger

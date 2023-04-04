@@ -528,42 +528,32 @@ class SGModel(QtWidgets.QMainWindow):
                 if instance.me=='collec' and instance.name==oldAgent.name:
                     AgentSpecie=instance
                     break
-            print(AgentSpecie)
             if valueX == None and valueY==None:
-                print(oldAgent.cell)
                 neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
-                print(neighbors)
                 newCell=random.choice(neighbors)
-                print(newCell)
-                print(newCell.x,newCell.y)
+
             else:
                 newCell=aGrid.getCellFromCoordinates(valueX,valueY)
             oldAgent.deleteLater()
             theAgent=self.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+            theAgent.cell=newCell
             theAgent.show()
             
         pass
     
     # To add an Agent with attributs values
-    def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1,method='random',cell=None):
+    def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1):
         if aDictOfAttributsWithValues==None:
             aDictOfAttributsWithValues={}
         for i in range(numberOfAgent):
             incr=len(self.getAgents())
             self.IDincr=+incr
             anAgentID=self.IDincr+1
-            if method=='random':
-                ValueX=random.randint(0, aGrid.columns)
-                if ValueX<=0:
-                    ValueX=+1
-                ValueY=random.randint(0, aGrid.rows)
-                if ValueY<=0:
-                    ValueY=+1
-                Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
-            else:
-                Cellparent=cell
+            akey = random.choice(list(aGrid.collectionOfCells.cells.keys()))
+            Cellparent=aGrid.collectionOfCells.cells[akey]
             anAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
             anAgent.me='agent'
+            anAgent.cell=Cellparent
             anAgent.isDisplay=True
             anAgent.species=str(aAgentSpecies.name)
             self.AgentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,

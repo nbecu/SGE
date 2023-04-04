@@ -132,16 +132,14 @@ class SGCell(QtWidgets.QWidget):
             if not self.grid.model.whoIAm=="Admin":
                 self.feedBack(theAction,e.source())
         oldAgent=e.source()
-        '''for attribute, value in vars(oldAgent).items():
-            print(f"{attribute}: {value}")'''
 
         for instance in SGAgent.instances:
             if instance.me=='collec' and instance.name==oldAgent.name:
                 AgentSpecie=instance
                 break
 
-        #print(self.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
         theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x+1,self.y+1,oldAgent.id,self.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+        theAgent.cell=self
         theAgent.show()
         
 
@@ -317,32 +315,7 @@ class SGCell(QtWidgets.QWidget):
         self.grid.setForXandY(aDictOfValue,self.x+1,self.y+1)
         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
      
-    #To delete a kind of Agent on the cell   
-    '''def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
-        if len(self.collectionOfAgents.agents) !=0:
-            nbrDelete=0
-            count=0
-            aListOfAgent = self.getAgent(nameOfAgent)
-            if numberOfDelete ==0:
-                numberOfDelete=len(aListOfAgent)
-            while len(aListOfAgent) !=0 and numberOfDelete>nbrDelete and count!=len(aListOfAgent) :
-                count=count+1
-                aListOfAgent = self.getAgent(nameOfAgent)
-                for agent in aListOfAgent:
-                    if agent.name==nameOfAgent:
-                        test=True
-                        for cond in condition:
-                            test = cond(self) and test
-                        if test:
-                            nbrDelete=nbrDelete+1
-                            agent.deleteLater()
-                            self.collectionOfAgents.agents.remove(agent)
-                            del agent
-                            break
-            return nbrDelete
-        self.show()'''
     
-        
     #To get all of a kind of agent on a cell 
     def getAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
         listOfAgent=[]
@@ -353,180 +326,6 @@ class SGCell(QtWidgets.QWidget):
     
     
     #To get the neighbor cells
-    """def getNeighborCells(self,type="moore",rangeNeighbor=1,neighborCells=[]): 
-        isFirst=False
-        if len(neighborCells)==0:
-            isFirst=True
-
-        neighborCells.append(self)
-        listOfCell=[]
-        if rangeNeighbor !=0:
-            if self.shape=="hexagonal":
-                if self.y%2==0 :
-                    #Top Left
-                    if self.x-1>=0 and self.y-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y-1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Bottom Left
-                    if self.x-1>=0 and self.y+1<=self.grid.rows:
-                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Top
-                    if  self.y-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Left
-                    if  self.x-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Right
-                    if  self.x+1<=self.grid.columns:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Bottom
-                    if  self.y+1<=self.grid.rows:
-                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                else:
-                    #Top Right
-                    if self.x+1<=self.grid.columns and self.y-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Bottom Right
-                    if self.x+1<=self.grid.columns and self.y+1<=self.grid.rows:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell) 
-                    #Top
-                    if  self.y-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Left
-                    if  self.x-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Right
-                    if  self.x+1<=self.grid.columns:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                    #Bottom
-                    if  self.y+1<=self.grid.rows:
-                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            listOfCell.append(cell)
-                for cell in listOfCell:
-                    cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                    
-            else:
-                if type=="moore":
-                    #Top Left
-                    if self.x-1>=0 and self.y-1>=0:
-                        cellName="cell"+str(self.x-1)+"-"+str(self.y-1)
-                        cell=self.grid.getCell(cellName)
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                    #Top Right
-                    if self.x+1<=self.grid.columns and self.y-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y-1))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                    #Bottom Left
-                    if self.x-1>=0 and self.y+1<=self.grid.rows:
-                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                    #Bottom Right
-                    if self.x+1<=self.grid.columns and self.y+1<=self.grid.rows:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells) 
-                    #Top
-                    if  self.y-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                    #Left
-                    if  self.x-1>=0:
-                        cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells) 
-                    #Right
-                    if  self.x+1<=self.grid.columns:
-                        cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                    #Bottom
-                    if  self.y+1<=self.grid.rows-1:
-                        cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
-                        if cell not in neighborCells:
-                            cell.getNeighborCells(type,rangeNeighbor-1,neighborCells)
-                elif type=="neumann":
-                    self.getNeumannNeighbor(rangeNeighbor,neighborCells,origin="init")
-            
-        if isFirst :
-            neighborCells.remove(self)
-        return neighborCells
-
-                    
-    def getNeumannNeighbor(self,rangeNeighbor,emptyList=[],origin="init"):
-        emptyList.append(self)
-        if rangeNeighbor >0:
-            if origin=="init":
-                emptyList.remove(self)
-                #Top
-                if  self.y-1>=0:
-                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
-                #Left
-                if  self.x-1>=0:
-                    cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") 
-                #Right
-                if  self.x+1<=self.grid.columns-1:
-                    cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'right')
-                #Bottom
-                if  self.y+1<=self.grid.rows-1:
-                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'bottom') 
-            elif origin == "top":
-                #Top
-                if  self.y-1>=0:
-                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y-1))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"top")
-            elif origin=="bottom":
-                #Bottom
-                if  self.y+1<=self.grid.rows-1:
-                    cell=self.grid.getCell("cell"+str(self.x)+"-"+str(self.y+1))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'bottom') 
-            elif origin =="right":
-                #Right
-                if  self.x+1<=self.grid.columns-1:
-                    cell=self.grid.getCell("cell"+str(self.x+1)+"-"+str(self.y))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,'right')
-            elif origin =='left':
-                if  self.x-1>=0:
-                    cell=self.grid.getCell("cell"+str(self.x-1)+"-"+str(self.y))
-                    if cell not in emptyList:
-                        cell.getNeumannNeighbor(rangeNeighbor-1,emptyList,"left") """
-    
     def getNeighborCells(self,rule='moore'):
         neighbors = []
         for i in range(self.x - 1, self.x + 2):

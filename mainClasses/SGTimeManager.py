@@ -42,8 +42,8 @@ class SGTimeManager():
                 self.model.currentPlayer=thePhase.activePlayer
                 if doThePhase :
                     #We make the change
-                    if len(thePhase.nextStepAction) !=0:
-                        for aChange in thePhase.nextStepAction:
+                    if len(thePhase.modelActions) !=0:
+                        for aChange in thePhase.modelActions:
                             aChange()
                 else:
                     self.nextPhase()
@@ -75,8 +75,8 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
-        aPhase=SGTimePhase(name,activePlayer,nextStepAction,conditionOfTrigger)
+    def addGamePhase(self,name,activePlayer=None,modelActions=[],conditionOfTrigger=[]):
+        aPhase=SGTimePhase(name,activePlayer,modelActions,conditionOfTrigger)
         if activePlayer == None :
             self.model.actualPlayer=activePlayer
         self.phases.append(aPhase)
