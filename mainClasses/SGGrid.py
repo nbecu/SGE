@@ -220,14 +220,15 @@ class SGGrid(SGGameSpace):
     
 #To handle POV and placing on cell
     #To define a value for all cells
-    def setValueForCells(self,aDictWithValue):
+    def setValueForCells(self,aAttribut,aValue):
         """
         Applies the same attribut value (and color) for all the cells
 
         Args:
-            aDictWithValue (dict) : a dict with an attribut and its value
-
+            aAttribut (str): Attribut link or not woth a POV
+            aValue (str): Attribut value
         """
+        aDictWithValue={aAttribut:aValue}
         for aCell in list(self.collectionOfCells.getCells().values()):
             for aVal in list(aDictWithValue.keys()) :
                 if len(aCell.theCollection.povs) !=0:
@@ -238,16 +239,18 @@ class SGGrid(SGGameSpace):
             aCell.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
             
     #To apply to a specific cell a value  
-    def setForXandY(self,aDictWithValue,aValueX,aValueY):
+    def setForXandY(self,aAttribut,aValue,aValueX,aValueY):
         """
         Applies the same attribut value (and color) for a specific cell
 
         Args:
-            aDictWithValue (dict) : a dict with an attribut and its value
+            aAttribut (str): Attribut link or not woth a POV
+            aValue (str): Attribut value
             aValueX (int): a row number
             aValueY (int): a column number
 
         """
+        aDictWithValue={aAttribut:aValue}
         for aVal in list(aDictWithValue.keys()) :
             if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs) !=0:
                 if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()) :
@@ -256,15 +259,17 @@ class SGGrid(SGGameSpace):
         self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to a all row of cell a value
-    def setForX(self,aDictWithValue,aValueX):
+    def setForX(self,aAttribut,aValue,aValueX):
         """
         Applies the same attribut value (and color) for a specific row
 
         Args:
-            aDictWithValue (dict) : a dict with an attribut and its value
+            aAttribut (str): Attribut link or not woth a POV
+            aValue (str): Attribut value
             aValueX (int): a row number
 
         """
+        aDictWithValue={aAttribut:aValue}
         for y in range(self.rows):
             if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs) !=0:
                 for aVal in list(aDictWithValue.keys()) :
@@ -274,15 +279,17 @@ class SGGrid(SGGameSpace):
             self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to a all column of cell a value
-    def setForY(self,aDictWithValue,aValueY):
+    def setForY(self,aAttribut,aValue,aValueY):
         """
         Applies the same attribut value (and color) for a specific column
 
         Args:
-            aDictWithValue (dict) : a dict with an attribut and its value
+            aAttribut (str): Attribut link or not woth a POV
+            aValue (str): Attribut value
             aValueY (int): a column number
 
         """
+        aDictWithValue={aAttribut:aValue}
         for x in range(self.columns):
             for aVal in list(aDictWithValue.keys()) :
                 if len(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs) !=0:
@@ -292,14 +299,16 @@ class SGGrid(SGGameSpace):
             self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to some random cell a value
-    def setForRandom(self,aDictWithValue,numberOfRandom):
+    def setRandomCells(self,aAttribut,aValue,numberOfRandom):
         """
         Applies the same attribut value (and color) for a random number of cells
 
         Args:
-            aDictWithValue (dict) : a dict with an attribut and its value
+            aAttribut (str): Attribut link or not woth a POV
+            aValue (str): Attribut value
             numberOfRandom (int): number of cells
         """
+        aDictWithValue={aAttribut:aValue}
         alreadyDone=list()
         while len(alreadyDone)!=numberOfRandom:
             aValueX=random.randint(0, self.columns-1)

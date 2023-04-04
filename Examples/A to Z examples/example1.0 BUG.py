@@ -13,12 +13,12 @@ aGrid=myModel.createGrid(10,10,"square",size=50)
 #In this example the parameter is landUse, and the values given are 'grass', 'forest' and 'shrub'
 
 #The method setValueForCells() sets the value of all cells
-aGrid.setValueForCells({"landUse":"grass"})
+aGrid.setValueForCells("landUse","grass")
 #The method setForX() sets the value of cells which x coordinate match a given value. X=1 corresponds to the first columnn on the left side of the grid 
-aGrid.setForX({"landUse":"forest"},1)
-aGrid.setForX({"landUse":"forest"},2)
+aGrid.setForX("landUse","forest",1)
+aGrid.setForX("landUse","forest",2)
 #The method setForRandom()sets the value of a number of randomly selected cells on the grid 
-aGrid.setForRandom({"landUse":"shrub"},10)
+aGrid.setRandomCells("landUse","shrub",10)
 #C'est pas un bug, mais c'est le  nom de la méthode qui est à changer. Voici ce que propose chatGPT pour que ce soit plus facilement compréhensible
 # def set_random_cells(attribute_name, attribute_value, num_cells):
 #     """

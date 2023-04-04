@@ -11,12 +11,10 @@ myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
 # For example you can change the shape of the cells
 aGrid=myModel.createGrid(10,10,"hexagonal",size=30)
 
-aGrid.setValueForCells({"landUse":"grass"})
-aGrid.setForX({"landUse":"forest"},1)
-aGrid.setForX({"landUse":"forest"},2)
-""" aGrid.setForY({"landUse":"forest"},3)
-aGrid.setForY({"landUse":"forest"},5) """
-aGrid.setForRandom({"landUse":"shrub"},10)
+aGrid.setValueForCells("landUse","grass")
+aGrid.setForX("landUse","forest",1)
+aGrid.setForX("landUse","forest",2)
+aGrid.setRandomCells("landUse","shrub",10)
 
 myModel.setUpPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 myModel.setUpPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
