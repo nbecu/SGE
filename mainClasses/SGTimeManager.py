@@ -31,9 +31,6 @@ class SGTimeManager():
                 thePhase= self.phases[self.currentPhase]
                 #check conditions
                 doThePhase=True
-                if len(thePhase.conditionOfTrigger)!=0:
-                    for aCondition in thePhase.conditionOfTrigger:
-                        doThePhase=doThePhase and aCondition()
                 if self.currentPhase == 1 and len(self.phases) > 1:
                     self.currentRound += 1
                     self.model.myTimeLabel.updateTimeLabel()
@@ -75,8 +72,16 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,activePlayer=None,modelActions=[],conditionOfTrigger=[]):
-        aPhase=SGTimePhase(name,activePlayer,modelActions,conditionOfTrigger)
+    def addGamePhase(self,name,activePlayer=None,modelActions=[]):
+        """
+        To add a Game Phase in a round.
+
+        args:
+            name (str): Name displayed on the TimeLabel
+            activePlayer (?): Player concerned about the phase (default:None)
+            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+        """
+        aPhase=SGTimePhase(name,activePlayer,modelActions)
         if activePlayer == None :
             self.model.actualPlayer=activePlayer
         self.phases.append(aPhase)
@@ -84,6 +89,7 @@ class SGTimeManager():
     
     #To add a condition to end the game
     def addEndGameCondition(self,aCondition):
+        """NOT TESTED"""
         self.conditionOfEndGame.append(aCondition)
         
 

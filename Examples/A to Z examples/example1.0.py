@@ -19,16 +19,6 @@ aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)
 #The method setForRandom()sets the value of a number of randomly selected cells on the grid 
 aGrid.setRandomCells("landUse","shrub",10)
-#C'est pas un bug, mais c'est le  nom de la méthode qui est à changer. Voici ce que propose chatGPT pour que ce soit plus facilement compréhensible
-# def set_random_cells(attribute_name, attribute_value, num_cells):
-#     """
-#     Sets the value of the given attribute to a random number of cells on the grid.
-    
-#     Args:
-#         attribute_name (str): Name of the attribute to set.
-#         attribute_value (int): Value to set the attribute to.
-#         num_cells (int): Number of cells to set the attribute value for.
-#     """
 
 myModel.setUpPov("povLandUse","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen},[aGrid])
 

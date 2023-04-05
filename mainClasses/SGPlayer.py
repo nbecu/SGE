@@ -28,6 +28,7 @@ class SGPlayer():
 #Definiton of the methods who the modeler will use
     
     def addGameAction(self,aGameAction):
+        """NOT TESTED"""
         if isinstance(aGameAction,SGDelete):
             self.Legend.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
@@ -42,6 +43,7 @@ class SGPlayer():
         return aGameAction
     
     def getGameActionOn(self,anItem):
+        """NOT TESTED"""
         #On cell
         if isinstance(anItem,SGCell):
             for aGameAction in self.gameActions :
@@ -69,6 +71,7 @@ class SGPlayer():
                         return aGameAction
                     
     def getMooveActionOn(self,anItem):
+        """NOT TESTED"""
         if isinstance(anItem,SGAgent):
             for aGameAction in self.gameActions :
                 if isinstance(aGameAction,SGMove):

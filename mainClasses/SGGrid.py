@@ -70,6 +70,7 @@ class SGGrid(SGGameSpace):
         
     #Funtion to handle the zoom
     def zoomIn(self):
+        """NOT TESTED"""
         self.zoom=self.zoom*1.1
         self.gap=round(self.gap+(self.zoom*1))
         self.size=round(self.size+(self.zoom*10))
@@ -78,6 +79,7 @@ class SGGrid(SGGameSpace):
         self.update()
     
     def zoomOut(self):
+        """NOT TESTED"""
         self.zoom=self.zoom*0.9
         self.size=round(self.size-(self.zoom*10))
         if(self.gap>2 and self.format=="square"):
@@ -162,6 +164,7 @@ class SGGrid(SGGameSpace):
     #Agent function 
     #To get all agents on the grid of a particular type
     def getAgentsOfType(self,aType):
+        """NOT TESTED"""
         theList=[]
         for aCell in  self.collectionOfCells.cells:
             for anAgent in self.collectionOfCells.getCell(aCell).getAgentsOfType(aType):
@@ -184,11 +187,7 @@ class SGGrid(SGGameSpace):
     # To get the current POV
     def getCurrentPOV(self):
         """"
-        Get the actual POV displayed by the model for a grid
-
-        Args:
-            category (str): "Cell" or "Agent" (default:"Cell")
-        
+        Get the actual POV displayed by the model for a grid        
         """
         for animal, sub_dict in self.model.AgentSpecies.items():
             for pov in sub_dict['POV'].items():
@@ -211,6 +210,13 @@ class SGGrid(SGGameSpace):
     
     #Retourn the from the coordonate
     def getCellFromCoordinates(self,x, y):
+        """
+        Return a cell with row and column number.
+
+        args:
+            x (int): column number
+            y (int): row number
+        """
         if x < 0 or x >= self.rows or y < 0 or y >= self.columns:
             return None
         CellName="cell"+str(x)+'-'+str(y)
@@ -225,8 +231,8 @@ class SGGrid(SGGameSpace):
         Applies the same attribut value (and color) for all the cells
 
         Args:
-            aAttribut (str): Attribut link or not woth a POV
-            aValue (str): Attribut value
+            aAttribut (str): Name of the attribute to set
+            aValue (str): Value to set the attribute to
         """
         aDictWithValue={aAttribut:aValue}
         for aCell in list(self.collectionOfCells.getCells().values()):
@@ -244,8 +250,8 @@ class SGGrid(SGGameSpace):
         Applies the same attribut value (and color) for a specific cell
 
         Args:
-            aAttribut (str): Attribut link or not woth a POV
-            aValue (str): Attribut value
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
             aValueX (int): a row number
             aValueY (int): a column number
 
@@ -264,8 +270,8 @@ class SGGrid(SGGameSpace):
         Applies the same attribut value (and color) for a specific row
 
         Args:
-            aAttribut (str): Attribut link or not woth a POV
-            aValue (str): Attribut value
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
             aValueX (int): a row number
 
         """
@@ -284,8 +290,8 @@ class SGGrid(SGGameSpace):
         Applies the same attribut value (and color) for a specific column
 
         Args:
-            aAttribut (str): Attribut link or not woth a POV
-            aValue (str): Attribut value
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
             aValueY (int): a column number
 
         """
@@ -304,8 +310,8 @@ class SGGrid(SGGameSpace):
         Applies the same attribut value (and color) for a random number of cells
 
         Args:
-            aAttribut (str): Attribut link or not woth a POV
-            aValue (str): Attribut value
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
             numberOfRandom (int): number of cells
         """
         aDictWithValue={aAttribut:aValue}
@@ -321,72 +327,10 @@ class SGGrid(SGGameSpace):
                             for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.model.nameOfPov].keys()):
                                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs.pop(anAttribute,None)
                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-                
-#To handle the placing of agents
-    #To apply to a specific cell an agent  
-    def addOnXandY(self,anAgent,aValueX,aValueY):
-        # NEED TO BE REWORKED #
-        NewAgent=SGAgent(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)),anAgent.species,anAgent.format,anAgent.size,self.model.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['attributs'],anAgent.id)
-        self.model.AgentSpecies[str(anAgent.species)]['AgentList'][str(anAgent.id)]['position']=self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1))
-        NewAgent.show()
-        
-        self.update()
-        return anAgent
-    
-    """def addOnRandom(self,anAgentName):
-        listCells=self.collectionOfCells.getCellsDisplay()
-        newPlace=listCells[random.randint(0,len(listCells)-1)]
-        print(str(newPlace))
-        theAgent=self.addOnXandY(anAgentName,newPlace.x+1,newPlace.y+1)
-        return theAgent"""
-    '''def addOnRandom(self,anAgentName,Occurence):
-        Agentlist=[]
-        for i in range(Occurence):
-            listCells=self.collectionOfCells.getCellsDisplay()
-            newPlace=listCells[random.randint(0,len(listCells)-1)]
-            print(str(newPlace))
-            theAgent=self.addOnXandY(anAgentName,newPlace.x+1,newPlace.y+1)
-            Agentlist.append(theAgent)
-        return Agentlist'''
-
-    
-    '''#to add agent on multiple cell depending of their value
-    def addAgentOnValue(self,anAgentName,aDictValueForAgent,aValueForAgent=None):
-        cells=self.getCellOfValue(aDictValueForAgent)
-        listOfAgent=[]
-        for cell in cells :
-            anAgent=SGAgent(cell,anAgentName,self.collectionOfAcceptAgent[anAgentName].format,self.collectionOfAcceptAgent[anAgentName].size)
-            anAgent.theCollection.povs=self.collectionOfAcceptAgent[anAgentName].theCollection.povs
-            anAgent.attributs=self.collectionOfAcceptAgent[anAgentName].attributs.copy()
-            cell.collectionOfAgents.addAgent(anAgent)
-            if aValueForAgent is not None :
-                for anAttribut in self.collectionOfCells.povs[self.model.nameOfPov] :
-                        if aValueForAgent in list(self.collectionOfCells.povs[self.model.nameOfPov][anAttribut].keys()) :
-                            anAgent.attributs[anAttribut]=aValueForAgent
-            anAgent.show()
-            self.update()
-            listOfAgent.append(anAgent)
-        return listOfAgent'''
-        
-#To add a specific pov 
-    def setUpPov(self,aNameOfPov,aDictOfValue,theTypeOfObjectToApply="cells",theNameOfTheAgent="circleAgent"):
-        #We apply the news pov
-        if(theTypeOfObjectToApply=="cells"):
-            self.collectionOfCells.povs[aNameOfPov]=aDictOfValue
-        '''elif theTypeOfObjectToApply == "agents":
-            for anAgentIt in self.collectionOfAcceptAgent :
-                if self.collectionOfAcceptAgent[anAgentIt].name ==theNameOfTheAgent:
-                    self.collectionOfAcceptAgent[anAgentIt].theCollection.povs[aNameOfPov]=aDictOfValue'''
-        self.model.updateLegendAdmin()
-        #Adding the Pov to the menue bar
-        if aNameOfPov not in self.model.listOfPovsForMenu :
-            self.model.listOfPovsForMenu.append(aNameOfPov)
-            anAction=QAction(" &"+aNameOfPov, self)
-            self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPovGlobal(aNameOfPov))
-            
+                 
     #To define a value for all Agents
     def setValueForAgents(self,typeOfAgent,aDictWithValue):
+        """NOT TESTED"""
         for aCell in list(self.collectionOfCells.getCells().values()):
             for anAgent in aCell.getAgentsOfType(typeOfAgent):
                 for aVal in list(aDictWithValue.keys()) :
@@ -397,16 +341,18 @@ class SGGrid(SGGameSpace):
                 
     #To define a value for the model of an Agent
     def setValueForModelAgents(self,typeOfAgent,aDictWithValue):
-            anAgent=self.collectionOfAcceptAgent[typeOfAgent]
-            #On cherche la pov et on suppr les valeur deja existante de la pov
-            for aPov in list(anAgent.theCollection.povs.keys()):
-                if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
-                    for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
-                        anAgent.attributs.pop(anAttribut,None)
-            anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+        """NOT TESTED"""
+        anAgent=self.collectionOfAcceptAgent[typeOfAgent]
+        #On cherche la pov et on suppr les valeur deja existante de la pov
+        for aPov in list(anAgent.theCollection.povs.keys()):
+            if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
+                for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
+                    anAgent.attributs.pop(anAttribut,None)
+        anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
             
     #To define a value for all Agents of a cell
-    def setValueAgentsOnCell(self,typeOfAgent,aDictWithValue,aCellId):        
+    def setValueAgentsOnCell(self,typeOfAgent,aDictWithValue,aCellId):
+        """NOT TESTED"""        
         aCell=self.getCell(aCellId)
         for anAgent in aCell.collectionOfAgents.agents:
             if anAgent.format == typeOfAgent:
@@ -418,7 +364,8 @@ class SGGrid(SGGameSpace):
                 anAgent.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To change the value of an unique agent on a cell
-    def setForAnAgentOfCell(self,typeOfAgent,aDictWithValue,aCellId):        
+    def setForAnAgentOfCell(self,typeOfAgent,aDictWithValue,aCellId):
+        """NOT TESTED"""        
         aCell=self.getCell(aCellId)
         for anAgent in aCell.collectionOfAgents.agents:
             if anAgent.name == typeOfAgent:
@@ -448,6 +395,7 @@ class SGGrid(SGGameSpace):
      
     #To grow all attributs of cells of one type
     def makeEvolve(self,listOfAttributsToMakeEvolve):
+        """NOT TESTED"""
         for aCell in list(self.collectionOfCells.getCells().values()) :
             for anAttribut in listOfAttributsToMakeEvolve:
                 if anAttribut in list(aCell.attributs.keys()) :
@@ -461,6 +409,7 @@ class SGGrid(SGGameSpace):
                             
     #To decrease all attributs of cells of one type
     def makeDecrease(self,listOfAttributsToMakeDecrease):
+        """NOT TESTED"""
         for aCell in list(self.collectionOfCells.getCells().values()) :
             for anAttribut in listOfAttributsToMakeDecrease:
                 if anAttribut in list(aCell.attributs.keys()) :
@@ -474,6 +423,7 @@ class SGGrid(SGGameSpace):
                             
     #to get all cells who respect certain value
     def getCellOfValue(self,aDictValueForAgent):
+        """NOT TESTED"""
         result=[]
         for cell in list(self.collectionOfCells.cells.values()):
             aKey= list(aDictValueForAgent.keys())[0]
@@ -484,6 +434,7 @@ class SGGrid(SGGameSpace):
     
     #To return all agent of a type in neighborhood
     def getNeighborAgent(self,x,y,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        """NOT TESTED"""
         x=x-1
         y=y-1
         result=[]
@@ -494,10 +445,12 @@ class SGGrid(SGGameSpace):
     
     #To return if a type of agent is in neighborhood
     def haveAgentInNeighborhood(self,x,y,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        """NOT TESTED"""
         return len(self.getNeighborAgent(x,y,agentName,typeNeighbor,rangeNeighbor))>=1
     
     #To return all agent in neighborhood
     def getNeighborAllAgent(self,x,y,typeNeighbor="moore",rangeNeighbor=1):
+        """NOT TESTED"""
         x=x-1
         y=y-1
         result=[]
@@ -509,6 +462,7 @@ class SGGrid(SGGameSpace):
     
     #To return all agent of a type in neighborhood
     def getNeighborAgentThroughCell(self,aCell,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        """NOT TESTED"""
         x=aCell.x
         y=aCell.y
         result=[]
@@ -519,10 +473,12 @@ class SGGrid(SGGameSpace):
     
     #To return if a type of agent is in neighborhood through a cell
     def haveAgentInNeighborhoodThroughCell(self,aCell,agentName,typeNeighbor="moore",rangeNeighbor=1):
+        """NOT TESTED"""
         return len(self.getNeighborAgentThroughCell(aCell,agentName,typeNeighbor,rangeNeighbor))>=1
     
     #To return all agent in neighborhood through a cell
     def getNeighborAllAgentThroughCell(self,aCell,typeNeighbor="moore",rangeNeighbor=1):
+        """NOT TESTED"""
         x=aCell.x
         y=aCell.y
         result=[]
@@ -534,6 +490,7 @@ class SGGrid(SGGameSpace):
     
     #To check if the grid have agent
     def haveAgents(self):
+        """NOT TESTED"""
         for cell in self.collectionOfCells.getCells().values():
             if len(cell.collectionOfAgents.agents)!=0:
                 return True

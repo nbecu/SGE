@@ -250,6 +250,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the zoom in
     def zoomPlusModel(self):
+        """NOT TESTED"""
         self.setNumberOfZoom(self.numberOfZoom+1)
         for aGameSpaceName in self.gameSpaces:
             self.gameSpaces[aGameSpaceName].zoomIn()
@@ -260,6 +261,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the zoom out
     def zoomLessModel(self):
+        """NOT TESTED"""
         if self.numberOfZoom != 0 :
             for aGameSpaceName in self.gameSpaces:
                 self.gameSpaces[aGameSpaceName].zoomOut()
@@ -269,6 +271,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     #Trigger the basic zoom
     def zoomFitModel(self):
+        """NOT TESTED"""
         #if the window to display is to big we zoom out and reapply the layout
         if self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height():
             while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
@@ -291,11 +294,13 @@ class SGModel(QtWidgets.QMainWindow):
      
     #Extract the current gameboard into png   
     def extractPngFromWidget(self):
+        """NOT TESTED"""
         #To be reworked
         self.window.grab().save("image.png")
     
     #Extract the current gameboard into svg 
     def extractSvgFromWidget(self):
+        """NOT TESTED"""
         generator = QSvgGenerator()
         generator.setFileName("image.svg")
         painter = QPainter(generator)
@@ -498,6 +503,9 @@ class SGModel(QtWidgets.QMainWindow):
         return aAgent
     
     def getAgents(self):
+        """
+        Return the list of all Agents in the model
+        """
         agent_list = []
         id_list=[]
         for animal, sub_dict in self.AgentSpecies.items():
@@ -543,6 +551,15 @@ class SGModel(QtWidgets.QMainWindow):
     
     # To add an Agent with attributs values
     def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1):
+        """
+        Add a Agent after initialization
+
+        args:
+            aGrid (instance): the grid you want your Agent to be in
+            aAgentSpecies (instance): the future Agent species
+            aDictOfAttributsWithValues (dict): dict of the attributs with their values
+            numberOfAgent(int): number of new Agents you want (default:1)
+        """
         if aDictOfAttributsWithValues==None:
             aDictOfAttributsWithValues={}
         for i in range(numberOfAgent):
@@ -570,10 +587,16 @@ class SGModel(QtWidgets.QMainWindow):
     
     # To add an Agent on a particular Cell type
 
-    # IN PROGRESS #
+    """IN PROGRESS"""
 
     # To delete an Agent
-    def deleteAgent(self,anAgentID,condition=[]):
+    def deleteAgent(self,anAgentID):
+        """
+        Delete an Agent.
+        
+        args:
+            anAgentID (int): the ID of the agent you want to delete
+        """
         AgentPaths=[]
         if len(self.getAgents()) !=0:
             # harvest of all agents

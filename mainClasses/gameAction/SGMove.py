@@ -25,6 +25,7 @@ class SGMove():
         
     #Function to test if the game action could be use
     def getAuthorize(self,anObject):
+        """NOT TESTED"""
         returnValue=True
         #We check each condition 
         for aCond in self.restrictions:

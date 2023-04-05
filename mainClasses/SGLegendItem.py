@@ -144,7 +144,7 @@ class SGLegendItem(QtWidgets.QWidget):
                     self.legend.model.update()
         self.update()
         
-    #To handle the drag of the grid
+    #To handle the drag 
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return

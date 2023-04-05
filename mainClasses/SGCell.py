@@ -86,28 +86,21 @@ class SGCell(QtWidgets.QWidget):
 
     #Funtion to handle the zoom
     def zoomIn(self):
+        """NOT TESTED"""
         oldSize=self.size
         self.size=self.grid.size
         self.gap=self.grid.gap
-        """for anAgent in self.collectionOfAgents.agents:
-            coeffX=anAgent.x/oldSize
-            anAgent.x=int(self.size*coeffX)
-            coeffY=anAgent.y/oldSize
-            anAgent.y=int(self.size*coeffY)"""
         self.update()
     
     def zoomOut(self):
+        """NOT TESTED"""
         oldSize=self.size
         self.size=self.grid.size
         self.gap=self.grid.gap
-        """for anAgent in self.collectionOfAgents.agents:
-            coeffX=anAgent.x/oldSize
-            anAgent.x=int(self.size*coeffX)
-            coeffY=anAgent.y/oldSize
-            anAgent.y=int(self.size*coeffY)"""
         self.update()
         
     def zoomFit(self):
+        """NOT TESTED"""
         self.size=self.grid.size
         self.gap=self.grid.gap
         self.update()
@@ -216,7 +209,7 @@ class SGCell(QtWidgets.QWidget):
                         if theAction is not None:
                             self.feedBack(theAction)
                         if self.grid.model.selected[0].legend.id!="adminLegend":
-                             self.owner=self.grid.model.actualPlayer
+                             self.owner=self.grid.model.currentPlayer
                         self.isDisplay=True
                         value =self.grid.model.selected[3]
                         theKey=""
@@ -244,10 +237,6 @@ class SGCell(QtWidgets.QWidget):
                                 self.feedBack(theAction)
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.AgentSpecies[Species]['Shape'],defaultsize=self.grid.model.AgentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.AgentSpecies[Species]['AttributList'],id=None)
                             self.grid.model.addAgent(self.grid,theSpecies,aDictWithValue,method=None,cell=self)
-                            #if self.grid.model.selected[0].legend.id!="adminLegend":
-                            #    anAgent.owner=self.grid.model.actualPlayer
-                            #anAgent.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,anAgent.attributs])
-                            #anAgent.history["coordinates"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.grid.id+"-"+str(self.x)+"-"+str(self.y)])
                             self.update()
                             self.grid.model.update()
 
@@ -280,6 +269,7 @@ class SGCell(QtWidgets.QWidget):
         #Agent function 
     #To get all agents on the grid of a particular type
     def getAgentsOfType(self,aNameOfAgent):
+        """NOT TESTED"""
         theList=[]
         for anAgentName in range(len(self.collectionOfAgents.agents)) :
             if self.collectionOfAgents.agents[anAgentName].name==aNameOfAgent:
@@ -303,6 +293,7 @@ class SGCell(QtWidgets.QWidget):
 
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
+        """NOT TESTED"""
         theKey=list(aDictOfValue.keys())[0] 
         if theKey in list(self.attributs.keys()):
             return aDictOfValue[theKey]==self.attributs[theKey]
@@ -318,6 +309,7 @@ class SGCell(QtWidgets.QWidget):
     
     #To get all of a kind of agent on a cell 
     def getAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+        """NOT TESTED"""
         listOfAgent=[]
         for agent in self.collectionOfAgents.agents:
             if agent.name ==nameOfAgent:
@@ -350,23 +342,28 @@ class SGCell(QtWidgets.QWidget):
         
     #Function to check the ownership  of the cell          
     def isMine(self):
-        return self.owner==self.grid.model.actualPlayer
+        """NOT TESTED"""
+        return self.owner==self.grid.model.currentPlayer
     
     #Function to check the ownership  of the cell          
     def isMineOrAdmin(self):
-        return self.owner==self.grid.model.actualPlayer or self.owner=="admin"
+        """NOT TESTED"""
+        return self.owner==self.grid.model.currentPlayer or self.owner=="admin"
     
     #Function to change the ownership         
     def makeOwner(self,newOwner):
+        """NOT TESTED"""
         self.owner=newOwner
         
     #Function get the ownership        
     def getProperty(self):
-        self.owner=self.grid.model.actualPlayer
+        """NOT TESTED"""
+        self.owner=self.grid.model.currentPlayer
         
         
     #Function get if the cell have change the value in       
     def haveChangeValue(self,numberOfRound=1):
+        """NOT TESTED"""
         haveChange=False
         if not len(self.history["value"]) ==0:
             for anItem in self.history["value"].reverse():
@@ -383,6 +380,7 @@ class SGCell(QtWidgets.QWidget):
     
     #Delete All the Agent       
     def deleteAllAgent(self):
+        """NOT TESTED"""
         for i in reversed(range(len(self.collectionOfAgents.agents))):
             self.collectionOfAgents.agents[i].deleteLater()
             del self.collectionOfAgents.agents[i]

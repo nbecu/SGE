@@ -269,6 +269,7 @@ class SGAgent(QtWidgets.QWidget):
     
     #Function to check the ownership  of the agent          
     def isMineOrAdmin(self):
+        """NOT TESTED"""
         return self.owner==self.cell.grid.model.actualPlayer or self.owner=="admin"
     
     #Function to change the ownership         
@@ -282,6 +283,7 @@ class SGAgent(QtWidgets.QWidget):
         
     #Function to check the old value of an Agent       
     def checkPrecedenteValue(self,precedentValue):
+        """NOT TESTED"""
         if not len(self.history["value"]) ==0:
             for aVal in list(self.history["value"][len(self.history["value"])].thingsSave.keys()) :
                 if aVal in list(self.theCollection.povs[self.cell.grid.model.nameOfPov].keys()) :
