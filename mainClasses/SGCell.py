@@ -131,7 +131,7 @@ class SGCell(QtWidgets.QWidget):
                 AgentSpecie=instance
                 break
 
-        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x+1,self.y+1,oldAgent.id,self.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
         theAgent.cell=self
         theAgent.show()
         
@@ -165,8 +165,8 @@ class SGCell(QtWidgets.QWidget):
         return self.grid.model.nameOfPov
          
     #To handle the selection of an element int the legend
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
             #Something is selected
             if self.grid.model.selected[0]!=None :
                 #We shearch if the player have the rights
@@ -236,7 +236,7 @@ class SGCell(QtWidgets.QWidget):
                             if theAction is not None:
                                 self.feedBack(theAction)
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.AgentSpecies[Species]['Shape'],defaultsize=self.grid.model.AgentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.AgentSpecies[Species]['AttributList'],id=None)
-                            self.grid.model.addAgent(self.grid,theSpecies,aDictWithValue,method=None,cell=self)
+                            self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             self.update()
                             self.grid.model.update()
 

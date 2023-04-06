@@ -584,6 +584,39 @@ class SGModel(QtWidgets.QMainWindow):
             anAgent.show()
             self.update()
         pass
+
+    # To add an Agent with attributs values
+    def placeAgent(self,aCell,aAgentSpecies,aDictOfAttributsWithValues):
+        """
+        Place a Agent with legend
+
+        args:
+            aCell (instance): the grid you want your Agent to be in
+            aAgentSpecies (instance): the future Agent species
+            aDictOfAttributsWithValues (dict): dict of the attributs with their values
+        """
+        if aDictOfAttributsWithValues==None:
+            aDictOfAttributsWithValues={}
+        incr=len(self.getAgents())
+        self.IDincr=+incr
+        anAgentID=self.IDincr+1
+        Cellparent=aCell
+        anAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        anAgent.me='agent'
+        anAgent.cell=Cellparent
+        anAgent.isDisplay=True
+        anAgent.species=str(aAgentSpecies.name)
+        self.AgentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
+                        'attributs':aDictOfAttributsWithValues,"AgentObject":anAgent}
+        
+        for key in aAgentSpecies.dictOfAttributs:
+            if key not in aDictOfAttributsWithValues:
+                val=list(aAgentSpecies.dictOfAttributs[key])[0]
+                anAgent.updateAgentValue(key,val)
+
+        anAgent.show()
+        self.update()
+        pass
     
     # To add an Agent on a particular Cell type
 
