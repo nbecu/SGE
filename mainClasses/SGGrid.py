@@ -226,7 +226,7 @@ class SGGrid(SGGameSpace):
     
 #To handle POV and placing on cell
     #To define a value for all cells
-    def setValueForCells(self,aAttribut,aValue):
+    def setValueCell(self,aAttribut,aValue):
         """
         Applies the same attribut value (and color) for all the cells
 

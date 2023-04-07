@@ -342,7 +342,7 @@ class SGModel(QtWidgets.QMainWindow):
 
 #For create elements
     #To create a grid
-    def createGrid(self,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30,name="",moveable=True):
+    def newGrid(self,columns=10,rows=10,format="square",color=Qt.gray,gap=0,size=30,name="",moveable=True):
         """
         Create a grid that contains cells
 
@@ -390,7 +390,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     
     #To create a Legend
-    def createLegendAdmin(self,Name='adminLegend'):
+    def newLegendAdmin(self,Name='adminLegend'):
         """
         To create an Admin Legend (with all the cell and agent values)
         
@@ -427,7 +427,7 @@ class SGModel(QtWidgets.QMainWindow):
         if "adminLegend" in list(self.gameSpaces.keys()):
             self.gameSpaces["adminLegend"].deleteLater()
             del self.gameSpaces["adminLegend"]
-        aLegend=self.createLegendAdmin()
+        aLegend=self.newLegendAdmin()
         aLegend.addDeleteButton('Delete')
 
 
@@ -452,6 +452,10 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies.isDisplay=False
         self.AgentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
         return aAgentSpecies
+    
+    def updateIDincr(self,newValue):
+        self.IDincr=newValue
+        return self.IDincr
 
     def newAgent(self,aGrid,aAgentSpecies,ValueX=None,ValueY=None,aID=None,aDictofAttributs=None):
         """
@@ -471,7 +475,9 @@ class SGModel(QtWidgets.QMainWindow):
         """
         if aID is None:
             anAgentID=self.IDincr+1
-            self.IDincr=+1
+            newIDincr=self.IDincr+1
+            self.updateIDincr(newIDincr)
+            
 
         else:
             anAgentID=aID
@@ -502,7 +508,7 @@ class SGModel(QtWidgets.QMainWindow):
         
         return aAgent
     
-    def getAgents(self):
+    def getAgents(self,id=False,species=None):
         """
         Return the list of all Agents in the model
         """
@@ -514,41 +520,23 @@ class SGModel(QtWidgets.QMainWindow):
                 id_list.append(agent_id)
         self.ids=id_list
         self.agents=agent_list
+        # If we want only the agents of one specie
+        if species is not None:
+            agent_list=[]
+            agent_objects=[]
+            if species in self.AgentSpecies.keys():
+                animal = species
+                subdict=self.AgentSpecies[animal]["AgentList"]
+                for agent in subdict:
+                    agent_objects.append(subdict[agent]["AgentObject"])
+                
+                return agent_objects
+        # If we want only the ids 
+        if id==True:
+            return self.ids
+        # All agents in model
         return self.agents
 
-    
-    def moveAgent(self,aGrid,anAgent,valueX=None,valueY=None,numberOfMovement=1):
-        """
-        Model action to move an Agent.
-
-        args:
-            aGrid (instance): the grid where the action take place
-            anAgent (instance): agent subject to move
-            valueX / value Y (int): coordinates of the cell
-            numberOfMouvement (int): number of movement in one action
-        """
-        for i in range(numberOfMovement):
-            if i>0:
-                oldAgent=theAgent
-            else:
-                oldAgent=anAgent
-            for instance in SGAgent.instances:
-                if instance.me=='collec' and instance.name==oldAgent.name:
-                    AgentSpecie=instance
-                    break
-            if valueX == None and valueY==None:
-                neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
-                newCell=random.choice(neighbors)
-
-            else:
-                newCell=aGrid.getCellFromCoordinates(valueX,valueY)
-            oldAgent.deleteLater()
-            theAgent=self.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-            theAgent.cell=newCell
-            theAgent.show()
-            
-        pass
-    
     # To add an Agent with attributs values
     def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1):
         """
@@ -579,10 +567,11 @@ class SGModel(QtWidgets.QMainWindow):
             for key in aAgentSpecies.dictOfAttributs:
                 if key not in aDictOfAttributsWithValues:
                     val=list(aAgentSpecies.dictOfAttributs[key])[0]
-                    anAgent.updateAgentValue(key,val)
+                    anAgent.setValueAgent(key,val)
 
             anAgent.show()
             self.update()
+            print(self.AgentSpecies)
         pass
 
     # To add an Agent with attributs values
@@ -659,7 +648,7 @@ class SGModel(QtWidgets.QMainWindow):
             return None
     
     #To create a Time Label
-    def addTimeLabel(self,name='Rounds&Phases'):
+    def newTimeLabel(self,name='Rounds&Phases'):
         """
         Create the visual time board of the game
 
@@ -686,7 +675,7 @@ class SGModel(QtWidgets.QMainWindow):
         return aTimeLabel
     
     #To create a Message Box
-    def addMessageBox(self,name='Message Box',textToWrite='Welcome in the game !'):
+    def newMessageBox(self,name='Message Box',textToWrite='Welcome in the game !'):
         """
         Create a message box
 
@@ -776,7 +765,7 @@ class SGModel(QtWidgets.QMainWindow):
 
 
     #To add a new POV 
-    def setUpPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
+    def newPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
         """
         Declare a new Point of View for cells.
 

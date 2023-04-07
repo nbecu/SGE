@@ -8,46 +8,52 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent", typeOfLayout ="grid")
 
-aGrid=myModel.createGrid(10,10,"square",size=60, gap=2,name='grid1')
-aGrid.setValueForCells("landUse","grass")
+aGrid=myModel.newGrid(10,10,"square",size=60, gap=2,name='grid1')
+aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
 
-myModel.setUpPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.setUpPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 
 Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
-Moutons.setUpPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Moutons.setUpPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Moutons.newPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
 m2=myModel.newAgent(aGrid,Moutons,6,3)
 
-m2.updateAgentValue('health','good')
-m1.updateAgentValue('health','bad')
-m2.updateAgentValue('hunger','good')
-m1.updateAgentValue('hunger','bad')
+m2.setValueAgent('health','good')
+m1.setValueAgent('health','bad')
+m2.setValueAgent('hunger','good')
+m1.setValueAgent('hunger','bad')
 
 
 
-myModel.moveAgent(aGrid,m1,numberOfMovement=3)
+m1.moveAgent(aGrid,numberOfMovement=3)
 
-theFirstLegend=myModel.createLegendAdmin()
+Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
+Vaches.newPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+v1=myModel.newAgent(aGrid,Vaches,2,2)
+v1.setValueAgent('health','good')
+print(myModel.AgentSpecies)
+
+theFirstLegend=myModel.newLegendAdmin()
 
 
-GameRounds=myModel.addTimeLabel()
-myModel.timeManager.addGamePhase('Phase 1')
-myModel.timeManager.addGamePhase('Phase 2')
-myModel.timeManager.addGamePhase('Phase 3')
-myModel.timeManager.addGamePhase('Phase 4',None,[lambda: myModel.addAgent(aGrid,Moutons,{'health':'good'},numberOfAgent=2)])
-myModel.timeManager.addGamePhase('Phase 5')
+GameRounds=myModel.newTimeLabel()
+myModel.timeManager.newGamePhase('Phase 1')
+myModel.timeManager.newGamePhase('Phase 2')
+myModel.timeManager.newGamePhase('Phase 3')
+myModel.timeManager.newGamePhase('Phase 4',None,[lambda: myModel.addAgent(aGrid,Moutons,{'health':'good'},numberOfAgent=2)])
+myModel.timeManager.newGamePhase('Phase 5')
 
-MessageBox=myModel.addMessageBox()
+MessageBox=myModel.newMessageBox()
 
 
 myModel.iAm("Admin")

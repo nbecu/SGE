@@ -9,7 +9,7 @@ class SGTimeManager():
         self.currentPhase = 1
         self.phases=[]
         self.conditionOfEndGame=[]
-        self.addGamePhase('Initialisation',0)
+        self.newGamePhase('Initialisation',0)
         
     #To increment the time of the game
     def nextPhase(self):
@@ -72,7 +72,23 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,activePlayer=None,modelActions=[]):
+    def newGamePhase(self,name,activePlayer=None,modelActions=[]):
+        """
+        To add a Game Phase in a round.
+
+        args:
+            name (str): Name displayed on the TimeLabel
+            activePlayer (?): Player concerned about the phase (default:None)
+            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+        """
+        aPhase=SGTimePhase(name,activePlayer,modelActions)
+        if activePlayer == None :
+            self.model.actualPlayer=activePlayer
+        self.phases.append(aPhase)
+        return aPhase
+    
+
+    def newGamePhase_adv(self,name,activePlayer=None,modelActions=[]):
         """
         To add a Game Phase in a round.
 

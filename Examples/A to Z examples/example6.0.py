@@ -6,14 +6,14 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(800,800, windowTitle="Adding a player with game actions")
 
-aGrid=myModel.createGrid(7,10,"square",size=60, gap=2)
-aGrid.setValueForCells("landUse","grass")
+aGrid=myModel.newGrid(7,10,"square",size=60, gap=2)
+aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-myModel.setUpPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
-myModel.setUpPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
+myModel.newPov("povLandUse",{"landUse":{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen}})
+myModel.newPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen}})
 
 # You can add a player and give him game actions which he can perform
 # The name of the game action indicates the type of the action: cellUpdate, agentMove,...
@@ -22,7 +22,7 @@ p1= myModel.createPlayer("farmer")
 p1.addGameAction(myModel.createUpdateAction(aGrid.getACell(),2,{"landUse":"grass"}))
 
 # A game phase allow to specify which user can play during the given phase
-myModel.timeManager.addGamePhase("the First Phase",p1)
+myModel.timeManager.newGamePhase("the First Phase",p1)
 
 #theFirstLegend=myModel.createLegendAdmin()
 myModel.iAm("farmer")

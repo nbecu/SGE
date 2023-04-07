@@ -9,17 +9,17 @@ myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
 
 # You can change the specifications of the grid cells 
 # For example you can change the shape of the cells
-aGrid=myModel.createGrid(10,10,"hexagonal",size=30)
+aGrid=myModel.newGrid(10,10,"hexagonal",size=30)
 
-aGrid.setValueForCells("landUse","grass")
+aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-myModel.setUpPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.setUpPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-theFirstLegend=myModel.createLegendAdmin()
+theFirstLegend=myModel.newLegendAdmin()
 
 myModel.launch_withoutMqtt() 
 

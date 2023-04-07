@@ -7,19 +7,19 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent", typeOfLayout ="grid")
 
-aGrid=myModel.createGrid(10,10,"square",size=60, gap=2,name='grid1')
-aGrid.setValueForCells("landUse","grass")
+aGrid=myModel.newGrid(10,10,"square",size=60, gap=2,name='grid1')
+aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-myModel.setUpPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.setUpPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 
 Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
-Moutons.setUpPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Moutons.setUpPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Moutons.newPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
@@ -32,30 +32,30 @@ m2.updateAgentValue('health','good')
 
 
 Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
-Vaches.setUpPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+Vaches.newPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 v1=myModel.newAgent(aGrid,Vaches,2,2)
 v1.updateAgentValue('health','good')
 
-theFirstLegend=myModel.createLegendAdmin()
+theFirstLegend=myModel.newLegendAdmin()
 
 # Testing other programatic changes on the cell and agents
-GameRounds=myModel.addTimeLabel('Rounds&Phases')
-myModel.timeManager.addGamePhase('début')
-myModel.timeManager.addGamePhase('milieu',None,
+GameRounds=myModel.newTimeLabel('Rounds&Phases')
+myModel.timeManager.newGamePhase('début')
+myModel.timeManager.newGamePhase('milieu',None,
                                  [lambda: m1.updateAgentValue('health','good'),
                                  lambda: v1.updateAgentValue('health','bad')])
-myModel.timeManager.addGamePhase('fin',None,
+myModel.timeManager.newGamePhase('fin',None,
                                  [lambda: m1.updateAgentValue('health','bad'),
                                 lambda: v1.updateAgentValue('health','good')])
-myModel.timeManager.addGamePhase('fin2',None,
+myModel.timeManager.newGamePhase('fin2',None,
                                     [lambda: aGrid.setForRandom({"landUse":"shrub"},20)],[lambda: myModel.getTimeManager().currentRound == 3 ])
-myModel.timeManager.addGamePhase('fin2',None,
+myModel.timeManager.newGamePhase('fin2',None,
                                     [lambda: aGrid.setForRandom({"landUse":"forest"},6)],[lambda: myModel.getTimeManager().verifNumberOfRound(5) ])
-# myModel.timeManager.addGamePhase('fin des fins',None,
+# myModel.timeManager.newGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.addAgentOnValue("Moutons",{"health":"bad"})])      --->  Does not work
-# myModel.timeManager.addGamePhase('fin des fins',None,
+# myModel.timeManager.newGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.moveRandomlyAgent("Moutons")])   --->  Does not work
-# myModel.timeManager.addGamePhase('fin des fins',None,
+# myModel.timeManager.newGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.deleteAgent("Moutons")])  --->  Does not work
 
 

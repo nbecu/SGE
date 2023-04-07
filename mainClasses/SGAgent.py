@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
 from PyQt5.QtWidgets import  QAction
+import random
 
    
 #Class who is responsible of the declaration a Agent
@@ -224,7 +225,7 @@ class SGAgent(QtWidgets.QWidget):
 #Definiton of the methods who the modeler will use
 
     #To set up a POV
-    def setUpPov(self,nameofPOV,concernedAtt,dictOfColor):
+    def newPov(self,nameofPOV,concernedAtt,dictOfColor):
         """
         Declare a new Point of View for the Species.
 
@@ -249,7 +250,7 @@ class SGAgent(QtWidgets.QWidget):
             anAction.triggered.connect(lambda: self.tomodel.setInitialPov(nameOfPov))
         
 
-    def updateAgentValue(self,attribut,value):
+    def setValueAgent(self,attribut,value):
         """
         Update a Agent attribut value
 
@@ -257,10 +258,44 @@ class SGAgent(QtWidgets.QWidget):
             attribut (str): attribut concerned by the update
             value (str): value previously declared in the species, to update
         """
-        if self.cell.grid.model.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['me']=='agent':
+        if self.me=='agent':
             self.cell.grid.model.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs'][str(attribut)]=str(value)
-        else:
-            print("Warning")
+        elif self.me=='collec':
+            dict=self.cell.grid.model.AgentSpecies[self.name]['AgentList']
+            for agent in dict.keys():
+                dict[agent]['attributs'][str(attribut)]=str(value)
+            
+
+    def moveAgent(self,aGrid,valueX=None,valueY=None,numberOfMovement=1):
+        """
+        Model action to move an Agent.
+
+        args:
+            aGrid (instance): the grid where the action take place
+            valueX / value Y (int): coordinates of the cell
+            numberOfMouvement (int): number of movement in one action
+        """
+        for i in range(numberOfMovement):
+            if i>0:
+                oldAgent=theAgent
+            else:
+                oldAgent=self
+            for instance in SGAgent.instances:
+                if instance.me=='collec' and instance.name==oldAgent.name:
+                    AgentSpecie=instance
+                    break
+            if valueX == None and valueY==None:
+                neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
+                newCell=random.choice(neighbors)
+
+            else:
+                newCell=aGrid.getCellFromCoordinates(valueX,valueY)
+            oldAgent.deleteLater()
+            theAgent=self.cell.grid.model.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.cell.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+            theAgent.cell=newCell
+            theAgent.show()
+            
+        pass
 
 
                 
