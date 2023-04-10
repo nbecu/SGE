@@ -74,24 +74,30 @@ class SGGrid(SGGameSpace):
         self.zoom=self.zoom*1.1
         self.gap=round(self.gap+(self.zoom*1))
         self.size=round(self.size+(self.zoom*10))
-        for cell in self.collectionOfCells.getCells() :
-            self.collectionOfCells.getCell(cell).zoomIn() 
+        for cell in self.getCells() :
+            cell.zoomIn()
+            for agent in cell.getAgents():
+                agent.zoomIn(self.zoom)
         self.update()
     
     def zoomOut(self):
         """NOT TESTED"""
         self.zoom=self.zoom*0.9
         self.size=round(self.size-(self.zoom*10))
+
+        # Ce IF/ELSE est trés curieux. C'est la meme chose ds le If et ds le Else
         if(self.gap>2 and self.format=="square"):
             self.gap=round(self.gap-(self.zoom*1))
-            for cell in self.collectionOfCells.getCells():
-                self.collectionOfCells.getCell(cell).zoomOut()
+            for cell in self.getCells():
+                cell.zoomOut()
         else:
             self.gap=round(self.gap-(self.zoom*1))
-            for cell in self.collectionOfCells.getCells():
-                self.collectionOfCells.getCell(cell).zoomOut()
-        for cell in self.collectionOfCells.getCells() :
-            self.collectionOfCells.getCell(cell).zoomOut() 
+            for cell in self.getCells():
+                cell.zoomOut()
+        for cell in self.getCells() :
+            cell.zoomOut()
+            for agent in cell.getAgents():
+                agent.zoomOut(self.zoom)
         self.update()
         
     #To handle the drag of the grid
@@ -174,7 +180,7 @@ class SGGrid(SGGameSpace):
 
     # To initialise current POV
     def initCurrentPOV(self):
-        for aCell in self.collectionOfCells.getCells().values():
+        for aCell in self.getCells():
             listcles = list(aCell.theCollection.povs.keys())
             self.currentPOV['Cell'] = aCell.theCollection.povs[listcles[0]]
 
@@ -193,7 +199,7 @@ class SGGrid(SGGameSpace):
             for pov in sub_dict['POV'].items():
                 if self.model.nameOfPov == pov:
                     self.currentPOV['Agent'][animal]=pov
-        for aCell in list(self.collectionOfCells.getCells().values()):
+        for aCell in list(self.getCells()):
             for pov in aCell.theCollection.povs:
                 if self.model.nameOfPov == pov:
                     self.currentPOV['Cell']=aCell.theCollection.povs[pov]
@@ -204,11 +210,15 @@ class SGGrid(SGGameSpace):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #Retourn the cell
+    #Return all the cells
+    def getCells(self):
+        return self.collectionOfCells.getCells()
+    
+    #Return the cell
     def getCell(self,aCellName):
         return self.collectionOfCells.getCell(self,aCellName)
     
-    #Retourn the from the coordonate
+    #Return the from the coordonate
     def getCellFromCoordinates(self,x, y):
         """
         Return a cell with row and column number.
@@ -220,9 +230,7 @@ class SGGrid(SGGameSpace):
         if x < 0 or x >= self.rows or y < 0 or y >= self.columns:
             return None
         CellName="cell"+str(x)+'-'+str(y)
-        Cells=self.collectionOfCells.getCells()
-        Cell=Cells[CellName]
-        return Cell
+        return self.collectionOfCells.cells[CellName]
     
 #To handle POV and placing on cell
     #To define a value for all cells
@@ -235,7 +243,7 @@ class SGGrid(SGGameSpace):
             aValue (str): Value to set the attribute to
         """
         aDictWithValue={aAttribut:aValue}
-        for aCell in list(self.collectionOfCells.getCells().values()):
+        for aCell in list(self.getCells()):
             for aVal in list(aDictWithValue.keys()) :
                 if len(aCell.theCollection.povs) !=0:
                     if aVal in list(aCell.theCollection.povs[self.model.nameOfPov].keys()) :
@@ -331,7 +339,7 @@ class SGGrid(SGGameSpace):
     #To define a value for all Agents
     def setValueForAgents(self,typeOfAgent,aDictWithValue):
         """NOT TESTED"""
-        for aCell in list(self.collectionOfCells.getCells().values()):
+        for aCell in list(self.getCells()):
             for anAgent in aCell.getAgentsOfType(typeOfAgent):
                 for aVal in list(aDictWithValue.keys()) :
                     if aVal in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()) :
@@ -387,16 +395,11 @@ class SGGrid(SGGameSpace):
                                 return True
         return False
 
-
-    #To get a cell of the grid
-    def getACell(self):        
-        return self.collectionOfCells.getCells()[list(self.collectionOfCells.getCells().keys())[0]]
-     
      
     #To grow all attributs of cells of one type
     def makeEvolve(self,listOfAttributsToMakeEvolve):
         """NOT TESTED"""
-        for aCell in list(self.collectionOfCells.getCells().values()) :
+        for aCell in list(self.getCells()) :
             for anAttribut in listOfAttributsToMakeEvolve:
                 if anAttribut in list(aCell.attributs.keys()) :
                     for aPov in aCell.theCollection.povs:
@@ -410,7 +413,7 @@ class SGGrid(SGGameSpace):
     #To decrease all attributs of cells of one type
     def makeDecrease(self,listOfAttributsToMakeDecrease):
         """NOT TESTED"""
-        for aCell in list(self.collectionOfCells.getCells().values()) :
+        for aCell in list(self.getCells()) :
             for anAttribut in listOfAttributsToMakeDecrease:
                 if anAttribut in list(aCell.attributs.keys()) :
                     for aPov in aCell.theCollection.povs:
@@ -491,7 +494,7 @@ class SGGrid(SGGameSpace):
     #To check if the grid have agent
     def haveAgents(self):
         """NOT TESTED"""
-        for cell in self.collectionOfCells.getCells().values():
+        for cell in self.getCells():
             if len(cell.collectionOfAgents.agents)!=0:
                 return True
         return False

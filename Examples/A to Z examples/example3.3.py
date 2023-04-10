@@ -4,10 +4,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="The VERY BIG moveable grid of hexagonal cells")
+myModel=SGModel(860,500, windowTitle="The VERY BIG moveable grid of hexagonal cells")
 
 # You can change the specifications of the grid cells 
-aGrid=myModel.newGrid(12,8,"hexagonal",size=100, gap=2,moveable=True)
+aGrid=myModel.newGrid(12,8,"hexagonal",size=45, gap=2,moveable=True)
 aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)

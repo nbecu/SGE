@@ -73,8 +73,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.gameSpaces={}
         self.messageBoxes=[]
         #Definition of the AgentCollection
-        self.AgentSpecies={}
-        self.agents=self.getAgents()
+        self.agentSpecies={}
+        self.agents=self.getAgents() #cet attribut est à proscrire car agents n'est pas remis à jour après qu'il y ait eu un ajout ou une suppression d'un agent
         self.IDincr=0
         #We create the layout
         self.typeOfLayout=typeOfLayout
@@ -450,7 +450,7 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
         aAgentSpecies.me='collec'
         aAgentSpecies.isDisplay=False
-        self.AgentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
+        self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
         return aAgentSpecies
     
     def updateIDincr(self,newValue):
@@ -495,10 +495,11 @@ class SGModel(QtWidgets.QMainWindow):
                 ValueY=+1
         Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
         aAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        Cellparent.updateIncomingAgent(aAgent)
         aAgent.me='agent'
         aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
-        self.AgentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.cell,'species':aAgent.name,'size':aAgent.size,
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.cell,'species':aAgent.name,'size':aAgent.size,
                             'attributs':aDictofAttributs,"AgentObject":aAgent
                             }
         if aDictofAttributs is None:
@@ -514,7 +515,7 @@ class SGModel(QtWidgets.QMainWindow):
         """
         agent_list = []
         id_list=[]
-        for animal, sub_dict in self.AgentSpecies.items():
+        for animal, sub_dict in self.agentSpecies.items():
             for agent_id, agent_dict in sub_dict['AgentList'].items():
                 agent_list.append(agent_dict['AgentObject'])
                 id_list.append(agent_id)
@@ -524,9 +525,9 @@ class SGModel(QtWidgets.QMainWindow):
         if species is not None:
             agent_list=[]
             agent_objects=[]
-            if species in self.AgentSpecies.keys():
+            if species in self.agentSpecies.keys():
                 animal = species
-                subdict=self.AgentSpecies[animal]["AgentList"]
+                subdict=self.agentSpecies[animal]["AgentList"]
                 for agent in subdict:
                     agent_objects.append(subdict[agent]["AgentObject"])
                 
@@ -556,12 +557,19 @@ class SGModel(QtWidgets.QMainWindow):
             anAgentID=self.IDincr+1
             akey = random.choice(list(aGrid.collectionOfCells.cells.keys()))
             Cellparent=aGrid.collectionOfCells.cells[akey]
+            # OH LA LA . C'est vraiement pas beau ca !!
+            # voici la bonne façon de récupérer une cell
+            Cellparent=random.choice(list(aGrid.getCells()))
+            # au passage, faut pas appeler la cell où est placé l'agent 'parent'. Tu peux l'appeler locationCell par ex.  
+
             anAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
             anAgent.me='agent'
-            anAgent.cell=Cellparent
+            Cellparent.updateIncomingAgent(anAgent) 
             anAgent.isDisplay=True
             anAgent.species=str(aAgentSpecies.name)
-            self.AgentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
+
+            #je pense que cette copie de l'agent est beaucoup trop compliqué. Il y a juste besoin de mettre la référence à l'agent lui même 
+            self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
                             'attributs':aDictOfAttributsWithValues,"AgentObject":anAgent}
             
             for key in aAgentSpecies.dictOfAttributs:
@@ -571,11 +579,12 @@ class SGModel(QtWidgets.QMainWindow):
 
             anAgent.show()
             self.update()
-            print(self.AgentSpecies)
+            # print(self.agentSpecies)
         pass
 
     # To add an Agent with attributs values
     def placeAgent(self,aCell,aAgentSpecies,aDictOfAttributsWithValues):
+        ## IL ME SEMBLE que cette méthode est obsolète
         """
         Place a Agent with legend
 
@@ -595,7 +604,7 @@ class SGModel(QtWidgets.QMainWindow):
         anAgent.cell=Cellparent
         anAgent.isDisplay=True
         anAgent.species=str(aAgentSpecies.name)
-        self.AgentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
+        self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
                         'attributs':aDictOfAttributsWithValues,"AgentObject":anAgent}
         
         for key in aAgentSpecies.dictOfAttributs:
@@ -622,7 +631,7 @@ class SGModel(QtWidgets.QMainWindow):
         AgentPaths=[]
         if len(self.getAgents()) !=0:
             # harvest of all agents
-            for animal, sub_dict in self.AgentSpecies.items():
+            for animal, sub_dict in self.agentSpecies.items():
                 for agent_id, agent_dict in sub_dict['AgentList'].items():
                     AgentPath={agent_id:agent_dict}
                     AgentPaths.append(AgentPath)
@@ -633,11 +642,17 @@ class SGModel(QtWidgets.QMainWindow):
                         aAgent=paths[str(key)]['AgentObject']
                         print(aAgent)
                         break
+            aAgent.cell.updateDepartureAgent(aAgent)
             aAgent.deleteLater()
             self.update()
             self.updateLegendAdmin()
         self.show()
 
+    #To randomly move all agents
+    def moveRandomlyAgents(self,aGrid,numberOfMovement):
+        for aAgent in self.getAgents():
+            aAgent.moveAgent(aGrid,numberOfMovement=numberOfMovement)
+    
 
     #To get the player
     def getCurrentPlayer(self):
@@ -788,9 +803,9 @@ class SGModel(QtWidgets.QMainWindow):
     # To get the list of Agent POV
     def getAgentPOVs(self):
         list_POV={}
-        for species in self.AgentSpecies.keys():
-            if "POV" in self.AgentSpecies[species]:
-                list_POV[species]=self.AgentSpecies[species]['POV']
+        for species in self.agentSpecies.keys():
+            if "POV" in self.agentSpecies[species]:
+                list_POV[species]=self.agentSpecies[species]['POV']
         self.AgentPOVs=list_POV
         return self.AgentPOVs
  

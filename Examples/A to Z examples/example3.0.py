@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 # You can add a title to the main window of your simulation/game
-myModel=SGModel(860,700, windowTitle="A board with hexagonal cells")
+myModel=SGModel(600,400, windowTitle="A board with hexagonal cells")
 
 # You can change the specifications of the grid cells 
 # For example you can change the shape of the cells

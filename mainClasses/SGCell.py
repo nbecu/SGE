@@ -32,6 +32,7 @@ class SGCell(QtWidgets.QWidget):
         #We init the dict of Attribute
         self.attributs={}
         #We init the Collection for the futures Agents
+        self.agents=[]
         #We allow the drops for the agents
         self.setAcceptDrops(True)
         #We define an owner
@@ -169,7 +170,7 @@ class SGCell(QtWidgets.QWidget):
         if event.button() == Qt.LeftButton:
             #Something is selected
             if self.grid.model.selected[0]!=None :
-                #We shearch if the player have the rights
+                #We search if the player have the rights
                 thePlayer=self.grid.model.getCurrentPlayer()
                 authorisation=False
                 theAction = None
@@ -236,6 +237,7 @@ class SGCell(QtWidgets.QWidget):
                             if theAction is not None:
                                 self.feedBack(theAction)
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.AgentSpecies[Species]['Shape'],defaultsize=self.grid.model.AgentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.AgentSpecies[Species]['AttributList'],id=None)
+                                    #c bizare car le premier attribut est censé etre une cell normalement
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             self.update()
                             self.grid.model.update()
@@ -264,21 +266,18 @@ class SGCell(QtWidgets.QWidget):
         if e.buttons() != Qt.LeftButton:
             return
                         
-    
-    
-        #Agent function 
-    #To get all agents on the grid of a particular type
-    def getAgentsOfType(self,aNameOfAgent):
-        """NOT TESTED"""
-        theList=[]
-        for anAgentName in range(len(self.collectionOfAgents.agents)) :
-            if self.collectionOfAgents.agents[anAgentName].name==aNameOfAgent:
-                theList.append(self.collectionOfAgents.agents[anAgentName])
-        return theList
             
+    #To handle the arrival of an agent on the cell (this is a private method)
+    def updateIncomingAgent(self,anAgent):
+        anAgent.cell=self
+        self.agents.append(anAgent)
     
-    
-        
+    #To handle the departure of an agent of the cell (this is a private method)
+    def updateDepartureAgent(self,anAgent):
+        anAgent.cell=None
+        self.agents.remove(anAgent)
+
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
@@ -308,14 +307,21 @@ class SGCell(QtWidgets.QWidget):
      
     
     #To get all of a kind of agent on a cell 
-    def getAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
+    def getAgents(self):
         """NOT TESTED"""
-        listOfAgent=[]
-        for agent in self.collectionOfAgents.agents:
-            if agent.name ==nameOfAgent:
-                listOfAgent.append(agent)
-        return  listOfAgent
-    
+        listOfAgents=[]
+        for agent in self.agents:
+           listOfAgents.append(agent)
+        return  listOfAgents
+ 
+    #To get all agents on the grid of a particular type
+    def getAgentsOfSpecie(self,nameOfSpecie):
+        """NOT TESTED"""
+        listOfAgents=[]
+        for agent in self.agents:
+            if agent.name ==nameOfSpecie:
+                listOfAgents.append(agent)
+        return  listOfAgents
     
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):

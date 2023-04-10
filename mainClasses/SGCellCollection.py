@@ -35,7 +35,7 @@ class SGCellCollection():
        
     #To get all the cells of the collection 
     def getCells(self):
-        return self.cells
+        return self.cells.values()
     
     #To get all the povs of the collection 
     def getPovs(self):

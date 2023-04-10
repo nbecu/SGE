@@ -31,7 +31,7 @@ m1.setValueAgent('hunger','bad')
 #print(myModel.AgentSpecies)
 
 agent_list = []
-for animal, sub_dict in myModel.AgentSpecies.items():
+for animal, sub_dict in myModel.agentSpecies.items():
     for agent_id, agent_dict in sub_dict['AgentList'].items():
         agent_list.append(agent_dict['AgentObject'])
 

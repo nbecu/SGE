@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1000,700, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(10,10,"square",size=20, gap=2)
+aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
 aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)
@@ -35,6 +35,16 @@ m2.setValueAgent('hunger','good')
 m1.setValueAgent('hunger','bad')
 
 theFirstLegend=myModel.newLegendAdmin()
+
+GameRounds=myModel.newTimeLabel('Rounds&Phases')
+myModel.timeManager.newGamePhase('Phase 1')
+myModel.timeManager.newGamePhase('Phase 2')
+myModel.timeManager.newGamePhase('Phase 3')
+myModel.timeManager.newGamePhase('Phase 4')
+myModel.timeManager.newGamePhase('Phase 5')
+
+
+myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 
 

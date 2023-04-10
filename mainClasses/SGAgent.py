@@ -16,6 +16,7 @@ class SGAgent(QtWidgets.QWidget):
         #Basic initialize
         self.cell=parent
         self.tomodel=parent
+            # y'a une embrouille. C'est pas propre que parent soit utilisé pour initialiser  cell et tomodel
         self.name=name
         self.format=format
         self.size=defaultsize
@@ -102,26 +103,38 @@ class SGAgent(QtWidgets.QWidget):
                 painter.drawPolygon(points)
             painter.end()
 
-        
+   #Funtion to handle the zoomIn
+    def zoomIn(self,zoomFactor):
+        """NOT TESTED"""
+        self.size=round(self.size+(zoomFactor*10))
+        self.update()
+
+    #Funtion to handle the zoomOut
+    def zoomOut(self,zoomFactor):
+        """NOT TESTED"""
+        self.size=round(self.size-(zoomFactor*10))
+        self.update()
+
+
     #To manage the attribute system of an Agent
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
         actualPov= self.getPov()
-        if actualPov in list(self.cell.grid.model.AgentSpecies[self.species]['POV'].keys()):
-            self.cell.grid.model.AgentSpecies[self.species]['selectedPOV']=self.cell.grid.model.AgentSpecies[self.species]['POV'][actualPov]
-            for aAtt in list(self.cell.grid.model.AgentSpecies[self.species]['POV'][actualPov].keys()):
-                if aAtt in list(self.cell.grid.model.AgentSpecies[self.species]['POV'][actualPov].keys()):
-                    path=self.cell.grid.model.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                    theColor=self.cell.grid.model.AgentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
+        if actualPov in list(self.cell.grid.model.agentSpecies[self.species]['POV'].keys()):
+            self.cell.grid.model.agentSpecies[self.species]['selectedPOV']=self.cell.grid.model.agentSpecies[self.species]['POV'][actualPov]
+            for aAtt in list(self.cell.grid.model.agentSpecies[self.species]['POV'][actualPov].keys()):
+                if aAtt in list(self.cell.grid.model.agentSpecies[self.species]['POV'][actualPov].keys()):
+                    path=self.cell.grid.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                    theColor=self.cell.grid.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
                     return theColor
 
         else:
-            if self.cell.grid.model.AgentSpecies[self.species]['selectedPOV'] is not None:
-                for aAtt in list(self.cell.grid.model.AgentSpecies[self.species]['selectedPOV'].keys()):
-                    if aAtt in list(self.cell.grid.model.AgentSpecies[self.species]['selectedPOV'].keys()):
-                        path=self.cell.grid.model.AgentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        theColor=self.cell.grid.model.AgentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+            if self.cell.grid.model.agentSpecies[self.species]['selectedPOV'] is not None:
+                for aAtt in list(self.cell.grid.model.agentSpecies[self.species]['selectedPOV'].keys()):
+                    if aAtt in list(self.cell.grid.model.agentSpecies[self.species]['selectedPOV'].keys()):
+                        path=self.cell.grid.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                        theColor=self.cell.grid.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
                 return theColor
             
             else:
@@ -236,8 +249,8 @@ class SGAgent(QtWidgets.QWidget):
             DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
             
         """
-        if self.tomodel.AgentSpecies[str(self.name)]['me']=='collec':
-            self.tomodel.AgentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
+        if self.tomodel.agentSpecies[str(self.name)]['me']=='collec':
+            self.tomodel.agentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
             self.addPovinMenuBar(nameofPOV)
         else:
             print("Warning, a POV can be only define on a Species")
@@ -259,9 +272,9 @@ class SGAgent(QtWidgets.QWidget):
             value (str): value previously declared in the species, to update
         """
         if self.me=='agent':
-            self.cell.grid.model.AgentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs'][str(attribut)]=str(value)
+            self.cell.grid.model.agentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs'][str(attribut)]=str(value)
         elif self.me=='collec':
-            dict=self.cell.grid.model.AgentSpecies[self.name]['AgentList']
+            dict=self.cell.grid.model.agentSpecies[self.name]['AgentList']
             for agent in dict.keys():
                 dict[agent]['attributs'][str(attribut)]=str(value)
             
@@ -290,9 +303,11 @@ class SGAgent(QtWidgets.QWidget):
 
             else:
                 newCell=aGrid.getCellFromCoordinates(valueX,valueY)
+            oldAgent.cell.updateDepartureAgent(oldAgent)
             oldAgent.deleteLater()
-            theAgent=self.cell.grid.model.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,self.cell.grid.model.AgentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-            theAgent.cell=newCell
+            theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+                    # ATTENTION : le chemin en utilisant cell.grid.model   pour accéder au modèle est vraiement à proscrire. 
+            newCell.updateIncomingAgent(theAgent)
             theAgent.show()
             
         pass

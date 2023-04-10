@@ -4,11 +4,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="A BIG board with hexagonal cells")
+myModel=SGModel(960,700, windowTitle="A BIG board with hexagonal cells")
 
 # You can change the specifications of the grid cells 
 # As well as the number of cells (in column and in row), the size of a cell, the space in between cells...
-aGrid=myModel.newGrid(30,15,"hexagonal",size=40, gap=2)
+aGrid=myModel.newGrid(30,15,"hexagonal",size=20, gap=2)
 aGrid.setValueCell("landUse","grass")
 aGrid.setForX("landUse","forest",1)
 aGrid.setForX("landUse","forest",2)

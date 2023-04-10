@@ -37,19 +37,20 @@ Vaches.newPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 v1=myModel.newAgent(aGrid,Vaches,2,2)
 v1.setValueAgent('health','good')
 
-print(myModel.AgentSpecies)
-
 theFirstLegend=myModel.newLegendAdmin()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 myModel.timeManager.newGamePhase('début')
 myModel.timeManager.newGamePhase('milieu',
                                  None,
-                                 [lambda: m1.setValueAgent('health','good')])
+                                 lambda: m1.setValueAgent('health','good'))
+myModel.timeManager.newGamePhase('milieu2', None,
+                                 [lambda: v1.setValueAgent('health','bad')])
 myModel.timeManager.newGamePhase('fin',
                                   None,
                                  [lambda: m1.setValueAgent('health','bad')])
-
+myModel.timeManager.newGamePhase('fin2', None,
+                                 [lambda: v1.setValueAgent('health','good')])
 
 myModel.iAm("Admin")
 

@@ -24,17 +24,17 @@ Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
 m2=myModel.newAgent(aGrid,Moutons,6,3)
-m1.updateAgentValue('health','bad')
-m1.updateAgentValue('hunger','bad')
-m2.updateAgentValue('hunger','good')
-m2.updateAgentValue('health','good')
+m1.setValueAgent('health','bad')
+m1.setValueAgent('hunger','bad')
+m2.setValueAgent('hunger','good')
+m2.setValueAgent('health','good')
 
 
 
 Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
 Vaches.newPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 v1=myModel.newAgent(aGrid,Vaches,2,2)
-v1.updateAgentValue('health','good')
+v1.setValueAgent('health','good')
 
 theFirstLegend=myModel.newLegendAdmin()
 
@@ -42,15 +42,20 @@ theFirstLegend=myModel.newLegendAdmin()
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 myModel.timeManager.newGamePhase('début')
 myModel.timeManager.newGamePhase('milieu',None,
-                                 [lambda: m1.updateAgentValue('health','good'),
-                                 lambda: v1.updateAgentValue('health','bad')])
+                                 [lambda: m1.setValueAgent('health','good'),
+                                 lambda: v1.setValueAgent('health','bad')])
 myModel.timeManager.newGamePhase('fin',None,
-                                 [lambda: m1.updateAgentValue('health','bad'),
-                                lambda: v1.updateAgentValue('health','good')])
+                                 [lambda: m1.setValueAgent('health','bad'),
+                                lambda: v1.setValueAgent('health','good')])
 myModel.timeManager.newGamePhase('fin2',None,
-                                    [lambda: aGrid.setForRandom({"landUse":"shrub"},20)],[lambda: myModel.getTimeManager().currentRound == 3 ])
+                                    [lambda: 
+                                     if myModel.getCurrentRound == 3 :
+                                       {aGrid.setRandomCells({"landUse":"shrub"},20)}
+                                    ]
+                                    )
 myModel.timeManager.newGamePhase('fin2',None,
-                                    [lambda: aGrid.setForRandom({"landUse":"forest"},6)],[lambda: myModel.getTimeManager().verifNumberOfRound(5) ])
+                                    [lambda: aGrid.setRandomCells ({"landUse":"forest"},6),
+                                    lambda: myModel.getTimeManager().verifNumberOfRound(5) ])
 # myModel.timeManager.newGamePhase('fin des fins',None,
 #                                     [lambda: aGrid.addAgentOnValue("Moutons",{"health":"bad"})])      --->  Does not work
 # myModel.timeManager.newGamePhase('fin des fins',None,

@@ -1,4 +1,5 @@
 from SGTimePhase import SGTimePhase
+from mainClasses.SGTimePhase import SGModelPhase
 
 #Class that handle the overall management of time 
 class SGTimeManager():
@@ -86,7 +87,23 @@ class SGTimeManager():
             self.model.actualPlayer=activePlayer
         self.phases.append(aPhase)
         return aPhase
-    
+
+ #To add a new Phase during which the model will execute some instructions
+ # TO BE CONTINUED
+    def newModelPhase(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[],name=''):
+        """
+        To add a round phase during which the model will execute some actions (add, delete, move...)
+        args:
+            actions (lambda function): Actions the model performs during the phase (add, delete, move...)
+            condition (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): Feedback actions performed only if the actions are executed
+            feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
+            name (str): Name displayed on the TimeLabel
+        """
+        aPhase=SGModelPhase(actions,condition,feedBacks,feedBacksCondition,name)
+        self.phases.append(aPhase)
+        return aPhase
+       
 
     def newGamePhase_adv(self,name,activePlayer=None,modelActions=[]):
         """

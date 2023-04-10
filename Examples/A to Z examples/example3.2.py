@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Nobody can move my grid")
+myModel=SGModel(700,500, windowTitle="Nobody can move my grid")
 
 # You can change the specifications of the grid cells 
 # You can choose if the player can move the grid with moveable True/False
