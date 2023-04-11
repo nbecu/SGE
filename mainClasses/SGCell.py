@@ -40,6 +40,7 @@ class SGCell(QtWidgets.QWidget):
         #We define variables to handle the history 
         self.history={}
         self.history["value"]=[]
+        self.color=Qt.white
   
     # to extract the format of the cell
     def getShape(self):
@@ -151,14 +152,17 @@ class SGCell(QtWidgets.QWidget):
             self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
             for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                 if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                     self.color=self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
                      return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
         
         else:
             if self.theCollection.povs['selectedPov'] is not None:
                 for aVal in list(self.theCollection.povs['selectedPov'].keys()):
                     if aVal in list(self.theCollection.povs['selectedPov'].keys()):
+                        self.color=self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
                         return self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
             else: 
+                self.color=Qt.white
                 return Qt.white
                 
     #To get the pov

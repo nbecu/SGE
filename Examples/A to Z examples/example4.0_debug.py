@@ -30,6 +30,7 @@ m1=myModel.newAgent(aGrid,Moutons,3,7)
 
 m1.setValueAgent('health','bad')
 m1.setValueAgent('hunger','bad')
+
 # m2.setValueAgent('hunger','good')
 # m2.setValueAgent('health','good')
 

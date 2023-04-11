@@ -401,11 +401,15 @@ class SGModel(QtWidgets.QMainWindow):
         #Creation
         #We harvest all the case value
         CellElements={}
-        for anElement in self.getGrids() :
-            CellElements[anElement.id]=anElement.getValuesForLegend()
-        agents=self.getAgents()
         AgentPOVs=self.getAgentPOVs()
-        aLegend = SGLegend(self,Name,CellElements,"Admin",agents,AgentPOVs)
+        for anElement in self.getGrids() :
+            CellElements[anElement.id]={}
+            CellElements[anElement.id]['cells']=anElement.getValuesForLegend()
+            CellElements[anElement.id]['agents']={}
+        for grid in CellElements:
+            CellElements[grid]['agents'].update(AgentPOVs)
+        agents=self.getAgents()
+        aLegend = SGLegend(self,Name,CellElements,"Admin",agents)
         self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
@@ -429,7 +433,6 @@ class SGModel(QtWidgets.QMainWindow):
             del self.gameSpaces["adminLegend"]
         aLegend=self.newLegendAdmin()
         aLegend.addDeleteButton('Delete')
-
 
     #To create a New kind of agents
     def newAgentSpecies(self,aSpeciesName,aSpeciesShape,dictOfAttributs=None,aSpeciesDefaultSize=10):
@@ -804,8 +807,9 @@ class SGModel(QtWidgets.QMainWindow):
     def getAgentPOVs(self):
         list_POV={}
         for species in self.agentSpecies.keys():
+            list_POV[species]={}
             if "POV" in self.agentSpecies[species]:
-                list_POV[species]=self.agentSpecies[species]['POV']
+                list_POV[species].update(self.agentSpecies[species]['POV'])
         self.AgentPOVs=list_POV
         return self.AgentPOVs
  

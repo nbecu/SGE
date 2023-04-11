@@ -41,6 +41,7 @@ class SGAgent(QtWidgets.QWidget):
         self.species=0
         self.isDisplay=bool
         self.instances.append(self)
+        self.color=Qt.white
         
 
     #Drawing function
@@ -127,6 +128,7 @@ class SGAgent(QtWidgets.QWidget):
                 if aAtt in list(self.cell.grid.model.agentSpecies[self.species]['POV'][actualPov].keys()):
                     path=self.cell.grid.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
                     theColor=self.cell.grid.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
+                    self.color=theColor
                     return theColor
 
         else:
@@ -135,9 +137,11 @@ class SGAgent(QtWidgets.QWidget):
                     if aAtt in list(self.cell.grid.model.agentSpecies[self.species]['selectedPOV'].keys()):
                         path=self.cell.grid.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
                         theColor=self.cell.grid.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+                        self.color=theColor
                 return theColor
             
             else:
+                self.color=Qt.white
                 return Qt.white
 
 
