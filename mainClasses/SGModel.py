@@ -604,7 +604,7 @@ class SGModel(QtWidgets.QMainWindow):
         for key in aAgentSpecies.dictOfAttributs:
             if key not in aDictOfAttributsWithValues:
                 val=list(aAgentSpecies.dictOfAttributs[key])[0]
-                anAgent.updateAgentValue(key,val)
+                anAgent.setValueAgent(key,val)
 
         anAgent.show()
         self.update()
