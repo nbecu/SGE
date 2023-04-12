@@ -74,7 +74,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.messageBoxes=[]
         #Definition of the AgentCollection
         self.agentSpecies={}
-        self.agents=self.getAgents() #cet attribut est à proscrire car agents n'est pas remis à jour après qu'il y ait eu un ajout ou une suppression d'un agent
+        #self.agents=self.getAgents() #cet attribut est à proscrire car agents n'est pas remis à jour après qu'il y ait eu un ajout ou une suppression d'un agent
         self.IDincr=0
         #We create the layout
         self.typeOfLayout=typeOfLayout
@@ -496,9 +496,9 @@ class SGModel(QtWidgets.QMainWindow):
             ValueY=random.randint(0, aGrid.rows)
             if ValueY<0:
                 ValueY=+1
-        Cellparent=aGrid.getCellFromCoordinates(ValueX,ValueY)
-        aAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
-        Cellparent.updateIncomingAgent(aAgent)
+        locationCell=aGrid.getCellFromCoordinates(ValueX,ValueY)
+        aAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        locationCell.updateIncomingAgent(aAgent)
         aAgent.me='agent'
         aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
@@ -523,7 +523,6 @@ class SGModel(QtWidgets.QMainWindow):
                 agent_list.append(agent_dict['AgentObject'])
                 id_list.append(agent_id)
         self.ids=id_list
-        self.agents=agent_list
         # If we want only the agents of one specie
         if species is not None:
             agent_list=[]
@@ -539,7 +538,7 @@ class SGModel(QtWidgets.QMainWindow):
         if id==True:
             return self.ids
         # All agents in model
-        return self.agents
+        return agent_list
 
     # To add an Agent with attributs values
     def addAgent(self,aGrid,aAgentSpecies,aDictOfAttributsWithValues,numberOfAgent=1):
@@ -558,16 +557,11 @@ class SGModel(QtWidgets.QMainWindow):
             incr=len(self.getAgents())
             self.IDincr=+incr
             anAgentID=self.IDincr+1
-            akey = random.choice(list(aGrid.collectionOfCells.cells.keys()))
-            Cellparent=aGrid.collectionOfCells.cells[akey]
-            # OH LA LA . C'est vraiement pas beau ca !!
-            # voici la bonne façon de récupérer une cell
-            Cellparent=random.choice(list(aGrid.getCells()))
-            # au passage, faut pas appeler la cell où est placé l'agent 'parent'. Tu peux l'appeler locationCell par ex.  
+            locationCell=random.choice(list(aGrid.getCells()))
 
-            anAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+            anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
             anAgent.me='agent'
-            Cellparent.updateIncomingAgent(anAgent) 
+            locationCell.updateIncomingAgent(anAgent) 
             anAgent.isDisplay=True
             anAgent.species=str(aAgentSpecies.name)
 
@@ -587,7 +581,8 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To add an Agent with attributs values
     def placeAgent(self,aCell,aAgentSpecies,aDictOfAttributsWithValues):
-        ## IL ME SEMBLE que cette méthode est obsolète
+        ## IL ME SEMBLE que cette méthode est obsolète 
+        ##Pas du tout, elle est utilisée dans SGCell.mousePressEvent() line 245
         """
         Place a Agent with legend
 
@@ -601,10 +596,10 @@ class SGModel(QtWidgets.QMainWindow):
         incr=len(self.getAgents())
         self.IDincr=+incr
         anAgentID=self.IDincr+1
-        Cellparent=aCell
-        anAgent=SGAgent(Cellparent,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        locationCell=aCell
+        anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
         anAgent.me='agent'
-        anAgent.cell=Cellparent
+        anAgent.cell=locationCell
         anAgent.isDisplay=True
         anAgent.species=str(aAgentSpecies.name)
         self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,

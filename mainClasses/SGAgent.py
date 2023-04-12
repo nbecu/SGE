@@ -309,8 +309,7 @@ class SGAgent(QtWidgets.QWidget):
                 newCell=aGrid.getCellFromCoordinates(valueX,valueY)
             oldAgent.cell.updateDepartureAgent(oldAgent)
             oldAgent.deleteLater()
-            theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-                    # ATTENTION : le chemin en utilisant cell.grid.model   pour accéder au modèle est vraiement à proscrire. 
+            theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs']) 
             newCell.updateIncomingAgent(theAgent)
             theAgent.show()
             
