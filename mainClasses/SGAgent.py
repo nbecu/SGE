@@ -11,12 +11,15 @@ class SGAgent(QtWidgets.QWidget):
     instances=[]
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,me,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
-        self.cell=parent
-        self.tomodel=parent
-            # y'a une embrouille. C'est pas propre que parent soit utilisé pour initialiser  cell et tomodel
+        self.me=me
+        if self.me=='agent':
+            self.cell=parent
+            self.model=self.cell.grid.model
+        elif self.me=='collec':
+            self.model=parent
         self.name=name
         self.format=format
         self.size=defaultsize
@@ -36,7 +39,6 @@ class SGAgent(QtWidgets.QWidget):
         self.history["value"]=[]
         self.history["coordinates"]=[]
         #We define the identification parameters
-        self.me=0
         self.id=id
         self.species=0
         self.isDisplay=bool
@@ -302,6 +304,7 @@ class SGAgent(QtWidgets.QWidget):
                     AgentSpecie=instance
                     break
             if valueX == None and valueY==None:
+                # à partir du round 2 / 3, oldAgent.cell = None (lié à updateDepartureAgent() malgré l'update de OldAgentà chaque itération)
                 neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
                 newCell=random.choice(neighbors)
 

@@ -450,8 +450,7 @@ class SGModel(QtWidgets.QMainWindow):
             a species
         
         """
-        aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None)
-        aAgentSpecies.me='collec'
+        aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None,me='collec')
         aAgentSpecies.isDisplay=False
         self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
         return aAgentSpecies
@@ -497,9 +496,8 @@ class SGModel(QtWidgets.QMainWindow):
             if ValueY<0:
                 ValueY=+1
         locationCell=aGrid.getCellFromCoordinates(ValueX,ValueY)
-        aAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
+        aAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID,me='agent')
         locationCell.updateIncomingAgent(aAgent)
-        aAgent.me='agent'
         aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]={"me":aAgent.me,'position':aAgent.cell,'species':aAgent.name,'size':aAgent.size,
@@ -559,8 +557,7 @@ class SGModel(QtWidgets.QMainWindow):
             anAgentID=self.IDincr+1
             locationCell=random.choice(list(aGrid.getCells()))
 
-            anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
-            anAgent.me='agent'
+            anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID,me='agent')
             locationCell.updateIncomingAgent(anAgent) 
             anAgent.isDisplay=True
             anAgent.species=str(aAgentSpecies.name)
@@ -597,8 +594,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.IDincr=+incr
         anAgentID=self.IDincr+1
         locationCell=aCell
-        anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID)
-        anAgent.me='agent'
+        anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID,me='agent')
         anAgent.cell=locationCell
         anAgent.isDisplay=True
         anAgent.species=str(aAgentSpecies.name)

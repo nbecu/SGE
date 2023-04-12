@@ -240,8 +240,7 @@ class SGCell(QtWidgets.QWidget):
                             #We now check the feedBack of the actions if it have some
                             if theAction is not None:
                                 self.feedBack(theAction)
-                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.AgentSpecies[Species]['Shape'],defaultsize=self.grid.model.AgentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.AgentSpecies[Species]['AttributList'],id=None)
-                                    #c bizare car le premier attribut est censé etre une cell normalement
+                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.AgentSpecies[Species]['Shape'],defaultsize=self.grid.model.AgentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.AgentSpecies[Species]['AttributList'],id=None,me='collec')
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             self.update()
                             self.grid.model.update()
