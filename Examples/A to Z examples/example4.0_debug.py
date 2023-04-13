@@ -53,7 +53,6 @@ myModel.timeManager.newGamePhase('Phase 2',None,[lambda: myModel.addAgent(aGrid,
 
 MessageBox=myModel.newMessageBox()
 
-
 myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 

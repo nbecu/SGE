@@ -178,10 +178,11 @@ class SGAgent(QtWidgets.QWidget):
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                                 self.feedBack(theAction)
-                        for i in reversed(range(len(self.cell.collectionOfAgents.agents))):
-                            if self.cell.collectionOfAgents.agents[i] == self :
-                                self.cell.collectionOfAgents.agents[i].deleteLater()
-                                del self.cell.collectionOfAgents.agents[i]
+                        for i in reversed(range(len(self.cell.agents))):
+                            if self.cell.agents[i] == self :
+                                self.cell.agents[i].deleteLater()
+                                del self.cell.agents[i]
+                                del self.model.agentSpecies[self.species]['AgentList'][str(self.id)]
                         self.update()
                 #Change the value of agent   
                 elif self.model.selected[1]== "circleAgent" or self.model.selected[1]=="squareAgent" or self.model.selected[1]== "ellipseAgent1" or self.model.selected[1]=="ellipseAgent2" or self.model.selected[1]== "rectAgent1" or self.model.selected[1]=="rectAgent2" or self.model.selected[1]== "triangleAgent1" or self.model.selected[1]=="triangleAgent2" or self.model.selected[1]== "arrowAgent1" or self.model.selected[1]=="arrowAgent2":

@@ -196,10 +196,10 @@ class SGCell(QtWidgets.QWidget):
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                             self.feedBack(theAction)
-                        if len(self.collectionOfAgents.agents) !=0:
+                        if len(self.agents) !=0:
                             for i in reversed(range(len(self.collectionOfAgents.agents))):
-                                self.collectionOfAgents.agents[i].deleteLater()
-                                del self.collectionOfAgents.agents[i]
+                                self.agents[i].deleteLater()
+                                del self.agents[i]
                         self.grid.collectionOfCells.removeVisiblityCell(self.getId())
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
                         self.show()
