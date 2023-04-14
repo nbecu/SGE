@@ -23,7 +23,6 @@ class SGLegend(SGGameSpace):
         self.borderColor=borderColor
         self.haveADeleteButton=False
         self.y=0
-        self.savey=0
         self.initUI()
 
     # CURRENT VERSION

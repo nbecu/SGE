@@ -284,15 +284,6 @@ class SGCell(QtWidgets.QWidget):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    def setUpCellValue(self,aDictOfValue):
-        for anAttribut in aDictOfValue:
-            if anAttribut in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                    self.attributs[aVal]=[]
-                for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                    del self.attributs[aVal]
-                self.attributs[anAttribut]=aDictOfValue[anAttribut]
-
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
         """NOT TESTED"""

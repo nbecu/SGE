@@ -534,7 +534,7 @@ class SGModel(QtWidgets.QMainWindow):
                 return agent_objects
         # If we want only the ids 
         if id==True:
-            return self.ids
+            return id_list
         # All agents in model
         return agent_list
 

@@ -12,7 +12,7 @@ from SGCell import SGCell
 class SGCellCollection():
     def __init__(self,parent,rows,columns,format,size,gap,startXBase,startYBase):
         #Basic initialize
-        self.parent=parent
+        self.grid=parent
         self.rows=rows
         self.columns=columns
         self.format=format
@@ -30,7 +30,7 @@ class SGCellCollection():
     def initUI(self):
         for i in range(self.rows):
             for j in range(self.columns):
-                aCell=SGCell(self.parent,self,i%self.rows,j%self.columns,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+                aCell=SGCell(self.grid,self,i%self.rows,j%self.columns,self.format,self.size,self.gap,self.startXBase,self.startYBase)
                 self.cells[aCell.getId()]=aCell
        
     #To get all the cells of the collection 
@@ -48,7 +48,7 @@ class SGCellCollection():
     #To remove a cell in particular
     def removeVisiblityCell(self,aName):
         self.getCell(aName).isDisplay=False
-        self.parent.update()
+        self.grid.update()
         
     #To get all cells who is displayed
     def getCellsDisplay(self):

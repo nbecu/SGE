@@ -49,7 +49,7 @@ theFirstLegend=myModel.newLegendAdmin()
 
 GameRounds=myModel.newTimeLabel()
 myModel.timeManager.newGamePhase('Phase 1',None, [lambda: m1.moveAgent(aGrid,numberOfMovement=3)])
-myModel.timeManager.newGamePhase('Phase 2',None,[lambda: myModel.addAgent(aGrid,Moutons,{'health':'good'},numberOfAgent=2)])
+myModel.timeManager.newGamePhase('Phase 2',None,[lambda: myModel.deleteAgent(1)])
 
 MessageBox=myModel.newMessageBox()
 

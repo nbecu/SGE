@@ -18,7 +18,7 @@ class SGGrid(SGGameSpace):
         super().__init__(parent,0,60,0,0)
         #Basic initialize
         self.zoom=1
-        self.parent=parent
+        #self.parent=parent
         self.model=parent
         self.id=name
         self.rows=rows
