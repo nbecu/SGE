@@ -1,38 +1,41 @@
 
 #Class who define a gaming phase
 class SGTimePhase():
-    def __init__(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
+    def __init__(self,name,activePlayer=None,modelActions=[]):
         self.name=name
-        self.orderNumber=orderNumber
         self.activePlayer=activePlayer
-        self.nextStepAction=nextStepAction
-        self.conditionOfTrigger=conditionOfTrigger
-        
+        if isinstance(modelActions, list):
+            self.modelActions=modelActions
+        else : 
+            self.modelActions= [modelActions]
+            print(self.modelActions)
 
         
-    
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
     def setActivePlayers(self,activePlayer):
         self.activePlayer=activePlayer
-        
-
-        
+    
     def setNextStepAction(self,nextStepAction):
         self.nextStepAction=nextStepAction
         
-    def addNextStepAction(self,anAction):
-        self.nextStepAction.append(anAction)
-        
-    def setConditionOfTrigger(self,conditionOfTrigger):
-        self.conditionOfTrigger=conditionOfTrigger
-        
-    def addConditionOfTrigger(self,aConditionOfTrigger):
-            self.conditionOfTrigger.append(aConditionOfTrigger)
+    def setModelActions(self,anAction):
+        self.modelActions.append(anAction)
     
     
+#Class who define a gaming phase
+class SGModelPhase(SGTimePhase):
+    def __init__(self,actions,actionsCondition=[],feedBacks=[],feedBacksCondition=[],name=''):
+        if isinstance(actions, list):
+            self.modelActions=actions
+        else : 
+            self.modelActions= [actions]
+        self.actionsCondition=actionsCondition
+        self.feedBacks=feedBacks
+        self.feedBacksCondition=feedBacksCondition
+        self.name=name
   
             
     

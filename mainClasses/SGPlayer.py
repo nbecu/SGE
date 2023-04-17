@@ -1,4 +1,4 @@
-from SGLegende import SGLegende
+from SGLegend import SGLegend
 from SGAgent import SGAgent
 from SGCell import SGCell
 from gameAction.SGDelete import SGDelete
@@ -12,15 +12,15 @@ import copy
 #Class that handle the player
 class SGPlayer():
     def __init__(self,theModel,name,actions=[]):
-        self.parent=theModel
+        self.model=theModel
         self.name=name
         self.actions=actions
         self.gameActions=[]
         
-        self.initLegende()
+        self.initLegend()
         
-    def initLegende(self):
-        self.legende=self.parent.createLegendeForPlayer(self.name,{},self.name)
+    def initLegend(self):
+        self.Legend=self.model.createLegendForPlayer(self.name,{},self.name)
             
     
     
@@ -28,47 +28,50 @@ class SGPlayer():
 #Definiton of the methods who the modeler will use
     
     def addGameAction(self,aGameAction):
+        """NOT TESTED"""
         if isinstance(aGameAction,SGDelete):
-            self.legende.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
+            self.Legend.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGCell):
             theParent=aGameAction.anObject.parent.id
             aDict={theParent:aGameAction.anObject.theCollection.povs}
-            self.legende.addToTheLegende(aDict,aGameAction.aDictOfAcceptedValue)
+            self.Legend.addToTheLegend(aDict,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGAgent):
-            self.legende.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
+            self.Legend.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)   
         return aGameAction
     
     def getGameActionOn(self,anItem):
+        """NOT TESTED"""
         #On cell
         if isinstance(anItem,SGCell):
             for aGameAction in self.gameActions :
                 if not isinstance(aGameAction,SGMove):
                     #Creation of Cell
-                    if isinstance(aGameAction,SGCreate) and (anItem.isDisplay==False) and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    if isinstance(aGameAction,SGCreate) and (anItem.isDisplay==False) and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
                         return aGameAction
                     #Creation of an agent
-                    elif isinstance(aGameAction,SGCreate) and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) :
+                    elif isinstance(aGameAction,SGCreate) and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) :
                         return aGameAction 
                     #Update of a Cell
-                    elif isinstance(aGameAction,SGUpdate) and self.parent.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.parent.selected[1] in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    elif isinstance(aGameAction,SGUpdate) and self.model.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
                         return aGameAction
                     #Delete of a Cell
-                    elif isinstance(aGameAction,SGDelete) and (anItem.isDisplay==True) and self.parent.selected[1] in ['square','hexagonal'] and self.parent.selected[3]in list(anItem.attributs.values()) : 
+                    elif isinstance(aGameAction,SGDelete) and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(anItem.attributs.values()) : 
                         return aGameAction
         elif isinstance(anItem,SGAgent):
             for aGameAction in self.gameActions :
                 if not isinstance(aGameAction,SGMove):
                     #Update of an Angent
-                    if isinstance(aGameAction,SGUpdate)and self.parent.selected[2].find("Remove ")==-1 and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    if isinstance(aGameAction,SGUpdate)and self.model.selected[2].find("Remove ")==-1 and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
                         return aGameAction
                     #Delete of an Agent
-                    elif isinstance(aGameAction,SGDelete) and self.parent.selected[1] not in ['square','hexagonal'] and self.parent.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.parent.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
                         return aGameAction
                     
     def getMooveActionOn(self,anItem):
+        """NOT TESTED"""
         if isinstance(anItem,SGAgent):
             for aGameAction in self.gameActions :
                 if isinstance(aGameAction,SGMove):

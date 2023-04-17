@@ -108,25 +108,7 @@ class SGLegend(SGGameSpace):
                                                         
                                                         
                                         else:
-                                            added_items = set()
-                                            existed=False
-                                            for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
-                                                for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
-                                                    item_key = Species + anAtt + aValue
-                                                    for item in added_items:
-                                                        if Species in item:
-                                                            existed=True
-                                                            break
-                                                    if item_key not in added_items and existed == False:
-                                                        text = Species +' : '+ anAtt +' : ' + aValue
-                                                        self.y = self.y + 1
-                                                        aColor = self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt][aValue]
-                                                        anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)
-                                                        self.legendItems[aKeyOfGamespace].append(anItem)
-                                                        anItem.show()
-                                                        added_items.add(item_key)
-                                                        print(added_items)
-                                            """print("other POV")
+                                            print("other POV")
                                             item_key= Species
                                             text = Species
                                             existed=False
@@ -145,7 +127,7 @@ class SGLegend(SGGameSpace):
                                                 anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, None,None)
                                                 self.legendItems[aKeyOfGamespace].append(anItem)
                                                 anItem.show()
-                                                added_items.add(item_key)"""
+                                                added_items.add(item_key)
                                                 
 
 

@@ -1,14 +1,14 @@
+from email import feedparser
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
-#Class who manage the game mechanics of delete
-class SGDelete():
-    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
-        self.anObject=anObject
-        self.number=number
-        self.numberUsed=0
-        self.aDictOfAcceptedValue=aDictOfAcceptedValue
-        self.restrictions=restrictions
+# TO BE CONTINUED
+# #Class who manage a action to be executed by the model.
+# It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
+class SGModelAction():
+    def __init__(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[]):
+        
+        self.condition=condition
         if isinstance(anObject,SGAgent):
             self.name=anObject.getId()
         elif isinstance(anObject,SGCell):
@@ -48,3 +48,13 @@ class SGDelete():
         
     def reset(self):
         self.numberUsed=0
+
+    def getnumberUsed(self):
+        return self.numberUsed
+        
+    
+
+  
+            
+    
+

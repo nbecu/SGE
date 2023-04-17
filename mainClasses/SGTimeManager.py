@@ -1,49 +1,52 @@
 from SGTimePhase import SGTimePhase
+from mainClasses.SGTimePhase import SGModelPhase
 
 #Class that handle the overall management of time 
 class SGTimeManager():
     
     def __init__(self,parent):
-        self.parent=parent
-        self.actualRound = 0
-        self.actualPhase = 0
-        self.orderGamePhases=[]
+        self.model=parent
+        self.currentRound = 1
+        self.currentPhase = 1
+        self.phases=[]
         self.conditionOfEndGame=[]
+        self.newGamePhase('Initialisation',0)
         
     #To increment the time of the game
     def nextPhase(self):
-        if (self.orderGamePhases[self.actualPhase].activePlayer is not None and self.parent.whoIAm==self.orderGamePhases[self.actualPhase].activePlayer.name ) or self.parent.whoIAm=="Admin" :
+        if len(self.phases) != 0 and ((self.phases[self.currentPhase].activePlayer is not None and self.model.whoIAm==self.phases[self.currentPhase].activePlayer.name ) or self.model.whoIAm=="Admin") :
             end = self.checkEndGame()
             if not end :
-                if self.actualPhase+2 <= len(self.orderGamePhases):
-                    if len(self.orderGamePhases)!=1:
-                        self.actualPhase = self.actualPhase +1
+                if self.currentPhase+2 <= len(self.phases):
+                    if len(self.phases)!=1:
+                        self.currentPhase = self.currentPhase +1
+                        self.model.myTimeLabel.updateTimeLabel()
+
                 else:
                     #We reset GM
-                    for gm in self.parent.getGM():
+                    for gm in self.model.getGM():
                         gm.reset()
-                    self.actualPhase=0
+                    self.currentPhase=1
 
                     
-                thePhase= self.orderGamePhases[self.actualPhase]
+                thePhase= self.phases[self.currentPhase]
                 #check conditions
                 doThePhase=True
-                if len(thePhase.conditionOfTrigger)!=0:
-                    for aCondition in thePhase.conditionOfTrigger:
-                        doThePhase=doThePhase and aCondition()
-                if self.actualPhase==len(self.orderGamePhases)-1:
-                    self.actualRound=self.actualRound+1
+                if self.currentPhase == 1 and len(self.phases) > 1:
+                    self.currentRound += 1
+                    self.model.myTimeLabel.updateTimeLabel()
+            
                 #we change the active player
-                self.parent.actualPlayer=thePhase.activePlayer
+                self.model.currentPlayer=thePhase.activePlayer
                 if doThePhase :
-                    #We make the changement
-                    if len(thePhase.nextStepAction) !=0:
-                        for aChange in thePhase.nextStepAction:
+                    #We make the change
+                    if len(thePhase.modelActions) !=0:
+                        for aChange in thePhase.modelActions:
                             aChange()
-                    self.parent.client.publish(self.parent.whoIAm,self.parent.submitMessage())
                 else:
-                    self.parent.client.publish(self.parent.whoIAm,self.parent.submitMessage())
                     self.nextPhase()
+       
+
         
     #To handle the victory Condition and the passment of turn    
     def next(self):
@@ -56,38 +59,85 @@ class SGTimeManager():
         for aCond in self.conditionOfEndGame:
             endGame=endGame or aCond()
         if endGame :
-            print("C'est finit !")
+            print("C'est fini !")
         return endGame
     
+    def getRoundNumber(self):
+        return self.currentRound 
     
+    def getPhaseNumber(self):
+        return self.currentPhase
+
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def addGamePhase(self,name,orderNumber,activePlayer=None,nextStepAction=[],conditionOfTrigger=[]):
-        aPhase=SGTimePhase(name,orderNumber,activePlayer,nextStepAction,conditionOfTrigger)
-        if orderNumber == 0 :
-            self.parent.actualPlayer=activePlayer
-        self.orderGamePhases.insert(orderNumber,aPhase)
+    def newGamePhase(self,name,activePlayer=None,modelActions=[]):
+        """
+        To add a Game Phase in a round.
+
+        args:
+            name (str): Name displayed on the TimeLabel
+            activePlayer (?): Player concerned about the phase (default:None)
+            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+        """
+        aPhase=SGTimePhase(name,activePlayer,modelActions)
+        if activePlayer == None :
+            self.model.actualPlayer=activePlayer
+        self.phases.append(aPhase)
+        return aPhase
+
+ #To add a new Phase during which the model will execute some instructions
+ # TO BE CONTINUED
+    def newModelPhase(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[],name=''):
+        """
+        To add a round phase during which the model will execute some actions (add, delete, move...)
+        args:
+            actions (lambda function): Actions the model performs during the phase (add, delete, move...)
+            condition (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): Feedback actions performed only if the actions are executed
+            feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
+            name (str): Name displayed on the TimeLabel
+        """
+        aPhase=SGModelPhase(actions,condition,feedBacks,feedBacksCondition,name)
+        self.phases.append(aPhase)
+        return aPhase
+       
+
+    def newGamePhase_adv(self,name,activePlayer=None,modelActions=[]):
+        """
+        To add a Game Phase in a round.
+
+        args:
+            name (str): Name displayed on the TimeLabel
+            activePlayer (?): Player concerned about the phase (default:None)
+            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+        """
+        aPhase=SGTimePhase(name,activePlayer,modelActions)
+        if activePlayer == None :
+            self.model.actualPlayer=activePlayer
+        self.phases.append(aPhase)
         return aPhase
     
     #To add a condition to end the game
     def addEndGameCondition(self,aCondition):
+        """NOT TESTED"""
         self.conditionOfEndGame.append(aCondition)
         
 
     #To verify a number of round
     def verifNumberOfRound(self,aNumber):
-        return self.actualRound==aNumber
+        return self.currentRound==aNumber
     
     #To verify if the number of round is peer 
     def isPeer(self):
-        return self.actualRound%2==0
+        return self.currentRound%2==0
     
     #To verify if the number of round is odd
     def isOdd(self):
-        return self.actualRound%2==1
-    
+        return self.currentRound%2==1
+
     
   
             

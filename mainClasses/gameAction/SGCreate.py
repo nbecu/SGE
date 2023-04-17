@@ -13,7 +13,7 @@ class SGCreate():
         if isinstance(anObject,SGAgent):
             self.name=anObject.getId()
         elif isinstance(anObject,SGCell):
-            self.name=anObject.parent
+            self.name=anObject.grid
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
             
@@ -24,6 +24,7 @@ class SGCreate():
         
     #Function to test if the game action could be use
     def getAuthorize(self,anObject):
+        """NOT TESTED"""
         returnValue=True
         #We check each condition 
         for aCond in self.restrictions:
@@ -48,6 +49,9 @@ class SGCreate():
         
     def reset(self):
         self.numberUsed=0
+
+    def getnumberUsed(self):
+        return self.numberUsed
         
     
 
