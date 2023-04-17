@@ -14,7 +14,8 @@ class SGCell(QtWidgets.QWidget):
     def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase):
         super().__init__(parent)
         #Basic initialize
-        self.parent=parent
+        self.grid=parent
+        self.model=self.grid.model
         self.theCollection=theCollection
         self.x=x
         self.y=y
@@ -118,27 +119,26 @@ class SGCell(QtWidgets.QWidget):
         e.accept()
         
     def dropEvent(self, e):
-        if e.source().name in self.parent.collectionOfAcceptAgent :
-            if len(e.source().history["coordonates"])==0:
-                e.source().history["coordonates"].append([0,0,e.source().parent.parent.id+"-"+str(e.source().parent.x)+"-"+str(e.source().parent.y)])           
-            thePlayer=self.parent.parent.getPlayer()
-            theAction=None
-            if thePlayer is not None :
-                theAction=thePlayer.getMooveActionOn(e.source())
-                if not self.parent.parent.whoIAm=="Admin":
-                    self.feedBack(theAction,e.source())
-            #We remove the agent of the actual cell
-            e.source().parent.collectionOfAgents.agents.pop(e.source().parent.collectionOfAgents.agents.index(e.source()))
-            e.source().deleteLater()
-            #We add the agent to the new cell
-            theAgent=self.parent.addOnXandY(e.source().name,self.x+1,self.y+1)
-            theAgent.x=e.pos().x()
-            theAgent.y=e.pos().y()
-            theAgent.attributs=e.source().attributs
-            theAgent.history['coordonates'].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+'-'+str(self.x)+'-'+str(self.y)])
-            theAgent.show()
-            
-            self.parent.parent.client.publish(self.parent.parent.whoIAm,self.parent.parent.submitMessage())
+        oldAgent=0
+        AgentSpecie=0
+        e.accept()
+        thePlayer=self.grid.model.getCurrentPlayer()
+        theAction=None
+        if thePlayer is not None :
+            theAction=thePlayer.getMooveActionOn(e.source())
+            if not self.grid.model.whoIAm=="Admin":
+                self.feedBack(theAction,e.source())
+        oldAgent=e.source()
+
+        for instance in SGAgent.instances:
+            if instance.me=='collec' and instance.name==oldAgent.name:
+                AgentSpecie=instance
+                break
+
+        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+        theAgent.cell=self
+        theAgent.show()
+        
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
@@ -147,24 +147,38 @@ class SGCell(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        for aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()): 
-            if aVal in list(self.attributs.keys()):
-                return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
-       
+        
+        if self.grid.model.nameOfPov in self.theCollection.povs.keys():
+            self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
+            for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                     self.color=self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
+                     return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
+        
+        else:
+            if self.theCollection.povs['selectedPov'] is not None:
+                for aVal in list(self.theCollection.povs['selectedPov'].keys()):
+                    if aVal in list(self.theCollection.povs['selectedPov'].keys()):
+                        self.color=self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
+                        return self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
+            else: 
+                self.color=Qt.white
+                return Qt.white
+                
     #To get the pov
     def getPov(self):
-        return self.parent.parent.nameOfPov
+        return self.grid.model.nameOfPov
          
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
             #Something is selected
-            if self.parent.parent.selected[0]!=None :
-                #We shearch if the player have the rights
-                thePlayer=self.parent.parent.getPlayer()
+            if self.grid.model.selected[0]!=None :
+                #We search if the player have the rights
+                thePlayer=self.grid.model.getCurrentPlayer()
                 authorisation=False
                 theAction = None
-                if self.parent.parent.selected[0].isFromAdmin():
+                if self.grid.model.selected[0].isFromAdmin():
                     authorisation=True
                 elif thePlayer is not None :
                     theAction=thePlayer.getGameActionOn(self)
@@ -173,7 +187,7 @@ class SGCell(QtWidgets.QWidget):
                         if authorisation : 
                             theAction.use()
                 #The delete Action
-                if self.parent.parent.selected[2].split()[0]== "Delete" or self.parent.parent.selected[2].split()[0]== "Remove" :
+                if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
                     if authorisation : 
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
@@ -182,60 +196,52 @@ class SGCell(QtWidgets.QWidget):
                             self.feedBack(theAction)
                         if len(self.collectionOfAgents.agents) !=0:
                             for i in reversed(range(len(self.collectionOfAgents.agents))):
-                                self.collectionOfAgents.agents[i].deleteLater()
-                                del self.collectionOfAgents.agents[i]
-                        self.parent.collectionOfCells.removeVisiblityCell(self.getId())
-                        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,"deleted"])
+                                self.agents[i].deleteLater()
+                                del self.agents[i]
+                        self.grid.collectionOfCells.removeVisiblityCell(self.getId())
+                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
                         self.show()
                         self.repaint()
                 #The Replace cell and change value Action
-                elif self.parent.parent.selected[1]== "square" or self.parent.parent.selected[1]=="hexagonal":
+                elif self.grid.model.selected[1]== "square" or self.grid.model.selected[1]=="hexagonal":
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
                         if theAction is not None:
                             self.feedBack(theAction)
-                        if self.parent.parent.selected[0].parent.id!="adminLegende":
-                             self.owner=self.parent.parent.actualPlayer
+                        if self.grid.model.selected[0].legend.id!="adminLegend":
+                             self.owner=self.grid.model.currentPlayer
                         self.isDisplay=True
-                        value =self.parent.parent.selected[3]
+                        value =self.grid.model.selected[3]
                         theKey=""
-                        for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
-                            if value in list(self.theCollection.povs[self.parent.parent.nameOfPov][anAttribute].keys()) :
+                        for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                            if value in list(self.theCollection.povs[self.grid.model.nameOfPov][anAttribute].keys()) :
                                 theKey=anAttribute
                                 break
                         aDictWithValue={theKey:value}    
                         for aVal in list(aDictWithValue.keys()) :
-                            if aVal in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()) :
-                                    for anAttribute in list(self.theCollection.povs[self.parent.parent.nameOfPov].keys()):
+                            if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()) :
+                                    for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
-                        self.update() 
+                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
+                        self.update()
+
                 #For agent placement         
                 else :
                     if  authorisation :
-                        aDictWithValue={self.parent.parent.selected[4]:self.parent.parent.selected[3]}
-                        if self.parent.parent.selected[5] in list(self.parent.collectionOfAcceptAgent.keys()):
-                            anAgentName=str(self.parent.parent.selected[5])
-                            if self.isDisplay==True :
-                                #We now check the feedBack of the actions if it have some
-                                if theAction is not None:
-                                    self.feedBack(theAction)
-                                anAgent=self.parent.addOnXandY(anAgentName,self.x+1,self.y+1,self.parent.parent.selected[3])
-                                anAgent.attributs[list(aDictWithValue.keys())[0]]=list(aDictWithValue.values())[0]
-                                anAgent.x=QMouseEvent.pos().x()-round(anAgent.size/2)
-                                anAgent.y=QMouseEvent.pos().y()-round(anAgent.size/2)
-                                if self.parent.parent.selected[0].parent.id!="adminLegende":
-                                    anAgent.owner=self.parent.parent.actualPlayer
-                                anAgent.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,anAgent.attributs])
-                                anAgent.history["coordonates"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.parent.id+"-"+str(self.x)+"-"+str(self.y)])
-                                anAgent.update()
-                                anAgent.show()
-                                
-                                
-        self.parent.parent.client.publish(self.parent.parent.whoIAm,self.parent.parent.submitMessage())
+                        aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
+                        Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
+                        if self.isDisplay==True :
+                            #We now check the feedBack of the actions if it have some
+                            if theAction is not None:
+                                self.feedBack(theAction)
+                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
+                            self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
+                            self.update()
+                            self.grid.model.update()
+
                             
                                     
     #Apply the feedBack of a gameMechanics
@@ -297,8 +303,8 @@ class SGCell(QtWidgets.QWidget):
     def changeValue(self,aDictOfValue):
         if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.attributs])
-        self.parent.setForXandY(aDictOfValue,self.x+1,self.y+1)
-        self.history["value"].append([self.parent.parent.timeManager.actualRound,self.parent.parent.timeManager.actualPhase,self.attributs])
+        self.grid.setForXandY(aDictOfValue,self.x+1,self.y+1)
+        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
      
     #To delete a kind of Agent on the cell   
     def deleteAgent(self,nameOfAgent,numberOfDelete=0,condition=[]):
@@ -517,11 +523,13 @@ class SGCell(QtWidgets.QWidget):
         
     #Function to check the ownership  of the cell          
     def isMine(self):
-        return self.owner==self.parent.parent.actualPlayer
+        """NOT TESTED"""
+        return self.owner==self.grid.model.currentPlayer
     
     #Function to check the ownership  of the cell          
     def isMineOrAdmin(self):
-        return self.owner==self.parent.parent.actualPlayer or self.owner=="admin"
+        """NOT TESTED"""
+        return self.owner==self.grid.model.currentPlayer or self.owner=="admin"
     
     #Function to change the ownership         
     def makeOwner(self,newOwner):
@@ -529,7 +537,8 @@ class SGCell(QtWidgets.QWidget):
         
     #Function get the ownership        
     def getProperty(self):
-        self.owner=self.parent.parent.actualPlayer
+        """NOT TESTED"""
+        self.owner=self.grid.model.currentPlayer
         
         
     #Function get if the cell have change the value in       
@@ -537,12 +546,12 @@ class SGCell(QtWidgets.QWidget):
         haveChange=False
         if not len(self.history["value"]) ==0:
             for anItem in self.history["value"].reverse():
-                if anItem.roundNumber> self.parent.parent.timeManager.actualRound-numberOfRound:
+                if anItem.roundNumber> self.grid.model.timeManager.currentRound-numberOfRound:
                     if not anItem.thingsSave == self.attributs:
                         haveChange=True
                         break
-                elif anItem.roundNumber== self.parent.parent.timeManager.actualRound-numberOfRound:
-                    if anItem.phaseNumber<=self.parent.parent.timeManager.actualPhase:
+                elif anItem.roundNumber== self.grid.model.timeManager.currentRound-numberOfRound:
+                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhase:
                         if not anItem.thingsSave == self.attributs:
                             haveChange=True
                             break
