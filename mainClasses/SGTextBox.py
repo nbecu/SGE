@@ -8,30 +8,35 @@ from SGGameSpace import SGGameSpace
 
 
 #Class who is responsible of the Legend creation 
-class SGMessageBox(SGGameSpace):
-    def __init__(self,parent,name,text,borderColor=Qt.black,backgroundColor=Qt.lightGray):
+class SGTextBox(SGGameSpace):
+    def __init__(self,parent,textToWrite,title,sizeX=None,sizeY=None,borderColor=Qt.black,backgroundColor=Qt.lightGray):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
-        self.id=name
+        self.title=title
+        self.id=title
         self.model=parent
         self.borderColor=borderColor
+        self.sizeX=sizeX
+        self.sizeY=sizeY
         self.y=0
         self.labels=0
         self.moveable=True
         self.haveToBeClose=False
         self.isDisplay=True
         self.history=[]
-        self.textToWrite=text
+        self.textToWrite=textToWrite
         self.initUI()
 
     def initUI(self):
         self.labelTitle = QtWidgets.QLabel(self)
-        self.labelTitle.setText(self.id)
+        self.labelTitle.setText(self.title)
 
         self.text = QtWidgets.QLabel(self)
         self.text.setText(self.textToWrite)
 
-        self.labels=[self.id,self.text.text()]
+        self.labels=[self.title,self.textToWrite]
+        
 
+        
         self.labelTitle.setFixedHeight(self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).height())
         self.labelTitle.setFixedWidth(self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).width())
         self.text.setFixedHeight(self.text.fontMetrics().boundingRect(self.text.text()).height())
@@ -74,17 +79,20 @@ class SGMessageBox(SGGameSpace):
         return somme
     
     def paintEvent(self,event):
-        if len(self.labels)!=0:
-            painter = QPainter() 
-            painter.begin(self)
-            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor,1))
-            #Draw the corner of the Legend
+        painter = QPainter() 
+        painter.begin(self)
+        painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+        painter.setPen(QPen(self.borderColor,1))
+        #Draw the corner of the Legend
+        if self.sizeX == None or self.sizeY ==None:
             self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())
+
+        else:
+            painter.drawRect(0,0,self.sizeX,self.sizeY)     
 
 
-            painter.end()
+        painter.end()
 
     def mouseMoveEvent(self, e):
 
@@ -113,3 +121,46 @@ class SGMessageBox(SGGameSpace):
 
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
+
+    def addText(self, text, toTheLine=False):
+        # NE FONCTIONNE PAS
+        if toTheLine == True:
+            current_text = self.text.text()
+            new_text = current_text + '\n' + text
+            self.text.setText(new_text)
+        else:
+            current_text = self.text.text()
+            new_text = current_text + ' ' + text
+            self.text.setText(new_text)
+
+        self.updateGeometry()
+        self.update()
+
+    
+    def setNewText(self,text):
+        self.textToWrite=text
+
+    def setTitle(self,title):
+        self.title=title
+
+    def setSize(self,x,y):
+        self.sizeX=x
+        self.sizeY=y
+    
+    def setTextColor(self,color='red'):
+        self.text.setStyleSheet("color: "+color+';')
+
+    def setTextSize(self,size="20px"):
+        self.text.setStyleSheet("color: "+size+';')
+
+    def setTitleColor(self,color='red'):
+        self.labelTitle.setStyleSheet("color: "+color+';')
+
+    def setTitleSize(self,size="20px"):
+        self.labelTitle.setStyleSheet("color: "+size+';')
+
+    def deleteTitle(self):
+        del self.labelTitle
+    
+    def deleteText(self):
+        del self.text

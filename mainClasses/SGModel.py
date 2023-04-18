@@ -15,7 +15,7 @@ from SGAgent import SGAgent
 from SGPlayer import SGPlayer
 from SGTimeManager import SGTimeManager
 from SGTimeLabel import SGTimeLabel
-from SGMessageBox import SGMessageBox
+from SGTextBox import SGTextBox
 
 from SGGrid import SGGrid
 from SGVoid import SGVoid
@@ -71,7 +71,7 @@ class SGModel(QtWidgets.QMainWindow):
         #Definition of variable
         #Definition for all gameSpaces
         self.gameSpaces={}
-        self.messageBoxes=[]
+        self.TextBoxes=[]
         #Definition of the AgentCollection
         self.agentSpecies={}
         #self.agents=self.getAgents() #cet attribut est à proscrire car agents n'est pas remis à jour après qu'il y ait eu un ajout ou une suppression d'un agent
@@ -241,7 +241,7 @@ class SGModel(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         print("trigger")
         self.haveToBeClose=True
-        self.getMessageBoxHistory(self.messageBoxes)
+        self.getTextBoxHistory(self.TextBoxes)
         if hasattr(self, 'client'):
             self.client.disconnect()
         self.close()
@@ -435,7 +435,7 @@ class SGModel(QtWidgets.QMainWindow):
         aLegend.addDeleteButton('Delete')
 
     #To create a New kind of agents
-    def newAgentSpecies(self,aSpeciesName,aSpeciesShape,dictOfAttributs=None,aSpeciesDefaultSize=10):
+    def newAgentSpecies(self,aSpeciesName,aSpeciesShape,dictOfAttributs=None,aSpeciesDefaultSize=10,uniqueColor=Qt.white):
         """
         Create a new specie of Agents.
 
@@ -450,9 +450,9 @@ class SGModel(QtWidgets.QMainWindow):
             a species
         
         """
-        aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None,me='collec')
+        aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None,me='collec',uniqueColor=uniqueColor)
         aAgentSpecies.isDisplay=False
-        self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':Qt.white,'POV':{},'selectedPOV':None}
+        self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':uniqueColor,'POV':{},'selectedPOV':None}
         return aAgentSpecies
     
     def updateIDincr(self,newValue):
@@ -496,7 +496,19 @@ class SGModel(QtWidgets.QMainWindow):
             if ValueY<0:
                 ValueY=+1
         locationCell=aGrid.getCellFromCoordinates(ValueX,ValueY)
-        aAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID,me='agent')
+
+        while locationCell is None:
+            ValueX=random.randint(0, aGrid.columns)
+            ValueY=random.randint(0, aGrid.rows)
+            if ValueX<0:
+                ValueX=+1
+            if ValueY<0:
+                ValueY=+1
+            locationCell=aGrid.getCellFromCoordinates(ValueX,ValueY)
+
+        if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
+            uniqueColor=self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+        aAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID,me='agent',uniqueColor=uniqueColor)
         locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay=True
         aAgent.species=str(aAgentSpecies.name)
@@ -683,37 +695,40 @@ class SGModel(QtWidgets.QMainWindow):
 
         return aTimeLabel
     
-    #To create a Message Box
-    def newMessageBox(self,name='Message Box',textToWrite='Welcome in the game !'):
+    #To create a Text Box
+    def newTextBox(self,title='Text Box',textToWrite='Welcome in the game !'):
         """
-        Create a message box
+        Create a text box
 
         Args:
-        name (str) : name of the widget (default: "Message Box")
+        title (str) : name of the widget (default: "Text Box")
         textToWrite (str) : displayed text in the widget (default: "Welcome in the game!")
         """
-        aMessageBox=SGMessageBox(self,name,textToWrite)
-        self.messageBoxes.append(aMessageBox)
-        self.gameSpaces[name]=aMessageBox
+        aTextBox=SGTextBox(self,textToWrite,title)
+        self.TextBoxes.append(aTextBox)
+        self.gameSpaces[title]=aTextBox
         #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aMessageBox)
-        aMessageBox.setStartXBase(newPos[0])
-        aMessageBox.setStartYBase(newPos[1])
+        newPos=self.layoutOfModel.addGameSpace(aTextBox)
+        aTextBox.setStartXBase(newPos[0])
+        aTextBox.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
-            aMessageBox.move(aMessageBox.startXBase,aMessageBox.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aMessageBox))
+            aTextBox.move(aTextBox.startXBase,aTextBox.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aTextBox))
         elif(self.typeOfLayout=="horizontal"):
-            aMessageBox.move(aMessageBox.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aMessageBox),aMessageBox.startYBase)    
+            aTextBox.move(aTextBox.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aTextBox),aTextBox.startYBase)    
         else:
-            pos=self.layoutOfModel.foundInLayout(aMessageBox)
-            aMessageBox.move(aMessageBox.startXBase+20*pos[0],aMessageBox.startYBase+20*pos[1])
+            pos=self.layoutOfModel.foundInLayout(aTextBox)
+            aTextBox.move(aTextBox.startXBase+20*pos[0],aTextBox.startYBase+20*pos[1])
         
         self.applyPersonalLayout()
 
-        return aMessageBox
+        return aTextBox
     
-    def getMessageBoxHistory(self,MessageBoxes):
-        for aMessageBox in MessageBoxes:
-            print(str(aMessageBox.id)+' : '+str(aMessageBox.history))
+    def deleteTextBox(self,titleOfTheTextBox):
+        del self.gameSpaces[titleOfTheTextBox]
+
+    def getTextBoxHistory(self,TextBoxes):
+        for aTextBox in TextBoxes:
+            print(str(aTextBox.id)+' : '+str(aTextBox.history))
     
     
     def getCurrentRound(self):

@@ -11,7 +11,7 @@ class SGAgent(QtWidgets.QWidget):
     instances=[]
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,me,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.me=me
@@ -43,7 +43,7 @@ class SGAgent(QtWidgets.QWidget):
         self.species=0
         self.isDisplay=bool
         self.instances.append(self)
-        self.color=Qt.white
+        self.color=uniqueColor
         
 
     #Drawing function
@@ -143,8 +143,7 @@ class SGAgent(QtWidgets.QWidget):
                 return theColor
             
             else:
-                self.color=Qt.white
-                return Qt.white
+                return self.color
 
 
     #To get the pov
