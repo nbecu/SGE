@@ -149,6 +149,7 @@ class SGCell(QtWidgets.QWidget):
             return Qt.transparent
         
         if self.grid.model.nameOfPov in self.theCollection.povs.keys():
+            print(self.theCollection.cells)
             self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
             for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
                 if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
@@ -294,6 +295,7 @@ class SGCell(QtWidgets.QWidget):
     
     #To change the value
     def changeValue(self,aDictOfValue):
+        """NOT TESTED"""
         if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.attributs])
         self.grid.setForXandY(aDictOfValue,self.x+1,self.y+1)
