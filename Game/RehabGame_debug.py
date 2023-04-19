@@ -36,6 +36,8 @@ TextBox=myModel.newTextBox(title='Début du jeu',textToWrite='Bonjour!')
 TextBox.addText("J'espère que vous allez bien!!!")
 TextBox.setTextColor()
 
+
+#"Indicateur test","sumAtt","Resource",2,
 myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 
