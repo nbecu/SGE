@@ -15,11 +15,10 @@ class SGIndicators(QtWidgets.QWidget):
         self.dashboard=parent
         self.method=method
         self.value=value
-        self.methods=["sumAtt","avAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
+        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
         self.entity=entity
         self.name=name
         self.attribut=attribut
-        self.calculus=float
         self.y=y
         self.color=color
         self.id=int
@@ -29,8 +28,12 @@ class SGIndicators(QtWidgets.QWidget):
         painter = QPainter() 
         painter.begin(self)
         aFont=QFont("Verdana",10)
-        aFont.setUnderline(True)
         painter.setFont(aFont)
+        if self.name is None :
+            if self.value is not None:
+                self.name=self.method+' '+self.attribut+' '+self.value
+            else:
+                self.name=self.method+' '+self.attribut
         painter.drawText(QRect(15,0,self.dashboard.getSizeXGlobal()-50,20), Qt.AlignLeft, self.name+' : '+str(self.calculus))
         painter.setFont(QFont("Verdana",8))
         painter.drawText(QRect(40,5,self.dashboard.getSizeXGlobal()-50,15), Qt.AlignLeft, self.name+' : '+str(self.calculus))
@@ -38,106 +41,67 @@ class SGIndicators(QtWidgets.QWidget):
 
     def byMethod(self):
         self.calculus=0.0
-        valForMin=9999
-        valForMax=0
         counter=0
-        temp=[]
         if self.entity=='cell':
-            if self.method == "sumAtt":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
+            grids=self.dashboard.model.getGrids()
+            for grid in grids:
+                cells=grid.collectionOfCells.getCells()
+                aCell=grid.collectionOfCells.getCell('cell1-1')
+                valForMin=aCell.attributs[self.attribut]
+                valForMax=aCell.attributs[self.attribut]
+                if self.method == "sumAtt" or self.method =='avgAtt':
                     for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                self.calculus=self.calculus+float(cell.attributs[attribut])
-                return self.calculus
-            if self.method == "avAtt":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
+                        self.calculus=self.calculus+float(cell.attributs[self.attribut])
+                        if self.method=='avgAtt':
+                            self.calculus=np.mean(self.calculus)
+                            return self.calculus
+                        else:
+                            return self.calculus
+                if self.method == "minAtt" or self.method == "maxAtt":
+                    if self.method == "minAtt":
+                        for cell in cells:
+                            if float(cell.attributs[self.attribut])<valForMin:
+                                self.calculus=float(cell.attributs[self.attribut])
+                                valForMin=float(cell.attributs[self.attribut])
+                        return self.calculus
+                    else:
+                        for cell in cells:
+                            if float(cell.attributs[self.attribut])>valForMax:
+                                self.calculus=float(cell.attributs[self.attribut])
+                                valForMax=float(cell.attributs[self.attribut])
+                        return self.calculus
+                if self.method == "nbEqualTo" or  self.method == "nbWithLess" or self.method == "nbWithMore":
+                    if self.method == "nbEqualTo":
+                        for cell in cells:
+                            if cell.attributs[self.attribut]==self.value:
+                                counter=counter+1
+                        self.calculus=counter
+                        return self.calculus
+                    if self.method == "nbWithLess":
+                        for cell in cells:
+                            if cell.attributs[self.attribut]<self.value:
+                                counter=counter+1
+                        self.calculus=counter
+                        return self.calculus
+                    else:
+                        for cell in cells:
+                            if cell.attributs[self.attribut]>self.value:
+                                counter=counter+1
+                        self.calculus=counter
+                        return self.calculus
+                if self.method == "nb":
                     for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                temp.append(float(cell.attributs[attribut]))
-                self.calculus=np.mean(temp)
-                return self.calculus
-            
-            if self.method == "minAtt":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
-                    for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                if float(cell.attributs[attribut])<valForMin:
-                                    self.calculus=float(cell.attributs[attribut])
-                                    valForMin=float(cell.attributs[attribut])
-                return self.calculus
-            
-            if self.method == "maxAtt":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
-                    for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                if float(cell.attributs[attribut])>valForMax:
-                                    self.calculus=float(cell.attributs[attribut])
-                                    valForMax=float(cell.attributs[attribut])
-                return self.calculus
-            
-            if self.method == "nbEqualTo":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
-                    for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                if cell.attributs[attribut]==self.value:
-                                    counter=counter+1
-                self.calculus=counter
-                return self.calculus
-            
-            if self.method == "nbWithLess":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
-                    for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                if cell.attributs[attribut]<self.value:
-                                    counter=counter+1
-                self.calculus=counter
-                return self.calculus
-            
-            if self.method == "nbWithMore":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
-                    for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                if cell.attributs[attribut]>self.value:
-                                    counter=counter+1
-                self.calculus=counter
-                return self.calculus
-            
-            if self.method == "nb":
-                grids=self.dashboard.model.getGrids()
-                for grid in grids:
-                    cells=grid.collectionOfCells.getCells()
-                    for cell in cells:
-                        for attribut in cell.attributs:
-                            if attribut ==self.attribut:
-                                if cell.attributs[attribut]==self.value:
-                                    counter=counter+1
-                self.calculus=counter
-                return self.calculus
+                        if cell.attributs[self.attribut]==self.value:
+                            counter=counter+1
+                    self.calculus=counter
+                    return self.calculus
 
 
-        if self.entity=='agents':
-            agents=self.dashboard.model.getAgents()
+        else:
+            agents=self.dashboard.model.getAgents(species=self.entity)
+            if self.method =='nb':
+                self.calculus=len(agents)
+                return self.calculus
         
             
 

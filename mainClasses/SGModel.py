@@ -16,6 +16,7 @@ from SGPlayer import SGPlayer
 from SGTimeManager import SGTimeManager
 from SGTimeLabel import SGTimeLabel
 from SGTextBox import SGTextBox
+from SGDashBoard import SGDashBoard
 
 from SGGrid import SGGrid
 from SGVoid import SGVoid
@@ -729,6 +730,25 @@ class SGModel(QtWidgets.QMainWindow):
     def getTextBoxHistory(self,TextBoxes):
         for aTextBox in TextBoxes:
             print(str(aTextBox.id)+' : '+str(aTextBox.history))
+    
+    def newDashBoard(self,title='DashBoard',displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.transparent):
+        aDashBoard=SGDashBoard(self,title,displayRefresh,borderColor,backgroundColor)
+        self.gameSpaces[title]=aDashBoard
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aDashBoard)
+        aDashBoard.setStartXBase(newPos[0])
+        aDashBoard.setStartYBase(newPos[1])
+        if(self.typeOfLayout=="vertical"):
+            aDashBoard.move(aDashBoard.startXBase,aDashBoard.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aDashBoard))
+        elif(self.typeOfLayout=="horizontal"):
+            aDashBoard.move(aDashBoard.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aDashBoard),aDashBoard.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aDashBoard)
+            aDashBoard.move(aDashBoard.startXBase+20*pos[0],aDashBoard.startYBase+20*pos[1])
+        
+        self.applyPersonalLayout()
+
+        return aDashBoard
     
     
     def getCurrentRound(self):

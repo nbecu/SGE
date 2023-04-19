@@ -147,10 +147,7 @@ class SGCell(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        
-        aCell=self.grid.getCellFromCoordinates(5,5)
-        print(aCell.attributs)
-        
+    
         if self.grid.model.nameOfPov in self.theCollection.povs.keys():
             self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
             for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
