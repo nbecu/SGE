@@ -31,9 +31,25 @@ class SGDashBoard(SGGameSpace):
     def initUI(self):
         self.y=0
         self.setLayout(self.layout)
+        self.layout.addWidget(self.id)
         for indicator in self.indicators:
             self.y=+1
             indicator.show()
+
+            #Drawing the DB
+    def paintEvent(self,event):
+        if self.checkDisplay():
+            if len(self.indicators)!=0:
+                painter = QPainter() 
+                painter.begin(self)
+                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+                painter.setPen(QPen(self.borderColor,1))
+                #Draw the corner of the DB
+                self.setMinimumSize(self.getSizeXGlobal()+10, self.getSizeYGlobal()+10)
+                painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+
+
+                painter.end()
             
 
     def checkDisplay(self):
@@ -45,6 +61,9 @@ class SGDashBoard(SGGameSpace):
 
     def addIndicator(self,method,entity,attribut,value=None,indicatorName=None,color=Qt.black):
         indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
+        indicator.calculus=indicator.byMethod()
+        indicator.name=indicator.checkName()
+        print(indicator.name)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         self.layout.addWidget(indicator)
@@ -124,7 +143,7 @@ class SGDashBoard(SGGameSpace):
         self.IDincr=+1
     
 
-    #Functions to have the global size of a gameSpace  
+    # *Functions to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         return 70+len(self.getLongest())*5+50
         
@@ -133,9 +152,22 @@ class SGDashBoard(SGGameSpace):
         return somme+len(self.indicatorNames)
     
     def getLongest(self):
-        print(self.indicatorNames)
-        longestWord="bonjourjesuistreslong"
-        """for indicator in self.indicatorNames :
-            if len(indicator)>len(longestWord):
-                longestWord=indicator"""
+        #print(self.indicatorNames)
+        longestWord=""
+        for indicatorName in self.indicatorNames :
+            if len(indicatorName)>len(longestWord):
+                longestWord=indicatorName
         return longestWord
+
+    def mouseMoveEvent(self, e):
+    
+        if e.buttons() != Qt.LeftButton:
+            return
+
+        mimeData = QMimeData()
+
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.rect().topLeft())
+
+        drag.exec_(Qt.MoveAction)

@@ -1,6 +1,7 @@
 from SGLegend import SGLegend
 from SGAgent import SGAgent
 from SGCell import SGCell
+from SGControlPanel import SGControlPanel
 from gameAction.SGDelete import SGDelete
 from gameAction.SGUpdate import SGUpdate
 from gameAction.SGCreate import SGCreate
@@ -17,12 +18,13 @@ class SGPlayer():
         self.actions=actions
         self.gameActions=[]
         
-        self.initLegend()
         
-    def initLegend(self):
-        self.Legend=self.model.createLegendForPlayer(self.name,{},self.name)
+    def initControlPanel(self):
+        self.ControlPanel=self.model.newPlayerControlPanel(self.name,{},self.name)
             
-    
+    def newControlPanel(self,name=None,actionsItems=[]):
+        ControlPanel=SGControlPanel(self,name,actionsItems)
+        return 
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

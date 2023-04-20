@@ -84,7 +84,7 @@ class SGTimeManager():
         """
         aPhase=SGTimePhase(name,activePlayer,modelActions)
         if activePlayer == None :
-            self.model.actualPlayer=activePlayer
+            self.model.currentPlayer=activePlayer
         self.phases.append(aPhase)
         return aPhase
 

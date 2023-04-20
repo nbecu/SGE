@@ -17,28 +17,31 @@ class SGIndicators(QtWidgets.QWidget):
         self.value=value
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
         self.entity=entity
+        self.calculus=0.0
         self.name=name
         self.attribut=attribut
         self.y=y
         self.color=color
         self.id=int
-        self.byMethod()
+
+    def checkName(self):
+        if self.name is None and self.value is not None:
+            self.name= self.method+' '+self.attribut+" "+self.value+" : "+str(self.calculus)
+        elif self.name is None:
+            self.name = self.method+' '+self.attribut+" : "+str(self.calculus)
+        return self.name
 
     def paintEvent(self, event):
         painter = QPainter() 
         painter.begin(self)
         aFont=QFont("Verdana",10)
         painter.setFont(aFont)
-        if self.name is None :
-            if self.value is not None:
-                self.name=self.method+' '+self.attribut+' '+self.value
-            else:
-                self.name=self.method+' '+self.attribut
-        painter.drawText(QRect(15,0,self.dashboard.getSizeXGlobal()-50,20), Qt.AlignLeft, self.name+' : '+str(self.calculus))
-        painter.setFont(QFont("Verdana",8))
-        painter.drawText(QRect(40,5,self.dashboard.getSizeXGlobal()-50,15), Qt.AlignLeft, self.name+' : '+str(self.calculus))
+        painter.drawText(QRect(10,0,self.getSizeXGlobal(),20), Qt.AlignLeft, self.name)
         painter.end()
 
+    def getSizeXGlobal(self):
+        return 150+len(self.name)*5
+    
     def byMethod(self):
         self.calculus=0.0
         counter=0

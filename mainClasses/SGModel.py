@@ -18,6 +18,7 @@ from SGTimeLabel import SGTimeLabel
 from SGTextBox import SGTextBox
 from SGDashBoard import SGDashBoard
 
+
 from SGGrid import SGGrid
 from SGVoid import SGVoid
 from SGLegend import SGLegend
@@ -659,7 +660,14 @@ class SGModel(QtWidgets.QMainWindow):
     def moveRandomlyAgents(self,aGrid,numberOfMovement):
         for aAgent in self.getAgents():
             aAgent.moveAgent(aGrid,numberOfMovement=numberOfMovement)
+
     
+    # To create a player
+    def newPlayer(self,name):
+        player=SGPlayer(self,name)
+        self.players[name]=player
+        return player
+
 
     #To get the player
     def getCurrentPlayer(self):
