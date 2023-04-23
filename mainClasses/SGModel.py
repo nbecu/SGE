@@ -21,6 +21,8 @@ from SGGrid import SGGrid
 from SGVoid import SGVoid
 from SGLegend import SGLegend
 
+from SGModelAction import SGModelAction
+
 from gameAction.SGCreate import SGCreate
 from gameAction.SGUpdate import SGUpdate
 from gameAction.SGDelete import SGDelete
@@ -115,7 +117,7 @@ class SGModel(QtWidgets.QMainWindow):
         
         self.nameOfPov="default"
 
-    #Create the menu of the menue 
+    #Create the menu of the menu
     def createMenu(self):
         self.menuBar().addAction(self.openSave)
         
@@ -810,8 +812,10 @@ class SGModel(QtWidgets.QMainWindow):
     def getTimeManager(self):
         return self.timeManager
 
+ 
+
     #-----------------------------------------------------------  
-    #Game mechanics function 
+    #Game actions function 
     
     def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 

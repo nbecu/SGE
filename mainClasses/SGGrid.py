@@ -313,6 +313,10 @@ class SGGrid(SGGameSpace):
             self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply to some random cell a value
+    def setRandomCell(self,aAttribut,aValue):
+        self.setRandomCells(aAttribut,aValue,1)
+
+    #To apply to some random cell a value
     def setRandomCells(self,aAttribut,aValue,numberOfRandom):
         """
         Applies the same attribut value (and color) for a random number of cells

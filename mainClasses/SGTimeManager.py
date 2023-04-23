@@ -6,45 +6,44 @@ class SGTimeManager():
     
     def __init__(self,parent):
         self.model=parent
-        self.currentRound = 1
-        self.currentPhase = 1
+        self.currentRound = 0
+        self.currentPhaseNb = 1
         self.phases=[]
         self.conditionOfEndGame=[]
         self.newGamePhase('Initialisation',0)
-        
+
+    # to access the phase at the currentPhaseNumber
+    def currentPhase(self):
+        return self.phases[self.currentPhaseNb]
+
     #To increment the time of the game
     def nextPhase(self):
-        if len(self.phases) != 0 and ((self.phases[self.currentPhase].activePlayer is not None and self.model.whoIAm==self.phases[self.currentPhase].activePlayer.name ) or self.model.whoIAm=="Admin") :
-            end = self.checkEndGame()
-            if not end :
-                if self.currentPhase+2 <= len(self.phases):
-                    if len(self.phases)!=1:
-                        self.currentPhase = self.currentPhase +1
-                        self.model.myTimeLabel.updateTimeLabel()
-
-                else:
-                    #We reset GM
-                    for gm in self.model.getGM():
-                        gm.reset()
-                    self.currentPhase=1
-
-                    
-                thePhase= self.phases[self.currentPhase]
-                #check conditions
-                doThePhase=True
-                if self.currentPhase == 1 and len(self.phases) > 1:
-                    self.currentRound += 1
-                    self.model.myTimeLabel.updateTimeLabel()
+        self.advanceTime()
+        self.processPhase()
+    
+    def advanceTime(self):
+           # if phases is empty then exit
+        if not self.phases :
+            return
+        
+        # if end of game, then exit
+        if self.checkEndGame() :
+            return
+        
+        # check if it's the last phase of the round, thne advance the phase or the round
+        if self.currentPhaseNb+2 <= len(self.phases):
+            self.currentPhaseNb += 1
+        else:
+            self.currentRound += 1
+            self.currentPhaseNb=1
             
-                #we change the active player
-                self.model.currentPlayer=thePhase.activePlayer
-                if doThePhase :
-                    #We make the change
-                    if len(thePhase.modelActions) !=0:
-                        for aChange in thePhase.modelActions:
-                            aChange()
-                else:
-                    self.nextPhase()
+        # update the time label
+        self.model.myTimeLabel.updateTimeLabel()
+
+
+    def processPhase(self):
+        if isinstance(self.currentPhase(),SGModelPhase) :
+            self.currentPhase().execute()
        
 
         
@@ -66,7 +65,7 @@ class SGTimeManager():
         return self.currentRound 
     
     def getPhaseNumber(self):
-        return self.currentPhase
+        return self.currentPhaseNb
 
 
 #-----------------------------------------------------------------------------------------
@@ -90,7 +89,7 @@ class SGTimeManager():
 
  #To add a new Phase during which the model will execute some instructions
  # TO BE CONTINUED
-    def newModelPhase(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[],name=''):
+    def newModelPhase(self,actions=[],condition=lambda: True,feedBacks=[],feedBacksCondition=lambda: True,name=''):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
         args:
@@ -100,6 +99,9 @@ class SGTimeManager():
             feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
             name (str): Name displayed on the TimeLabel
         """
+
+        if len(feedBacks) == 0:
+            feedBacksCondition= lambda: False
         aPhase=SGModelPhase(actions,condition,feedBacks,feedBacksCondition,name)
         self.phases.append(aPhase)
         return aPhase

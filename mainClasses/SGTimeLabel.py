@@ -31,7 +31,7 @@ class SGTimeLabel(SGGameSpace):
         self.labelTitle.setText(self.id)
         self.label1.setText('Round Number: Not started')
         self.label2.setText('Phase Number: Not started')
-        currentPhase=self.timeManager.phases[int(self.timeManager.currentPhase)-1]
+        currentPhase=self.timeManager.phases[int(self.timeManager.currentPhaseNb)-1]
         self.label3.setText(currentPhase.name)
 
         self.labels=['IN-GAME TIME','Round number: 0','Phase number: 0','Phase name']
@@ -96,8 +96,8 @@ class SGTimeLabel(SGGameSpace):
         
     def updateTimeLabel(self):
         self.label1.setText('Round Number : {}'.format(self.timeManager.currentRound))
-        self.label2.setText('Phase Number : {}'.format(self.timeManager.currentPhase))
-        currentPhase=self.timeManager.phases[int(self.timeManager.currentPhase)]
+        self.label2.setText('Phase Number : {}'.format(self.timeManager.currentPhaseNb))
+        currentPhase=self.timeManager.phases[int(self.timeManager.currentPhaseNb)]
         self.label3.setText(currentPhase.name)
 
         self.label1.setFixedHeight(self.label1.fontMetrics().boundingRect(self.label1.text()).height())

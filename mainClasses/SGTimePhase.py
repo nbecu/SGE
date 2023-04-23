@@ -36,7 +36,12 @@ class SGModelPhase(SGTimePhase):
         self.feedBacks=feedBacks
         self.feedBacksCondition=feedBacksCondition
         self.name=name
-  
-            
-    
 
+    def execute(self):
+        #check condition
+        if self.actionsCondition() :
+            for aAction in self.modelActions :
+                aAction()
+            if self.feedBacksCondition() :
+                for aFeedBack in self.feedBacks :
+                    aFeedBack()      

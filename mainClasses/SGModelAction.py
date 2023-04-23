@@ -7,30 +7,14 @@ from mainClasses.SGCell import SGCell
 # It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
 class SGModelAction():
     def __init__(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[]):
-        
+        self.actions=actions
         self.condition=condition
-        if isinstance(anObject,SGAgent):
-            self.name=anObject.getId()
-        elif isinstance(anObject,SGCell):
-            self.name=anObject.grid
-        self.feedback=feedBack
-        self.conditionOfFeedBack=conditionOfFeedBack
-            
-        
-    #Function which increment the number of use
-    def use(self):
-        self.numberUsed= self.numberUsed+1
+        self.feedBacks=feedBacks
+        self.feedBacksCondition=feedBacksCondition
         
     #Function to test if the game action could be use
-    def getAuthorize(self,anObject):
-        """NOT TESTED"""
-        returnValue=True
-        #We check each condition 
-        for aCond in self.restrictions:
-            returnValue=returnValue and aCond(anObject)
-        if self.numberUsed+1>self.number:
-            returnValue=False
-        return returnValue
+    def isActionAuthorize(self):
+        return self.condition()
 
     
     
@@ -45,13 +29,7 @@ class SGModelAction():
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
-        
-    def reset(self):
-        self.numberUsed=0
-
-    def getnumberUsed(self):
-        return self.numberUsed
-        
+    
     
 
   
