@@ -23,8 +23,8 @@ class SGPlayer():
         self.ControlPanel=self.model.newPlayerControlPanel(self.name,{},self.name)
             
     def newControlPanel(self,name=None,actionsItems=[]):
-        ControlPanel=SGControlPanel(self,name,actionsItems)
-        return 
+        ControlPanel=SGControlPanel(self.model,self,name,actionsItems)
+        return ControlPanel
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
