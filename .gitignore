@@ -4,3 +4,7 @@
 *.pyc
 *.pyc
 *.pyc
+*.pyc
+mainClasses/__pycache__/SGPlayer.cpython-310.pyc
+mainClasses/__pycache__/SGGrid.cpython-310.pyc
+*.pyc

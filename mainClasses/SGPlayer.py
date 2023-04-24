@@ -24,6 +24,21 @@ class SGPlayer():
             
     def newControlPanel(self,name=None,actionsItems=[]):
         ControlPanel=SGControlPanel(self.model,self,name,actionsItems)
+        self.model.ControlPanel=ControlPanel
+        self.model.gameSpaces[name]=ControlPanel
+        #Realocation of the position thanks to the layout
+        newPos=self.model.layoutOfModel.addGameSpace(ControlPanel)
+        ControlPanel.setStartXBase(newPos[0])
+        ControlPanel.setStartYBase(newPos[1])
+        if(self.model.typeOfLayout=="vertical"):
+            ControlPanel.move(ControlPanel.startXBase,ControlPanel.startYBase+20*self.model.layoutOfModel.getNumberOfAnElement(ControlPanel))
+        elif(self.model.typeOfLayout=="horizontal"):
+            ControlPanel.move(ControlPanel.startXBase+20*self.model.layoutOfModel.getNumberOfAnElement(ControlPanel),ControlPanel.startYBase)    
+        else:
+            pos=self.model.layoutOfModel.foundInLayout(ControlPanel)
+            ControlPanel.move(ControlPanel.startXBase+20*pos[0],ControlPanel.startYBase+20*pos[1])
+
+        self.model.applyPersonalLayout()
         return ControlPanel
     
 #-----------------------------------------------------------------------------------------

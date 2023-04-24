@@ -9,7 +9,7 @@ from SGIndicators import SGIndicators
 
 #Class who is responsible of the Legend creation 
 class SGDashBoard(SGGameSpace):
-    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.transparent,layout="vertical"):
+    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.lightGray,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -25,15 +25,33 @@ class SGDashBoard(SGGameSpace):
             self.layout=QtWidgets.QVBoxLayout()
         elif layout=='horizontal':
             self.layout=QtWidgets.QHBoxLayout()
-
-
+        self.initUI()
 
     def initUI(self):
         self.y=0
-        self.setLayout(self.layout)
-        self.layout.addWidget(self.id)
+        layout=self.layout
+        self.y=self.y+1
+        title=QtWidgets.QLabel(self.id,self)
+        layout.addWidget(title)
+    
+    def showIndicators(self):
+        # Delete all
+        layout = self.layout
+        for i in reversed(range(layout.count())):
+            widget = layout.itemAt(i).widget()
+            layout.removeWidget(widget)
+            widget.deleteLater()
+        
+        title = QtWidgets.QLabel(self.id, self)
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+        title.setFont(font)
+        layout.addWidget(title)
+        
         for indicator in self.indicators:
-            self.y=+1
+            self.y=self.y+1
+            layout.addWidget(indicator)
             indicator.show()
 
             #Drawing the DB
@@ -60,87 +78,46 @@ class SGDashBoard(SGGameSpace):
         
 
     def addIndicator(self,method,entity,attribut,value=None,indicatorName=None,color=Qt.black):
+        self.y=self.y+1
         indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        indicator.calculus=indicator.byMethod()
-        indicator.name=indicator.checkName()
-        print(indicator.name)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
+        layout = self.layout
+        layout.addWidget(indicator)
         indicator.id=self.IDincr
         self.IDincr=+1
 
     def addIndicator_Sum(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='sumAtt'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
     
     def addIndicator_Avg(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='avgAtt'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_Min(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='minAtt'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_Max(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='maxAtt'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
     
     def addIndicator_EqualTo(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='nbEqualTo'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
     
     def addIndicator_WithLess(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='nbWithLess'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_WithMore(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='nbWithMore'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_Nb(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='nb'
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
-        self.indicatorNames.append(indicator.name)
-        self.indicators.append(indicator)
-        self.layout.addWidget(indicator)
-        indicator.id=self.IDincr
-        self.IDincr=+1
+        self.addIndicator(method,entity,attribut,value,indicatorName,color)
     
 
     # *Functions to have the global size of a gameSpace  

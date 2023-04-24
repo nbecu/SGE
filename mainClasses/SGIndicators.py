@@ -23,21 +23,31 @@ class SGIndicators(QtWidgets.QWidget):
         self.y=y
         self.color=color
         self.id=int
+        self.initUI()
 
-    def checkName(self):
+    def initUI(self):
+        layout = QtWidgets.QHBoxLayout(self)
+        
+        self.name=self.setName()
+        self.label = QtWidgets.QLabel(self.name, self)
+        
+        layout.addWidget(self.label)
+
+    def setName(self):
+        self.calculus=self.byMethod()
         if self.name is None and self.value is not None:
             self.name= self.method+' '+self.attribut+" "+self.value+" : "+str(self.calculus)
         elif self.name is None:
             self.name = self.method+' '+self.attribut+" : "+str(self.calculus)
         return self.name
 
-    def paintEvent(self, event):
+    """def paintEvent(self, event):
         painter = QPainter() 
         painter.begin(self)
         aFont=QFont("Verdana",10)
         painter.setFont(aFont)
         painter.drawText(QRect(10,0,self.getSizeXGlobal(),20), Qt.AlignLeft, self.name)
-        painter.end()
+        painter.end()"""
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5

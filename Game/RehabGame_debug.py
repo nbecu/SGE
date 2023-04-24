@@ -38,9 +38,13 @@ TextBox.setTextColor()
 
 DashBoard=myModel.newDashBoard()
 DashBoard.addIndicator("sumAtt",'cell','Resource')
+DashBoard.addIndicator("avgAtt",'cell','Resource')
+DashBoard.showIndicators()
 
 Player1=myModel.newPlayer("Player 1")
-Player1.newControlPanel()
+Player1CP=Player1.newControlPanel()
+Player1CP.display()
+
 
 #"Indicateur test","sumAtt","Resource",2,
 myModel.iAm("Admin")
