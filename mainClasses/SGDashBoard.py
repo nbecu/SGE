@@ -9,6 +9,7 @@ from SGIndicators import SGIndicators
 
 #Class who is responsible of the Legend creation 
 class SGDashBoard(SGGameSpace):
+    
     def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.lightGray,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
@@ -25,14 +26,7 @@ class SGDashBoard(SGGameSpace):
             self.layout=QtWidgets.QVBoxLayout()
         elif layout=='horizontal':
             self.layout=QtWidgets.QHBoxLayout()
-        self.initUI()
 
-    def initUI(self):
-        self.y=0
-        layout=self.layout
-        self.y=self.y+1
-        title=QtWidgets.QLabel(self.id,self)
-        layout.addWidget(title)
     
     def showIndicators(self):
         # Delete all
@@ -42,17 +36,18 @@ class SGDashBoard(SGGameSpace):
             layout.removeWidget(widget)
             widget.deleteLater()
         
-        title = QtWidgets.QLabel(self.id, self)
+        title=QtWidgets.QLabel(self.id)
         font = QFont()
         font.setBold(True)
         font.setPointSize(16)
         title.setFont(font)
         layout.addWidget(title)
+        layout.addSpacing(10)
         
         for indicator in self.indicators:
-            self.y=self.y+1
-            layout.addWidget(indicator)
-            indicator.show()
+            layout.addLayout(indicator.indicatorLayout)
+            layout.addSpacing(10)
+        self.setLayout(layout)
 
             #Drawing the DB
     def paintEvent(self,event):
@@ -82,8 +77,6 @@ class SGDashBoard(SGGameSpace):
         indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
-        layout = self.layout
-        layout.addWidget(indicator)
         indicator.id=self.IDincr
         self.IDincr=+1
 
@@ -125,7 +118,7 @@ class SGDashBoard(SGGameSpace):
         return 70+len(self.getLongest())*5+50
         
     def getSizeYGlobal(self):
-        somme=30
+        somme = 100
         return somme+len(self.indicatorNames)
     
     def getLongest(self):

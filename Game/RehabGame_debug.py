@@ -12,7 +12,7 @@ aGrid=myModel.newGrid(7,7,"square",size=60, gap=2,name='grid1')
 aGrid.setValueCell("Resource","2")
 aGrid.setRandomCells("Resource","3",7)
 aGrid.setRandomCells("Resource","1",3)
-aGrid.setRandomCells("Resource","0",2)
+aGrid.setRandomCells("Resource","0",8)
 
 
 myModel.newPov("Resource","Resource",{"3":Qt.darkGreen,"2":Qt.green,"1":Qt.yellow,"0":Qt.white})

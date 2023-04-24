@@ -8,9 +8,9 @@ import numpy as np
 
    
 #Class who is responsible of indicator creation 
-class SGIndicators(QtWidgets.QWidget):
+class SGIndicators():
     def __init__(self,parent,y,name,method,attribut,value,entity,color):
-        super().__init__(parent)
+        # super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
         self.method=method
@@ -24,14 +24,13 @@ class SGIndicators(QtWidgets.QWidget):
         self.color=color
         self.id=int
         self.initUI()
+        
 
     def initUI(self):
-        layout = QtWidgets.QHBoxLayout(self)
-        
+        self.indicatorLayout = QtWidgets.QHBoxLayout()
         self.name=self.setName()
-        self.label = QtWidgets.QLabel(self.name, self)
-        
-        layout.addWidget(self.label)
+        self.label = QtWidgets.QLabel(self.name)
+        self.indicatorLayout.addWidget(self.label)
 
     def setName(self):
         self.calculus=self.byMethod()
@@ -58,18 +57,16 @@ class SGIndicators(QtWidgets.QWidget):
         if self.entity=='cell':
             grids=self.dashboard.model.getGrids()
             for grid in grids:
-                cells=grid.collectionOfCells.getCells()
+                cells=grid.getCells()
                 aCell=grid.collectionOfCells.getCell('cell1-1')
                 valForMin=aCell.attributs[self.attribut]
                 valForMax=aCell.attributs[self.attribut]
                 if self.method == "sumAtt" or self.method =='avgAtt':
                     for cell in cells:
                         self.calculus=self.calculus+float(cell.attributs[self.attribut])
-                        if self.method=='avgAtt':
-                            self.calculus=np.mean(self.calculus)
-                            return self.calculus
-                        else:
-                            return self.calculus
+                    if self.method=='avgAtt':
+                        self.calculus=self.calculus/len((cells))
+                    return self.calculus
                 if self.method == "minAtt" or self.method == "maxAtt":
                     if self.method == "minAtt":
                         for cell in cells:
