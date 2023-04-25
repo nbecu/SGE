@@ -202,8 +202,10 @@ class SGCell(QtWidgets.QWidget):
                                 del self.agents[i]
                         self.grid.collectionOfCells.removeVisiblityCell(self.getId())
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
+                        for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                            watcher.dashboard.updateIndicator(watcher)
                         self.show()
-                        self.repaint()
+                        self.repaint()    
 
                 #The Replace cell and change value Action
                 elif self.grid.model.selected[1]== "square" or self.grid.model.selected[1]=="hexagonal":
@@ -229,7 +231,10 @@ class SGCell(QtWidgets.QWidget):
                                         self.attributs.pop(anAttribute,None)
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
+                        for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                            watcher.dashboard.updateIndicator(watcher)
                         self.update()
+                        
 
                 #For agent placement         
                 else :

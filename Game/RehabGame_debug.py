@@ -41,6 +41,8 @@ DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
+aGrid.collectionOfCells.getWatchers()
+
 Player1=myModel.newPlayer("Player 1")
 Player1CP=Player1.newControlPanel()
 Player1CP.display()

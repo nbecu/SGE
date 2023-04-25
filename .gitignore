@@ -31,3 +31,4 @@ mainClasses/gameAction/__pycache__/SGUpdate.cpython-310.pyc
 mainClasses/layout/__pycache__/SGGridLayout.cpython-310.pyc
 mainClasses/layout/__pycache__/SGHorizontalLayout.cpython-310.pyc
 mainClasses/layout/__pycache__/SGVerticalLayout.cpython-310.pyc
+*.pyc

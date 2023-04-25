@@ -32,14 +32,15 @@ class SGDashBoard(SGGameSpace):
         # Delete all
         layout = self.layout
         for i in reversed(range(layout.count())):
-            widget = layout.itemAt(i).widget()
-            layout.removeWidget(widget)
-            widget.deleteLater()
+            item = layout.itemAt(i)
+            if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)): # Vérifiez si l'élément est dans la liste
+                layout.removeItem(item) # Supprimez l'élément du layout
+                del item # supprimez l'objet de la mémoire
+            
         
         title=QtWidgets.QLabel(self.id)
         font = QFont()
         font.setBold(True)
-        font.setPointSize(16)
         title.setFont(font)
         layout.addWidget(title)
         layout.addSpacing(10)
@@ -48,6 +49,7 @@ class SGDashBoard(SGGameSpace):
             layout.addLayout(indicator.indicatorLayout)
             layout.addSpacing(10)
         self.setLayout(layout)
+
 
             #Drawing the DB
     def paintEvent(self,event):
@@ -79,6 +81,31 @@ class SGDashBoard(SGGameSpace):
         self.indicators.append(indicator)
         indicator.id=self.IDincr
         self.IDincr=+1
+        if entity == 'cell':
+            self.setCellWatchers(attribut,indicator)
+
+    def updateIndicator(self,indicator):
+        print(indicator.name)
+        theIndex=None
+        for index, objet in enumerate(self.indicators):
+            if objet==indicator:
+                theIndex=index
+                break
+        if theIndex is not None:
+            newIndicator=SGIndicators(self,indicator.y,indicator.name,indicator.method,indicator.attribut,indicator.value,indicator.entity,indicator.color)
+            self.indicators[theIndex]=newIndicator
+            self.indicatorNames[theIndex]=newIndicator.name
+            newIndicator.id=indicator.id
+            print(newIndicator.name)
+
+    
+    def setCellWatchers(self,attribut,indicator):
+        grids=self.model.getGrids()
+        for grid in grids:
+            cellCollection=grid.collectionOfCells
+            if attribut not in cellCollection.watchers.keys():
+                cellCollection.watchers[attribut]=[]
+            cellCollection.watchers[attribut].append(indicator)
 
     def addIndicator_Sum(self,entity,attribut,value,indicatorName,color=Qt.black):
         method='sumAtt'

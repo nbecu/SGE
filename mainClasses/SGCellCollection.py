@@ -21,6 +21,7 @@ class SGCellCollection():
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.cells={}
+        self.watchers={}
         #Initialize the different pov
         self.povs={}
         #Initialize of the user interface
@@ -58,6 +59,9 @@ class SGCellCollection():
                 res.append(cell)
         return res
     
+    # test
+    def getWatchers(self):
+        print(self.watchers)
 
         
     
