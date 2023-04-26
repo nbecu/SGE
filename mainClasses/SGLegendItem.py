@@ -8,7 +8,7 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut=""):
+    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut="",border=False):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
@@ -18,6 +18,7 @@ class SGLegendItem(QtWidgets.QWidget):
         self.texte=texte
         self.y=y
         self.color=color
+        self.border=border
         
     #Drawing function
     def paintEvent(self,event):
@@ -27,6 +28,9 @@ class SGLegendItem(QtWidgets.QWidget):
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
             if self.legend.model.selected[0] == self :
                 painter.setPen(QPen(Qt.red,2));
+            if self.border:
+                painter.setPen(QPen(self.color,2))
+                painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.type=="square") :   
                 painter.drawRect(10, 0, 20, 20)

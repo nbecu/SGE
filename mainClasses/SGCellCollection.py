@@ -42,7 +42,7 @@ class SGCellCollection():
     
     #To get all the povs of the collection 
     def getPovs(self):
-        return self.povs
+        return {key: value for dict in (self.povs, self.borderPovs) for key, value in dict.items() if "selected" not in key}
     
     #To get a cell in particular
     def getCell(self,aName):
