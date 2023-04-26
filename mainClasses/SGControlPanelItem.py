@@ -21,7 +21,7 @@ class SGControlPanelItem(QtWidgets.QWidget):
         
     #Drawing function
     def paintEvent(self,event):
-        if self.controlPanel.player.checkDisplay():
+        if self.controlPanel.checkDisplay():
             painter = QPainter() 
             painter.begin(self)
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
@@ -89,12 +89,12 @@ class SGControlPanelItem(QtWidgets.QWidget):
                 aFont=QFont("Verdana",10)
                 aFont.setUnderline(True)
                 painter.setFont(aFont)
-                painter.drawText(QRect(15,0,self.controlPanel.player.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
+                painter.drawText(QRect(15,0,self.controlPanel.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
             else :
                 painter.setFont(QFont("Verdana",8))
-                painter.drawText(QRect(40,5,self.controlPanel.player.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
-            self.setMinimumSize(self.controlPanel.player.getSizeXGlobal()-50,10)
-            self.move(10,self.y*20+5*self.y)
+                painter.drawText(QRect(40,5,self.controlPanel.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
+            self.setMinimumSize(self.controlPanel.getSizeXGlobal()-50,10)
+            #self.move(10,self.y*20+5*self.y)
             painter.end()
     
 
@@ -117,38 +117,36 @@ class SGControlPanelItem(QtWidgets.QWidget):
     #To handle the selection of an element int the control panel
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
-            #Already selected
-            if self.controlPanel.player.model.selected[0]==self :
-                self.controlPanel.player.model.selected=[None]
-
-            #Selection of an item and suppresion of already selected Item
-            else :
-                if self.type!="None":
+            if self.type!='title':
+                #Already selected
+                if self.controlPanel.player.model.selected[0]==self :
                     self.controlPanel.player.model.selected=[None]
-                    selectedItem=[self]
-                    selectedItem.append(self.type) 
-                    selectedItem.append(self.texte)
-                    if self.texte.find('Remove ')!=-1 :
-                        txt=self.texte.replace("Remove ","")
-                        txt=txt.replace(self.valueOfAttribut+" ","")
-                        selectedItem.append(txt)
-                        selectedItem.append(self.valueOfAttribut)
-                    else: 
-                        selectedItem.append(self.valueOfAttribut)
-                        selectedItem.append(self.nameOfAttribut)
-                    selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
-                    self.controlPanel.player.model.selected=selectedItem
-                    self.controlPanel.player.model.update()
+
+                #Selection of an item and suppresion of already selected Item
+                else :
+                    if self.type!="None":
+                        self.controlPanel.player.model.selected=[None]
+                        selectedItem=[self]
+                        selectedItem.append(self.type) 
+                        selectedItem.append(self.texte)
+                        if self.texte.find('Remove ')!=-1 :
+                            txt=self.texte.replace("Remove ","")
+                            txt=txt.replace(self.valueOfAttribut+" ","")
+                            selectedItem.append(txt)
+                            selectedItem.append(self.valueOfAttribut)
+                        else: 
+                            selectedItem.append(self.valueOfAttribut)
+                            selectedItem.append(self.nameOfAttribut)
+                        selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
+                        self.controlPanel.player.model.selected=selectedItem
+                        self.controlPanel.player.model.update()
         self.update()
         
     #To handle the drag 
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return
-    
-    #To test is it from the admin controlPanel.player
-    def isFromAdmin(self):
-        return self.controlPanel.player.id=="admincontrolPanel.player"
+
                     
 
         

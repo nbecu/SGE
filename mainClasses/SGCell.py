@@ -40,6 +40,7 @@ class SGCell(QtWidgets.QWidget):
         #We define variables to handle the history 
         self.history={}
         self.history["value"]=[]
+        self.borderColor=Qt.black
         self.color=Qt.white
   
     # to extract the format of the cell
@@ -52,10 +53,7 @@ class SGCell(QtWidgets.QWidget):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        if self.isDisplay==False:
-            painter.setPen(QPen(Qt.transparent,1));
-        else :
-            painter.setPen(QPen(Qt.black,1));
+        painter.setPen(QPen(self.getBorderColor(),1))
         #Base of the gameBoard
         if(self.shape=="square"):
             painter.drawRect(0,0,self.size,self.size)
@@ -164,6 +162,30 @@ class SGCell(QtWidgets.QWidget):
             else: 
                 self.color=Qt.white
                 return Qt.white
+            
+    def getBorderColor(self):
+        if self.isDisplay==False:
+            return Qt.transparent
+    
+        if self.grid.model.nameOfPov in self.theCollection.borderPovs.keys():
+            self.theCollection.borderPovs['selectedBorderPov']=self.theCollection.borderPovs[self.getPov()]
+            for aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
+                if aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
+                     self.borderColor=self.theCollection.borderPovs[self.getPov()][aVal][self.attributs[aVal]]
+                     return self.theCollection.borderPovs[self.getPov()][aVal][self.attributs[aVal]]
+        
+        else:
+            """if self.theCollection.borderPovs['selectedBorderPov'] is not None:
+                for aVal in list(self.theCollection.borderPovs['selectedBorderPov'].keys()):
+                    if aVal in list(self.theCollection.borderPovs['selectedBorderPov'].keys()):
+                        self.borderColor=self.theCollection.borderPovs['selectedBorderPov'][aVal][self.attributs[aVal]]
+                        if self.borderColor != None:
+                            return self.theCollection.borderPovs['selectedBorderPov'][aVal][self.attributs[aVal]]
+                        else:
+                            return Qt.black
+            else:""" 
+            self.borderColor=Qt.black
+            return Qt.black
                 
     #To get the pov
     def getPov(self):

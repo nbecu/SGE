@@ -392,7 +392,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     
     #To create a Legend
-    def newLegendAdmin(self,Name='adminLegend'):
+    def newLegendAdmin(self,Name='adminLegend',showAgents=False):
         """
         To create an Admin Legend (with all the cell and agent values)
         
@@ -411,7 +411,7 @@ class SGModel(QtWidgets.QMainWindow):
         for grid in CellElements:
             CellElements[grid]['agents'].update(AgentPOVs)
         agents=self.getAgents()
-        aLegend = SGLegend(self,Name,CellElements,"Admin",agents)
+        aLegend = SGLegend(self,Name,CellElements,"Admin",agents,showAgents)
         self.gameSpaces["adminLegend"]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
@@ -835,6 +835,26 @@ class SGModel(QtWidgets.QMainWindow):
         for aGrid in listOfGridsToApply :
             if(isinstance(aGrid,SGGrid)==True):
                 aGrid.collectionOfCells.povs[nameOfPov]={aAtt:DictofColors}
+        self.addPovinMenuBar(nameOfPov)
+
+    def newBorderPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
+        """
+        Declare a new Point of View for cells (only for border color).
+
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+            
+        """
+        if listOfGridsToApply==None:
+            listOfGridsToApply = [list(self.gameSpaces.values())[0]] #get the fisrt value of the dict
+        if not isinstance(listOfGridsToApply,list):
+            listOfGridsToApply=[listOfGridsToApply]
+        for aGrid in listOfGridsToApply :
+            if(isinstance(aGrid,SGGrid)==True):
+                aGrid.collectionOfCells.borderPovs[nameOfPov]={aAtt:DictofColors}
         self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV

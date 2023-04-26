@@ -15,22 +15,13 @@ class SGControlPanel(SGGameSpace):
         self.player=player
         self.controlPanelItems={}
         self.borderColor=borderColor
-        self.y=0
         self.id=self.player.name+'ControlPanel'
         if layout=='vertical':
             self.layout=QtWidgets.QVBoxLayout()
         elif layout=='horizontal':
             self.layout=QtWidgets.QHBoxLayout()
-        self.initUI()
 
-    # CURRENT VERSION
-    def initUI(self):
-        self.y=0
-        layout=self.layout
-        self.y=self.y+1
-        title=QtWidgets.QLabel(self.player.name+' :')
-        layout.addWidget(title)
-    
+
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         return 70+len(self.getLongest())*5+50
@@ -44,12 +35,24 @@ class SGControlPanel(SGGameSpace):
         return longestWord
     
     def getSizeYGlobal(self):
-        somme=30
+        somme=100
         for key in self.controlPanelItems :
             somme= somme+ 27*len(self.controlPanelItems[key])
         return somme
     
     def display(self):
+        layout = self.layout
+        for i in reversed(range(layout.count())):
+            item = layout.itemAt(i)
+            if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)):
+                layout.removeItem(item)
+                del item
+        title=SGControlPanelItem(self,"title",self.y,self.id)
+        self.controlPanelItems["Title"]=[]
+        self.controlPanelItems["Title"].append(title)
+        layout.addWidget(title)
+        layout.addSpacing(10)
+        title.show()
         if self.actionItems is not None:
             for action in self.actionItems :
                 if action in list(self.controlPanelItems.keys()):
@@ -58,12 +61,8 @@ class SGControlPanel(SGGameSpace):
                             self.controlPanelItems[action][anElement].deleteLater()
                             del self.controlPanelItems[action][anElement]
                 self.controlPanelItems[action]=[]
-            self.y=self.y+1
-            anItem=SGControlPanelItem(self,"None",self.y,self.id)
-            self.controlPanelItems["Title"]=[]
-            self.controlPanelItems["Title"].append(anItem)
-            anItem.show()
-        self.setMinimumSize(self.getSizeXGlobal(),10)
+        
+        self.setLayout(layout)
 
     
     #To handle the drag of the Control Panel

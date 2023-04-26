@@ -24,6 +24,8 @@ class SGCellCollection():
         self.watchers={}
         #Initialize the different pov
         self.povs={}
+        self.borderPovs={}
+        self.borderPovs['selectedBorderPov']={}
         #Initialize of the user interface
         self.initUI()
         

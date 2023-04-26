@@ -1,3 +1,4 @@
+from typing import Hashable
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -12,12 +13,13 @@ from SGGrid import SGGrid
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):
-    def __init__(self,parent,name,elementPov,playerName,AgentList,borderColor=Qt.black,backgroundColor=Qt.transparent):
+    def __init__(self,parent,name,elementPov,playerName,AgentList,showAgents=False,borderColor=Qt.black,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
         self.model=parent
         self.elementsPov=elementPov
         self.AgentList=AgentList
+        self.showAgents=showAgents
         self.playerName=playerName
         self.legendItems={}
         self.borderColor=borderColor
@@ -62,7 +64,7 @@ class SGLegend(SGGameSpace):
                                     for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
                                         item_key=aAttribut +' '+ aValue
                                         color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
-                                        if item_key not in added_items and color not in added_colors:
+                                        if item_key not in added_items and color not in added_colors and color != Qt.transparent:
                                             self.y=self.y+1
                                             anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut)
                                             self.legendItems[aKeyOfGamespace].append(anItem)
@@ -77,13 +79,14 @@ class SGLegend(SGGameSpace):
                                         for aVal in list(grid.collectionOfCells.povs[aPov][aAtt].keys()):
                                             color=grid.collectionOfCells.povs[aPov][aAtt][aVal]
                                             item_key = aAtt + aVal
-                                            if item_key not in added_items and color not in added_colors:
+                                            if item_key not in added_items and color not in added_colors and color != Qt.transparent:
                                                 self.y=self.y+1
                                                 anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt)
                                                 self.legendItems[aKeyOfGamespace].append(anItem)
                                                 anItem.show()
                                                 added_items.add(item_key)
                                                 added_colors.add(color)
+                                            
 
                     elif entity == 'agents':
                         for anAgent in self.AgentList:
@@ -128,10 +131,24 @@ class SGLegend(SGGameSpace):
                                                 self.legendItems[aKeyOfGamespace].append(anItem)
                                                 anItem.show()
                                                 added_items.add(item_key)
-                                                
+
+                                            
+            if self.showAgents==True and aKeyOfGamespace !="deleteButton":
+                added_species=set()
+                for Species in self.model.agentSpecies.keys():
+                    item_key=Species
+                    if item_key not in added_species:
+                        aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                        text=Species
+                        self.y=self.y+1
+                        anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,None,None)
+                        self.legendItems[aKeyOfGamespace].append(anItem)
+                        anItem.show()
+                        added_species.add(item_key)
 
 
-            self.setMinimumSize(self.getSizeXGlobal(),10)
+
+        self.setMinimumSize(self.getSizeXGlobal(),10)
 
     
     """# Test VERSION
