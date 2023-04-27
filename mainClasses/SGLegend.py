@@ -166,7 +166,7 @@ class SGLegend(SGGameSpace):
                         aColor=self.model.agentSpecies[Species]["DefaultColor"]
                         text=Species
                         self.y=self.y+1
-                        anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,None,None)
+                        anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
                         self.legendItems[aKeyOfGamespace].append(anItem)
                         anItem.show()
                         added_species.add(item_key)

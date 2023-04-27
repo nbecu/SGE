@@ -615,10 +615,14 @@ class SGModel(QtWidgets.QMainWindow):
         self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,
                         'attributs':aDictOfAttributsWithValues,"AgentObject":anAgent}
         
-        for key in aAgentSpecies.dictOfAttributs:
-            if key not in aDictOfAttributsWithValues:
-                val=list(aAgentSpecies.dictOfAttributs[key])[0]
-                anAgent.setValueAgent(key,val)
+        if aAgentSpecies.dictOfAttributs is not None:
+            for key in aAgentSpecies.dictOfAttributs:
+                if key not in aDictOfAttributsWithValues:
+                    val=list(aAgentSpecies.dictOfAttributs[key])[0]
+                    anAgent.setValueAgent(key,val)
+        else:
+            anAgent.color=self.agentSpecies[str(anAgent.name)]['DefaultColor']
+            anAgent.update()
 
         anAgent.show()
         self.update()
@@ -837,7 +841,7 @@ class SGModel(QtWidgets.QMainWindow):
                 aGrid.collectionOfCells.povs[nameOfPov]={aAtt:DictofColors}
         self.addPovinMenuBar(nameOfPov)
 
-    def newBorderPov(self,nameOfPov,aAtt,DictofColors,listOfGridsToApply=None):
+    def newBorderPov(self,nameOfPov,aAtt,DictofColors,borderWidth=4,listOfGridsToApply=None):
         """
         Declare a new Point of View for cells (only for border color).
 
@@ -855,6 +859,7 @@ class SGModel(QtWidgets.QMainWindow):
         for aGrid in listOfGridsToApply :
             if(isinstance(aGrid,SGGrid)==True):
                 aGrid.collectionOfCells.borderPovs[nameOfPov]={aAtt:DictofColors}
+                aGrid.collectionOfCells.borderPovs["borderWidth"]=borderWidth
         self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV

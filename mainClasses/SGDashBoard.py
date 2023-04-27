@@ -85,7 +85,6 @@ class SGDashBoard(SGGameSpace):
             self.setCellWatchers(attribut,indicator)
 
     def updateIndicator(self,indicator):
-        print(indicator.name)
         theIndex=None
         for index, objet in enumerate(self.indicators):
             if objet==indicator:
@@ -96,7 +95,6 @@ class SGDashBoard(SGGameSpace):
             self.indicators[theIndex]=newIndicator
             self.indicatorNames[theIndex]=newIndicator.name
             newIndicator.id=indicator.id
-            print(newIndicator.name)
 
     
     def setCellWatchers(self,attribut,indicator):

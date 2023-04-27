@@ -53,7 +53,7 @@ class SGCell(QtWidgets.QWidget):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        painter.setPen(QPen(self.getBorderColor(),1))
+        painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
         #Base of the gameBoard
         if(self.shape=="square"):
             painter.drawRect(0,0,self.size,self.size)
@@ -186,6 +186,12 @@ class SGCell(QtWidgets.QWidget):
             else:""" 
             self.borderColor=Qt.black
             return Qt.black
+    
+    def getBorderWidth(self):
+        if self.theCollection.borderPovs is not None and self.grid.model.nameOfPov in self.theCollection.borderPovs.keys():
+                return int(self.theCollection.borderPovs["borderWidth"])
+        
+        return int(1)
                 
     #To get the pov
     def getPov(self):
@@ -262,7 +268,10 @@ class SGCell(QtWidgets.QWidget):
                 else :
                     if  authorisation :
                         aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
-                        Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
+                        if self.grid.model.selected[4] =="empty" or self.grid.model.selected[3]=='empty':
+                            Species=self.grid.model.selected[2]
+                        else:
+                            Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
                         if self.isDisplay==True :
                             #We now check the feedBack of the actions if it have some
                             if theAction is not None:
@@ -272,6 +281,8 @@ class SGCell(QtWidgets.QWidget):
                             self.update()
                             self.grid.model.update()
 
+        if event.button() == Qt.RightButton:
+            print(self.attributs)
                             
                                     
     #Apply the feedBack of a gameMechanics
