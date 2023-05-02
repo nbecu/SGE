@@ -124,7 +124,6 @@ class SGLegendItem(QtWidgets.QWidget):
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
-            print(self.legend.model.selected)
             #Already selected
             if self.legend.model.selected[0]==self :
                 self.legend.model.selected=[None]

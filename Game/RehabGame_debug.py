@@ -19,27 +19,28 @@ aGrid.setRandomCells("ProtectionLevel","Reserve",1)
 
 
 myModel.newPov("Resource","Resource",{"3":Qt.darkGreen,"2":Qt.green,"1":Qt.yellow,"0":Qt.white})
-#myModel.newBorderPov("ProtectionLevel","ProtectionLevel",{"Reserve":Qt.magenta,"Free":Qt.black})
+myModel.newBorderPov("ProtectionLevel","ProtectionLevel",{"Reserve":Qt.magenta,"Free":Qt.black})
 
 Workers=myModel.newAgentSpecies("Workers","triangleAgent1",uniqueColor=Qt.black)
 Birds=myModel.newAgentSpecies("Birds","triangleAgent2",uniqueColor=Qt.yellow)
 
-#w1=myModel.newAgent(aGrid,Workers)
-#b1=myModel.newAgent(aGrid,Birds)
 
 
-theFirstLegend=myModel.newLegendAdmin(showAgents=True)
+
+#theFirstLegend=myModel.newLegendAdmin(showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
+Player1.addGameAction(myModel.createCreateAction(Workers,3))
 Player1CP=Player1.newControlPanel()
 Player1CP.display()
+Player1Legend=Player1.newLegendPlayer("Player1Legend")
 
 
 GameRounds=myModel.newTimeLabel()
 myModel.timeManager.newGamePhase('Phase 1',Player1)
 myModel.timeManager.newGamePhase('Phase 2',Player1)
 
-#Player1.addGameAction(myModel.createCreateAction(Workers,3))
+
 
 TextBox=myModel.newTextBox(title='Début du jeu',textToWrite='Bonjour!')
 
@@ -51,12 +52,9 @@ DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
-aGrid.collectionOfCells.getWatchers()
+#aGrid.collectionOfCells.getWatchers()
 
 
-
-
-#"Indicateur test","sumAtt","Resource",2,
 myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 

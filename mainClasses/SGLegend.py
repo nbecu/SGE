@@ -30,6 +30,7 @@ class SGLegend(SGGameSpace):
     # CURRENT VERSION
     def initUI(self):
         self.y=0
+        #print(self.elementsPov)
         for aKeyOfGamespace in self.elementsPov :
             if aKeyOfGamespace in list(self.legendItems.keys()):
                 if len(self.legendItems[aKeyOfGamespace]) !=0:

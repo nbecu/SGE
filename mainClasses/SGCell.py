@@ -286,7 +286,7 @@ class SGCell(QtWidgets.QWidget):
                             
                                     
     #Apply the feedBack of a gameMechanics
-    def feedBack(self, theAction,theAgentForMoveGM=None):
+    """def feedBack(self, theAction,theAgentForMoveGM=None):
         booleanForFeedback=True
         booleanForFeedbackAgent=True
         for anCondition in theAction.conditionOfFeedBack :
@@ -299,7 +299,7 @@ class SGCell(QtWidgets.QWidget):
                 booleanForFeedbackAgent=booleanForFeedbackAgent and anCondition(self,theAgentForMoveGM)
             if booleanForFeedbackAgent :
                 for aFeedback in  theAction.feedbackAgent :
-                    aFeedback(theAgentForMoveGM)
+                    aFeedback(theAgentForMoveGM)"""
             
                             
     #To handle the drag of the grid

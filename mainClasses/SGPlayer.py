@@ -17,13 +17,9 @@ class SGPlayer():
         self.name=name
         self.actions=actions
         self.gameActions=[]
-        
-        
-    def initControlPanel(self):
-        self.ControlPanel=self.model.newPlayerControlPanel(self.name,{},self.name)
-            
-    def newControlPanel(self,name=None,actionsItems=[]):
-        ControlPanel=SGControlPanel(self.model,self,name,actionsItems)
+                    
+    def newControlPanel(self,name=None):
+        ControlPanel=SGControlPanel(self.model,self,name)
         self.model.ControlPanel=ControlPanel
         self.model.gameSpaces[name]=ControlPanel
         #Realocation of the position thanks to the layout
@@ -41,22 +37,75 @@ class SGPlayer():
         self.model.applyPersonalLayout()
         return ControlPanel
     
+
+    def newLegendPlayer(self,Name,showAgents=False):
+        """
+        To create an Player Legend (only with the GameActions related elements)
+        
+        Args:
+        Name (str): name of the Legend
+
+        """
+        #Creation
+        #We harvest all the case value
+        elements={}
+        AgentPOVs=self.model.getAgentPOVs()
+        for anElement in self.model.getGrids() :
+            elements[anElement.id]={}
+            elements[anElement.id]['cells']=anElement.getValuesForLegend()
+            elements[anElement.id]['agents']={}
+        for grid in elements:
+            elements[grid]['agents'].update(AgentPOVs)
+        agents=self.model.getAgents()
+        print('coucou')
+        print(elements)
+        #! Ici intégrer de quoi identifier les éléments des actions du joueur
+        #*exemple:
+        goodKeys=['ProtectionLevel','Workers']
+        playerElements={} 
+        for grid in elements:
+            for entity in grid:
+                for key in entity.keys():
+                    if key in goodKeys:
+                        playerElements[grid][entity]=elements[grid][key]
+        print(playerElements)
+        aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents)
+        self.model.gameSpaces[Name]=aLegend
+        #Realocation of the position thanks to the layout
+        newPos=self.model.layoutOfModel.addGameSpace(aLegend)
+        aLegend.setStartXBase(newPos[0])
+        aLegend.setStartYBase(newPos[1])
+        if(self.model.typeOfLayout=="vertical"):
+            aLegend.move(aLegend.startXBase,aLegend.startYBase+20*self.model.layoutOfModel.getNumberOfAnElement(aLegend))
+        elif(self.model.typeOfLayout=="horizontal"):
+            aLegend.move(aLegend.startXBase+20*self.model.layoutOfModel.getNumberOfAnElement(aLegend),aLegend.startYBase)    
+        else:
+            pos=self.model.layoutOfModel.foundInLayout(aLegend)
+            aLegend.move(aLegend.startXBase+20*pos[0],aLegend.startYBase+20*pos[1])
+        self.model.applyPersonalLayout()
+        return aLegend
+    
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
     
     def addGameAction(self,aGameAction):
-        """NOT TESTED"""
         if isinstance(aGameAction,SGDelete):
-            self.Legend.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
+            #self.ControlPanel.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
-        elif isinstance(aGameAction.anObject,SGCell):
-            theParent=aGameAction.anObject.parent.id
-            aDict={theParent:aGameAction.anObject.theCollection.povs}
+        if isinstance(aGameAction,SGCreate):
+            self.gameActions.append(aGameAction)
+        if isinstance(aGameAction,SGUpdate):
+            self.gameActions.append(aGameAction)
+        if isinstance(aGameAction,SGMove):
+            self.gameActions.append(aGameAction)
+        """elif isinstance(aGameAction.anObject,SGCell):
+            theGrid=aGameAction.anObject.grid.id
+            aDict={theGrid:aGameAction.anObject.theCollection.povs}
             self.Legend.addToTheLegend(aDict,aGameAction.aDictOfAcceptedValue)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGAgent):
             self.Legend.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
-            self.gameActions.append(aGameAction)   
+            self.gameActions.append(aGameAction)   """
         return aGameAction
     
     def getGameActionOn(self,anItem):

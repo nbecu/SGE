@@ -8,14 +8,21 @@ from SGControlPanelItem import SGControlPanelItem
 
 #Class who is responsible of the Legend creation 
 class SGControlPanel(SGGameSpace):
-    def __init__(self,parent,player,actionItems,borderColor=Qt.black,backgroundColor=Qt.transparent,layout="vertical"):
+    def __init__(self,parent,player,borderColor=Qt.black,backgroundColor=Qt.transparent,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
-        self.actionItems=actionItems
         self.player=player
+        self.id=self.player.name+'ControlPanel'
+        self.actionfromPlayer=self.getActions()
+        
+        self.actionItems=[]
+        self.actionItemsNames=[]
+        self.IDincr=0
+        self.y=0
+
         self.controlPanelItems={}
         self.borderColor=borderColor
-        self.id=self.player.name+'ControlPanel'
+        
         if layout=='vertical':
             self.layout=QtWidgets.QVBoxLayout()
         elif layout=='horizontal':
@@ -24,7 +31,7 @@ class SGControlPanel(SGGameSpace):
 
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        return 70+len(self.getLongest())*5+50
+        return 70+len(self.getLongest())*5+150
     
     def getLongest(self):
         longestWord=""
@@ -47,23 +54,44 @@ class SGControlPanel(SGGameSpace):
             if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)):
                 layout.removeItem(item)
                 del item
-        title=SGControlPanelItem(self,"title",self.y,self.id)
-        self.controlPanelItems["Title"]=[]
-        self.controlPanelItems["Title"].append(title)
+        title=QtWidgets.QLabel(self.id)
+        font = QFont()
+        font.setBold(True)
+        title.setFont(font)
         layout.addWidget(title)
         layout.addSpacing(10)
-        title.show()
+        self.addActionItems()
         if self.actionItems is not None:
             for action in self.actionItems :
-                if action in list(self.controlPanelItems.keys()):
-                    if len(self.controlPanelItems[action]) !=0:
-                        for anElement in reversed(range(len(self.controlPanelItems[action]))):
-                            self.controlPanelItems[action][anElement].deleteLater()
-                            del self.controlPanelItems[action][anElement]
-                self.controlPanelItems[action]=[]
-        
-        self.setLayout(layout)
+                layout.addLayout(action.actionItemLayout)
+                layout.addSpacing(10)
+            self.setLayout(layout)
 
+    def getActions(self):
+        return self.player.gameActions
+    
+
+    
+    def addActionItems(self):
+        for action in self.actionfromPlayer:
+            self.y=self.y+1
+            actionItem=SGControlPanelItem(self,action.anObject.format,self.y,"Test pouet1")
+            self.actionItemsNames.append(actionItem.texte)
+            self.actionItems.append(actionItem)
+            actionItem.id=self.IDincr
+            self.IDincr=+1
+
+    def updateActionItem(self,item):
+        theIndex=None
+        for index, objet in enumerate(self.actionItems):
+            if objet==item:
+                theIndex=index
+                break
+        if theIndex is not None:
+            newItem=SGControlPanelItem(self)
+            self.actionItems[theIndex]=newItem
+            self.actionItemsNames[theIndex]=newItem.texte
+            newItem.id=item.id
     
     #To handle the drag of the Control Panel
     def mouseMoveEvent(self, e):
@@ -83,8 +111,6 @@ class SGControlPanel(SGGameSpace):
         
     #*Drawing the Control Panel
     def paintEvent(self,event):
-        #if self.checkDisplay():
-            #if len(self.actionItems)!=0:
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
@@ -97,6 +123,32 @@ class SGControlPanel(SGGameSpace):
 
         painter.end()
 
+    #To handle the selection of an element int the control panel
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.LeftButton:
+            #Already selected
+            if self.player.model.selected[0]==self :
+                self.player.model.selected=[None]
+
+            #Selection of an item and suppresion of already selected Item
+            else :
+                if isinstance(self.id,int):
+                    self.player.model.selected=[None]
+                    selectedItem=[self]
+                    selectedItem.append(self.type) 
+                    selectedItem.append(self.texte)
+                    if self.texte.find('Remove ')!=-1 :
+                        txt=self.texte.replace("Remove ","")
+                        txt=txt.replace(self.valueOfAttribut+" ","")
+                        selectedItem.append(txt)
+                        selectedItem.append(self.valueOfAttribut)
+                    else: 
+                        selectedItem.append(self.valueOfAttribut)
+                        selectedItem.append(self.nameOfAttribut)
+                    selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
+                    self.player.model.selected=selectedItem
+                    self.player.model.update()
+        self.update()
         
     #Check if it have to be displayed
     def checkDisplay(self):

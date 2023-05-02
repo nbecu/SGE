@@ -427,6 +427,7 @@ class SGModel(QtWidgets.QMainWindow):
         aLegend.addDeleteButton("Delete")
         self.applyPersonalLayout()
         return aLegend
+
     
     #To update the admin Legend when the modeler add a new pov after the creation of the Legend 
     def updateLegendAdmin(self):
@@ -592,8 +593,6 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To add an Agent with attributs values
     def placeAgent(self,aCell,aAgentSpecies,aDictOfAttributsWithValues):
-        ## IL ME SEMBLE que cette méthode est obsolète 
-        ##Pas du tout, elle est utilisée dans SGCell.mousePressEvent() line 245
         """
         Place a Agent with legend
 
@@ -881,8 +880,8 @@ class SGModel(QtWidgets.QMainWindow):
     #-----------------------------------------------------------  
     #Game mechanics function 
     
-    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
-        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
+    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={}):
+        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue) 
     
     def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
