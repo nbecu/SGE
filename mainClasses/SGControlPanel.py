@@ -49,21 +49,21 @@ class SGControlPanel(SGGameSpace):
     
     def display(self):
         layout = self.layout
-        for i in reversed(range(layout.count())):
-            item = layout.itemAt(i)
-            if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)):
-                layout.removeItem(item)
-                del item
-        title=QtWidgets.QLabel(self.id)
-        font = QFont()
-        font.setBold(True)
-        title.setFont(font)
-        layout.addWidget(title)
+        # for i in reversed(range(layout.count())):
+        #     item = layout.itemAt(i)
+        #     if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)):
+        #         layout.removeItem(item)
+        #         del item
+        # title=QtWidgets.QLabel(self.id)
+        # font = QFont()
+        # font.setBold(True)
+        # title.setFont(font)
+        # layout.addWidget(title)
         layout.addSpacing(10)
         self.addActionItems()
         if self.actionItems is not None:
             for action in self.actionItems :
-                layout.addLayout(action.actionItemLayout)
+                layout.addLayout(action.getActionItemLayout())
                 layout.addSpacing(10)
             self.setLayout(layout)
 
@@ -75,7 +75,7 @@ class SGControlPanel(SGGameSpace):
     def addActionItems(self):
         for action in self.actionfromPlayer:
             self.y=self.y+1
-            actionItem=SGControlPanelItem(self,action.anObject.format,self.y,"Test pouet1")
+            actionItem=SGControlPanelItem(self,action.anObject,self.y,"Test pouet1")
             self.actionItemsNames.append(actionItem.texte)
             self.actionItems.append(actionItem)
             actionItem.id=self.IDincr
