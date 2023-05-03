@@ -245,20 +245,36 @@ class SGCell(QtWidgets.QWidget):
                              self.owner=self.grid.model.currentPlayer
                         self.isDisplay=True
                         value =self.grid.model.selected[3]
+                        #attribut=self.grid.model.selected[2]
                         theKey=""
-                        for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                            if value in list(self.theCollection.povs[self.grid.model.nameOfPov][anAttribute].keys()) :
-                                theKey=anAttribute
-                                break
-                        aDictWithValue={theKey:value}    
-                        for aVal in list(aDictWithValue.keys()) :
-                            if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()) :
-                                    for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                                        self.attributs.pop(anAttribute,None)
+                        if self.grid.model.nameOfPov in list(self.theCollection.povs.keys()):
+                            # pov
+                            for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                                if value in list(self.theCollection.povs[self.grid.model.nameOfPov][anAttribute].keys()) :
+                                    theKey=anAttribute
+                                    break
+                            aDictWithValue={theKey:value}    
+                            for aVal in list(aDictWithValue.keys()) :
+                                if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()) :
+                                        for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
+                                            self.attributs.pop(anAttribute,None)
+
+                        elif self.grid.model.nameOfPov in list(self.theCollection.borderPovs.keys()):
+                            # borderPov
+                            for anAttribute in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
+                                if value in list(self.theCollection.borderPovs[self.grid.model.nameOfPov][anAttribute].keys()) :
+                                    theKey=anAttribute
+                                    break
+                            aDictWithValue={theKey:value}  
+                            for aVal in list(aDictWithValue.keys()) :  
+                                if aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()) :
+                                    for anAttribute in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
+                                            self.attributs.pop(anAttribute,None)
+                        
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
-                        for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
-                            watcher.dashboard.updateIndicator(watcher)
+                        #for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                        #    watcher.dashboard.updateIndicator(watcher)
                         self.update()
                         
 
