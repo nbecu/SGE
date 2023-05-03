@@ -30,7 +30,7 @@ class SGLegend(SGGameSpace):
     # CURRENT VERSION
     def initUI(self):
         self.y=0
-        #print(self.elementsPov)
+        print(self.elementsPov)
         for aKeyOfGamespace in self.elementsPov :
             if aKeyOfGamespace in list(self.legendItems.keys()):
                 if len(self.legendItems[aKeyOfGamespace]) !=0:
@@ -163,14 +163,24 @@ class SGLegend(SGGameSpace):
                 added_species=set()
                 for Species in self.model.agentSpecies.keys():
                     item_key=Species
-                    if item_key not in added_species:
-                        aColor=self.model.agentSpecies[Species]["DefaultColor"]
-                        text=Species
-                        self.y=self.y+1
-                        anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
-                        self.legendItems[aKeyOfGamespace].append(anItem)
-                        anItem.show()
-                        added_species.add(item_key)
+                    if self.playerName!="Admin":
+                        if item_key not in added_species and item_key in self.elementsPov[aKeyOfGamespace]['agents']:
+                            aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                            text=Species
+                            self.y=self.y+1
+                            anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                            self.legendItems[aKeyOfGamespace].append(anItem)
+                            anItem.show()
+                            added_species.add(item_key)
+                    else:
+                        if item_key not in added_species and item_key:
+                            aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                            text=Species
+                            self.y=self.y+1
+                            anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                            self.legendItems[aKeyOfGamespace].append(anItem)
+                            anItem.show()
+                            added_species.add(item_key)
 
 
 

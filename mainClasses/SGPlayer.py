@@ -57,17 +57,21 @@ class SGPlayer():
         for grid in elements:
             elements[grid]['agents'].update(AgentPOVs)
         agents=self.model.getAgents()
-        print('coucou')
-        print(elements)
-        #! Ici intégrer de quoi identifier les éléments des actions du joueur
-        #*exemple:
-        goodKeys=['ProtectionLevel','Workers']
-        playerElements={} 
-        for grid in elements:
-            for entity in grid:
-                for key in entity.keys():
-                    if key in goodKeys:
-                        playerElements[grid][entity]=elements[grid][key]
+        goodKeys=self.getAttributs()
+        print(goodKeys)
+        actions=self.gameActions
+        for aAction in actions:
+            if isinstance(aAction.anObject,SGAgent):
+                goodKeys.append(str(aAction.anObject))
+        playerElements = {}  
+        for grid_key, grid_value in elements.items():  
+            playerElements[grid_key] = {}  
+            for cell_key, cell_value in grid_value['cells'].items(): 
+                if cell_key in goodKeys: 
+                    playerElements[grid_key]['cells'] = {cell_key: cell_value}  
+            for agent_key, agent_value in grid_value['agents'].items(): 
+                if agent_key in goodKeys:  
+                    playerElements[grid_key]['agents'] = {agent_key: agent_value} 
         print(playerElements)
         aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents)
         self.model.gameSpaces[Name]=aLegend
@@ -85,12 +89,18 @@ class SGPlayer():
         self.model.applyPersonalLayout()
         return aLegend
     
+    def getAttributs(self):
+        attributs=[]
+        for action in self.gameActions:
+            if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove):
+                attributs.append(action.anObject.name)
+        return attributs
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
     
     def addGameAction(self,aGameAction):
         if isinstance(aGameAction,SGDelete):
-            #self.ControlPanel.addDeleteButton("Remove",aGameAction.aDictOfAcceptedValue)
+            #self.ControlPanel.addDeleteButton("Remove",aGameAction.dictAttributs)
             self.gameActions.append(aGameAction)
         if isinstance(aGameAction,SGCreate):
             self.gameActions.append(aGameAction)
@@ -101,10 +111,10 @@ class SGPlayer():
         """elif isinstance(aGameAction.anObject,SGCell):
             theGrid=aGameAction.anObject.grid.id
             aDict={theGrid:aGameAction.anObject.theCollection.povs}
-            self.Legend.addToTheLegend(aDict,aGameAction.aDictOfAcceptedValue)
+            self.Legend.addToTheLegend(aDict,aGameAction.dictAttributs)
             self.gameActions.append(aGameAction)
         elif isinstance(aGameAction.anObject,SGAgent):
-            self.Legend.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.aDictOfAcceptedValue)
+            self.Legend.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.dictAttributs)
             self.gameActions.append(aGameAction)   """
         return aGameAction
     
@@ -113,15 +123,22 @@ class SGPlayer():
         #On cell
         if isinstance(anItem,SGCell):
             for aGameAction in self.gameActions :
+                print(self.gameActions)
+                print(aGameAction)
                 if not isinstance(aGameAction,SGMove):
                     #Creation of Cell
-                    if isinstance(aGameAction,SGCreate) and (anItem.isDisplay==False) and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    if isinstance(aGameAction,SGCreate) and (anItem.isDisplay==False) and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
                         return aGameAction
                     #Creation of an agent
-                    elif isinstance(aGameAction,SGCreate) and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) :
-                        return aGameAction 
+                    elif isinstance(aGameAction,SGCreate) and self.model.selected[1] not in ['square','hexagonal']:
+                        if aGameAction.dictAttributs is not None:
+                            if self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) :
+                                return aGameAction
+                        else: 
+                            if self.model.selected[2] in list(self.model.agentSpecies.keys()):
+                                return aGameAction
                     #Update of a Cell
-                    elif isinstance(aGameAction,SGUpdate) and self.model.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    elif isinstance(aGameAction,SGUpdate) and self.model.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
                         return aGameAction
                     #Delete of a Cell
                     elif isinstance(aGameAction,SGDelete) and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(anItem.attributs.values()) : 
@@ -130,10 +147,10 @@ class SGPlayer():
             for aGameAction in self.gameActions :
                 if not isinstance(aGameAction,SGMove):
                     #Update of an Angent
-                    if isinstance(aGameAction,SGUpdate)and self.model.selected[2].find("Remove ")==-1 and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    if isinstance(aGameAction,SGUpdate)and self.model.selected[2].find("Remove ")==-1 and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
                         return aGameAction
                     #Delete of an Agent
-                    elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.aDictOfAcceptedValue.values())[0] and self.model.selected[4]in list(aGameAction.aDictOfAcceptedValue.keys()) : 
+                    elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
                         return aGameAction
                     
     def getMooveActionOn(self,anItem):
@@ -143,6 +160,6 @@ class SGPlayer():
                 if isinstance(aGameAction,SGMove):
                     #Moove an Angent
                     for att in list(anItem.attributs.keys()) :
-                        if att in list(aGameAction.aDictOfAcceptedValue.keys()) : 
-                            if(anItem.attributs[att] in list(aGameAction.aDictOfAcceptedValue.values())[0]):
+                        if att in list(aGameAction.dictAttributs.keys()) : 
+                            if(anItem.attributs[att] in list(aGameAction.dictAttributs.values())[0]):
                                 return aGameAction

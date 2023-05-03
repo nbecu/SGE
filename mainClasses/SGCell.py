@@ -200,10 +200,13 @@ class SGCell(QtWidgets.QWidget):
     #To handle the selection of an element int the legend
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
+            print("hey")
             #Something is selected
             if self.grid.model.selected[0]!=None :
+                print("ho")
                 #We search if the player have the rights
                 thePlayer=self.grid.model.getCurrentPlayer()
+                print(thePlayer)
                 authorisation=False
                 theAction = None
                 if self.grid.model.selected[0].isFromAdmin():
@@ -211,8 +214,10 @@ class SGCell(QtWidgets.QWidget):
 
                 elif thePlayer is not None :
                     theAction=thePlayer.getGameActionOn(self)
+                    print(theAction)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
+                        print(authorisation)
                         if authorisation : 
                             theAction.use()
          
@@ -274,8 +279,8 @@ class SGCell(QtWidgets.QWidget):
                             Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
                         if self.isDisplay==True :
                             #We now check the feedBack of the actions if it have some
-                            if theAction is not None:
-                                self.feedBack(theAction)
+                            #if theAction is not None:
+                            #    self.feedBack(theAction)
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             self.update()

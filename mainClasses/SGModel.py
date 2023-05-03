@@ -97,6 +97,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.timeManager=SGTimeManager(self)
         #List of players
         self.players={}
+        self.currentPlayer=self.timeManager.phases[0].activePlayer
         #Wich instance is it 
         self.whoIAm="Admin"
         self.listOfSubChannel=[]
@@ -674,11 +675,12 @@ class SGModel(QtWidgets.QMainWindow):
 
     #To get the player
     def getCurrentPlayer(self):
-        if len(self.timeManager.phases) < self.timeManager.currentPhase:
+        return self.currentPlayer
+        """if len(self.timeManager.phases) < self.timeManager.currentPhase:
             thePhase=self.timeManager.phases[self.timeManager.currentPhase]
             return thePhase.activePlayer
         else:
-            return None
+            return None"""
     
     #To create a Time Label
     def newTimeLabel(self,name='Rounds&Phases'):
@@ -880,7 +882,7 @@ class SGModel(QtWidgets.QMainWindow):
     #-----------------------------------------------------------  
     #Game mechanics function 
     
-    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={}):
+    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None):
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue) 
     
     def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
