@@ -58,7 +58,6 @@ class SGPlayer():
             elements[grid]['agents'].update(AgentPOVs)
         agents=self.model.getAgents()
         goodKeys=self.getAttributs()
-        print(goodKeys)
         actions=self.gameActions
         for aAction in actions:
             if isinstance(aAction.anObject,SGAgent):
@@ -72,7 +71,6 @@ class SGPlayer():
             for agent_key, agent_value in grid_value['agents'].items(): 
                 if agent_key in goodKeys:  
                     playerElements[grid_key]['agents'] = {agent_key: agent_value} 
-        print(playerElements)
         aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents)
         self.model.gameSpaces[Name]=aLegend
         #Realocation of the position thanks to the layout
@@ -138,7 +136,7 @@ class SGPlayer():
                             if self.model.selected[2] in list(self.model.agentSpecies.keys()):
                                 return aGameAction
                     #Update of a Cell
-                    elif isinstance(aGameAction,SGUpdate) and self.model.selected[2].find("Remove ")==-1 and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
+                    elif isinstance(aGameAction,SGUpdate) and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictNewValues.values())[0] and self.model.selected[4]in list(aGameAction.dictNewValues.keys()) : 
                         return aGameAction
                     #Delete of a Cell
                     elif isinstance(aGameAction,SGDelete) and (anItem.isDisplay==True) and self.model.selected[1] in ['square','hexagonal'] and self.model.selected[3]in list(anItem.attributs.values()) : 

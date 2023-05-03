@@ -200,13 +200,10 @@ class SGCell(QtWidgets.QWidget):
     #To handle the selection of an element int the legend
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            print("hey")
             #Something is selected
             if self.grid.model.selected[0]!=None :
-                print("ho")
                 #We search if the player have the rights
                 thePlayer=self.grid.model.getCurrentPlayer()
-                print(thePlayer)
                 authorisation=False
                 theAction = None
                 if self.grid.model.selected[0].isFromAdmin():
@@ -214,10 +211,8 @@ class SGCell(QtWidgets.QWidget):
 
                 elif thePlayer is not None :
                     theAction=thePlayer.getGameActionOn(self)
-                    print(theAction)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
-                        print(authorisation)
                         if authorisation : 
                             theAction.use()
          
@@ -246,8 +241,6 @@ class SGCell(QtWidgets.QWidget):
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
-                        if theAction is not None:
-                            self.feedBack(theAction)
                         if self.grid.model.selected[0].legend.id!="adminLegend":
                              self.owner=self.grid.model.currentPlayer
                         self.isDisplay=True

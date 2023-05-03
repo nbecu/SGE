@@ -27,7 +27,7 @@ Birds=myModel.newAgentSpecies("Birds","triangleAgent2",uniqueColor=Qt.yellow)
 
 
 
-#theFirstLegend=myModel.newLegendAdmin(showAgents=True)
+theFirstLegend=myModel.newLegendAdmin(showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.createCreateAction(Workers,3))
@@ -55,8 +55,7 @@ DashBoard.showIndicators()
 #aGrid.collectionOfCells.getWatchers()
 
 
-myModel.iAm("Player 1")
-print(myModel.getCurrentPlayer())
+myModel.iAm("Admin")
 
 myModel.launch_withoutMqtt() 
 
