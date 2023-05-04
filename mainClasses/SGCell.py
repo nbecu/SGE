@@ -241,6 +241,8 @@ class SGCell(QtWidgets.QWidget):
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
+                        if theAction is not None:
+                            self.feedBack(theAction)
                         if self.grid.model.selected[0].legend.id!="adminLegend":
                              self.owner=self.grid.model.currentPlayer
                         self.isDisplay=True
@@ -289,8 +291,8 @@ class SGCell(QtWidgets.QWidget):
                             Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
                         if self.isDisplay==True :
                             #We now check the feedBack of the actions if it have some
-                            #if theAction is not None:
-                            #    self.feedBack(theAction)
+                            if theAction is not None:
+                                self.feedBack(theAction)
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             self.update()

@@ -888,13 +888,13 @@ class SGModel(QtWidgets.QMainWindow):
     #-----------------------------------------------------------  
     #Game mechanics function 
     
-    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None):
-        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue) 
+    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None,listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
-    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={}):
+    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         if anObjectType=='Cell':
             anObjectType=SGCell
-        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue) 
+        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
