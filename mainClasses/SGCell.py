@@ -273,8 +273,9 @@ class SGCell(QtWidgets.QWidget):
                         
                         self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
-                        #for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
-                        #    watcher.dashboard.updateIndicator(watcher)
+                        if self.grid.model.selected[4] in self.grid.collectionOfCells.watchers:
+                            for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                                watcher.dashboard.updateIndicator(watcher)
                         self.update()
                         
 

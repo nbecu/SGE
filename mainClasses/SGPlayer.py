@@ -58,6 +58,7 @@ class SGPlayer():
             elements[grid]['agents'].update(AgentPOVs)
         agents=self.model.getAgents()
         goodKeys=self.getAttributs()
+        print(goodKeys)
         actions=self.gameActions
         for aAction in actions:
             if isinstance(aAction.anObject,SGAgent):
@@ -90,8 +91,14 @@ class SGPlayer():
     def getAttributs(self):
         attributs=[]
         for action in self.gameActions:
-            if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove):
+            print(action)
+            print(action.anObject)
+            if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove): #! cas des agents sans attributs
                 attributs.append(action.anObject.name)
+            if isinstance(action.anObject,SGCell) and isinstance(action,SGUpdate): #! cas des cellules
+                print("ok")
+                key=''.join(list(action.dictNewValues.keys()))
+                attributs.append(key)
         return attributs
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

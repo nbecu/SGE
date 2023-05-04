@@ -31,6 +31,7 @@ theFirstLegend=myModel.newLegendAdmin(showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.createCreateAction(Workers,3))
+Player1.addGameAction(myModel.createUpdateAction(aGrid.getFirstCell(),3,{"ProtectionLevel":"Reserve"}))
 #Player1CP=Player1.newControlPanel()
 #Player1CP.display()
 Player1Legend=Player1.newLegendPlayer("Player1Legend",showAgents=True)
@@ -52,10 +53,10 @@ DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
-#aGrid.collectionOfCells.getWatchers()
+aGrid.collectionOfCells.getWatchers()
 
 
-myModel.iAm("Admin")
+myModel.iAm("Player 1")
 
 myModel.launch_withoutMqtt() 
 

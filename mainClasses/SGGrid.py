@@ -216,7 +216,10 @@ class SGGrid(SGGameSpace):
     
     #Return the cell
     def getCell(self,aCellName):
-        return self.collectionOfCells.getCell(self,aCellName)
+        return self.collectionOfCells.getCell(aCellName)
+    
+    def getFirstCell(self):
+        return self.getCell("cell0-0")
     
     #Return the from the coordonate
     def getCellFromCoordinates(self,x, y):

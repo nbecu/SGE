@@ -16,7 +16,6 @@ class SGUpdate():
     
     #Function to test if the game action could be use    
     def getAuthorize(self,anObject):
-        """NOT TESTED"""
         returnValue=True 
         if self.numberUsed+1>self.number:
             returnValue=False

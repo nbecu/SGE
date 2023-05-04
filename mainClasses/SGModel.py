@@ -885,8 +885,8 @@ class SGModel(QtWidgets.QMainWindow):
     def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None):
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue) 
     
-    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
-        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
+    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={}):
+        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue) 
     
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
