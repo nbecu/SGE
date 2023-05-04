@@ -20,6 +20,7 @@ from SGDashBoard import SGDashBoard
 
 
 from SGGrid import SGGrid
+from SGCell import SGCell
 from SGVoid import SGVoid
 from SGLegend import SGLegend
 
@@ -673,7 +674,7 @@ class SGModel(QtWidgets.QMainWindow):
         return player
 
 
-    #To get the player
+    #To get the current player
     def getCurrentPlayer(self):
         return self.currentPlayer
         """if len(self.timeManager.phases) < self.timeManager.currentPhase:
@@ -681,6 +682,11 @@ class SGModel(QtWidgets.QMainWindow):
             return thePhase.activePlayer
         else:
             return None"""
+        
+    #To get all the players
+    def getPlayer(self,playerName):
+        return self.players[playerName]
+
     
     #To create a Time Label
     def newTimeLabel(self,name='Rounds&Phases'):
@@ -886,6 +892,8 @@ class SGModel(QtWidgets.QMainWindow):
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue) 
     
     def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={}):
+        if anObjectType=='Cell':
+            anObjectType=SGCell
         return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue) 
     
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):

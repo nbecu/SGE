@@ -8,6 +8,7 @@ from SGGameSpace import SGGameSpace
 from SGLegendItem import SGLegendItem
 from SGCell import SGCell
 from SGGrid import SGGrid
+from gameAction.SGDelete import SGDelete
 #from gameAction import SGCreate
 #from SGCreate import getNumberUsed
 
@@ -396,6 +397,11 @@ class SGLegend(SGGameSpace):
             for aGameSpaceId in self.elementsPov:
                 for aPov in self.elementsPov[aGameSpaceId]:
                     self.elementsPov["deleteButton"][aPov]={name+" "+elementsAllowed:["all",Qt.yellow]}
+        elif elementsAllowed == "playerOnly":
+            thePlayer=self.model.getPlayer(self.playerName)
+            for action in thePlayer.gameActions:
+                if isinstance(action,SGDelete):
+                    print()
         else:
             for aGameSpaceId in self.elementsPov:
                 if aGameSpaceId != "agents" and aGameSpaceId!= "deleteButton":

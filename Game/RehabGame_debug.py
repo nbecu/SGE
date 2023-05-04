@@ -31,7 +31,10 @@ theFirstLegend=myModel.newLegendAdmin(showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.createCreateAction(Workers,3))
-Player1.addGameAction(myModel.createUpdateAction(aGrid.getFirstCell(),3,{"ProtectionLevel":"Reserve"}))
+Player1.addGameAction(myModel.createUpdateAction('Cell',20,{"Resource":"3"}))
+
+Player1.addGameAction(myModel.createUpdateAction("Cell",20,{"ProtectionLevel":"Reserve"}))
+#Player1.addGameAction(myModel.createUpdateAction(aGrid.getFirstCell(),'infinte',{"ProtectionLevel":"free"}))
 #Player1CP=Player1.newControlPanel()
 #Player1CP.display()
 Player1Legend=Player1.newLegendPlayer("Player1Legend",showAgents=True)

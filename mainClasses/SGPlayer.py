@@ -58,7 +58,6 @@ class SGPlayer():
             elements[grid]['agents'].update(AgentPOVs)
         agents=self.model.getAgents()
         goodKeys=self.getAttributs()
-        print(goodKeys)
         actions=self.gameActions
         for aAction in actions:
             if isinstance(aAction.anObject,SGAgent):
@@ -68,7 +67,7 @@ class SGPlayer():
             playerElements[grid_key] = {}  
             for cell_key, cell_value in grid_value['cells'].items(): 
                 if cell_key in goodKeys: 
-                    playerElements[grid_key]['cells'] = {cell_key: cell_value}  
+                    playerElements[grid_key]['cells'] = {cell_key: cell_value}  #! bug pour les POV Cells
             for agent_key, agent_value in grid_value['agents'].items(): 
                 if agent_key in goodKeys:  
                     playerElements[grid_key]['agents'] = {agent_key: agent_value} 
@@ -91,12 +90,9 @@ class SGPlayer():
     def getAttributs(self):
         attributs=[]
         for action in self.gameActions:
-            print(action)
-            print(action.anObject)
             if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove): #! cas des agents sans attributs
                 attributs.append(action.anObject.name)
-            if isinstance(action.anObject,SGCell) and isinstance(action,SGUpdate): #! cas des cellules
-                print("ok")
+            if (isinstance(action.anObject,SGCell) or action.anObject == SGCell) and isinstance(action,SGUpdate): #! cas des cellules
                 key=''.join(list(action.dictNewValues.keys()))
                 attributs.append(key)
         return attributs
@@ -124,12 +120,10 @@ class SGPlayer():
         return aGameAction
     
     def getGameActionOn(self,anItem):
-        """NOT TESTED"""
         #On cell
-        if isinstance(anItem,SGCell):
+        print(anItem)
+        if isinstance(anItem,SGCell) or anItem==SGCell:
             for aGameAction in self.gameActions :
-                print(self.gameActions)
-                print(aGameAction)
                 if not isinstance(aGameAction,SGMove):
                     #Creation of Cell
                     if isinstance(aGameAction,SGCreate) and (anItem.isDisplay==False) and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
@@ -155,8 +149,13 @@ class SGPlayer():
                     if isinstance(aGameAction,SGUpdate)and self.model.selected[2].find("Remove ")==-1 and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
                         return aGameAction
                     #Delete of an Agent
-                    elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
-                        return aGameAction
+                    elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] :
+                        if aGameAction.dictAttributs is not None:
+                            if self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
+                                return aGameAction
+                        else: 
+                            if self.model.selected[2] in list(self.model.agentSpecies.keys()):
+                                return aGameAction
                     
     def getMooveActionOn(self,anItem):
         """NOT TESTED"""
