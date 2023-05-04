@@ -100,7 +100,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.players={}
         self.currentPlayer=self.timeManager.phases[0].activePlayer
         #Wich instance is it 
-        self.whoIAm="Admin"
+        self.users=["Admin"]
         self.listOfSubChannel=[]
         self.timer= QTimer()
         self.haveToBeClose=False
@@ -935,8 +935,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.numberOfZoom = number    
         
     #To change the number of zoom we currently are
-    def iAm(self,aNameOfPlayer):
-        self.whoIAm=aNameOfPlayer
+    def iAm(self,listOfUsers):
+        self.users=listOfUsers
 
     #To open and launch the game without a mqtt broker
     def launch_withoutMqtt(self):

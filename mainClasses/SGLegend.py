@@ -340,7 +340,9 @@ class SGLegend(SGGameSpace):
         
     #Check if it have to be displayed
     def checkDisplay(self):
-        return self.model.whoIAm==self.playerName or self.forceDisplay 
+        if self.playerName in self.model.users :
+            return True
+        #return self.model.whoIAm==self.playerName or self.forceDisplay 
 
     #Get from wich grid an Agent is from to create the legend
     def getFromWich(self,anAgentName):
