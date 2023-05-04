@@ -889,17 +889,25 @@ class SGModel(QtWidgets.QMainWindow):
     #Game mechanics function 
     
     def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None,listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        if aNumber=="infinite":
+            aNumber=9999999
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         if anObjectType=='Cell':
             anObjectType=SGCell
+        if aNumber=="infinite":
+            aNumber=9999999
         return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        if aNumber=="infinite":
+            aNumber=9999999
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createMoveAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
+        if aNumber=="infinite":
+            aNumber=9999999
         return SGMove(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack,feedbackAgent,conditionOfFeedBackAgent) 
     
     #-----------------------------------------------------------  

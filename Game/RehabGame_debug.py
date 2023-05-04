@@ -30,7 +30,7 @@ Birds=myModel.newAgentSpecies("Birds","triangleAgent2",uniqueColor=Qt.yellow)
 theFirstLegend=myModel.newLegendAdmin(showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.createCreateAction(Workers,3))
+Player1.addGameAction(myModel.createCreateAction(Workers,"infinite"))
 Player1.addGameAction(myModel.createUpdateAction('Cell',20,{"Resource":"3"}))
 
 Player1.addGameAction(myModel.createUpdateAction("Cell",20,{"ProtectionLevel":"Reserve"}))
