@@ -36,7 +36,7 @@ Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
 Player2=myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.createUpdateAction("Cell",3,{"ProtectionLevel":"Reserve"}))
-Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
+#Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
 Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
 
 GameRounds=myModel.newTimeLabel()

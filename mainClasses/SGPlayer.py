@@ -64,13 +64,13 @@ class SGPlayer():
                 goodKeys.append(str(aAction.anObject))
         playerElements = {}  
         for grid_key, grid_value in elements.items():  
-            playerElements[grid_key] = {}  
-            for cell_key, cell_value in grid_value['cells'].items(): 
-                if cell_key in goodKeys: 
-                    playerElements[grid_key]['cells'] = {cell_key: cell_value}  #! bug pour les POV Cells
-            for agent_key, agent_value in grid_value['agents'].items(): 
-                if agent_key in goodKeys:  
-                    playerElements[grid_key]['agents'] = {agent_key: agent_value} 
+            playerElements[grid_key] = {'cells': {}, 'agents': {}}
+            for cell_key, cell_value in grid_value['cells'].items():
+                if cell_key in goodKeys:
+                    playerElements[grid_key]['cells'][cell_key] = cell_value
+            for agent_key, agent_value in grid_value['agents'].items():
+                if agent_key in goodKeys:
+                    playerElements[grid_key]['agents'][agent_key] = agent_value
         aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents)
         self.model.gameSpaces[Name]=aLegend
         #Realocation of the position thanks to the layout
