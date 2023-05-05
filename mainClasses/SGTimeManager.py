@@ -10,11 +10,11 @@ class SGTimeManager():
         self.currentPhase = 1
         self.phases=[]
         self.conditionOfEndGame=[]
-        self.newGamePhase('Initialisation',0)
+        self.newGamePhase('Initialisation',None)
         
     #To increment the time of the game
     def nextPhase(self):
-        if len(self.phases) != 0 and ((self.phases[self.currentPhase].activePlayer is not None and self.model.whoIAm==self.phases[self.currentPhase].activePlayer.name ) or self.model.whoIAm=="Admin") :
+        if len(self.phases) != 0 and ((self.model.currentPlayer is not None and  self.model.currentPlayer in self.model.users) or self.model.currentPlayer=="Admin") :
             end = self.checkEndGame()
             if not end :
                 if self.currentPhase+2 <= len(self.phases):
@@ -37,7 +37,6 @@ class SGTimeManager():
                     self.model.myTimeLabel.updateTimeLabel()
             
                 #we change the active player
-                self.model.currentPlayer=thePhase.activePlayer
                 if doThePhase :
                     #We make the change
                     if len(thePhase.modelActions) !=0:
@@ -73,18 +72,18 @@ class SGTimeManager():
 #Definiton of the methods who the modeler will use
 
     #To add a new Game Phase
-    def newGamePhase(self,name,activePlayer=None,modelActions=[]):
+    def newGamePhase(self,name,activePlayers,modelActions=[]):
         """
         To add a Game Phase in a round.
 
         args:
             name (str): Name displayed on the TimeLabel
-            activePlayer (?): Player concerned about the phase (default:None)
+            activePlayers : List of plays concerned about the phase (default:all)
             modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
         """
-        aPhase=SGTimePhase(name,activePlayer,modelActions)
-        if activePlayer == None :
-            self.model.currentPlayer=activePlayer
+        if activePlayers== None:
+            activePlayers=self.model.users
+        aPhase=SGTimePhase(name,activePlayers,modelActions)
         self.phases.append(aPhase)
         return aPhase
 
@@ -106,6 +105,7 @@ class SGTimeManager():
        
 
     def newGamePhase_adv(self,name,activePlayer=None,modelActions=[]):
+        #! OBSOLETE
         """
         To add a Game Phase in a round.
 

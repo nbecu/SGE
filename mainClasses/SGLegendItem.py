@@ -124,28 +124,29 @@ class SGLegendItem(QtWidgets.QWidget):
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
+            if self.legend.playerName==self.legend.model.currentPlayer:
             #Already selected
-            if self.legend.model.selected[0]==self :
-                self.legend.model.selected=[None]
-
-            #Selection of an item and suppresion of already selected Item
-            else :
-                if self.type!="None":
+                if self.legend.model.selected[0]==self :
                     self.legend.model.selected=[None]
-                    selectedItem=[self]
-                    selectedItem.append(self.type) 
-                    selectedItem.append(self.texte)
-                    if self.texte.find('Remove ')!=-1 :
-                        txt=self.texte.replace("Remove ","")
-                        txt=txt.replace(self.valueOfAttribut+" ","")
-                        selectedItem.append(txt)
-                        selectedItem.append(self.valueOfAttribut)
-                    else: 
-                        selectedItem.append(self.valueOfAttribut)
-                        selectedItem.append(self.nameOfAttribut)
-                    #selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
-                    self.legend.model.selected=selectedItem
-                    self.legend.model.update()
+
+                #Selection of an item and suppresion of already selected Item
+                else :
+                    if self.type!="None":
+                        self.legend.model.selected=[None]
+                        selectedItem=[self]
+                        selectedItem.append(self.type) 
+                        selectedItem.append(self.texte)
+                        if self.texte.find('Remove ')!=-1 :
+                            txt=self.texte.replace("Remove ","")
+                            txt=txt.replace(self.valueOfAttribut+" ","")
+                            selectedItem.append(txt)
+                            selectedItem.append(self.valueOfAttribut)
+                        else: 
+                            selectedItem.append(self.valueOfAttribut)
+                            selectedItem.append(self.nameOfAttribut)
+                        #selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
+                        self.legend.model.selected=selectedItem
+                        self.legend.model.update()
         self.update()
         
     #To handle the drag 

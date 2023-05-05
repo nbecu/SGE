@@ -203,7 +203,7 @@ class SGCell(QtWidgets.QWidget):
             #Something is selected
             if self.grid.model.selected[0]!=None :
                 #We search if the player have the rights
-                thePlayer=self.grid.model.getCurrentPlayer()
+                thePlayer=self.grid.model.getPlayerObject(self.grid.model.getCurrentPlayer())
                 authorisation=False
                 theAction = None
                 if self.grid.model.selected[0].isFromAdmin():

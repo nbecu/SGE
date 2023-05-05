@@ -27,20 +27,21 @@ Birds=myModel.newAgentSpecies("Birds","triangleAgent2",uniqueColor=Qt.yellow)
 
 
 
-theFirstLegend=myModel.newLegendAdmin(showAgents=True)
+theFirstLegend=myModel.newLegendAdmin("Légende globale",showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.createCreateAction(Workers,"infinite"))
-Player1.addGameAction(myModel.createUpdateAction('Cell',20,{"Resource":"3"}))
-Player1.addGameAction(myModel.createUpdateAction("Cell",20,{"ProtectionLevel":"Reserve"}))
-#Player1CP=Player1.newControlPanel()
-#Player1CP.display()
-Player1Legend=Player1.newLegendPlayer("Player1Legend",showAgents=True)
+Player1.addGameAction(myModel.createCreateAction(Workers,20))
+#Player1.addGameAction(myModel.createUpdateAction('Cell',20,{"Resource":"3"}))
+Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
+Player2=myModel.newPlayer("Player 2")
+Player2.addGameAction(myModel.createUpdateAction("Cell",3,{"ProtectionLevel":"Reserve"}))
+Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
+Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
 
 GameRounds=myModel.newTimeLabel()
-myModel.timeManager.newGamePhase('Phase 1',Player1)
-myModel.timeManager.newGamePhase('Phase 2',Player1)
+myModel.timeManager.newGamePhase('Phase 1',[Player1,Player2])
+myModel.timeManager.newGamePhase('Phase 2',[Player1,Player2])
 
 
 
@@ -53,11 +54,10 @@ DashBoard=myModel.newDashBoard()
 DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
-
 aGrid.collectionOfCells.getWatchers()
 
+userSelector=myModel.newUserSelector()
 
-myModel.iAm("Player 1")
 
 myModel.launch_withoutMqtt() 
 

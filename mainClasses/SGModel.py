@@ -17,6 +17,7 @@ from SGTimeManager import SGTimeManager
 from SGTimeLabel import SGTimeLabel
 from SGTextBox import SGTextBox
 from SGDashBoard import SGDashBoard
+from SGUserSelector import SGUserSelector
 
 
 from SGGrid import SGGrid
@@ -95,12 +96,13 @@ class SGModel(QtWidgets.QMainWindow):
         self.listOfPovsForMenu=[]
         self.AgentPOVs=self.getAgentPOVs()
         #To handle the flow of time in the game
+        self.users=["Admin"]
         self.timeManager=SGTimeManager(self)
         #List of players
         self.players={}
-        self.currentPlayer=self.timeManager.phases[0].activePlayer
+        self.currentPlayer="Admin"
         #Wich instance is it 
-        self.users=["Admin"]
+        
         self.listOfSubChannel=[]
         self.timer= QTimer()
         self.haveToBeClose=False
@@ -414,7 +416,7 @@ class SGModel(QtWidgets.QMainWindow):
             CellElements[grid]['agents'].update(AgentPOVs)
         agents=self.getAgents()
         aLegend = SGLegend(self,Name,CellElements,"Admin",agents,showAgents)
-        self.gameSpaces["adminLegend"]=aLegend
+        self.gameSpaces[Name]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aLegend)
         aLegend.setStartXBase(newPos[0])
@@ -459,6 +461,26 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies.isDisplay=False
         self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':uniqueColor,'POV':{},'selectedPOV':None}
         return aAgentSpecies
+    
+    def newUserSelector(self):
+        if len(self.users)>1 and len(self.players) >0:
+            userSelector = SGUserSelector(self,self.users)
+            self.gameSpaces["userSelector"]=userSelector
+            #Realocation of the position thanks to the layout
+            newPos=self.layoutOfModel.addGameSpace(userSelector)
+            userSelector.setStartXBase(newPos[0])
+            userSelector.setStartYBase(newPos[1])
+            if(self.typeOfLayout=="vertical"):
+                userSelector.move(userSelector.startXBase,userSelector.startYBase+20*self.layoutOfModel.getNumberOfAnElement(userSelector))
+            elif(self.typeOfLayout=="horizontal"):
+                userSelector.move(userSelector.startXBase+20*self.layoutOfModel.getNumberOfAnElement(userSelector),userSelector.startYBase)    
+            else:
+                pos=self.layoutOfModel.foundInLayout(userSelector)
+                userSelector.move(userSelector.startXBase+20*pos[0],userSelector.startYBase+20*pos[1])
+            self.applyPersonalLayout()
+            return userSelector
+        else:
+            print('You need to add players to the game')
     
     def updateIDincr(self,newValue):
         self.IDincr=newValue
@@ -671,6 +693,7 @@ class SGModel(QtWidgets.QMainWindow):
     def newPlayer(self,name):
         player=SGPlayer(self,name)
         self.players[name]=player
+        self.users.append(player.name)
         return player
 
 
@@ -682,6 +705,9 @@ class SGModel(QtWidgets.QMainWindow):
             return thePhase.activePlayer
         else:
             return None"""
+        
+    def getPlayerObject(self,playerName):
+        return self.players[playerName]
         
     #To get all the players
     def getPlayer(self,playerName):
@@ -935,7 +961,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.numberOfZoom = number    
         
     #To change the number of zoom we currently are
-    def iAm(self,listOfUsers):
+    def setUsers(self,listOfUsers):
         self.users=listOfUsers
 
     #To open and launch the game without a mqtt broker

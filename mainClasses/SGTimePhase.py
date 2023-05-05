@@ -1,9 +1,9 @@
 
 #Class who define a gaming phase
 class SGTimePhase():
-    def __init__(self,name,activePlayer=None,modelActions=[]):
+    def __init__(self,name,activePlayers,modelActions=[]):
         self.name=name
-        self.activePlayer=activePlayer
+        self.activePlayers=activePlayers
         if isinstance(modelActions, list):
             self.modelActions=modelActions
         else : 
@@ -15,8 +15,8 @@ class SGTimePhase():
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    def setActivePlayers(self,activePlayer):
-        self.activePlayer=activePlayer
+    def setActivePlayers(self,activePlayers):
+        self.activePlayers=activePlayers
     
     def setNextStepAction(self,nextStepAction):
         self.nextStepAction=nextStepAction
