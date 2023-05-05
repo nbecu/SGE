@@ -206,10 +206,10 @@ class SGCell(QtWidgets.QWidget):
                 thePlayer=self.grid.model.getPlayerObject(self.grid.model.getCurrentPlayer())
                 authorisation=False
                 theAction = None
-                if self.grid.model.selected[0].isFromAdmin():
+                if thePlayer == "Admin":
                     authorisation=True
 
-                elif thePlayer is not None :
+                elif thePlayer is not None and thePlayer != "Admin":
                     theAction=thePlayer.getGameActionOn(self)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)

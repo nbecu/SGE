@@ -707,7 +707,10 @@ class SGModel(QtWidgets.QMainWindow):
             return None"""
         
     def getPlayerObject(self,playerName):
-        return self.players[playerName]
+        if playerName == "Admin":
+            return playerName
+        else:
+            return self.players[playerName]
         
     #To get all the players
     def getPlayer(self,playerName):
