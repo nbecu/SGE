@@ -459,12 +459,19 @@ class SGModel(QtWidgets.QMainWindow):
         """
         aAgentSpecies=SGAgent(self,aSpeciesName,aSpeciesShape,aSpeciesDefaultSize,dictOfAttributs,None,me='collec',uniqueColor=uniqueColor)
         aAgentSpecies.isDisplay=False
-        self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':uniqueColor,'POV':{},'selectedPOV':None}
+        self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':uniqueColor,'POV':{},'selectedPOV':None,"defSpecies":aAgentSpecies}
         return aAgentSpecies
     
     def agentSpecie(self, aStrSpecie):
-        #send back the specie collec correspond to aStrSpecie)
-        return self.agentSpecies['Birds']
+        #send back the specie collec correspond to aStrSpecie
+        return self.agentSpecies[aStrSpecie]
+    
+    def getAgentSpecie(self,aStrSpecie):
+        for instance in SGAgent.instances:
+                if instance.me=='collec' and instance.name==aStrSpecie:
+                    AgentSpecie=instance
+                    break
+        return AgentSpecie
     
     def newUserSelector(self):
         if len(self.users)>1 and len(self.players) >0:

@@ -31,7 +31,7 @@ class SGAgent(QtWidgets.QWidget):
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.x=0
-        self.y=0   
+        self.y=0 
         #We define an owner by default
         self.owner="admin"    
         #We define variable to handle an history 
@@ -145,7 +145,7 @@ class SGAgent(QtWidgets.QWidget):
                 self.setGeometry(0,0,self.size+1,self.size*2+1)
                 painter.drawRect(0,0,self.size,self.size*2)
             elif self.format=="triangleAgent1": 
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                self.setGeometry(20,20,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
                 QPoint(0,self.size),
@@ -153,7 +153,7 @@ class SGAgent(QtWidgets.QWidget):
                 ])
                 painter.drawPolygon(points)
             elif self.format=="triangleAgent2": 
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                self.setGeometry(20,20,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(0,0),
                 QPoint(self.size,0),
@@ -234,12 +234,13 @@ class SGAgent(QtWidgets.QWidget):
             #Something is selected
             if self.model.selected[0]!=None :
                 #We search if the player have the rights
-                thePlayer=self.model.getCurrentPlayer()
+                thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
                 authorisation=False
-                theAction=None
-                if self.model.selected[0].isFromAdmin():
+                theAction = None
+                if thePlayer == "Admin":
                     authorisation=True
-                elif thePlayer is not None :
+
+                elif thePlayer is not None and thePlayer != "Admin":
                     theAction=thePlayer.getGameActionOn(self)
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
@@ -260,18 +261,18 @@ class SGAgent(QtWidgets.QWidget):
                 #Change the value of agent   
                 elif self.model.selected[1]== "circleAgent" or self.model.selected[1]=="squareAgent" or self.model.selected[1]== "ellipseAgent1" or self.model.selected[1]=="ellipseAgent2" or self.model.selected[1]== "rectAgent1" or self.model.selected[1]=="rectAgent2" or self.model.selected[1]== "triangleAgent1" or self.model.selected[1]=="triangleAgent2" or self.model.selected[1]== "arrowAgent1" or self.model.selected[1]=="arrowAgent2":
                     if  authorisation :
-                        if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.attributs])
+                        """if len(self.history["value"])==0:
+                            self.history["value"].append([0,0,self.attributs])"""
                         #We now check the feedBack of the actions if it have some
                         if theAction is not None:
                                 self.feedBack(theAction)
                         aDictWithValue={self.model.selected[4]:self.model.selected[3]}    
-                        for aVal in list(aDictWithValue.keys()) :
+                        """for aVal in list(aDictWithValue.keys()) :
                             if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.povs[self.model.nameOfPov].keys()):
                                         self.attributs.pop(anAttribute,None)
                                         self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.attributs])
-                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
+                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]"""
                         self.update()
                         
 
@@ -290,13 +291,14 @@ class SGAgent(QtWidgets.QWidget):
     
         if e.buttons() != Qt.LeftButton:
             return
-        thePlayer=self.model.getCurrentPlayer()
+        thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
         authorisation=False
-        theAction=None
-        if self.model.whoIAm=="Admin":
-            authorisation=true
-        elif thePlayer is not None :
-            theAction=thePlayer.getMooveActionOn(self)
+        theAction = None
+        if thePlayer == "Admin":
+            authorisation=True
+
+        elif thePlayer is not None and thePlayer != "Admin":
+            theAction=thePlayer.getGameActionOn(self)
             if theAction is not None:
                 authorisation=theAction.getAuthorize(self)
                 if authorisation : 
@@ -304,6 +306,8 @@ class SGAgent(QtWidgets.QWidget):
         
         if authorisation:
             print(str(self.x)+","+str(self.y))
+            print([self.cell.x,self.cell.y])
+            self.cell.updateDepartureAgent(self)
             mimeData = QMimeData()
 
             drag = QDrag(self)
@@ -373,10 +377,6 @@ class SGAgent(QtWidgets.QWidget):
                 oldAgent=theAgent
             else:
                 oldAgent=self
-            for instance in SGAgent.instances:
-                if instance.me=='collec' and instance.name==oldAgent.name:
-                    AgentSpecie=instance
-                    break
             if valueX == None and valueY==None:
                 # à partir du round 2 / 3, oldAgent.cell = None (lié à updateDepartureAgent() malgré l'update de OldAgentà chaque itération)
                 neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
@@ -386,8 +386,6 @@ class SGAgent(QtWidgets.QWidget):
                 newCell=aGrid.getCellFromCoordinates(valueX,valueY)
 
             theAgent = self.updateMoveAgent(oldAgent,oldAgent.cell,newCell)
-            
-            
         pass
 
     def updateMoveAgent(self,anAgent,departureCell,incomingCell):

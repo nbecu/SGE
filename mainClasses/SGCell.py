@@ -120,11 +120,11 @@ class SGCell(QtWidgets.QWidget):
         AgentSpecie=0
         e.accept()
         thePlayer=self.grid.model.getCurrentPlayer()
-        theAction=None
-        if thePlayer is not None :
+        """theAction=None
+        if thePlayer is not None and thePlayer =! "Admin":
             theAction=thePlayer.getMooveActionOn(e.source())
             if not self.grid.model.whoIAm=="Admin":
-                self.feedBack(theAction,e.source())
+                self.feedBack(theAction,e.source())"""
         oldAgent=e.source()
 
         for instance in SGAgent.instances:
@@ -134,6 +134,7 @@ class SGCell(QtWidgets.QWidget):
 
         theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
         theAgent.cell=self
+        self.updateIncomingAgent(theAgent)
         theAgent.show()
         
 
