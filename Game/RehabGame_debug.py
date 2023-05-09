@@ -6,9 +6,14 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
+
+#STEP1 Create the model
+
 myModel=SGModel(1800,900, windowTitle="dev project : Rehab Game", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(7,7,"square",size=60, gap=2,name='grid1')
+
+#STEP2 Create the model
+aGrid=myModel.newGrid(7,7,"square",size=60, gap=2,name='grid1') #,posXY=[20,90]
 aGrid.setValueCell("Resource","2")
 aGrid.setValueCell("ProtectionLevel","Free")
 aGrid.setRandomCells("Resource","3",7)

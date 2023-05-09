@@ -14,6 +14,7 @@ class SGCell(QtWidgets.QWidget):
         super().__init__(parent)
         #Basic initialize
         self.grid=parent
+        self.model= self.grid.model
         self.theCollection=theCollection
         self.x=x
         self.y=y
@@ -294,7 +295,9 @@ class SGCell(QtWidgets.QWidget):
                             if theAction is not None:
                                 self.feedBack(theAction)
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
+                           # theSpecie= self.model.agentSpecie(Species)
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
+                            
                             self.update()
                             self.grid.model.update()
 

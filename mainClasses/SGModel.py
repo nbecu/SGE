@@ -462,6 +462,10 @@ class SGModel(QtWidgets.QMainWindow):
         self.agentSpecies[str(aSpeciesName)]={"me":aAgentSpecies.me,"Shape":aSpeciesShape,"DefaultSize":aSpeciesDefaultSize,"AttributList":dictOfAttributs,'AgentList':{},'DefaultColor':uniqueColor,'POV':{},'selectedPOV':None}
         return aAgentSpecies
     
+    def agentSpecie(self, aStrSpecie):
+        #send back the specie collec correspond to aStrSpecie)
+        return self.agentSpecies['Birds']
+    
     def newUserSelector(self):
         if len(self.users)>1 and len(self.players) >0:
             userSelector = SGUserSelector(self,self.users)
@@ -633,6 +637,7 @@ class SGModel(QtWidgets.QMainWindow):
         locationCell=aCell
         anAgent=SGAgent(locationCell,aAgentSpecies.name,aAgentSpecies.format,aAgentSpecies.size,aAgentSpecies.dictOfAttributs,id=anAgentID,me='agent')
         anAgent.cell=locationCell
+        anAgent.cell.agents.append(anAgent)
         anAgent.isDisplay=True
         anAgent.species=str(aAgentSpecies.name)
         self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)]={"me":anAgent.me,'position':anAgent.cell,'species':anAgent.name,'size':anAgent.size,

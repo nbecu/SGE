@@ -384,15 +384,23 @@ class SGAgent(QtWidgets.QWidget):
 
             else:
                 newCell=aGrid.getCellFromCoordinates(valueX,valueY)
-            oldAgent.cell.updateDepartureAgent(oldAgent)
-            oldAgent.deleteLater()
-            theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,newCell.x,newCell.y,oldAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs']) 
-            newCell.updateIncomingAgent(theAgent)
-            theAgent.show()
+
+            theAgent = self.updateMoveAgent(oldAgent,oldAgent.cell,newCell)
+            
             
         pass
 
-
+    def updateMoveAgent(self,anAgent,departureCell,incomingCell):
+            departureCell.updateDepartureAgent(anAgent)
+            anAgent.deleteLater()
+            aGrid=incomingCell.grid
+            for instance in SGAgent.instances:
+                if instance.me=='collec' and instance.name==anAgent.name:
+                    AgentSpecie=instance
+            theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,incomingCell.x,incomingCell.y,anAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(anAgent.id)]['attributs']) 
+            incomingCell.updateIncomingAgent(theAgent)
+            theAgent.show()
+            return theAgent
                 
     #Function to check the ownership  of the agent          
     def isMine(self):
