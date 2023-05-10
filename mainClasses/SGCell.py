@@ -117,8 +117,6 @@ class SGCell(QtWidgets.QWidget):
         e.accept()
         
     def dropEvent(self, e):
-        oldAgent=0
-        AgentSpecie=0
         e.accept()
         thePlayer=self.grid.model.getCurrentPlayer()
         """theAction=None
@@ -138,7 +136,6 @@ class SGCell(QtWidgets.QWidget):
         self.updateIncomingAgent(theAgent)
         theAgent.show()
         
-
         e.setDropAction(Qt.MoveAction)
         e.accept()
         e.source().deleteLater()

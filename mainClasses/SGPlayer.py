@@ -159,12 +159,15 @@ class SGPlayer():
                                 return aGameAction
                     
     def getMooveActionOn(self,anItem):
-        """NOT TESTED"""
         if isinstance(anItem,SGAgent):
             for aGameAction in self.gameActions :
                 if isinstance(aGameAction,SGMove):
-                    #Moove an Angent
-                    for att in list(anItem.attributs.keys()) :
-                        if att in list(aGameAction.dictAttributs.keys()) : 
-                            if(anItem.attributs[att] in list(aGameAction.dictAttributs.values())[0]):
-                                return aGameAction
+                    # Move an Angent
+                    if aGameAction.dictAttributs is not None:
+                        for att in list(anItem.dictOfAttributs.keys()) :
+                            if att in list(aGameAction.dictAttributs.keys()) : 
+                                if(anItem.dictOfAttributs[att] in list(aGameAction.dictAttributs.values())[0]):
+                                    return aGameAction
+                    else:
+                        if anItem.species in list(self.model.agentSpecies.keys()):
+                            return aGameAction

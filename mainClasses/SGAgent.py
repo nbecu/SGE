@@ -256,7 +256,8 @@ class SGAgent(QtWidgets.QWidget):
                             if self.cell.agents[i] == self :
                                 self.cell.agents[i].deleteLater()
                                 del self.cell.agents[i]
-                                del self.model.agentSpecies[self.species]['AgentList'][str(self.id)]
+                                if self.species in self.model.agentSpecies and 'AgentList' in self.model.agentSpecies[self.species]:
+                                    self.model.agentSpecies[self.species]['AgentList'].pop('1', None)
                         self.update()
                 #Change the value of agent   
                 elif self.model.selected[1]== "circleAgent" or self.model.selected[1]=="squareAgent" or self.model.selected[1]== "ellipseAgent1" or self.model.selected[1]=="ellipseAgent2" or self.model.selected[1]== "rectAgent1" or self.model.selected[1]=="rectAgent2" or self.model.selected[1]== "triangleAgent1" or self.model.selected[1]=="triangleAgent2" or self.model.selected[1]== "arrowAgent1" or self.model.selected[1]=="arrowAgent2":
@@ -298,10 +299,12 @@ class SGAgent(QtWidgets.QWidget):
             authorisation=True
 
         elif thePlayer is not None and thePlayer != "Admin":
-            theAction=thePlayer.getGameActionOn(self) #!Get Move Action !! 
+            theAction=thePlayer.getMooveActionOn(self)  
             if theAction is not None:
                 authorisation=theAction.getAuthorize(self)
-                if authorisation : 
+                print('ok')
+                if authorisation :
+                    print('ok') 
                     theAction.use()
         
         if authorisation:

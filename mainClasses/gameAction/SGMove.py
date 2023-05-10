@@ -3,11 +3,11 @@ from mainClasses.SGCell import SGCell
 
 #Class who manage the game mechanics of mooving
 class SGMove():
-    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
+    def __init__(self,anObject,number,dictAttributs,restrictions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
-        self.aDictOfAcceptedValue=aDictOfAcceptedValue
+        self.dictAttributs=dictAttributs
         self.restrictions=restrictions
         if isinstance(anObject,SGAgent):
             self.name="Move "+str(anObject.getId())
