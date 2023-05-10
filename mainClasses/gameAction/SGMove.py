@@ -10,9 +10,9 @@ class SGMove():
         self.aDictOfAcceptedValue=aDictOfAcceptedValue
         self.restrictions=restrictions
         if isinstance(anObject,SGAgent):
-            self.name=anObject.getId()
+            self.name="Move "+str(anObject.getId())
         elif isinstance(anObject,SGCell):
-            self.name=anObject.grid
+            self.name="Move "+str(anObject.name)
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
         self.feedbackAgent=feedbackAgent

@@ -298,7 +298,7 @@ class SGAgent(QtWidgets.QWidget):
             authorisation=True
 
         elif thePlayer is not None and thePlayer != "Admin":
-            theAction=thePlayer.getGameActionOn(self)
+            theAction=thePlayer.getGameActionOn(self) #!Get Move Action !! 
             if theAction is not None:
                 authorisation=theAction.getAuthorize(self)
                 if authorisation : 
@@ -403,6 +403,9 @@ class SGAgent(QtWidgets.QWidget):
     #Function to check the ownership  of the agent          
     def isMine(self):
         return self.owner==self.model.actualPlayer
+    
+    def getId(self):
+        return self.id
     
     #Function to check the ownership  of the agent          
     def isMineOrAdmin(self):

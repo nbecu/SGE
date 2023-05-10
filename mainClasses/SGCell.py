@@ -18,6 +18,7 @@ class SGCell(QtWidgets.QWidget):
         self.theCollection=theCollection
         self.x=x
         self.y=y
+        self.name="cell"+str(x)+'-'+str(y)
         self.shape=format
         self.size=size
         self.gap=gap
