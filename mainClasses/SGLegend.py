@@ -8,6 +8,7 @@ from SGGameSpace import SGGameSpace
 from SGLegendItem import SGLegendItem
 from SGCell import SGCell
 from SGGrid import SGGrid
+from SGAgent import SGAgent
 from gameAction.SGDelete import SGDelete
 #from gameAction import SGCreate
 #from SGCreate import getNumberUsed
@@ -44,16 +45,37 @@ class SGLegend(SGGameSpace):
         self.legendItems["Title"].append(anItem)
         anItem.show()
         for aKeyOfGamespace in self.elementsPov :
-            if aKeyOfGamespace=="deleteButton":
-                added=set()
-                item_key = "Delete"
-                if item_key not in added:
-                    self.y=self.y+1
-                    anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
-                    self.legendItems[aKeyOfGamespace].append(anItem)
-                    added.add(item_key)
-                    anItem.show()
-            else:
+            if aKeyOfGamespace=="deleteButton" or aKeyOfGamespace=="deleteButtons":
+                if aKeyOfGamespace=="deleteButton":
+                    added=set()
+                    item_key = "Delete"
+                    if item_key not in added:
+                        self.y=self.y+1
+                        anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
+                        self.legendItems[aKeyOfGamespace].append(anItem)
+                        added.add(item_key)
+                        anItem.show()
+                if aKeyOfGamespace=="deleteButtons":
+                    aList=self.elementsPov[aKeyOfGamespace]
+                    added=set()
+                    for aButton in aList:
+                        item_key = aButton
+                        split=item_key.split()
+                        Species=self.model.getAgentSpecie(split[1])
+                        if  Species is not None:
+                            shape=Species.format
+                        else:
+                            shape='square'
+                        if item_key not in added:
+                            self.y=self.y+1
+                            anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"coucou","world")
+                            self.legendItems[aKeyOfGamespace].append(anItem)
+                            added.add(item_key)
+                            anItem.show()
+
+            
+
+            else: #elif aKeyOfGamespace !="deleteButton" or aKeyOfGamespace !='deleteButtons':
                 for entity in self.elementsPov[aKeyOfGamespace]:
                     if entity == 'cells':
                         added_items = set()
@@ -159,7 +181,7 @@ class SGLegend(SGGameSpace):
                                                 added_items.add(item_key)
 
                                             
-            if self.showAgents==True and aKeyOfGamespace !="deleteButton":
+            if self.showAgents==True and aKeyOfGamespace !="deleteButton" and aKeyOfGamespace != "deleteButtons":
                 added_species=set()
                 for Species in self.model.agentSpecies.keys():
                     item_key=Species
@@ -181,9 +203,7 @@ class SGLegend(SGGameSpace):
                             self.legendItems[aKeyOfGamespace].append(anItem)
                             anItem.show()
                             added_species.add(item_key)
-
-
-
+            
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
     
@@ -402,11 +422,6 @@ class SGLegend(SGGameSpace):
             for aGameSpaceId in self.elementsPov:
                 for aPov in self.elementsPov[aGameSpaceId]:
                     self.elementsPov["deleteButton"][aPov]={name+" "+elementsAllowed:["all",Qt.yellow]}
-        elif elementsAllowed == "playerOnly":
-            thePlayer=self.model.getPlayer(self.playerName)
-            for action in thePlayer.gameActions:
-                if isinstance(action,SGDelete):
-                    print()
         else:
             for aGameSpaceId in self.elementsPov:
                 if aGameSpaceId != "agents" and aGameSpaceId!= "deleteButton":

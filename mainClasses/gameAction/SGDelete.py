@@ -3,12 +3,12 @@ from mainClasses.SGCell import SGCell
 
 #Class who manage the game mechanics of delete
 class SGDelete():
-    def __init__(self,anObject,number,dictAttributs,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,anObject,number,dictAttValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
-        self.dictAttributs=dictAttributs
-        self.name="DeleteAction "+str(anObject)
+        self.dictAttValue=dictAttValue
+        self.name="Delete "+str(anObject.name)
         self.restrictions=restrictions
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack

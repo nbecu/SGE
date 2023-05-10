@@ -467,6 +467,7 @@ class SGModel(QtWidgets.QMainWindow):
         return self.agentSpecies[aStrSpecie]
     
     def getAgentSpecie(self,aStrSpecie):
+        AgentSpecie=None
         for instance in SGAgent.instances:
                 if instance.me=='collec' and instance.name==aStrSpecie:
                     AgentSpecie=instance
@@ -941,7 +942,7 @@ class SGModel(QtWidgets.QMainWindow):
             aNumber=9999999
         return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
-    def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+    def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None,listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
         if aNumber=="infinite":
             aNumber=9999999
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 

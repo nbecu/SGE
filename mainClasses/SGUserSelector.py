@@ -40,7 +40,7 @@ class SGUserSelector(SGGameSpace):
                 else:
                     self.model.currentPlayer = checkbox.text()
         self.model.update()
-        print(self.model.currentPlayer)
+        #print(self.model.currentPlayer)
 
     def mouseMoveEvent(self, e):
     

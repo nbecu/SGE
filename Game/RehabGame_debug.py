@@ -36,6 +36,7 @@ theFirstLegend=myModel.newLegendAdmin("Légende globale",showAgents=True)
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.createCreateAction(Workers,20))
+Player1.addGameAction(myModel.createDeleteAction(Workers,"infinite"))
 #Player1.addGameAction(myModel.createUpdateAction('Cell',20,{"Resource":"3"}))
 Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
@@ -59,7 +60,7 @@ DashBoard=myModel.newDashBoard()
 DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
-aGrid.collectionOfCells.getWatchers()
+#aGrid.collectionOfCells.getWatchers()
 
 userSelector=myModel.newUserSelector()
 

@@ -59,9 +59,10 @@ class SGPlayer():
         agents=self.model.getAgents()
         goodKeys=self.getAttributs()
         actions=self.gameActions
+        deleteButtons=[]
         for aAction in actions:
-            if isinstance(aAction.anObject,SGAgent):
-                goodKeys.append(str(aAction.anObject))
+            if isinstance(aAction,SGDelete):
+                deleteButtons.append(str(aAction.name))
         playerElements = {}  
         for grid_key, grid_value in elements.items():  
             playerElements[grid_key] = {'cells': {}, 'agents': {}}
@@ -71,6 +72,7 @@ class SGPlayer():
             for agent_key, agent_value in grid_value['agents'].items():
                 if agent_key in goodKeys:
                     playerElements[grid_key]['agents'][agent_key] = agent_value
+        playerElements["deleteButtons"]=deleteButtons
         aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents)
         self.model.gameSpaces[Name]=aLegend
         #Realocation of the position thanks to the layout
@@ -90,7 +92,7 @@ class SGPlayer():
     def getAttributs(self):
         attributs=[]
         for action in self.gameActions:
-            if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove): #! cas des agents sans attributs
+            if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove) :#and not isinstance (action,SGDelete) #! cas des agents sans attributs
                 attributs.append(action.anObject.name)
             if (isinstance(action.anObject,SGCell) or action.anObject == SGCell) and isinstance(action,SGUpdate): #! cas des cellules
                 key=''.join(list(action.dictNewValues.keys()))
@@ -121,7 +123,6 @@ class SGPlayer():
     
     def getGameActionOn(self,anItem):
         #On cell
-        print(anItem)
         if isinstance(anItem,SGCell) or anItem==SGCell:
             for aGameAction in self.gameActions :
                 if not isinstance(aGameAction,SGMove):
@@ -150,11 +151,11 @@ class SGPlayer():
                         return aGameAction
                     #Delete of an Agent
                     elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] :
-                        if aGameAction.dictAttributs is not None:
-                            if self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
+                        if aGameAction.dictAttValue is not None:
+                            if self.model.selected[3]in list(aGameAction.dictAttValue.values())[0] and self.model.selected[4]in list(aGameAction.dictAttValue.keys()) : 
                                 return aGameAction
                         else: 
-                            if self.model.selected[2] in list(self.model.agentSpecies.keys()):
+                            if self.model.selected[2].split()[1] in list(self.model.agentSpecies.keys()): #Cas des agents sans POV
                                 return aGameAction
                     
     def getMooveActionOn(self,anItem):
