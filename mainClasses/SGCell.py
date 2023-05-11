@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from SGAgent import SGAgent
+from gameAction.SGGameActions import SGGameActions
 import re
 
 
@@ -119,6 +120,7 @@ class SGCell(QtWidgets.QWidget):
     def dropEvent(self, e):
         e.accept()
         thePlayer=self.grid.model.getCurrentPlayer()
+        # ! cette partie est déplacée avant le déplacement
         """theAction=None
         if thePlayer is not None and thePlayer =! "Admin":
             theAction=thePlayer.getMooveActionOn(e.source())
@@ -202,7 +204,8 @@ class SGCell(QtWidgets.QWidget):
         if event.button() == Qt.LeftButton:
             #Something is selected
             if self.grid.model.selected[0]!=None :
-                #We search if the player have the rights
+                authorisation=SGGameActions.getActionPermission(self)
+                """#We search if the player have the rights
                 thePlayer=self.grid.model.getPlayerObject(self.grid.model.getCurrentPlayer())
                 authorisation=False
                 theAction = None
@@ -214,7 +217,7 @@ class SGCell(QtWidgets.QWidget):
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
                         if authorisation : 
-                            theAction.use()
+                            theAction.use()"""
          
                 #The delete Action
                 if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
@@ -222,8 +225,8 @@ class SGCell(QtWidgets.QWidget):
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
                         #We now check the feedBack of the actions if it have some
-                        if theAction is not None:
-                            self.feedBack(theAction)
+                        """if theAction is not None:
+                            self.feedBack(theAction)"""
                         if len(self.agents) !=0:
                             for i in reversed(range(len(self.collectionOfAgents.agents))):
                                 self.agents[i].deleteLater()
@@ -241,8 +244,8 @@ class SGCell(QtWidgets.QWidget):
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])
-                        if theAction is not None:
-                            self.feedBack(theAction)
+                        """if theAction is not None:
+                            self.feedBack(theAction)"""
                         if self.grid.model.selected[0].legend.id!="adminLegend":
                              self.owner=self.grid.model.currentPlayer
                         self.isDisplay=True
@@ -291,8 +294,8 @@ class SGCell(QtWidgets.QWidget):
                             Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
                         if self.isDisplay==True :
                             #We now check the feedBack of the actions if it have some
-                            if theAction is not None:
-                                self.feedBack(theAction)
+                            """if theAction is not None:
+                                self.feedBack(theAction)"""
                             theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                            # theSpecie= self.model.agentSpecie(Species)
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)

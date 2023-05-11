@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from sqlalchemy import true
 from PyQt5.QtWidgets import  QAction, QGraphicsRectItem, QGraphicsView, QGraphicsScene
 import random
+from gameAction.SGGameActions import SGGameActions
 
    
 #Class who is responsible of the declaration a Agent
@@ -153,7 +154,7 @@ class SGAgent(QtWidgets.QWidget):
                 ])
                 painter.drawPolygon(points)
             elif self.format=="triangleAgent2": 
-                self.setGeometry(20,20,self.size+1,self.size+1)
+                self.setGeometry(40,40,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(0,0),
                 QPoint(self.size,0),
@@ -233,7 +234,8 @@ class SGAgent(QtWidgets.QWidget):
         if QMouseEvent.button() == Qt.LeftButton:
             #Something is selected
             if self.model.selected[0]!=None :
-                #We search if the player have the rights
+                authorisation=SGGameActions.getActionPermission(self)
+                """#We search if the player have the rights
                 thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
                 authorisation=False
                 theAction = None
@@ -245,13 +247,13 @@ class SGAgent(QtWidgets.QWidget):
                     if theAction is not None:
                         authorisation=theAction.getAuthorize(self)
                         if authorisation : 
-                            theAction.use()
+                            theAction.use()"""
                 #The delete Action
                 if self.model.selected[2].split()[0]== "Delete" or self.model.selected[2].split()[0]== "Remove":
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
-                        if theAction is not None:
-                                self.feedBack(theAction)
+                        """if theAction is not None:
+                                self.feedBack(theAction)"""
                         for i in reversed(range(len(self.cell.agents))):
                             if self.cell.agents[i] == self :
                                 self.cell.agents[i].deleteLater()
@@ -265,8 +267,8 @@ class SGAgent(QtWidgets.QWidget):
                         """if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])"""
                         #We now check the feedBack of the actions if it have some
-                        if theAction is not None:
-                                self.feedBack(theAction)
+                        """if theAction is not None:
+                                self.feedBack(theAction)"""
                         aDictWithValue={self.model.selected[4]:self.model.selected[3]}    
                         """for aVal in list(aDictWithValue.keys()) :
                             if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
@@ -292,7 +294,8 @@ class SGAgent(QtWidgets.QWidget):
     
         if e.buttons() != Qt.LeftButton:
             return
-        thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
+        authorisation = SGGameActions.getMovePermission(self)
+        """thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
         authorisation=False
         theAction = None
         if thePlayer == "Admin":
@@ -305,7 +308,7 @@ class SGAgent(QtWidgets.QWidget):
                 print('ok')
                 if authorisation :
                     print('ok') 
-                    theAction.use()
+                    theAction.use()"""
         
         if authorisation:
             print(str(self.x)+","+str(self.y))

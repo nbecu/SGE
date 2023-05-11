@@ -29,6 +29,7 @@ from gameAction.SGCreate import SGCreate
 from gameAction.SGUpdate import SGUpdate
 from gameAction.SGDelete import SGDelete
 from gameAction.SGMove import SGMove
+from gameAction.SGGameActions import SGGameActions
 
 from layout.SGGridLayout import SGGridLayout
 from layout.SGHorizontalLayout import SGHorizontalLayout
@@ -931,11 +932,29 @@ class SGModel(QtWidgets.QMainWindow):
     #Game mechanics function 
     
     def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None,listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        """
+        Add a Create GameAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies or the keyword "Cell"
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        
+        """
         if aNumber=="infinite":
             aNumber=9999999
         return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        """
+        Add a Update GameAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies or the keyword "Cell"
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        
+        """
         if anObjectType=='Cell':
             anObjectType=SGCell
         if aNumber=="infinite":
@@ -943,11 +962,29 @@ class SGModel(QtWidgets.QMainWindow):
         return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None,listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
+        """
+        Add a Delete GameAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        
+        """
         if aNumber=="infinite":
             aNumber=9999999
         return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
     
     def createMoveAction(self,anObjectType,aNumber,aDictOfAcceptedValue=None,listOfRestriction=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
+        """
+        Add a MoveAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        
+        """
         if aNumber=="infinite":
             aNumber=9999999
         return SGMove(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack,feedbackAgent,conditionOfFeedBackAgent) 
