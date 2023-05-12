@@ -52,9 +52,9 @@ myModel.timeManager.newGamePhase('Phase 2',[Player1,Player2])
 
 
 
-TextBox=myModel.newTextBox(title='Début du jeu',textToWrite='Bonjour!')
+TextBox=myModel.newTextBox(title='Début du jeu',textToWrite='Testons un texte bien long pour voir si ça fonctionne bien')
 
-TextBox.addText("J'espère que vous allez bien!!!")
+TextBox.addText("Bonjour ! J'espère que vous allez bien!!!")
 TextBox.setTextColor()
 
 DashBoard=myModel.newDashBoard()

@@ -24,14 +24,16 @@ class SGTextBox(SGGameSpace):
         self.isDisplay=True
         self.history=[]
         self.textToWrite=textToWrite
+        self.new_text=None
+        self.theLayout=None
         self.initUI()
 
     def initUI(self):
-        self.labelTitle = QtWidgets.QLabel(self)
-        self.labelTitle.setText(self.title)
+        self.labelTitle = QtWidgets.QLabel(self.title)
+        #self.labelTitle.setText(self.title)
 
-        self.text = QtWidgets.QLabel(self)
-        self.text.setText(self.textToWrite)
+        self.text = QtWidgets.QLabel(self.textToWrite)
+        #self.text.setText(self.textToWrite)
 
         self.labels=[self.title,self.textToWrite]
         
@@ -42,9 +44,10 @@ class SGTextBox(SGGameSpace):
         self.text.setFixedHeight(self.text.fontMetrics().boundingRect(self.text.text()).height())
         self.text.setFixedWidth(self.text.fontMetrics().boundingRect(self.text.text()).width())
 
-
+        #if self.theLayout is None:
         # Créer un layout vertical
         layout = QtWidgets.QVBoxLayout()
+        self.theLayout = layout
 
         # Ajouter les widgets au layout avec un espace de 10 pixels entre eux
         layout.addWidget(self.labelTitle)
@@ -53,7 +56,10 @@ class SGTextBox(SGGameSpace):
 
         # Définir le layout pour le widget
         self.setLayout(layout)
-        self.move(0,0)
+        #self.move(0,0)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.updateLabel)
+        self.timer.start(1000)
         self.show()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -63,7 +69,7 @@ class SGTextBox(SGGameSpace):
 
     #Function to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        return 70+len(self.getLongest())*5
+        return 300+len(self.getLongest())*5
     
     def getLongest(self):
         longest_word = ''
@@ -73,7 +79,7 @@ class SGTextBox(SGGameSpace):
         return longest_word
     
     def getSizeYGlobal(self):
-        somme=30
+        somme=150
         for word in self.labels :
             somme= somme+ 2*len(word)
         return somme
@@ -123,19 +129,24 @@ class SGTextBox(SGGameSpace):
             menu.exec_(self.mapToGlobal(point))
 
     def addText(self, text, toTheLine=False):
-        # NE FONCTIONNE PAS
         if toTheLine == True:
             current_text = self.text.text()
-            new_text = current_text + '\n' + text
-            self.text.setText(new_text)
+            self.new_text = current_text + '\n' + text
+            #self.textToWrite = new_text
+            #self.text.setText(new_text)
         else:
             current_text = self.text.text()
-            new_text = current_text + ' ' + text
-            self.text.setText(new_text)
+            self.new_text = current_text + ' ' + text
+            #self.textToWrite = new_text
+            #self.text.setText(new_text)
 
-        self.updateGeometry()
-        self.update()
-
+    def updateLabel(self):
+        test="J'espère que vous allez bien!!!"
+        if self.new_text is not None:
+            self.text.setText(test)
+            self.textToWrite=self.new_text
+        else:
+            self.text(self.textToWrite)
     
     def setNewText(self,text):
         self.textToWrite=text
