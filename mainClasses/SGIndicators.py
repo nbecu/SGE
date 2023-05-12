@@ -29,7 +29,8 @@ class SGIndicators(QtWidgets.QWidget):
     def initUI(self):
         self.indicatorLayout = QtWidgets.QHBoxLayout()
         self.name=self.setName()
-        self.label = QtWidgets.QLabel(self.name)
+        self.label = QtWidgets.QTextEdit(self.name)
+        self.label.setReadOnly(True)
         self.indicatorLayout.addWidget(self.label)
 
     def setName(self):
