@@ -52,10 +52,10 @@ myModel.timeManager.newGamePhase('Phase 2',[Player1,Player2])
 
 
 
-TextBox=myModel.newTextBox(title='Début du jeu',textToWrite='Testons un texte bien long pour voir si ça fonctionne bien')
+TextBox=myModel.newTextBox(title='Début du jeu',textToWrite="Bonjour et bienvenue dans RehabGame !")
 
-TextBox.addText("Bonjour ! J'espère que vous allez bien!!!")
-TextBox.setTextColor()
+TextBox.addText("J'espère que vous allez bien!!!",toTheLine=True)
+#TextBox.setTextColor()
 
 DashBoard=myModel.newDashBoard()
 DashBoard.addIndicator("sumAtt",'cell','Resource')

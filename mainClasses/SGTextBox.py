@@ -29,47 +29,42 @@ class SGTextBox(SGGameSpace):
         self.initUI()
 
     def initUI(self):
-        self.labelTitle = QtWidgets.QLabel(self.title)
-        #self.labelTitle.setText(self.title)
-
-        self.text = QtWidgets.QLabel(self.textToWrite)
-        #self.text.setText(self.textToWrite)
-
-        self.labels=[self.title,self.textToWrite]
-        
-
-        
-        self.labelTitle.setFixedHeight(self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).height())
-        self.labelTitle.setFixedWidth(self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).width())
-        self.text.setFixedHeight(self.text.fontMetrics().boundingRect(self.text.text()).height())
-        self.text.setFixedWidth(self.text.fontMetrics().boundingRect(self.text.text()).width())
-
-        #if self.theLayout is None:
-        # Créer un layout vertical
-        layout = QtWidgets.QVBoxLayout()
-        self.theLayout = layout
-
-        # Ajouter les widgets au layout avec un espace de 10 pixels entre eux
-        layout.addWidget(self.labelTitle)
-        layout.addSpacing(10)
-        layout.addWidget(self.text)
-
-        # Définir le layout pour le widget
-        self.setLayout(layout)
-        #self.move(0,0)
-        self.timer = QTimer()
+        """self.timer = QTimer()
         self.timer.timeout.connect(self.updateLabel)
         self.timer.start(1000)
-        self.show()
+        self.show()"""
+
+        # Create a title
+        self.labelTitle = QtWidgets.QLabel(self.title)
+
+        # Create a QTextEdit
+        self.textEdit = QtWidgets.QTextEdit()
+        self.textEdit.setPlainText(self.textToWrite)
+        self.textEdit.setReadOnly(True)
+        font = QFont("Verdana", 12)
+        self.textEdit.setFont(font)
+
+        # Create a QPushButton to update the text
+        self.button = QtWidgets.QPushButton("Update Text")
+        self.button.clicked.connect(self.updateText)
+
+        # Create a QVBoxLayout to hold the QTextEdit and QPushButton
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.labelTitle)
+        layout.addWidget(self.textEdit)
+        layout.addWidget(self.button)
+
+        # Set the QVBoxLayout as the main layout for the widget
+        self.setLayout(layout)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_menu)
-        self.history.append(self.text.text())
+        self.history.append(self.textEdit.toPlainText())
 
 
     #Function to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        return 300+len(self.getLongest())*5
+        return 300#+len(self.getLongest())*5
     
     def getLongest(self):
         longest_word = ''
@@ -80,8 +75,8 @@ class SGTextBox(SGGameSpace):
     
     def getSizeYGlobal(self):
         somme=150
-        for word in self.labels :
-            somme= somme+ 2*len(word)
+        """for word in self.labels :
+            somme= somme+ 2*len(word)"""
         return somme
     
     def paintEvent(self,event):
@@ -129,25 +124,18 @@ class SGTextBox(SGGameSpace):
             menu.exec_(self.mapToGlobal(point))
 
     def addText(self, text, toTheLine=False):
+        self.textForHistory=text
         if toTheLine == True:
-            current_text = self.text.text()
-            self.new_text = current_text + '\n' + text
-            #self.textToWrite = new_text
-            #self.text.setText(new_text)
+            self.new_text = "\n\n"+text
         else:
-            current_text = self.text.text()
-            self.new_text = current_text + ' ' + text
-            #self.textToWrite = new_text
-            #self.text.setText(new_text)
-
-    def updateLabel(self):
-        test="J'espère que vous allez bien!!!"
-        if self.new_text is not None:
-            self.text.setText(test)
-            self.textToWrite=self.new_text
-        else:
-            self.text(self.textToWrite)
+            self.new_text=text
     
+    def updateText(self):
+        # Update the QTextEdit content
+        newText = self.textEdit.toPlainText() + self.new_text
+        self.textEdit.setPlainText(newText)
+        self.history.append(self.textForHistory)  
+
     def setNewText(self,text):
         self.textToWrite=text
 
