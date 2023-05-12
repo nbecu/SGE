@@ -29,6 +29,7 @@ class SGTextBox(SGGameSpace):
         self.initUI()
 
     def initUI(self):
+        # * Refresh par timer:
         """self.timer = QTimer()
         self.timer.timeout.connect(self.updateLabel)
         self.timer.start(1000)
@@ -64,20 +65,10 @@ class SGTextBox(SGGameSpace):
 
     #Function to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        return 300#+len(self.getLongest())*5
-    
-    def getLongest(self):
-        longest_word = ''
-        for word in self.labels:
-            if len(word) > len(longest_word):
-                longest_word = word
-        return longest_word
-    
+        return 300
+  
     def getSizeYGlobal(self):
-        somme=150
-        """for word in self.labels :
-            somme= somme+ 2*len(word)"""
-        return somme
+        return 150
     
     def paintEvent(self,event):
         painter = QPainter() 
@@ -146,11 +137,9 @@ class SGTextBox(SGGameSpace):
         self.sizeX=x
         self.sizeY=y
     
-    def setTextColor(self,color='red'):
-        self.text.setStyleSheet("color: "+color+';')
-
-    def setTextSize(self,size="20px"):
-        self.text.setStyleSheet("color: "+size+';')
+    def setTextFormat(self,fontName='Verdana',size=12):
+        font = QFont(fontName, size)
+        self.textEdit.setFont(font)
 
     def setTitleColor(self,color='red'):
         self.labelTitle.setStyleSheet("color: "+color+';')
@@ -162,4 +151,4 @@ class SGTextBox(SGGameSpace):
         del self.labelTitle
     
     def deleteText(self):
-        del self.text
+        del self.textEdit

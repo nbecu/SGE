@@ -183,13 +183,11 @@ class SGAgent(QtWidgets.QWidget):
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
-        """NOT TESTED"""
         self.size=round(self.size+(zoomFactor*10))
         self.update()
 
     #Funtion to handle the zoomOut
     def zoomOut(self,zoomFactor):
-        """NOT TESTED"""
         self.size=round(self.size-(zoomFactor*10))
         self.update()
 
@@ -235,19 +233,6 @@ class SGAgent(QtWidgets.QWidget):
             #Something is selected
             if self.model.selected[0]!=None :
                 authorisation=SGGameActions.getActionPermission(self)
-                """#We search if the player have the rights
-                thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
-                authorisation=False
-                theAction = None
-                if thePlayer == "Admin":
-                    authorisation=True
-
-                elif thePlayer is not None and thePlayer != "Admin":
-                    theAction=thePlayer.getGameActionOn(self)
-                    if theAction is not None:
-                        authorisation=theAction.getAuthorize(self)
-                        if authorisation : 
-                            theAction.use()"""
                 #The delete Action
                 if self.model.selected[2].split()[0]== "Delete" or self.model.selected[2].split()[0]== "Remove":
                     if  authorisation :
@@ -261,7 +246,8 @@ class SGAgent(QtWidgets.QWidget):
                                 if self.species in self.model.agentSpecies and 'AgentList' in self.model.agentSpecies[self.species]:
                                     self.model.agentSpecies[self.species]['AgentList'].pop('1', None)
                         self.update()
-                #Change the value of agent   
+                #Change the value of agent
+                # # ! à retravailler   
                 elif self.model.selected[1]== "circleAgent" or self.model.selected[1]=="squareAgent" or self.model.selected[1]== "ellipseAgent1" or self.model.selected[1]=="ellipseAgent2" or self.model.selected[1]== "rectAgent1" or self.model.selected[1]=="rectAgent2" or self.model.selected[1]== "triangleAgent1" or self.model.selected[1]=="triangleAgent2" or self.model.selected[1]== "arrowAgent1" or self.model.selected[1]=="arrowAgent2":
                     if  authorisation :
                         """if len(self.history["value"])==0:
@@ -295,20 +281,6 @@ class SGAgent(QtWidgets.QWidget):
         if e.buttons() != Qt.LeftButton:
             return
         authorisation = SGGameActions.getMovePermission(self)
-        """thePlayer=self.model.getPlayerObject(self.model.getCurrentPlayer())
-        authorisation=False
-        theAction = None
-        if thePlayer == "Admin":
-            authorisation=True
-
-        elif thePlayer is not None and thePlayer != "Admin":
-            theAction=thePlayer.getMooveActionOn(self)  
-            if theAction is not None:
-                authorisation=theAction.getAuthorize(self)
-                print('ok')
-                if authorisation :
-                    print('ok') 
-                    theAction.use()"""
         
         if authorisation:
             print(str(self.x)+","+str(self.y))

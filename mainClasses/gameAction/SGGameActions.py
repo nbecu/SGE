@@ -26,8 +26,6 @@ class SGGameActions():
             theAction=thePlayer.getMooveActionOn(aObject)  
             if theAction is not None:
                 authorisation=theAction.getAuthorize(aObject)
-                print('ok')
                 if authorisation :
-                    print('ok') 
                     theAction.use()
         return authorisation

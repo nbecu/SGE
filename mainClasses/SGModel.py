@@ -625,7 +625,6 @@ class SGModel(QtWidgets.QMainWindow):
 
             anAgent.show()
             self.update()
-            # print(self.agentSpecies)
         pass
 
     # To add an Agent with attributs values
@@ -714,11 +713,6 @@ class SGModel(QtWidgets.QMainWindow):
     #To get the current player
     def getCurrentPlayer(self):
         return self.currentPlayer
-        """if len(self.timeManager.phases) < self.timeManager.currentPhase:
-            thePhase=self.timeManager.phases[self.timeManager.currentPhase]
-            return thePhase.activePlayer
-        else:
-            return None"""
         
     def getPlayerObject(self,playerName):
         if playerName == "Admin":

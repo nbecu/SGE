@@ -70,7 +70,6 @@ class SGGrid(SGGameSpace):
         
     #Funtion to handle the zoom
     def zoomIn(self):
-        """NOT TESTED"""
         self.zoom=self.zoom*1.1
         self.gap=round(self.gap+(self.zoom*1))
         self.size=round(self.size+(self.zoom*10))
@@ -81,7 +80,6 @@ class SGGrid(SGGameSpace):
         self.update()
     
     def zoomOut(self):
-        """NOT TESTED"""
         self.zoom=self.zoom*0.9
         self.size=round(self.size-(self.zoom*10))
 

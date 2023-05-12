@@ -89,21 +89,18 @@ class SGCell(QtWidgets.QWidget):
 
     #Funtion to handle the zoom
     def zoomIn(self):
-        """NOT TESTED"""
         oldSize=self.size
         self.size=self.grid.size
         self.gap=self.grid.gap
         self.update()
     
     def zoomOut(self):
-        """NOT TESTED"""
         oldSize=self.size
         self.size=self.grid.size
         self.gap=self.grid.gap
         self.update()
         
     def zoomFit(self):
-        """NOT TESTED"""
         self.size=self.grid.size
         self.gap=self.grid.gap
         self.update()
@@ -119,13 +116,6 @@ class SGCell(QtWidgets.QWidget):
         
     def dropEvent(self, e):
         e.accept()
-        thePlayer=self.grid.model.getCurrentPlayer()
-        # ! cette partie est déplacée avant le déplacement
-        """theAction=None
-        if thePlayer is not None and thePlayer =! "Admin":
-            theAction=thePlayer.getMooveActionOn(e.source())
-            if not self.grid.model.whoIAm=="Admin":
-                self.feedBack(theAction,e.source())"""
         oldAgent=e.source()
 
         for instance in SGAgent.instances:
@@ -205,19 +195,6 @@ class SGCell(QtWidgets.QWidget):
             #Something is selected
             if self.grid.model.selected[0]!=None :
                 authorisation=SGGameActions.getActionPermission(self)
-                """#We search if the player have the rights
-                thePlayer=self.grid.model.getPlayerObject(self.grid.model.getCurrentPlayer())
-                authorisation=False
-                theAction = None
-                if thePlayer == "Admin":
-                    authorisation=True
-
-                elif thePlayer is not None and thePlayer != "Admin":
-                    theAction=thePlayer.getGameActionOn(self)
-                    if theAction is not None:
-                        authorisation=theAction.getAuthorize(self)
-                        if authorisation : 
-                            theAction.use()"""
          
                 #The delete Action
                 if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
@@ -363,7 +340,6 @@ class SGCell(QtWidgets.QWidget):
     
     #To get all of a kind of agent on a cell 
     def getAgents(self):
-        """NOT TESTED"""
         listOfAgents=[]
         for agent in self.agents:
            listOfAgents.append(agent)
@@ -371,7 +347,6 @@ class SGCell(QtWidgets.QWidget):
  
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
-        """NOT TESTED"""
         listOfAgents=[]
         for agent in self.agents:
             if agent.name ==nameOfSpecie:

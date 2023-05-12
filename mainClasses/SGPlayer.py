@@ -1,7 +1,7 @@
 from SGLegend import SGLegend
 from SGAgent import SGAgent
 from SGCell import SGCell
-from SGControlPanel import SGControlPanel
+
 from gameAction.SGDelete import SGDelete
 from gameAction.SGUpdate import SGUpdate
 from gameAction.SGCreate import SGCreate
@@ -17,26 +17,6 @@ class SGPlayer():
         self.name=name
         self.actions=actions
         self.gameActions=[]
-                    
-    def newControlPanel(self,name=None):
-        ControlPanel=SGControlPanel(self.model,self,name)
-        self.model.ControlPanel=ControlPanel
-        self.model.gameSpaces[name]=ControlPanel
-        #Realocation of the position thanks to the layout
-        newPos=self.model.layoutOfModel.addGameSpace(ControlPanel)
-        ControlPanel.setStartXBase(newPos[0])
-        ControlPanel.setStartYBase(newPos[1])
-        if(self.model.typeOfLayout=="vertical"):
-            ControlPanel.move(ControlPanel.startXBase,ControlPanel.startYBase+20*self.model.layoutOfModel.getNumberOfAnElement(ControlPanel))
-        elif(self.model.typeOfLayout=="horizontal"):
-            ControlPanel.move(ControlPanel.startXBase+20*self.model.layoutOfModel.getNumberOfAnElement(ControlPanel),ControlPanel.startYBase)    
-        else:
-            pos=self.model.layoutOfModel.foundInLayout(ControlPanel)
-            ControlPanel.move(ControlPanel.startXBase+20*pos[0],ControlPanel.startYBase+20*pos[1])
-
-        self.model.applyPersonalLayout()
-        return ControlPanel
-    
 
     def newLegendPlayer(self,Name,showAgents=False):
         """
@@ -111,14 +91,6 @@ class SGPlayer():
             self.gameActions.append(aGameAction)
         if isinstance(aGameAction,SGMove):
             self.gameActions.append(aGameAction)
-        """elif isinstance(aGameAction.anObject,SGCell):
-            theGrid=aGameAction.anObject.grid.id
-            aDict={theGrid:aGameAction.anObject.theCollection.povs}
-            self.Legend.addToTheLegend(aDict,aGameAction.dictAttributs)
-            self.gameActions.append(aGameAction)
-        elif isinstance(aGameAction.anObject,SGAgent):
-            self.Legend.addAgentToTheLegend(aGameAction.anObject.name,aGameAction.dictAttributs)
-            self.gameActions.append(aGameAction)   """
         return aGameAction
     
     def getGameActionOn(self,anItem):
