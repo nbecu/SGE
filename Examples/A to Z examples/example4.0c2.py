@@ -8,9 +8,9 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent", typeOfLayout ="grid")
 
 aGrid=myModel.newGrid(10,10,"square",size=60, gap=2,name='grid1')
-aGrid.setValueCell("landUse","grass")
-aGrid.setForX("landUse","forest",1)
-aGrid.setForX("landUse","forest",2)
+aGrid.setCells("landUse","grass")
+aGrid.setCells_withColumn("landUse","forest",1)
+aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
 myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})

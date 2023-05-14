@@ -11,7 +11,7 @@ import re
    
 #Class who is responsible of the declaration a cell
 class SGCell(QtWidgets.QWidget):
-    def __init__(self,parent,theCollection,x,y,format,size,gap,startXBase,startYBase):
+    def __init__(self,parent,theCollection,x,y,format,size,gap):
         super().__init__(parent)
         #Basic initialize
         self.grid=parent
@@ -27,10 +27,8 @@ class SGCell(QtWidgets.QWidget):
         self.saveGap=gap
         self.saveSize=size
         #We place the default pos
-        self.startXBase=startXBase
-        self.startYBase=startYBase
-        self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 
-        self.startY=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
+        self.startXBase=self.grid.startXBase
+        self.startYBase=self.grid.startYBase
         self.isDisplay=True
         #We init the dict of Attribute
         self.attributs={}
@@ -51,8 +49,10 @@ class SGCell(QtWidgets.QWidget):
         return self.shape
         
     def paintEvent(self,event):
-        self.startX=int(self.startXBase+self.gap*(self.x)+self.size*(self.x)+self.gap) 
-        self.startY=int(self.startYBase+self.gap*(self.y)+self.size*(self.y)+self.gap)
+        self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
+        self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
+        if (self.shape=="hexagonal"):
+            self.startY=self.startY+self.size/4
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -75,9 +75,9 @@ class SGCell(QtWidgets.QWidget):
                 QPoint(0, int(self.size/4))              
             ])
             painter.drawPolygon(points)
-            if(self.y%2!=1):
-                # y paires /  sachant que la première valeur de y est 0
-                self.move(self.startX  ,   int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+            if(self.y%2!=0):
+                # y impaires /  sachant que la première valeur de y est 1
+                self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
             else:
                 self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
                 
@@ -188,7 +188,18 @@ class SGCell(QtWidgets.QWidget):
     #To get the pov
     def getPov(self):
         return self.grid.model.nameOfPov
-         
+
+    #To handle the attributs and values
+    def setValue(self,aAttribut,aValue):
+        """
+        Sets the value of an attribut
+        Args:
+            aAttribut (str): Name of the attribute
+            aValue (str): Value to be set
+        """       
+        self.attributs[aAttribut]=aValue
+        
+             
     #To handle the selection of an element int the legend
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -210,8 +221,8 @@ class SGCell(QtWidgets.QWidget):
                                 del self.agents[i]
                         self.grid.collectionOfCells.removeVisiblityCell(self.getId())
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
-                        for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
-                            watcher.dashboard.updateIndicator(watcher)
+                        # for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                        #     watcher.dashboard.updateIndicator(watcher)
                         self.show()
                         self.repaint()    
 

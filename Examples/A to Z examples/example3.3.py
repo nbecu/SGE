@@ -8,9 +8,9 @@ myModel=SGModel(860,500, windowTitle="The VERY BIG moveable grid of hexagonal ce
 
 # You can change the specifications of the grid cells 
 aGrid=myModel.newGrid(12,8,"hexagonal",size=45, gap=2,moveable=True)
-aGrid.setValueCell("landUse","grass")
-aGrid.setForX("landUse","forest",1)
-aGrid.setForX("landUse","forest",2)
+aGrid.setCells("landUse","grass")
+aGrid.setCells_withColumn("landUse","forest",1)
+aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
 myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})

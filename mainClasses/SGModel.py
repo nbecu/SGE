@@ -535,7 +535,7 @@ class SGModel(QtWidgets.QMainWindow):
             ValueY=random.randint(0, aGrid.rows)
             if ValueY<0:
                 ValueY=+1
-        locationCell=aGrid.getCellFromCoordinates(ValueX,ValueY)
+        locationCell=aGrid.getCell(ValueX,ValueY)
 
         while locationCell is None:
             ValueX=random.randint(0, aGrid.columns)

@@ -14,8 +14,8 @@ myModel=SGModel(1800,900, windowTitle="dev project : Rehab Game", typeOfLayout =
 
 #STEP2 Create the model
 aGrid=myModel.newGrid(7,7,"square",size=60, gap=2,name='grid1') #,posXY=[20,90]
-aGrid.setValueCell("Resource","2")
-aGrid.setValueCell("ProtectionLevel","Free")
+aGrid.setCells("Resource","2")
+aGrid.setCells("ProtectionLevel","Free")
 aGrid.setRandomCells("Resource","3",7)
 aGrid.setRandomCells("Resource","1",3)
 aGrid.setRandomCells("Resource","0",8)

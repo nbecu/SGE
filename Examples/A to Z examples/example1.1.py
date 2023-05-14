@@ -7,12 +7,12 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(700,600, windowTitle="About pov (1)", typeOfLayout='vertical')
 
-myModel.newMessageBox('You can change the point of view (pov), using the "eye" menu in the top panel')
+myModel.newTextBox('You can change the point of view (pov), using the "eye" menu in the top panel')
 
 aGrid=myModel.newGrid(10,10,"square",Qt.gray,size=50)
-aGrid.setValueCell("landUse","grass")
-aGrid.setForX("landUse","forest",1)
-aGrid.setForX("landUse","forest",2)
+aGrid.setCells("landUse","grass")
+aGrid.setCells_withColumn("landUse","forest",1)
+aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
 #Pov (point of view), allow to specify different ways to view the state of the cells

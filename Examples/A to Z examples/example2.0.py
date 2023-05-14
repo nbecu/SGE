@@ -9,9 +9,9 @@ myModel=SGModel(860,700, windowTitle="About legend (1)")
 
 
 aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
-aGrid.setValueCell("landUse","grass")
-aGrid.setForX("landUse","forest",1)
-aGrid.setForX("landUse","forest",2)
+aGrid.setCells("landUse","grass")
+aGrid.setCells_withColumn("landUse","forest",1)
+aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
 myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})

@@ -10,7 +10,7 @@ from SGCell import SGCell
    
 #Class who is responsible of the declaration of cells
 class SGCellCollection():
-    def __init__(self,parent,rows,columns,format,size,gap,startXBase,startYBase):
+    def __init__(self,parent,rows,columns,format,size,gap):
         #Basic initialize
         self.grid=parent
         self.rows=rows
@@ -18,8 +18,6 @@ class SGCellCollection():
         self.format=format
         self.size=size
         self.gap=gap
-        self.startXBase=startXBase
-        self.startYBase=startYBase
         self.cells={}
         self.watchers={}
         #Initialize the different pov
@@ -31,14 +29,14 @@ class SGCellCollection():
         
     #Intialize all the cells who will be displayed
     def initUI(self):
-        for i in range(self.rows):
-            for j in range(self.columns):
-                aCell=SGCell(self.grid,self,i%self.rows,j%self.columns,self.format,self.size,self.gap,self.startXBase,self.startYBase)
+        for i in range(1, self.rows + 1):
+            for j in range(1, self.columns + 1):
+                aCell=SGCell(self.grid,self,i,j,self.format,self.size,self.gap)
                 self.cells[aCell.getId()]=aCell
        
     #To get all the cells of the collection 
     def getCells(self):
-        return self.cells.values()
+        return list(self.cells.values())
     
     #To get all the povs of the collection 
     def getPovs(self):
