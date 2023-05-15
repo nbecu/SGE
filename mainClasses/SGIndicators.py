@@ -17,7 +17,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.value=value
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
         self.entity=entity
-        self.calculus=0.0
+        #self.calculus=0.0
         self.name=name
         self.attribut=attribut
         self.y=y
@@ -28,25 +28,30 @@ class SGIndicators(QtWidgets.QWidget):
 
     def initUI(self):
         self.indicatorLayout = QtWidgets.QHBoxLayout()
-        self.name=self.setName()
+        calcValue=self.byMethod()
+        self.name=self.setName(calcValue)
         self.label = QtWidgets.QTextEdit(self.name)
+        self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.label.setReadOnly(True)
         self.indicatorLayout.addWidget(self.label)
 
-    def setName(self):
-        self.calculus=self.byMethod()
-        if self.name is None and self.value is not None:
-            self.name= self.method+' '+self.attribut+" "+self.value+" : "+str(self.calculus)
-        elif self.name is None:
-            self.name = self.method+' '+self.attribut+" : "+str(self.calculus)
-        return self.name
+    def setName(self,calcValue):
+        if self.value is not None:
+            aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
+        else:
+            aName = self.method+' '+self.attribut+" : "+str(calcValue)
+        return aName
 
+    def updateText(self):
+        newCalc=self.byMethod()
+        newText= self.setName(newCalc)
+        self.label.setPlainText(newText)
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
     
     def byMethod(self):
-        self.calculus=0.0
+        calcValue=0.0
         counter=0
         if self.entity=='cell':
             grids=self.dashboard.model.getGrids()
@@ -58,21 +63,21 @@ class SGIndicators(QtWidgets.QWidget):
                 if self.method == "sumAtt" or self.method =='avgAtt':
                     for cell in cells :
                         if cell.isDisplay ==True:
-                            self.calculus=self.calculus+float(cell.attributs[self.attribut])
+                            calcValue=calcValue+float(cell.attributs[self.attribut])
                     if self.method=='avgAtt':
-                        self.calculus=self.calculus/len((cells)) #! toutes ou juste visibles ?
+                        calcValue=round(calcValue/len((cells)),2) #! toutes ou juste visibles ?
                 if self.method == "minAtt" or self.method == "maxAtt":
                     if self.method == "minAtt":
                         for cell in cells:
                             if cell.isDisplay ==True:
                                 if float(cell.attributs[self.attribut])<valForMin:
-                                    self.calculus=float(cell.attributs[self.attribut])
+                                    calcValue=float(cell.attributs[self.attribut])
                                     valForMin=float(cell.attributs[self.attribut])
                     else:
                         for cell in cells:
                             if cell.isDisplay ==True:
                                 if float(cell.attributs[self.attribut])>valForMax:
-                                    self.calculus=float(cell.attributs[self.attribut])
+                                    calcValue=float(cell.attributs[self.attribut])
                                     valForMax=float(cell.attributs[self.attribut])
                 if self.method == "nbEqualTo" or  self.method == "nbWithLess" or self.method == "nbWithMore":
                     if self.method == "nbEqualTo":
@@ -80,33 +85,33 @@ class SGIndicators(QtWidgets.QWidget):
                             if cell.isDisplay ==True:
                                 if cell.attributs[self.attribut]==self.value:
                                     counter=counter+1
-                        self.calculus=counter
+                        calcValue=counter
                     if self.method == "nbWithLess":
                         for cell in cells:
                             if cell.isDisplay ==True:
                                 if cell.attributs[self.attribut]<self.value:
                                     counter=counter+1
-                        self.calculus=counter
+                        calcValue=counter
                     else:
                         for cell in cells:
                             if cell.isDisplay ==True:
                                 if cell.attributs[self.attribut]>self.value:
                                     counter=counter+1
-                        self.calculus=counter
+                        calcValue=counter
                 if self.method == "nb":
                     for cell in cells:
                         if cell.isDisplay ==True:
                             if cell.attributs[self.attribut]==self.value:
                                 counter=counter+1
-                    self.calculus=counter
-                return self.calculus
+                    calcValue=counter
+                return calcValue
 
 
         else:
             agents=self.dashboard.model.getAgents(species=self.entity)
             if self.method =='nb':
-                self.calculus=len(agents)
-                return self.calculus
+                calcValue=len(agents)
+                return calcValue
         
             
 

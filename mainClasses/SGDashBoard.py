@@ -31,11 +31,11 @@ class SGDashBoard(SGGameSpace):
     def showIndicators(self):
         # Delete all
         layout = self.layout
-        for i in reversed(range(layout.count())):
+        """for i in reversed(range(layout.count())):
             item = layout.itemAt(i)
             if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)): # Vérifiez si l'élément est dans la liste
                 layout.removeItem(item) # Supprimez l'élément du layout
-                del item # supprimez l'objet de la mémoire
+                del item # supprimez l'objet de la mémoire"""
             
         
         title=QtWidgets.QLabel(self.id)
@@ -43,13 +43,17 @@ class SGDashBoard(SGGameSpace):
         font.setBold(True)
         title.setFont(font)
         layout.addWidget(title)
-        layout.addSpacing(10)
         
         for indicator in self.indicators:
             layout.addLayout(indicator.indicatorLayout)
-            layout.addSpacing(10)
-        self.setLayout(layout)
+        
 
+        # Create a QPushButton to update the text
+        self.button = QtWidgets.QPushButton("Update Scores")
+        self.button.clicked.connect(lambda: [indicator.updateText() for indicator in self.indicators])
+        layout.addWidget(self.button)
+        
+        self.setLayout(layout)
 
             #Drawing the DB
     def paintEvent(self,event):
@@ -83,20 +87,7 @@ class SGDashBoard(SGGameSpace):
         self.IDincr=+1
         if entity == 'cell':
             self.setCellWatchers(attribut,indicator)
-
-    def updateIndicator(self,indicator):
-        theIndex=None
-        for index, objet in enumerate(self.indicators):
-            if objet==indicator:
-                theIndex=index
-                break
-        if theIndex is not None:
-            newIndicator=SGIndicators(self,indicator.y,indicator.name,indicator.method,indicator.attribut,indicator.value,indicator.entity,indicator.color)
-            self.indicators[theIndex]=newIndicator
-            self.indicatorNames[theIndex]=newIndicator.name
-            newIndicator.id=indicator.id
-
-    
+   
     def setCellWatchers(self,attribut,indicator):
         grids=self.model.getGrids()
         for grid in grids:
