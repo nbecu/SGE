@@ -18,6 +18,7 @@ from SGTimeLabel import SGTimeLabel
 from SGTextBox import SGTextBox
 from SGDashBoard import SGDashBoard
 from SGUserSelector import SGUserSelector
+from SGVictoryBoard import SGVictoryBoard
 
 
 from SGGrid import SGGrid
@@ -805,6 +806,29 @@ class SGModel(QtWidgets.QMainWindow):
         self.applyPersonalLayout()
 
         return aDashBoard
+
+    def newVictoryBoard(self,conditions,title='Victory Conditions'):
+        aVictoryBoard=SGVictoryBoard(self,title,conditions)
+        self.gameSpaces[title]=aVictoryBoard
+        #Realocation of the position thanks to the layout
+        newPos=self.layoutOfModel.addGameSpace(aVictoryBoard)
+        aVictoryBoard.setStartXBase(newPos[0])
+        aVictoryBoard.setStartYBase(newPos[1])
+        if(self.typeOfLayout=="vertical"):
+            aVictoryBoard.move(aVictoryBoard.startXBase,aVictoryBoard.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aVictoryBoard))
+        elif(self.typeOfLayout=="horizontal"):
+            aVictoryBoard.move(aVictoryBoard.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aVictoryBoard),aVictoryBoard.startYBase)    
+        else:
+            pos=self.layoutOfModel.foundInLayout(aVictoryBoard)
+            aVictoryBoard.move(aVictoryBoard.startXBase+20*pos[0],aVictoryBoard.startYBase+20*pos[1])
+        
+        self.applyPersonalLayout()
+
+        return aVictoryBoard
+    
+    def addVictoryConditions(self):
+        'IN PROGRESS'
+        pass
     
     
     def getCurrentRound(self):

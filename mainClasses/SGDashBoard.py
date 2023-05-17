@@ -10,7 +10,7 @@ from SGIndicators import SGIndicators
 #Class who is responsible of the Legend creation 
 class SGDashBoard(SGGameSpace):
     
-    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.lightGray,layout="vertical"):
+    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.white,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -49,9 +49,10 @@ class SGDashBoard(SGGameSpace):
         
 
         # Create a QPushButton to update the text
-        self.button = QtWidgets.QPushButton("Update Scores")
-        self.button.clicked.connect(lambda: [indicator.updateText() for indicator in self.indicators])
-        layout.addWidget(self.button)
+        if self.displayRefresh=='withButton':
+            self.button = QtWidgets.QPushButton("Update Scores")
+            self.button.clicked.connect(lambda: [indicator.updateText() for indicator in self.indicators])
+            layout.addWidget(self.button)
         
         self.setLayout(layout)
 

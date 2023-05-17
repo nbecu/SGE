@@ -65,6 +65,9 @@ DashBoard.showIndicators()
 
 userSelector=myModel.newUserSelector()
 
+victoryConditions=["test","test un peu plus long","test 3"]
+victoryBoard=myModel.newVictoryBoard(victoryConditions)
+
 
 myModel.launch_withoutMqtt() 
 

@@ -33,6 +33,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.label = QtWidgets.QTextEdit(self.name)
         self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.label.setReadOnly(True)
+        #self.label.setStyleSheet("border: none;")
         self.indicatorLayout.addWidget(self.label)
 
     def setName(self,calcValue):
@@ -46,6 +47,12 @@ class SGIndicators(QtWidgets.QWidget):
         newCalc=self.byMethod()
         newText= self.setName(newCalc)
         self.label.setPlainText(newText)
+    
+    def getUpdatePermission(self):
+        if self.dashboard.displayRefresh=='instantaneous':
+            return True
+        if self.dashboard.displayRefresh=='withButton':
+            return True
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
