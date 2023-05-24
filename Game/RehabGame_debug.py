@@ -37,7 +37,7 @@ theFirstLegend=myModel.newLegendAdmin("Légende globale",showAgents=True)
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.createCreateAction(Workers,20))
 Player1.addGameAction(myModel.createDeleteAction(Workers,"infinite"))
-#Player1.addGameAction(myModel.createUpdateAction('Cell',20,{"Resource":"3"}))
+Player1.addGameAction(myModel.createUpdateAction('Cell',3,{"Resource":"3"}))
 Player1.addGameAction(myModel.createMoveAction(Workers,1))
 Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 

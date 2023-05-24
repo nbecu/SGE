@@ -15,7 +15,7 @@ from gameAction.SGDelete import SGDelete
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):
-    def __init__(self,parent,name,elementPov,playerName,AgentList,showAgents=False,borderColor=Qt.black,backgroundColor=Qt.transparent):
+    def __init__(self,parent,name,elementPov,playerName,AgentList,showAgents=False,borderColor=Qt.black,backgroundColor=Qt.transparent,legendType="global"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
         self.model=parent
@@ -27,183 +27,360 @@ class SGLegend(SGGameSpace):
         self.borderColor=borderColor
         self.haveADeleteButton=False
         self.y=0
+        self.legendType=legendType
         self.initUI()
 
     # CURRENT VERSION
     def initUI(self):
-        self.y=0
-        for aKeyOfGamespace in self.elementsPov :
-            if aKeyOfGamespace in list(self.legendItems.keys()):
-                if len(self.legendItems[aKeyOfGamespace]) !=0:
-                    for anElement in reversed(range(len(self.legendItems[aKeyOfGamespace]))):
-                        self.legendItems[aKeyOfGamespace][anElement].deleteLater()
-                        del self.legendItems[aKeyOfGamespace][anElement]
-            self.legendItems[aKeyOfGamespace]=[]
-        self.y=self.y+1
-        anItem=SGLegendItem(self,"None",self.y,self.id)
-        self.legendItems["Title"]=[]
-        self.legendItems["Title"].append(anItem)
-        anItem.show()
-        for aKeyOfGamespace in self.elementsPov :
-            if aKeyOfGamespace=="deleteButton" or aKeyOfGamespace=="deleteButtons":
-                if aKeyOfGamespace=="deleteButton":
-                    added=set()
-                    item_key = "Delete"
-                    if item_key not in added:
-                        self.y=self.y+1
-                        anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
-                        self.legendItems[aKeyOfGamespace].append(anItem)
-                        added.add(item_key)
-                        anItem.show()
-                if aKeyOfGamespace=="deleteButtons":
-                    aList=self.elementsPov[aKeyOfGamespace]
-                    added=set()
-                    for aButton in aList:
-                        item_key = aButton
-                        split=item_key.split()
-                        Species=self.model.getAgentSpecie(split[1])
-                        if  Species is not None:
-                            shape=Species.format
-                        else:
-                            shape='square'
+        if self.legendType=="global":
+            self.y=0
+            for aKeyOfGamespace in self.elementsPov :
+                if aKeyOfGamespace in list(self.legendItems.keys()):
+                    if len(self.legendItems[aKeyOfGamespace]) !=0:
+                        for anElement in reversed(range(len(self.legendItems[aKeyOfGamespace]))):
+                            self.legendItems[aKeyOfGamespace][anElement].deleteLater()
+                            del self.legendItems[aKeyOfGamespace][anElement]
+                self.legendItems[aKeyOfGamespace]=[]
+            self.y=self.y+1
+            anItem=SGLegendItem(self,"None",self.y,self.id)
+            self.legendItems["Title"]=[]
+            self.legendItems["Title"].append(anItem)
+            anItem.show()
+            for aKeyOfGamespace in self.elementsPov :
+                if aKeyOfGamespace=="deleteButton" or aKeyOfGamespace=="deleteButtons":
+                    if aKeyOfGamespace=="deleteButton":
+                        added=set()
+                        item_key = "Delete"
                         if item_key not in added:
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"coucou","world")
+                            anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
                             self.legendItems[aKeyOfGamespace].append(anItem)
                             added.add(item_key)
                             anItem.show()
-
-            
-
-            else: #elif aKeyOfGamespace !="deleteButton" or aKeyOfGamespace !='deleteButtons':
-                for entity in self.elementsPov[aKeyOfGamespace]:
-                    if entity == 'cells':
-                        added_items = set()
-                        added_colors = set()
-                        grid=self.model.getGameSpace(aKeyOfGamespace)
-                        for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
-                            if aPov == self.model.nameOfPov:
-                                if aPov in grid.collectionOfCells.povs.keys():
-                                    currentPov=aPov
-                                    for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
-                                        for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
-                                            item_key=aAttribut +' '+ aValue
-                                            color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
-                                            if item_key not in added_items and color not in added_colors and color != Qt.transparent:
-                                                self.y=self.y+1
-                                                anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut)
-                                                self.legendItems[aKeyOfGamespace].append(anItem)
-                                                anItem.show()
-                                                added_items.add(item_key)
-                                                added_colors.add(color)
-                                if aPov in grid.collectionOfCells.borderPovs.keys():
-                                    currentPov=aPov
-                                    for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
-                                        for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
-                                            item_key=aAttribut +' '+ aValue
-                                            color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
-                                            if item_key not in added_items and color not in added_colors and color != Qt.transparent:
-                                                self.y=self.y+1
-                                                anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)
-                                                self.legendItems[aKeyOfGamespace].append(anItem)
-                                                anItem.show()
-                                                added_items.add(item_key)
-                                                added_colors.add(color)
-
+                    if aKeyOfGamespace=="deleteButtons":
+                        aList=self.elementsPov[aKeyOfGamespace]
+                        added=set()
+                        for aButton in aList:
+                            item_key = aButton
+                            split=item_key.split()
+                            Species=self.model.getAgentSpecie(split[1])
+                            if  Species is not None:
+                                shape=Species.format
                             else:
-                                if aPov in grid.collectionOfCells.povs.keys():
-                                    for aAtt in list(grid.collectionOfCells.povs[aPov].keys()):
-                                        for aVal in list(grid.collectionOfCells.povs[aPov][aAtt].keys()):
-                                            color=grid.collectionOfCells.povs[aPov][aAtt][aVal]
-                                            item_key = aAtt + aVal
-                                            if item_key not in added_items and color not in added_colors and color != Qt.transparent:
-                                                self.y=self.y+1
-                                                anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt)
-                                                self.legendItems[aKeyOfGamespace].append(anItem)
-                                                anItem.show()
-                                                added_items.add(item_key)
-                                                added_colors.add(color)
-                                if aPov in grid.collectionOfCells.borderPovs.keys():
-                                    for aAtt in list(grid.collectionOfCells.borderPovs[aPov].keys()):
-                                        for aVal in list(grid.collectionOfCells.borderPovs[aPov][aAtt].keys()):
-                                            color=grid.collectionOfCells.borderPovs[aPov][aAtt][aVal]
-                                            item_key = aAtt + aVal
-                                            if item_key not in added_items and color not in added_colors and color != Qt.black:
-                                                self.y=self.y+1
-                                                anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt,True)
-                                                self.legendItems[aKeyOfGamespace].append(anItem)
-                                                anItem.show()
-                                                added_items.add(item_key)
-                                                added_colors.add(color)                     
+                                shape='square'
+                            if item_key not in added:
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"coucou","world")
+                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                added.add(item_key)
+                                anItem.show()
 
-                    elif entity == 'agents':
-                        for anAgent in self.AgentList:
-                            for Species in self.elementsPov[aKeyOfGamespace]['agents'].keys():
-                                if anAgent.species == Species:
-                                    for aPov in self.elementsPov[aKeyOfGamespace]['agents'][Species].keys():
-                                        if aPov == self.model.nameOfPov:
-                                            print("current POV")
-                                            added_items = set()
-                                            for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
-                                                for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
-                                                    item_key = Species + anAtt + aValue
-                                                    if item_key not in added_items:
-                                                        text = Species +' : '+ anAtt +' : ' + aValue
-                                                        self.y = self.y + 1
-                                                        aColor = self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt][aValue]
-                                                        anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)
-                                                        self.legendItems[aKeyOfGamespace].append(anItem)
-                                                        anItem.show()
-                                                        added_items.add(item_key)
-                                                        print(added_items)
-                                                        
-                                                        
-                                        else:
-                                            print("other POV")
-                                            item_key= Species
-                                            text = Species
-                                            existed=False
-                                            print(added_items)
-                                            print('text : '+text)
-                                            for item in added_items:
-                                                print('déjà dans set : '+item)
-                                                if text in item:
-                                                    existed=True
-                                                    break
-                                            print(existed)
-                                            if item_key not in added_items and not existed:
-                                                print('on ajoute : '+item_key)
-                                                aColor = anAgent.color
-                                                self.y=self.y+1
-                                                anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, None,None)
-                                                self.legendItems[aKeyOfGamespace].append(anItem)
-                                                anItem.show()
-                                                added_items.add(item_key)
+                
 
-                                            
-            if self.showAgents==True and aKeyOfGamespace !="deleteButton" and aKeyOfGamespace != "deleteButtons":
-                added_species=set()
-                for Species in self.model.agentSpecies.keys():
-                    item_key=Species
-                    if self.playerName!="Admin":
-                        if item_key not in added_species and item_key in self.elementsPov[aKeyOfGamespace]['agents']:
-                            aColor=self.model.agentSpecies[Species]["DefaultColor"]
-                            text=Species
+                else: #elif aKeyOfGamespace !="deleteButton" or aKeyOfGamespace !='deleteButtons':
+                    for entity in self.elementsPov[aKeyOfGamespace]:
+                        if entity == 'cells':
+                            added_items = set()
+                            added_colors = set()
+                            grid=self.model.getGameSpace(aKeyOfGamespace)
+                            for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
+                                if aPov == self.model.nameOfPov:
+                                    if aPov in grid.collectionOfCells.povs.keys():
+                                        currentPov=aPov
+                                        for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
+                                            for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
+                                                item_key=aAttribut +' '+ aValue
+                                                color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
+                                                if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)
+                                    if aPov in grid.collectionOfCells.borderPovs.keys():
+                                        currentPov=aPov
+                                        for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
+                                            for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
+                                                item_key=aAttribut +' '+ aValue
+                                                color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
+                                                if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)
+
+                                else:
+                                    if aPov in grid.collectionOfCells.povs.keys():
+                                        for aAtt in list(grid.collectionOfCells.povs[aPov].keys()):
+                                            for aVal in list(grid.collectionOfCells.povs[aPov][aAtt].keys()):
+                                                color=grid.collectionOfCells.povs[aPov][aAtt][aVal]
+                                                item_key = aAtt + aVal
+                                                if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)
+                                    if aPov in grid.collectionOfCells.borderPovs.keys():
+                                        for aAtt in list(grid.collectionOfCells.borderPovs[aPov].keys()):
+                                            for aVal in list(grid.collectionOfCells.borderPovs[aPov][aAtt].keys()):
+                                                color=grid.collectionOfCells.borderPovs[aPov][aAtt][aVal]
+                                                item_key = aAtt + aVal
+                                                if item_key not in added_items and color not in added_colors and color != Qt.black:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt,True)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)                     
+
+                        elif entity == 'agents':
+                            for anAgent in self.AgentList:
+                                for Species in self.elementsPov[aKeyOfGamespace]['agents'].keys():
+                                    if anAgent.species == Species:
+                                        for aPov in self.elementsPov[aKeyOfGamespace]['agents'][Species].keys():
+                                            if aPov == self.model.nameOfPov:
+                                                print("current POV")
+                                                added_items = set()
+                                                for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
+                                                    for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
+                                                        item_key = Species + anAtt + aValue
+                                                        if item_key not in added_items:
+                                                            text = Species +' : '+ anAtt +' : ' + aValue
+                                                            self.y = self.y + 1
+                                                            aColor = self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt][aValue]
+                                                            anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)
+                                                            self.legendItems[aKeyOfGamespace].append(anItem)
+                                                            anItem.show()
+                                                            added_items.add(item_key)
+                                                            print(added_items)
+                                                            
+                                                            
+                                            else:
+                                                print("other POV")
+                                                item_key= Species
+                                                text = Species
+                                                existed=False
+                                                print(added_items)
+                                                print('text : '+text)
+                                                for item in added_items:
+                                                    print('déjà dans set : '+item)
+                                                    if text in item:
+                                                        existed=True
+                                                        break
+                                                print(existed)
+                                                if item_key not in added_items and not existed:
+                                                    print('on ajoute : '+item_key)
+                                                    aColor = anAgent.color
+                                                    self.y=self.y+1
+                                                    anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, None,None)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+
+                                                
+                if self.showAgents==True and aKeyOfGamespace !="deleteButton" and aKeyOfGamespace != "deleteButtons":
+                    added_species=set()
+                    for Species in self.model.agentSpecies.keys():
+                        item_key=Species
+                        if self.playerName!="Admin":
+                            if item_key not in added_species and item_key in self.elementsPov[aKeyOfGamespace]['agents']:
+                                aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                                text=Species
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                anItem.show()
+                                added_species.add(item_key)
+                        else:
+                            if item_key not in added_species and item_key:
+                                aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                                text=Species
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                anItem.show()
+                                added_species.add(item_key)
+
+        if self.legendType=='player':
+            self.y=0
+            for aKeyOfGamespace in self.elementsPov :
+                if aKeyOfGamespace in list(self.legendItems.keys()):
+                    if len(self.legendItems[aKeyOfGamespace]) !=0:
+                        for anElement in reversed(range(len(self.legendItems[aKeyOfGamespace]))):
+                            self.legendItems[aKeyOfGamespace][anElement].deleteLater()
+                            del self.legendItems[aKeyOfGamespace][anElement]
+                self.legendItems[aKeyOfGamespace]=[]
+            self.y=self.y+1
+            anItem=SGLegendItem(self,"None",self.y,self.id)
+            self.legendItems["Title"]=[]
+            self.legendItems["Title"].append(anItem)
+            anItem.show()
+            for aKeyOfGamespace in self.elementsPov :
+                if aKeyOfGamespace=="deleteButton" or aKeyOfGamespace=="deleteButtons":
+                    if aKeyOfGamespace=="deleteButton":
+                        added=set()
+                        item_key = "Delete"
+                        if item_key not in added:
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                            anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
                             self.legendItems[aKeyOfGamespace].append(anItem)
+                            added.add(item_key)
                             anItem.show()
-                            added_species.add(item_key)
-                    else:
-                        if item_key not in added_species and item_key:
-                            aColor=self.model.agentSpecies[Species]["DefaultColor"]
-                            text=Species
-                            self.y=self.y+1
-                            anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
-                            self.legendItems[aKeyOfGamespace].append(anItem)
-                            anItem.show()
-                            added_species.add(item_key)
-            
+                    if aKeyOfGamespace=="deleteButtons":
+                        aList=self.elementsPov[aKeyOfGamespace]
+                        added=set()
+                        for aButton in aList:
+                            item_key = aButton
+                            split=item_key.split()
+                            Species=self.model.getAgentSpecie(split[1])
+                            if  Species is not None:
+                                shape=Species.format
+                            else:
+                                shape='square'
+                            if item_key not in added:
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"coucou","world")
+                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                added.add(item_key)
+                                anItem.show()
+
+                
+
+                else: #elif aKeyOfGamespace !="deleteButton" or aKeyOfGamespace !='deleteButtons':
+                    for entity in self.elementsPov[aKeyOfGamespace]:
+                        if entity == 'cells':
+                            added_items = set()
+                            added_colors = set()
+                            grid=self.model.getGameSpace(aKeyOfGamespace)
+                            for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
+                                if aPov == self.model.nameOfPov:
+                                    if aPov in grid.collectionOfCells.povs.keys():
+                                        currentPov=aPov
+                                        for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
+                                            for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
+                                                item_key=aAttribut +' '+ aValue
+                                                color=grid.collectionOfCells.povs[currentPov][aAttribut][aValue]
+                                                if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)
+                                    if aPov in grid.collectionOfCells.borderPovs.keys():
+                                        currentPov=aPov
+                                        for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
+                                            for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
+                                                item_key=aAttribut +' '+ aValue
+                                                color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
+                                                if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)
+
+                                else:
+                                    if aPov in grid.collectionOfCells.povs.keys():
+                                        for aAtt in list(grid.collectionOfCells.povs[aPov].keys()):
+                                            for aVal in list(grid.collectionOfCells.povs[aPov][aAtt].keys()):
+                                                color=grid.collectionOfCells.povs[aPov][aAtt][aVal]
+                                                item_key = aAtt + aVal
+                                                if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)
+                                    if aPov in grid.collectionOfCells.borderPovs.keys():
+                                        for aAtt in list(grid.collectionOfCells.borderPovs[aPov].keys()):
+                                            for aVal in list(grid.collectionOfCells.borderPovs[aPov][aAtt].keys()):
+                                                color=grid.collectionOfCells.borderPovs[aPov][aAtt][aVal]
+                                                item_key = aAtt + aVal
+                                                if item_key not in added_items and color not in added_colors and color != Qt.black:
+                                                    self.y=self.y+1
+                                                    anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAtt +" "+ aVal,color,aVal,aAtt,True)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+                                                    added_colors.add(color)                     
+
+                        elif entity == 'agents':
+                            for anAgent in self.AgentList:
+                                for Species in self.elementsPov[aKeyOfGamespace]['agents'].keys():
+                                    if anAgent.species == Species:
+                                        for aPov in self.elementsPov[aKeyOfGamespace]['agents'][Species].keys():
+                                            if aPov == self.model.nameOfPov:
+                                                print("current POV")
+                                                added_items = set()
+                                                for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
+                                                    for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
+                                                        item_key = Species + anAtt + aValue
+                                                        if item_key not in added_items:
+                                                            text = Species +' : '+ anAtt +' : ' + aValue
+                                                            self.y = self.y + 1
+                                                            aColor = self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt][aValue]
+                                                            anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)
+                                                            self.legendItems[aKeyOfGamespace].append(anItem)
+                                                            anItem.show()
+                                                            added_items.add(item_key)
+                                                            print(added_items)
+                                                            
+                                                            
+                                            else:
+                                                print("other POV")
+                                                item_key= Species
+                                                text = Species
+                                                existed=False
+                                                print(added_items)
+                                                print('text : '+text)
+                                                for item in added_items:
+                                                    print('déjà dans set : '+item)
+                                                    if text in item:
+                                                        existed=True
+                                                        break
+                                                print(existed)
+                                                if item_key not in added_items and not existed:
+                                                    print('on ajoute : '+item_key)
+                                                    aColor = anAgent.color
+                                                    self.y=self.y+1
+                                                    anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, None,None)
+                                                    self.legendItems[aKeyOfGamespace].append(anItem)
+                                                    anItem.show()
+                                                    added_items.add(item_key)
+
+                                                
+                if self.showAgents==True and aKeyOfGamespace !="deleteButton" and aKeyOfGamespace != "deleteButtons":
+                    added_species=set()
+                    for Species in self.model.agentSpecies.keys():
+                        item_key=Species
+                        if self.playerName!="Admin":
+                            if item_key not in added_species and item_key in self.elementsPov[aKeyOfGamespace]['agents']:
+                                aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                                text=Species
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                anItem.show()
+                                added_species.add(item_key)
+                        else:
+                            if item_key not in added_species and item_key:
+                                aColor=self.model.agentSpecies[Species]["DefaultColor"]
+                                text=Species
+                                self.y=self.y+1
+                                anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
+                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                anItem.show()
+                                added_species.add(item_key)
+
+
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
 

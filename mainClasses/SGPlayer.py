@@ -38,6 +38,7 @@ class SGPlayer():
             elements[grid]['agents'].update(AgentPOVs)
         agents=self.model.getAgents()
         goodKeys=self.getAttributs()
+        thePov=self.getPov()
         actions=self.gameActions
         deleteButtons=[]
         for aAction in actions:
@@ -47,13 +48,16 @@ class SGPlayer():
         for grid_key, grid_value in elements.items():  
             playerElements[grid_key] = {'cells': {}, 'agents': {}}
             for cell_key, cell_value in grid_value['cells'].items():
-                if cell_key in goodKeys:
-                    playerElements[grid_key]['cells'][cell_key] = cell_value
+                for aPov, aDict in thePov.items():
+                    for testAtt, testVal in aDict.items():
+                        if cell_key in goodKeys:
+                            newDict={testAtt:testVal}
+                            playerElements[grid_key]['cells'][aPov]=newDict
             for agent_key, agent_value in grid_value['agents'].items():
                 if agent_key in goodKeys:
                     playerElements[grid_key]['agents'][agent_key] = agent_value
         playerElements["deleteButtons"]=deleteButtons
-        aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents)
+        aLegend = SGLegend(self.model,Name,playerElements,self.name,agents,showAgents,legendType="player")
         self.model.gameSpaces[Name]=aLegend
         #Realocation of the position thanks to the layout
         newPos=self.model.layoutOfModel.addGameSpace(aLegend)
@@ -75,9 +79,20 @@ class SGPlayer():
             if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove) :#and not isinstance (action,SGDelete) #! cas des agents sans attributs
                 attributs.append(action.anObject.name)
             if (isinstance(action.anObject,SGCell) or action.anObject == SGCell) and isinstance(action,SGUpdate): #! cas des cellules
+                print(action.name)
+                print(action.dictNewValues)
                 key=''.join(list(action.dictNewValues.keys()))
+                print(key)
                 attributs.append(key)
         return attributs
+    
+    def getPov(self):
+        thePov={}
+        for action in self.gameActions:
+            if (isinstance(action.anObject,SGCell) or action.anObject == SGCell) and isinstance(action,SGUpdate): #! cas des cellules
+                aPov=self.model.getPovWithAttribut(list(action.dictNewValues.keys())[0])
+                thePov[aPov]=action.dictNewValues
+        return thePov
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
     

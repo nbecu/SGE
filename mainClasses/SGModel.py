@@ -955,6 +955,14 @@ class SGModel(QtWidgets.QMainWindow):
                 list_POV[species].update(self.agentSpecies[species]['POV'])
         self.AgentPOVs=list_POV
         return self.AgentPOVs
+    
+    def getPovWithAttribut(self,attribut):
+        for aGrid in self.getGrids():
+            for aPov in aGrid.collectionOfCells.povs:
+                for anAttribut in aGrid.collectionOfCells.povs[aPov].keys():
+                    if attribut==anAttribut:
+                        return aPov
+
  
     #-----------------------------------------------------------  
     #TimeManager functions
