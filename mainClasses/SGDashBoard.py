@@ -10,7 +10,7 @@ from SGIndicators import SGIndicators
 #Class who is responsible of the Legend creation 
 class SGDashBoard(SGGameSpace):
     
-    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.white,layout="vertical"):
+    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.white,textColor=Qt.black,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -18,6 +18,7 @@ class SGDashBoard(SGGameSpace):
         self.indicators=[]
         self.borderColor=borderColor
         self.backgroundColor=backgroundColor
+        self.textColor=textColor
         self.y=0
         self.isDisplay=True
         self.displayRefresh=displayRefresh
@@ -42,6 +43,9 @@ class SGDashBoard(SGGameSpace):
         font = QFont()
         font.setBold(True)
         title.setFont(font)
+        color = QColor(self.textColor)
+        color_string = f"color: {color.name()};"
+        title.setStyleSheet(color_string)
         layout.addWidget(title)
         
         for indicator in self.indicators:
@@ -79,7 +83,8 @@ class SGDashBoard(SGGameSpace):
             return False
         
 
-    def addIndicator(self,method,entity,attribut,value=None,indicatorName=None,color=Qt.black):
+    def addIndicator(self,method,entity,attribut,value=None,indicatorName=None):
+        color=self.textColor
         self.y=self.y+1
         indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
         self.indicatorNames.append(indicator.name)

@@ -1,5 +1,6 @@
 from SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
+from PyQt5.QtWidgets import QHBoxLayout
 
 #Class that handle the overall management of time 
 class SGTimeManager():
@@ -20,7 +21,8 @@ class SGTimeManager():
                 if self.currentPhase+2 <= len(self.phases):
                     if len(self.phases)!=1:
                         self.currentPhase = self.currentPhase +1
-                        self.model.myTimeLabel.updateTimeLabel()
+                        if self.model.myTimeLabel is not None :
+                            self.model.myTimeLabel.updateTimeLabel()
 
                 else:
                     #We reset GM
@@ -34,7 +36,9 @@ class SGTimeManager():
                 doThePhase=True
                 if self.currentPhase == 1 and len(self.phases) > 1:
                     self.currentRound += 1
-                    self.model.myTimeLabel.updateTimeLabel()
+                    if self.model.myTimeLabel is not None :
+                        self.model.myTimeLabel.updateTimeLabel()
+                    self.model.myUserSelector.updateUI(QHBoxLayout())
             
                 #we change the active player
                 if doThePhase :

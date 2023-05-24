@@ -17,19 +17,23 @@ class SGUserSelector(SGGameSpace):
         self.checkboxes = []
         title = QLabel("User Selector")
         layout.addWidget(title)
+        self.updateUI(layout)
+        self.setLayout(layout)
 
-
+    def updateUI(self,layout):
         for user in self.users:
             checkbox = QCheckBox(user, self)
             if user == self.model.currentPlayer:
                 checkbox.setChecked(True)
                 #self.previousChecked = checkbox
+            authorizedPlayers = self.getAuthorizePlayers()
+            if user not in authorizedPlayers:
+                checkbox.setEnabled(False)
             checkbox.stateChanged.connect(self.checkstate)
             self.checkboxes.append(checkbox)
             layout.addWidget(checkbox)
             layout.addSpacing(5)
 
-        self.setLayout(layout)
 
     def checkstate(self, state):
         sender = self.sender()
@@ -41,6 +45,21 @@ class SGUserSelector(SGGameSpace):
                     self.model.currentPlayer = checkbox.text()
         self.model.update()
         #print(self.model.currentPlayer)
+    
+    def getAuthorizePlayers(self):
+        phase=self.model.timeManager.phases[self.model.getCurrentPhase()]
+        if phase.name != 'Initialisation':
+            print(phase)
+            print(phase.activePlayers)
+            players=phase.activePlayers
+            authorizedPlayers=[]
+            for player in players:
+                authorizedPlayers.append(player.name)
+                print(authorizedPlayers)
+            return authorizedPlayers
+        else:
+            return self.model.users
+
 
     def mouseMoveEvent(self, e):
     

@@ -8,11 +8,12 @@ from SGGameSpace import SGGameSpace
 
 #Class who is responsible of the Legend creation 
 class SGTimeLabel(SGGameSpace):
-    def __init__(self,parent,name,borderColor=Qt.black,backgroundColor=Qt.darkGray):
+    def __init__(self,parent,name,backgroundColor=Qt.darkGray,borderColor=Qt.black,textColor=Qt.red):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.id=name
         self.timeManager=parent.timeManager
         self.borderColor=borderColor
+        self.textColor=textColor
         self.y=0
         self.labels=0
         self.moveable=True
@@ -33,6 +34,13 @@ class SGTimeLabel(SGGameSpace):
         self.label2.setText('Phase Number: Not started')
         currentPhase=self.timeManager.phases[int(self.timeManager.currentPhase)-1]
         self.label3.setText(currentPhase.name)
+
+        color = QColor(self.textColor)
+        color_string = f"color: {color.name()};"
+        self.labelTitle.setStyleSheet(color_string)
+        self.label1.setStyleSheet(color_string)
+        self.label2.setStyleSheet(color_string)
+        self.label3.setStyleSheet(color_string)
 
         self.labels=['IN-GAME TIME','Round number: 0','Phase number: 0','Phase name']
 

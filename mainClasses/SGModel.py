@@ -103,7 +103,9 @@ class SGModel(QtWidgets.QMainWindow):
         #List of players
         self.players={}
         self.currentPlayer="Admin"
-        #Wich instance is it 
+        
+        self.myUserSelector=None
+        self.myTimeLabel=None
         
         self.listOfSubChannel=[]
         self.timer= QTimer()
@@ -479,6 +481,7 @@ class SGModel(QtWidgets.QMainWindow):
     def newUserSelector(self):
         if len(self.users)>1 and len(self.players) >0:
             userSelector = SGUserSelector(self,self.users)
+            self.myUserSelector=userSelector
             self.gameSpaces["userSelector"]=userSelector
             #Realocation of the position thanks to the layout
             newPos=self.layoutOfModel.addGameSpace(userSelector)
@@ -727,14 +730,17 @@ class SGModel(QtWidgets.QMainWindow):
 
     
     #To create a Time Label
-    def newTimeLabel(self,name='Rounds&Phases'):
+    def newTimeLabel(self,name="Phases&Rounds",backgroundColor=Qt.white,borderColor=Qt.black,textColor=Qt.black):
         """
         Create the visual time board of the game
 
         Args:
-        name (str) : name of the widget (default: "Rounds&Phases")
+        name (str) : name of the widget (default:"Phases&Rounds")
+        backgroundColor (Qt Color) : color of the background (default : Qt.white)
+        borderColor (Qt Color) : color of the border (default : Qt.black)
+        textColor (Qt Color) : color of the text (default : Qt.black)
         """
-        aTimeLabel=SGTimeLabel(self,name)
+        aTimeLabel=SGTimeLabel(self,name,backgroundColor,borderColor,textColor)
         self.myTimeLabel=aTimeLabel
         self.gameSpaces[name]=aTimeLabel
         #Realocation of the position thanks to the layout
@@ -788,8 +794,18 @@ class SGModel(QtWidgets.QMainWindow):
         for aTextBox in TextBoxes:
             print(str(aTextBox.id)+' : '+str(aTextBox.history))
     
-    def newDashBoard(self,title='DashBoard',displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.transparent):
-        aDashBoard=SGDashBoard(self,title,displayRefresh,borderColor,backgroundColor)
+    def newDashBoard(self,title='DashBoard',displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.transparent,textColor=Qt.black):
+        """
+        Create the score board of the game
+
+        Args:
+        title (str) : title of the widget (default:"Phases&Rounds")
+        displayRefresh (str) : type of refresh (default:'instantaneous')
+        backgroundColor (Qt Color) : color of the background (default : Qt.transparent)
+        borderColor (Qt Color) : color of the border (default : Qt.black)
+        textColor (Qt Color) : color of the text (default : Qt.black)
+        """
+        aDashBoard=SGDashBoard(self,title,displayRefresh,borderColor,backgroundColor,textColor)
         self.gameSpaces[title]=aDashBoard
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aDashBoard)

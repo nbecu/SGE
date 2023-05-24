@@ -33,7 +33,9 @@ class SGIndicators(QtWidgets.QWidget):
         self.label = QtWidgets.QTextEdit(self.name)
         self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.label.setReadOnly(True)
-        #self.label.setStyleSheet("border: none;")
+        color = QColor(self.dashboard.textColor)
+        color_string = f"color: {color.name()};"
+        self.label.setStyleSheet(color_string)
         self.indicatorLayout.addWidget(self.label)
 
     def setName(self,calcValue):

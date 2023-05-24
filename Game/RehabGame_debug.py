@@ -46,9 +46,10 @@ Player2.addGameAction(myModel.createUpdateAction("Cell",3,{"ProtectionLevel":"Re
 #Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
 Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
 
-GameRounds=myModel.newTimeLabel()
+GameRounds=myModel.newTimeLabel("My Game Time",Qt.white,Qt.black,Qt.red)
 myModel.timeManager.newGamePhase('Phase 1',[Player1,Player2])
-myModel.timeManager.newGamePhase('Phase 2',[Player1,Player2])
+myModel.timeManager.newGamePhase('Phase 2',[Player1])
+myModel.currentPlayer='Player 1'
 
 
 
@@ -57,7 +58,7 @@ TextBox=myModel.newTextBox(title='Début du jeu',textToWrite="Bonjour et bienven
 TextBox.addText("J'espère que vous allez bien!!!",toTheLine=True)
 #TextBox.setTextColor()
 
-DashBoard=myModel.newDashBoard()
+DashBoard=myModel.newDashBoard(borderColor=Qt.black,backgroundColor=Qt.transparent,textColor=Qt.red)
 DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
