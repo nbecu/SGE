@@ -963,6 +963,12 @@ class SGModel(QtWidgets.QMainWindow):
                     if attribut==anAttribut:
                         return aPov
 
+    def getBorderPovWithAttribut(self,attribut):
+        for aGrid in self.getGrids():
+            for aBorderPov in aGrid.collectionOfCells.borderPovs:
+                for anAttribut in aGrid.collectionOfCells.borderPovs[aBorderPov].keys():
+                    if attribut==anAttribut:
+                        return aBorderPov
  
     #-----------------------------------------------------------  
     #TimeManager functions
