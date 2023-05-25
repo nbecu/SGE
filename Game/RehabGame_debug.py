@@ -46,9 +46,9 @@ Player2.addGameAction(myModel.createUpdateAction("Cell",3,{"ProtectionLevel":"Re
 #Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
 Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
 
-GameRounds=myModel.newTimeLabel("My Game Time",Qt.white,Qt.black,Qt.red)
 myModel.timeManager.newGamePhase('Phase 1',[Player1,Player2])
-myModel.timeManager.newGamePhase('Phase 2',[Player1])
+#myModel.timeManager.newGamePhase('Phase 2',[Player1])
+GameRounds=myModel.newTimeLabel("My Game Time",Qt.white,Qt.black,Qt.red)
 myModel.currentPlayer='Player 1'
 
 

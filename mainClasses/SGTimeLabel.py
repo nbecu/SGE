@@ -17,6 +17,10 @@ class SGTimeLabel(SGGameSpace):
         self.y=0
         self.labels=0
         self.moveable=True
+        self.displayPhaseNumber=False
+        self.displayPhaseName=False
+        self.displayRoundNumber=True
+        self.displayTitle=True
         self.initUI()
         
 
@@ -70,6 +74,7 @@ class SGTimeLabel(SGGameSpace):
 
         # Définir le layout pour le widget
         self.setLayout(layout)
+        self.displayUpdate()
         self.show()
 
     #Function to have the global size of a gameSpace  
@@ -116,6 +121,16 @@ class SGTimeLabel(SGGameSpace):
 
         self.label3.setFixedHeight(self.label3.fontMetrics().boundingRect(self.label3.text()).height())
         self.label3.setFixedWidth(self.label3.fontMetrics().boundingRect(self.label3.text()).width())
+
+    def displayUpdate(self):
+        if len(self.model.timeManager.phases)>2:
+            self.displayPhaseName=True
+            self.displayPhaseNumber=True
+        self.label3.setVisible(self.displayPhaseName)
+        self.label2.setVisible(self.displayPhaseNumber)
+        self.label1.setVisible(self.displayRoundNumber)
+        self.labelTitle.setVisible(self.displayTitle)
+
 
 
     #To handle the drag of the widget
