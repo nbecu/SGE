@@ -47,15 +47,15 @@ class SGUserSelector(SGGameSpace):
         #print(self.model.currentPlayer)
     
     def getAuthorizePlayers(self):
-        phase=self.model.timeManager.phases[self.model.getCurrentPhase()]
+        phase=self.model.timeManager.phases[self.model.getCurrentPhase()-1]
         if phase.name != 'Initialisation':
-            print(phase)
-            print(phase.activePlayers)
             players=phase.activePlayers
             authorizedPlayers=[]
             for player in players:
-                authorizedPlayers.append(player.name)
-                print(authorizedPlayers)
+                if player=='Admin':
+                    authorizedPlayers.append('Admin')
+                else:
+                    authorizedPlayers.append(player.name)
             return authorizedPlayers
         else:
             return self.model.users

@@ -51,7 +51,7 @@ GameRounds=myModel.newTimeLabel()
 myModel.timeManager.newGamePhase('Phase 1',None, [lambda: m1.moveAgent(aGrid,numberOfMovement=3)])
 myModel.timeManager.newGamePhase('Phase 2',None,[lambda: myModel.deleteAgent(1)])
 
-MessageBox=myModel.newMessageBox()
+MessageBox=myModel.newTextBox()
 
 myModel.iAm("Admin")
 

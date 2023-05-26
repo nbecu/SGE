@@ -12,20 +12,20 @@ aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.newPov("ICanSeeSchrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 theFirstLegend=myModel.newLegendAdmin()
-"""# create a player
-myModel.createPlayer("Player 1")
-# create a legend for this player, according to the POVs
-#Player1Leg=myModel.createLegendForPlayer("Player1Legend",{"mygrid":{'povLandUse':{"grass":Qt.green}}},"Player 1")
-#Player1Leg.addDeleteButton('Delete')
-"""
+# create a player
+Player1=myModel.newPlayer("Player 1")
+# create a ControlPanel for this player, according to their actions
+Player1.addGameAction(myModel.createUpdateAction('Cell',3,{"landUse":"grass"}))
+Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
+
 
 # to have the Player 1 view 
-#myModel.iAm("Player 1")
-#myModel.iAm("Admin")
+myModel.currentPlayer='Player 1'
+
 
 myModel.launch_withoutMqtt() 
 

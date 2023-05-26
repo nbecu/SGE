@@ -17,14 +17,15 @@ myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"for
 
 theFirstLegend=myModel.newLegendAdmin()
 
-# Create a player
 Player1=myModel.newPlayer("Player 1")
-# create a ControlPanel for this player, according to their actions
 Player1.addGameAction(myModel.createUpdateAction('Cell',3,{"landUse":"grass"}))
 Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
-# User Selector
-# the user selector permits to switch between admin and player 
+# Create a second player
+Player2=myModel.newPlayer("Player 2")
+Player2.addGameAction(myModel.createUpdateAction("Cell",1,{"landUse":"forest"}))
+Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
+
 userSelector=myModel.newUserSelector()
 
 myModel.launch_withoutMqtt() 

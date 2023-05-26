@@ -50,7 +50,7 @@ class SGPlayer():
             for cell_key, cell_value in grid_value['cells'].items():
                 for aPov, aDict in thePov.items():
                     for testAtt, testVal in aDict.items():
-                        if cell_key in goodKeys:
+                        if cell_key in goodKeys or cell_key == aPov: #! watch out any bug here
                             newDict={testAtt:testVal}
                             playerElements[grid_key]['cells'][aPov]=newDict
             for agent_key, agent_value in grid_value['agents'].items():

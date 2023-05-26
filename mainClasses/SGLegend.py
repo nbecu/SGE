@@ -261,7 +261,8 @@ class SGLegend(SGGameSpace):
                                 if aPov in grid.collectionOfCells.povs.keys():
                                     currentPov=aPov
                                     for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
-                                        for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
+                                        #for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
+                                            aValue=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]
                                             item_key=aAttribut +' '+ aValue
                                             color=grid.collectionOfCells.povs[currentPov][aAttribut][aValue]
                                             if item_key not in added_items and color not in added_colors and color != Qt.transparent:

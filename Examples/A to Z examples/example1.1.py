@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(700,600, windowTitle="About pov (1)", typeOfLayout='vertical')
 
-myModel.newTextBox('You can change the point of view (pov), using the "eye" menu in the top panel')
+myModel.newTextBox("Welcome to RehabGame !",'You can change the point of view (pov), using the "eye" menu in the top panel')
 
 aGrid=myModel.newGrid(10,10,"square",Qt.gray,size=50)
 aGrid.setCells("landUse","grass")
