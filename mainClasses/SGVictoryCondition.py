@@ -18,16 +18,16 @@ class SGVictoryCondition(QtWidgets.QWidget):
         self.value=value
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
         self.entity=entity
-        #self.calculus=0.0
         self.name=name
         self.attribut=attribut
         self.color=color
         self.id=int
+        self.checkStatus=False
         self.initUI()
         
 
     def initUI(self):
-        self.indicatorLayout = QtWidgets.QHBoxLayout()
+        self.conditionLayout = QtWidgets.QHBoxLayout()
         calcValue=self.byMethod()
         self.name=self.setName(calcValue)
         self.label = QtWidgets.QTextEdit(self.name)
@@ -36,7 +36,7 @@ class SGVictoryCondition(QtWidgets.QWidget):
         color = QColor(self.victoryBoard.textColor)
         color_string = f"color: {color.name()};"
         self.label.setStyleSheet(color_string)
-        self.indicatorLayout.addWidget(self.label)
+        self.conditionLayout.addWidget(self.label)
 
     def setName(self,calcValue):
         if self.attribut is not None:
@@ -45,7 +45,7 @@ class SGVictoryCondition(QtWidgets.QWidget):
             else:
                 aName = self.method+' '+self.attribut+" : "+str(calcValue)
         else:
-            aName=self.method+' '+self.entity+" : "+str(calcValue)
+            aName=self.method+' '+self.entity+" : "+str(calcValue)+'/'+str(self.objective)
         return aName
 
     def updateText(self):
@@ -130,6 +130,13 @@ class SGVictoryCondition(QtWidgets.QWidget):
                 calcValue=roundNumber
                 return calcValue
             
+
+    def verifStatus(self):
+        calcValue=self.byMethod()
+        if calcValue==self.objective:
+            self.checkStatus=True
+
+
 
     def getMethods(self):
         print(self.methods)

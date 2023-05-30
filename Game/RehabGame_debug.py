@@ -43,11 +43,11 @@ Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
 Player2=myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.createUpdateAction("Cell",3,{"ProtectionLevel":"Reserve"}))
-#Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
+Player2.addGameAction(myModel.createUpdateAction("Cell","infinite",{"ProtectionLevel":"Free"}))
 Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
 
 myModel.timeManager.newGamePhase('Phase 1',[Player1,Player2])
-#myModel.timeManager.newGamePhase('Phase 2',[Player1])
+myModel.timeManager.newGamePhase('Phase 2',[Player1])
 GameRounds=myModel.newTimeLabel("My Game Time",Qt.white,Qt.black,Qt.red)
 myModel.currentPlayer='Player 1'
 
@@ -62,12 +62,15 @@ DashBoard=myModel.newDashBoard(borderColor=Qt.black,backgroundColor=Qt.transpare
 DashBoard.addIndicator("sumAtt",'cell','Resource')
 DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
-#aGrid.collectionOfCells.getWatchers()
+
 
 userSelector=myModel.newUserSelector()
 
-victoryConditions=["test","test un peu plus long","test 3"]
-victoryBoard=myModel.newVictoryBoard(victoryConditions)
+victoryBoard=myModel.newVictoryBoard()
+victoryBoard.addEndGameCondition('nb',9,"round")
+victoryBoard.showVictoryConditions()
+
+
 
 
 myModel.launch_withoutMqtt() 

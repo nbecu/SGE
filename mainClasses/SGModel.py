@@ -823,8 +823,8 @@ class SGModel(QtWidgets.QMainWindow):
 
         return aDashBoard
 
-    def newVictoryBoard(self,conditions,title='Victory Conditions'):
-        aVictoryBoard=SGVictoryBoard(self,title,conditions)
+    def newVictoryBoard(self,title='Victory Conditions'):
+        aVictoryBoard=SGVictoryBoard(self,title)
         self.gameSpaces[title]=aVictoryBoard
         self.victoryBoard=aVictoryBoard
         #Realocation of the position thanks to the layout

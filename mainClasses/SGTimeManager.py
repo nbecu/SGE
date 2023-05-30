@@ -2,6 +2,8 @@ from SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
 from SGVictoryCondition import SGVictoryCondition
 from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 #Class that handle the overall management of time 
 class SGTimeManager():
@@ -61,7 +63,9 @@ class SGTimeManager():
     def checkEndGame(self):
         endGame=False
         for aCond in self.conditionOfEndGame:
-            endGame=endGame or aCond()
+            if aCond.checkStatus: #! ici une seule condition de victoire remplie arrête le jeu
+                endGame=True
+                break
         if endGame :
             print("C'est fini !")
         return endGame
@@ -126,10 +130,9 @@ class SGTimeManager():
         return aPhase
     
     #To add a condition to end the game
-    def addEndGameCondition(self,aMethod,concernedEntity,attribut=None,victoryNumber=None,name=None):
-        color=self.model.victoryBoard.textColor
-        aCondition=SGVictoryCondition(self.model.victoryBoard,name,aMethod,attribut,victoryNumber,concernedEntity,color)
-        self.conditionOfEndGame.append(aCondition)
+    """def addEndGameCondition(self,aMethod,objective,concernedEntity,attribut=None,victoryNumber=None,name=None,color=Qt.black):
+        aCondition=SGVictoryCondition(self.model.victoryBoard,name,aMethod,objective,attribut,victoryNumber,concernedEntity,color)
+        self.conditionOfEndGame.append(aCondition)"""
         
 
     #To verify a number of round

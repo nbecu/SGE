@@ -5,10 +5,11 @@ from PyQt5.QtCore import *
 from sqlalchemy import null, true
 
 from SGGameSpace import SGGameSpace
+from SGVictoryCondition import SGVictoryCondition
 
 class SGVictoryBoard(SGGameSpace):
 
-    def __init__(self, parent, title, conditions, displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.darkGray,layout="vertical",textColor=Qt.black):
+    def __init__(self, parent, title, displayRefresh='withButton',borderColor=Qt.black,backgroundColor=Qt.darkGray,layout="vertical",textColor=Qt.black):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -17,15 +18,14 @@ class SGVictoryBoard(SGGameSpace):
         self.borderColor=borderColor
         self.backgroundColor=backgroundColor
         self.textColor=textColor
-        self.victoryConditions=self.getVictoryConditions()
+        self.victoryConditions=[]
         if layout=='vertical':
             self.layout=QtWidgets.QVBoxLayout()
         elif layout=='horizontal':
             self.layout=QtWidgets.QHBoxLayout()
-        self.initUI()
 
 
-    def initUI(self):
+    def showVictoryConditions(self):
         layout=self.layout
 
         title=QtWidgets.QLabel(self.id)
@@ -33,12 +33,25 @@ class SGVictoryBoard(SGGameSpace):
         font.setBold(True)
         title.setFont(font)
         layout.addWidget(title)
-
         for condition in self.victoryConditions:
-            layout.addWidget(condition)
+            layout.addLayout(condition.conditionLayout)
+        
 
+        # Create a QPushButton to update the text
+        if self.displayRefresh=='withButton':
+            self.button = QtWidgets.QPushButton("Update Scores")
+            self.button.clicked.connect(lambda: [condition.updateText() for condition in self.victoryConditions])
+            layout.addWidget(self.button)
+        
         self.setLayout(layout)
         self.show()
+
+    #To add a condition to end the game
+    def addEndGameCondition(self,aMethod,objective,concernedEntity,attribut=None,victoryNumber=None,name=None,color=Qt.black):
+        aCondition=SGVictoryCondition(self,name,aMethod,objective,attribut,victoryNumber,concernedEntity,color)
+        self.victoryConditions.append(aCondition)
+        self.model.timeManager.conditionOfEndGame.append(aCondition)
+
 
     def paintEvent(self,event):
         if self.checkDisplay():
@@ -65,7 +78,7 @@ class SGVictoryBoard(SGGameSpace):
         return 150
         
     def getSizeYGlobal(self):
-        return 50
+        return 70
 
     def mouseMoveEvent(self, e):
     
@@ -80,7 +93,7 @@ class SGVictoryBoard(SGGameSpace):
 
         drag.exec_(Qt.MoveAction)
 
-    def getVictoryConditions(self):
+    """def getVictoryConditions(self):
         timeManager=self.model.timeManager
         victoryConditions=timeManager.conditionOfEndGame
-        return victoryConditions
+        return victoryConditions"""
