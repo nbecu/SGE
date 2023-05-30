@@ -1,5 +1,6 @@
 from SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
+from SGVictoryCondition import SGVictoryCondition
 from PyQt5.QtWidgets import QHBoxLayout
 
 #Class that handle the overall management of time 
@@ -125,8 +126,9 @@ class SGTimeManager():
         return aPhase
     
     #To add a condition to end the game
-    def addEndGameCondition(self,aCondition):
-        """NOT TESTED"""
+    def addEndGameCondition(self,aMethod,concernedEntity,attribut=None,victoryNumber=None,name=None):
+        color=self.model.victoryBoard.textColor
+        aCondition=SGVictoryCondition(self.model.victoryBoard,name,aMethod,attribut,victoryNumber,concernedEntity,color)
         self.conditionOfEndGame.append(aCondition)
         
 

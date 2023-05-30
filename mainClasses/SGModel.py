@@ -826,6 +826,7 @@ class SGModel(QtWidgets.QMainWindow):
     def newVictoryBoard(self,conditions,title='Victory Conditions'):
         aVictoryBoard=SGVictoryBoard(self,title,conditions)
         self.gameSpaces[title]=aVictoryBoard
+        self.victoryBoard=aVictoryBoard
         #Realocation of the position thanks to the layout
         newPos=self.layoutOfModel.addGameSpace(aVictoryBoard)
         aVictoryBoard.setStartXBase(newPos[0])

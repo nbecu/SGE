@@ -8,7 +8,7 @@ from SGGameSpace import SGGameSpace
 
 class SGVictoryBoard(SGGameSpace):
 
-    def __init__(self, parent, title, conditions, displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.darkGray,layout="vertical"):
+    def __init__(self, parent, title, conditions, displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.darkGray,layout="vertical",textColor=Qt.black):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -16,6 +16,8 @@ class SGVictoryBoard(SGGameSpace):
         self.isDisplay=True
         self.borderColor=borderColor
         self.backgroundColor=backgroundColor
+        self.textColor=textColor
+        self.victoryConditions=self.getVictoryConditions()
         if layout=='vertical':
             self.layout=QtWidgets.QVBoxLayout()
         elif layout=='horizontal':
@@ -31,6 +33,9 @@ class SGVictoryBoard(SGGameSpace):
         font.setBold(True)
         title.setFont(font)
         layout.addWidget(title)
+
+        for condition in self.victoryConditions:
+            layout.addWidget(condition)
 
         self.setLayout(layout)
         self.show()
@@ -74,3 +79,8 @@ class SGVictoryBoard(SGGameSpace):
         drag.setHotSpot(e.pos() - self.rect().topLeft())
 
         drag.exec_(Qt.MoveAction)
+
+    def getVictoryConditions(self):
+        timeManager=self.model.timeManager
+        victoryConditions=timeManager.conditionOfEndGame
+        return victoryConditions
