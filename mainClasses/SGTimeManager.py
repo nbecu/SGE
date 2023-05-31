@@ -63,6 +63,7 @@ class SGTimeManager():
     def checkEndGame(self):
         endGame=False
         for aCond in self.conditionOfEndGame:
+            aCond.verifStatus()
             if aCond.checkStatus: #! ici une seule condition de victoire remplie arrête le jeu
                 endGame=True
                 break
