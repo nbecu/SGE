@@ -44,15 +44,21 @@ class SGPlayer():
         for aAction in actions:
             if isinstance(aAction,SGDelete):
                 deleteButtons.append(str(aAction.name))
-        playerElements = {}  
+        playerElements = {}
+        newDict = {}  
         for grid_key, grid_value in elements.items():  
             playerElements[grid_key] = {'cells': {}, 'agents': {}}
             for cell_key, cell_value in grid_value['cells'].items():
                 for aPov, aDict in thePov.items():
-                    for testAtt, testVal in aDict.items():
-                        if cell_key in goodKeys or cell_key == aPov: #! watch out any bug here
-                            newDict={testAtt:testVal}
-                            playerElements[grid_key]['cells'][aPov]=newDict
+                    for dictElement in aDict:
+                        for testAtt, testVal in dictElement.items():
+                            if cell_key in goodKeys or cell_key == aPov: #! watch out any bug here
+                                if aPov in playerElements[grid_key]['cells']:
+                                    if testAtt in playerElements[grid_key]['cells'][aPov]:
+                                        lastValue = playerElements[grid_key]['cells'][aPov][testAtt]
+                                        playerElements[grid_key]['cells'][aPov][testAtt]={lastValue:0,testVal:0}
+                                else:
+                                    playerElements[grid_key]['cells'][aPov]={testAtt:testVal}
             for agent_key, agent_value in grid_value['agents'].items():
                 if agent_key in goodKeys:
                     playerElements[grid_key]['agents'][agent_key] = agent_value
@@ -91,10 +97,11 @@ class SGPlayer():
         for action in self.gameActions:
             if (isinstance(action.anObject,SGCell) or action.anObject == SGCell) and isinstance(action,SGUpdate): #! cas des cellules
                 aPov=self.model.getPovWithAttribut(list(action.dictNewValues.keys())[0])
-                thePov[aPov]=action.dictNewValues
-                if aPov is None:
-                    aBorderPov=self.model.getBorderPovWithAttribut(list(action.dictNewValues.keys())[0])
-                    thePov[aBorderPov]=action.dictNewValues
+                if aPov in thePov:
+                    thePov[aPov].append(action.dictNewValues)
+                else:
+                    thePov[aPov] = [action.dictNewValues]
+                #thePov[aPov]=action.dictNewValues
         return thePov
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

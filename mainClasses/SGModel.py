@@ -963,6 +963,10 @@ class SGModel(QtWidgets.QMainWindow):
                 for anAttribut in aGrid.collectionOfCells.povs[aPov].keys():
                     if attribut==anAttribut:
                         return aPov
+            for aBorderPov in aGrid.collectionOfCells.borderPovs:
+                for anAttribut in aGrid.collectionOfCells.borderPovs[aBorderPov].keys():
+                    if attribut==anAttribut:
+                        return aBorderPov
 
     def getBorderPovWithAttribut(self,attribut):
         for aGrid in self.getGrids():

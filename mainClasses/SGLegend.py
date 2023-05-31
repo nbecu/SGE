@@ -275,16 +275,17 @@ class SGLegend(SGGameSpace):
                                 if aPov in grid.collectionOfCells.borderPovs.keys():
                                     currentPov=aPov
                                     for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
-                                        aValue=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]
-                                        item_key=aAttribut +' '+ aValue
-                                        color=grid.collectionOfCells.borderPovs[currentPov][aAttribut][aValue]
-                                        if item_key not in added_items and color not in added_colors and color != Qt.transparent:
-                                            self.y=self.y+1
-                                            anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)
-                                            self.legendItems[aKeyOfGamespace].append(anItem)
-                                            anItem.show()
-                                            added_items.add(item_key)
-                                            added_colors.add(color)
+                                        aDictValue=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]
+                                        for aValue in list(aDictValue.keys()):
+                                            item_key=aAttribut +' '+ aValue
+                                            color=grid.collectionOfCells.borderPovs[currentPov][aAttribut][aValue]
+                                            if item_key not in added_items and color not in added_colors and color != Qt.transparent:
+                                                self.y=self.y+1
+                                                anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)
+                                                self.legendItems[aKeyOfGamespace].append(anItem)
+                                                anItem.show()
+                                                added_items.add(item_key)
+                                                added_colors.add(color)
 
                         elif entity == 'agents':
                             for anAgent in self.AgentList:
