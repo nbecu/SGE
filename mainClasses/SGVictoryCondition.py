@@ -52,6 +52,11 @@ class SGVictoryCondition(QtWidgets.QWidget):
         newCalc=self.byMethod()
         newText= self.setName(newCalc)
         self.label.setPlainText(newText)
+        self.verifStatus()
+        if self.checkStatus:
+            color = QColor(Qt.green)
+            color_string = f"color: {color.name()};"
+            self.label.setStyleSheet(color_string)
     
     def getUpdatePermission(self):
         if self.victoryBoard.displayRefresh=='instantaneous':

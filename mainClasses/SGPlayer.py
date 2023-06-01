@@ -144,16 +144,18 @@ class SGPlayer():
             for aGameAction in self.gameActions :
                 if not isinstance(aGameAction,SGMove):
                     #Update of an Angent
-                    if isinstance(aGameAction,SGUpdate)and self.model.selected[2].find("Remove ")==-1 and self.model.selected[1] not in ['square','hexagonal'] and self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) : 
-                        return aGameAction
+                    if isinstance(aGameAction,SGUpdate) and self.model.selected[2].find("Delete ")==-1 and self.model.selected[1] not in ['square','hexagonal']  : 
+                        if self.model.selected[3]in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4]in list(aGameAction.dictAttributs.keys()) :
+                            return aGameAction
                     #Delete of an Agent
                     elif isinstance(aGameAction,SGDelete) and self.model.selected[1] not in ['square','hexagonal'] :
                         if aGameAction.dictAttValue is not None:
                             if self.model.selected[3]in list(aGameAction.dictAttValue.values())[0] and self.model.selected[4]in list(aGameAction.dictAttValue.keys()) : 
                                 return aGameAction
                         else: 
-                            if self.model.selected[2].split()[1] in list(self.model.agentSpecies.keys()): #Cas des agents sans POV
-                                return aGameAction
+                            if self.model.selected[2].find("Delete ")!=-1 :
+                                if (self.model.selected[2].split()[1] in list(self.model.agentSpecies.keys())) : #(self.model.selected[2] in list(self.model.agentSpecies.keys())): #Cas des agents sans POV 
+                                    return aGameAction
                     
     def getMooveActionOn(self,anItem):
         if isinstance(anItem,SGAgent):

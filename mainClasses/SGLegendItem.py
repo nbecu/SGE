@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null
@@ -19,6 +20,23 @@ class SGLegendItem(QtWidgets.QWidget):
         self.y=y
         self.color=color
         self.border=border
+        self.initUI()
+
+    
+    def initUI(self):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
+
+    # To show a menu
+    def show_menu(self, point):
+        menu = QMenu(self)
+        text= "Agent count on this cell : "+str(len(self.agents))
+        option1 = QAction(text, self)
+        #option1.triggered.connect(lambda: print(len(self.agents)))
+        menu.addAction(option1)
+
+        if self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))
         
     #Drawing function
     def paintEvent(self,event):

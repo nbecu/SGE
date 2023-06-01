@@ -1,6 +1,7 @@
 from tkinter.ttk import Separator
 from PyQt5 import QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from SGAgent import SGAgent
@@ -43,10 +44,15 @@ class SGCell(QtWidgets.QWidget):
         self.history["value"]=[]
         self.borderColor=Qt.black
         self.color=Qt.white
+        self.initUI()
   
     # to extract the format of the cell
     def getShape(self):
         return self.shape
+    
+    def initUI(self):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
         
     def paintEvent(self,event):
         self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
@@ -331,6 +337,17 @@ class SGCell(QtWidgets.QWidget):
     def updateDepartureAgent(self,anAgent):
         anAgent.cell=None
         self.agents.remove(anAgent)
+
+    # To show a menu
+    def show_menu(self, point):
+        menu = QMenu(self)
+        text= "Agent count on this cell : "+str(len(self.agents))
+        option1 = QAction(text, self)
+        #option1.triggered.connect(lambda: print(len(self.agents)))
+        menu.addAction(option1)
+
+        if self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))
 
 
 #-----------------------------------------------------------------------------------------
