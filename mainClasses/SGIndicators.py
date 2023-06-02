@@ -9,7 +9,7 @@ import numpy as np
    
 #Class who is responsible of indicator creation 
 class SGIndicators(QtWidgets.QWidget):
-    def __init__(self,parent,y,name,method,attribut,value,entity,color):
+    def __init__(self,parent,y,name,method,attribut,value,entity,color,isDisplay):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -23,6 +23,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.y=y
         self.color=color
         self.id=int
+        self.isDisplay=isDisplay
         self.initUI()
         
 

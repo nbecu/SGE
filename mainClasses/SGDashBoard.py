@@ -49,7 +49,8 @@ class SGDashBoard(SGGameSpace):
         layout.addWidget(title)
         
         for indicator in self.indicators:
-            layout.addLayout(indicator.indicatorLayout)
+            if indicator.isDisplay:
+                layout.addLayout(indicator.indicatorLayout)
         
 
         # Create a QPushButton to update the text
@@ -83,10 +84,10 @@ class SGDashBoard(SGGameSpace):
             return False
         
 
-    def addIndicator(self,method,entity,attribut,value=None,indicatorName=None):
+    def addIndicator(self,method,entity,attribut,value=None,indicatorName=None,isDisplay=True):
         color=self.textColor
         self.y=self.y+1
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color)
+        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color,isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id=self.IDincr

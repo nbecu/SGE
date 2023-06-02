@@ -59,7 +59,7 @@ TextBox.addText("J'espère que vous allez bien!!!",toTheLine=True)
 #TextBox.setTextColor()
 
 DashBoard=myModel.newDashBoard(borderColor=Qt.black,backgroundColor=Qt.transparent,textColor=Qt.red)
-i1=DashBoard.addIndicator("sumAtt",'cell','Resource')
+i1=DashBoard.addIndicator("sumAtt",'cell','Resource',isDisplay=False)
 i2=DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
