@@ -1,6 +1,6 @@
 from SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
-from SGVictoryCondition import SGVictoryCondition
+from SGEndGameCondition import SGEndGameCondition
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -62,11 +62,16 @@ class SGTimeManager():
 
     def checkEndGame(self):
         endGame=False
+        counter=0
         for aCond in self.conditionOfEndGame:
             aCond.verifStatus()
-            if aCond.checkStatus: #! ici une seule condition de victoire remplie arrête le jeu
-                endGame=True
-                break
+            if aCond.endGameRule.displayRefresh=='instantaneous':
+                aCond.updateText()
+            if aCond.checkStatus:
+                counter=counter+1
+                if counter >= aCond.endGameRule.numberRequired:
+                    endGame=True
+                    break
         if endGame :
             print("C'est fini !")
         return endGame

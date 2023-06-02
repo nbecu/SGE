@@ -59,16 +59,18 @@ TextBox.addText("J'espère que vous allez bien!!!",toTheLine=True)
 #TextBox.setTextColor()
 
 DashBoard=myModel.newDashBoard(borderColor=Qt.black,backgroundColor=Qt.transparent,textColor=Qt.red)
-DashBoard.addIndicator("sumAtt",'cell','Resource')
-DashBoard.addIndicator("avgAtt",'cell','Resource')
+i1=DashBoard.addIndicator("sumAtt",'cell','Resource')
+i2=DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
 
 userSelector=myModel.newUserSelector()
 
-victoryBoard=myModel.newVictoryBoard()
-victoryBoard.addEndGameCondition('nb',9,"round")
-victoryBoard.showVictoryConditions()
+endGameRule=myModel.newEndGameRule(numberRequired=2)
+endGameRule.addEndGameCondition_onIndicator(i1,"equal",90)
+targetCell = aGrid.getCell(1,5)
+endGameRule.addEndGameCondition_onEntity(targetCell,'Resource',"greater",2)
+endGameRule.showEndGameConditions()
 
 
 

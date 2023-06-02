@@ -17,7 +17,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.value=value
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
         self.entity=entity
-        #self.calculus=0.0
+        self.result=float
         self.name=name
         self.attribut=attribut
         self.y=y
@@ -29,6 +29,7 @@ class SGIndicators(QtWidgets.QWidget):
     def initUI(self):
         self.indicatorLayout = QtWidgets.QHBoxLayout()
         calcValue=self.byMethod()
+        self.result=calcValue
         self.name=self.setName(calcValue)
         self.label = QtWidgets.QTextEdit(self.name)
         self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -47,6 +48,7 @@ class SGIndicators(QtWidgets.QWidget):
 
     def updateText(self):
         newCalc=self.byMethod()
+        self.result=newCalc
         newText= self.setName(newCalc)
         self.label.setPlainText(newText)
     

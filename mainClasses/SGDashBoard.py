@@ -93,6 +93,7 @@ class SGDashBoard(SGGameSpace):
         self.IDincr=+1
         if entity == 'cell':
             self.setCellWatchers(attribut,indicator)
+        return indicator
    
     def setCellWatchers(self,attribut,indicator):
         grids=self.model.getGrids()

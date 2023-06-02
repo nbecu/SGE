@@ -18,7 +18,7 @@ from SGTimeLabel import SGTimeLabel
 from SGTextBox import SGTextBox
 from SGDashBoard import SGDashBoard
 from SGUserSelector import SGUserSelector
-from SGVictoryBoard import SGVictoryBoard
+from SGEndGameRule import SGEndGameRule
 
 
 from SGGrid import SGGrid
@@ -823,25 +823,25 @@ class SGModel(QtWidgets.QMainWindow):
 
         return aDashBoard
 
-    def newVictoryBoard(self,title='Victory Conditions'):
-        aVictoryBoard=SGVictoryBoard(self,title)
-        self.gameSpaces[title]=aVictoryBoard
-        self.victoryBoard=aVictoryBoard
+    def newEndGameRule(self,title='EndGame Rules',numberRequired=1):
+        aEndGameRule=SGEndGameRule(self,title,numberRequired)
+        self.gameSpaces[title]=aEndGameRule
+        self.endGameRule=aEndGameRule
         #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aVictoryBoard)
-        aVictoryBoard.setStartXBase(newPos[0])
-        aVictoryBoard.setStartYBase(newPos[1])
+        newPos=self.layoutOfModel.addGameSpace(aEndGameRule)
+        aEndGameRule.setStartXBase(newPos[0])
+        aEndGameRule.setStartYBase(newPos[1])
         if(self.typeOfLayout=="vertical"):
-            aVictoryBoard.move(aVictoryBoard.startXBase,aVictoryBoard.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aVictoryBoard))
+            aEndGameRule.move(aEndGameRule.startXBase,aEndGameRule.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aEndGameRule))
         elif(self.typeOfLayout=="horizontal"):
-            aVictoryBoard.move(aVictoryBoard.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aVictoryBoard),aVictoryBoard.startYBase)    
+            aEndGameRule.move(aEndGameRule.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aEndGameRule),aEndGameRule.startYBase)    
         else:
-            pos=self.layoutOfModel.foundInLayout(aVictoryBoard)
-            aVictoryBoard.move(aVictoryBoard.startXBase+20*pos[0],aVictoryBoard.startYBase+20*pos[1])
+            pos=self.layoutOfModel.foundInLayout(aEndGameRule)
+            aEndGameRule.move(aEndGameRule.startXBase+20*pos[0],aEndGameRule.startYBase+20*pos[1])
         
         self.applyPersonalLayout()
 
-        return aVictoryBoard
+        return aEndGameRule
     
     def addVictoryConditions(self):
         'IN PROGRESS'
