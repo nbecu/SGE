@@ -32,7 +32,9 @@ class SGAgent(QtWidgets.QWidget):
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.x=0
-        self.y=0 
+        self.y=0
+        self.xPos=self.getRandomXY()
+        self.yPos=self.getRandomXY() 
         #We define an owner by default
         self.owner="admin"    
         #We define variable to handle an history 
@@ -128,25 +130,27 @@ class SGAgent(QtWidgets.QWidget):
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         self.setGeometry(0,0,self.size+1,self.size+1)
+        x = self.xPos
+        y = self.yPos
         if self.isDisplay==True:
             if(self.format=="circleAgent"):
-                painter.drawEllipse(0,0,self.size,self.size)
+                painter.drawEllipse(x,y,self.size,self.size)
             elif self.format=="squareAgent":
-                painter.drawRect(0,0,self.size,self.size)
+                painter.drawRect(x,y,self.size,self.size)
             elif self.format=="ellipseAgent1": 
-                self.setGeometry(0,0,self.size*2+1,self.size+1)
+                self.setGeometry(x,y,self.size*2+1,self.size+1)
                 painter.drawEllipse(0,0,self.size*2,self.size)
             elif self.format=="ellipseAgent2": 
-                self.setGeometry(0,0,self.size+1,self.size*2+1)
+                self.setGeometry(x,y,self.size+1,self.size*2+1)
                 painter.drawEllipse(0,0,self.size,self.size*2)
             elif self.format=="rectAgent1": 
-                self.setGeometry(0,0,self.size*2+1,self.size+1)
+                self.setGeometry(x,y,self.size*2+1,self.size+1)
                 painter.drawRect(0,0,self.size*2,self.size)
             elif self.format=="rectAgent2": 
-                self.setGeometry(0,0,self.size+1,self.size*2+1)
+                self.setGeometry(x,y,self.size+1,self.size*2+1)
                 painter.drawRect(0,0,self.size,self.size*2)
             elif self.format=="triangleAgent1": 
-                self.setGeometry(20,20,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
                 QPoint(0,self.size),
@@ -154,7 +158,7 @@ class SGAgent(QtWidgets.QWidget):
                 ])
                 painter.drawPolygon(points)
             elif self.format=="triangleAgent2": 
-                self.setGeometry(40,40,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(0,0),
                 QPoint(self.size,0),
@@ -162,7 +166,7 @@ class SGAgent(QtWidgets.QWidget):
                 ])
                 painter.drawPolygon(points)
             elif self.format=="arrowAgent1": 
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
                 QPoint(0,self.size),
@@ -171,7 +175,7 @@ class SGAgent(QtWidgets.QWidget):
                 ])
                 painter.drawPolygon(points)
             elif self.format=="arrowAgent2": 
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(0,0),
                 QPoint(round(self.size/2),round(self.size/3)),
@@ -191,6 +195,14 @@ class SGAgent(QtWidgets.QWidget):
         self.size=round(self.size-(zoomFactor*10))
         self.update()
 
+    def getRandomXY(self):
+        if self.me=='agent':
+            maxSize=self.cell.size
+            x = random.randint(1,maxSize-1)
+            return x
+        else:
+            x=0
+            return x
 
     #To manage the attribute system of an Agent
     def getColor(self):
