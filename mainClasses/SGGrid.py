@@ -366,16 +366,16 @@ class SGGrid(SGGameSpace):
         
 #To handle POV and placing on cell
     #To define a value for all cells
-    def setCells(self,aAttribut,aValue):
+    def setCells(self,aAttribute,aValue):
         """
         Set the value of attribut value of all cells
 
         Args:
-            aAttribut (str): Name of the attribute to set
+            aAttribute (str): Name of the attribute to set
             aValue (str): Value to set the attribute to
         """
         for aCell in self.getCells():
-            aCell.setValue(aAttribut,aValue)
+            aCell.setValue(aAttribute,aValue)
             
     # OLD METHOD
     # def setValueCells(self,aAttribut,aValue):
@@ -397,17 +397,17 @@ class SGGrid(SGGameSpace):
     #         aCell.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     
-    def setCell(self,aAttribut,aValue,aValueX,aValueY):
+    def setCell(self,aAttribute,aValue,aValueX,aValueY):
         """
-        set the value of attribut value for a specific cell
+        set the value of attribute value for a specific cell
 
         Args:
-            aAttribut (str): Name of the attribute to set.
+            aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
             aValueX (int): a column number
             aValueY (int): a row number
         """
-        self.getCell(aValueX,aValueY).setValue(aAttribut,aValue)
+        self.getCell(aValueX,aValueY).setValue(aAttribute,aValue)
 
      # OLD METHOD
    # #To apply to a specific cell a value  
@@ -431,32 +431,32 @@ class SGGrid(SGGameSpace):
     #     self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #set the value of attribut to all cells in a specified column
-    def setCells_withColumn(self,aAttribut,aValue,aColumnNumber):
+    def setCells_withColumn(self,aAttribute,aValue,aColumnNumber):
         """
         Set the value of attribut to all cells in a specified column
 
         Args:
-            aAttribut (str): Name of the attribute to set.
+            aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
             aColumnNumber (int): a column number
 
         """
         for aCell in self.getCells_withColumn(aColumnNumber):
-            aCell.setValue(aAttribut,aValue)
+            aCell.setValue(aAttribute,aValue)
 
     #set the value of attribut to all cells in a specified row
-    def setCells_withRow(self,aAttribut,aValue,aRowNumber):
+    def setCells_withRow(self,aAttribute,aValue,aRowNumber):
         """
         Set the value of attribut to all cells in a specified row
 
         Args:
-            aAttribut (str): Name of the attribute to set.
+            aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
             aRowNumber (int): a row number
 
         """
         for aCell in self.getCells_withRow(aRowNumber):
-            aCell.setValue(aAttribut,aValue)
+            aCell.setValue(aAttribute,aValue)
 
     # OLD METHOD
     #   def setCells_withColumn(self,aAttribut,aValue,aValueX):
@@ -500,15 +500,15 @@ class SGGrid(SGGameSpace):
     #         self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
     
     #To apply a value to a random cell
-    def setRandomCell(self,aAttribut,aValue):
+    def setRandomCell(self,aAttribute,aValue):
         """
         Apply a value to a random cell
 
         Args:
-            aAttribut (str): Name of the attribute to set.
+            aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandomCell().setValue(aAttribut,aValue)
+        self.getRandomCell().setValue(aAttribute,aValue)
  
     #To apply a value to a random cell with a certain value
     def setRandomCell_withValue(self,aAttribut,aValue,conditionAtt,conditionVal):
@@ -534,17 +534,17 @@ class SGGrid(SGGameSpace):
 
 
     #To apply a value to some random cell
-    def setRandomCells(self,aAttribut,aValue,numberOfCells):
+    def setRandomCells(self,aAttribute,aValue,numberOfCells):
         """
         Applies the same attribut value for a random number of cells
 
         Args:
-            aAttribut (str): Name of the attribute to set.
+            aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
             numberOfCells (int): number of cells
         """
         for aCell in self.getRandomCells(numberOfCells):
-            aCell.setValue(aAttribut,aValue)
+            aCell.setValue(aAttribute,aValue)
 
     #To apply a value to some random cells with a certain value
     def setRandomCells_withValue(self,aAttribut,aValue,numberOfCells,conditionAtt,conditionVal):

@@ -47,18 +47,18 @@ from PyQt5.QtCore import *
 
 #Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self,width,height,typeOfLayout=None,x=3,y=3,name="Simulation of a boardGame",windowTitle=None):
+    def __init__(self,width=1800,height=900,typeOfLayout="grid",x=3,y=3,name="Simulation of a boardGame",windowTitle="myGame"):
         """
         Declaration of a new model
 
         Args:
-            width (int): width of the main window
-            height (int): height of the main window
-            typeOfLayout ("vertical", "horizontal" or "grid"): the type of layout used to position the different graphic elements of the simulation
-            x (int, optional): used only for grid layout. defines the number layout grid width
-            y (int, optional): used only for grid layout. defines the number layout grid height
-            name (str, optional): the name of the model.
-            windowTitle (str, optional): the title of the main window of the simulation.
+            width (int): width of the main window in pixels (default:1800)
+            height (int): height of the main window in pixels (default:900)
+            typeOfLayout ("vertical", "horizontal" or "grid"): the type of layout used to position the different graphic elements of the simulation (default:"grid")
+            x (int, optional): used only for grid layout. defines the number layout grid width (default:3)
+            y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
+            name (str, optional): the name of the model. (default:"Simulation")
+            windowTitle (str, optional): the title of the main window of the simulation (default :"myGame")
         """
         super().__init__()
         #Definition the size of the window ( temporary here)
