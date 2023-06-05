@@ -255,22 +255,115 @@ class SGGrid(SGGameSpace):
             litsOfCells.append(self.getCell(i,rowNumber))
         return litsOfCells
 
+#to get all cells with a certain value
+    def getCells_withValue(self,att,val):
+        litsOfCells=[]
+        for cell in list(self.collectionOfCells.cells.values()):
+            if att in cell.attributs :
+                if val==cell.attributs[att]:
+                    litsOfCells.append(cell)
+        return litsOfCells
+
+#to get all cells not having a certain value  
+    def getCells_withValueNot(self,att,val):
+        litsOfCells=[]
+        for cell in list(self.collectionOfCells.cells.values()):
+            if att in cell.attributs :
+                if val!=cell.attributs[att]:
+                    litsOfCells.append(cell)
+        return litsOfCells
+    
   #Return a random cell 
-    def getRandomCell(self):
+    def getRandomCell(self, condition=None):
         """
         Return a random cell.
         """
-        return random.choice(self.getCells())
+        if condition == None:
+            listOfCells = self.getCells()
+        else:
+            listOfCells =[]
+            for aCell in self.getCells():
+                if aCell.testCondition(condition):
+                     listOfCells.append(aCell)
+        return random.choice(listOfCells)
 
+   #Return a random cell with a certain value
+    def getRandomCell_withValue(self,att,val, condition=None):
+        """
+        Return a random cell.
+        """
+        if condition == None:
+            listOfCells = self.getCells_withValue(att,val)
+        else:
+            listOfCells =[]
+            for aCell in self.getCells_withValue(att,val):
+                if aCell.testCondition(condition):
+                     listOfCells.append(aCell)
+        return random.choice(listOfCells)
+
+  #Return a random cell not having a certain value
+    def getRandomCell_withValueNot(self,att,val, condition=None):
+        """
+        Return a random cell.
+        """
+        if condition == None:
+            listOfCells = self.getCells_withValueNot(att,val)
+        else:
+            listOfCells =[]
+            for aCell in self.getCells_withValueNot(att,val):
+                if aCell.testCondition(condition):
+                     listOfCells.append(aCell)
+        return random.choice(listOfCells)
+          
   #Return random cells 
-    def getRandomCells(self,aNumber):
+    def getRandomCells(self,aNumber, condition=None):
         """
         Return a specified number of random cells.
         args:
             aNumber (int): a number of cells to be randomly selected
         """
-        return random.sample(self.getCells(),aNumber)
+        if condition == None:
+            listOfCells = self.getCells()
+        else:
+            listOfCells =[]
+            for aCell in self.getCells():
+                if aCell.testCondition(condition):
+                     listOfCells.append(aCell)
+        return random.sample(listOfCells,aNumber)
     
+    #Return random cells with a certain value
+    def getRandomCells_withValue(self,aNumber,att,val,condition=None):
+        """
+        Return a specified number of random cells.
+        args:
+            aNumber (int): a number of cells to be randomly selected
+        """
+        if condition == None:
+            listOfCells = self.getCells_withValue(att,val)
+        else:
+            listOfCells =[]
+            for aCell in self.getCells_withValue(att,val):
+                if aCell.testCondition(condition):
+                     listOfCells.append(aCell)
+        return random.sample(listOfCells,aNumber)
+    
+    #Return random cells not having a certain value
+    def getRandomCells_withValueNot(self,aNumber,att,val,condition=None):
+        """
+        Return a specified number of random cells.
+        args:
+            aNumber (int): a number of cells to be randomly selected
+        """
+        if condition == None:
+            listOfCells = self.getCells_withValueNot(att,val)
+        else:
+            listOfCells =[]
+            for aCell in self.getCells_withValueNot(att,val):
+                if aCell.testCondition(condition):
+                     listOfCells.append(aCell)
+        return random.sample(listOfCells,aNumber)
+    
+        
 #To handle POV and placing on cell
     #To define a value for all cells
     def setCells(self,aAttribut,aValue):
@@ -417,6 +510,29 @@ class SGGrid(SGGameSpace):
         """
         self.getRandomCell().setValue(aAttribut,aValue)
  
+    #To apply a value to a random cell with a certain value
+    def setRandomCell_withValue(self,aAttribut,aValue,conditionAtt,conditionVal):
+        """
+        To apply a value to a random cell with a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+        """
+        self.getRandomCell_withValue(conditionAtt,conditionVal).setValue(aAttribut,aValue)
+
+   #To apply a value to a random cell not having a certain value
+    def setRandomCell_withValueNot(self,aAttribut,aValue,conditionAtt,conditionVal):
+        """
+       To apply a value to a random cell not having a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+        """
+        self.getRandomCell_withValueNot(conditionAtt,conditionVal).setValue(aAttribut,aValue)
+
+
     #To apply a value to some random cell
     def setRandomCells(self,aAttribut,aValue,numberOfCells):
         """
@@ -429,7 +545,33 @@ class SGGrid(SGGameSpace):
         """
         for aCell in self.getRandomCells(numberOfCells):
             aCell.setValue(aAttribut,aValue)
-            
+
+    #To apply a value to some random cells with a certain value
+    def setRandomCells_withValue(self,aAttribut,aValue,numberOfCells,conditionAtt,conditionVal):
+        """
+        To apply a value to some random cells with a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            numberOfCells (int): number of cells
+        """
+        for aCell in self.getRandomCells_withValue(numberOfCells,conditionAtt,conditionVal):
+            aCell.setValue(aAttribut,aValue)
+
+   #To apply a value to some random cells noty having a certain value 
+    def setRandomCells_withValueNot(self,aAttribut,aValue,numberOfCells,conditionAtt,conditionVal):
+        """
+        To apply a value to some random cells noty having a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            numberOfCells (int): number of cells
+        """
+        for aCell in self.getRandomCells_withValueNot(numberOfCells,conditionAtt,conditionVal):
+            aCell.setValue(aAttribut,aValue)
+
     # OLD METHOD
 #    def setRandomCells(self,aAttribut,aValue,numberOfRandom):
 #         """

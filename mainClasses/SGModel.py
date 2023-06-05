@@ -19,6 +19,7 @@ from SGTextBox import SGTextBox
 from SGDashBoard import SGDashBoard
 from SGUserSelector import SGUserSelector
 from SGEndGameRule import SGEndGameRule
+from SGModelAction import SGModelAction
 
 
 from SGGrid import SGGrid
@@ -705,7 +706,19 @@ class SGModel(QtWidgets.QMainWindow):
         for aAgent in self.getAgents():
             aAgent.moveAgent(aGrid,numberOfMovement=numberOfMovement)
 
-    
+    # To create a modelAction
+    def newModelAction(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[]):
+        """
+        To add a model action which can be executed during a modelPhase
+        args:
+            actions (lambda function): Actions the model performs during the phase (add, delete, move...)
+            condition (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): Feedback actions performed only if the actions are executed
+            feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
+        """
+        aGameAction=SGModelAction(actions,condition,feedBacks,feedBacksCondition)
+        return aGameAction
+        
     # To create a player
     def newPlayer(self,name):
         player=SGPlayer(self,name)

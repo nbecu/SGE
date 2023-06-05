@@ -361,6 +361,12 @@ class SGCell(QtWidgets.QWidget):
             return aDictOfValue[theKey]==self.attributs[theKey]
         return False
     
+    def testCondition(self,aCondition):
+        res = False 
+        if callable(aCondition):
+            res = aCondition(self)
+        return res
+    
     #To change the value
     def changeValue(self,aDictOfValue):
         """NOT TESTED"""

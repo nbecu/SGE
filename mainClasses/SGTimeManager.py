@@ -4,6 +4,7 @@ from SGEndGameCondition import SGEndGameCondition
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from SGModelAction import SGModelAction
 
 #Class that handle the overall management of time 
 class SGTimeManager():
@@ -41,15 +42,19 @@ class SGTimeManager():
                     self.currentRound += 1
                     if self.model.myTimeLabel is not None :
                         self.model.myTimeLabel.updateTimeLabel()
-                    self.model.myUserSelector.updateUI(QHBoxLayout())
+                    if self.model.myUserSelector is not None:
+                        self.model.myUserSelector.updateUI(QHBoxLayout())
             
-                #we change the active player
+                #execute the actions of the phase
                 if doThePhase :
-                    #We make the change
+                    #We can execute the actions
                     if len(thePhase.modelActions) !=0:
-                        for aChange in thePhase.modelActions:
-                            aChange()
-                else:
+                        for aAction in thePhase.modelActions:
+                            if callable(aAction):
+                                          aAction()  #this command executes aAction
+                            elif isinstance(aAction,SGModelAction):
+                                aAction.execute()
+                else:   
                     self.nextPhase()
        
 
