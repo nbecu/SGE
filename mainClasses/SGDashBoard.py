@@ -10,7 +10,7 @@ from SGIndicators import SGIndicators
 #Class who is responsible of the Legend creation 
 class SGDashBoard(SGGameSpace):
     
-    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.white,textColor=Qt.black,layout="vertical"):
+    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.lightGray,textColor=Qt.black,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title

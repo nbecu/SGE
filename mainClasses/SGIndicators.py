@@ -37,7 +37,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.label.setReadOnly(True)
         color = QColor(self.dashboard.textColor)
         color_string = f"color: {color.name()};"
-        self.label.setStyleSheet(color_string)
+        self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
         self.indicatorLayout.addWidget(self.label)
 
     def setName(self,calcValue):

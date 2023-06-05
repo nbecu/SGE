@@ -39,7 +39,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
             self.label.setReadOnly(True)
             color = QColor(self.endGameRule.textColor)
             color_string = f"color: {color.name()};"
-            self.label.setStyleSheet(color_string)
+            self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
             self.conditionLayout.addWidget(self.label)
 
     def setName(self):
@@ -57,7 +57,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
         if self.checkStatus:
             color = QColor(Qt.green)
             color_string = f"color: {color.name()};"
-            self.label.setStyleSheet(color_string)
+            self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
     
     def getUpdatePermission(self):
         if self.endGameRule.displayRefresh=='instantaneous':
