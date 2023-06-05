@@ -227,10 +227,16 @@ class SGCell(QtWidgets.QWidget):
                                 del self.agents[i]
                         self.grid.collectionOfCells.removeVisiblityCell(self.getId())
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
-                        for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
-                            updatePermit=watcher.getUpdatePermission()
-                            if updatePermit:
-                                watcher.updateText()
+                        if self.grid.model.selected[4] == "delete":
+                            updatePermit=True
+                            for item in self.grid.collectionOfCells.watchers:
+                                for watcher in self.grid.collectionOfCells.watchers[item]:
+                                    watcher.updateText()
+                        else:
+                            for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                                updatePermit=watcher.getUpdatePermission()
+                                if updatePermit:
+                                    watcher.updateText()
                         self.show()
                         self.repaint()    
 

@@ -773,13 +773,14 @@ class SGModel(QtWidgets.QMainWindow):
         return aTimeLabel
     
     #To create a Text Box
-    def newTextBox(self,title='Text Box',textToWrite='Welcome in the game !'):
+    def newTextBox(self,textToWrite='Welcome in the game !',title='Text Box'):
         """
         Create a text box
 
         Args:
-        title (str) : name of the widget (default: "Text Box")
         textToWrite (str) : displayed text in the widget (default: "Welcome in the game!")
+        title (str) : name of the widget (default: "Text Box")
+        
         """
         aTextBox=SGTextBox(self,textToWrite,title)
         self.TextBoxes.append(aTextBox)

@@ -37,23 +37,28 @@ class SGTextBox(SGGameSpace):
 
         # Create a title
         self.labelTitle = QtWidgets.QLabel(self.title)
+        font = QFont("Verdana", 12)
+        font.setBold(True)
+        self.labelTitle.setFont(font)
 
         # Create a QTextEdit
         self.textEdit = QtWidgets.QTextEdit()
         self.textEdit.setPlainText(self.textToWrite)
         self.textEdit.setReadOnly(True)
+        self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.textEdit.setStyleSheet("border: none;background-color: lightgray;")
         font = QFont("Verdana", 12)
         self.textEdit.setFont(font)
 
-        # Create a QPushButton to update the text
+        """# Create a QPushButton to update the text
         self.button = QtWidgets.QPushButton("Update Text")
-        self.button.clicked.connect(self.updateText)
+        self.button.clicked.connect(self.updateText)"""
 
         # Create a QVBoxLayout to hold the QTextEdit and QPushButton
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.labelTitle)
         layout.addWidget(self.textEdit)
-        layout.addWidget(self.button)
+        #layout.addWidget(self.button)
 
         # Set the QVBoxLayout as the main layout for the widget
         self.setLayout(layout)

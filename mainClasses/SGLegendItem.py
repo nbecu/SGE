@@ -30,9 +30,9 @@ class SGLegendItem(QtWidgets.QWidget):
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
-        text= "Agent count on this cell : "+str(len(self.agents))
+        text= "show text"
         option1 = QAction(text, self)
-        #option1.triggered.connect(lambda: print(len(self.agents)))
+        option1.triggered.connect(lambda: print(self.texte))
         menu.addAction(option1)
 
         if self.rect().contains(point):

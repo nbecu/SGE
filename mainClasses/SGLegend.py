@@ -53,7 +53,7 @@ class SGLegend(SGGameSpace):
                         item_key = "Delete"
                         if item_key not in added:
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
+                            anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"delete","delete")
                             self.legendItems[aKeyOfGamespace].append(anItem)
                             added.add(item_key)
                             anItem.show()
@@ -70,7 +70,7 @@ class SGLegend(SGGameSpace):
                                 shape='square'
                             if item_key not in added:
                                 self.y=self.y+1
-                                anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"coucou","world")
+                                anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"delete","delete")
                                 self.legendItems[aKeyOfGamespace].append(anItem)
                                 added.add(item_key)
                                 anItem.show()
@@ -227,7 +227,7 @@ class SGLegend(SGGameSpace):
                         item_key = "Delete"
                         if item_key not in added:
                             self.y=self.y+1
-                            anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"coucou","world")
+                            anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"playerDelete","playerDelete")
                             self.legendItems[aKeyOfGamespace].append(anItem)
                             added.add(item_key)
                             anItem.show()
@@ -244,7 +244,7 @@ class SGLegend(SGGameSpace):
                                 shape='square'
                             if item_key not in added:
                                 self.y=self.y+1
-                                anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"coucou","world")
+                                anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"playerDelete","playerDelete")
                                 self.legendItems[aKeyOfGamespace].append(anItem)
                                 added.add(item_key)
                                 anItem.show()
