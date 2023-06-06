@@ -20,6 +20,7 @@ class SGLegendItem(QtWidgets.QWidget):
         self.y=y
         self.color=color
         self.border=border
+        self.remainNumber=int
         self.initUI()
 
     
@@ -30,14 +31,21 @@ class SGLegendItem(QtWidgets.QWidget):
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
-        text= "show text"
+        number=self.updateRemainNumber()
+        text= "Actions remaining : "+str(number)
         option1 = QAction(text, self)
-        option1.triggered.connect(lambda: print(self.texte))
         menu.addAction(option1)
 
-        if self.rect().contains(point):
+        if self.rect().contains(point) and self.clickable:
             menu.exec_(self.mapToGlobal(point))
         
+    
+    def updateRemainNumber(self):
+        thePlayer=self.legend.model.getPlayerObject(self.legend.playerName)
+        self.crossAction(thePlayer)
+        return self.remainNumber
+
+
     #Drawing function
     def paintEvent(self,event):
         if self.legend.checkDisplay():
@@ -175,6 +183,19 @@ class SGLegendItem(QtWidgets.QWidget):
     #To test is it from the admin Legend
     def isFromAdmin(self):
         return self.legend.id=="adminLegend"
+    
+    def crossAction(self,thePlayer):
+        if thePlayer!="Admin":
+            self.clickable=True
+            for actionText in thePlayer.remainActions.keys():
+                if actionText.find(self.texte)!=-1:
+                    self.remainNumber=thePlayer.remainActions[actionText]
+                    break
+        else:
+            self.clickable=False
+
+
+
                     
 
         

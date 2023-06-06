@@ -44,3 +44,7 @@ class SGDelete():
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
+    
+    def getRemainActionNumber(self,thePlayer):
+        remainNumber=self.number-self.numberUsed
+        thePlayer.remainActions[self.name]=remainNumber

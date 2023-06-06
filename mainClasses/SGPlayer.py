@@ -17,6 +17,7 @@ class SGPlayer():
         self.name=name
         self.actions=actions
         self.gameActions=[]
+        self.remainActions={}
 
     def newLegendPlayer(self,Name,showAgents=False):
         """
@@ -85,10 +86,7 @@ class SGPlayer():
             if isinstance(action.anObject,SGAgent) and not isinstance(action,SGMove) :#and not isinstance (action,SGDelete) #! cas des agents sans attributs
                 attributs.append(action.anObject.name)
             if (isinstance(action.anObject,SGCell) or action.anObject == SGCell) and isinstance(action,SGUpdate): #! cas des cellules
-                print(action.name)
-                print(action.dictNewValues)
                 key=''.join(list(action.dictNewValues.keys()))
-                print(key)
                 attributs.append(key)
         return attributs
     
@@ -110,10 +108,13 @@ class SGPlayer():
         if isinstance(aGameAction,SGDelete):
             #self.ControlPanel.addDeleteButton("Remove",aGameAction.dictAttributs)
             self.gameActions.append(aGameAction)
+            aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction,SGCreate):
             self.gameActions.append(aGameAction)
+            aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction,SGUpdate):
             self.gameActions.append(aGameAction)
+            aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction,SGMove):
             self.gameActions.append(aGameAction)
         return aGameAction

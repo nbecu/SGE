@@ -13,6 +13,7 @@ class SGGameActions():
                 authorisation=theAction.getAuthorize(aObject)
                 if authorisation : 
                     theAction.use()
+                    theAction.getRemainActionNumber(thePlayer)
         return authorisation
 
     def getMovePermission(aObject):
@@ -29,3 +30,7 @@ class SGGameActions():
                 if authorisation :
                     theAction.use()
         return authorisation
+    
+
+    
+

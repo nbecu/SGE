@@ -9,10 +9,7 @@ class SGMove():
         self.numberUsed=0
         self.dictAttributs=dictAttributs
         self.restrictions=restrictions
-        if isinstance(anObject,SGAgent):
-            self.name="Move "+str(anObject.getId())
-        elif isinstance(anObject,SGCell):
-            self.name="Move "+str(anObject.name)
+        self.name="Move "+str(anObject.name)
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
         self.feedbackAgent=feedbackAgent

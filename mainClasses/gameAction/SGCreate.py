@@ -9,7 +9,7 @@ class SGCreate():
         self.number=number
         self.numberUsed=0
         self.dictAttributs=dictAttributs
-        self.name="CreateAction "+str(anObject)
+        self.name="CreateAction "+str(anObject.name)
         self.restrictions=restrictions
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
@@ -48,6 +48,10 @@ class SGCreate():
 
     def getnumberUsed(self):
         return self.numberUsed
+    
+    def getRemainActionNumber(self,thePlayer):
+        remainNumber=self.number-self.numberUsed
+        thePlayer.remainActions[self.name]=remainNumber
         
     
 

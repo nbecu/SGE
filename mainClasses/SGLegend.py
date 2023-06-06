@@ -367,7 +367,9 @@ class SGLegend(SGGameSpace):
                                 anItem.show()
                                 added_species.add(item_key)
 
-
+            thePlayer=self.model.getPlayerObject(self.playerName)
+            for item in self.legendItems[aKeyOfGamespace]:
+                item.crossAction(thePlayer)
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
 

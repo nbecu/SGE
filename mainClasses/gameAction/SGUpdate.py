@@ -8,7 +8,10 @@ class SGUpdate():
         self.number=number
         self.numberUsed=0
         self.dictNewValues=dictNewValues
-        self.name="UpdateAction "+str(anObject)
+        key = list(self.dictNewValues.keys())[0]  # Récupère la clé du dictionnaire
+        value = self.dictNewValues[key]  # Récupère la valeur correspondante
+        result = key + " " + value
+        self.name="UpdateAction "+result
         self.restrictions=restrictions
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack            
@@ -43,6 +46,11 @@ class SGUpdate():
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
+        
+    def getRemainActionNumber(self,thePlayer):
+        remainNumber=self.number-self.numberUsed
+        thePlayer.remainActions[self.name]=remainNumber
+    
     
 
   
