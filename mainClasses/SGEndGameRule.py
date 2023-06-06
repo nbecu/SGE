@@ -9,7 +9,7 @@ from SGEndGameCondition import SGEndGameCondition
 
 class SGEndGameRule(SGGameSpace):
 
-    def __init__(self, parent, title, numberRequired,displayRefresh='instantaneous',isDisplay=True,borderColor=Qt.black,backgroundColor=Qt.darkGray,layout="vertical",textColor=Qt.black):
+    def __init__(self, parent, title, numberRequired,displayRefresh='instantaneous',isDisplay=True,borderColor=Qt.black,backgroundColor=Qt.lightGray,layout="vertical",textColor=Qt.black):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -50,17 +50,17 @@ class SGEndGameRule(SGGameSpace):
             self.show()
 
     #To add a condition to end the game
-    def addEndGameCondition_onIndicator(self,indicator,logicalTest,objective,name=None,color=Qt.black,isDisplay=True):
+    def addEndGameCondition_onIndicator(self,indicator,logicalTest,objective,name="Indicator based condition",color=Qt.black,isDisplay=True):
         aCondition=SGEndGameCondition(self,name,entity=indicator,method=logicalTest,objective=objective,attribut=None,color=color,calcType="onIndicator",isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
     
-    def addEndGameCondition_onEntity(self,entity,attribut,logicalTest,objective,name=None,color=Qt.black,isDisplay=True):
+    def addEndGameCondition_onEntity(self,entity,attribut,logicalTest,objective,name="Entity based condition",color=Qt.black,isDisplay=True):
         aCondition=SGEndGameCondition(self,name,entity=entity,method=logicalTest,objective=objective,attribut=attribut,color=color,calcType="onEntity",isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
     
-    def addEndGameCondition_onGameRound(self,logicalTest,objective,name=None,color=Qt.black,isDisplay=True):
+    def addEndGameCondition_onGameRound(self,logicalTest,objective,name="Game round condition",color=Qt.black,isDisplay=True):
         aCondition=SGEndGameCondition(self,name,entity=None,method=logicalTest,objective=objective,attribut=None,color=color,calcType="onGameRound",isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)

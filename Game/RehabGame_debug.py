@@ -58,8 +58,8 @@ TextBox=myModel.newTextBox(title='Début du jeu',textToWrite="Bonjour et bienven
 TextBox.addText("J'espère que vous allez bien!!!",toTheLine=True)
 #TextBox.setTextColor()
 
-DashBoard=myModel.newDashBoard(borderColor=Qt.black,backgroundColor=Qt.transparent,textColor=Qt.red)
-i1=DashBoard.addIndicator("sumAtt",'cell','Resource',isDisplay=False)
+DashBoard=myModel.newDashBoard(borderColor=Qt.black,textColor=Qt.red)
+i1=DashBoard.addIndicator("sumAtt",'cell','Resource')
 i2=DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
@@ -67,9 +67,9 @@ DashBoard.showIndicators()
 userSelector=myModel.newUserSelector()
 
 endGameRule=myModel.newEndGameRule(numberRequired=2)
-endGameRule.addEndGameCondition_onIndicator(i1,"equal",90)
+endGameRule.addEndGameCondition_onIndicator(i1,"equal",90,name="Resource equal to 90")
 targetCell = aGrid.getCell(1,5)
-endGameRule.addEndGameCondition_onEntity(targetCell,'Resource',"greater",2)
+endGameRule.addEndGameCondition_onEntity(targetCell,'Resource',"greater",2,name="Cell 1-5 Resource is greater than 2")
 endGameRule.showEndGameConditions()
 
 

@@ -33,7 +33,6 @@ class SGEndGameCondition(QtWidgets.QWidget):
     def initUI(self):
         if self.isDisplay:
             self.conditionLayout = QtWidgets.QHBoxLayout()
-            self.name='test' #self.setName()
             self.label = QtWidgets.QTextEdit(self.name)
             self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.label.setReadOnly(True)
@@ -42,20 +41,10 @@ class SGEndGameCondition(QtWidgets.QWidget):
             self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
             self.conditionLayout.addWidget(self.label)
 
-    def setName(self):
-        if self.attribut is not None:
-            aName = self.entity + self.method+' '+self.attribut
-        else:
-            aName=self.method+' '+self.entity+" : "+str()+'/'+str(self.objective)
-        return aName
-
     def updateText(self):
-        """newCalc=self.byMethod()
-        newText= self.setName(newCalc)
-        self.label.setPlainText(newText)"""
         self.verifStatus()
         if self.checkStatus:
-            color = QColor(Qt.green)
+            color = QColor(Qt.darkGreen)
             color_string = f"color: {color.name()};"
             self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
     
