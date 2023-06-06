@@ -19,12 +19,12 @@ class SGPlayer():
         self.gameActions=[]
         self.remainActions={}
 
-    def newLegendPlayer(self,Name,showAgents=False):
+    def newControlPanel(self,Name,showAgents=False):
         """
-        To create an Player Legend (only with the GameActions related elements)
+        To create an Player Control Panel (only with the GameActions related elements)
         
         Args:
-        Name (str): name of the Legend
+        Name (str): name of the Control Panel, displayed
 
         """
         #Creation
@@ -105,8 +105,13 @@ class SGPlayer():
 #Definiton of the methods who the modeler will use
     
     def addGameAction(self,aGameAction):
+        """
+        Add a action to the Player
+
+        Args:
+            aGameAction (instance) : myModel.createAction instance
+        """
         if isinstance(aGameAction,SGDelete):
-            #self.ControlPanel.addDeleteButton("Remove",aGameAction.dictAttributs)
             self.gameActions.append(aGameAction)
             aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction,SGCreate):

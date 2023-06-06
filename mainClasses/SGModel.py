@@ -407,6 +407,7 @@ class SGModel(QtWidgets.QMainWindow):
         
         Args:
         Name (str): name of the Legend (default : adminLegend)
+        showAgents (bool) : display of non attribute dependant agents (default : False)
 
         """
         #Creation
@@ -721,6 +722,12 @@ class SGModel(QtWidgets.QMainWindow):
         
     # To create a player
     def newPlayer(self,name):
+        """"
+        Create a new player
+
+        Args:
+            name (str) : name of the Player (will be displayed)
+        """
         player=SGPlayer(self,name)
         self.players[name]=player
         self.users.append(player.name)
@@ -1005,7 +1012,7 @@ class SGModel(QtWidgets.QMainWindow):
         Args:
         - anObjectType : a AgentSpecies or the keyword "Cell"
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
         
         """
         if aNumber=="infinite":
@@ -1019,7 +1026,7 @@ class SGModel(QtWidgets.QMainWindow):
         Args:
         - anObjectType : a AgentSpecies or the keyword "Cell"
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
         
         """
         if anObjectType=='Cell':
@@ -1035,7 +1042,7 @@ class SGModel(QtWidgets.QMainWindow):
         Args:
         - anObjectType : a AgentSpecies
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
         
         """
         if aNumber=="infinite":
@@ -1049,7 +1056,7 @@ class SGModel(QtWidgets.QMainWindow):
         Args:
         - anObjectType : a AgentSpecies
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribut with value concerned, could be None
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
         
         """
         if aNumber=="infinite":
