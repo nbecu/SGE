@@ -36,7 +36,7 @@ class SGTimeManager():
 
                     
                 thePhase= self.phases[self.currentPhase]
-                #check conditions
+                #check conditions for the phase
                 doThePhase=True
                 if self.currentPhase == 1 and len(self.phases) > 1:
                     self.currentRound += 1

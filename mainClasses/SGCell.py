@@ -359,6 +359,10 @@ class SGCell(QtWidgets.QWidget):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
+    def value(self,att):
+        """to comment"""
+        return self.attributs[att]
+    
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
         """NOT TESTED"""

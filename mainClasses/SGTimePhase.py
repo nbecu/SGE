@@ -31,6 +31,7 @@ class SGModelPhase(SGTimePhase):
     def __init__(self,actions,actionsCondition=[],feedBacks=[],feedBacksCondition=[],name=''):
         if isinstance(actions, list):
             self.modelActions=actions
+            #CHANGER ICI
         elif callable(actions): 
             self.modelActions= [actions]
         elif isinstance(actions,SGModelAction): 

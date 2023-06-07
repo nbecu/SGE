@@ -17,53 +17,31 @@ myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"f
 myModel.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 
-# Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
-# Moutons=myModel.newAgentSpecies("Moutons","circleAgent",uniqueColor=Qt.yellow)
-
-# Moutons.newPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-# Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-
-
-# m1=myModel.newAgent(aGrid,Moutons,3,7)
-# m2=myModel.newAgent(aGrid,Moutons,6,3)
-# m2.setValueAgent('health','good')
-# m1.setValueAgent('health','bad')
-# m2.setValueAgent('hunger','good')
-# m1.setValueAgent('hunger','bad')
-# #print(myModel.AgentSpecies)
-
-# agent_list = []
-# for animal, sub_dict in myModel.agentSpecies.items():
-#     for agent_id, agent_dict in sub_dict['AgentList'].items():
-#         agent_list.append(agent_dict['AgentObject'])
 
 theFirstLegend=myModel.newLegendAdmin()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
-# myModel.timeManager.newGamePhase('Phase 1', 'player1')
 
+#CREATIONS DE MODEL ACTIONS
+    #TROIS ECRITURES POSSIBLES
+aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",2,"landUse","forest"))
+aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
+aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
 
-# myModel.timeManager.newModelPhase(lambda: aGrid.setRandomCells("landUse","shrub",3))
+    #POSSIBILITE d'AJOUTER UNE CONDITION GENERALE A l'ACTION
+aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
+aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3)
+aModelAction5 =myModel.newModelAction((lambda: aGrid.setRandomCells("landUse","forest",2)), conditions= (lambda: myModel.getCurrentRound()==3) ) #cette instruction ne marche pas car y'a ne embrouille dans cnodtons qui est appliqué sur toutes les modelActions  
 
-# myModel.timeManager.newModelPhase(
-#     # lambda: aGrid.setRandomCells("landUse","shrub",3),
-#     # lambda: len(aGrid.getCellOfValue({'landUse':'forest'})) > 15,
-#     lambda: aGrid.setRandomCell("landUse","forest"))
-# myModel.timeManager.newModelPhase(
-#     lambda: aGrid.setRandomCells("landUse","shrub",3),
-#     )
-# aGrid.getRandomCell(lambda x: x.attributs["landUse"] == "forest")
-# aGameAction=myModel.newModelAction(lambda: aGrid.setRandomCell("landUse","forest"))
+# AJOUT DES MODEL ACTIONS DANS LES PHASE
+myModel.timeManager.newModelPhase(aModelAction3)
 
-aGameAction=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",2,"landUse","forest"))
-# aGameAction.addCondition(lambda: aGrid.setRandomCell("landUse","forest"))
-myModel.timeManager.newModelPhase(aGameAction)
-
-# myModel.timeManager.newModelPhase( 
-#     [
-#     lambda: aGrid.setRandomCell("landUse","forest"),
-#     lambda: aGrid.setRandomCells("landUse","shrub",3)]
-#     )
+myModel.timeManager.newModelPhase( 
+    [
+    lambda: aGrid.setRandomCell("landUse","grass"), ## ATTTENTION CHNAGER LA FACON DONT S'EST INITIALISE POUR QUE CA CREE DES MODEL ACTIONS EN ARRIERE PLAN
+    lambda: aGrid.setRandomCells("landUse","shrub",3)
+    ]
+    )
 
 
 

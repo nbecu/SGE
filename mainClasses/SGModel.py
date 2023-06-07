@@ -112,7 +112,12 @@ class SGModel(QtWidgets.QMainWindow):
         self.timer= QTimer()
         self.haveToBeClose=False
         self.initUI()
-        
+
+        self.initIDs()
+
+
+    def initIDs(self):
+        self.id_modelActions= 0 
     
     def initUI(self):
         #Definition of the view through the a widget
@@ -708,17 +713,20 @@ class SGModel(QtWidgets.QMainWindow):
             aAgent.moveAgent(aGrid,numberOfMovement=numberOfMovement)
 
     # To create a modelAction
-    def newModelAction(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[]):
+    def newModelAction(self,actions=[],conditions=[],feedBacks=[],feedBacksCondition=[]):
         """
         To add a model action which can be executed during a modelPhase
         args:
             actions (lambda function): Actions the model performs during the phase (add, delete, move...)
-            condition (lambda function): Actions are performed only if the condition returns true  
+            conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): Feedback actions performed only if the actions are executed
             feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
         """
-        aGameAction=SGModelAction(actions,condition,feedBacks,feedBacksCondition)
-        return aGameAction
+        aModelAction=SGModelAction(actions,conditions,feedBacks,feedBacksCondition)
+        self.id_modelActions+=1
+        aModelAction.id = self.id_modelActions
+        aModelAction.model = self
+        return aModelAction
         
     # To create a player
     def newPlayer(self,name):
