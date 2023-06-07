@@ -84,16 +84,28 @@ class SGDashBoard(SGGameSpace):
             return False
         
 
-    def addIndicator(self,method,entity,attribut,value=None,indicatorName=None,isDisplay=True):
+    def addIndicator(self,method,entity,attribute,value=None,indicatorName=None,isDisplay=True,color=Qt.black):
+        """
+        Add an Indicator on the DashBoard.
+
+        Args:
+            method (str) : name of the method. list in the documentation.
+            entity (str) : "cell" or "agent"
+            attribute (str) : concerned attribute 
+            value (str, optionnal) : concerned value
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+
+        """
         color=self.textColor
         self.y=self.y+1
-        indicator=SGIndicators(self,self.y,indicatorName,method,attribut,value,entity,color,isDisplay)
+        indicator=SGIndicators(self,self.y,indicatorName,method,attribute,value,entity,color,isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id=self.IDincr
         self.IDincr=+1
         if entity == 'cell':
-            self.setCellWatchers(attribut,indicator)
+            self.setCellWatchers(attribute,indicator)
         return indicator
    
     def setCellWatchers(self,attribut,indicator):
@@ -104,35 +116,115 @@ class SGDashBoard(SGGameSpace):
                 cellCollection.watchers[attribut]=[]
             cellCollection.watchers[attribut].append(indicator)
 
-    def addIndicator_Sum(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_Sum(self,entity,attribut,value,indicatorName,isDisplay):
+        """
+        Add a sum indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str, optionnal) : non required
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='sumAtt'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        self.addIndicator(method,entity,attribut,value,indicatorName,isDisplay,color)
     
     def addIndicator_Avg(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a average indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str, optionnal) : non required
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='avgAtt'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_Min(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a minimum indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str, optionnal) : non required
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='minAtt'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_Max(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a maximum indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str, optionnal) : non required
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='maxAtt'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
     
     def addIndicator_EqualTo(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a equal to indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str) : value to do the logical test
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='nbEqualTo'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
     
     def addIndicator_WithLess(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a with less indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str) : value to do the logical test
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='nbWithLess'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_WithMore(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a with more indicator
+        Args :
+            entity (str) : "cell"
+            attribute (str) : concerned attribute 
+            value (str) : for certain methods, a value is required
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='nbWithMore'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
 
     def addIndicator_Nb(self,entity,attribut,value,indicatorName,color=Qt.black):
+        """
+        Add a sum indicator
+        Args :
+            entity (str) : "cell" or "agent
+            attribute (str) : concerned attribute 
+            value (str, optionnal) : non required
+            indicatorName (str, optionnal) : name displayed on the dashboard
+            isDisplay (bool) : display on the dashboard (default : True)
+        """
+        color=self.textColor
         method='nb'
         self.addIndicator(method,entity,attribut,value,indicatorName,color)
     

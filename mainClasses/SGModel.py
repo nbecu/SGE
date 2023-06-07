@@ -486,6 +486,10 @@ class SGModel(QtWidgets.QMainWindow):
         return AgentSpecie
     
     def newUserSelector(self):
+        """
+        To create an User Selector in your game. Functions automatically with the players declared in your model. 
+
+        """
         if len(self.users)>1 and len(self.players) >0:
             userSelector = SGUserSelector(self,self.users)
             self.myUserSelector=userSelector
@@ -853,6 +857,13 @@ class SGModel(QtWidgets.QMainWindow):
         return aDashBoard
 
     def newEndGameRule(self,title='EndGame Rules',numberRequired=1):
+        """
+        Create the EndGame Rule Board of the game
+
+        Args:
+            title (str) : header of the board, displayed (default : EndGame Rules)
+            numberRequired (int) : number of completed conditions to trigger EndGame
+        """
         aEndGameRule=SGEndGameRule(self,title,numberRequired)
         self.gameSpaces[title]=aEndGameRule
         self.endGameRule=aEndGameRule
@@ -871,11 +882,6 @@ class SGModel(QtWidgets.QMainWindow):
         self.applyPersonalLayout()
 
         return aEndGameRule
-    
-    def addVictoryConditions(self):
-        'IN PROGRESS'
-        pass
-    
     
     def getCurrentRound(self):
         return self.timeManager.currentRound

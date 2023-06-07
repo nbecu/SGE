@@ -51,16 +51,48 @@ class SGEndGameRule(SGGameSpace):
 
     #To add a condition to end the game
     def addEndGameCondition_onIndicator(self,indicator,logicalTest,objective,name="Indicator based condition",color=Qt.black,isDisplay=True):
+        """
+        Create an EndGame Condition with an Indicator
+
+        Args:
+            indicator (instance) : indicator concerned
+            logicalTest (str): logical test concerned, see list on documentation
+            objective (int) : objective value to do logical test with
+            name (str) : name of the end game condition, displayed (default : "Indicator based condition")
+            color (Qt.color) : text color (default : black)
+            isDisplay (bool) : is displayed in the EndGameRule board (default : True)
+        """
         aCondition=SGEndGameCondition(self,name,entity=indicator,method=logicalTest,objective=objective,attribut=None,color=color,calcType="onIndicator",isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
     
-    def addEndGameCondition_onEntity(self,entity,attribut,logicalTest,objective,name="Entity based condition",color=Qt.black,isDisplay=True):
-        aCondition=SGEndGameCondition(self,name,entity=entity,method=logicalTest,objective=objective,attribut=attribut,color=color,calcType="onEntity",isDisplay=isDisplay)
+    def addEndGameCondition_onEntity(self,entity,attribute,logicalTest,objective,name="Entity based condition",color=Qt.black,isDisplay=True):
+        """Create an EndGame Condition with an Entity
+
+        Args:
+            indicator (instance) : an entity (a cell)
+            attribute (str) : attribute concerned
+            logicalTest (str): logical test concerned, see list on documentation
+            objective (int) : objective value to do logical test with
+            name (str) : name of the end game condition, displayed (default : “Entity based condition")
+            color (Qt.color) : text color (default : black)
+            isDisplay (bool) : is displayed in the EndGameRule board (default : True)
+        """
+        aCondition=SGEndGameCondition(self,name,entity=entity,method=logicalTest,objective=objective,attribut=attribute,color=color,calcType="onEntity",isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
     
     def addEndGameCondition_onGameRound(self,logicalTest,objective,name="Game round condition",color=Qt.black,isDisplay=True):
+        """
+        Create an EndGame Condition on the time (game rounds)
+        
+        Args:
+            logicalTest (str): logical test concerned, see list on documentation
+            objective (int) : objective value to do logical test with
+            name (str) : name of the end game condition, displayed (default : “Entity based condition")
+            color (Qt.color) : text color (default : black)
+            isDisplay (bool) : is displayed in the EndGameRule board (default : True)
+        """
         aCondition=SGEndGameCondition(self,name,entity=None,method=logicalTest,objective=objective,attribut=None,color=color,calcType="onGameRound",isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
