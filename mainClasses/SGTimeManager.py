@@ -109,17 +109,31 @@ class SGTimeManager():
 
  #To add a new Phase during which the model will execute some instructions
  # TO BE CONTINUED
-    def newModelPhase(self,actions=[],condition=[],feedBacks=[],feedBacksCondition=[],name=''):
+    def newModelPhase(self,actions=[],condition=[],name=''):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
         args:
             actions (lambda function): Actions the model performs during the phase (add, delete, move...)
             condition (lambda function): Actions are performed only if the condition returns true  
-            feedbacks (lambda function): Feedback actions performed only if the actions are executed
-            feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
             name (str): Name displayed on the TimeLabel
         """
-        aPhase=SGModelPhase(actions,condition,feedBacks,feedBacksCondition,name)
+        modelActions =[]
+        if isinstance(actions,SGModelAction):
+            actions.addCondition(condition)
+            modelActions.append((actions))
+        elif callable(actions): 
+            modelActions.append(self.model.newModelAction(actions,condition))
+        elif isinstance(actions, list):
+           for aAction in actions:
+               if isinstance(aAction,SGModelAction):
+                    aAction.addCondition(condition)
+                    modelActions.append((aAction))
+               elif callable(aAction): 
+                    modelActions.append(self.model.newModelAction(aAction,condition))
+        else: 
+            raise ValueError("Syntax error of actions")
+        
+        aPhase=SGModelPhase(modelActions=modelActions,name=name)
         self.phases.append(aPhase)
         return aPhase
        

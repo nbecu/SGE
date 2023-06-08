@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent")
+myModel=SGModel(1000,850, windowTitle="A simulation/game with one agent")
 
 aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
 aGrid.setCells("landUse","grass")
@@ -22,13 +22,21 @@ theFirstLegend=myModel.newLegendAdmin()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
+DashBoard=myModel.newDashBoard(borderColor=Qt.black,textColor=Qt.red)
+i1=DashBoard.addIndicator_EqualTo('cell','landUse',"forest","Taille de la foret",(Qt.red))
+DashBoard.showIndicators()
 
-myModel.timeManager.newModelPhase(  
-    [
-    lambda: aGrid.setRandomCell("landUse","grass",(lambda x: x.value("landUse") == "forest")),
-    lambda: aGrid.setRandomCells("landUse","shrub",3)
-    ]
-    )
+
+#CREATIONS DE MODEL ACTIONS
+aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","shrub",2))
+    #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
+aModelAction1.addFeedback(lambda: i1.value(i1.value + 5)) 
+
+
+# AJOUT DES MODEL ACTIONS DANS LES PHASE
+myModel.timeManager.newModelPhase(aModelAction1)
+
+
 
 
 

@@ -274,46 +274,47 @@ class SGGrid(SGGameSpace):
         return litsOfCells
     
   #Return a random cell 
-    def getRandomCell(self, condition=None):
+    def getRandomCell(self, condition=None,listOfEntitiesToPickFrom=None):
         """
         Return a random cell.
         """
+        if listOfEntitiesToPickFrom == None:
+            listOfEntitiesToPickFrom = self.getCells()
         if condition == None:
-            listOfCells = self.getCells()
+            listOfEntities = listOfEntitiesToPickFrom
         else:
-            listOfCells =[]
-            for aCell in self.getCells():
-                if aCell.testCondition(condition):
-                     listOfCells.append(aCell)
-        return random.choice(listOfCells)
+            listOfEntities =[]
+            for aEntity in listOfEntitiesToPickFrom:
+                if aEntity.testCondition(condition):
+                     listOfEntities.append(aEntity)
+        if listOfEntities == []:
+            return False
+        else:
+            return random.choice(listOfEntities)
 
    #Return a random cell with a certain value
     def getRandomCell_withValue(self,att,val, condition=None):
         """
         Return a random cell.
         """
-        if condition == None:
-            listOfCells = self.getCells_withValue(att,val)
-        else:
-            listOfCells =[]
-            for aCell in self.getCells_withValue(att,val):
-                if aCell.testCondition(condition):
-                     listOfCells.append(aCell)
-        return random.choice(listOfCells)
+        return self.getRandomCell(condition=condition,listOfEntitiesToPickFrom = self.getCells_withValue(att,val))
+
+        # if condition == None:
+        #     listOfCells = self.getCells_withValue(att,val)
+        # else:
+        #     listOfCells =[]
+        #     for aCell in self.getCells_withValue(att,val):
+        #         if aCell.testCondition(condition):
+        #              listOfCells.append(aCell)
+        # return random.choice(listOfCells)
 
   #Return a random cell not having a certain value
     def getRandomCell_withValueNot(self,att,val, condition=None):
         """
         Return a random cell.
         """
-        if condition == None:
-            listOfCells = self.getCells_withValueNot(att,val)
-        else:
-            listOfCells =[]
-            for aCell in self.getCells_withValueNot(att,val):
-                if aCell.testCondition(condition):
-                     listOfCells.append(aCell)
-        return random.choice(listOfCells)
+        return self.getRandomCell(condition=condition,listOfEntitiesToPickFrom = self.getCells_withValueNot(att,val))
+
 
 
 
@@ -363,17 +364,8 @@ class SGGrid(SGGameSpace):
         args:
             aNumber (int): a number of cells to be randomly selected
         """
-        if condition == None:
-            listOfCells = self.getCells_withValue(att,val)
-        else:
-            listOfCells =[]
-            for aCell in self.getCells_withValue(att,val):
-                if aCell.testCondition(condition):
-                     listOfCells.append(aCell)
-        if listOfCells == []:
-            return []
-        else:
-            return random.sample(listOfCells,aNumber)
+        return self.getRandomCells(aNumber,condition=condition,listOfEntitiesToPickFrom = self.getCells_withValue(att,val))
+        
     
     #Return random cells not having a certain value
     def getRandomCells_withValueNot(self,aNumber,att,val,condition=None):
@@ -382,7 +374,6 @@ class SGGrid(SGGameSpace):
         args:
             aNumber (int): a number of cells to be randomly selected
         """
-        
         return self.getRandomCells(aNumber,condition=condition,listOfEntitiesToPickFrom = self.getCells_withValueNot(att,val))
         # if condition == None:
         #     listOfCells = self.getCells_withValueNot(att,val)

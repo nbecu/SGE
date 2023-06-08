@@ -28,19 +28,15 @@ class SGTimePhase():
     
 #Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
-    def __init__(self,actions,actionsCondition=[],feedBacks=[],feedBacksCondition=[],name=''):
-        if isinstance(actions, list):
-            self.modelActions=actions
-            #CHANGER ICI
-        elif callable(actions): 
-            self.modelActions= [actions]
-        elif isinstance(actions,SGModelAction): 
-            self.modelActions= [actions]
+    def __init__(self,modelActions=[],feedBacks=[],feedBacksCondition=[],name=''):
+        if isinstance(modelActions,SGModelAction):
+            modelActions=[modelActions]
+        elif isinstance(modelActions, list):
+            self.modelActions= modelActions
         else:
             raise ValueError("Syntax error of actions")
-        self.actionsCondition=actionsCondition
-        self.feedBacks=feedBacks
-        self.feedBacksCondition=feedBacksCondition
+        self.feedBacks=feedBacks # a priori obsolete
+        self.feedBacksCondition=feedBacksCondition # a priori obsolete
         self.name=name
   
             

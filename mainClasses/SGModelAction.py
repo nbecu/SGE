@@ -6,28 +6,27 @@ from mainClasses.SGCell import SGCell
 # #Class who manage a action to be executed by the model.
 # It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
 class SGModelAction():
-    def __init__(self,actions=[],conditions=[],feedBacks=[],feedBacksCondition=[]):
+    def __init__(self,actions=[],conditions=[],feedbacks=[],feedbacksCondition=[]):
         self.actions=[]
         self.conditions=[]
-        self.feedBacks=[]
-        self.feedBacksCondition=[]
+        self.feedbacks=[]
+        self.feedbacksCondition=[]
         if isinstance(actions, list):
             self.actions=actions
         elif callable(actions): 
             self.actions= [actions]
         else:
             raise ValueError("Syntax error of actions")
-        self.conditions=[]
-        # if isinstance(conditions, list):
-        #     self.conditions=conditions
-        # elif callable(conditions): 
-        #     self.conditions= [conditions]
+        if isinstance(conditions, list):
+            self.conditions=conditions
+        elif callable(conditions): 
+            self.conditions= [conditions]
         # if len(conditions) !=0:
         #     self.conditions = conditions # to be corrected
         #     breakpoint
         # self.testIfCallableAndPutInList(conditions)
-        self.feedBacks=feedBacks
-        self.feedBacksCondition=feedBacksCondition
+        self.feedbacks=feedbacks
+        self.feedbacksCondition=feedbacksCondition
         
         
     #Function to test if the game action could be use
@@ -58,9 +57,20 @@ class SGModelAction():
     
     def execute(self):
         if self.testConditions():
+            allActionsDone = True
             for aAction in self.actions:
                 if callable(aAction):
-                    aAction()  #this command executes aAction
+                    test = aAction()  #this command executes aAction
+                    if test == False:
+                        allActionsDone = False
+                else:
+                    raise ValueError("Syntax error of actions")
+            if allActionsDone:
+                for aFeedbackAction in self.feedbacks:
+                    aFeedbackAction.execute()
+                
+ 
+            
             
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
@@ -73,7 +83,12 @@ class SGModelAction():
         return self
 
     def addFeedback(self,aFeedback):
-        self.feedback.append(aFeedback)
+        if isinstance(aFeedback,SGModelAction):
+            self.feedbacks.append(aFeedback)
+        elif callable(aFeedback): 
+            self.feedbacks.append(self.model.newModelAction(aFeedback))
+        else:
+            raise ValueError("Syntax error of feeback")
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
