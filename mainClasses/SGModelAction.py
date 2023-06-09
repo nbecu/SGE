@@ -88,7 +88,7 @@ class SGModelAction():
         elif callable(aFeedback): 
             self.feedbacks.append(self.model.newModelAction(aFeedback))
         else:
-            raise ValueError("Syntax error of feeback")
+            raise ValueError("Syntax error of feedback")
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)

@@ -833,7 +833,7 @@ class SGModel(QtWidgets.QMainWindow):
 
         Args:
         title (str) : title of the widget (default:"Phases&Rounds")
-        displayRefresh (str) : type of refresh (default:'instantaneous')
+        displayRefresh (str) : type of refresh in ['instantaneous', 'withButton'] (default:'instantaneous') 
         backgroundColor (Qt Color) : color of the background (default : Qt.transparent)
         borderColor (Qt Color) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)

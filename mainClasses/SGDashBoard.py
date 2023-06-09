@@ -10,7 +10,7 @@ from SGIndicators import SGIndicators
 #Class who is responsible of the Legend creation 
 class SGDashBoard(SGGameSpace):
     
-    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.lightGray,textColor=Qt.black,layout="vertical"):
+    def __init__(self,parent,title,displayRefresh='instantaneous',borderColor=Qt.black,backgroundColor=Qt.lightGray,titleColor=Qt.black,layout="vertical"):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
         self.model=parent
         self.id=title
@@ -18,7 +18,7 @@ class SGDashBoard(SGGameSpace):
         self.indicators=[]
         self.borderColor=borderColor
         self.backgroundColor=backgroundColor
-        self.textColor=textColor
+        self.titleColor=titleColor
         self.y=0
         self.isDisplay=True
         self.displayRefresh=displayRefresh
@@ -32,18 +32,12 @@ class SGDashBoard(SGGameSpace):
     def showIndicators(self):
         # Delete all
         layout = self.layout
-        """for i in reversed(range(layout.count())):
-            item = layout.itemAt(i)
-            if isinstance(item, (QtWidgets.QSpacerItem, QtWidgets.QWidgetItem, QtWidgets.QHBoxLayout)): # Vérifiez si l'élément est dans la liste
-                layout.removeItem(item) # Supprimez l'élément du layout
-                del item # supprimez l'objet de la mémoire"""
-            
-        
+                
         title=QtWidgets.QLabel(self.id)
         font = QFont()
         font.setBold(True)
         title.setFont(font)
-        color = QColor(self.textColor)
+        color = QColor(self.titleColor)
         color_string = f"color: {color.name()};"
         title.setStyleSheet(color_string)
         layout.addWidget(title)
@@ -84,20 +78,20 @@ class SGDashBoard(SGGameSpace):
             return False
         
 
-    def addIndicator(self,method,entity,attribute,value=None,indicatorName=None,isDisplay=True,color=Qt.black):
+    def addIndicator(self,method,entity,color,attribute,value=None,indicatorName=None,isDisplay=True):
         """
         Add an Indicator on the DashBoard.
 
         Args:
-            method (str) : name of the method. list in the documentation.
+            method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"].
             entity (str) : "cell" or "agent"
+            color (Qt.color) : text color
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        color=self.textColor
         self.y=self.y+1
         indicator=SGIndicators(self,self.y,indicatorName,method,attribute,value,entity,color,isDisplay)
         self.indicatorNames.append(indicator.name)
@@ -116,7 +110,7 @@ class SGDashBoard(SGGameSpace):
                 cellCollection.watchers[attribut]=[]
             cellCollection.watchers[attribut].append(indicator)
 
-    def addIndicator_Sum(self,entity,attribut,value,indicatorName,isDisplay):
+    def addIndicator_Sum(self,entity,attribut,value,indicatorName,isDisplay,color):
         """
         Add a sum indicator
         Args :
@@ -126,11 +120,11 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='sumAtt'
-        self.addIndicator(method,entity,attribut,value,indicatorName,isDisplay,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName,isDisplay)
+        return indicator
     
-    def addIndicator_Avg(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_Avg(self,entity,attribut,value,indicatorName,color):
         """
         Add a average indicator
         Args :
@@ -140,11 +134,11 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='avgAtt'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName)
+        return indicator
 
-    def addIndicator_Min(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_Min(self,entity,attribut,value,indicatorName,color):
         """
         Add a minimum indicator
         Args :
@@ -154,11 +148,11 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='minAtt'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName)
+        return indicator
 
-    def addIndicator_Max(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_Max(self,entity,attribut,value,indicatorName,color):
         """
         Add a maximum indicator
         Args :
@@ -168,11 +162,11 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='maxAtt'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName)
+        return indicator
     
-    def addIndicator_EqualTo(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_EqualTo(self,entity,attribut,value,indicatorName,color):
         """
         Add a equal to indicator
         Args :
@@ -182,11 +176,11 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='nbEqualTo'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName)
+        return indicator
     
-    def addIndicator_WithLess(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_WithLess(self,entity,attribut,value,indicatorName,color):
         """
         Add a with less indicator
         Args :
@@ -196,11 +190,12 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='nbWithLess'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName)
+        return indicator
+        
 
-    def addIndicator_WithMore(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_WithMore(self,entity,attribut,value,indicatorName,color):
         """
         Add a with more indicator
         Args :
@@ -210,11 +205,11 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='nbWithMore'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator =self.addIndicator(method,entity,color,attribut,value,indicatorName)
+        return indicator
 
-    def addIndicator_Nb(self,entity,attribut,value,indicatorName,color=Qt.black):
+    def addIndicator_Nb(self,entity,attribut,value,indicatorName,color):
         """
         Add a sum indicator
         Args :
@@ -224,9 +219,8 @@ class SGDashBoard(SGGameSpace):
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
         """
-        color=self.textColor
         method='nb'
-        indicator = self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        indicator = self.addIndicator(method,entity,color,attribut,value,indicatorName)
         return indicator
 
     # *Functions to have the global size of a gameSpace  

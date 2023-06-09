@@ -9,7 +9,7 @@ import numpy as np
    
 #Class who is responsible of indicator creation 
 class SGIndicators(QtWidgets.QWidget):
-    def __init__(self,parent,y,name,method,attribut,value,entity,color,isDisplay):
+    def __init__(self,parent,y,name,method,attribut,value,entity,color=Qt.blue,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -35,27 +35,22 @@ class SGIndicators(QtWidgets.QWidget):
         self.label = QtWidgets.QTextEdit(self.name)
         self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.label.setReadOnly(True)
-        color = QColor(self.dashboard.textColor)
+        color = QColor(self.color)
         color_string = f"color: {color.name()};"
         self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
         self.indicatorLayout.addWidget(self.label)
 
-    def setName(self,aResult):
+    def setName(self,calcValue):
         if self.value is not None:
-            aName= self.method+' '+self.attribut+" "+self.value+" : "+str(aResult)
+            aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
         else:
-            aName = self.method+' '+self.attribut+" : "+str(aResult)
+            aName = self.method+' '+self.attribut+" : "+str(calcValue)
         return aName
 
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
-        newText= self.setName(self.result)
-        self.label.setPlainText(newText)
-
-    def setResult(self,aValue):
-        self.result=aValue
-        newText= self.setName(self.result)
+        newText= self.setName(newCalc)
         self.label.setPlainText(newText)
     
     def getUpdatePermission(self):
@@ -109,7 +104,7 @@ class SGIndicators(QtWidgets.QWidget):
                                 if cell.attributs[self.attribut]<self.value:
                                     counter=counter+1
                         calcValue=counter
-                    else:
+                    if self.method == "nbWithMore":
                         for cell in cells:
                             if cell.isDisplay ==True:
                                 if cell.attributs[self.attribut]>self.value:
