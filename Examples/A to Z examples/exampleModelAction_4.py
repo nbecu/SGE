@@ -32,8 +32,6 @@ DashBoard.showIndicators()
 aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","shrub",2))
     #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
 aModelAction1.addFeedback(lambda: i1.setResult(i1.result + 5)) 
-# IL Y A UN PROBLEME CAR CA AJOUTE LE FEEDBACK A TOUTES LES MODEL ACTIONS Y COMPRIS AU FEEDBACK QUI EST UNE GAME ACTION ET DU COUP CA CREE UNE BOUCLE INFINI
-# aModelAction1.feedbacks[0].feedbacks[0].feedbacks[0]
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE

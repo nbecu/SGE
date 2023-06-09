@@ -50,7 +50,12 @@ class SGIndicators(QtWidgets.QWidget):
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
-        newText= self.setName(newCalc)
+        newText= self.setName(self.result)
+        self.label.setPlainText(newText)
+
+    def setResult(self, aValue):
+        self.result=aValue
+        newText= self.setName(self.result)
         self.label.setPlainText(newText)
     
     def getUpdatePermission(self):

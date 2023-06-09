@@ -77,24 +77,24 @@ class SGModelAction():
 
     def addCondition(self,aCondition):
         if callable(aCondition):
-            self.conditions.append(aCondition)
+            self.conditions = self.conditions + [aCondition]
         else:
             breakpoint
         return self
 
     def addFeedback(self,aFeedback):
         if isinstance(aFeedback,SGModelAction):
-            self.feedbacks.append(aFeedback)
-        elif callable(aFeedback): 
-            self.feedbacks.append(self.model.newModelAction(aFeedback))
+            self.feedbacks = self.feedbacks + [aFeedback]
+        elif callable(aFeedback):
+            self.feedbacks = self.feedbacks + [ self.model.newModelAction(aFeedback)]
         else:
             raise ValueError("Syntax error of feedback")
         
-    def addConditionOfFeedBack(self,aCondition):
-        self.conditionOfFeedBack.append(aCondition)
+    # def addConditionOfFeedBack(self,aCondition):
+    #     self.conditionOfFeedBack.append(aCondition)
         
     def setRandomCells(self, att, value,nb):
-        self.actions.append((lambda : self.model.grid.setRandomCells(att, value,nb)))
+        self.actions = self.actions + [lambda : self.model.grid.setRandomCells(att, value,nb)]
         return self
 
   

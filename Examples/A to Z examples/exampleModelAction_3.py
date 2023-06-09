@@ -30,7 +30,7 @@ aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("
 
     #POSSIBILITE d'AJOUTER UNE CONDITION GENERALE A l'ACTION
 aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
-# aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) #PROBLEME . CETTE INSTRUCTION POSE PROBLEME CAR CA RAJOUET LA CONDITION A TOUTES LES MODELACTION, MEME CELLES QUI NE SONT LA MODELACTION4
+aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) 
 
 aModelAction5 =myModel.newModelAction((lambda: aGrid.setRandomCells("landUse","forest",2)), conditions= (lambda: myModel.getCurrentRound()==3) ) #cette instruction ne marche pas car y'a ne embrouille dans cnodtons qui est appliqué sur toutes les modelActions  
 

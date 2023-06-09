@@ -1,5 +1,5 @@
 from SGTimePhase import SGTimePhase
-from mainClasses.SGTimePhase import SGModelPhase
+from SGTimePhase import SGModelPhase
 from SGEndGameCondition import SGEndGameCondition
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import *
@@ -104,7 +104,7 @@ class SGTimeManager():
         if activePlayers== None:
             activePlayers=self.model.users
         aPhase=SGTimePhase(name,activePlayers,modelActions)
-        self.phases.append(aPhase)
+        self.phases = self.phases + [aPhase]
         return aPhase
 
  #To add a new Phase during which the model will execute some instructions
@@ -134,7 +134,7 @@ class SGTimeManager():
             raise ValueError("Syntax error of actions")
         
         aPhase=SGModelPhase(modelActions=modelActions,name=name)
-        self.phases.append(aPhase)
+        self.phases = self.phases + [aPhase]
         return aPhase
        
 
