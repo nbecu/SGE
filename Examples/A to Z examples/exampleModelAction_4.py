@@ -22,20 +22,22 @@ theFirstLegend=myModel.newLegendAdmin()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
-DashBoard=myModel.newDashBoard(borderColor=Qt.black,textColor=Qt.red)
-i1=DashBoard.addIndicator_EqualTo('cell','landUse',"forest","Taille de la foret",(Qt.red))
+DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
+i1=DashBoard.addIndicator_Nb('cell','landUse',"forest","Taille de la foret",(Qt.blue))
+# i1.setUpdateAtEachRound(True)
 DashBoard.showIndicators()
 
 
 #CREATIONS DE MODEL ACTIONS
 aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","shrub",2))
     #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
-aModelAction1.addFeedback(lambda: i1.value(i1.value + 5)) 
+aModelAction1.addFeedback(lambda: i1.setResult(i1.result + 5)) 
+# IL Y A UN PROBLEME CAR CA AJOUTE LE FEEDBACK A TOUTES LES MODEL ACTIONS Y COMPRIS AU FEEDBACK QUI EST UNE GAME ACTION ET DU COUP CA CREE UNE BOUCLE INFINI
+# aModelAction1.feedbacks[0].feedbacks[0].feedbacks[0]
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE
 myModel.timeManager.newModelPhase(aModelAction1)
-
 
 
 

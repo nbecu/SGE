@@ -40,17 +40,22 @@ class SGIndicators(QtWidgets.QWidget):
         self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
         self.indicatorLayout.addWidget(self.label)
 
-    def setName(self,calcValue):
+    def setName(self,aResult):
         if self.value is not None:
-            aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
+            aName= self.method+' '+self.attribut+" "+self.value+" : "+str(aResult)
         else:
-            aName = self.method+' '+self.attribut+" : "+str(calcValue)
+            aName = self.method+' '+self.attribut+" : "+str(aResult)
         return aName
 
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
-        newText= self.setName(newCalc)
+        newText= self.setName(self.result)
+        self.label.setPlainText(newText)
+
+    def setResult(self,aValue):
+        self.result=aValue
+        newText= self.setName(self.result)
         self.label.setPlainText(newText)
     
     def getUpdatePermission(self):

@@ -226,8 +226,8 @@ class SGDashBoard(SGGameSpace):
         """
         color=self.textColor
         method='nb'
-        self.addIndicator(method,entity,attribut,value,indicatorName,color)
-    
+        indicator = self.addIndicator(method,entity,attribut,value,indicatorName,color)
+        return indicator
 
     # *Functions to have the global size of a gameSpace  
     def getSizeXGlobal(self):
