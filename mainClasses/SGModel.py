@@ -717,16 +717,15 @@ class SGModel(QtWidgets.QMainWindow):
             aAgent.moveAgent(aGrid,numberOfMovement=numberOfMovement)
 
     # To create a modelAction
-    def newModelAction(self,actions=[],conditions=[],feedBacks=[],feedBacksCondition=[]):
+    def newModelAction(self,actions=[],conditions=[],feedbacks=[]):
         """
         To add a model action which can be executed during a modelPhase
         args:
             actions (lambda function): Actions the model performs during the phase (add, delete, move...)
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): Feedback actions performed only if the actions are executed
-            feddbacksCondition (lambda function): Feedback actions are performed only if the feddbacksCondition returns true  
         """
-        aModelAction=SGModelAction(actions,conditions,feedBacks,feedBacksCondition)
+        aModelAction=SGModelAction(actions,conditions,feedbacks)
         self.id_modelActions+=1
         aModelAction.id = self.id_modelActions
         aModelAction.model = self

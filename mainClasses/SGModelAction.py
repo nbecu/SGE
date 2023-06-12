@@ -6,11 +6,10 @@ from mainClasses.SGCell import SGCell
 # #Class who manage a action to be executed by the model.
 # It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
 class SGModelAction():
-    def __init__(self,actions=[],conditions=[],feedbacks=[],feedbacksCondition=[]):
+    def __init__(self,actions=[],conditions=[],feedbacks=[]):
         self.actions=[]
         self.conditions=[]
         self.feedbacks=[]
-        self.feedbacksCondition=[]
         if isinstance(actions, list):
             self.actions=actions
         elif callable(actions): 
@@ -26,7 +25,6 @@ class SGModelAction():
         #     breakpoint
         # self.testIfCallableAndPutInList(conditions)
         self.feedbacks=feedbacks
-        self.feedbacksCondition=feedbacksCondition
         
         
     #Function to test if the game action could be use

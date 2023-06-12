@@ -32,7 +32,8 @@ aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("
 aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
 aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) 
 
-aModelAction5 =myModel.newModelAction((lambda: aGrid.setRandomCells("landUse","forest",2)), conditions= (lambda: myModel.getCurrentRound()==3) ) #cette instruction ne marche pas car y'a ne embrouille dans cnodtons qui est appliqué sur toutes les modelActions  
+aModelAction5 =myModel.newModelAction((lambda: aGrid.setRandomCells("landUse","forest",2)), conditions= (lambda: myModel.getCurrentRound()==3) )
+ #cette instruction ne marche pas car y'a ne embrouille dans conditions qui est appliqué sur toutes les modelActions  
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE
 myModel.timeManager.newModelPhase(aModelAction2)
