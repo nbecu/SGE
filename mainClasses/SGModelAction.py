@@ -75,6 +75,14 @@ class SGModelAction():
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
+
+    def addModelAction(self,aAction):
+        if callable(aAction):
+            self.actions = self.actions + [aAction]
+        else:
+            raise ValueError("""Syntax error of actions. aAction should be:
+                                a lambda function (syntax -> (lambda: instruction))""")
+        
     def addCondition(self,aCondition):
         if callable(aCondition):
             self.conditions = self.conditions + [aCondition]
@@ -88,7 +96,9 @@ class SGModelAction():
         elif callable(aFeedback):
             self.feedbacks = self.feedbacks + [ self.model.newModelAction(aFeedback)]
         else:
-            raise ValueError("Syntax error of feedback")
+            raise ValueError("""Syntax error of actions. aAction should be:
+                                a lambda function (syntax -> (lambda: instruction)),
+                                or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
         
     # def addConditionOfFeedBack(self,aCondition):
     #     self.conditionOfFeedBack.append(aCondition)

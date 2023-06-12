@@ -469,3 +469,6 @@ class SGCell(QtWidgets.QWidget):
             self.collectionOfAgents.agents[i].deleteLater()
             del self.collectionOfAgents.agents[i]
         self.update()
+
+    def doAction(self, aLambdaFunction):
+        aLambdaFunction(self)

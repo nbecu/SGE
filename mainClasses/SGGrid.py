@@ -789,6 +789,10 @@ class SGGrid(SGGameSpace):
             if len(cell.collectionOfAgents.agents)!=0:
                 return True
         return False
+    
+    def cellsDo(self,aLambdaFunction):
+        for aCell in self.getCells():
+            aCell.doAction(aLambdaFunction)
        
        
     

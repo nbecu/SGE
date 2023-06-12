@@ -130,8 +130,14 @@ class SGTimeManager():
                     modelActions.append((aAction))
                elif callable(aAction): 
                     modelActions.append(self.model.newModelAction(aAction,condition))
+               else: 
+                    raise ValueError("""Syntax error of actions. aAction should be:
+                                a lambda function (syntax -> (lambda: instruction)),
+                                or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
         else: 
-            raise ValueError("Syntax error of actions")
+            raise ValueError("""Syntax error of actions. aAction should be:
+                                a lambda function (syntax -> (lambda: instruction)),
+                                or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
         
         aPhase=SGModelPhase(modelActions=modelActions,name=name)
         self.phases = self.phases + [aPhase]
