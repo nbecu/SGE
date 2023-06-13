@@ -1108,18 +1108,184 @@ class SGModel(QtWidgets.QMainWindow):
     def launch_withoutMqtt(self):
         self.show()
 
-
-     
+    #To open and launch the game
+    def launch(self):
+        self.initMQTT()
+        self.show()
 
     #Return all the GM of players 
-
-
     def getGM(self):
         listOfGm=[]
         for player in self.players.values() :
             for gm in player.gameActions:
                 listOfGm.append(gm)
         return listOfGm
+    
+    #Function that process the message
+    def handleMessageMainThread(self):
+            msg = str(self.q.get())
+            print(msg)
+            info=eval(str(msg)[2:-1])
+            print("process un message")
+            if len(info)==1:
+                if msg not in self.listOfSubChannel:
+                    self.listOfSubChannel.append(info[0])
+                self.client.subscribe(info[0])
+                self.client.publish(self.currentPlayer,self.submitMessage())
+            else:
+                if info[2]!= self.currentPlayer:
+                    allCells=[]
+                    for aGrid in self.getGrids():
+                        for aCell in list(aGrid.collectionOfCells.getCells().values()):
+                            allCells.append(aCell)
+                        
+                    for i in range(len(info[0])):
+                        allCells[i].isDisplay=info[0][i][0]
+                        allCells[i].attributs=info[0][i][1]
+                        allCells[i].owner=info[0][i][2]
+                        allCells[i].history=info[0][i][3]
+                        if allCells[i].x==0 and allCells[i].y==0:
+                            if allCells[i].parent.haveAgents():
+                                for aCell in allCells[i].parent.collectionOfCells.getCells().values():
+                                    aCell.deleteAllAgent()
+                        if len(info[0][i][4]) !=0:
+                            for j in range(len(info[0][i][4])):
+                                agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
+                                agent.attributs=info[0][i][4][j][1]
+                                agent.owner=info[0][i][4][j][2]
+                                agent.history=info[0][i][4][j][3]
+                                agent.x=info[0][i][4][j][4]
+                                agent.y=info[0][i][4][j][5]
+                    #We change the time manager
+                    self.timeManager.actualPhase=info[1][0]
+                    self.timeManager.actualRound=info[1][1]
+                    #We subscribe 
+                    for sub in info[3]:
+                        if sub != self.currentPlayer:
+                            self.client.subscribe(sub)
+                    if self.timeManager.actualPhase==0:
+                        #We reset GM
+                        for gm in self.getGM():
+                            gm.reset()
+                    
+        
+    #MQTT Basic function to  connect to the broker
+    def connect_mqtt(self):
+        def on_connect(client, userdata, flags, rc):
+            if rc == 0:
+                print("Connected to MQTT Broker!")
+            else:
+                print("Failed to connect, return code %d\n", rc)
+                
+        print("connectMQTT")
+        self.client = mqtt_client.Client(self.currentPlayer)
+        self.client.on_connect = on_connect
+        self.q = queue.Queue()
+        self.t1 = threading.Thread(target=self.handleClientThread,args=())
+        self.t1.start()
+        self.timer.start(100)
+        self.client.connect("localhost", 1883)
+        self.client.user_data_set(self)
+    
+    #Thread that handle the listen of the client 
+    def handleClientThread(self):
+        while True:
+            self.client.loop(.1)
+            if self.haveToBeClose==True:
+                break
+    
+     
+    #Init the MQTT client   
+    def initMQTT(self):
+        def on_message(client, userdata, msg):
+            userdata.q.put(msg.payload) 
+                
+        self.connect_mqtt()
+        
+        #IF not admin Request which channel to sub
+        if self.currentPlayer!="Admin":
+            print("on est notAdmin")
+            self.client.subscribe("Admin")
+            print("onSub a Admin")
+            self.client.on_message = on_message
+            self.listOfSubChannel.append(self.currentPlayer)
+            self.client.publish("createPlayer",str([self.currentPlayer]))
+        #If Admin
+        else:
+            print("On Est admin")
+            self.client.subscribe("createPlayer")
+            print("onSub a createPlayer")
+            self.client.on_message = on_message
+            
+
+    #publish on mqtt broker the state of all entities of the world
+    def publishEntitiesState(self):
+        if hasattr(self, 'client'):
+            self.client.publish(self.currentPlayer,self.submitMessage())
+            
+        
+    #Send a message                   
+    def submitMessage(self):
+        print(self.currentPlayer+" send un message")
+        message="["
+        allCells=[]
+        for aGrid in self.getGrids():
+            for aCell in list(aGrid.collectionOfCells.getCells().values()):
+                allCells.append(aCell)
+        for i in range(len(allCells)):
+            message=message+"["
+            message=message+str(allCells[i].isDisplay)
+            message=message+","
+            message=message+str(allCells[i].attributs)
+            message=message+","
+            message=message+"'"+str(allCells[i].owner)+"'"
+            message=message+","
+            message=message+str(allCells[i].history)
+            message=message+","
+            message=message+"["
+            '''theAgents =allCells[i].collectionOfAgents.getAgents()
+            for j in range(len(theAgents)):
+                print("envoie agent "+str(j))
+                message=message+"["
+                message=message+"'"+str(theAgents[j].name)+"'"
+                message=message+","
+                message=message+str(theAgents[j].attributs)
+                message=message+","
+                message=message+"'"+str(theAgents[j].owner)+"'"
+                message=message+","
+                message=message+str(theAgents[j].history)
+                message=message+","
+                message=message+str(theAgents[j].x)
+                message=message+","
+                message=message+str(theAgents[j].y)
+                message=message+"]"
+                if j != len(theAgents):
+                    message=message+","
+            message=message+"]"
+            message=message+"]"'''
+            if i != len(allCells):
+                message=message+","
+        message=message+"]"
+        message=message+","
+        message=message+"["
+        message=message+str(self.timeManager.actualPhase)
+        message=message+","
+        message=message+str(self.timeManager.actualRound)
+        message=message+","
+        message=message+"]"
+        message=message+","
+        message=message+"["
+        message=message+"'"+str(self.currentPlayer)+"'"
+        message=message+"]"
+        message=message+","
+        message=message+str(self.listOfSubChannel)
+        print(message)
+        return message
+        
+    #Event that append at every end of the timer ( litteral )  
+    def eventTime(self):
+        if not self.q.empty():
+            self.handleMessageMainThread()
     
     
             
