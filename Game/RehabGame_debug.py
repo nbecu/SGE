@@ -9,7 +9,7 @@ monApp=QtWidgets.QApplication([])
 
 #STEP1 Create the model
 
-myModel=SGModel(1800,900, windowTitle="dev project : Rehab Game", typeOfLayout ="grid")
+myModel=SGModel(900,900, windowTitle="dev project : Rehab Game", typeOfLayout ="grid")
 
 
 #STEP2 Create the model
@@ -26,6 +26,16 @@ aGrid.setRandomCells("ProtectionLevel","Reserve",1)
 myModel.newPov("Resource","Resource",{"3":Qt.darkGreen,"2":Qt.green,"1":Qt.yellow,"0":Qt.white})
 myModel.newBorderPov("ProtectionLevel","ProtectionLevel",{"Reserve":Qt.magenta,"Free":Qt.black})
 
+Player1=myModel.newPlayer("Player 1")
+
+
+myModel.timeManager.newGamePhase('Phase 1',['Admin','Player 1'])
+myModel.currentPlayer='Player 1'
+
+userSelector=myModel.newUserSelector()
+
+
+"""
 Workers=myModel.newAgentSpecies("Workers","triangleAgent1",uniqueColor=Qt.black)
 Birds=myModel.newAgentSpecies("Birds","triangleAgent2",uniqueColor=Qt.yellow)
 
@@ -63,7 +73,6 @@ i1=DashBoard.addIndicator("sumAtt",'cell','Resource')
 i2=DashBoard.addIndicator("avgAtt",'cell','Resource')
 DashBoard.showIndicators()
 
-
 userSelector=myModel.newUserSelector()
 
 endGameRule=myModel.newEndGameRule(numberRequired=2)
@@ -71,10 +80,12 @@ endGameRule.addEndGameCondition_onIndicator(i1,"equal",90,name="Resource equal t
 targetCell = aGrid.getCell(1,5)
 endGameRule.addEndGameCondition_onEntity(targetCell,'Resource',"greater",2,name="Cell 1-5 Resource is greater than 2")
 endGameRule.showEndGameConditions()
+"""
 
 
 
 
-myModel.launch_withoutMqtt() 
+#myModel.launch_withoutMqtt() 
+myModel.launch()
 
 sys.exit(monApp.exec_())

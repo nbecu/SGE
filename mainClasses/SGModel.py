@@ -109,6 +109,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.myTimeLabel=None
         
         self.listOfSubChannel=[]
+        self.listOfMajs=[]
         self.timer= QTimer()
         self.haveToBeClose=False
         self.initUI()
@@ -253,6 +254,7 @@ class SGModel(QtWidgets.QMainWindow):
     #Trigger the next turn
     def nextTurn(self):
         self.timeManager.nextPhase()
+        self.eventTime()
         
     def closeEvent(self, event):
         print("trigger")
@@ -1124,10 +1126,9 @@ class SGModel(QtWidgets.QMainWindow):
     #Function that process the message
     def handleMessageMainThread(self):
             msg = str(self.q.get())
-            print(msg)
-            info=eval(str(msg)[2:-1])
-            print("process un message")
-            if len(info)==1:
+            #info=eval(str(msg)[2:-1])
+            print("process un message : " +msg)
+            """if len(info)==1:
                 if msg not in self.listOfSubChannel:
                     self.listOfSubChannel.append(info[0])
                 self.client.subscribe(info[0])
@@ -1166,24 +1167,32 @@ class SGModel(QtWidgets.QMainWindow):
                     if self.timeManager.actualPhase==0:
                         #We reset GM
                         for gm in self.getGM():
-                            gm.reset()
+                            gm.reset()"""
                     
         
     #MQTT Basic function to  connect to the broker
     def connect_mqtt(self):
+        def on_log(client, userdata,level,buf):
+            print("log: "+buf)
+            
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 print("Connected to MQTT Broker!")
             else:
                 print("Failed to connect, return code %d\n", rc)
                 
+        def on_disconnect(client,userdata,flags,rc=0):
+            print("disconnect result code "+str(rc))
+                
         print("connectMQTT")
         self.client = mqtt_client.Client(self.currentPlayer)
         self.client.on_connect = on_connect
+        self.client.on_disconnect = on_disconnect
+        self.client.on_log=on_log
         self.q = queue.Queue()
         self.t1 = threading.Thread(target=self.handleClientThread,args=())
         self.t1.start()
-        self.timer.start(100)
+        self.timer.start(5)
         self.client.connect("localhost", 1883)
         self.client.user_data_set(self)
     
@@ -1198,39 +1207,45 @@ class SGModel(QtWidgets.QMainWindow):
     #Init the MQTT client   
     def initMQTT(self):
         def on_message(client, userdata, msg):
-            userdata.q.put(msg.payload) 
+            userdata.q.put(msg.payload)
+            print("message received "+ msg.topic)
+            
                 
         self.connect_mqtt()
         
         #IF not admin Request which channel to sub
         if self.currentPlayer!="Admin":
-            print("on est notAdmin")
-            self.client.subscribe("Admin")
-            print("onSub a Admin")
+            #self.client.subscribe("Admin")
+            self.client.subscribe("Gamestates")
             self.client.on_message = on_message
-            self.listOfSubChannel.append(self.currentPlayer)
-            self.client.publish("createPlayer",str([self.currentPlayer]))
+            self.listOfSubChannel.append("Gamestates")
+            #self.client.publish("createPlayer",str([self.currentPlayer]))
         #If Admin
         else:
-            print("On Est admin")
-            self.client.subscribe("createPlayer")
-            print("onSub a createPlayer")
+            #self.client.subscribe("createPlayer")
+            self.client.subscribe("Gamestates")
             self.client.on_message = on_message
+            self.listOfSubChannel.append("Gamestates")
+            #self.client.publish("createPlayer",str([self.currentPlayer]))
             
 
     #publish on mqtt broker the state of all entities of the world
     def publishEntitiesState(self):
         if hasattr(self, 'client'):
-            self.client.publish(self.currentPlayer,self.submitMessage())
+            self.client.publish('Gamestates',self.submitMessage()+ "GS")
+            #self.client.publish(self.currentPlayer,self.submitMessage() + "PL")
+            
             
         
     #Send a message                   
     def submitMessage(self):
         print(self.currentPlayer+" send un message")
-        message="["
+        majNumber=self.getMAJNumber()
+        nb=str(majNumber)+"-"+self.currentPlayer
+        message="[["+nb+"]"
         allCells=[]
         for aGrid in self.getGrids():
-            for aCell in list(aGrid.collectionOfCells.getCells().values()):
+            for aCell in list(aGrid.collectionOfCells.getCells()):
                 allCells.append(aCell)
         for i in range(len(allCells)):
             message=message+"["
@@ -1268,9 +1283,9 @@ class SGModel(QtWidgets.QMainWindow):
         message=message+"]"
         message=message+","
         message=message+"["
-        message=message+str(self.timeManager.actualPhase)
+        message=message+str(self.timeManager.currentPhase)
         message=message+","
-        message=message+str(self.timeManager.actualRound)
+        message=message+str(self.timeManager.currentRound)
         message=message+","
         message=message+"]"
         message=message+","
@@ -1280,6 +1295,7 @@ class SGModel(QtWidgets.QMainWindow):
         message=message+","
         message=message+str(self.listOfSubChannel)
         print(message)
+        self.listOfMajs.append(str(majNumber)+"-"+self.currentPlayer)
         return message
         
     #Event that append at every end of the timer ( litteral )  
@@ -1287,7 +1303,14 @@ class SGModel(QtWidgets.QMainWindow):
         if not self.q.empty():
             self.handleMessageMainThread()
     
+    def getMAJNumber(self):
+        majNumber=len(self.listOfMajs)
+        return majNumber
     
+    def authorizeMsgProcess(self,msg):
+        msg.find()
+        pass
+        
             
         
     
