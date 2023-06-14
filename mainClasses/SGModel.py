@@ -4,27 +4,27 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QAction
 from PyQt5 import QtWidgets
-from layout.SGVerticalLayout import SGVerticalLayout
-from layout.SGHorizontalLayout import SGHorizontalLayout
-from layout.SGGridLayout import SGGridLayout
-from gameAction.SGGameActions import SGGameActions
-from gameAction.SGMove import SGMove
-from gameAction.SGDelete import SGDelete
-from gameAction.SGUpdate import SGUpdate
-from gameAction.SGCreate import SGCreate
-from SGLegend import SGLegend
-from SGVoid import SGVoid
-from SGCell import SGCell
-from SGGrid import SGGrid
-from SGModelAction import SGModelAction
-from SGEndGameRule import SGEndGameRule
-from SGUserSelector import SGUserSelector
-from SGDashBoard import SGDashBoard
-from SGTextBox import SGTextBox
-from SGTimeLabel import SGTimeLabel
-from SGTimeManager import SGTimeManager
-from SGPlayer import SGPlayer
-from SGAgent import SGAgent
+from mainClasses.layout.SGVerticalLayout import SGVerticalLayout
+from mainClasses.layout.SGHorizontalLayout import SGHorizontalLayout
+from mainClasses.layout.SGGridLayout import SGGridLayout
+from mainClasses.gameAction.SGGameActions import SGGameActions
+from mainClasses.gameAction.SGMove import SGMove
+from mainClasses.gameAction.SGDelete import SGDelete
+from mainClasses.gameAction.SGUpdate import SGUpdate
+from mainClasses.gameAction.SGCreate import SGCreate
+from mainClasses.SGLegend import SGLegend
+from mainClasses.SGVoid import SGVoid
+from mainClasses.SGCell import SGCell
+from mainClasses.SGGrid import SGGrid
+from mainClasses.SGModelAction import SGModelAction
+from mainClasses.SGEndGameRule import SGEndGameRule
+from mainClasses.SGUserSelector import SGUserSelector
+from mainClasses.SGDashBoard import SGDashBoard
+from mainClasses.SGTextBox import SGTextBox
+from mainClasses.SGTimeLabel import SGTimeLabel
+from mainClasses.SGTimeManager import SGTimeManager
+from mainClasses.SGPlayer import SGPlayer
+from mainClasses.SGAgent import SGAgent
 from email.policy import default
 from logging.config import listen
 import sys
@@ -1252,7 +1252,7 @@ class SGModel(QtWidgets.QMainWindow):
     def publishEntitiesState(self):
         if hasattr(self, 'client'):
             self.client.publish('Gamestates', self.submitMessage() + "GS")
-            #self.client.publish(self.currentPlayer,self.submitMessage() + "PL")
+            # self.client.publish(self.currentPlayer,self.submitMessage() + "PL")
 
     # Send a message
 

@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from sqlalchemy import true
 from PyQt5.QtWidgets import  QAction, QGraphicsRectItem, QGraphicsView, QGraphicsScene
 import random
-from gameAction.SGGameActions import SGGameActions
+from mainClasses.gameAction.SGGameActions import SGGameActions
 
    
 #Class who is responsible of the declaration a Agent

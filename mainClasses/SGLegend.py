@@ -4,12 +4,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null, true
 
-from SGGameSpace import SGGameSpace
-from SGLegendItem import SGLegendItem
-from SGCell import SGCell
-from SGGrid import SGGrid
-from SGAgent import SGAgent
-from gameAction.SGDelete import SGDelete
+from mainClasses.SGGameSpace import SGGameSpace
+from mainClasses.SGLegendItem import SGLegendItem
+from mainClasses.SGCell import SGCell
+from mainClasses.SGGrid import SGGrid
+from mainClasses.SGAgent import SGAgent
+from mainClasses.gameAction.SGDelete import SGDelete
 #from gameAction import SGCreate
 #from SGCreate import getNumberUsed
 

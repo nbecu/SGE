@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from SGAgent import SGAgent
-from gameAction.SGGameActions import SGGameActions
+from mainClasses.SGAgent import SGAgent
+from mainClasses.gameAction.SGGameActions import SGGameActions
 import re
 
 

@@ -1,10 +1,10 @@
-from SGTimePhase import SGTimePhase
-from SGTimePhase import SGModelPhase
-from SGEndGameCondition import SGEndGameCondition
+from mainClasses.SGTimePhase import SGTimePhase
+from mainClasses.SGTimePhase import SGModelPhase
+from mainClasses.SGEndGameCondition import SGEndGameCondition
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from SGModelAction import SGModelAction
+from mainClasses.SGModelAction import SGModelAction
 
 # Class that handle the overall management of time
 
