@@ -354,6 +354,7 @@ class SGModel(QtWidgets.QMainWindow):
 # For create elements
     # To create a grid
 
+
     def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
         """
         Create a grid that contains cells
@@ -1147,7 +1148,7 @@ class SGModel(QtWidgets.QMainWindow):
     def handleMessageMainThread(self):
         msg = str(self.q.get())
         # info=eval(str(msg)[2:-1])
-        print("process un message : " + msg)
+        print("process le message")
         """if len(info)==1:
                 if msg not in self.listOfSubChannel:
                     self.listOfSubChannel.append(info[0])
@@ -1228,7 +1229,8 @@ class SGModel(QtWidgets.QMainWindow):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
-            self.authorizeMsgProcess(msg)
+            # self.eventTime()
+            self.authorizeMsgProcess(msg.payload)
 
         self.connect_mqtt()
 
@@ -1276,26 +1278,23 @@ class SGModel(QtWidgets.QMainWindow):
             message = message+str(allCells[i].history)
             message = message+","
             message = message+"["
-            '''theAgents =allCells[i].collectionOfAgents.getAgents()
-            for j in range(len(theAgents)):
-                print("envoie agent "+str(j))
-                message=message+"["
-                message=message+"'"+str(theAgents[j].name)+"'"
-                message=message+","
-                message=message+str(theAgents[j].attributs)
-                message=message+","
-                message=message+"'"+str(theAgents[j].owner)+"'"
-                message=message+","
-                message=message+str(theAgents[j].history)
-                message=message+","
-                message=message+str(theAgents[j].x)
-                message=message+","
-                message=message+str(theAgents[j].y)
-                message=message+"]"
-                if j != len(theAgents):
-                    message=message+","
-            message=message+"]"
-            message=message+"]"'''
+            theAgents = self.getAgents()
+            for aAgent in range(len(theAgents)):
+                print("envoie agent "+str(aAgent))
+                message = message+"["
+                message = message+"'"+str(aAgent.id)+"'"
+                message = message+","
+                message = message+str(aAgent.dictOfAttributs)
+                message = message+","
+                message = message+"'"+str(aAgent.owner)+"'"
+                message = message+","
+                message = message+str(aAgent.history)
+                message = message+","
+                message = message+str(aAgent.cell.name)
+                message = message+"]"
+                message = message+","
+            message = message+"]"
+            message = message+"]"
             if i != len(allCells):
                 message = message+","
         message = message+"]"
@@ -1326,7 +1325,7 @@ class SGModel(QtWidgets.QMainWindow):
         return majID
 
     def authorizeMsgProcess(self, msg):
-        majID = re.search(r'\[(.*?)\]', msg).group(1)
+        majID = re.search(r'\[(.*?)\]', msg.decode('utf-8')).group(1)
         if majID not in self.processedMAJ:
             self.processedMAJ.add(majID)
             self.handleMessageMainThread()
