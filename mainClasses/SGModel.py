@@ -36,6 +36,7 @@ from paho.mqtt import client as mqtt_client
 import threading
 import queue
 import random
+import re
 
 sys.path.insert(0, str(Path(__file__).parent))
 
