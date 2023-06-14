@@ -354,7 +354,6 @@ class SGModel(QtWidgets.QMainWindow):
 # For create elements
     # To create a grid
 
-
     def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
         """
         Create a grid that contains cells
@@ -1274,36 +1273,39 @@ class SGModel(QtWidgets.QMainWindow):
             message = message+str(allCells[i].attributs)
             message = message+","
             message = message+"'"+str(allCells[i].owner)+"'"
-            message = message+","
-            message = message+str(allCells[i].history)
-            message = message+","
-            message = message+"["
-            theAgents = self.getAgents()
-            for aAgent in range(len(theAgents)):
-                print("envoie agent "+str(aAgent))
-                message = message+"["
-                message = message+"'"+str(aAgent.id)+"'"
-                message = message+","
-                message = message+str(aAgent.dictOfAttributs)
-                message = message+","
-                message = message+"'"+str(aAgent.owner)+"'"
-                message = message+","
-                message = message+str(aAgent.history)
-                message = message+","
-                message = message+str(aAgent.cell.name)
-                message = message+"]"
-                message = message+","
-            message = message+"]"
+            #message = message+","
+            #message = message+str(allCells[i].history)
+            #message = message+","
             message = message+"]"
             if i != len(allCells):
                 message = message+","
-        message = message+"]"
-        message = message+","
+        #message = message + ','
+        theAgents = self.getAgents()
+        for aAgent in theAgents:
+            print("envoie agent "+str(aAgent))
+            message = message+"["
+            message = message+"'"+str(aAgent.id)+"'"
+            message = message+","
+            message = message+str(aAgent.dictOfAttributs)
+            message = message+","
+            message = message+"'"+str(aAgent.owner)+"'"
+            message = message+","
+            #message = message+str(aAgent.history)
+            #message = message+","
+            message = message+str(aAgent.cell.name)
+            message = message+"]"
+            message = message+","
+
+        #message = message+"]"
+        #message = message+"]"
+
+        #message = message+"]"
+        #message = message+","
         message = message+"["
         message = message+str(self.timeManager.currentPhase)
         message = message+","
         message = message+str(self.timeManager.currentRound)
-        message = message+","
+        #message = message+","
         message = message+"]"
         message = message+","
         message = message+"["
@@ -1311,6 +1313,7 @@ class SGModel(QtWidgets.QMainWindow):
         message = message+"]"
         message = message+","
         message = message+str(self.listOfSubChannel)
+        message = message+"]"
         print(message)
         self.listOfMajs.append(str(majID)+"-"+self.currentPlayer)
         return message
