@@ -354,6 +354,7 @@ class SGModel(QtWidgets.QMainWindow):
 # For create elements
     # To create a grid
 
+
     def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
         """
         Create a grid that contains cells
@@ -1145,49 +1146,47 @@ class SGModel(QtWidgets.QMainWindow):
 
     # Function that process the message
     def handleMessageMainThread(self):
-        msg = str(self.q.get())
-        # info=eval(str(msg)[2:-1])
-        print("process le message")
-        """if len(info)==1:
-                if msg not in self.listOfSubChannel:
-                    self.listOfSubChannel.append(info[0])
-                self.client.subscribe(info[0])
-                self.client.publish(self.currentPlayer,self.submitMessage())
-            else:
-                if info[2]!= self.currentPlayer:
-                    allCells=[]
-                    for aGrid in self.getGrids():
-                        for aCell in list(aGrid.collectionOfCells.getCells().values()):
-                            allCells.append(aCell)
-                        
-                    for i in range(len(info[0])):
-                        allCells[i].isDisplay=info[0][i][0]
-                        allCells[i].attributs=info[0][i][1]
-                        allCells[i].owner=info[0][i][2]
-                        allCells[i].history=info[0][i][3]
-                        if allCells[i].x==0 and allCells[i].y==0:
-                            if allCells[i].parent.haveAgents():
-                                for aCell in allCells[i].parent.collectionOfCells.getCells().values():
-                                    aCell.deleteAllAgent()
-                        if len(info[0][i][4]) !=0:
-                            for j in range(len(info[0][i][4])):
-                                agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
-                                agent.attributs=info[0][i][4][j][1]
-                                agent.owner=info[0][i][4][j][2]
-                                agent.history=info[0][i][4][j][3]
-                                agent.x=info[0][i][4][j][4]
-                                agent.y=info[0][i][4][j][5]
-                    #We change the time manager
-                    self.timeManager.actualPhase=info[1][0]
-                    self.timeManager.actualRound=info[1][1]
-                    #We subscribe 
-                    for sub in info[3]:
-                        if sub != self.currentPlayer:
-                            self.client.subscribe(sub)
-                    if self.timeManager.actualPhase==0:
-                        #We reset GM
-                        for gm in self.getGM():
-                            gm.reset()"""
+        msg = self.q.get()
+        msg_decoded = msg.decode("utf-8")
+        msg_list = eval(msg_decoded)
+        print("Update processing...")
+        nbCells = int(msg_list[1][0])
+        nbAgents = int(msg_list[1][1])
+
+        if msg_list[-2] != self.currentPlayer:  # ! maybe switch with update id
+            allCells = []
+            for aGrid in self.getGrids():
+                for aCell in list(aGrid.collectionOfCells.getCells()):
+                    allCells.append(aCell)
+                for i in range(len(msg_list[2:nbCells+1])):
+                    allCells[i].isDisplay = msg_list[2+i][0]
+                    allCells[i].attributs = msg_list[2+i][1]
+                    allCells[i].owner = msg_list[2+i][2]
+                agents = self.getAgents()
+                id_list = self.getAgents(id=True)
+                for j in range(len(msg_list[nbCells+2:-4])):
+                    for agent in agents:
+                        agID = msg_list[nbCells+2+i][0]
+                        if agID in id_list:
+                            if agent.name == agID:
+                                agent.dictOfAttributs = msg_list[nbCells+2+i][2]
+                                agent.owner = msg_list[nbCells+2+i][3]
+                                agent.cell = msg_list[nbCells+2+i][4]
+                        else:
+                            agX = msg_list[nbCells+2+i][4][-3]
+                            agY = msg_list[nbCells+2+i][4][-1]
+                            newAgent = self.newAgent(
+                                aGrid, msg_list[nbCells+2+i][1], agX, agY, agID, msg_list[nbCells+2+i][2])
+                            newAgent.show()
+            self.timeManager.currentPhase = msg_list[-3][0]
+            self.timeManager.currentRound = msg_list[-3][1]
+            if self.timeManager.currentPhase == 0:
+                # We reset GM
+                for gm in self.getGM():
+                    gm.reset()
+
+        self.update()
+        print("Update processed !")
 
     # MQTT Basic function to  connect to the broker
     def connect_mqtt(self):
@@ -1228,7 +1227,6 @@ class SGModel(QtWidgets.QMainWindow):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
-            # self.eventTime()
             self.authorizeMsgProcess(msg.payload)
 
         self.connect_mqtt()
@@ -1239,21 +1237,18 @@ class SGModel(QtWidgets.QMainWindow):
             self.client.subscribe("Gamestates")
             self.client.on_message = on_message
             self.listOfSubChannel.append("Gamestates")
-            # self.client.publish("createPlayer",str([self.currentPlayer]))
         # If Admin
         else:
             # self.client.subscribe("createPlayer")
             self.client.subscribe("Gamestates")
             self.client.on_message = on_message
             self.listOfSubChannel.append("Gamestates")
-            # self.client.publish("createPlayer",str([self.currentPlayer]))
 
     # publish on mqtt broker the state of all entities of the world
 
     def publishEntitiesState(self):
         if hasattr(self, 'client'):
-            self.client.publish('Gamestates', self.submitMessage() + "GS")
-            # self.client.publish(self.currentPlayer,self.submitMessage() + "PL")
+            self.client.publish('Gamestates', self.submitMessage())
 
     # Send a message
 
@@ -1261,11 +1256,13 @@ class SGModel(QtWidgets.QMainWindow):
         print(self.currentPlayer+" send un message")
         majID = self.getMajID()
         nb = str(majID)+"-"+self.currentPlayer
-        message = "[["+nb+"]"
+        message = "[['"+nb+"'],"
         allCells = []
+        theAgents = self.getAgents()
         for aGrid in self.getGrids():
             for aCell in list(aGrid.collectionOfCells.getCells()):
                 allCells.append(aCell)
+        message = message+"["+str(len(allCells))+","+str(len(theAgents))+"],"
         for i in range(len(allCells)):
             message = message+"["
             message = message+str(allCells[i].isDisplay)
@@ -1280,11 +1277,11 @@ class SGModel(QtWidgets.QMainWindow):
             if i != len(allCells):
                 message = message+","
         #message = message + ','
-        theAgents = self.getAgents()
         for aAgent in theAgents:
-            print("envoie agent "+str(aAgent))
             message = message+"["
             message = message+"'"+str(aAgent.id)+"'"
+            message = message+","
+            message = message+"'"+str(aAgent.species)+"'"
             message = message+","
             message = message+str(aAgent.dictOfAttributs)
             message = message+","
@@ -1292,20 +1289,14 @@ class SGModel(QtWidgets.QMainWindow):
             message = message+","
             #message = message+str(aAgent.history)
             #message = message+","
-            message = message+str(aAgent.cell.name)
+            message = message+"'"+str(aAgent.cell.name)+"'"
             message = message+"]"
             message = message+","
 
-        #message = message+"]"
-        #message = message+"]"
-
-        #message = message+"]"
-        #message = message+","
         message = message+"["
         message = message+str(self.timeManager.currentPhase)
         message = message+","
         message = message+str(self.timeManager.currentRound)
-        #message = message+","
         message = message+"]"
         message = message+","
         message = message+"["
