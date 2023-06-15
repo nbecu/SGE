@@ -15,7 +15,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.dashboard=parent
         self.method=method
         self.value=value
-        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"]
+        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","score"]
         self.entity=entity
         self.result=float
         self.name=name
@@ -124,12 +124,16 @@ class SGIndicators(QtWidgets.QWidget):
                 return calcValue
 
 
-        else:
+        elif self.entity=="agent":
             agents=self.dashboard.model.getAgents(species=self.entity)
             if self.method =='nb':
                 calcValue=len(agents)
                 return calcValue
         
+        elif self.entity is None:
+            if self.method=="score":
+                calcValue=self.value
+                return calcValue
             
 
     def getMethods(self):

@@ -81,8 +81,8 @@ class SGDashBoard(SGGameSpace):
         Add an Indicator on the DashBoard.
 
         Args:
-            method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo"].
-            entity (str) : "cell" or "agent"
+            method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","score"].
+            entity (str) : "cell" or "agent" or None (only for score)
             color (Qt.color) : text color
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
