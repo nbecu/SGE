@@ -30,15 +30,6 @@ myModel.newPov("Resource", "Resource", {
 myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
-Player1 = myModel.newPlayer("Player 1")
-
-
-myModel.timeManager.newGamePhase('Phase 1', ['Admin', 'Player 1'])
-myModel.currentPlayer = 'Player 1'
-
-userSelector = myModel.newUserSelector()
-
-
 Workers = myModel.newAgentSpecies(
     "Workers", "triangleAgent1", uniqueColor=Qt.black)
 Birds = myModel.newAgentSpecies(
@@ -67,6 +58,7 @@ myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
 myModel.currentPlayer = 'Player 1'
 
+userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
     title='Début du jeu', textToWrite="Bonjour et bienvenue dans RehabGame !")
@@ -90,7 +82,7 @@ endGameRule.addEndGameCondition_onEntity(
 endGameRule.showEndGameConditions()
 
 
-# myModel.launch_withoutMqtt()
-myModel.launch()
+myModel.launch_withoutMqtt()
+#myModel.launch() # https://mosquitto.org/download/
 
 sys.exit(monApp.exec_())

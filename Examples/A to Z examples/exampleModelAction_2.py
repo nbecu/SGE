@@ -24,11 +24,8 @@ GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
 
 myModel.timeManager.newModelPhase(  
-    [
-    lambda: aGrid.setRandomCell("landUse","grass",(lambda x: x.value("landUse") == "forest")),
-    lambda: aGrid.setRandomCells("landUse","shrub",3)
-    ]
-    )
+    [lambda: aGrid.setRandomCell("landUse","grass",(lambda x: x.value("landUse") == "forest")),
+    lambda: aGrid.setRandomCells("landUse","shrub",3)])
 
 
 

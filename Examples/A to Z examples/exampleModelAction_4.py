@@ -29,13 +29,13 @@ DashBoard.showIndicators()
 
 
 #CREATIONS DE MODEL ACTIONS
-aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","shrub",2))
+aModelAction4=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","shrub",2))
     #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
-aModelAction1.addFeedback(lambda: i1.setResult(i1.result + 5)) 
+aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5)) 
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE
-myModel.timeManager.newModelPhase(aModelAction1)
+myModel.timeManager.newModelPhase(aModelAction4)
 
 
 
