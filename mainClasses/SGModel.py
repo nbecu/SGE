@@ -1156,28 +1156,36 @@ class SGModel(QtWidgets.QMainWindow):
         if msg_list[-2] != self.currentPlayer:  # ! maybe switch with update id
             allCells = []
             for aGrid in self.getGrids():
+                agents = self.getAgents()
+                id_list = self.getAgents(id=True) # liste du model
+                id_maj = self.getAgentIDFromMessage(msg_list,nbCells) # liste maj
+                for agent in agents:
+                    if agent.name not in id_maj:
+                        self.deleteAgent(agent.name)
                 for aCell in list(aGrid.collectionOfCells.getCells()):
                     allCells.append(aCell)
                 for i in range(len(msg_list[2:nbCells+1])):
                     allCells[i].isDisplay = msg_list[2+i][0]
                     allCells[i].attributs = msg_list[2+i][1]
                     allCells[i].owner = msg_list[2+i][2]
-                agents = self.getAgents()
-                id_list = self.getAgents(id=True)
+                    allCells[i].agents=[]
                 for j in range(len(msg_list[nbCells+2:-4])):
+                    agID = msg_list[nbCells+2+j][0]
                     for agent in agents:
-                        agID = msg_list[nbCells+2+i][0]
                         if agID in id_list:
                             if agent.name == agID:
-                                agent.dictOfAttributs = msg_list[nbCells+2+i][2]
-                                agent.owner = msg_list[nbCells+2+i][3]
-                                agent.cell = msg_list[nbCells+2+i][4]
+                                agent.dictOfAttributs = msg_list[nbCells+2+j][2]
+                                agent.owner = msg_list[nbCells+2+j][3]
+                                agent.cell = msg_list[nbCells+2+j][4]
+                                agent.cell.updateIncomingAgent(agent)
                         else:
                             agX = msg_list[nbCells+2+i][4][-3]
                             agY = msg_list[nbCells+2+i][4][-1]
                             newAgent = self.newAgent(
                                 aGrid, msg_list[nbCells+2+i][1], agX, agY, agID, msg_list[nbCells+2+i][2])
+                            newAgent.cell.updateIncomingAgent(newAgent)
                             newAgent.show()
+                        
             self.timeManager.currentPhase = msg_list[-3][0]
             self.timeManager.currentRound = msg_list[-3][1]
             if self.timeManager.currentPhase == 0:
@@ -1187,6 +1195,20 @@ class SGModel(QtWidgets.QMainWindow):
 
         self.update()
         print("Update processed !")
+
+    def getAgentIDFromMessage(self,message,nbCells):
+        """
+        Get the Agent ID list from an update message
+
+        args:
+            - message (array of string) : decoded mqtt message
+            - nbCells (int) : value in the message
+        """
+        majIDs=set()
+        for j in range(len(message[nbCells+2:-4])):
+            agID = msg_list[nbCells+2+j][0]
+            majIDs.add(agID)
+        return amjIDs
 
     # MQTT Basic function to  connect to the broker
     def connect_mqtt(self):
