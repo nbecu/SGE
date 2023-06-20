@@ -71,8 +71,6 @@ i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.blac
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
 DashBoard.showIndicators()
 
-userSelector = myModel.newUserSelector()
-
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")

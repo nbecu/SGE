@@ -37,6 +37,7 @@ class SGGrid(SGGameSpace):
 
         self.startXBase = 0
         self.startYBase = 0
+        random.seed(self.model.randomSeed)
 
         if aColor != "None":
             self.setColor(aColor)

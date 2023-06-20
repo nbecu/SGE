@@ -110,6 +110,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
+        self.randomSeed=42
+        random.seed(self.randomSeed)
         self.initUI()
 
         self.initIDs()
@@ -1160,8 +1162,8 @@ class SGModel(QtWidgets.QMainWindow):
                 id_list = self.getAgents(id=True) # liste du model
                 id_maj = self.getAgentIDFromMessage(msg_list,nbCells) # liste maj
                 for agent in agents:
-                    if agent.name not in id_maj:
-                        self.deleteAgent(agent.name)
+                    if agent.id not in id_maj:
+                        self.deleteAgent(agent.id)
                 for aCell in list(aGrid.collectionOfCells.getCells()):
                     allCells.append(aCell)
                 for i in range(len(msg_list[2:nbCells+1])):
@@ -1188,6 +1190,8 @@ class SGModel(QtWidgets.QMainWindow):
                         
             self.timeManager.currentPhase = msg_list[-3][0]
             self.timeManager.currentRound = msg_list[-3][1]
+            if self.myTimeLabel is not None:
+                        self.myTimeLabel.updateTimeLabel()
             if self.timeManager.currentPhase == 0:
                 # We reset GM
                 for gm in self.getGM():
@@ -1206,9 +1210,9 @@ class SGModel(QtWidgets.QMainWindow):
         """
         majIDs=set()
         for j in range(len(message[nbCells+2:-4])):
-            agID = msg_list[nbCells+2+j][0]
+            agID = message[nbCells+2+j][0]
             majIDs.add(agID)
-        return amjIDs
+        return majIDs
 
     # MQTT Basic function to  connect to the broker
     def connect_mqtt(self):
