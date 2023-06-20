@@ -122,11 +122,19 @@ class SGTextBox(SGGameSpace):
             menu.exec_(self.mapToGlobal(point))
 
     def addText(self, text, toTheLine=False):
+        """
+        Add text in a text box.
+
+        args:
+            - text (str) : displayed text
+            - toTheLine (bool) : if true, skip a line before adding
+        """
         self.textForHistory = text
         if toTheLine == True:
             self.new_text = "\n\n"+text
         else:
             self.new_text = text
+        self.updateText()
 
     def updateText(self):
         # Update the QTextEdit content
@@ -135,9 +143,21 @@ class SGTextBox(SGGameSpace):
         self.history.append(self.textForHistory)
 
     def setNewText(self, text):
+        """
+        Replace the text by a new text.
+
+        args :
+            - text (str) : new text
+        """
         self.textToWrite = text
 
     def setTitle(self, title):
+        """
+        Replace the title by a new title.
+
+        args:
+            -title (str) : new title
+        """
         self.title = title
 
     def setSize(self, x, y):
@@ -145,13 +165,31 @@ class SGTextBox(SGGameSpace):
         self.sizeY = y
 
     def setTextFormat(self, fontName='Verdana', size=12):
+        """
+        Customize the font and the size of the text
+
+        args :
+            - fontName (str) : desired font
+            - size (int) : desired size of the text
+        """
         font = QFont(fontName, size)
         self.textEdit.setFont(font)
 
     def setTitleColor(self, color='red'):
+        """
+        Set the color
+
+        args:
+            - color (str) : desired color
+        """
         self.labelTitle.setStyleSheet("color: "+color+';')
 
     def setTitleSize(self, size="20px"):
+        """Set the size
+        
+        args:
+            - size (int) : desired size
+        """
         self.labelTitle.setStyleSheet("color: "+size+';')
 
     def deleteTitle(self):
