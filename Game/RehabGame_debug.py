@@ -10,7 +10,7 @@ monApp = QtWidgets.QApplication([])
 # STEP1 Create the model
 
 myModel = SGModel(
-    900, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
+    1800, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
 
 
 # STEP2 Create the model
@@ -51,27 +51,23 @@ Player2.addGameAction(myModel.createUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
 Player2.addGameAction(myModel.createUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
+Player2ControlPanel = Player2.newControlPanel("Player 2 Actions")
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1, Player2])
 myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
-GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
+GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 myModel.currentPlayer = 'Player 1'
 
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
-    title='Début du jeu', textToWrite="Bonjour et bienvenue dans RehabGame !")
+    title='Your game is starting...', textToWrite="Welcome !")
 
-TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
-# TextBox.setTextColor()
 
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
+DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
 DashBoard.showIndicators()
-
-userSelector = myModel.newUserSelector()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
@@ -82,7 +78,7 @@ endGameRule.addEndGameCondition_onEntity(
 endGameRule.showEndGameConditions()
 
 
-#myModel.launch_withoutMqtt()
-myModel.launch() # https://mosquitto.org/download/
+myModel.launch_withoutMqtt()
+#myModel.launch() # https://mosquitto.org/download/
 
 sys.exit(monApp.exec_())

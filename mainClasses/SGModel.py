@@ -112,6 +112,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.haveToBeClose = False
         self.randomSeed=42
         random.seed(self.randomSeed)
+        self.mqtt=False
         self.initUI()
 
         self.initIDs()
@@ -1256,6 +1257,7 @@ class SGModel(QtWidgets.QMainWindow):
             self.authorizeMsgProcess(msg.payload)
 
         self.connect_mqtt()
+        self.mqtt=True
 
         # IF not admin Request which channel to sub
         if self.currentPlayer != "Admin":
@@ -1337,8 +1339,9 @@ class SGModel(QtWidgets.QMainWindow):
 
     # Event that append at every end of the timer ( litteral )
     def eventTime(self):
-        if not self.q.empty():
-            self.handleMessageMainThread()
+        if self.mqtt:
+            if not self.q.empty():
+                self.handleMessageMainThread()
 
     def getMajID(self):
         majID = len(self.listOfMajs)
