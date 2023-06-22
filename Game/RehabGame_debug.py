@@ -13,7 +13,7 @@ myModel = SGModel(
     1800, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
 
 
-# STEP2 Create the model
+# STEP2 Create the grid
 aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 aGrid.setCells("Resource", "2")
