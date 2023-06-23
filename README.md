@@ -27,7 +27,7 @@ SGE is like a puzzle, all the pieces are already here, you just need to give it 
 - Game
   - myGame.py
 
-We encouraged you to start your own game with an example to better understand SGE. You can seek the documentation [here](link to online doc)
+We encourage you to start your own game with an example to better understand SGE. You can seek the documentation [here](link to online doc)
 
 ## Requirements
 ```
@@ -42,12 +42,13 @@ SQLAlchemy        2.0.3
 
 ## Future plan
 - [ ] SGEntity class to replace SGCell and SGAgent
+- [ ] Score and EndGame Rule refresh at each round
 
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)
 
 ## Context
-SGE is developped under the supervision of [LIENSs](https://lienss.univ-larochelle.fr/) Laboratory (La Rochelle University, France) within different projects (DELMOGES DEUS, Carbone Bleu). 
+SGE is developped under the supervision of [LIENSs](https://lienss.univ-larochelle.fr/) Laboratory (La Rochelle University, France) within different research projects. 
 SGE answer to an academic need in serious game to have simplier ways to create serious games.
 SGE first version was presented at [ISAGA 2023](https://apps.univ-lr.fr/cgi-bin/WebObjects/Colloque.woa/1/wa/colloque?code=3141).
 
