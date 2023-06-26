@@ -55,4 +55,9 @@ SGE first version was presented at [ISAGA 2023](https://apps.univ-lr.fr/cgi-bin/
 ## Authors and contributors
 @nbecu Nicolas Becu
 @Neraliel Marine Regien
-@aossant
+@aossant Alexis Ossant
+
+## License
+SGE is under open-source license (CECILL V2). The license allows modification, copy and distribution along with contract terms. Modified version should preserve CECILL V2 License. 
+
+
