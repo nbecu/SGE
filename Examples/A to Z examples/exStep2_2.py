@@ -5,9 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(700,600, windowTitle="About pov (1)", typeOfLayout='vertical')
-
-myModel.newTextBox(textToWrite='You can change the point of view (pov), using the "eye" menu in the top panel')
+myModel=SGModel(600,600, windowTitle="Step 2 (2) : Points of view and colors")
 
 aGrid=myModel.newGrid(10,10,"square",Qt.gray,size=50)
 aGrid.setCells("landUse","grass")
@@ -22,7 +20,11 @@ aGrid.setRandomCells("landUse","shrub",10)
 myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen},[aGrid])
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen},[aGrid])
 
+#You can change the initial pov displayed with the instruction setInitialPov()
+myModel.setInitialPov("ICantSeeShrub")
+#If you don't set the initial pov, the first one which has been declared will be the initial one
+#You can change POV by using the eye of the Model toolbar
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

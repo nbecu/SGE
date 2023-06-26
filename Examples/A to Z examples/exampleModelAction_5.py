@@ -34,7 +34,7 @@ aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","shr
 aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","shrub",2,"landUse","shrub"))
 aFeedbackAction=myModel.newModelAction(lambda: i1.setResult(i1.result - 5))
 aFeedbackAction.addCondition(lambda: i1.result <15)                                     
-aModelAction2.addFeedback(aFeedbackAction) 
+aModelAction2.addFeedback(aFeedbackAction)
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE
@@ -43,6 +43,6 @@ myModel.timeManager.newModelPhase([(lambda:i1.updateText()),aModelAction2])
 
 
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

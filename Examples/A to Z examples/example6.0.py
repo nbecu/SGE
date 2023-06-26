@@ -19,7 +19,7 @@ myModel.newPov("povLandUse2",{"landUse":{"grass":Qt.green,"shrub":Qt.green,"fore
 # The name of the game action indicates the type of the action: cellUpdate, agentMove,...
 # For any game action type, you can specify the number of time the action can be used at each turn, usage restrictions, feedbacks that are executed after the action is performed and conditions for applying this feedback 
 p1= myModel.createPlayer("farmer")
-p1.addGameAction(myModel.createUpdateAction(aGrid.getRandomCell(),2,{"landUse":"grass"}))
+p1.addGameAction(myModel.newUpdateAction(aGrid.getRandomCell(),2,{"landUse":"grass"}))
 
 # A game phase allow to specify which user can play during the given phase
 myModel.timeManager.newGamePhase("the First Phase",p1)
@@ -27,6 +27,6 @@ myModel.timeManager.newGamePhase("the First Phase",p1)
 #theFirstLegend=myModel.createLegendAdmin()
 myModel.iAm("farmer")
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

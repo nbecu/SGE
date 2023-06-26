@@ -39,6 +39,6 @@ GameRounds=myModel.newTimeLabel()
 myModel.timeManager.newGamePhase('Phase 1',None, lambda: m1.moveAgent(aGrid,numberOfMovement=3))
 
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

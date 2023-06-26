@@ -18,16 +18,16 @@ myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"for
 theFirstLegend=myModel.newLegendAdmin()
 
 Player1=myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.createUpdateAction('Cell',3,{"landUse":"grass"}))
+Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
 Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
 # Create a second player
 Player2=myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.createUpdateAction("Cell",1,{"landUse":"forest"}))
+Player2.addGameAction(myModel.newUpdateAction("Cell",1,{"landUse":"forest"}))
 Player2Legend=Player2.newLegendPlayer("Actions du Joueur 2")
 
 userSelector=myModel.newUserSelector()
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

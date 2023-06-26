@@ -19,28 +19,28 @@ myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"f
 myModel.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 
-Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
-Moutons.newPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps=myModel.newAgentSpecies("Sheeps","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
+Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 
 
-m1=myModel.newAgent(aGrid,Moutons,3,7)
-# m2=myModel.newAgent(aGrid,Moutons,6,3)
+a1=myModel.newAgent(aGrid,Sheeps,3,7)
+# a2=myModel.newAgent(aGrid,Sheeps,6,3)
 
-m1.setValueAgent('health','bad')
-m1.setValueAgent('hunger','bad')
+a1.setValueAgent('health','bad')
+a1.setValueAgent('hunger','bad')
 
-# m2.setValueAgent('hunger','good')
-# m2.setValueAgent('health','good')
+# a2.setValueAgent('hunger','good')
+# a2.setValueAgent('health','good')
 
 
 
 # m1.moveAgent(aGrid,numberOfMovement=3)
 
-Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
-Vaches.newPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-v1=myModel.newAgent(aGrid,Vaches,2,2)
+Cows=myModel.newAgentSpecies("Cows","squareAgent",{"health":{"good","bad"}},18)
+Cows.newPov("Cows -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+v1=myModel.newAgent(aGrid,Cows,2,2)
 v1.setValueAgent('health','good')
 # print(myModel.agentSpecies)
 
@@ -48,13 +48,13 @@ theFirstLegend=myModel.newLegendAdmin()
 
 
 GameRounds=myModel.newTimeLabel()
-myModel.timeManager.newGamePhase('Phase 1',None, [lambda: m1.moveAgent(aGrid,numberOfMovement=3)])
+myModel.timeManager.newGamePhase('Phase 1',None, [lambda: a1.moveAgent(aGrid,numberOfMovement=3)])
 myModel.timeManager.newGamePhase('Phase 2',None,[lambda: myModel.deleteAgent('1')])
 
 MessageBox=myModel.newTextBox()
 
 #myModel.iAm("Admin")
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

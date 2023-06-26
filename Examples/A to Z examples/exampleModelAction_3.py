@@ -42,6 +42,6 @@ myModel.timeManager.newModelPhase(aModelAction2)
 
 
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

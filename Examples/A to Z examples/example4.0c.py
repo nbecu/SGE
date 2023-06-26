@@ -44,6 +44,6 @@ myModel.timeManager.newGamePhase('fin',
 
 myModel.iAm("Admin")
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

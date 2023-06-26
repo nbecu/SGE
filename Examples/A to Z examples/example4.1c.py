@@ -38,6 +38,6 @@ myModel.timeManager.newGamePhase(
     None,
     lambda: myModel.addAgent(aGrid,Vaches,{'health':'good'},numberOfAgent=1)    )
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

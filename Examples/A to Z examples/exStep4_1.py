@@ -2,13 +2,13 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
+
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(960,700, windowTitle="A BIG board with hexagonal cells")
+myModel=SGModel(860,700, windowTitle="Admin Mode")
 
-# You can change the specifications of the grid cells 
-# As well as the number of cells (in column and in row), the size of a cell, the space in between cells...
-aGrid=myModel.newGrid(30,15,"hexagonal",size=20, gap=2)
+
+aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
 aGrid.setCells("landUse","grass")
 aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
@@ -18,7 +18,10 @@ myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"for
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 theFirstLegend=myModel.newLegendAdmin()
+# the admin's legend enables to change all the entities without restrictions
+# it will be displayed only for an Admin user.
+# By default, a model user is an Admin user
 
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

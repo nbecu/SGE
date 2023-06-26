@@ -409,13 +409,13 @@ class SGModel(QtWidgets.QMainWindow):
         return aVoid
 
     # To create a Legend
-    def newLegendAdmin(self, Name='adminLegend', showAgents=False):
+    def newLegendAdmin(self, Name='Legend', showAgentsWithNoAtt=False):
         """
         To create an Admin Legend (with all the cell and agent values)
 
         Args:
-        Name (str): name of the Legend (default : adminLegend)
-        showAgents (bool) : display of non attribute dependant agents (default : False)
+        Name (str): name of the Legend (default : Legend)
+        showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
 
         """
         # Creation
@@ -430,7 +430,7 @@ class SGModel(QtWidgets.QMainWindow):
             CellElements[grid]['agents'].update(AgentPOVs)
         agents = self.getAgents()
         aLegend = SGLegend(self, Name, CellElements,
-                           "Admin", agents, showAgents)
+                           "Admin", agents, showAgentsWithNoAtt)
         self.gameSpaces[Name] = aLegend
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aLegend)
@@ -1045,7 +1045,7 @@ class SGModel(QtWidgets.QMainWindow):
     # -----------------------------------------------------------
     # Game mechanics function
 
-    def createCreateAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+    def newCreateAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
         """
         Add a Create GameAction to the game.
 
@@ -1059,7 +1059,7 @@ class SGModel(QtWidgets.QMainWindow):
             aNumber = 9999999
         return SGCreate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
 
-    def createUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+    def newUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
         """
         Add a Update GameAction to the game.
 
@@ -1075,7 +1075,7 @@ class SGModel(QtWidgets.QMainWindow):
             aNumber = 9999999
         return SGUpdate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
 
-    def createDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+    def newDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
         """
         Add a Delete GameAction to the game.
 
@@ -1089,7 +1089,7 @@ class SGModel(QtWidgets.QMainWindow):
             aNumber = 9999999
         return SGDelete(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
 
-    def createMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
+    def newMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
         """
         Add a MoveAction to the game.
 
@@ -1131,11 +1131,11 @@ class SGModel(QtWidgets.QMainWindow):
         self.users = listOfUsers
 
     # To open and launch the game without a mqtt broker
-    def launch_withoutMqtt(self):
+    def launch(self):
         self.show()
 
     # To open and launch the game
-    def launch(self):
+    def launch_withMQTT(self):
         self.initMQTT()
         self.show()
 

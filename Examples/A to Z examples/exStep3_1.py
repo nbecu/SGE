@@ -17,25 +17,23 @@ myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"for
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 # Here, a "type" of agent is called a species.
-# To create a species, it needs : a name, a shape and a dict of attributs with values.
-Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
+# To create a species, it needs : a name and a shape 
+# You can add a dict of attributs with values (optionnal).
+Sheeps=myModel.newAgentSpecies("Sheeps","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
 
 # For each attribute, you can set up points of view with colors :
-Moutons.newPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
-# You can now create agents from its species and place them on a particular cell, or random by giving None values :
-m1=myModel.newAgent(aGrid,Moutons,3,7)
-m2=myModel.newAgent(aGrid,Moutons,None,None)
+# You can now create agents from its species and place them on a particular cell, or random by giving None values and
+# give them attributes with values :
+m1=myModel.newAgent(aGrid,Sheeps,3,7,aDictofAttributs={"health":{"good"},"hunger":{"bad"}})
+m2=myModel.newAgent(aGrid,Sheeps,None,None)
 
-# Don't forget to give values to your agent attributes !
+#You can also edit your agent attribute values like this :
 m2.setValueAgent('health','good')
-m1.setValueAgent('health','bad')
 m2.setValueAgent('hunger','good')
-m1.setValueAgent('hunger','bad')
 
-theFirstLegend=myModel.newLegendAdmin()
-
-myModel.launch_withoutMqtt() 
+myModel.launch() 
 
 sys.exit(monApp.exec_())

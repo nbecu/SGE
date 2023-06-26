@@ -19,7 +19,7 @@ class SGPlayer():
         self.gameActions = []
         self.remainActions = {}
 
-    def newControlPanel(self, Name, showAgents=False):
+    def newControlPanel(self, Name, showAgentsWithNoAtt=False):
         """
         To create an Player Control Panel (only with the GameActions related elements)
 
@@ -67,7 +67,7 @@ class SGPlayer():
                     playerElements[grid_key]['agents'][agent_key] = agent_value
         playerElements["deleteButtons"] = deleteButtons
         aLegend = SGLegend(self.model, Name, playerElements,
-                           self.name, agents, showAgents, legendType="player")
+                           self.name, agents, showAgentsWithNoAtt, legendType="player")
         self.model.gameSpaces[Name] = aLegend
         # Realocation of the position thanks to the layout
         newPos = self.model.layoutOfModel.addGameSpace(aLegend)

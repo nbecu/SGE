@@ -39,17 +39,17 @@ Birds = myModel.newAgentSpecies(
 globalLegend = myModel.newLegendAdmin("Global Legend", showAgents=True)
 
 Player1 = myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.createCreateAction(Workers, 20))
-Player1.addGameAction(myModel.createDeleteAction(Workers, "infinite"))
-Player1.addGameAction(myModel.createUpdateAction('Cell', 3, {"Resource": "3"}))
-Player1.addGameAction(myModel.createMoveAction(Workers, 1))
+Player1.addGameAction(myModel.newCreateAction(Workers, 20))
+Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
+Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": "3"}))
+Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgents=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.createUpdateAction(
+Player2.addGameAction(myModel.newUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
-Player2.addGameAction(myModel.createUpdateAction(
+Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
