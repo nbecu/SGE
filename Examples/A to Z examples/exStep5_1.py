@@ -4,28 +4,30 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="About legend (2)")
+myModel=SGModel(860,700, windowTitle="About legend (3)")
 
-aGrid=myModel.newGrid(10,10,"square",size=60, gap=2,name='mygrid')
+aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
 aGrid.setCells("landUse","grass")
 aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-myModel.newPov("ICanSeeSchrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 theFirstLegend=myModel.newLegendAdmin()
-# create a player
+
+
 Player1=myModel.newPlayer("Player 1")
-# create a ControlPanel for this player, according to their actions
 Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
 Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
+userSelector=myModel.newUserSelector()
 
-# to have the Player 1 view 
-myModel.currentPlayer='Player 1'
-
+# SGE TimeLine is organized by an infinite sequence of rounds composed of phases.
+# Here is the way to create a GamePhase
+myModel.timeManager.newGamePhase('Phase 1', [Player1])
+# In this phase, Player 1 can perform his actions.
 
 myModel.launch() 
 

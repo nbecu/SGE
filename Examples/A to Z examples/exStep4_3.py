@@ -17,10 +17,8 @@ myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"for
 
 theFirstLegend=myModel.newLegendAdmin()
 
-# Create a player
+
 Player1=myModel.newPlayer("Player 1")
-# create a ControlPanel for this player, according to their actions
-Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
 Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
 
 # User Selector

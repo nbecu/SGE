@@ -43,9 +43,6 @@ aModelAction2.addFeedback(aFeedbackAction)
 # AJOUT DES MODEL ACTIONS DANS LES PHASE
 myModel.timeManager.newModelPhase([(lambda:i1.updateText()),aModelAction2])
 
-
-
-
 myModel.launch() 
 
 sys.exit(monApp.exec_())
