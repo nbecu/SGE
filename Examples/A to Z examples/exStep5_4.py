@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="About legend (3)")
+myModel=SGModel(860,700, windowTitle="add a TimeLabel")
 
 aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
 aGrid.setCells("landUse","grass")
@@ -20,7 +20,7 @@ theFirstLegend=myModel.newLegendAdmin()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
-Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
+Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
@@ -35,7 +35,7 @@ aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("
 aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
 aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) 
 
-aModelAction4.addFeedback(lambda: score.setResult(score.result + 5))
+aModelAction4.addFeedback(lambda : aGrid.setRandomCell('landUse','grass'))
 
 myModel.timeManager.newModelPhase(aModelAction2)
 

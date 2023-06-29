@@ -35,6 +35,14 @@ class SGTimeManager():
                     for gm in self.model.getGM():
                         gm.reset()
                     self.currentPhase = 1
+                
+                #reset GameActions count
+                for user in self.model.users:
+                    if user != "Admin":
+                        player=self.model.getPlayerObject(user)
+
+                        for action in player.gameActions:
+                            action.reset()
 
                 thePhase = self.phases[self.currentPhase]
                 # check conditions for the phase
@@ -164,10 +172,6 @@ class SGTimeManager():
         self.phases.append(aPhase)
         return aPhase
 
-    # To add a condition to end the game
-    """def addEndGameCondition(self,aMethod,objective,concernedEntity,attribut=None,victoryNumber=None,name=None,color=Qt.black):
-        aCondition=SGVictoryCondition(self.model.victoryBoard,name,aMethod,objective,attribut,victoryNumber,concernedEntity,color)
-        self.conditionOfEndGame.append(aCondition)"""
 
     # To verify a number of round
     def verifNumberOfRound(self, aNumber):

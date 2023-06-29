@@ -44,7 +44,10 @@ class SGIndicators(QtWidgets.QWidget):
         if self.value is not None:
             aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
         else:
-            aName = self.method+' '+self.attribut+" : "+str(calcValue)
+            if self.attribut is not None:
+                aName = self.method+' '+self.attribut+" : "+str(calcValue)
+            else:
+                aName = self.method+' : '+str(calcValue)
         return aName
 
     def updateText(self):
@@ -133,6 +136,8 @@ class SGIndicators(QtWidgets.QWidget):
         elif self.entity is None:
             if self.method=="score":
                 calcValue=self.value
+                if calcValue==None:
+                    calcValue=0
                 return calcValue
             
 

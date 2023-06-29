@@ -13,10 +13,6 @@ aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-#Pov (point of view), allow to specify different ways to view the state of the cells
-#A pov allow to define the color displayed for a certain value of a given attribute of the cell
-#In this example there are two pov:
-#The first can see the difference between grass and schrub, the second cannot
 myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen},[aGrid])
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen},[aGrid])
 

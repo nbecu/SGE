@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    900, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
+    900, 900, x=5, windowTitle="dev project : Rehab Game - Player 2", typeOfLayout="grid")
 
 
 aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,
@@ -34,7 +34,7 @@ Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 
 
-globalLegend = myModel.newLegendAdmin("Global Legend", showAgents=True)
+globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newCreateAction(Workers, 20))
@@ -42,7 +42,7 @@ Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
 Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": "3"}))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(
-    "Player 1 Actions", showAgents=True)
+    "Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.newUpdateAction(

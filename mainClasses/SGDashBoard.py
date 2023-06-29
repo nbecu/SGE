@@ -76,7 +76,7 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, method, entity, color, attribute, value=None, indicatorName=None, isDisplay=True):
+    def addIndicator(self, method, entity, color=Qt.black, attribute=None, value=None, indicatorName=None, isDisplay=True):
         """
         Add an Indicator on the DashBoard.
 

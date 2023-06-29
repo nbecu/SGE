@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="About legend (3)")
+myModel=SGModel(860,700, windowTitle="Add a TextBox")
 
 aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
 aGrid.setCells("landUse","grass")
@@ -20,7 +20,7 @@ theFirstLegend=myModel.newLegendAdmin()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
-Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
+Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
@@ -35,8 +35,6 @@ aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("
 aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
 aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) 
 
-aModelAction4.addFeedback(lambda: score.setResult(score.result + 5))
-
 myModel.timeManager.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
@@ -44,6 +42,7 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
 DashBoard.showIndicators()
+aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(

@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="About legend (2)")
+myModel=SGModel(860,700, windowTitle="Create a empty ControlPanel")
 
 aGrid=myModel.newGrid(10,10,"square",size=60, gap=2,name='mygrid')
 aGrid.setCells("landUse","grass")
@@ -20,7 +20,7 @@ theFirstLegend=myModel.newLegendAdmin()
 # create a player
 Player1=myModel.newPlayer("Player 1")
 # create a ControlPanel for this player, according to their actions
-Player1Legend=Player1.newLegendPlayer("Actions du Joueur 1",showAgents=True)
+Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 
 # if you want to start the application as Player 1 :
