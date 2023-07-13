@@ -5,9 +5,9 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1000,700, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
+myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(10,10,"square",size=20, gap=2)
+aGrid=myModel.newGrid(10,10,"square",size=50, gap=2)
 aGrid.setCells("landUse","grass")
 aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
@@ -27,7 +27,7 @@ Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
-m1=myModel.newAgent(aGrid,Sheeps,3,7,aDictofAttributs={"health":{"good"},"hunger":{"bad"}})
+m1=myModel.newAgent(aGrid,Sheeps,3,7,aDictofAttributs={"health":"good","hunger":"bad"})
 m2=myModel.newAgent(aGrid,Sheeps,None,None)
 
 #You can also edit your agent attribute values like this :

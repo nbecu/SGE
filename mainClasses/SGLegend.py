@@ -144,7 +144,6 @@ class SGLegend(SGGameSpace):
                                     if anAgent.species == Species:
                                         for aPov in self.elementsPov[aKeyOfGamespace]['agents'][Species].keys():
                                             if aPov == self.model.nameOfPov:
-                                                print("current POV")
                                                 added_items = set()
                                                 for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
                                                     for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
@@ -157,24 +156,17 @@ class SGLegend(SGGameSpace):
                                                             self.legendItems[aKeyOfGamespace].append(anItem)
                                                             anItem.show()
                                                             added_items.add(item_key)
-                                                            print(added_items)
                                                             
                                                             
                                             else:
-                                                print("other POV")
                                                 item_key= Species
                                                 text = Species
                                                 existed=False
-                                                print(added_items)
-                                                print('text : '+text)
                                                 for item in added_items:
-                                                    print('déjà dans set : '+item)
                                                     if text in item:
                                                         existed=True
                                                         break
-                                                print(existed)
                                                 if item_key not in added_items and not existed:
-                                                    print('on ajoute : '+item_key)
                                                     aColor = anAgent.color
                                                     self.y=self.y+1
                                                     anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, None,None)
