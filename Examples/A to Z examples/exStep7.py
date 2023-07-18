@@ -54,7 +54,7 @@ endGameRule.showEndGameConditions()
 TextBox = myModel.newTextBox(
     title='Your game is starting...', textToWrite="Welcome !")
 
-
+myModel.checkLayout()
 myModel.launch() 
 
 sys.exit(monApp.exec_())

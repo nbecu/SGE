@@ -940,6 +940,14 @@ class SGModel(QtWidgets.QMainWindow):
                     self.gameSpaces[anElement])
                 self.gameSpaces[anElement].move(
                     self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
+    
+    def checkLayout(self):
+        for gameSpace in self.gameSpaces.values():
+            for element in self.gameSpaces.values():
+                for otherElement in self.gameSpaces.values():
+                    if element!=otherElement and element.geometry().intersects(otherElement.geometry()):
+                        print(str(name)+" is overlapping on "+str(otherName))
+        print("End of checking")
 
     # ------
 # Pov
