@@ -2,7 +2,7 @@
 from PyQt5.QtSvg import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QAction,QMenu
 from PyQt5 import QtWidgets
 from mainClasses.layout.SGVerticalLayout import SGVerticalLayout
 from mainClasses.layout.SGHorizontalLayout import SGHorizontalLayout
@@ -129,6 +129,8 @@ class SGModel(QtWidgets.QMainWindow):
         # Definition of the toolbar via a menue and the ac
         self.createAction()
         self.createMenu()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
 
         self.nameOfPov = "default"
 
@@ -349,6 +351,17 @@ class SGModel(QtWidgets.QMainWindow):
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
+
+    # Contextual Menu
+    def show_menu(self, point):
+        menu = QMenu(self)
+
+        option1 = QAction("LayoutCheck", self)
+        option1.triggered.connect(self.moveWidgets)
+        menu.addAction(option1)
+
+        if self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))
 
 
 # -----------------------------------------------------------------------------------------
@@ -941,13 +954,22 @@ class SGModel(QtWidgets.QMainWindow):
                 self.gameSpaces[anElement].move(
                     self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
     
-    def checkLayout(self):
-        for gameSpace in self.gameSpaces.values():
-            for element in self.gameSpaces.values():
-                for otherElement in self.gameSpaces.values():
-                    if element!=otherElement and element.geometry().intersects(otherElement.geometry()):
-                        print(str(name)+" is overlapping on "+str(otherName))
-        print("End of checking")
+    def checkLayout(self,name,element,otherName,otherElement):
+        if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
+            #print(f"{name} intersects or contains {otherName}.")
+            return True
+        return False
+    
+    def moveWidgets(self):
+        for name,element in self.gameSpaces.items():
+            for otherName,otherElement in self.gameSpaces.items():
+                while self.checkLayout(name,element,otherName,otherElement):
+                    if element.areaCalc() <= otherElement.areaCalc():
+                                local_pos=element.pos()
+                                element.move(local_pos.x()+10,local_pos.y()+10)
+                    else:
+                        local_pos=otherElement.pos()
+                        otherElement.move(local_pos.x()+10,local_pos.y()+10)
 
     # ------
 # Pov

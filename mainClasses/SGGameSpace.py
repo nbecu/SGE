@@ -49,6 +49,11 @@ class SGGameSpace(QtWidgets.QWidget):
     def setStartYBase(self,number):
         self.startYBase = number
     
+    #Calculate the area
+    def areaCalc(self):
+        self.area = float(self.width() * self.height())
+        return self.area
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
