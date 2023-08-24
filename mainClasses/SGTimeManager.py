@@ -96,6 +96,11 @@ class SGTimeManager():
 
     def getPhaseNumber(self):
         return self.currentPhase
+    
+    #Update
+    def updateEndGame(self):
+        for condition in self.conditionOfEndGame:
+            condition.updateText()
 
 
 # -----------------------------------------------------------------------------------------

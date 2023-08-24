@@ -55,6 +55,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.result=newCalc
         newText= self.setName(self.result)
         self.label.setPlainText(newText)
+        self.dashboard.model.timeManager.updateEndGame()
 
     def setResult(self, aValue):
         self.result=aValue
