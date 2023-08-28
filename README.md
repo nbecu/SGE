@@ -42,7 +42,7 @@ SQLAlchemy        2.0.3
 
 ## Future plan
 - [ ] SGEntity class to replace SGCell and SGAgent
-- [ ] Score and EndGame Rule refresh at each round
+- [x] Score and EndGame Rule refresh at each round
 - [ ] Find a permanent repair for Agent drag and drop
 
 ## mqtt version
