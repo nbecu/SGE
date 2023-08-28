@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null
@@ -8,25 +9,54 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut=""):
+    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut="",border=False):
         super().__init__(parent)
         #Basic initialize
-        self.parent=parent
+        self.legend=parent
         self.type=type
         self.valueOfAttribut=valueOfAttribut
         self.nameOfAttribut=nameOfAttribut
         self.texte=texte
         self.y=y
         self.color=color
+        self.border=border
+        self.remainNumber=int
+        self.initUI()
+
+    
+    def initUI(self):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
+
+    # To show a menu
+    def show_menu(self, point):
+        menu = QMenu(self)
+        number=self.updateRemainNumber()
+        text= "Actions remaining : "+str(number)
+        option1 = QAction(text, self)
+        menu.addAction(option1)
+
+        if self.rect().contains(point) and self.clickable:
+            menu.exec_(self.mapToGlobal(point))
         
+    
+    def updateRemainNumber(self):
+        thePlayer=self.legend.model.getPlayerObject(self.legend.playerName)
+        self.crossAction(thePlayer)
+        return self.remainNumber
+
+
     #Drawing function
     def paintEvent(self,event):
-        if self.parent.checkDisplay():
+        if self.legend.checkDisplay():
             painter = QPainter() 
             painter.begin(self)
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
-            if self.parent.parent.selected[0] == self :
+            if self.legend.model.selected[0] == self :
                 painter.setPen(QPen(Qt.red,2));
+            if self.border:
+                painter.setPen(QPen(self.color,2))
+                painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.type=="square") :   
                 painter.drawRect(10, 0, 20, 20)
@@ -89,11 +119,11 @@ class SGLegendItem(QtWidgets.QWidget):
                 aFont=QFont("Verdana",10)
                 aFont.setUnderline(True)
                 painter.setFont(aFont)
-                painter.drawText(QRect(15,0,self.parent.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
+                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
             else :
                 painter.setFont(QFont("Verdana",8))
-                painter.drawText(QRect(40,5,self.parent.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
-            self.setMinimumSize(self.parent.getSizeXGlobal()-50,10)
+                painter.drawText(QRect(40,5,self.legend.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
+            self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
             self.move(10,self.y*20+5*self.y)
             painter.end()
             
@@ -120,43 +150,53 @@ class SGLegendItem(QtWidgets.QWidget):
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
+            if self.legend.playerName==self.legend.model.currentPlayer:
             #Already selected
-            if self.parent.parent.selected[0]==self :
-                self.parent.parent.selected=[None]
-            #Selection of an item and suppresion of already selected Item
-            else :
-                if self.type!="None":
-                    self.parent.parent.selected=[None]
-                    selectedItem=[self]
-                    selectedItem.append(self.type) 
-                    selectedItem.append(self.texte)
-                    if self.texte.find('Remove ')!=-1 :
-                        txt=self.texte.replace("Remove ","")
-                        txt=txt.replace(self.valueOfAttribut+" ","")
-                        selectedItem.append(txt)
-                        selectedItem.append(self.valueOfAttribut)
-                    else: 
-                        selectedItem.append(self.valueOfAttribut)
-                        selectedItem.append(self.nameOfAttribut)
-                    selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
-                    self.parent.parent.selected=selectedItem
-                    self.parent.parent.update()
+                if self.legend.model.selected[0]==self :
+                    self.legend.model.selected=[None]
+
+                #Selection of an item and suppresion of already selected Item
+                else :
+                    if self.type!="None":
+                        self.legend.model.selected=[None]
+                        selectedItem=[self]
+                        selectedItem.append(self.type) 
+                        selectedItem.append(self.texte)
+                        if self.texte.find('Remove ')!=-1 :
+                            txt=self.texte.replace("Remove ","")
+                            txt=txt.replace(self.valueOfAttribut+" ","")
+                            selectedItem.append(txt)
+                            selectedItem.append(self.valueOfAttribut)
+                        else: 
+                            selectedItem.append(self.valueOfAttribut)
+                            selectedItem.append(self.nameOfAttribut)
+                        #selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
+                        self.legend.model.selected=selectedItem
+                        self.legend.model.update()
         self.update()
         
-    #To handle the drag of the grid
+    #To handle the drag 
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return
     
     #To test is it from the admin Legend
     def isFromAdmin(self):
-        return self.parent.id=="adminLegende"
-                    
-
-        
-#-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use
+        return self.legend.id=="adminLegend"
     
+    def crossAction(self,thePlayer):
+        if thePlayer!="Admin":
+            self.clickable=True
+            for actionText in thePlayer.remainActions.keys():
+                if actionText.find(self.texte)!=-1:
+                    self.remainNumber=thePlayer.remainActions[actionText]
+                    break
+        else:
+            self.clickable=False
+
+
+
+                    
 
         
     
