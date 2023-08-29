@@ -5,20 +5,22 @@ from sqlalchemy import true
 from PyQt5.QtWidgets import  QAction, QGraphicsRectItem, QGraphicsView, QGraphicsScene
 import random
 from mainClasses.gameAction.SGGameActions import SGGameActions
-from mainClasses.SGEntity import SGEntity
 
    
 #Class who is responsible of the declaration a Agent
-class SGAgent(SGEntity):
+class SGAgent(QtWidgets.QWidget):
     instances=[]
-
+    
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,cell,name,format,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
-        super().__init__(cell)
+    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
+        super().__init__(parent)
         #Basic initialize
         self.me=me
         if self.me=='agent':
-            self.cell=cell
+            self.cell=parent
+            self.model=self.cell.grid.model
+        elif self.me=='collec':
+            self.model=parent
         self.name=name
         self.format=format
         self.size=defaultsize
@@ -64,6 +66,64 @@ class SGAgent(SGEntity):
         view = QGraphicsView(scene)
         view.setRenderHint(QPainter.Antialiasing)
         return view
+
+        # return QPolygon([
+        #         QPoint(0, 0),
+        #         QPoint(0,5),
+        #         QPoint(5,0),
+        #         QPoint(5,5)]) 
+
+        # if(self.format=="circleAgent"):
+        #         painter.drawEllipse(0,0,self.size,self.size)
+        #     elif self.format=="squareAgent":
+        #         painter.drawRect(0,0,self.size,self.size)
+        #     elif self.format=="ellipseAgent1": 
+        #         self.setGeometry(0,0,self.size*2+1,self.size+1)
+        #         painter.drawEllipse(0,0,self.size*2,self.size)
+        #     elif self.format=="ellipseAgent2": 
+        #         self.setGeometry(0,0,self.size+1,self.size*2+1)
+        #         painter.drawEllipse(0,0,self.size,self.size*2)
+        #     elif self.format=="rectAgent1": 
+        #         self.setGeometry(0,0,self.size*2+1,self.size+1)
+        #         painter.drawRect(0,0,self.size*2,self.size)
+        #     elif self.format=="rectAgent2": 
+        #         self.setGeometry(0,0,self.size+1,self.size*2+1)
+        #         painter.drawRect(0,0,self.size,self.size*2)
+        #     elif self.format=="triangleAgent1": 
+        #         self.setGeometry(0,0,self.size+1,self.size+1)
+        #         points = QPolygon([
+        #         QPoint(round(self.size/2),0),
+        #         QPoint(0,self.size),
+        #         QPoint(self.size,  self.size)
+        #         ])
+        #         painter.drawPolygon(points)
+        #     elif self.format=="triangleAgent2": 
+        #         self.setGeometry(0,0,self.size+1,self.size+1)
+        #         points = QPolygon([
+        #         QPoint(0,0),
+        #         QPoint(self.size,0),
+        #         QPoint(round(self.size/2),self.size)
+        #         ])
+        #         painter.drawPolygon(points)
+        #     elif self.format=="arrowAgent1": 
+        #         self.setGeometry(0,0,self.size+1,self.size+1)
+        #         points = QPolygon([
+        #         QPoint(round(self.size/2),0),
+        #         QPoint(0,self.size),
+        #         QPoint(round(self.size/2),round(self.size/3)*2),
+        #         QPoint(self.size,  self.size)
+        #         ])
+        #         painter.drawPolygon(points)
+        #     elif self.format=="arrowAgent2": 
+        #         self.setGeometry(0,0,self.size+1,self.size+1)
+        #         points = QPolygon([
+        #         QPoint(0,0),
+        #         QPoint(round(self.size/2),round(self.size/3)),
+        #         QPoint(self.size,0),
+        #         QPoint(round(self.size/2),self.size)
+        #         ])
+        #         painter.drawPolygon(points)
+        # painter.end()   
         
     def paintEvent(self,event):
         painter = QPainter() 

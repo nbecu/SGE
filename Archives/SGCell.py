@@ -6,26 +6,27 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGAgent import SGAgent
 from mainClasses.gameAction.SGGameActions import SGGameActions
-from mainClasses.SGEntity import SGEntity
 import re
 
 
    
 #Class who is responsible of the declaration a cell
-class SGCell(SGEntity):
-    def __init__(self,grid,x,y,gap):
-        super().__init__(grid)
+class SGCell(QtWidgets.QWidget):
+    def __init__(self,parent,theCollection,x,y,format,size,gap):
+        super().__init__(parent)
         #Basic initialize
-        self.grid=grid
-        self.theCollection=self.grid.model.cellCollection
-        self.me='cell'
+        self.grid=parent
+        self.model= self.grid.model
+        self.theCollection=theCollection
         self.x=x
         self.y=y
         self.name="cell"+str(x)+'-'+str(y)
+        self.shape=format
+        self.size=size
         self.gap=gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=gap
-        #*self.saveSize=size
+        self.saveSize=size
         #We place the default pos
         self.startXBase=self.grid.startXBase
         self.startYBase=self.grid.startYBase

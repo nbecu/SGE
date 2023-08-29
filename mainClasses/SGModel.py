@@ -25,6 +25,7 @@ from mainClasses.SGTimeLabel import SGTimeLabel
 from mainClasses.SGTimeManager import SGTimeManager
 from mainClasses.SGPlayer import SGPlayer
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGEntity import SGEntity
 from email.policy import default
 from logging.config import listen
 import sys
@@ -76,8 +77,9 @@ class SGModel(QtWidgets.QMainWindow):
         # Definition for all gameSpaces
         self.gameSpaces = {}
         self.TextBoxes = []
-        # Definition of the AgentCollection
+        # Definition of the AgentCollection and CellCollection
         self.agentSpecies = {}
+        self.cellCollection = {}
         # self.agents=self.getAgents() #cet attribut est à proscrire car agents n'est pas remis à jour après qu'il y ait eu un ajout ou une suppression d'un agent
         self.IDincr = 0
         # We create the layout
@@ -407,6 +409,14 @@ class SGModel(QtWidgets.QMainWindow):
             aGrid.move(aGrid.getStartXBase()+20 *
                        pos[0], aGrid.getStartYBase()+20*pos[1])
         return aGrid
+    
+    def newCellCollection(self,grid,columns, rows, shape, size, gap):
+        self.cellCollection[grid.id]={}
+        for i in range(1, rows + 1):
+            for j in range(1, columns + 1):
+                aCell = SGCell(grid, i, j,
+                               shape, size, gap)
+                self.cellCollection[grid.id][aCell.getId()] = aCell
 
     # To create a void
     def createVoid(self, name, sizeX=200, sizeY=200):
@@ -1037,7 +1047,7 @@ class SGModel(QtWidgets.QMainWindow):
             listOfGridsToApply = [listOfGridsToApply]
         for aGrid in listOfGridsToApply:
             if (isinstance(aGrid, SGGrid) == True):
-                aGrid.collectionOfCells.povs[nameOfPov] = {aAtt: DictofColors}
+                self.cellCollection[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
         self.addPovinMenuBar(nameOfPov)
 
     def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
@@ -1058,9 +1068,9 @@ class SGModel(QtWidgets.QMainWindow):
             listOfGridsToApply = [listOfGridsToApply]
         for aGrid in listOfGridsToApply:
             if (isinstance(aGrid, SGGrid) == True):
-                aGrid.collectionOfCells.borderPovs[nameOfPov] = {
+                self.cellCollection[aGrid.id]["BorderPOV"][nameOfPov] = {
                     aAtt: DictofColors}
-                aGrid.collectionOfCells.borderPovs["borderWidth"] = borderWidth
+                self.cellCollection[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
         self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV

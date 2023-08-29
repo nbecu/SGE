@@ -1,51 +1,33 @@
-from tkinter.ttk import Separator
 from PyQt5 import QtWidgets 
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.gameAction.SGGameActions import SGGameActions
-from sqlalchemy import true
-from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsView, QGraphicsScene
 import random
-import re
 
 # Class who is in charged of entities : cells and agents
 class SGEntity(QtWidgets.QWidget):
-    def __init__(self,parent,shape,defaultsize,dictOfAttributs,id,me,gap,uniqueColor=Qt.white,methodOfPlacement="random"):
+    def __init__(self,parent,shape,defaultsize,dictOfAttributs,me,uniqueColor=Qt.white):
         super().__init__(parent)
         self.model=self.parent
-        self.grid=self.model.grid
         self.me=me
-        self.id=id
         self.dictOfAttributs=dictOfAttributs
         self.shape=shape
         self.isDisplay=True
         self.owner="admin"
         self.x=0
-        self.y=0  
-        if self.me=='agent' or self.me=='agCollec':
-            self.species=str
-            self.color=uniqueColor
-            self.methodOfPlacement=methodOfPlacement
-            self.size=defaultsize
-            self.startXBase=0
-            self.startYBase=0
-        if self.me=='cell':
-            self.gap=gap
-            self.startXBase=self.grid.startXBase
-            self.startYBase=self.grid.startYBase
+        self.y=0 
+        self.size=defaultsize
+        self.color=uniqueColor
 
-
-    def paintEvent(self,event):
-        if self.me=='agent' or self.me=='agCollec':
-            painter = QPainter() 
-            painter.begin(self)
-            painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-            self.setGeometry(0,0,self.size+1,self.size+1)
-            x = self.xPos
-            y = self.yPos
-            if self.isDisplay==True:
+    def paintEvent(self):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth())) # ! getBorderColor / get BorderWidth for agents
+        if self.isDisplay==True:
+            if self.me=='agent':           
+                self.setGeometry(0,0,self.size+1,self.size+1)
+                x = self.getRandomXY()
+                y = self.getRandomXY()
                 if(self.shape=="circleAgent"):
                     painter.drawEllipse(x,y,self.size,self.size)
                 elif self.shape=="squareAgent":
@@ -96,49 +78,46 @@ class SGEntity(QtWidgets.QWidget):
                     QPoint(round(self.size/2),self.size)
                     ])
                     painter.drawPolygon(points)
-                painter.end()
 
-        if self.me == 'cell':
-            self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
-            self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
-            if (self.shape=="hexagonal"):
-                self.startY=self.startY+self.size/4
-            painter = QPainter() 
-            painter.begin(self)
-            painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-            painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
-            #Base of the gameBoard
-            if(self.shape=="square"):
-                painter.drawRect(0,0,self.size,self.size)
-                self.setMinimumSize(self.size,self.size+1)
-                self.setGeometry(0,0,self.size+1,self.size+1)
-                self.move(self.startX,self.startY)
-            elif(self.shape=="hexagonal"):
-                self.setMinimumSize(self.size,self.size)
-                self.setGeometry(0,0,self.size+1,self.size+1)
-                points = QPolygon([
-                    QPoint(int(self.size/2), 0),
-                    QPoint(self.size, int(self.size/4)),
-                    QPoint(self.size, int(3*self.size/4)),
-                    QPoint(int(self.size/2), self.size),
-                    QPoint(0, int(3*self.size/4)),
-                    QPoint(0, int(self.size/4))              
-                ])
-                painter.drawPolygon(points)
-                if(self.y%2!=0):
-                    # y impaires /  sachant que la première valeur de y est 1
-                    self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
-                else:
-                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
-                    
-            painter.end()
+            if self.me == 'cell':
+                self.startXBase=self.grid.startXBase
+                self.startYBase=self.grid.startYBase
+                self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
+                self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
+                if (self.shape=="hexagonal"):
+                    self.startY=self.startY+self.size/4
+                #Base of the gameBoard
+                if(self.shape=="square"):
+                    painter.drawRect(0,0,self.size,self.size)
+                    self.setMinimumSize(self.size,self.size+1)
+                    self.setGeometry(0,0,self.size+1,self.size+1)
+                    self.move(self.startX,self.startY)
+                elif(self.shape=="hexagonal"):
+                    self.setMinimumSize(self.size,self.size)
+                    self.setGeometry(0,0,self.size+1,self.size+1)
+                    points = QPolygon([
+                        QPoint(int(self.size/2), 0),
+                        QPoint(self.size, int(self.size/4)),
+                        QPoint(self.size, int(3*self.size/4)),
+                        QPoint(int(self.size/2), self.size),
+                        QPoint(0, int(3*self.size/4)),
+                        QPoint(0, int(self.size/4))              
+                    ])
+                    painter.drawPolygon(points)
+                    if(self.y%2!=0):
+                        # y impaires /  sachant que la première valeur de y est 1
+                        self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                    else:
+                        self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                        
+        painter.end()
 
 
         
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        if self.me=='agent' or self.me=='agCollec':
+        if self.me=='agent':
             actualPov= self.getPov()
             if actualPov in list(self.model.agentSpecies[self.species]['POV'].keys()):
                 self.model.agentSpecies[self.species]['selectedPOV']=self.model.agentSpecies[self.species]['POV'][actualPov]
@@ -161,23 +140,58 @@ class SGEntity(QtWidgets.QWidget):
                 else:
                     return self.color
         if self.me == 'cell':
-            if self.model.nameOfPov in self.theCollection.povs.keys():
-                self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
-                for aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()):
-                    if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()):
-                        self.color=self.theCollection.povs[self.getPov()][aVal][self.dictOfAttributs[aVal]]
-                        return self.theCollection.povs[self.getPov()][aVal][self.dictOfAttributs[aVal]]
+            grid=self.grid
+            if self.model.nameOfPov in self.cellCollection[grid.id]["ColorPOV"].keys():
+                self.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.cellCollection[grid.id]["ColorPOV"][self.getPov()]
+                for aVal in list(self.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
+                    if aVal in list(self.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
+                        self.color=self.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+                        return self.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
             
             else:
-                if self.theCollection.povs['selectedPov'] is not None:
-                    for aVal in list(self.theCollection.povs['selectedPov'].keys()):
-                        if aVal in list(self.theCollection.povs['selectedPov'].keys()):
-                            self.color=self.theCollection.povs['selectedPov'][aVal][self.dictOfAttributs[aVal]]
-                            return self.theCollection.povs['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+                if self.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
+                    for aVal in list(self.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
+                        if aVal in list(self.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
+                            self.color=self.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+                            return self.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
                 else: 
                     self.color=Qt.white
                     return Qt.white
+                
+    
+    def getBorderColor(self):
+        if self.isDisplay==False:
+            return Qt.transparent
+        if self.me == 'agent':
+            return Qt.black
+        if self.me == 'cell':
+            grid=self.grid
+            if self.grid.model.nameOfPov in self.cellCollection[grid.id]["BorderPOV"].keys():
+                self.cellCollection[grid.id]["BorderPOV"]['selectedBorderPov']=self.cellCollection[grid.id]["BorderPOV"][self.getPov()]
+                for aVal in list(self.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
+                    if aVal in list(self.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
+                        self.borderColor=self.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
+                        return self.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
+            
+            else:
+                self.borderColor=Qt.black
+                return Qt.black
+    
+    def getBorderWidth(self):
+        if self.me == 'agent':
+            return int(1)
+        if self.me == 'cell':
+            grid=self.grid
+            if self.cellCollection[grid.id]["BorderPOV"] is not None and self.grid.model.nameOfPov in self.cellCollection[grid.id]["BorderPOV"].keys():
+                    return int(self.cellCollection[grid.id]["BorderPOV"]["BorderWidth"])
+            return int(1)
     
     #To get the pov
     def getPov(self):
         return self.model.nameOfPov
+
+    def getRandomXY(self):
+        x = 0
+        maxSize=self.cell.size
+        x = random.randint(1,maxSize-1)
+        return x

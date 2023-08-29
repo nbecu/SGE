@@ -48,9 +48,7 @@ class SGGrid(SGGameSpace):
     # Initialize the user interface
     def initUI(self):
         # Init the cellCollection
-        self.collectionOfCells = SGCellCollection(
-            self, self.columns, self.rows, self.format, self.size, self.gap)
-        # Init the current POV
+        self.myCollectionOfCells = self.model.newCellCollection(self,self.columns, self.rows, self.format, self.size, self.gap)
 
     # Drawing the game board with the cell
 
