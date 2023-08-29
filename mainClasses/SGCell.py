@@ -13,8 +13,8 @@ import re
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,grid,x,y,gap):
-        super().__init__(grid)
+    def __init__(self,grid,x,y,shape,gap,defaultsize,dictOfAttributs):
+        super().__init__(grid,shape,defaultsize,dictOfAttributs,me='cell')
         #Basic initialize
         self.grid=grid
         self.theCollection=self.grid.model.cellCollection
@@ -31,7 +31,7 @@ class SGCell(SGEntity):
         self.startYBase=self.grid.startYBase
         self.isDisplay=True
         #We init the dict of Attribute
-        self.attributs={}
+        self.dictOfAttributs={}
         #We init the Collection for the futures Agents
         self.agents=[]
         #We allow the drops for the agents
@@ -53,7 +53,7 @@ class SGCell(SGEntity):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_menu)
         
-    def paintEvent(self,event):
+    """def paintEvent(self,event):
         self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
         self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
         if (self.shape=="hexagonal"):
@@ -86,7 +86,7 @@ class SGCell(SGEntity):
             else:
                 self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
                 
-        painter.end()
+        painter.end()"""
         
     def getId(self):
         return "cell"+str(self.x)+"-"+str(self.y)
@@ -138,7 +138,7 @@ class SGCell(SGEntity):
         e.source().deleteLater()
         
         
-    #To manage the attribute system of a cell
+    """#To manage the attribute system of a cell
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
@@ -172,7 +172,7 @@ class SGCell(SGEntity):
                      return self.theCollection.borderPovs[self.getPov()][aVal][self.attributs[aVal]]
         
         else:
-            """if self.theCollection.borderPovs['selectedBorderPov'] is not None:
+            if self.theCollection.borderPovs['selectedBorderPov'] is not None:
                 for aVal in list(self.theCollection.borderPovs['selectedBorderPov'].keys()):
                     if aVal in list(self.theCollection.borderPovs['selectedBorderPov'].keys()):
                         self.borderColor=self.theCollection.borderPovs['selectedBorderPov'][aVal][self.attributs[aVal]]
@@ -180,7 +180,7 @@ class SGCell(SGEntity):
                             return self.theCollection.borderPovs['selectedBorderPov'][aVal][self.attributs[aVal]]
                         else:
                             return Qt.black
-            else:""" 
+            else: 
             self.borderColor=Qt.black
             return Qt.black
     
@@ -188,7 +188,7 @@ class SGCell(SGEntity):
         if self.theCollection.borderPovs is not None and self.grid.model.nameOfPov in self.theCollection.borderPovs.keys():
                 return int(self.theCollection.borderPovs["borderWidth"])
         
-        return int(1)
+        return int(1)"""
                 
     #To get the pov
     def getPov(self):
@@ -202,7 +202,7 @@ class SGCell(SGEntity):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """       
-        self.attributs[aAttribut]=aValue
+        self.dictOfAttributs[aAttribut]=aValue
         
              
     #To handle the selection of an element int the legend

@@ -412,11 +412,26 @@ class SGModel(QtWidgets.QMainWindow):
     
     def newCellCollection(self,grid,columns, rows, shape, size, gap):
         self.cellCollection[grid.id]={}
+        self.cellCollection[grid.id]['cells']={}
         for i in range(1, rows + 1):
             for j in range(1, columns + 1):
                 aCell = SGCell(grid, i, j,
-                               shape, size, gap)
-                self.cellCollection[grid.id][aCell.getId()] = aCell
+                               shape, size, gap, dictOfAttributs=None)
+                self.cellCollection[grid.id]['cells'][aCell.getId()] = aCell
+        self.cellCollection[grid.id]['ColorPOV']={}
+        self.cellCollection[grid.id]['BorderPOV']={}
+
+    # To get all the cells of the collection
+    def getCells(self,grid):
+        return list(self.cellCollection[grid.id]['cells'].values())
+    
+    # To get all the povs of the collection
+    def getCellPovs(self,grid):
+        return {key: value for dict in (self.cellCollection[grid.id]['ColorPOV'],self.cellCollection[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "borderWidth" not in key}
+
+    # To get a cell in particular
+    def getCell(self, aGrid, aID):
+        return self.cellCollection[aGrid.id]['cells'][aID]
 
     # To create a void
     def createVoid(self, name, sizeX=200, sizeY=200):

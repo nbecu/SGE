@@ -165,7 +165,7 @@ class SGGrid(SGGameSpace):
     # To get all the values possible for Legend
 
     def getValuesForLegend(self):
-        return self.collectionOfCells.getPovs()
+        return self.model.getCellPovs(self)
 
     # Agent function
     # To get all agents on the grid of a particular type
@@ -213,11 +213,11 @@ class SGGrid(SGGameSpace):
 
     # Return all the cells
     def getCells(self):
-        return self.collectionOfCells.getCells()
+        return self.model.getCells(self)
 
     # Return the cell
-    def getCell_withId(self, aCellName):
-        return self.collectionOfCells.getCell(aCellName)
+    def getCell_withId(self, aGrid, aCellID):
+        return self.model.getCell(self,aCellID)
 
     def getFirstCell(self):
         return self.getCell_withId("cell1-1")
@@ -232,7 +232,7 @@ class SGGrid(SGGameSpace):
         """
         if x < 1 or x > self.columns or y < 1 or y > self.rows:
             return None
-        return self.getCell_withId("cell"+str(x)+'-'+str(y))
+        return self.getCell_withId(self,"cell"+str(x)+'-'+str(y))
 
    # Return the cells at a specified column
     def getCells_withColumn(self, columnNumber):

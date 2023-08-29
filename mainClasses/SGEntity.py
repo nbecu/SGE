@@ -7,7 +7,10 @@ import random
 class SGEntity(QtWidgets.QWidget):
     def __init__(self,parent,shape,defaultsize,dictOfAttributs,me,uniqueColor=Qt.white):
         super().__init__(parent)
-        self.model=self.parent
+        if me=='cell':
+            self.model=parent.model
+        if me=='agent':
+            self.model=parent
         self.me=me
         self.dictOfAttributs=dictOfAttributs
         self.shape=shape
@@ -18,7 +21,7 @@ class SGEntity(QtWidgets.QWidget):
         self.size=defaultsize
         self.color=uniqueColor
 
-    def paintEvent(self):
+    def paintEvent(self,event):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -141,19 +144,19 @@ class SGEntity(QtWidgets.QWidget):
                     return self.color
         if self.me == 'cell':
             grid=self.grid
-            if self.model.nameOfPov in self.cellCollection[grid.id]["ColorPOV"].keys():
-                self.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.cellCollection[grid.id]["ColorPOV"][self.getPov()]
-                for aVal in list(self.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                    if aVal in list(self.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                        self.color=self.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
-                        return self.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+            if self.model.nameOfPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
+                self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
+                for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
+                    if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
+                        self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+                        return self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
             
             else:
-                if self.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
-                    for aVal in list(self.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                        if aVal in list(self.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                            self.color=self.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
-                            return self.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+                if self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
+                    for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
+                        if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
+                            self.color=self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+                            return self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
                 else: 
                     self.color=Qt.white
                     return Qt.white
@@ -166,12 +169,12 @@ class SGEntity(QtWidgets.QWidget):
             return Qt.black
         if self.me == 'cell':
             grid=self.grid
-            if self.grid.model.nameOfPov in self.cellCollection[grid.id]["BorderPOV"].keys():
-                self.cellCollection[grid.id]["BorderPOV"]['selectedBorderPov']=self.cellCollection[grid.id]["BorderPOV"][self.getPov()]
-                for aVal in list(self.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                    if aVal in list(self.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                        self.borderColor=self.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
-                        return self.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
+            if self.grid.model.nameOfPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
+                self.model.cellCollection[grid.id]["BorderPOV"]['selectedBorderPov']=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()]
+                for aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
+                    if aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
+                        self.borderColor=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
+                        return self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
             
             else:
                 self.borderColor=Qt.black
@@ -182,8 +185,8 @@ class SGEntity(QtWidgets.QWidget):
             return int(1)
         if self.me == 'cell':
             grid=self.grid
-            if self.cellCollection[grid.id]["BorderPOV"] is not None and self.grid.model.nameOfPov in self.cellCollection[grid.id]["BorderPOV"].keys():
-                    return int(self.cellCollection[grid.id]["BorderPOV"]["BorderWidth"])
+            if self.model.cellCollection[grid.id]["BorderPOV"] is not None and self.grid.model.nameOfPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
+                    return int(self.model.cellCollection[grid.id]["BorderPOV"]["BorderWidth"])
             return int(1)
     
     #To get the pov

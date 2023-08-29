@@ -13,8 +13,8 @@ class SGAgent(SGEntity):
     instances=[]
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,cell,name,format,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
-        super().__init__(cell)
+    def __init__(self,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
+        super().__init__(cell,shape,defaultsize,dictOfAttributs,me='agent')
         #Basic initialize
         self.me=me
         if self.me=='agent':
@@ -65,7 +65,7 @@ class SGAgent(SGEntity):
         view.setRenderHint(QPainter.Antialiasing)
         return view
         
-    def paintEvent(self,event):
+    """def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -123,7 +123,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
-            painter.end()
+            painter.end()"""
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
@@ -145,7 +145,7 @@ class SGAgent(SGEntity):
             return x
 
     #To manage the attribute system of an Agent
-    def getColor(self):
+    """def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
         actualPov= self.getPov()
@@ -169,7 +169,7 @@ class SGAgent(SGEntity):
             
             else:
                 return self.color
-
+"""
 
     #To get the pov
     def getPov(self):
