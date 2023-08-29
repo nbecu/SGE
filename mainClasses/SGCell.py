@@ -13,8 +13,8 @@ import re
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,grid,x,y,shape,gap,defaultsize,dictOfAttributs):
-        super().__init__(grid,shape,defaultsize,dictOfAttributs,me='cell')
+    def __init__(self,grid,x,y,shape,defaultsize,gap):
+        super().__init__(grid,shape,defaultsize,me='cell')
         #Basic initialize
         self.grid=grid
         self.theCollection=self.grid.model.cellCollection

@@ -416,7 +416,7 @@ class SGModel(QtWidgets.QMainWindow):
         for i in range(1, rows + 1):
             for j in range(1, columns + 1):
                 aCell = SGCell(grid, i, j,
-                               shape, size, gap, dictOfAttributs=None)
+                               shape, size, gap)
                 self.cellCollection[grid.id]['cells'][aCell.getId()] = aCell
         self.cellCollection[grid.id]['ColorPOV']={}
         self.cellCollection[grid.id]['BorderPOV']={}

@@ -5,14 +5,14 @@ import random
 
 # Class who is in charged of entities : cells and agents
 class SGEntity(QtWidgets.QWidget):
-    def __init__(self,parent,shape,defaultsize,dictOfAttributs,me,uniqueColor=Qt.white):
+    def __init__(self,parent,shape,defaultsize,me,uniqueColor=Qt.white):
         super().__init__(parent)
         if me=='cell':
             self.model=parent.model
         if me=='agent':
             self.model=parent
         self.me=me
-        self.dictOfAttributs=dictOfAttributs
+        self.dictOfAttributs={}
         self.shape=shape
         self.isDisplay=True
         self.owner="admin"
@@ -83,8 +83,8 @@ class SGEntity(QtWidgets.QWidget):
                     painter.drawPolygon(points)
 
             if self.me == 'cell':
-                self.startXBase=self.grid.startXBase
-                self.startYBase=self.grid.startYBase
+                self.startXBase=0#self.grid.startXBase
+                self.startYBase=0#self.grid.startYBase
                 self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
                 self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
                 if (self.shape=="hexagonal"):

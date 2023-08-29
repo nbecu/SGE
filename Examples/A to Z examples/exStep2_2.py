@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(600,600, windowTitle="Step 2 (2) : Points of view and colors")
 
-aGrid=myModel.newGrid(10,10,"square",Qt.gray,size=50)
+aGrid=myModel.newGrid(10,10,"square",Qt.gray,size=50,gap=8)
 aGrid.setCells("landUse","grass")
 aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
