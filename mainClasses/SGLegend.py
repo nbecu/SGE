@@ -85,7 +85,7 @@ class SGLegend(SGGameSpace):
                             grid=self.model.getGameSpace(aKeyOfGamespace)
                             for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
                                 if aPov == self.model.nameOfPov:
-                                    if aPov in grid.collectionOfCells.povs.keys():
+                                    if aPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
                                         currentPov=aPov
                                         for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
                                             for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
@@ -98,7 +98,7 @@ class SGLegend(SGGameSpace):
                                                     anItem.show()
                                                     added_items.add(item_key)
                                                     added_colors.add(color)
-                                    if aPov in grid.collectionOfCells.borderPovs.keys():
+                                    if aPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
                                         currentPov=aPov
                                         for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
                                             for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
@@ -113,10 +113,10 @@ class SGLegend(SGGameSpace):
                                                     added_colors.add(color)
 
                                 else:
-                                    if aPov in grid.collectionOfCells.povs.keys():
-                                        for aAtt in list(grid.collectionOfCells.povs[aPov].keys()):
-                                            for aVal in list(grid.collectionOfCells.povs[aPov][aAtt].keys()):
-                                                color=grid.collectionOfCells.povs[aPov][aAtt][aVal]
+                                    if aPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
+                                        for aAtt in list(self.model.cellCollection[grid.id]["ColorPOV"][aPov].keys()):
+                                            for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][aPov][aAtt].keys()):
+                                                color=self.model.cellCollection[grid.id]["ColorPOV"][aPov][aAtt][aVal]
                                                 item_key = aAtt + aVal
                                                 if item_key not in added_items and color not in added_colors and color != Qt.transparent:
                                                     self.y=self.y+1
@@ -125,10 +125,10 @@ class SGLegend(SGGameSpace):
                                                     anItem.show()
                                                     added_items.add(item_key)
                                                     added_colors.add(color)
-                                    if aPov in grid.collectionOfCells.borderPovs.keys():
-                                        for aAtt in list(grid.collectionOfCells.borderPovs[aPov].keys()):
-                                            for aVal in list(grid.collectionOfCells.borderPovs[aPov][aAtt].keys()):
-                                                color=grid.collectionOfCells.borderPovs[aPov][aAtt][aVal]
+                                    if aPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
+                                        for aAtt in list(self.model.cellCollection[grid.id]["BorderPOV"][aPov].keys()):
+                                            for aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][aPov][aAtt].keys()):
+                                                color=self.model.cellCollection[grid.id]["BorderPOV"][aPov][aAtt][aVal]
                                                 item_key = aAtt + aVal
                                                 if item_key not in added_items and color not in added_colors: # and color != Qt.black:
                                                     self.y=self.y+1

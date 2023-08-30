@@ -245,7 +245,7 @@ class SGCell(SGEntity):
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.attributs])
+                            self.history["value"].append([0,0,self.dictOfAttributs])
                         """if theAction is not None:
                             self.feedBack(theAction)"""
                         if self.grid.model.selected[0].legend.id!="adminLegend":
@@ -254,17 +254,17 @@ class SGCell(SGEntity):
                         value =self.grid.model.selected[3]
                         #attribut=self.grid.model.selected[2]
                         theKey=""
-                        if self.grid.model.nameOfPov in list(self.theCollection.povs.keys()):
+                        if self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["ColorPOV"]):
                             # pov
-                            for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                                if value in list(self.theCollection.povs[self.grid.model.nameOfPov][anAttribute].keys()) :
+                            for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
+                                if value in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov][anAttribute].keys()) :
                                     theKey=anAttribute
                                     break
                             aDictWithValue={theKey:value}    
                             for aVal in list(aDictWithValue.keys()) :
-                                if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()) :
-                                        for anAttribute in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                                            self.attributs.pop(anAttribute,None)
+                                if aVal in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()) :
+                                        for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
+                                            self.dictOfAttributs.pop(anAttribute,None)
 
                         elif self.grid.model.nameOfPov in list(self.theCollection.borderPovs.keys()):
                             # borderPov
@@ -276,11 +276,11 @@ class SGCell(SGEntity):
                             for aVal in list(aDictWithValue.keys()) :  
                                 if aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
-                                            self.attributs.pop(anAttribute,None)
+                                            self.dictOfAttributs.pop(anAttribute,None)
                         
-                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
-                        if self.grid.model.selected[4] in self.grid.collectionOfCells.watchers:
+                        self.dictOfAttributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
+                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.dictOfAttributs])
+                        if self.grid.model.selected[4] in self.model.cellCollection[self.grid.id]['cells'].watchers:
                             for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
                                 updatePermit=watcher.getUpdatePermission()
                                 if updatePermit:
