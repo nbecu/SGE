@@ -371,8 +371,6 @@ class SGModel(QtWidgets.QMainWindow):
 
 # For create elements
     # To create a grid
-
-
     def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
         """
         Create a grid that contains cells
@@ -513,7 +511,7 @@ class SGModel(QtWidgets.QMainWindow):
             a species
 
         """
-        aAgentSpecies = SGAgent(self, aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
+        aAgentSpecies = SGAgent(self, None,aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
                                 dictOfAttributs, None, me='collec', uniqueColor=uniqueColor)
         aAgentSpecies.isDisplay = False
         self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {
@@ -613,7 +611,7 @@ class SGModel(QtWidgets.QMainWindow):
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(
                 aAgentSpecies.name)]['DefaultColor']
-        aAgent = SGAgent(locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,
+        aAgent = SGAgent(self,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,
                          aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True

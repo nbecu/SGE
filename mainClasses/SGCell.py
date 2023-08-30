@@ -13,15 +13,16 @@ import re
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,grid,x,y,shape,defaultsize,gap):
+    def __init__(self,grid,rows,columns,shape,defaultsize,gap):
         super().__init__(grid,shape,defaultsize,me='cell')
         #Basic initialize
         self.grid=grid
         self.theCollection=self.grid.model.cellCollection
+        self.model=self.grid.model
         self.me='cell'
-        self.x=x
-        self.y=y
-        self.name="cell"+str(x)+'-'+str(y)
+        self.x=columns
+        self.y=rows
+        self.name="cell"+str(columns)+'-'+str(rows)
         self.gap=gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=gap

@@ -7,10 +7,10 @@ import random
 class SGEntity(QtWidgets.QWidget):
     def __init__(self,parent,shape,defaultsize,me,uniqueColor=Qt.white):
         super().__init__(parent)
-        if me=='cell':
+        """if me=='cell':
             self.model=parent.model
         if me=='agent':
-            self.model=parent
+            self.model=self.parent().parent()""" #! pourquoi???
         self.me=me
         self.dictOfAttributs={}
         self.shape=shape
@@ -25,7 +25,6 @@ class SGEntity(QtWidgets.QWidget):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth())) # ! getBorderColor / get BorderWidth for agents
         if self.isDisplay==True:
             if self.me=='agent':           
                 self.setGeometry(0,0,self.size+1,self.size+1)
@@ -83,6 +82,7 @@ class SGEntity(QtWidgets.QWidget):
                     painter.drawPolygon(points)
 
             if self.me == 'cell':
+                painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth())) # ! getBorderColor / get BorderWidth for agents
                 self.startXBase=0#self.grid.startXBase
                 self.startYBase=0#self.grid.startYBase
                 self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
@@ -166,6 +166,7 @@ class SGEntity(QtWidgets.QWidget):
         if self.isDisplay==False:
             return Qt.transparent
         if self.me == 'agent':
+            self.borderColor=Qt.black
             return Qt.black
         if self.me == 'cell':
             grid=self.grid

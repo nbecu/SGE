@@ -13,14 +13,14 @@ class SGAgent(SGEntity):
     instances=[]
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
-        super().__init__(cell,shape,defaultsize,dictOfAttributs,me='agent')
+    def __init__(self,model,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
+        super().__init__(model,cell,shape,defaultsize,me)
         #Basic initialize
         self.me=me
-        if self.me=='agent':
-            self.cell=cell
+        self.cell=cell
+        self.model=model
         self.name=name
-        self.format=format
+        self.format=shape
         self.size=defaultsize
         #We place the default pos
         self.startXBase=0
@@ -31,8 +31,8 @@ class SGAgent(SGEntity):
         self.methodOfPlacement=methodOfPlacement
         self.x=0
         self.y=0
-        self.xPos=self.getRandomXY()
-        self.yPos=self.getRandomXY() 
+        self.xPos=1#self.getRandomXY()
+        self.yPos=1#self.getRandomXY() #! attention non fonctionnel
         #We define an owner by default
         self.owner="admin"    
         #We define variable to handle an history 
