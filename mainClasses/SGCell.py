@@ -300,7 +300,7 @@ class SGCell(SGEntity):
                             #We now check the feedBack of the actions if it have some
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
-                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
+                            theSpecies=SGAgent(self.grid.model,cell=None,name=Species,shape=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                            # theSpecie= self.model.agentSpecie(Species)
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             
@@ -308,7 +308,7 @@ class SGCell(SGEntity):
                             self.grid.model.update()
 
         if event.button() == Qt.RightButton:
-            print(self.attributs)
+            print(self.dictOfAttributs)
                             
                                     
     #Apply the feedBack of a gameMechanics
@@ -361,14 +361,14 @@ class SGCell(SGEntity):
 
     def value(self,att):
         """to comment"""
-        return self.attributs[att]
+        return self.dictOfAttributs[att]
     
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
         """NOT TESTED"""
         theKey=list(aDictOfValue.keys())[0] 
-        if theKey in list(self.attributs.keys()):
-            return aDictOfValue[theKey]==self.attributs[theKey]
+        if theKey in list(self.dictOfAttributs.keys()):
+            return aDictOfValue[theKey]==self.dictOfAttributs[theKey]
         return False
     
     def testCondition(self,aCondition):

@@ -709,7 +709,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.IDincr = +incr
         anAgentID = self.IDincr+1
         locationCell = aCell
-        anAgent = SGAgent(locationCell, aAgentSpecies.name, aAgentSpecies.format,
+        anAgent = SGAgent(self,locationCell, aAgentSpecies.name, aAgentSpecies.format,
                           aAgentSpecies.size, aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent')
         anAgent.cell = locationCell
         anAgent.cell.agents.append(anAgent)
@@ -1099,19 +1099,19 @@ class SGModel(QtWidgets.QMainWindow):
 
     def getPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
-            for aPov in aGrid.collectionOfCells.povs:
-                for anAttribut in aGrid.collectionOfCells.povs[aPov].keys():
+            for aPov in self.cellCollection[aGrid.id]["ColorPOV"]:
+                for anAttribut in self.cellCollection[aGrid.id]["ColorPOV"][aPov].keys():
                     if attribut == anAttribut:
                         return aPov
-            for aBorderPov in aGrid.collectionOfCells.borderPovs:
-                for anAttribut in aGrid.collectionOfCells.borderPovs[aBorderPov].keys():
+            for aBorderPov in self.cellCollection[aGrid.id]["BorderPOV"]:
+                for anAttribut in self.cellCollection[aGrid.id]["BorderPOV"][aBorderPov].keys():
                     if attribut == anAttribut:
                         return aBorderPov
 
     def getBorderPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
-            for aBorderPov in aGrid.collectionOfCells.borderPovs:
-                for anAttribut in aGrid.collectionOfCells.borderPovs[aBorderPov].keys():
+            for aBorderPov in self.cellCollection[aGrid.id]["BorderPOV"]:
+                for anAttribut in self.cellCollection[aGrid.id]["BorderPOV"][aBorderPov].keys():
                     if attribut == anAttribut:
                         return aBorderPov
 

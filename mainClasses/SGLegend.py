@@ -125,7 +125,7 @@ class SGLegend(SGGameSpace):
                                                     anItem.show()
                                                     added_items.add(item_key)
                                                     added_colors.add(color)
-                                    if aPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
+                                    if aPov in self.model.cellCollection[grid.id]["BorderPOV"].keys() and aPov != 'BorderWidth':
                                         for aAtt in list(self.model.cellCollection[grid.id]["BorderPOV"][aPov].keys()):
                                             for aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][aPov][aAtt].keys()):
                                                 color=self.model.cellCollection[grid.id]["BorderPOV"][aPov][aAtt][aVal]
@@ -250,13 +250,13 @@ class SGLegend(SGGameSpace):
                             added_colors = set()
                             grid=self.model.getGameSpace(aKeyOfGamespace)
                             for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
-                                if aPov in grid.collectionOfCells.povs.keys():
+                                if aPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
                                     currentPov=aPov
                                     for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
                                         #for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
                                             aValue=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]
                                             item_key=aAttribut +' '+ aValue
-                                            color=grid.collectionOfCells.povs[currentPov][aAttribut][aValue]
+                                            color=self.model.cellCollection[grid.id]["ColorPOV"][currentPov][aAttribut][aValue]
                                             if item_key not in added_items and color not in added_colors and color != Qt.transparent:
                                                 self.y=self.y+1
                                                 anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut)
@@ -264,14 +264,14 @@ class SGLegend(SGGameSpace):
                                                 anItem.show()
                                                 added_items.add(item_key)
                                                 added_colors.add(color)
-                                if aPov in grid.collectionOfCells.borderPovs.keys():
+                                if aPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
                                     currentPov=aPov
                                     for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
                                         aDictValue=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]
                                         if isinstance(aDictValue,dict):
                                             for aValue in list(aDictValue.keys()):
                                                 item_key=aAttribut +' '+ aValue
-                                                color=grid.collectionOfCells.borderPovs[currentPov][aAttribut][aValue]
+                                                color=self.model.cellCollection[grid.id]["BorderPOV"][currentPov][aAttribut][aValue]
                                                 if item_key not in added_items and color not in added_colors and color != Qt.transparent:
                                                     self.y=self.y+1
                                                     anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)
@@ -282,7 +282,7 @@ class SGLegend(SGGameSpace):
                                         if isinstance(aDictValue,str):
                                             aValue=aDictValue
                                             item_key=aAttribut +' '+ aValue
-                                            color=grid.collectionOfCells.borderPovs[currentPov][aAttribut][aValue]
+                                            color=self.model.cellCollection[grid.id]["BorderPOV"][currentPov][aAttribut][aValue]
                                             if item_key not in added_items and color not in added_colors and color != Qt.transparent:
                                                 self.y=self.y+1
                                                 anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+aValue,color,aValue,aAttribut,True)

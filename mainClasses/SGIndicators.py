@@ -78,51 +78,51 @@ class SGIndicators(QtWidgets.QWidget):
             grids=self.dashboard.model.getGrids()
             for grid in grids:
                 cells=grid.getCells()
-                aCell=grid.collectionOfCells.getCell('cell1-1')
-                valForMin=aCell.attributs[self.attribut]
-                valForMax=aCell.attributs[self.attribut]
+                aCell=grid.getCell(1,1)
+                valForMin=aCell.dictOfAttributs[self.attribut]
+                valForMax=aCell.dictOfAttributs[self.attribut]
                 if self.method == "sumAtt" or self.method =='avgAtt':
                     for cell in cells :
                         if cell.isDisplay ==True:
-                            calcValue=calcValue+float(cell.attributs[self.attribut])
+                            calcValue=calcValue+float(cell.dictOfAttributs[self.attribut])
                     if self.method=='avgAtt':
                         calcValue=round(calcValue/len((cells)),2) #! toutes ou juste visibles ?
                 if self.method == "minAtt" or self.method == "maxAtt":
                     if self.method == "minAtt":
                         for cell in cells:
                             if cell.isDisplay ==True:
-                                if float(cell.attributs[self.attribut])<valForMin:
-                                    calcValue=float(cell.attributs[self.attribut])
-                                    valForMin=float(cell.attributs[self.attribut])
+                                if float(cell.dictOfAttributs[self.attribut])<valForMin:
+                                    calcValue=float(cell.dictOfAttributs[self.attribut])
+                                    valForMin=float(cell.dictOfAttributs[self.attribut])
                     else:
                         for cell in cells:
                             if cell.isDisplay ==True:
-                                if float(cell.attributs[self.attribut])>valForMax:
-                                    calcValue=float(cell.attributs[self.attribut])
-                                    valForMax=float(cell.attributs[self.attribut])
+                                if float(cell.dictOfAttributs[self.attribut])>valForMax:
+                                    calcValue=float(cell.dictOfAttributs[self.attribut])
+                                    valForMax=float(cell.dictOfAttributs[self.attribut])
                 if self.method == "nbEqualTo" or  self.method == "nbWithLess" or self.method == "nbWithMore":
                     if self.method == "nbEqualTo":
                         for cell in cells:
                             if cell.isDisplay ==True:
-                                if cell.attributs[self.attribut]==self.value:
+                                if cell.dictOfAttributs[self.attribut]==self.value:
                                     counter=counter+1
                         calcValue=counter
                     if self.method == "nbWithLess":
                         for cell in cells:
                             if cell.isDisplay ==True:
-                                if cell.attributs[self.attribut]<self.value:
+                                if cell.dictOfAttributs[self.attribut]<self.value:
                                     counter=counter+1
                         calcValue=counter
                     if self.method == "nbWithMore":
                         for cell in cells:
                             if cell.isDisplay ==True:
-                                if cell.attributs[self.attribut]>self.value:
+                                if cell.dictOfAttributs[self.attribut]>self.value:
                                     counter=counter+1
                         calcValue=counter
                 if self.method == "nb":
                     for cell in cells:
                         if cell.isDisplay ==True:
-                            if cell.attributs[self.attribut]==self.value:
+                            if cell.dictOfAttributs[self.attribut]==self.value:
                                 counter=counter+1
                     calcValue=counter
                 return calcValue

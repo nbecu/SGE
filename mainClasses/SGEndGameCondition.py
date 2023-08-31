@@ -69,7 +69,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
                 return
         if self.calcType == 'onEntity':
             if isinstance(self.entity, SGCell):
-                valueToCheck = self.entity.attributs[self.attribut]
+                valueToCheck = self.entity.dictOfAttributs[self.attribut]
                 if type(valueToCheck) == str:
                     valueToCheck = int(valueToCheck)
                 if self.logicalTests(valueToCheck, self.method, self.objective):
