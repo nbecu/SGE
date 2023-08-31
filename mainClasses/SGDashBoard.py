@@ -104,10 +104,10 @@ class SGDashBoard(SGGameSpace):
     def setCellWatchers(self, attribut, indicator):
         grids = self.model.getGrids()
         for grid in grids:
-            cellCollection = grid.collectionOfCells
-            if attribut not in cellCollection.watchers.keys():
-                cellCollection.watchers[attribut] = []
-            cellCollection.watchers[attribut].append(indicator)
+            cellCollection = self.model.cellCollection[grid.id]
+            if attribut not in cellCollection["watchers"].keys():
+                cellCollection["watchers"][attribut] = []
+            cellCollection["watchers"][attribut].append(indicator)
 
     def addIndicator_Sum(self, entity, attribut, value, indicatorName, isDisplay, color):
         """

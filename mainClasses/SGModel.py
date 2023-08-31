@@ -418,6 +418,7 @@ class SGModel(QtWidgets.QMainWindow):
                 self.cellCollection[grid.id]['cells'][aCell.getId()] = aCell
         self.cellCollection[grid.id]['ColorPOV']={}
         self.cellCollection[grid.id]['BorderPOV']={}
+        self.cellCollection[grid.id]['watchers']={}
 
     # To get all the cells of the collection
     def getCells(self,grid):

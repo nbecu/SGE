@@ -229,11 +229,11 @@ class SGCell(SGEntity):
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
                         if self.grid.model.selected[4] == "delete":
                             updatePermit=True
-                            for item in self.grid.collectionOfCells.watchers:
-                                for watcher in self.grid.collectionOfCells.watchers[item]:
+                            for item in self.grid.collectionOfCells[self.grid.id]["watchers"]:
+                                for watcher in self.grid.collectionOfCells[self.grid.id]["watchers"][item]:
                                     watcher.updateText()
                         else:
-                            for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                            for watcher in self.grid.collectionOfCells[self.grid.id]["watchers"][self.grid.model.selected[4]]:
                                 updatePermit=watcher.getUpdatePermission()
                                 if updatePermit:
                                     watcher.updateText()
@@ -280,8 +280,8 @@ class SGCell(SGEntity):
                         
                         self.dictOfAttributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.dictOfAttributs])
-                        if self.grid.model.selected[4] in self.model.cellCollection[self.grid.id]['cells'].watchers:
-                            for watcher in self.grid.collectionOfCells.watchers[self.grid.model.selected[4]]:
+                        if self.grid.model.selected[4] in self.model.cellCollection[self.grid.id]["watchers"]:
+                            for watcher in self.model.cellCollection[self.grid.id]["watchers"][self.grid.model.selected[4]]:
                                 updatePermit=watcher.getUpdatePermission()
                                 if updatePermit:
                                     watcher.updateText()
