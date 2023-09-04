@@ -7,10 +7,6 @@ import random
 class SGEntity(QtWidgets.QWidget):
     def __init__(self,parent,shape,defaultsize,me,uniqueColor=Qt.white):
         super().__init__(parent)
-        """if me=='cell':
-            self.model=parent.model
-        if me=='agent':
-            self.model=self.parent().parent()""" #! pourquoi???
         self.me=me
         self.dictOfAttributs={}
         self.shape=shape
@@ -28,8 +24,8 @@ class SGEntity(QtWidgets.QWidget):
         if self.isDisplay==True:
             if self.me=='agent':           
                 self.setGeometry(0,0,self.size+1,self.size+1)
-                x = self.getRandomXY()
-                y = self.getRandomXY()
+                x = 5#self.getRandomXY()
+                y = 5#self.getRandomXY()
                 if(self.shape=="circleAgent"):
                     painter.drawEllipse(x,y,self.size,self.size)
                 elif self.shape=="squareAgent":
@@ -174,8 +170,8 @@ class SGEntity(QtWidgets.QWidget):
                 self.model.cellCollection[grid.id]["BorderPOV"]['selectedBorderPov']=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()]
                 for aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
                     if aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                        self.borderColor=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
-                        return self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.attributs[aVal]]
+                        self.borderColor=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+                        return self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
             
             else:
                 self.borderColor=Qt.black

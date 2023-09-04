@@ -266,16 +266,16 @@ class SGCell(SGEntity):
                                         for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
                                             self.dictOfAttributs.pop(anAttribute,None)
 
-                        elif self.grid.model.nameOfPov in list(self.theCollection.borderPovs.keys()):
+                        elif self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["BorderPOV"]):
                             # borderPov
-                            for anAttribute in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
-                                if value in list(self.theCollection.borderPovs[self.grid.model.nameOfPov][anAttribute].keys()) :
+                            for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
+                                if value in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov][anAttribute].keys()) :
                                     theKey=anAttribute
                                     break
                             aDictWithValue={theKey:value}  
                             for aVal in list(aDictWithValue.keys()) :  
-                                if aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()) :
-                                    for anAttribute in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
+                                if aVal in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()) :
+                                    for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
                                             self.dictOfAttributs.pop(anAttribute,None)
                         
                         self.dictOfAttributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
@@ -290,7 +290,9 @@ class SGCell(SGEntity):
 
                 #For agent placement         
                 else :
+                    print("Action trigger")
                     if  authorisation :
+                        print("autho ok")
                         aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
                         if self.grid.model.selected[4] =="empty" or self.grid.model.selected[3]=='empty':
                             Species=self.grid.model.selected[2]
@@ -300,7 +302,7 @@ class SGCell(SGEntity):
                             #We now check the feedBack of the actions if it have some
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
-                            theSpecies=SGAgent(self.grid.model,cell=None,name=Species,shape=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
+                            theSpecies=SGAgent(self.grid.model,cell=self,name=Species,shape=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                            # theSpecie= self.model.agentSpecie(Species)
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             

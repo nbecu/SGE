@@ -31,8 +31,8 @@ class SGAgent(SGEntity):
         self.methodOfPlacement=methodOfPlacement
         self.x=0
         self.y=0
-        self.xPos=1#self.getRandomXY()
-        self.yPos=1#self.getRandomXY() #! attention non fonctionnel
+        self.xPos=15#self.getRandomXY()
+        self.yPos=15#self.getRandomXY() #! attention non fonctionnel
         #We define an owner by default
         self.owner="admin"    
         #We define variable to handle an history 

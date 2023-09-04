@@ -152,7 +152,7 @@ class SGPlayer():
                     elif isinstance(aGameAction, SGUpdate) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(aGameAction.dictNewValues.values())[0] and self.model.selected[4] in list(aGameAction.dictNewValues.keys()):
                         return aGameAction
                     # Delete of a Cell
-                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(anItem.attributs.values()):
+                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(anItem.dictOfAttributs.values()):
                         return aGameAction
         elif isinstance(anItem, SGAgent):
             for aGameAction in self.gameActions:
