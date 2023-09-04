@@ -353,7 +353,15 @@ class SGCell(SGEntity):
         option1 = QAction(text, self)
         #option1.triggered.connect(lambda: print(len(self.agents)))
         menu.addAction(option1)
-
+        print('Cell:')
+        print(self.parent())
+        if len(self.agents) > 0:
+            print('Agent:')
+            print(self.agents[0].parent())
+            # self.agents[0].move(200,200)
+            # self.agents[0].show()
+            # print(self.agents[0].x)
+            #self.agents[0].parent=self.parent()
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 

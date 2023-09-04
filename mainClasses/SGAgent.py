@@ -13,12 +13,16 @@ class SGAgent(SGEntity):
     instances=[]
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,model,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
-        super().__init__(model,cell,shape,defaultsize,me)
+    def __init__(self,aParent,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
+        super().__init__(aParent,cell,shape,defaultsize,me)
         #Basic initialize
         self.me=me
         self.cell=cell
-        self.model=model
+        
+        if me == 'collec':
+            self.model=aParent
+        if me == 'agent': #in the case of an agent, the parent is the grid
+            self.model=aParent.model
         self.name=name
         self.format=shape
         self.size=defaultsize

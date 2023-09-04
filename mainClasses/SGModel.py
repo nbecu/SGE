@@ -612,7 +612,7 @@ class SGModel(QtWidgets.QMainWindow):
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(
                 aAgentSpecies.name)]['DefaultColor']
-        aAgent = SGAgent(self,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,
                          aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
