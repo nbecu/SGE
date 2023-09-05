@@ -709,7 +709,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.IDincr = +incr
         anAgentID = self.IDincr+1
         locationCell = aCell
-        anAgent = SGAgent(self,locationCell, aAgentSpecies.name, aAgentSpecies.format,
+        anAgent = SGAgent(aCell.grid,locationCell, aAgentSpecies.name, aAgentSpecies.format,
                           aAgentSpecies.size, aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent')
         anAgent.cell = locationCell
         anAgent.cell.agents.append(anAgent)

@@ -35,8 +35,8 @@ class SGAgent(SGEntity):
         self.methodOfPlacement=methodOfPlacement
         self.x=0
         self.y=0
-        self.xPos=15#self.getRandomXY()
-        self.yPos=15#self.getRandomXY() #! attention non fonctionnel
+        self.xPos=self.getRandomX()
+        self.yPos=self.getRandomY()
         #We define an owner by default
         self.owner="admin"    
         #We define variable to handle an history 
@@ -147,6 +147,26 @@ class SGAgent(SGEntity):
         else:
             x=0
             return x
+        
+    def getRandomX(self):
+        if self.me=='agent':
+            maxSize=self.cell.size
+            originPoint=self.cell.pos()
+            x = random.randint(originPoint.x()+1,originPoint.x()+maxSize-2)
+            return x
+        else:
+            x=0
+            return x
+    
+    def getRandomY(self):
+        if self.me=='agent':
+            maxSize=self.cell.size
+            originPoint=self.cell.pos()
+            y = random.randint(originPoint.y()+1,originPoint.y()+maxSize-2)
+            return y
+        else:
+            y=0
+            return y
 
     """#To manage the attribute system of an Agent
     def getColor(self):
