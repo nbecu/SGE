@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(10,10,"square",size=50, gap=2)
+aGrid=myModel.newGrid(6,6,"square")
 aGrid.setCells("landUse","grass")
 aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
@@ -19,7 +19,7 @@ myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"for
 # Here, a "type" of agent is called a species.
 # To create a species, it needs : a name and a shape 
 # You can add a dict of attributs with values (optionnal).
-Sheeps=myModel.newAgentSpecies("Sheeps","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
+Sheeps=myModel.newAgentSpecies("Sheeps","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}},2)
 
 # For each attribute, you can set up points of view with colors :
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
@@ -27,12 +27,12 @@ Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
-m1=myModel.newAgent(aGrid,Sheeps,3,7,aDictofAttributs={"health":"good","hunger":"bad"})
-m2=myModel.newAgent(aGrid,Sheeps,None,None)
+m1=myModel.newAgent(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad"})
+#m2=myModel.newAgent(aGrid,Sheeps,None,None)
 
 #You can also edit your agent attribute values like this :
-m2.setValueAgent('health','good')
-m2.setValueAgent('hunger','good')
+#m2.setValueAgent('health','good')
+#m2.setValueAgent('hunger','good')
 
 myModel.launch() 
 

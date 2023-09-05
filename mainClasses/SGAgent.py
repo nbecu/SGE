@@ -69,7 +69,7 @@ class SGAgent(SGEntity):
         view.setRenderHint(QPainter.Antialiasing)
         return view
         
-    """def paintEvent(self,event):
+    def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -127,7 +127,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
-            painter.end()"""
+            painter.end()
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
@@ -148,8 +148,8 @@ class SGAgent(SGEntity):
             x=0
             return x
 
-    #To manage the attribute system of an Agent
-    """def getColor(self):
+    """#To manage the attribute system of an Agent
+    def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
         actualPov= self.getPov()
@@ -172,8 +172,8 @@ class SGAgent(SGEntity):
                 return theColor
             
             else:
-                return self.color
-"""
+                return self.color"""
+
 
     #To get the pov
     def getPov(self):

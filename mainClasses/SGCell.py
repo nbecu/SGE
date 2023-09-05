@@ -358,10 +358,10 @@ class SGCell(SGEntity):
         if len(self.agents) > 0:
             print('Agent:')
             print(self.agents[0].parent())
-            # self.agents[0].move(200,200)
-            # self.agents[0].show()
-            # print(self.agents[0].x)
-            #self.agents[0].parent=self.parent()
+            globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
+            print(globalcoord)
+            self.agents[0].raise_()
+            self.agents[0].isDisplay=True
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 
