@@ -65,6 +65,13 @@ class SGTimeManager():
                                 aAction.execute()
 
                     self.model.publishEntitiesState()
+                    #watchers update
+                    for grid in self.model.getGrids():
+                        for attribut in self.model.cellCollection[grid.id]["watchers"]:
+                            for watcher in self.model.cellCollection[grid.id]["watchers"][attribut]:
+                                updatePermit=watcher.getUpdatePermission()
+                                if updatePermit:
+                                    watcher.updateText()
 
                 else:
                     self.nextPhase()
