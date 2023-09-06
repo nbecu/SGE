@@ -19,7 +19,7 @@ myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"for
 # Here, a "type" of agent is called a species.
 # To create a species, it needs : a name and a shape 
 # You can add a dict of attributs with values (optionnal).
-Sheeps=myModel.newAgentSpecies("Sheeps","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}},2)
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}},2)
 
 # For each attribute, you can set up points of view with colors :
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
@@ -27,7 +27,8 @@ Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
-m1=myModel.newAgent(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad"})
+m1=myModel.placeAgent(myModel.getCell(aGrid,"cell1-1"),Sheeps,{"health":"good","hunger":"bad"})
+#m1=myModel.newAgent(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad"})
 #m2=myModel.newAgent(aGrid,Sheeps,None,None)
 
 #You can also edit your agent attribute values like this :

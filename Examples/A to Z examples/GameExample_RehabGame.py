@@ -35,6 +35,11 @@ Workers = myModel.newAgentSpecies(
     "Workers", "triangleAgent1", uniqueColor=Qt.black)
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
+Sheeps = myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"}})
+Sheeps.newPov("Sheep Health","health",{'good':Qt.blue,'bad':Qt.red})
+
+#aBird=myModel.placeAgent(aGrid.getCell_withId(aGrid,"cell1-1"),Birds,None)
+aSecondBird=myModel.newAgent(aGrid,Birds,4,5)
 
 # STEP4 Admin Players and GameActions
 globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)

@@ -592,11 +592,11 @@ class SGModel(QtWidgets.QMainWindow):
 
         if ValueX == None:
             ValueX = random.randint(0, aGrid.columns)
-            if ValueX < 0:
+            if ValueX < 1:
                 ValueX = +1
         if ValueY == None:
             ValueY = random.randint(0, aGrid.rows)
-            if ValueY < 0:
+            if ValueY < 1:
                 ValueY = +1
         locationCell = aGrid.getCell(ValueX, ValueY)
 
@@ -607,7 +607,7 @@ class SGModel(QtWidgets.QMainWindow):
                 ValueX = +1
             if ValueY < 0:
                 ValueY = +1
-            locationCell = aGrid.getCellFromCoordinates(ValueX, ValueY)
+            locationCell = aGrid.getCell(ValueX, ValueY)
 
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(
@@ -674,7 +674,7 @@ class SGModel(QtWidgets.QMainWindow):
             anAgentID = self.IDincr+1
             locationCell = random.choice(list(aGrid.getCells()))
 
-            anAgent = SGAgent(locationCell, aAgentSpecies.name, aAgentSpecies.format,
+            anAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format,
                               aAgentSpecies.size, aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent')
             locationCell.updateIncomingAgent(anAgent)
             anAgent.isDisplay = True
