@@ -78,8 +78,10 @@ class SGAgent(SGEntity):
         y = self.yPos
         if self.isDisplay==True:
             if(self.format=="circleAgent"):
+                self.setGeometry(x,y,self.size+1,self.size+1)
                 painter.drawEllipse(x,y,self.size,self.size)
             elif self.format=="squareAgent":
+                self.setGeometry(x,y,self.size+1,self.size+1)
                 painter.drawRect(x,y,self.size,self.size)
             elif self.format=="ellipseAgent1": 
                 self.setGeometry(x,y,self.size*2+1,self.size+1)
