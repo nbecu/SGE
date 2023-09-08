@@ -531,6 +531,13 @@ class SGModel(QtWidgets.QMainWindow):
                 break
         return AgentSpecie
 
+    def getAgentSpecies(self):
+        species=[]
+        for instance in SGAgent.instances:
+            if instance.me == 'collec':
+                species.append(instance)
+        return species
+
     def newUserSelector(self):
         """
         To create an User Selector in your game. Functions automatically with the players declared in your model. 
@@ -588,7 +595,7 @@ class SGModel(QtWidgets.QMainWindow):
             anAgentID = aID
 
         if aDictofAttributs is None:
-            aDictofAttributs = {}
+            aDictofAttributs = self.getRandomAttributs(aAgentSpecies)
 
         if ValueX == None:
             ValueX = random.randint(0, aGrid.columns)
@@ -770,6 +777,18 @@ class SGModel(QtWidgets.QMainWindow):
     def moveRandomlyAgents(self, aGrid, numberOfMovement):
         for aAgent in self.getAgents():
             aAgent.moveAgent(aGrid, numberOfMovement=numberOfMovement)
+
+    def getRandomAttributs(self,aAgentSpecies):
+        aDict={}
+        if aAgentSpecies.dictOfAttributs is not None:
+            values=[]
+            for attribut in aAgentSpecies.dictOfAttributs.keys():
+                values = list(aAgentSpecies.dictOfAttributs[attribut])
+                number=len(values)
+                aRandom=random.randint(0,number-1)
+                aDict[attribut]=values[aRandom]
+            
+        return aDict
 
     # To create a modelAction
     def newModelAction(self, actions=[], conditions=[], feedbacks=[]):

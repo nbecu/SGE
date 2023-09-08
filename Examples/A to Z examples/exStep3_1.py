@@ -34,7 +34,7 @@ m1=myModel.placeAgent(myModel.getCell(aGrid,"cell1-1"),Sheeps,{"health":"good","
 #You can also edit your agent attribute values like this :
 #m2.setValueAgent('health','good')
 #m2.setValueAgent('hunger','good')
-
+Legend=myModel.newLegendAdmin(showAgentsWithNoAtt=True)
 myModel.launch() 
 
 sys.exit(monApp.exec_())
