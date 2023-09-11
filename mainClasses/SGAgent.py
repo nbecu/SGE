@@ -170,31 +170,7 @@ class SGAgent(SGEntity):
             y=0
             return y
 
-    """#To manage the attribute system of an Agent
-    def getColor(self):
-        if self.isDisplay==False:
-            return Qt.transparent
-        actualPov= self.getPov()
-        if actualPov in list(self.model.agentSpecies[self.species]['POV'].keys()):
-            self.model.agentSpecies[self.species]['selectedPOV']=self.model.agentSpecies[self.species]['POV'][actualPov]
-            for aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
-                if aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
-                    path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                    theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
-                    self.color=theColor
-                    return theColor
 
-        else:
-            if self.model.agentSpecies[self.species]['selectedPOV'] is not None:
-                for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
-                    if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
-                        path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
-                        self.color=theColor
-                return theColor
-            
-            else:
-                return self.color"""
 
 
     #To get the pov

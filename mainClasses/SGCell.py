@@ -296,6 +296,8 @@ class SGCell(SGEntity):
                         aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
                         if self.grid.model.selected[4] =="empty" or self.grid.model.selected[3]=='empty':
                             Species=self.grid.model.selected[2]
+                        elif self.grid.model.selected[4] ==None or self.grid.model.selected[3]==None:
+                            Species=self.grid.model.selected[2]
                         else:
                             Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
                         if self.isDisplay==True :
@@ -351,7 +353,6 @@ class SGCell(SGEntity):
         menu = QMenu(self)
         text= "Agent count on this cell : "+str(len(self.agents))
         option1 = QAction(text, self)
-        #option1.triggered.connect(lambda: print(len(self.agents)))
         menu.addAction(option1)
         print('Cell:')
         print(self.parent())
@@ -360,8 +361,13 @@ class SGCell(SGEntity):
             print(self.agents[0].parent())
             globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
             print(globalcoord)
-            self.agents[0].raise_()
-            self.agents[0].isDisplay=True
+            print(self.mapToGlobal(QPoint(self.x,self.y)))
+            print(self.pos())
+            self.agents[0].move(self.pos())
+            globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
+            print(globalcoord)
+            self.agents[0].show()
+            self.model.update()
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 

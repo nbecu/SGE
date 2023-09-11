@@ -39,7 +39,6 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
-#aBird=myModel.placeAgent(aGrid.getCell_withId(aGrid,"cell1-1"),Birds,None)
 aSecondBird=myModel.newAgent(aGrid,Birds,4,5)
 aWorker=myModel.newAgent(aGrid,Workers,2,2)
 aSheep=myModel.newAgent(aGrid,Sheeps,3,3)

@@ -622,18 +622,11 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,
                          aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         locationCell.updateIncomingAgent(aAgent)
-        originPoint = aAgent.cell.pos()
-        aAgent.move(originPoint.x(),originPoint.y())
         aAgent.isDisplay = True
+        cellCoord=aAgent.cell.mapToGlobal(QPoint(aAgent.cell.x,aAgent.cell.y))
+        aAgent.move(cellCoord)
         aAgent.species = str(aAgentSpecies.name)
-        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,
-                                                                                   'attributs': aDictofAttributs, "AgentObject": aAgent
-                                                                                   }
-        if aDictofAttributs is None:
-            for key in aAgentSpecies.dictOfAttributs:
-                val = list(aAgentSpecies.dictOfAttributs[key])[0]
-                aAgent.updateAgentValue(key, val)
-
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
         return aAgent
 
     def getAgents(self, id=False, species=None):
