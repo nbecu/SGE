@@ -94,14 +94,18 @@ class SGCell(SGEntity):
                 AgentSpecie=instance
                 break
 
-        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-        theAgent.cell=self
-        self.updateIncomingAgent(theAgent)
-        theAgent.show()
+        self.moveAgentByRecreating_it(AgentSpecie,oldAgent)
         
         e.setDropAction(Qt.MoveAction)
         e.accept()
-        e.source().deleteLater()
+       # e.source().deleteLater() # instruction remontée au dessus
+
+    def moveAgentByRecreating_it(self,AgentSpecie,oldAgent):
+        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
+        # theAgent.cell=self
+        self.updateIncomingAgent(theAgent)
+        theAgent.show()
+        oldAgent.deleteLater() 
               
     #To get the pov
     def getPov(self):
@@ -268,20 +272,26 @@ class SGCell(SGEntity):
         text= "Agent count on this cell : "+str(len(self.agents))
         option1 = QAction(text, self)
         menu.addAction(option1)
-        print('Cell:')
-        print(self.parent())
-        if len(self.agents) > 0:
-            print('Agent:')
-            print(self.agents[0].parent())
-            globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
-            print(globalcoord)
-            print(self.mapToGlobal(QPoint(self.x,self.y)))
-            print(self.pos())
-            self.agents[0].move(self.pos())
-            globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
-            print(globalcoord)
-            self.agents[0].show()
-            self.model.update()
+
+        for aAgent in self.model.getAgents():
+            aAgent.cell.moveAgentByRecreating_it(self.model.getAgentSpecie(aAgent.species),aAgent)
+        # for aAgent in self.model.getAgents():
+        #     aAgent.show()
+
+        # print('Cell:')
+        # print(self.parent())
+        # if len(self.agents) > 0:
+        #     print('Agent:')
+        #     print(self.agents[0].parent())
+        #     globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
+        #     print(globalcoord)
+        #     print(self.mapToGlobal(QPoint(self.x,self.y)))
+        #     print(self.pos())
+        #     self.agents[0].move(self.pos())
+        #     globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
+        #     print(globalcoord)
+        #     self.agents[0].show()
+        #     self.model.update()
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 

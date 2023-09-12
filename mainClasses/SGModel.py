@@ -1226,6 +1226,8 @@ class SGModel(QtWidgets.QMainWindow):
     # To open and launch the game without a mqtt broker
     def launch(self):
         self.show()
+        # for aAgent in self.getAgents():
+        #     aAgent.cell.moveAgentByRecreating_it(self.getAgentSpecie(aAgent.species),aAgent)
 
     # To open and launch the game
     def launch_withMQTT(self):
