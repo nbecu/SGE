@@ -9,14 +9,14 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,texte="",color=Qt.black,valueOfAttribut="",nameOfAttribut="",border=False):
+    def __init__(self,parent,type,y,text="",color=Qt.black,valueOfAttribut="",nameOfAttribut="",border=False):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
         self.type=type
         self.valueOfAttribut=valueOfAttribut
         self.nameOfAttribut=nameOfAttribut
-        self.texte=texte
+        self.text=text
         self.y=y
         self.color=color
         self.border=border
@@ -119,10 +119,10 @@ class SGLegendItem(QtWidgets.QWidget):
                 aFont=QFont("Verdana",10)
                 aFont.setUnderline(True)
                 painter.setFont(aFont)
-                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.texte)
+                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             else :
                 painter.setFont(QFont("Verdana",8))
-                painter.drawText(QRect(40,5,self.legend.getSizeXGlobal()-50,15), Qt.AlignLeft, self.texte)
+                painter.drawText(QRect(40,5,self.legend.getSizeXGlobal()-50,15), Qt.AlignLeft, self.text)
             self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
             self.move(10,self.y*20+5*self.y)
             painter.end()
@@ -161,16 +161,16 @@ class SGLegendItem(QtWidgets.QWidget):
                         self.legend.model.selected=[None]
                         selectedItem=[self]
                         selectedItem.append(self.type) 
-                        selectedItem.append(self.texte)
-                        if self.texte.find('Remove ')!=-1 :
-                            txt=self.texte.replace("Remove ","")
+                        selectedItem.append(self.text)
+                        if self.text.find('Remove ')!=-1 :
+                            txt=self.text.replace("Remove ","")
                             txt=txt.replace(self.valueOfAttribut+" ","")
                             selectedItem.append(txt)
                             selectedItem.append(self.valueOfAttribut)
                         else: 
                             selectedItem.append(self.valueOfAttribut)
                             selectedItem.append(self.nameOfAttribut)
-                        #selectedItem.append(self.texte[0:self.texte.find(self.nameOfAttribut)-1])
+                        #selectedItem.append(self.text[0:self.text.find(self.nameOfAttribut)-1])
                         self.legend.model.selected=selectedItem
                         self.legend.model.update()
         self.update()
@@ -188,11 +188,12 @@ class SGLegendItem(QtWidgets.QWidget):
         if thePlayer!="Admin":
             self.clickable=True
             for actionText in thePlayer.remainActions.keys():
-                if actionText.find(self.texte)!=-1:
+                if actionText.find(self.text)!=-1:
                     self.remainNumber=thePlayer.remainActions[actionText]
                     break
         else:
             self.clickable=False
+
 
 
 

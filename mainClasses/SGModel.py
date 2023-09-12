@@ -491,10 +491,9 @@ class SGModel(QtWidgets.QMainWindow):
 
     def updateLegendAdmin(self):
         if "adminLegend" in list(self.gameSpaces.keys()):
-            self.gameSpaces["adminLegend"].deleteLater()
-            del self.gameSpaces["adminLegend"]
-        aLegend = self.newLegendAdmin()
-        aLegend.addDeleteButton('Delete')
+            aLegend = self.gameSpaces["adminLegend"]
+            aLegend.initUI()
+            aLegend.update()
 
     # To create a New kind of agents
     def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictOfAttributs=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
@@ -515,6 +514,7 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies = SGAgent(self, None,aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
                                 dictOfAttributs, None, me='collec', uniqueColor=uniqueColor)
         aAgentSpecies.isDisplay = False
+        aAgentSpecies.species=aSpeciesName
         self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {
         }, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies}
         return aAgentSpecies

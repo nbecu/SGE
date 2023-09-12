@@ -57,11 +57,14 @@ Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
+#Player2.addGameAction(myModel.newCreateAction(Sheeps,4))
+Player2.addGameAction(myModel.newCreateAction(Birds,4))
+Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Player2.newControlPanel("Player 2 Actions")
+Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
@@ -90,7 +93,7 @@ endGameRule.showEndGameConditions()
 TextBox = myModel.newTextBox(
     title='Your game is starting...', textToWrite="Welcome !")
 
-myModel.moveToCoords("My Game Time", 1200, 400)
+#myModel.moveToCoords("My Game Time", 1200, 400)
 
 myModel.launch()
 

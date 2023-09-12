@@ -54,41 +54,6 @@ class SGCell(SGEntity):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_menu)
         
-    """def paintEvent(self,event):
-        self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
-        self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
-        if (self.shape=="hexagonal"):
-            self.startY=self.startY+self.size/4
-        painter = QPainter() 
-        painter.begin(self)
-        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
-        #Base of the gameBoard
-        if(self.shape=="square"):
-            painter.drawRect(0,0,self.size,self.size)
-            self.setMinimumSize(self.size,self.size+1)
-            self.setGeometry(0,0,self.size+1,self.size+1)
-            self.move(self.startX,self.startY)
-        elif(self.shape=="hexagonal"):
-            self.setMinimumSize(self.size,self.size)
-            self.setGeometry(0,0,self.size+1,self.size+1)
-            points = QPolygon([
-                QPoint(int(self.size/2), 0),
-                QPoint(self.size, int(self.size/4)),
-                QPoint(self.size, int(3*self.size/4)),
-                QPoint(int(self.size/2), self.size),
-                QPoint(0, int(3*self.size/4)),
-                QPoint(0, int(self.size/4))              
-            ])
-            painter.drawPolygon(points)
-            if(self.y%2!=0):
-                # y impaires /  sachant que la première valeur de y est 1
-                self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
-            else:
-                self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
-                
-        painter.end()"""
-        
     def getId(self):
         return "cell"+str(self.x)+"-"+str(self.y)
     
@@ -137,60 +102,7 @@ class SGCell(SGEntity):
         e.setDropAction(Qt.MoveAction)
         e.accept()
         e.source().deleteLater()
-        
-        
-    """#To manage the attribute system of a cell
-    def getColor(self):
-        if self.isDisplay==False:
-            return Qt.transparent
-    
-        if self.grid.model.nameOfPov in self.theCollection.povs.keys():
-            self.theCollection.povs['selectedPov']=self.theCollection.povs[self.getPov()]
-            for aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                if aVal in list(self.theCollection.povs[self.grid.model.nameOfPov].keys()):
-                     self.color=self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
-                     return self.theCollection.povs[self.getPov()][aVal][self.attributs[aVal]]
-        
-        else:
-            if self.theCollection.povs['selectedPov'] is not None:
-                for aVal in list(self.theCollection.povs['selectedPov'].keys()):
-                    if aVal in list(self.theCollection.povs['selectedPov'].keys()):
-                        self.color=self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
-                        return self.theCollection.povs['selectedPov'][aVal][self.attributs[aVal]]
-            else: 
-                self.color=Qt.white
-                return Qt.white
-            
-    def getBorderColor(self):
-        if self.isDisplay==False:
-            return Qt.transparent
-    
-        if self.grid.model.nameOfPov in self.theCollection.borderPovs.keys():
-            self.theCollection.borderPovs['selectedBorderPov']=self.theCollection.borderPovs[self.getPov()]
-            for aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
-                if aVal in list(self.theCollection.borderPovs[self.grid.model.nameOfPov].keys()):
-                     self.borderColor=self.theCollection.borderPovs[self.getPov()][aVal][self.attributs[aVal]]
-                     return self.theCollection.borderPovs[self.getPov()][aVal][self.attributs[aVal]]
-        
-        else:
-            if self.theCollection.borderPovs['selectedBorderPov'] is not None:
-                for aVal in list(self.theCollection.borderPovs['selectedBorderPov'].keys()):
-                    if aVal in list(self.theCollection.borderPovs['selectedBorderPov'].keys()):
-                        self.borderColor=self.theCollection.borderPovs['selectedBorderPov'][aVal][self.attributs[aVal]]
-                        if self.borderColor != None:
-                            return self.theCollection.borderPovs['selectedBorderPov'][aVal][self.attributs[aVal]]
-                        else:
-                            return Qt.black
-            else: 
-            self.borderColor=Qt.black
-            return Qt.black
-    
-    def getBorderWidth(self):
-        if self.theCollection.borderPovs is not None and self.grid.model.nameOfPov in self.theCollection.borderPovs.keys():
-                return int(self.theCollection.borderPovs["borderWidth"])
-        
-        return int(1)"""
-                
+              
     #To get the pov
     def getPov(self):
         return self.grid.model.nameOfPov
@@ -290,14 +202,16 @@ class SGCell(SGEntity):
 
                 #For agent placement         
                 else :
-                    print("Action trigger")
                     if  authorisation :
-                        print("autho ok")
                         aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
                         if self.grid.model.selected[4] =="empty" or self.grid.model.selected[3]=='empty':
                             Species=self.grid.model.selected[2]
                         elif self.grid.model.selected[4] ==None or self.grid.model.selected[3]==None:
                             Species=self.grid.model.selected[2]
+                        elif ":" in self.grid.model.selected[2] :
+                            selected=self.grid.model.selected[2]
+                            chain=selected.split(' : ')
+                            Species = chain[0]
                         else:
                             Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
                         if self.isDisplay==True :

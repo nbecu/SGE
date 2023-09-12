@@ -33,8 +33,8 @@ class SGAgent(SGEntity):
         self.dictOfAttributs=dictOfAttributs
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
-        self.x=0
-        self.y=0
+        # self.x=0
+        # self.y=0
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
         #We define an owner by default
@@ -49,25 +49,6 @@ class SGAgent(SGEntity):
         self.isDisplay=bool
         self.instances.append(self)
         self.color=uniqueColor
-        
-
- 
-
-
-    def getWidget(self):
-        scene = QGraphicsScene()
-        rect = QGraphicsRectItem(0, 0, 10, 10)
-        # rect.setPos(0, 0)
-        brush = QBrush(Qt.red)
-        rect.setBrush(brush)
-        pen = QPen(Qt.cyan)
-        pen.setWidth(1)
-        rect.setPen(pen)
-
-        scene.addItem(rect)
-        view = QGraphicsView(scene)
-        view.setRenderHint(QPainter.Antialiasing)
-        return view
         
     def paintEvent(self,event):
         painter = QPainter() 

@@ -12,8 +12,6 @@ class SGEntity(QtWidgets.QWidget):
         self.shape=shape
         self.isDisplay=True
         self.owner="admin"
-        self.x=0
-        self.y=0 
         self.size=defaultsize
         self.color=uniqueColor
 

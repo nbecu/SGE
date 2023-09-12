@@ -3,7 +3,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGGameSpace import SGGameSpace
-from mainClasses.SGCellCollection import SGCellCollection
 from mainClasses.SGAgent import SGAgent
 
 
