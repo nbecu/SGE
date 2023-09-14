@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import  QAction, QGraphicsRectItem, QGraphicsView, QGraphic
 import random
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
+from mainClasses.SGGameSpace import SGGameSpace
 
    
 #Class who is responsible of the declaration a Agent
@@ -15,6 +16,7 @@ class SGAgent(SGEntity):
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,aParent,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
         super().__init__(aParent,shape,defaultsize,me)
+        #super().__init__(aParent, 0, 60, 0, 0, true)
         #Basic initialize
         self.me=me
         self.cell=cell
