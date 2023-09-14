@@ -15,89 +15,29 @@ class SGEntity(QtWidgets.QWidget):
         self.size=defaultsize
         self.color=uniqueColor
 
-    def paintEvent(self,event):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        if self.isDisplay==True:
-            painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth())) # ! getBorderColor / get BorderWidth for agents
-            self.startXBase=0
-            self.startYBase=0
-            self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
-            self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
-            if (self.shape=="hexagonal"):
-                self.startY=self.startY+self.size/4
-            #Base of the gameBoard
-            if(self.shape=="square"):
-                painter.drawRect(0,0,self.size,self.size)
-                self.setMinimumSize(self.size,self.size+1)
-                self.setGeometry(0,0,self.size+1,self.size+1)
-                self.move(self.startX,self.startY)
-            elif(self.shape=="hexagonal"):
-                self.setMinimumSize(self.size,self.size)
-                self.setGeometry(0,0,self.size+1,self.size+1)
-                points = QPolygon([
-                    QPoint(int(self.size/2), 0),
-                    QPoint(self.size, int(self.size/4)),
-                    QPoint(self.size, int(3*self.size/4)),
-                    QPoint(int(self.size/2), self.size),
-                    QPoint(0, int(3*self.size/4)),
-                    QPoint(0, int(self.size/4))              
-                ])
-                painter.drawPolygon(points)
-                if(self.y%2!=0):
-                    # y impaires /  sachant que la première valeur de y est 1
-                    self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
-                else:
-                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
-                        
-        painter.end()
-
+    
 
         
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
-        if self.me=='agent':
-            actualPov= self.getPov()
-            if actualPov in list(self.model.agentSpecies[self.species]['POV'].keys()):
-                self.model.agentSpecies[self.species]['selectedPOV']=self.model.agentSpecies[self.species]['POV'][actualPov]
-                for aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
-                    if aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
-                        path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
-                        self.color=theColor
-                        return theColor
-
-            else:
-                if self.model.agentSpecies[self.species]['selectedPOV'] is not None:
-                    for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
-                        if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
-                            path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                            theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
-                            self.color=theColor
-                    return theColor
-                
-                else:
-                    return self.color
-        if self.me == 'cell':
-            grid=self.grid
-            if self.model.nameOfPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
-                self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
-                for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                    if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                        self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
-                        return self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
-            
-            else:
-                if self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
-                    for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                        if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                            self.color=self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
-                            return self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
-                else: 
-                    self.color=Qt.white
-                    return Qt.white
+        grid=self.grid
+        if self.model.nameOfPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
+            self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
+            for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
+                if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
+                    self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+                    return self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+        
+        else:
+            if self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
+                for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
+                    if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
+                        self.color=self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+                        return self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+            else: 
+                self.color=Qt.white
+                return Qt.white
                 
     
     def getBorderColor(self):

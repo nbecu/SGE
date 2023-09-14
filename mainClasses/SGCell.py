@@ -20,9 +20,9 @@ class SGCell(SGEntity):
         self.theCollection=self.grid.model.cellCollection
         self.model=self.grid.model
         self.me='cell'
-        self.x=columns
-        self.y=rows
-        self.name="cell"+str(columns)+'-'+str(rows)
+        self.x=rows
+        self.y=columns
+        self.name="cell"+str(rows)+'-'+str(columns)
         self.gap=gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=gap
@@ -33,7 +33,7 @@ class SGCell(SGEntity):
         self.isDisplay=True
         #We init the dict of Attribute
         self.dictOfAttributs={}
-        #We init the Collection for the futures Agents
+        #We init the Collection for the future Agents
         self.agents=[]
         #We allow the drops for the agents
         self.setAcceptDrops(True)
@@ -57,6 +57,43 @@ class SGCell(SGEntity):
     def getId(self):
         return "cell"+str(self.x)+"-"+str(self.y)
     
+    def paintEvent(self,event):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        if self.isDisplay==True:
+            painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
+            self.startXBase=0
+            self.startYBase=0
+            self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
+            self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
+            if (self.shape=="hexagonal"):
+                self.startY=self.startY+self.size/4
+            #Base of the gameBoard
+            if(self.shape=="square"):
+                painter.drawRect(0,0,self.size,self.size)
+                self.setMinimumSize(self.size,self.size+1)
+                self.setGeometry(0,0,self.size+1,self.size+1)
+                self.move(self.startX,self.startY)
+            elif(self.shape=="hexagonal"):
+                self.setMinimumSize(self.size,self.size)
+                self.setGeometry(0,0,self.size+1,self.size+1)
+                points = QPolygon([
+                    QPoint(int(self.size/2), 0),
+                    QPoint(self.size, int(self.size/4)),
+                    QPoint(self.size, int(3*self.size/4)),
+                    QPoint(int(self.size/2), self.size),
+                    QPoint(0, int(3*self.size/4)),
+                    QPoint(0, int(self.size/4))              
+                ])
+                painter.drawPolygon(points)
+                if(self.y%2!=0):
+                    # y impaires /  sachant que la première valeur de y est 1
+                    self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                else:
+                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                        
+        painter.end()
 
     #Funtion to handle the zoom
     def zoomIn(self):
@@ -89,23 +126,39 @@ class SGCell(SGEntity):
         e.accept()
         oldAgent=e.source()
 
-        for instance in SGAgent.instances:
-            if instance.me=='collec' and instance.name==oldAgent.name:
-                AgentSpecie=instance
-                break
-
-        self.moveAgentByRecreating_it(AgentSpecie,oldAgent)
-        
+        # for instance in SGAgent.instances:
+        #     if instance.me=='collec' and instance.name==oldAgent.name:
+        #         AgentSpecie=instance
+        #         break
+        agentSpecie=self.model.getAgentSpecie(oldAgent.name)
+        #self.moveAgentByRecreating_it(agentSpecie,oldAgent)
+        #self.moveAgentByMoveFunction(oldAgent,e)
+        oldAgent.mouseReleaseEvent(e)
         e.setDropAction(Qt.MoveAction)
         e.accept()
        # e.source().deleteLater() # instruction remontée au dessus
 
     def moveAgentByRecreating_it(self,AgentSpecie,oldAgent):
         theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-        # theAgent.cell=self
-        self.updateIncomingAgent(theAgent)
+        #self.updateIncomingAgent(theAgent)
         theAgent.show()
-        oldAgent.deleteLater() 
+        self.updateDepartureAgent(oldAgent) 
+        oldAgent.deleteLater()
+    
+    def moveAgentByMoveFunction(self,agent,event):
+        release_point = event.pos()
+        print("--->",release_point)
+        # self.setParent(self.grid)
+        # agent.setParent(self.grid)
+        parent_release_point = self.mapToParent(release_point)
+        print("parent -->",parent_release_point)
+        agent.move(parent_release_point.x(),parent_release_point.y())
+        self.updateIncomingAgent(agent)
+        agent.update()
+        agent.raise_()
+        agent.show()
+
+        
               
     #To get the pov
     def getPov(self):
@@ -222,8 +275,8 @@ class SGCell(SGEntity):
                             #We now check the feedBack of the actions if it have some
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
-                            theSpecies=SGAgent(self.grid.model,cell=self,name=Species,shape=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
-                           # theSpecie= self.model.agentSpecie(Species)
+                            theSpecies = self.model.getAgentSpecie(Species)
+                            #theSpecies=SGAgent(self.grid.model,cell=self,name=Species,shape=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             
                             self.update()
@@ -275,23 +328,10 @@ class SGCell(SGEntity):
 
         for aAgent in self.model.getAgents():
             aAgent.cell.moveAgentByRecreating_it(self.model.getAgentSpecie(aAgent.species),aAgent)
-        # for aAgent in self.model.getAgents():
-        #     aAgent.show()
-
-        # print('Cell:')
-        # print(self.parent())
-        # if len(self.agents) > 0:
-        #     print('Agent:')
-        #     print(self.agents[0].parent())
-        #     globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
-        #     print(globalcoord)
-        #     print(self.mapToGlobal(QPoint(self.x,self.y)))
-        #     print(self.pos())
-        #     self.agents[0].move(self.pos())
-        #     globalcoord=self.agents[0].mapToGlobal(QPoint(self.agents[0].x,self.agents[0].y))
-        #     print(globalcoord)
-        #     self.agents[0].show()
-        #     self.model.update()
+        
+        print(point)
+        parent_pos=self.mapToParent(point)
+        print(parent_pos)
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 

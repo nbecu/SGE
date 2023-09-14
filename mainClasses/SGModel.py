@@ -136,6 +136,18 @@ class SGModel(QtWidgets.QMainWindow):
 
         self.nameOfPov = "default"
 
+        self.label = QtWidgets.QLabel(self)
+        self.label.setGeometry(10, 10, 350, 30)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.maj_coordonnees)
+        self.timer.start(100)
+
+    def maj_coordonnees(self):
+        pos_souris_globale = QCursor.pos()
+        coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
+        self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
+
     # Create the menu of the menue
     def createMenu(self):
         self.menuBar().addAction(self.openSave)
@@ -710,10 +722,8 @@ class SGModel(QtWidgets.QMainWindow):
         incr = len(self.getAgents())
         self.IDincr = +incr
         anAgentID = self.IDincr+1
-        locationCell = aCell
-        anAgent = SGAgent(aCell.grid,locationCell, aAgentSpecies.name, aAgentSpecies.format,
+        anAgent = SGAgent(aCell.grid,aCell, aAgentSpecies.name, aAgentSpecies.format,
                           aAgentSpecies.size, aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent')
-        anAgent.cell = locationCell
         anAgent.cell.agents.append(anAgent)
         anAgent.isDisplay = True
         anAgent.species = str(aAgentSpecies.name)

@@ -84,19 +84,19 @@ class SGGrid(SGGameSpace):
         self.zoom = self.zoom*0.9
         self.size = round(self.size-(self.zoom*10))
 
-        # Ce IF/ELSE est trés curieux. C'est la meme chose ds le If et ds le Else
-        if (self.gap > 2 and self.format == "square"):
-            self.gap = round(self.gap-(self.zoom*1))
-            for cell in self.getCells():
-                cell.zoomOut()
-        else:
-            self.gap = round(self.gap-(self.zoom*1))
-            for cell in self.getCells():
-                cell.zoomOut()
+        
+        # if (self.gap > 2 and self.format == "square"):
+        self.gap = round(self.gap-(self.zoom*1))
         for cell in self.getCells():
             cell.zoomOut()
-            for agent in cell.getAgents():
-                agent.zoomOut(self.zoom)
+        # else:
+        #     self.gap = round(self.gap-(self.zoom*1))
+        #     for cell in self.getCells():
+        #         cell.zoomOut()
+        # for cell in self.getCells():
+        #     cell.zoomOut()
+        for agent in cell.getAgents():
+            agent.zoomOut(self.zoom)
         self.update()
 
     # To handle the drag of the grid
@@ -169,7 +169,7 @@ class SGGrid(SGGameSpace):
     # Agent function
     # To get all agents on the grid of a particular type
     def getAgentsOfType(self, aType):
-        """NOT TESTED"""
+        """OBSOLETE"""
         theList = []
         for aCell in self.collectionOfCells.cells:
             for anAgent in self.collectionOfCells.getCell(aCell).getAgentsOfType(aType):
@@ -179,6 +179,7 @@ class SGGrid(SGGameSpace):
     # To initialise current POV
 
     def initCurrentPOV(self):
+        """OBSOLETE"""
         for aCell in self.getCells():
             listcles = list(aCell.theCollection.povs.keys())
             self.currentPOV['Cell'] = aCell.theCollection.povs[listcles[0]]
@@ -193,6 +194,7 @@ class SGGrid(SGGameSpace):
 
     def getCurrentPOV(self):
         """"
+        OBSOLETE
         Get the actual POV displayed by the model for a grid        
         """
         for animal, sub_dict in self.model.AgentSpecies.items():

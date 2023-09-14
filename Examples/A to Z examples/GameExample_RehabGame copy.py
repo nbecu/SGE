@@ -39,8 +39,8 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
-cell_A = aGrid.getCell(4,5)
-cell_B = aGrid.getCell(2,2)
+cell_A = aGrid.getCell(4,4)
+cell_B = aGrid.getCell(2,4)
 cell_C = aGrid.getCell(3,3)
 
 aSecondBird=myModel.placeAgent(cell_A,Birds,None)
@@ -103,5 +103,5 @@ myModel.launch()
 
 
 sys.exit(monApp.exec_())
-for aAgent in myModel.getAgents():
-            aAgent.cell.moveAgentByRecreating_it(myModel.getAgentSpecie(aAgent.species),aAgent)
+# for aAgent in myModel.getAgents():
+#             aAgent.cell.moveAgentByRecreating_it(myModel.getAgentSpecie(aAgent.species),aAgent)

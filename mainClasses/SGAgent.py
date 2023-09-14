@@ -14,7 +14,7 @@ class SGAgent(SGEntity):
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,aParent,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
-        super().__init__(aParent,cell,shape,defaultsize,me)
+        super().__init__(aParent,shape,defaultsize,me)
         #Basic initialize
         self.me=me
         self.cell=cell
@@ -111,6 +111,31 @@ class SGAgent(SGEntity):
                 ])
                 painter.drawPolygon(points)
             painter.end()
+    
+    def getColor(self):
+        if self.isDisplay==False:
+            return Qt.transparent
+        actualPov= self.getPov()
+        if actualPov in list(self.model.agentSpecies[self.species]['POV'].keys()):
+            self.model.agentSpecies[self.species]['selectedPOV']=self.model.agentSpecies[self.species]['POV'][actualPov]
+            for aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
+                if aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
+                    path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                    theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
+                    self.color=theColor
+                    return theColor
+
+        else:
+            if self.model.agentSpecies[self.species]['selectedPOV'] is not None:
+                for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
+                    if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
+                        path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+                        theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+                        self.color=theColor
+                return theColor
+            
+            else:
+                return self.color
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
@@ -218,8 +243,6 @@ class SGAgent(SGEntity):
         authorisation = SGGameActions.getMovePermission(self)
         
         if authorisation:
-            print(str(self.x)+","+str(self.y))
-            print([self.cell.x,self.cell.y])
             self.cell.updateDepartureAgent(self)
             mimeData = QMimeData()
 
@@ -227,7 +250,12 @@ class SGAgent(SGEntity):
             drag.setMimeData(mimeData)
             drag.setHotSpot(e.pos() - self.rect().topLeft())
 
-            drag.exec_(Qt.MoveAction)
+            drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
+    def mouseReleaseEvent(self,event):
+        pos_local = self.mapToParent(event.pos())  # Convertit les coordonnées locales de l'événement en coordonnées par rapport au parent
+        self.move(pos_local)
+        self.show()
      
             
 
@@ -305,9 +333,7 @@ class SGAgent(SGEntity):
             departureCell.updateDepartureAgent(anAgent)
             anAgent.deleteLater()
             aGrid=incomingCell.grid
-            for instance in SGAgent.instances:
-                if instance.me=='collec' and instance.name==anAgent.name:
-                    AgentSpecie=instance
+            AgentSpecie=self.model.getAgentSpecie(anAgent.name)
             theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,incomingCell.x,incomingCell.y,anAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(anAgent.id)]['attributs']) 
             incomingCell.updateIncomingAgent(theAgent)
             theAgent.show()
@@ -315,15 +341,14 @@ class SGAgent(SGEntity):
                 
     #Function to check the ownership  of the agent          
     def isMine(self):
-        return self.owner==self.model.actualPlayer
+        return self.owner==self.model.currentPlayer
     
     def getId(self):
         return self.id
     
     #Function to check the ownership  of the agent          
     def isMineOrAdmin(self):
-        """NOT TESTED"""
-        return self.owner==self.model.actualPlayer or self.owner=="admin"
+        return self.owner==self.model.currentPlayer or self.owner=="admin"
     
     #Function to change the ownership         
     def makeOwner(self,newOwner):
@@ -331,12 +356,12 @@ class SGAgent(SGEntity):
         
     #Function get the ownership        
     def getProperty(self):
-        self.owner=self.model.actualPlayer
+        self.owner=self.model.currentPlayer
     
         
     #Function to check the old value of an Agent       
     def checkPrecedenteValue(self,precedentValue):
-        """NOT TESTED"""
+        """OBSOLETE"""
         if not len(self.history["value"]) ==0:
             for aVal in list(self.history["value"][len(self.history["value"])].thingsSave.keys()) :
                 if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
