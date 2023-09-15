@@ -25,6 +25,7 @@ from mainClasses.SGTimeLabel import SGTimeLabel
 from mainClasses.SGTimeManager import SGTimeManager
 from mainClasses.SGPlayer import SGPlayer
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGnewAgent import SGnewAgent
 from mainClasses.SGEntity import SGEntity
 from email.policy import default
 from logging.config import listen
@@ -743,6 +744,29 @@ class SGModel(QtWidgets.QMainWindow):
         anAgent.show()
         self.update()
         pass
+    
+    ##Test new class
+    def newAgentTest(self, id, shape):
+        aAgent=SGnewAgent(self,id,shape)
+
+        newPos = self.layoutOfModel.addGameSpace(aAgent)
+        aAgent.setStartXBase(newPos[0])
+        aAgent.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aAgent.move(aAgent.startXBase, aAgent.startYBase +
+                            20*self.layoutOfModel.getNumberOfAnElement(aAgent))
+        elif (self.typeOfLayout == "horizontal"):
+            aAgent.move(aAgent.startXBase+20 *
+                            self.layoutOfModel.getNumberOfAnElement(aAgent), aAgent.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aAgent)
+            aAgent.move(aAgent.startXBase+20 *
+                            pos[0], aAgent.startYBase+20*pos[1])
+
+        self.applyPersonalLayout()
+        return aAgent
+
+
 
     # To add an Agent on a particular Cell type
 

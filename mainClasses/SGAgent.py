@@ -29,8 +29,8 @@ class SGAgent(SGEntity):
         self.format=shape
         self.size=defaultsize
         #We place the default pos
-        self.startXBase=0
-        self.startYBase=0
+        # self.startXBase=0
+        # self.startYBase=0
         #We init the dict of Attribute
         self.dictOfAttributs=dictOfAttributs
         #For the placement of the agents
