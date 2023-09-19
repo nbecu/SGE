@@ -25,7 +25,6 @@ from mainClasses.SGTimeLabel import SGTimeLabel
 from mainClasses.SGTimeManager import SGTimeManager
 from mainClasses.SGPlayer import SGPlayer
 from mainClasses.SGAgent import SGAgent
-from mainClasses.SGnewAgent import SGnewAgent
 from mainClasses.SGEntity import SGEntity
 from email.policy import default
 from logging.config import listen
@@ -137,17 +136,26 @@ class SGModel(QtWidgets.QMainWindow):
 
         self.nameOfPov = "default"
 
-        self.label = QtWidgets.QLabel(self)
-        self.label.setGeometry(10, 10, 350, 30)
+        # self.label = QtWidgets.QLabel(self)
+        # self.label.setGeometry(10, 10, 350, 30)
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.maj_coordonnees)
-        self.timer.start(100)
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self.maj_coordonnees)
+        # self.timer.start(100)
+
+        self.timer = QTimer.singleShot(500, self.updateFunction)
 
     def maj_coordonnees(self):
         pos_souris_globale = QCursor.pos()
         coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
         self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
+    
+    def updateFunction(self):
+        print("UPDATE")
+        for aAgent in self.getAgents():
+            aAgent.cell.moveAgentByRecreating_it(aAgent)
+        print("END UPDATE")
+        self.show()
 
     # Create the menu of the menue
     def createMenu(self):
@@ -507,6 +515,34 @@ class SGModel(QtWidgets.QMainWindow):
             aLegend = self.gameSpaces["adminLegend"]
             aLegend.initUI()
             aLegend.update()
+    
+    def newUserSelector(self):
+        """
+        To create an User Selector in your game. Functions automatically with the players declared in your model. 
+
+        """
+        if len(self.users) > 1 and len(self.players) > 0:
+            userSelector = SGUserSelector(self, self.users)
+            self.myUserSelector = userSelector
+            self.gameSpaces["userSelector"] = userSelector
+            # Realocation of the position thanks to the layout
+            newPos = self.layoutOfModel.addGameSpace(userSelector)
+            userSelector.setStartXBase(newPos[0])
+            userSelector.setStartYBase(newPos[1])
+            if (self.typeOfLayout == "vertical"):
+                userSelector.move(userSelector.startXBase, userSelector.startYBase +
+                                  20*self.layoutOfModel.getNumberOfAnElement(userSelector))
+            elif (self.typeOfLayout == "horizontal"):
+                userSelector.move(userSelector.startXBase+20*self.layoutOfModel.getNumberOfAnElement(
+                    userSelector), userSelector.startYBase)
+            else:
+                pos = self.layoutOfModel.foundInLayout(userSelector)
+                userSelector.move(userSelector.startXBase +
+                                  20*pos[0], userSelector.startYBase+20*pos[1])
+            self.applyPersonalLayout()
+            return userSelector
+        else:
+            print('You need to add players to the game')
 
     # To create a New kind of agents
     def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictOfAttributs=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
@@ -551,39 +587,13 @@ class SGModel(QtWidgets.QMainWindow):
                 species.append(instance)
         return species
 
-    def newUserSelector(self):
-        """
-        To create an User Selector in your game. Functions automatically with the players declared in your model. 
-
-        """
-        if len(self.users) > 1 and len(self.players) > 0:
-            userSelector = SGUserSelector(self, self.users)
-            self.myUserSelector = userSelector
-            self.gameSpaces["userSelector"] = userSelector
-            # Realocation of the position thanks to the layout
-            newPos = self.layoutOfModel.addGameSpace(userSelector)
-            userSelector.setStartXBase(newPos[0])
-            userSelector.setStartYBase(newPos[1])
-            if (self.typeOfLayout == "vertical"):
-                userSelector.move(userSelector.startXBase, userSelector.startYBase +
-                                  20*self.layoutOfModel.getNumberOfAnElement(userSelector))
-            elif (self.typeOfLayout == "horizontal"):
-                userSelector.move(userSelector.startXBase+20*self.layoutOfModel.getNumberOfAnElement(
-                    userSelector), userSelector.startYBase)
-            else:
-                pos = self.layoutOfModel.foundInLayout(userSelector)
-                userSelector.move(userSelector.startXBase +
-                                  20*pos[0], userSelector.startYBase+20*pos[1])
-            self.applyPersonalLayout()
-            return userSelector
-        else:
-            print('You need to add players to the game')
+    
 
     def updateIDincr(self, newValue):
         self.IDincr = newValue
         return self.IDincr
 
-    def newAgent(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aID=None, aDictofAttributs=None):
+    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None):
         """
         Create a new Agent in the associated species.
 
@@ -599,13 +609,9 @@ class SGModel(QtWidgets.QMainWindow):
 
 
         """
-        if aID is None:
-            anAgentID = self.IDincr+1
-            newIDincr = self.IDincr+1
-            self.updateIDincr(newIDincr)
-
-        else:
-            anAgentID = aID
+        anAgentID = self.IDincr+1
+        newIDincr = self.IDincr+1
+        self.updateIDincr(newIDincr)
 
         if aDictofAttributs is None:
             aDictofAttributs = self.getRandomAttributs(aAgentSpecies)
@@ -620,24 +626,11 @@ class SGModel(QtWidgets.QMainWindow):
                 ValueY = +1
         locationCell = aGrid.getCell(ValueX, ValueY)
 
-        while locationCell is None:
-            ValueX = random.randint(0, aGrid.columns)
-            ValueY = random.randint(0, aGrid.rows)
-            if ValueX < 0:
-                ValueX = +1
-            if ValueY < 0:
-                ValueY = +1
-            locationCell = aGrid.getCell(ValueX, ValueY)
-
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
-            uniqueColor = self.agentSpecies[str(
-                aAgentSpecies.name)]['DefaultColor']
-        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,
-                         aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+            uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
-        cellCoord=aAgent.cell.mapToGlobal(QPoint(aAgent.cell.x,aAgent.cell.y))
-        aAgent.move(cellCoord)
         aAgent.species = str(aAgentSpecies.name)
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
         return aAgent
@@ -670,104 +663,18 @@ class SGModel(QtWidgets.QMainWindow):
         # All agents in model
         return agent_list
 
-    # To add an Agent with attributs values
-    def addAgent(self, aGrid, aAgentSpecies, aDictOfAttributsWithValues, numberOfAgent=1):
-        """
-        Add a Agent after initialization
-
-        args:
-            aGrid (instance): the grid you want your Agent to be in
-            aAgentSpecies (instance): the future Agent species
-            aDictOfAttributsWithValues (dict): dict of the attributs with their values
-            numberOfAgent(int): number of new Agents you want (default:1)
-        """
-        if aDictOfAttributsWithValues == None:
-            aDictOfAttributsWithValues = {}
-        for i in range(numberOfAgent):
-            incr = len(self.getAgents())
-            self.IDincr = +incr
-            anAgentID = self.IDincr+1
-            locationCell = random.choice(list(aGrid.getCells()))
-
-            anAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format,
-                              aAgentSpecies.size, aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent')
-            locationCell.updateIncomingAgent(anAgent)
-            anAgent.isDisplay = True
-            anAgent.species = str(aAgentSpecies.name)
-
-            # je pense que cette copie de l'agent est beaucoup trop compliqué. Il y a juste besoin de mettre la référence à l'agent lui même
-            self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)] = {"me": anAgent.me, 'position': anAgent.cell, 'species': anAgent.name, 'size': anAgent.size,
-                                                                                  'attributs': aDictOfAttributsWithValues, "AgentObject": anAgent}
-
-            for key in aAgentSpecies.dictOfAttributs:
-                if key not in aDictOfAttributsWithValues:
-                    val = list(aAgentSpecies.dictOfAttributs[key])[0]
-                    anAgent.setValueAgent(key, val)
-
-            anAgent.show()
-            self.update()
-        pass
-
-    # To add an Agent with attributs values
-    def placeAgent(self, aCell, aAgentSpecies, aDictOfAttributsWithValues):
-        """
-        Place a Agent with legend
-
-        args:
-            aCell (instance): the grid you want your Agent to be in
-            aAgentSpecies (instance): the future Agent species
-            aDictOfAttributsWithValues (dict): dict of the attributs with their values
-        """
-        if aDictOfAttributsWithValues == None:
-            aDictOfAttributsWithValues = {}
-        incr = len(self.getAgents())
-        self.IDincr = +incr
-        anAgentID = self.IDincr+1
-        anAgent = SGAgent(aCell.grid,aCell, aAgentSpecies.name, aAgentSpecies.format,
-                          aAgentSpecies.size, aAgentSpecies.dictOfAttributs, id=anAgentID, me='agent')
-        anAgent.cell.agents.append(anAgent)
-        anAgent.isDisplay = True
-        anAgent.species = str(aAgentSpecies.name)
-        self.agentSpecies[str(anAgent.name)]['AgentList'][str(anAgent.id)] = {"me": anAgent.me, 'position': anAgent.cell, 'species': anAgent.name, 'size': anAgent.size,
-                                                                              'attributs': aDictOfAttributsWithValues, "AgentObject": anAgent}
-
-        if aAgentSpecies.dictOfAttributs is not None:
-            for key in aAgentSpecies.dictOfAttributs:
-                if key not in aDictOfAttributsWithValues:
-                    val = list(aAgentSpecies.dictOfAttributs[key])[0]
-                    anAgent.setValueAgent(key, val)
-        else:
-            anAgent.color = self.agentSpecies[str(
-                anAgent.name)]['DefaultColor']
-            anAgent.update()
-
-        anAgent.show()
+    # To copy an Agent to make a move
+    def copyOfAgentAtCoord(self, aCell, oldAgent):
+        newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictOfAttributs, oldAgent.id, me='agent')
+        newAgent.isDisplay = True
+        newAgent.species = oldAgent.species
+        newAgent.color = oldAgent.color
+        self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictOfAttributs, "AgentObject": newAgent}                                                                           
+        newAgent.update()
+        newAgent.show()
         self.update()
-        pass
+        return newAgent
     
-    ##Test new class
-    def newAgentTest(self, id, shape):
-        aAgent=SGnewAgent(self,id,shape)
-
-        newPos = self.layoutOfModel.addGameSpace(aAgent)
-        aAgent.setStartXBase(newPos[0])
-        aAgent.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aAgent.move(aAgent.startXBase, aAgent.startYBase +
-                            20*self.layoutOfModel.getNumberOfAnElement(aAgent))
-        elif (self.typeOfLayout == "horizontal"):
-            aAgent.move(aAgent.startXBase+20 *
-                            self.layoutOfModel.getNumberOfAnElement(aAgent), aAgent.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aAgent)
-            aAgent.move(aAgent.startXBase+20 *
-                            pos[0], aAgent.startYBase+20*pos[1])
-
-        self.applyPersonalLayout()
-        return aAgent
-
-
-
     # To add an Agent on a particular Cell type
 
     """IN PROGRESS"""

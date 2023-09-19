@@ -16,7 +16,6 @@ class SGAgent(SGEntity):
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,aParent,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
         super().__init__(aParent,shape,defaultsize,me)
-        #super().__init__(aParent, 0, 60, 0, 0, true)
         #Basic initialize
         self.me=me
         self.cell=cell
@@ -28,15 +27,10 @@ class SGAgent(SGEntity):
         self.name=name
         self.format=shape
         self.size=defaultsize
-        #We place the default pos
-        # self.startXBase=0
-        # self.startYBase=0
         #We init the dict of Attribute
         self.dictOfAttributs=dictOfAttributs
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
-        # self.x=0
-        # self.y=0
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
         #We define an owner by default
@@ -127,7 +121,7 @@ class SGAgent(SGEntity):
                     self.color=theColor
                     return theColor
 
-        else:
+        elif actualPov not in list(self.model.agentSpecies[self.species]['POV'].keys()):
             if self.model.agentSpecies[self.species]['selectedPOV'] is not None:
                 for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
                     if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
@@ -138,6 +132,8 @@ class SGAgent(SGEntity):
             
             else:
                 return self.color
+        else:
+            return self.color
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
@@ -254,11 +250,6 @@ class SGAgent(SGEntity):
 
             drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
-    def mouseReleaseEvent(self,event):
-        pos_local = self.mapToParent(event.pos())  # Convertit les coordonnées locales de l'événement en coordonnées par rapport au parent
-        self.move(pos_local)
-        self.show()
-     
             
 
 #-----------------------------------------------------------------------------------------

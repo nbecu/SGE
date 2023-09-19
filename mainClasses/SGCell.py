@@ -125,41 +125,18 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         oldAgent=e.source()
-
-        # for instance in SGAgent.instances:
-        #     if instance.me=='collec' and instance.name==oldAgent.name:
-        #         AgentSpecie=instance
-        #         break
         agentSpecie=self.model.getAgentSpecie(oldAgent.name)
-        #self.moveAgentByRecreating_it(agentSpecie,oldAgent)
-        #self.moveAgentByMoveFunction(oldAgent,e)
-        oldAgent.mouseReleaseEvent(e)
+        self.moveAgentByRecreating_it(oldAgent)
         e.setDropAction(Qt.MoveAction)
-        e.accept()
-       # e.source().deleteLater() # instruction remontée au dessus
 
-    def moveAgentByRecreating_it(self,AgentSpecie,oldAgent):
-        theAgent=self.grid.model.newAgent(self.grid,AgentSpecie,self.x,self.y,oldAgent.id,self.grid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(oldAgent.id)]['attributs'])
-        #self.updateIncomingAgent(theAgent)
+
+    def moveAgentByRecreating_it(self,oldAgent):
+        theAgent=self.grid.model.copyOfAgentAtCoord(self,oldAgent)
+        self.updateIncomingAgent(theAgent)
         theAgent.show()
-        self.updateDepartureAgent(oldAgent) 
         oldAgent.deleteLater()
-    
-    def moveAgentByMoveFunction(self,agent,event):
-        release_point = event.pos()
-        print("--->",release_point)
-        # self.setParent(self.grid)
-        # agent.setParent(self.grid)
-        parent_release_point = self.mapToParent(release_point)
-        print("parent -->",parent_release_point)
-        agent.move(parent_release_point.x(),parent_release_point.y())
-        self.updateIncomingAgent(agent)
-        agent.update()
-        agent.raise_()
-        agent.show()
 
-        
-              
+             
     #To get the pov
     def getPov(self):
         return self.grid.model.nameOfPov
@@ -276,14 +253,11 @@ class SGCell(SGEntity):
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
                             theSpecies = self.model.getAgentSpecie(Species)
-                            #theSpecies=SGAgent(self.grid.model,cell=self,name=Species,shape=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
-                            self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
+                            self.grid.model.newAgentAtCoord(self.grid, theSpecies, self.x, self.y, aDictWithValue)             #(self,theSpecies,aDictWithValue)
                             
                             self.update()
                             self.grid.model.update()
 
-        if event.button() == Qt.RightButton:
-            print(self.dictOfAttributs)
                             
                                     
     #Apply the feedBack of a gameMechanics
@@ -326,12 +300,9 @@ class SGCell(SGEntity):
         option1 = QAction(text, self)
         menu.addAction(option1)
 
-        for aAgent in self.model.getAgents():
-            aAgent.cell.moveAgentByRecreating_it(self.model.getAgentSpecie(aAgent.species),aAgent)
+        # for aAgent in self.model.getAgents():
+        #     aAgent.cell.moveAgentByRecreating_it(aAgent)
         
-        print(point)
-        parent_pos=self.mapToParent(point)
-        print(parent_pos)
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 
