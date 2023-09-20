@@ -93,8 +93,6 @@ endGameRule.showEndGameConditions()
 TextBox = myModel.newTextBox(
     title='Your game is starting...', textToWrite="Welcome !")
 
-#myModel.moveToCoords("My Game Time", 1200, 400)
-
 myModel.launch()
 
 

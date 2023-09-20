@@ -20,9 +20,9 @@ class SGCell(SGEntity):
         self.theCollection=self.grid.model.cellCollection
         self.model=self.grid.model
         self.me='cell'
-        self.x=rows
-        self.y=columns
-        self.name="cell"+str(rows)+'-'+str(columns)
+        self.x=columns
+        self.y=rows
+        self.name="cell"+str(columns)+'-'+str(rows)
         self.gap=gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=gap
@@ -125,6 +125,7 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         oldAgent=e.source()
+        self.updateDepartureAgent(oldAgent)
         agentSpecie=self.model.getAgentSpecie(oldAgent.name)
         self.moveAgentByRecreating_it(oldAgent)
         e.setDropAction(Qt.MoveAction)
@@ -290,7 +291,7 @@ class SGCell(SGEntity):
     
     #To handle the departure of an agent of the cell (this is a private method)
     def updateDepartureAgent(self,anAgent):
-        anAgent.cell=None
+        #anAgent.cell=None
         self.agents.remove(anAgent)
 
     # To show a menu

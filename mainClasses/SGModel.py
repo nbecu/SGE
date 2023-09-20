@@ -44,7 +44,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame"):
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame",testMode=False):
         """
         Declaration of a new model
 
@@ -115,11 +115,13 @@ class SGModel(QtWidgets.QMainWindow):
         self.randomSeed=42
         random.seed(self.randomSeed)
         self.mqtt=False
+        self.testMode=testMode
+
         self.initUI()
 
-        self.initIDs()
+        self.initModelActions()
 
-    def initIDs(self):
+    def initModelActions(self):
         self.id_modelActions = 0
 
     def initUI(self):
@@ -136,14 +138,15 @@ class SGModel(QtWidgets.QMainWindow):
 
         self.nameOfPov = "default"
 
-        # self.label = QtWidgets.QLabel(self)
-        # self.label.setGeometry(10, 10, 350, 30)
+        if self.testMode:
+            self.label = QtWidgets.QLabel(self)
+            self.label.setGeometry(10, 10, 350, 30)
 
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.maj_coordonnees)
-        # self.timer.start(100)
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self.maj_coordonnees)
+            self.timer.start(100)
 
-        self.timer = QTimer.singleShot(500, self.updateFunction)
+        self.singletimer = QTimer.singleShot(500, self.updateFunction)
 
     def maj_coordonnees(self):
         pos_souris_globale = QCursor.pos()
@@ -151,10 +154,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
     
     def updateFunction(self):
-        print("UPDATE")
         for aAgent in self.getAgents():
             aAgent.cell.moveAgentByRecreating_it(aAgent)
-        print("END UPDATE")
         self.show()
 
     # Create the menu of the menue
@@ -617,11 +618,9 @@ class SGModel(QtWidgets.QMainWindow):
             aDictofAttributs = self.getRandomAttributs(aAgentSpecies)
 
         if ValueX == None:
-            ValueX = random.randint(0, aGrid.columns)
-            if ValueX < 1:
-                ValueX = +1
+            ValueX = random.randint(1, aGrid.columns)
         if ValueY == None:
-            ValueY = random.randint(0, aGrid.rows)
+            ValueY = random.randint(1, aGrid.rows)
             if ValueY < 1:
                 ValueY = +1
         locationCell = aGrid.getCell(ValueX, ValueY)
@@ -665,6 +664,7 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell, oldAgent):
+        aCell.updateDepartureAgent(oldAgent)
         newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictOfAttributs, oldAgent.id, me='agent')
         newAgent.isDisplay = True
         newAgent.species = oldAgent.species
@@ -1058,10 +1058,6 @@ class SGModel(QtWidgets.QMainWindow):
                 for anAttribut in self.cellCollection[aGrid.id]["ColorPOV"][aPov].keys():
                     if attribut == anAttribut:
                         return aPov
-            for aBorderPov in self.cellCollection[aGrid.id]["BorderPOV"]:
-                for anAttribut in self.cellCollection[aGrid.id]["BorderPOV"][aBorderPov].keys():
-                    if attribut == anAttribut:
-                        return aBorderPov
 
     def getBorderPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
@@ -1160,15 +1156,13 @@ class SGModel(QtWidgets.QMainWindow):
     def setNumberOfZoom(self, number):
         self.numberOfZoom = number
 
-    # To change the number of zoom we currently are
+    # To set User list
     def setUsers(self, listOfUsers):
         self.users = listOfUsers
 
     # To open and launch the game without a mqtt broker
     def launch(self):
         self.show()
-        # for aAgent in self.getAgents():
-        #     aAgent.cell.moveAgentByRecreating_it(self.getAgentSpecie(aAgent.species),aAgent)
 
     # To open and launch the game
     def launch_withMQTT(self):
@@ -1201,7 +1195,7 @@ class SGModel(QtWidgets.QMainWindow):
                 for agent in agents:
                     if agent.id not in id_maj:
                         self.deleteAgent(agent.id)
-                for aCell in list(aGrid.collectionOfCells.getCells()):
+                for aCell in list(self.getCells()):
                     allCells.append(aCell)
                 for i in range(len(msg_list[2:nbCells+1])):
                     allCells[i].isDisplay = msg_list[2+i][0]
@@ -1324,7 +1318,7 @@ class SGModel(QtWidgets.QMainWindow):
         allCells = []
         theAgents = self.getAgents()
         for aGrid in self.getGrids():
-            for aCell in list(aGrid.collectionOfCells.getCells()):
+            for aCell in list(self.getCells()):
                 allCells.append(aCell)
         message = message+"["+str(len(allCells))+","+str(len(theAgents))+"],"
         for i in range(len(allCells)):
