@@ -448,7 +448,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     # To get all the povs of the collection
     def getCellPovs(self,grid):
-        return {key: value for dict in (self.cellCollection[grid.id]['ColorPOV'],self.cellCollection[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "borderWidth" not in key}
+        return {key: value for dict in (self.cellCollection[grid.id]['ColorPOV'],self.cellCollection[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
 
     # To get a cell in particular
     def getCell(self, aGrid, aID):
@@ -594,7 +594,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.IDincr = newValue
         return self.IDincr
 
-    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None):
+    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None,init=True):
         """
         Create a new Agent in the associated species.
 
@@ -628,10 +628,12 @@ class SGModel(QtWidgets.QMainWindow):
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
         aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
-        locationCell.updateIncomingAgent(aAgent)
+        if not init:
+            locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        aAgent.show()
         return aAgent
 
     def getAgents(self, id=False, species=None):
@@ -664,7 +666,6 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell, oldAgent):
-        aCell.updateDepartureAgent(oldAgent)
         newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictOfAttributs, oldAgent.id, me='agent')
         newAgent.isDisplay = True
         newAgent.species = oldAgent.species

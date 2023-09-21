@@ -125,8 +125,6 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         oldAgent=e.source()
-        self.updateDepartureAgent(oldAgent)
-        agentSpecie=self.model.getAgentSpecie(oldAgent.name)
         self.moveAgentByRecreating_it(oldAgent)
         e.setDropAction(Qt.MoveAction)
 
@@ -254,7 +252,7 @@ class SGCell(SGEntity):
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
                             theSpecies = self.model.getAgentSpecie(Species)
-                            self.grid.model.newAgentAtCoord(self.grid, theSpecies, self.x, self.y, aDictWithValue)             #(self,theSpecies,aDictWithValue)
+                            self.grid.model.newAgentAtCoords(self.grid, theSpecies, self.x, self.y, aDictWithValue,init=False)             #(self,theSpecies,aDictWithValue)
                             
                             self.update()
                             self.grid.model.update()
@@ -291,8 +289,8 @@ class SGCell(SGEntity):
     
     #To handle the departure of an agent of the cell (this is a private method)
     def updateDepartureAgent(self,anAgent):
-        #anAgent.cell=None
         self.agents.remove(anAgent)
+        anAgent.cell=None
 
     # To show a menu
     def show_menu(self, point):
