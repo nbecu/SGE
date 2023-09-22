@@ -29,6 +29,8 @@ class SGAgent(SGEntity):
         self.size=defaultsize
         #We init the dict of Attribute
         self.dictOfAttributs=dictOfAttributs
+        if me == 'collec' and dictOfAttributs is not None:
+            self.dictOfAttributesDefaultValues = self.initDefaultDictAtt(dictOfAttributs)
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.xPos=self.getRandomX()
@@ -250,6 +252,20 @@ class SGAgent(SGEntity):
 
             drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
+
+    def initDefaultDictAtt(self,d):
+            if isinstance(d, dict):
+                newDict = {}
+                for key, value in d.items():
+                    if isinstance(value, dict):
+                        newDict[key] = initDefaultDictAtt(value)
+                    elif isinstance(value, set):
+                        newDict[key] = None
+                return newDict
+            else:
+                return d
+    
+
             
 
 #-----------------------------------------------------------------------------------------
@@ -295,7 +311,35 @@ class SGAgent(SGEntity):
             dict=self.model.agentSpecies[self.name]['AgentList']
             for agent in dict.keys():
                 dict[agent]['attributs'][str(attribut)]=str(value)
-            
+    
+    def initDefaultAttValue(self,Att,Val):
+        """
+        Initialize a default attribute value in a species
+
+        Args:
+            Att : concerned attribute
+            Val : default value
+
+        """
+        if self.me=='collec' and self.dictOfAttributs is not None:
+            self.dictOfAttributesDefaultValues[Att]=Val
+        else:
+            raise ValueError("A default attribute value needs to be on a Specie.")
+    
+    def manageAttributeValues(self,aAgentSpecies,aAtt): #ONLY IF THERE IS NO DEFINED VALUE BY MODELER
+        if aAgentSpecies.dictOfAttributesDefaultValues[aAtt] is not None: #there is a default value
+            defaultValue=aAgentSpecies.dictOfAttributesDefaultValues[aAtt]
+            self.setValueAgent(aAtt,defaultValue)
+        else: #random
+            aRandomValue=self.getRandomAttributValue(aAgentSpecies,aAtt)
+            self.setValueAgent(aAtt,aRandomValue)
+
+    def getRandomAttributValue(self,aAgentSpecies,aAtt):
+        if aAgentSpecies.dictOfAttributs is not None:
+            values = list(aAgentSpecies.dictOfAttributs[aAtt])
+            number=len(values)
+            aRandomValue=random.randint(0,number-1)          
+        return aRandomValue
 
     def moveAgent(self,aGrid,valueX=None,valueY=None,numberOfMovement=1):
         """

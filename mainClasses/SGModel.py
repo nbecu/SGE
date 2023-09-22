@@ -588,8 +588,6 @@ class SGModel(QtWidgets.QMainWindow):
                 species.append(instance)
         return species
 
-    
-
     def updateIDincr(self, newValue):
         self.IDincr = newValue
         return self.IDincr
@@ -614,9 +612,6 @@ class SGModel(QtWidgets.QMainWindow):
         newIDincr = self.IDincr+1
         self.updateIDincr(newIDincr)
 
-        if aDictofAttributs is None:
-            aDictofAttributs = self.getRandomAttributs(aAgentSpecies)
-
         if ValueX == None:
             ValueX = random.randint(1, aGrid.columns)
         if ValueY == None:
@@ -632,6 +627,12 @@ class SGModel(QtWidgets.QMainWindow):
             locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
+        
+        if aAgentSpecies.dictOfAttributs is not None:
+            for aAtt in aAgent.dictOfAttributs.keys():
+                if aAtt.values() is None:
+                    aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
         aAgent.show()
         return aAgent
@@ -712,18 +713,6 @@ class SGModel(QtWidgets.QMainWindow):
     def moveRandomlyAgents(self, aGrid, numberOfMovement):
         for aAgent in self.getAgents():
             aAgent.moveAgent(aGrid, numberOfMovement=numberOfMovement)
-
-    def getRandomAttributs(self,aAgentSpecies):
-        aDict={}
-        if aAgentSpecies.dictOfAttributs is not None:
-            values=[]
-            for attribut in aAgentSpecies.dictOfAttributs.keys():
-                values = list(aAgentSpecies.dictOfAttributs[attribut])
-                number=len(values)
-                aRandom=random.randint(0,number-1)
-                aDict[attribut]=values[aRandom]
-            
-        return aDict
 
     # To create a modelAction
     def newModelAction(self, actions=[], conditions=[], feedbacks=[]):
