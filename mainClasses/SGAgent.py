@@ -339,40 +339,50 @@ class SGAgent(SGEntity):
             aRandomValue=random.randint(0,number-1)          
         return aRandomValue
 
-    def moveAgent(self,aGrid,valueX=None,valueY=None,numberOfMovement=1):
+    def moveAgent(self,aGrid,numberOfMovement=1,method="random",direction=None,cellID=None):
         """
         Model action to move an Agent.
 
         args:
             aGrid (instance): the grid where the action take place
-            valueX / value Y (int): coordinates of the cell
             numberOfMouvement (int): number of movement in one action
+            method (str): random, cell, cardinal
+            direction (str): if cardinal; North, South, West, East
+            cellID (str): if cell; cellx-y
         """
         for i in range(numberOfMovement):
+
             if i>0:
                 oldAgent=theAgent
+                originCell=oldAgent.cell
             else:
                 oldAgent=self
-            if valueX == None and valueY==None:
+                originCell=self.cell
+
+
+            if method == "random":
                 # à partir du round 2 / 3, oldAgent.cell = None (lié à updateDepartureAgent() malgré l'update de OldAgentà chaque itération)
-                neighbors=oldAgent.cell.getNeighborCells(oldAgent.cell.grid.rule)
+                neighbors=originCell.getNeighborCells(aGrid.rule)
                 newCell=random.choice(neighbors)
 
-            else:
-                newCell=aGrid.getCellFromCoordinates(valueX,valueY)
+            if method == "cell":
+                newCell=aGrid.getCell_withId(aGrid,cellID)
 
-            theAgent = self.updateMoveAgent(oldAgent,oldAgent.cell,newCell)
+            if method == "cardinal":
+                if direction =="North":
+                    newCell=aGrid.getCell(originCell.x,originCell.y-1)
+                if direction =="South":
+                    newCell=aGrid.getCell(originCell.x,originCell.y+1)
+                if direction =="East":
+                    newCell=aGrid.getCell(originCell.x+1,originCell.y)
+                if direction =="West":
+                    newCell=aGrid.getCell(originCell.x-1,originCell)
+            
+            if newCell is None:
+                pass
+
+            theAgent = self.model.copyOfAgentAtCoord(newCell,oldAgent)
         pass
-
-    def updateMoveAgent(self,anAgent,departureCell,incomingCell):
-            departureCell.updateDepartureAgent(anAgent)
-            anAgent.deleteLater()
-            aGrid=incomingCell.grid
-            AgentSpecie=self.model.getAgentSpecie(anAgent.name)
-            theAgent=aGrid.model.newAgent(aGrid,AgentSpecie,incomingCell.x,incomingCell.y,anAgent.id,aGrid.model.agentSpecies[str(AgentSpecie.name)]['AgentList'][str(anAgent.id)]['attributs']) 
-            incomingCell.updateIncomingAgent(theAgent)
-            theAgent.show()
-            return theAgent
                 
     #Function to check the ownership  of the agent          
     def isMine(self):
