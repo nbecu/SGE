@@ -629,9 +629,18 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.species = str(aAgentSpecies.name)
         
         if aAgentSpecies.dictOfAttributs is not None:
-            for aAtt in aAgent.dictOfAttributs.keys():
-                if aAtt.values() is None:
+            for aAtt in aAgentSpecies.dictOfAttributs.keys():
+                if aAgent.dictOfAttributs is None:
+                    aAgent.dictOfAttributs={}
+                    aAgent.dictOfAttributs[aAtt]=None
                     aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+                else :
+                    if aAtt in aAgent.dictOfAttributs.keys():
+                        if aAgent.dictOfAttributs[aAtt] is None:
+                            aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+                    else:
+                        aAgent.dictOfAttributs[aAtt]=None
+                        aAgent.manageAttributeValues(aAgentSpecies,aAtt)
 
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
         aAgent.show()

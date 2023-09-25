@@ -293,11 +293,11 @@ class SGLegend(SGGameSpace):
                                                 added_colors.add(color)
 
                         elif entity == 'agents':
+                            added_items = set()
                             for anAgent in self.AgentList:
                                 for Species in self.elementsPov[aKeyOfGamespace]['agents'].keys():
                                     if anAgent.species == Species:
                                         for aPov in self.elementsPov[aKeyOfGamespace]['agents'][Species].keys():
-                                            added_items = set()
                                             for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
                                                 for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
                                                     item_key = Species + anAtt + aValue

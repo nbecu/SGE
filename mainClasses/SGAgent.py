@@ -258,7 +258,7 @@ class SGAgent(SGEntity):
                 newDict = {}
                 for key, value in d.items():
                     if isinstance(value, dict):
-                        newDict[key] = initDefaultDictAtt(value)
+                        newDict[key] = self.initDefaultDictAtt(value)
                     elif isinstance(value, set):
                         newDict[key] = None
                 return newDict
@@ -306,11 +306,7 @@ class SGAgent(SGEntity):
             value (str): value previously declared in the species, to update
         """
         if self.me=='agent':
-            self.model.agentSpecies[str(self.species)]['AgentList'][str(self.id)]['attributs'][str(attribut)]=str(value)
-        elif self.me=='collec':
-            dict=self.model.agentSpecies[self.name]['AgentList']
-            for agent in dict.keys():
-                dict[agent]['attributs'][str(attribut)]=str(value)
+            self.dictOfAttributs[attribut]=value 
     
     def initDefaultAttValue(self,Att,Val):
         """
@@ -331,8 +327,10 @@ class SGAgent(SGEntity):
             defaultValue=aAgentSpecies.dictOfAttributesDefaultValues[aAtt]
             self.setValueAgent(aAtt,defaultValue)
         else: #random
-            aRandomValue=self.getRandomAttributValue(aAgentSpecies,aAtt)
-            self.setValueAgent(aAtt,aRandomValue)
+            aRandom=self.getRandomAttributValue(aAgentSpecies,aAtt)
+            values=list(aAgentSpecies.dictOfAttributs[aAtt])
+            aValue=values[aRandom]
+            self.setValueAgent(aAtt,aValue)
 
     def getRandomAttributValue(self,aAgentSpecies,aAtt):
         if aAgentSpecies.dictOfAttributs is not None:

@@ -38,10 +38,14 @@ Birds = myModel.newAgentSpecies(
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.initDefaultAttValue("hunger","bad")
 
 aSecondBird=myModel.newAgentAtCoords(aGrid,Birds,4,5)
 aWorker=myModel.newAgentAtCoords(aGrid,Workers,2,2)
 aSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,3)
+aSecondSheep=myModel.newAgentAtCoords(aGrid,Sheeps,1,5)
+aThirdSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,5)
+
 
 
 # STEP4 Admin Players and GameActions
