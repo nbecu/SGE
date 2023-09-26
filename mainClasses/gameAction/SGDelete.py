@@ -1,18 +1,23 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+import copy
 
 #Class who manage the game mechanics of delete
 class SGDelete():
-    def __init__(self,anObject,number,dictAttValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,anObject,number,dictAttValue,aListOfrestrictions=[],feedBack=[],conditionOfFeedBack=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
         self.dictAttValue=dictAttValue
-        self.name="Delete "+str(anObject.name)
-        self.restrictions=restrictions
+        if anObject == SGCell:
+            entName="Cell"
+        else:
+            entName=anObject.species
+        self.name="Delete "+entName
+        self.restrictions=copy.deepcopy(aListOfrestrictions)
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
-            
+        self.addRestrictions(lambda selectedEntity: selectedEntity.species == entName)
         
     #Function which increment the number of use
     def use(self):
@@ -37,7 +42,9 @@ class SGDelete():
         self.numberUsed=0
         
     def addRestrictions(self,aRestriction):
-        self.restrictions.append(aRestriction)
+        restrictionList=self.restrictions
+        restrictionList.append(aRestriction)
+        self.restrictions=restrictionList
     
     def addFeedback(self,aFeedback):
         self.feedback.append(aFeedback)

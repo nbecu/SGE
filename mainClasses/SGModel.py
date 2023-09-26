@@ -1131,6 +1131,8 @@ class SGModel(QtWidgets.QMainWindow):
         """
         if aNumber == "infinite":
             aNumber = 9999999
+        if anObjectType == 'Cell':
+            anObjectType = SGCell
         return SGDelete(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
 
     def newMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):

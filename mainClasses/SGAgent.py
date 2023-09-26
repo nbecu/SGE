@@ -379,7 +379,7 @@ class SGAgent(SGEntity):
                     newCell=aGrid.getCell(originCell.x-1,originCell)
             
             if newCell is None:
-                print("Cell None")
+                pass
             else:
                 theAgent = self.model.copyOfAgentAtCoord(newCell,oldAgent)
                 oldAgent.deleteLater()

@@ -43,6 +43,7 @@ class SGCell(SGEntity):
         self.history={}
         self.history["value"]=[]
         self.borderColor=Qt.black
+        self.species="Cell"
         self.color=Qt.white
         self.initUI()
   
@@ -167,12 +168,12 @@ class SGCell(SGEntity):
                         """if theAction is not None:
                             self.feedBack(theAction)"""
                         if len(self.agents) !=0:
-                            for i in reversed(range(len(self.collectionOfAgents.agents))):
+                            for i in reversed(range(len(self.agents))):
                                 self.agents[i].deleteLater()
                                 del self.agents[i]
                         self.grid.removeVisiblityCell(self.getId())
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
-                        if self.grid.model.selected[4] == "delete":
+                        if self.grid.model.selected[4] == "delete" or self.grid.model.selected[4] == "playerDelete":
                             updatePermit=True
                             for item in self.grid.model.cellCollection[self.grid.id]['watchers']:
                                 for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][item]:
