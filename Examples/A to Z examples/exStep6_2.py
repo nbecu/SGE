@@ -32,6 +32,8 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
+aModelAction5=myModel.newModelAction(lambda: myModel.getAgent_withID("1").moveAgent(aGrid,method="cardinal",direction="South"))
+myModel.timeManager.newModelPhase(aModelAction5)
 myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("landUse","forest"),lambda: aGrid.setRandomCells("landUse","shrub",3)])
 
 aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",2,"landUse","forest"))
@@ -52,6 +54,7 @@ DashBoard.showIndicators()
 # Here is the way to add feedback on score on ModelAction
 aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
 myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
+
 
 # Here you can add a Widget to show the EndGame Conditions of your game
 # This game will be declared ended when the score declared in the DashBoard is equal to 90. 

@@ -208,6 +208,10 @@ class SGGrid(SGGameSpace):
 
         print(self.currentPOV)
         return self.currentPOV
+    
+    def removeVisiblityCell(self,aCellID):
+        self.getCell_withId(self,aCellID).isDisplay = False
+        self.update()
 
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use

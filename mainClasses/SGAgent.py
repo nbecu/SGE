@@ -160,7 +160,7 @@ class SGAgent(SGEntity):
         if self.me=='agent':
             maxSize=self.cell.size
             originPoint=self.cell.pos()
-            x = random.randint(originPoint.x()+1,originPoint.x()+maxSize-2)
+            x = random.randint(originPoint.x()+5,originPoint.x()+maxSize-10)
             return x
         else:
             x=0
@@ -170,7 +170,7 @@ class SGAgent(SGEntity):
         if self.me=='agent':
             maxSize=self.cell.size
             originPoint=self.cell.pos()
-            y = random.randint(originPoint.y()+1,originPoint.y()+maxSize-2)
+            y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
             return y
         else:
             y=0
@@ -379,9 +379,10 @@ class SGAgent(SGEntity):
                     newCell=aGrid.getCell(originCell.x-1,originCell)
             
             if newCell is None:
-                pass
-
-            theAgent = self.model.copyOfAgentAtCoord(newCell,oldAgent)
+                print("Cell None")
+            else:
+                theAgent = self.model.copyOfAgentAtCoord(newCell,oldAgent)
+                oldAgent.deleteLater()
         pass
                 
     #Function to check the ownership  of the agent          

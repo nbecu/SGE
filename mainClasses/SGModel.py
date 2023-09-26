@@ -646,7 +646,7 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.show()
         return aAgent
 
-    def getAgents(self, id=False, species=None):
+    def getAgents(self, id=False, species=None, lists=None):
         """
         Return the list of all Agents in the model
         """
@@ -671,8 +671,18 @@ class SGModel(QtWidgets.QMainWindow):
         # If we want only the ids
         if id == True:
             return id_list
+        if lists == True:
+            return id_list,agent_list
         # All agents in model
         return agent_list
+    
+    def getAgent_withID(self,aID):
+        id_list,agent_list=self.getAgents(lists=True)
+        for i in range(len(id_list)):
+            if id_list[i]==aID:
+                aAgent=agent_list[i]
+                return aAgent
+
 
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell, oldAgent):
@@ -761,6 +771,11 @@ class SGModel(QtWidgets.QMainWindow):
             return playerName
         else:
             return self.players[playerName]
+    
+    def setCurrentPlayer(self, playerName):
+        self.currentPlayer = playerName
+        if self.myUserSelector is not None:
+                        self.myUserSelector.updateUI(QtWidgets.QHBoxLayout())
 
     # To get all the players
     def getPlayer(self, playerName):

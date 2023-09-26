@@ -162,7 +162,7 @@ class SGCell(SGEntity):
                 if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
                     if authorisation : 
                         if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.attributs])
+                            self.history["value"].append([0,0,self.dictOfAttributs])
                         #We now check the feedBack of the actions if it have some
                         """if theAction is not None:
                             self.feedBack(theAction)"""
@@ -170,15 +170,15 @@ class SGCell(SGEntity):
                             for i in reversed(range(len(self.collectionOfAgents.agents))):
                                 self.agents[i].deleteLater()
                                 del self.agents[i]
-                        self.grid.collectionOfCells.removeVisiblityCell(self.getId())
+                        self.grid.removeVisiblityCell(self.getId())
                         self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
                         if self.grid.model.selected[4] == "delete":
                             updatePermit=True
-                            for item in self.grid.collectionOfCells[self.grid.id]["watchers"]:
-                                for watcher in self.grid.collectionOfCells[self.grid.id]["watchers"][item]:
+                            for item in self.grid.model.cellCollection[self.grid.id]['watchers']:
+                                for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][item]:
                                     watcher.updateText()
                         else:
-                            for watcher in self.grid.collectionOfCells[self.grid.id]["watchers"][self.grid.model.selected[4]]:
+                            for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][self.grid.model.selected[4]]:
                                 updatePermit=watcher.getUpdatePermission()
                                 if updatePermit:
                                     watcher.updateText()
@@ -359,10 +359,10 @@ class SGCell(SGEntity):
                 if i == self.x and j == self.y:
                     continue
                 if rule=="moore":
-                    c = self.grid.getCellFromCoordinates(i, j)
+                    c = self.grid.getCell(i, j)
                 elif rule=='neumann':
                     if (i == self.x or j == self.y) and (i != self.x or j != self.y):
-                        c = self.grid.getCellFromCoordinatesl(i,j)
+                        c = self.grid.getCell(i,j)
                     else:
                         c = None
                 else:
