@@ -22,6 +22,7 @@ class SGAgent(SGEntity):
         
         if me == 'collec':
             self.model=aParent
+            self.memoryID=1
         if me == 'agent': #in the case of an agent, the parent is the grid
             self.model=aParent.model
         self.name=name
@@ -44,6 +45,7 @@ class SGAgent(SGEntity):
         #We define the identification parameters
         self.id=id
         self.species=0
+        self.privateID=0
         self.isDisplay=bool
         self.instances.append(self)
         self.color=uniqueColor
@@ -339,7 +341,7 @@ class SGAgent(SGEntity):
             aRandomValue=random.randint(0,number-1)          
         return aRandomValue
 
-    def moveAgent(self,aGrid,numberOfMovement=1,method="random",direction=None,cellID=None):
+    def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
         """
         Model action to move an Agent.
 
@@ -359,16 +361,16 @@ class SGAgent(SGEntity):
                 oldAgent=self
                 originCell=self.cell
 
+            aGrid=originCell.grid
 
             if method == "random":
-                # à partir du round 2 / 3, oldAgent.cell = None (lié à updateDepartureAgent() malgré l'update de OldAgentà chaque itération)
                 neighbors=originCell.getNeighborCells(aGrid.rule)
                 newCell=random.choice(neighbors)
 
-            if method == "cell":
+            if method == "cell" or cellID is not None:
                 newCell=aGrid.getCell_withId(aGrid,cellID)
 
-            if method == "cardinal":
+            if method == "cardinal" or direction is not None:
                 if direction =="North":
                     newCell=aGrid.getCell(originCell.x,originCell.y-1)
                 if direction =="South":
@@ -376,7 +378,7 @@ class SGAgent(SGEntity):
                 if direction =="East":
                     newCell=aGrid.getCell(originCell.x+1,originCell.y)
                 if direction =="West":
-                    newCell=aGrid.getCell(originCell.x-1,originCell)
+                    newCell=aGrid.getCell(originCell.x-1,originCell.y)
             
             if newCell is None:
                 pass

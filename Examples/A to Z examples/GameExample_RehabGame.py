@@ -25,16 +25,12 @@ aGrid.setRandomCells("Resource", "0", 8)
 aGrid.setRandomCells("ProtectionLevel", "Reserve", 1)
 
 
-myModel.newPov("Resource", "Resource", {
-               "3": Qt.darkGreen, "2": Qt.green, "1": Qt.yellow, "0": Qt.white})
-myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
-                     "Reserve": Qt.magenta, "Free": Qt.black})
+myModel.newPov("Resource", "Resource", {"3": Qt.darkGreen, "2": Qt.green, "1": Qt.yellow, "0": Qt.white})
+myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
 
 # STEP3 Agents
-Workers = myModel.newAgentSpecies(
-    "Workers", "triangleAgent1", uniqueColor=Qt.black)
-Birds = myModel.newAgentSpecies(
-    "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
+Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", uniqueColor=Qt.black)
+Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})

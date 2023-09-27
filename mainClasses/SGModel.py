@@ -591,6 +591,9 @@ class SGModel(QtWidgets.QMainWindow):
     def updateIDincr(self, newValue):
         self.IDincr = newValue
         return self.IDincr
+    
+    def updateIDmemory(self, aSpecies):
+        aSpecies.memoryID = +1
 
     def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None,init=True):
         """
@@ -608,9 +611,12 @@ class SGModel(QtWidgets.QMainWindow):
 
 
         """
-        anAgentID = self.IDincr+1
+        """anAgentID = self.IDincr+1
         newIDincr = self.IDincr+1
-        self.updateIDincr(newIDincr)
+        self.updateIDincr(newIDincr)"""
+
+        anAgentID = str(aAgentSpecies.memoryID)
+        self.updateIDmemory(aAgentSpecies)
 
         if ValueX == None:
             ValueX = random.randint(1, aGrid.columns)
@@ -627,6 +633,7 @@ class SGModel(QtWidgets.QMainWindow):
             locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
+        aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
         
         if aAgentSpecies.dictOfAttributs is not None:
             for aAtt in aAgentSpecies.dictOfAttributs.keys():
@@ -646,17 +653,14 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.show()
         return aAgent
 
-    def getAgents(self, id=False, species=None, lists=None):
+    def getAgents(self, species=None):
         """
         Return the list of all Agents in the model
         """
         agent_list = []
-        id_list = []
         for animal, sub_dict in self.agentSpecies.items():
             for agent_id, agent_dict in sub_dict['AgentList'].items():
                 agent_list.append(agent_dict['AgentObject'])
-                id_list.append(agent_id)
-        self.ids = id_list
         # If we want only the agents of one specie
         if species is not None:
             agent_list = []
@@ -668,19 +672,20 @@ class SGModel(QtWidgets.QMainWindow):
                     agent_objects.append(subdict[agent]["AgentObject"])
 
                 return agent_objects
-        # If we want only the ids
-        if id == True:
-            return id_list
-        if lists == True:
-            return id_list,agent_list
         # All agents in model
         return agent_list
     
-    def getAgent_withID(self,aID):
-        id_list,agent_list=self.getAgents(lists=True)
-        for i in range(len(id_list)):
-            if id_list[i]==aID:
-                aAgent=agent_list[i]
+    def getAgentsPrivateID(self):
+        agents=self.getAgents()
+        agents_privateID=[]
+        for agent in agents:
+            agents_privateID.append(agent.privateID)
+        return agents_privateID
+
+    def getAgent(self,aSpecies,aID):
+        agent_list=self.getAgents(species=aSpecies.name)
+        for aAgent in agent_list:
+            if aAgent.id==aID:
                 return aAgent
 
 
@@ -1206,7 +1211,7 @@ class SGModel(QtWidgets.QMainWindow):
             allCells = []
             for aGrid in self.getGrids():
                 agents = self.getAgents()
-                id_list = self.getAgents(id=True) # liste du model
+                id_list = self.getAgentsPrivateID() # liste du model #! CASSÉ
                 id_maj = self.getAgentIDFromMessage(msg_list,nbCells) # liste maj
                 for agent in agents:
                     if agent.id not in id_maj:
@@ -1222,7 +1227,7 @@ class SGModel(QtWidgets.QMainWindow):
                     agID = msg_list[nbCells+2+j][0]
                     for agent in agents:
                         if agID in id_list:
-                            if agent.name == agID:
+                            if agent.privateID == agID:
                                 agent.dictOfAttributs = msg_list[nbCells+2+j][2]
                                 agent.owner = msg_list[nbCells+2+j][3]
                                 agent.cell = msg_list[nbCells+2+j][4]
@@ -1230,10 +1235,10 @@ class SGModel(QtWidgets.QMainWindow):
                         else:
                             agX = msg_list[nbCells+2+i][4][-3]
                             agY = msg_list[nbCells+2+i][4][-1]
-                            newAgent = self.newAgent(
-                                aGrid, msg_list[nbCells+2+i][1], agX, agY, agID, msg_list[nbCells+2+i][2])
+                            newAgent= self.newAgentAtCoords(aGrid,msg_list[nbCells+2+i][1],agX, agY,msg_list[nbCells+2+i][2]) #! ou copyOfAgent?
+                            """newAgent = self.newAgent(aGrid, msg_list[nbCells+2+i][1], agX, agY, agID, msg_list[nbCells+2+i][2])
                             newAgent.cell.updateIncomingAgent(newAgent)
-                            newAgent.show()
+                            newAgent.show()"""
                         
             self.timeManager.currentPhase = msg_list[-3][0]
             self.timeManager.currentRound = msg_list[-3][1]
@@ -1353,7 +1358,7 @@ class SGModel(QtWidgets.QMainWindow):
         #message = message + ','
         for aAgent in theAgents:
             message = message+"["
-            message = message+"'"+str(aAgent.id)+"'"
+            message = message+"'"+str(aAgent.privateID)+"'"
             message = message+","
             message = message+"'"+str(aAgent.species)+"'"
             message = message+","

@@ -32,7 +32,7 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
-aModelAction5=myModel.newModelAction(lambda: myModel.getAgent_withID("1").moveAgent(aGrid,method="cardinal",direction="South"))
+aModelAction5=myModel.newModelAction(lambda: myModel.getAgent(Sheeps,"1").moveAgent(method="cardinal",direction="South"))
 myModel.timeManager.newModelPhase(aModelAction5)
 myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("landUse","forest"),lambda: aGrid.setRandomCells("landUse","shrub",3)])
 
