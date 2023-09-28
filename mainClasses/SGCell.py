@@ -1,6 +1,3 @@
-from tkinter.ttk import Separator
-from PyQt5 import QtWidgets 
-from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -140,17 +137,7 @@ class SGCell(SGEntity):
     #To get the pov
     def getPov(self):
         return self.grid.model.nameOfPov
-
-    #To handle the attributs and values
-    def setValue(self,aAttribut,aValue):
-        """
-        Sets the value of an attribut
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
-        """       
-        self.dictOfAttributs[aAttribut]=aValue
-        
+       
              
     #To handle the selection of an element int the legend
     def mousePressEvent(self, event):
@@ -310,8 +297,22 @@ class SGCell(SGEntity):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
+    #To handle the attributs and values
+    def setValue(self,aAttribut,aValue):
+        """
+        Sets the value of an attribut
+        Args:
+            aAttribut (str): Name of the attribute
+            aValue (str): Value to be set
+        """       
+        self.dictOfAttributs[aAttribut]=aValue
+
     def value(self,att):
-        """to comment"""
+        """
+        Return the value of a cell Attribut
+        Args:
+            att (str): Name of the attribute
+        """
         return self.dictOfAttributs[att]
     
     #To verify if the cell contain the value pas in parametre through a dictionnary

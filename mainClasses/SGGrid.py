@@ -343,25 +343,6 @@ class SGGrid(SGGameSpace):
         else:
             return random.sample(listOfEntities, aNumber)
 
-  # Return random cells
-    # def getRandomCells(self,aNumber, condition=None):
-    #     """
-    #     Return a specified number of random cells.
-    #     args:
-    #         aNumber (int): a number of cells to be randomly selected
-    #     """
-    #     if condition == None:
-    #         listOfCells = self.getCells()
-    #     else:
-    #         listOfCells =[]
-    #         for aCell in self.getCells():
-    #             if aCell.testCondition(condition):
-    #                  listOfCells.append(aCell)
-    #     if listOfCells == []:
-    #         return []
-    #     else:
-    #         return random.sample(listOfCells,aNumber)
-
     # Return random cells with a certain value
     def getRandomCells_withValue(self, aNumber, att, val, condition=None):
         """
@@ -379,17 +360,6 @@ class SGGrid(SGGameSpace):
             aNumber (int): a number of cells to be randomly selected
         """
         return self.getRandomCells(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getCells_withValueNot(att, val))
-        # if condition == None:
-        #     listOfCells = self.getCells_withValueNot(att,val)
-        # else:
-        #     listOfCells =[]
-        #     for aCell in self.getCells_withValueNot(att,val):
-        #         if aCell.testCondition(condition):
-        #              listOfCells.append(aCell)
-        # if listOfCells == []:
-        #     return []
-        # else:
-        #     return random.sample(listOfCells,aNumber)
 
 
 # To handle POV and placing on cell
@@ -407,25 +377,6 @@ class SGGrid(SGGameSpace):
         for aCell in self.getCells():
             aCell.setValue(aAttribute, aValue)
 
-    # OLD METHOD
-    # def setValueCells(self,aAttribut,aValue):
-    #     """
-    #     Applies the same attribut value (and color) for all the cells
-
-    #     Args:
-    #         aAttribut (str): Name of the attribute to set
-    #         aValue (str): Value to set the attribute to
-    #     """
-    #     aDictWithValue={aAttribut:aValue}
-    #     for aCell in list(self.getCells()):
-    #         for aVal in list(aDictWithValue.keys()) :
-    #             if len(aCell.theCollection.povs) !=0:
-    #                 if aVal in list(aCell.theCollection.povs[self.model.nameOfPov].keys()) :
-    #                         for anAttribute in list(aCell.theCollection.povs[self.model.nameOfPov].keys()):
-    #                             aCell.attributs.pop(anAttribute,None)
-
-    #         aCell.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-
     def setCell(self, aAttribute, aValue, aValueX, aValueY):
         """
         set the value of attribute value for a specific cell
@@ -437,27 +388,6 @@ class SGGrid(SGGameSpace):
             aValueY (int): a row number
         """
         self.getCell(aValueX, aValueY).setValue(aAttribute, aValue)
-
-     # OLD METHOD
-   # #To apply to a specific cell a value
-    # def setForXandY(self,aAttribut,aValue,aValueX,aValueY):
-    #     """
-    #     set the value of attribut value for a specific cell
-
-    #     Args:
-    #         aAttribut (str): Name of the attribute to set.
-    #         aValue (str): Value to set the attribute to
-    #         aValueX (int): a row number
-    #         aValueY (int): a column number
-
-    #     """
-    #     aDictWithValue={aAttribut:aValue}
-    #     for aVal in list(aDictWithValue.keys()) :
-    #         if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs) !=0:
-    #             if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()) :
-    #                 for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()):
-    #                     self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs.pop(anAttribute,None)
-    #     self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
 
     # set the value of attribut to all cells in a specified column
     def setCells_withColumn(self, aAttribute, aValue, aColumnNumber):
@@ -486,46 +416,6 @@ class SGGrid(SGGameSpace):
         """
         for aCell in self.getCells_withRow(aRowNumber):
             aCell.setValue(aAttribute, aValue)
-
-    # OLD METHOD
-    #   def setCells_withColumn(self,aAttribut,aValue,aValueX):
-    #     """
-    #     Set the value of attribut of cells in a specific column
-
-    #     Args:
-    #         aAttribut (str): Name of the attribute to set.
-    #         aValue (str): Value to set the attribute to
-    #         aValueX (int): a column number
-
-    #     """
-    #     aDictWithValue={aAttribut:aValue}
-    #     for y in range(self.rows):
-    #         if len(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs) !=0:
-    #             for aVal in list(aDictWithValue.keys()) :
-    #                 if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.model.nameOfPov].keys()) :
-    #                     for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).theCollection.povs[self.model.nameOfPov].keys()):
-    #                         self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs.pop(anAttribute,None)
-    #         self.collectionOfCells.getCell("cell"+str(aValueX-1)+"-"+str(y)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
-
-    # To apply to a all column of cell a value
-    # def setCells_withRow(self,aAttribut,aValue,aValueY):
-    #     """
-    #     Set the value of attribut of cells in a specific row
-
-    #     Args:
-    #         aAttribut (str): Name of the attribute to set.
-    #         aValue (str): Value to set the attribute to
-    #         aValueY (int): a row number
-
-    #     """
-    #     aDictWithValue={aAttribut:aValue}
-    #     for x in range(self.columns):
-    #         for aVal in list(aDictWithValue.keys()) :
-    #             if len(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs) !=0:
-    #                 if aVal in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()) :
-    #                     for anAttribute in list(self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).theCollection.povs[self.model.nameOfPov].keys()):
-    #                         self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs.pop(anAttribute,None)
-    #         self.collectionOfCells.getCell("cell"+str(x)+"-"+str(aValueY-1)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
 
     # To apply a value to a random cell
     def setRandomCell(self, aAttribute, aValue, condition=None):
@@ -603,30 +493,6 @@ class SGGrid(SGGameSpace):
         """
         for aCell in self.getRandomCells_withValueNot(numberOfCells, conditionAtt, conditionVal, condition):
             aCell.setValue(aAttribut, aValue)
-
-    # OLD METHOD
-#    def setRandomCells(self,aAttribut,aValue,numberOfRandom):
-#         """
-#         Applies the same attribut value (and color) for a random number of cells
-
-#         Args:
-#             aAttribut (str): Name of the attribute to set.
-#             aValue (str): Value to set the attribute to
-#             numberOfRandom (int): number of cells
-#         """
-#         aDictWithValue={aAttribut:aValue}
-#         alreadyDone=list()
-#         while len(alreadyDone)!=numberOfRandom:
-#             aValueX=random.randint(0, self.columns-1)
-#             aValueY=random.randint(0, self.rows-1)
-#             if (aValueX,aValueY) not in alreadyDone:
-#                 alreadyDone.append((aValueX,aValueY))
-#                 for aVal in list(aDictWithValue.keys()) :
-#                     if len(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs) !=0:
-#                         if aVal in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.model.nameOfPov].keys()) :
-#                             for anAttribute in list(self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).theCollection.povs[self.model.nameOfPov].keys()):
-#                                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs.pop(anAttribute,None)
-#                 self.collectionOfCells.getCell("cell"+str(aValueX)+"-"+str(aValueY)).attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]
 
     # To define a value for all Agents
     def setValueForAgents(self, typeOfAgent, aDictWithValue):

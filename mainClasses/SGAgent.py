@@ -267,7 +267,29 @@ class SGAgent(SGEntity):
             else:
                 return d
     
+    def addPovinMenuBar(self,nameOfPov):
+        if nameOfPov not in self.model.listOfPovsForMenu :
+            self.model.listOfPovsForMenu.append(nameOfPov)
+            anAction=QAction(" &"+nameOfPov, self)
+            self.model.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
 
+    def manageAttributeValues(self,aAgentSpecies,aAtt): #ONLY IF THERE IS NO DEFINED VALUE BY MODELER
+        if aAgentSpecies.dictOfAttributesDefaultValues[aAtt] is not None: #there is a default value
+            defaultValue=aAgentSpecies.dictOfAttributesDefaultValues[aAtt]
+            self.setValueAgent(aAtt,defaultValue)
+        else: #random
+            aRandom=self.getRandomAttributValue(aAgentSpecies,aAtt)
+            values=list(aAgentSpecies.dictOfAttributs[aAtt])
+            aValue=values[aRandom]
+            self.setValueAgent(aAtt,aValue)
+
+    def getRandomAttributValue(self,aAgentSpecies,aAtt):
+        if aAgentSpecies.dictOfAttributs is not None:
+            values = list(aAgentSpecies.dictOfAttributs[aAtt])
+            number=len(values)
+            aRandomValue=random.randint(0,number-1)          
+        return aRandomValue
             
 
 #-----------------------------------------------------------------------------------------
@@ -291,14 +313,7 @@ class SGAgent(SGEntity):
         else:
             print("Warning, a POV can be only define on a Species")
 
-    def addPovinMenuBar(self,nameOfPov):
-        if nameOfPov not in self.model.listOfPovsForMenu :
-            self.model.listOfPovsForMenu.append(nameOfPov)
-            anAction=QAction(" &"+nameOfPov, self)
-            self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
-        
-
+    
     def setValueAgent(self,attribut,value):
         """
         Update a Agent attribut value
@@ -322,35 +337,18 @@ class SGAgent(SGEntity):
         if self.me=='collec' and self.dictOfAttributs is not None:
             self.dictOfAttributesDefaultValues[Att]=Val
         else:
-            raise ValueError("A default attribute value needs to be on a Specie.")
+            raise ValueError("A default attribute value needs to be on a Species.")
     
-    def manageAttributeValues(self,aAgentSpecies,aAtt): #ONLY IF THERE IS NO DEFINED VALUE BY MODELER
-        if aAgentSpecies.dictOfAttributesDefaultValues[aAtt] is not None: #there is a default value
-            defaultValue=aAgentSpecies.dictOfAttributesDefaultValues[aAtt]
-            self.setValueAgent(aAtt,defaultValue)
-        else: #random
-            aRandom=self.getRandomAttributValue(aAgentSpecies,aAtt)
-            values=list(aAgentSpecies.dictOfAttributs[aAtt])
-            aValue=values[aRandom]
-            self.setValueAgent(aAtt,aValue)
-
-    def getRandomAttributValue(self,aAgentSpecies,aAtt):
-        if aAgentSpecies.dictOfAttributs is not None:
-            values = list(aAgentSpecies.dictOfAttributs[aAtt])
-            number=len(values)
-            aRandomValue=random.randint(0,number-1)          
-        return aRandomValue
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
         """
         Model action to move an Agent.
 
         args:
-            aGrid (instance): the grid where the action take place
-            numberOfMouvement (int): number of movement in one action
             method (str): random, cell, cardinal
             direction (str): if cardinal; North, South, West, East
             cellID (str): if cell; cellx-y
+            numberOfMouvement (int): number of movement in one action
         """
         for i in range(numberOfMovement):
 
@@ -393,6 +391,9 @@ class SGAgent(SGEntity):
     
     def getId(self):
         return self.id
+    
+    def getPrivateId(self):
+        return self.privateID 
     
     #Function to check the ownership  of the agent          
     def isMineOrAdmin(self):
