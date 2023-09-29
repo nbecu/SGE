@@ -593,7 +593,7 @@ class SGModel(QtWidgets.QMainWindow):
         return self.IDincr
     
     def updateIDmemory(self, aSpecies):
-        aSpecies.memoryID = +1
+        aSpecies.memoryID = aSpecies.memoryID+1
 
     def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None,init=True):
         """
