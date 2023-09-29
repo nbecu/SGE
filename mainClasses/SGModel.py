@@ -1216,11 +1216,11 @@ class SGModel(QtWidgets.QMainWindow):
                 for agent in agents:
                     if agent.id not in id_maj:
                         self.deleteAgent(agent.id)
-                for aCell in list(self.getCells()):
+                for aCell in list(self.getCells(aGrid)):
                     allCells.append(aCell)
                 for i in range(len(msg_list[2:nbCells+1])):
                     allCells[i].isDisplay = msg_list[2+i][0]
-                    allCells[i].attributs = msg_list[2+i][1]
+                    allCells[i].dictOfAttributs = msg_list[2+i][1]
                     allCells[i].owner = msg_list[2+i][2]
                     allCells[i].agents=[]
                 for j in range(len(msg_list[nbCells+2:-4])):
@@ -1339,14 +1339,14 @@ class SGModel(QtWidgets.QMainWindow):
         allCells = []
         theAgents = self.getAgents()
         for aGrid in self.getGrids():
-            for aCell in list(self.getCells()):
+            for aCell in list(self.getCells(aGrid)):
                 allCells.append(aCell)
         message = message+"["+str(len(allCells))+","+str(len(theAgents))+"],"
         for i in range(len(allCells)):
             message = message+"["
             message = message+str(allCells[i].isDisplay)
             message = message+","
-            message = message+str(allCells[i].attributs)
+            message = message+str(allCells[i].dictOfAttributs)
             message = message+","
             message = message+"'"+str(allCells[i].owner)+"'"
             #message = message+","
