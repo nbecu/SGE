@@ -31,9 +31,20 @@ class SGUserSelector(SGGameSpace):
             if user not in authorizedPlayers:
                 checkbox.setEnabled(False)
             checkbox.stateChanged.connect(self.checkstate)
+            for aCheckbox in self.checkboxes:
+                if checkbox.text() == aCheckbox.text():
+                    return
             self.checkboxes.append(checkbox)
             layout.addWidget(checkbox)
             layout.addSpacing(5)
+    
+    def initSelector(self, currentPlayer):
+        for checkbox in self.checkboxes:
+            if checkbox.text == currentPlayer:
+                break
+        checkbox.setChecked(True)
+        checkbox.stateChanged.connect(self.checkstate)
+
 
     def checkstate(self, state):
         sender = self.sender()

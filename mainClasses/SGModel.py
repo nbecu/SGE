@@ -780,7 +780,7 @@ class SGModel(QtWidgets.QMainWindow):
     def setCurrentPlayer(self, playerName):
         self.currentPlayer = playerName
         if self.myUserSelector is not None:
-                        self.myUserSelector.updateUI(QtWidgets.QHBoxLayout())
+            self.myUserSelector.initSelector(playerName)
 
     # To get all the players
     def getPlayer(self, playerName):
