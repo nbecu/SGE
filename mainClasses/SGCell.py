@@ -23,7 +23,7 @@ class SGCell(SGEntity):
         self.gap=gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=gap
-        #*self.saveSize=size
+        self.saveSize=defaultsize
         #We place the default pos
         self.startXBase=self.grid.startXBase
         self.startYBase=self.grid.startYBase
