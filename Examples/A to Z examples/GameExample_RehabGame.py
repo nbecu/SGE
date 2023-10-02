@@ -94,6 +94,7 @@ endGameRule.showEndGameConditions()
 TextBox = myModel.newTextBox(
     title='Your game is starting...', textToWrite="Welcome !")
 
+myModel.setCurrentPlayer("Player 1")
 myModel.launch()
 
 

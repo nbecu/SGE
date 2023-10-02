@@ -40,7 +40,7 @@ class SGUserSelector(SGGameSpace):
     
     def initSelector(self, currentPlayer):
         for checkbox in self.checkboxes:
-            if checkbox.text == currentPlayer:
+            if checkbox.text() == currentPlayer:
                 break
         checkbox.setChecked(True)
         checkbox.stateChanged.connect(self.checkstate)
