@@ -16,7 +16,6 @@ aGrid.setCells("Resource", "2")
 aGrid.setCells("ProtectionLevel", "Free")
 aGrid.setRandomCells("Resource", "3", 7)
 aGrid.setRandomCells("Resource", "1", 3)
-
 aGrid.setRandomCells("Resource", "0", 8)
 aGrid.setRandomCells("ProtectionLevel", "Reserve", 1)
 

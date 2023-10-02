@@ -778,9 +778,17 @@ class SGModel(QtWidgets.QMainWindow):
             return self.players[playerName]
     
     def setCurrentPlayer(self, playerName):
-        self.currentPlayer = playerName
-        if self.myUserSelector is not None:
-            self.myUserSelector.initSelector(playerName)
+        """
+        Set the Active Player at the initialisation
+
+        Args:
+            playerName (str): predefined playerName
+
+        """
+        if playerName in self.players.keys():
+            self.currentPlayer = playerName
+            if self.myUserSelector is not None:
+                self.myUserSelector.initSelector(playerName)
 
     # To get all the players
     def getPlayer(self, playerName):
@@ -1226,16 +1234,22 @@ class SGModel(QtWidgets.QMainWindow):
                 for j in range(len(msg_list[nbCells+2:-4])):
                     agID = msg_list[nbCells+2+j][0]
                     for agent in agents:
-                        if agID in id_list:
+                        if agID in id_list: #Agent in the model
                             if agent.privateID == agID:
                                 agent.dictOfAttributs = msg_list[nbCells+2+j][2]
                                 agent.owner = msg_list[nbCells+2+j][3]
-                                agent.cell = msg_list[nbCells+2+j][4]
-                                agent.cell.updateIncomingAgent(agent)
+                                if agent.cell != aGrid.getCell_withId(msg_list[nbCells+2+j][4]): # Agent has moved
+                                    agent.cell.updateDepartureAgent(agent)
+                                    newCell = aGrid.getCell_withId(msg_list[nbCells+2+j][4])
+                                    newAgent=self.copyOfAgentAtCoord(newCell)
+                                    newCell.updateIncomingAgent(newAgent)
+                                else: #Agent is at the same place
+                                    agent.show()
                         else:
-                            agX = msg_list[nbCells+2+i][4][-3]
-                            agY = msg_list[nbCells+2+i][4][-1]
-                            newAgent= self.newAgentAtCoords(aGrid,msg_list[nbCells+2+i][1],agX, agY,msg_list[nbCells+2+i][2]) #! ou copyOfAgent?
+                            agX = msg_list[nbCells+2+j][4][-3]
+                            agY = msg_list[nbCells+2+j][4][-1]
+                            newAgent=self.newAgentAtCoords(aGrid,msg_list[nbCells+2+j][1],agX, agY,msg_list[nbCells+2+j][2]) #! ou copyOfAgent?
+                            newAgent.cell.updateIncomingAgent(newAgent)
                             """newAgent = self.newAgent(aGrid, msg_list[nbCells+2+i][1], agX, agY, agID, msg_list[nbCells+2+i][2])
                             newAgent.cell.updateIncomingAgent(newAgent)
                             newAgent.show()"""
