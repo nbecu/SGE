@@ -687,6 +687,12 @@ class SGModel(QtWidgets.QMainWindow):
         return agents_privateID
 
     def getAgent(self,aSpecies,aID):
+        """Function to get an Agent with a Species and an ID.
+        
+        Args:
+            aSpecies (str): the name of the concerned species
+            anID (str): species related identificator of the agent
+            """
         agent_list=self.getAgents(species=aSpecies.name)
         for aAgent in agent_list:
             if aAgent.id==aID:
@@ -936,9 +942,11 @@ class SGModel(QtWidgets.QMainWindow):
         return aEndGameRule
 
     def getCurrentRound(self):
+        """Return the actual ingame round"""
         return self.timeManager.currentRound
 
     def getCurrentPhase(self):
+        """Return the actual ingame phase"""
         return self.timeManager.currentPhase
 
     # ---------
@@ -1196,6 +1204,9 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To open and launch the game without a mqtt broker
     def launch(self):
+        """
+        Launch the game.
+        """
         self.show()
 
     # To open and launch the game
@@ -1224,7 +1235,7 @@ class SGModel(QtWidgets.QMainWindow):
             allCells = []
             for aGrid in self.getGrids():
                 agents = self.getAgents()
-                id_list = self.getAgentsPrivateID() # liste du model #! CASSÉ
+                id_list = self.getAgentsPrivateID() # liste du model 
                 id_maj = self.getAgentIDFromMessage(msg_list,nbCells) # liste maj
                 for agent in agents:
                     if agent.privateID not in id_maj:
@@ -1240,18 +1251,18 @@ class SGModel(QtWidgets.QMainWindow):
                     agID = msg_list[nbCells+2+j][0]
                     if len(agents) != 0:
                         for agent in agents:
-                            if agID in id_list: #Agent in the model
+                            if agID in id_list: #*Agent in the model
                                 if agent.privateID == agID:
                                     agent.dictOfAttributs = msg_list[nbCells+2+j][2]
                                     agent.owner = msg_list[nbCells+2+j][3]
-                                    if agent.cell != aGrid.getCell_withId(aGrid,msg_list[nbCells+2+j][4]): # Agent has moved
-                                        agent.cell.updateDepartureAgent(agent)
-                                        newCell = aGrid.getCell_withId(msg_list[nbCells+2+j][4])
+                                    if agent.cell != aGrid.getCell_withId(aGrid,msg_list[nbCells+2+j][4]): #*Agent has moved
+                                        #agent.cell.updateDepartureAgent(agent)
+                                        newCell = aGrid.getCell_withId(aGrid,msg_list[nbCells+2+j][4])
                                         newAgent=self.copyOfAgentAtCoord(newCell,agent)
                                         newCell.updateIncomingAgent(newAgent)
-                                    else: #Agent is at the same place
+                                    else: #*Agent is at the same place
                                         agent.show()
-                            else: #Agent not yet in the model
+                            else: #*Agent not yet in the model
                                 agX = int(msg_list[nbCells+2+j][4][-3])
                                 agY = int(msg_list[nbCells+2+j][4][-1])
                                 aSpecies=self.getAgentSpecie(msg_list[nbCells+2+j][1])

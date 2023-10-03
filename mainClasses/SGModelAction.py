@@ -82,6 +82,10 @@ class SGModelAction():
                                 a lambda function (syntax -> (lambda: instruction))""")
         
     def addCondition(self,aCondition):
+        """Permits to add a Condition on a ModelAction
+        
+        Args:
+            aFeedback (lambda function): condition"""
         if callable(aCondition):
             self.conditions = self.conditions + [aCondition]
         else:
@@ -89,6 +93,10 @@ class SGModelAction():
         return self
 
     def addFeedback(self,aFeedback):
+        """Permits to add a Feedback on a ModelAction
+
+        Args:
+            aFeedback (lambda function): feedback action"""
         if isinstance(aFeedback,SGModelAction):
             self.feedbacks = self.feedbacks + [aFeedback]
         elif callable(aFeedback):

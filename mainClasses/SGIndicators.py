@@ -58,6 +58,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.dashboard.model.timeManager.updateEndGame()
 
     def setResult(self, aValue):
+        """Function to configure a score in an Indicator"""
         self.result=aValue
         newText= self.setName(self.result)
         self.label.setPlainText(newText)

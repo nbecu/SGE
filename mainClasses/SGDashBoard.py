@@ -29,6 +29,7 @@ class SGDashBoard(SGGameSpace):
             self.layout = QtWidgets.QHBoxLayout()
 
     def showIndicators(self):
+        """At the end of the configuration, permits to show the Indicators."""
         # Delete all
         layout = self.layout
 

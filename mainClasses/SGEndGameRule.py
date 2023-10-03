@@ -28,6 +28,9 @@ class SGEndGameRule(SGGameSpace):
             self.layout = QtWidgets.QHBoxLayout()
 
     def showEndGameConditions(self):
+        """
+        At the end of the configuration, permits to show the EndGameConditions.
+        """
         if self.isDisplay:
             layout = self.layout
 
