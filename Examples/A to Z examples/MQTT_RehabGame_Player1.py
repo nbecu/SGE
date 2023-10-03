@@ -30,6 +30,8 @@ Workers = myModel.newAgentSpecies(
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 
+aWorker = myModel.newAgentAtCoords(aGrid,Workers,1,1)
+
 
 globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
 

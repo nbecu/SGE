@@ -595,7 +595,7 @@ class SGModel(QtWidgets.QMainWindow):
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
 
-    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None,init=True):
+    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None,aPrivateID=None,init=True):
         """
         Create a new Agent in the associated species.
 
@@ -618,6 +618,7 @@ class SGModel(QtWidgets.QMainWindow):
         anAgentID = str(aAgentSpecies.memoryID)
         self.updateIDmemory(aAgentSpecies)
 
+
         if ValueX == None:
             ValueX = random.randint(1, aGrid.columns)
         if ValueY == None:
@@ -633,7 +634,10 @@ class SGModel(QtWidgets.QMainWindow):
             locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
-        aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
+        if aPrivateID is None:
+            aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
+        else:
+            aAgent.privateID = aPrivateID
         
         if aAgentSpecies.dictOfAttributs is not None:
             for aAtt in aAgentSpecies.dictOfAttributs.keys():
@@ -695,6 +699,7 @@ class SGModel(QtWidgets.QMainWindow):
         newAgent.isDisplay = True
         newAgent.species = oldAgent.species
         newAgent.color = oldAgent.color
+        newAgent.privateID = oldAgent.privateID
         self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictOfAttributs, "AgentObject": newAgent}                                                                           
         newAgent.update()
         newAgent.show()
@@ -1222,8 +1227,8 @@ class SGModel(QtWidgets.QMainWindow):
                 id_list = self.getAgentsPrivateID() # liste du model #! CASSÉ
                 id_maj = self.getAgentIDFromMessage(msg_list,nbCells) # liste maj
                 for agent in agents:
-                    if agent.id not in id_maj:
-                        self.deleteAgent(agent.id)
+                    if agent.privateID not in id_maj:
+                        self.deleteAgent(agent.privateID)
                 for aCell in list(self.getCells(aGrid)):
                     allCells.append(aCell)
                 for i in range(len(msg_list[2:nbCells+1])):
@@ -1233,26 +1238,30 @@ class SGModel(QtWidgets.QMainWindow):
                     allCells[i].agents=[]
                 for j in range(len(msg_list[nbCells+2:-4])):
                     agID = msg_list[nbCells+2+j][0]
-                    for agent in agents:
-                        if agID in id_list: #Agent in the model
-                            if agent.privateID == agID:
-                                agent.dictOfAttributs = msg_list[nbCells+2+j][2]
-                                agent.owner = msg_list[nbCells+2+j][3]
-                                if agent.cell != aGrid.getCell_withId(msg_list[nbCells+2+j][4]): # Agent has moved
-                                    agent.cell.updateDepartureAgent(agent)
-                                    newCell = aGrid.getCell_withId(msg_list[nbCells+2+j][4])
-                                    newAgent=self.copyOfAgentAtCoord(newCell)
-                                    newCell.updateIncomingAgent(newAgent)
-                                else: #Agent is at the same place
-                                    agent.show()
-                        else:
-                            agX = msg_list[nbCells+2+j][4][-3]
-                            agY = msg_list[nbCells+2+j][4][-1]
-                            newAgent=self.newAgentAtCoords(aGrid,msg_list[nbCells+2+j][1],agX, agY,msg_list[nbCells+2+j][2]) #! ou copyOfAgent?
-                            newAgent.cell.updateIncomingAgent(newAgent)
-                            """newAgent = self.newAgent(aGrid, msg_list[nbCells+2+i][1], agX, agY, agID, msg_list[nbCells+2+i][2])
-                            newAgent.cell.updateIncomingAgent(newAgent)
-                            newAgent.show()"""
+                    if len(agents) != 0:
+                        for agent in agents:
+                            if agID in id_list: #Agent in the model
+                                if agent.privateID == agID:
+                                    agent.dictOfAttributs = msg_list[nbCells+2+j][2]
+                                    agent.owner = msg_list[nbCells+2+j][3]
+                                    if agent.cell != aGrid.getCell_withId(aGrid,msg_list[nbCells+2+j][4]): # Agent has moved
+                                        agent.cell.updateDepartureAgent(agent)
+                                        newCell = aGrid.getCell_withId(msg_list[nbCells+2+j][4])
+                                        newAgent=self.copyOfAgentAtCoord(newCell,agent)
+                                        newCell.updateIncomingAgent(newAgent)
+                                    else: #Agent is at the same place
+                                        agent.show()
+                            else: #Agent not yet in the model
+                                agX = int(msg_list[nbCells+2+j][4][-3])
+                                agY = int(msg_list[nbCells+2+j][4][-1])
+                                aSpecies=self.getAgentSpecie(msg_list[nbCells+2+j][1])
+                                newAgent=self.newAgentAtCoords(aGrid,aSpecies,agX, agY,msg_list[nbCells+2+j][2],agID,init=False)
+                                
+                    else: #the model has no Agent yet
+                        agX = msg_list[nbCells+2+j][4][-3]
+                        agY = msg_list[nbCells+2+j][4][-1]
+                        aSpecies=self.getAgentSpecie(msg_list[nbCells+2+j][1])
+                        newAgent=self.newAgentAtCoords(aGrid,aSpecies,agX, agY,msg_list[nbCells+2+j][2],agID,init=False)
                         
             self.timeManager.currentPhase = msg_list[-3][0]
             self.timeManager.currentRound = msg_list[-3][1]
@@ -1275,7 +1284,7 @@ class SGModel(QtWidgets.QMainWindow):
             - nbCells (int) : value in the message
         """
         majIDs=set()
-        for j in range(len(message[nbCells+2:-4])):
+        for j in range(len(message[nbCells+2:-3])):
             agID = message[nbCells+2+j][0]
             majIDs.add(agID)
         return majIDs
