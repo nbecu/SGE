@@ -566,7 +566,7 @@ class SGModel(QtWidgets.QMainWindow):
         aAgentSpecies.isDisplay = False
         aAgentSpecies.species=aSpeciesName
         self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {
-        }, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies}
+        }, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
         return aAgentSpecies
 
     def agentSpecie(self, aStrSpecie):

@@ -241,7 +241,11 @@ class SGCell(SGEntity):
                                 self.feedBack(theAction)"""
                             theSpecies = self.model.getAgentSpecie(Species)
                             self.grid.model.newAgentAtCoords(self.grid, theSpecies, self.x, self.y, aDictWithValue,init=False)             #(self,theSpecies,aDictWithValue)
-                            
+                            for attribut in self.model.agentSpecies[Species]["watchers"]:
+                                for watcher in self.model.agentSpecies[Species]["watchers"][attribut]:
+                                    updatePermit=watcher.getUpdatePermission()
+                                    if updatePermit:
+                                        watcher.updateText()
                             self.update()
                             self.grid.model.update()
 

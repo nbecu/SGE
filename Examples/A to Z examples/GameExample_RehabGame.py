@@ -80,6 +80,8 @@ myModel.currentPlayer = 'Player 1'
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
+i3 = DashBoard.addIndicator("nb","agent",color=Qt.black)
+i4 = DashBoard.addIndicator("nb","Workers",color=Qt.black)
 DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)

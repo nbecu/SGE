@@ -83,7 +83,7 @@ class SGDashBoard(SGGameSpace):
 
         Args:
             method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","score"].
-            entity (str) : "cell" or "agent" or None (only for score)
+            entity (str) : "cell" or "agent" or aAgentSpecies Name or None (only for score)
             color (Qt.color) : text color
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
@@ -92,6 +92,7 @@ class SGDashBoard(SGGameSpace):
 
         """
         self.y = self.y+1
+        species=self.model.getAgentSpecies()
         indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entity, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
@@ -99,6 +100,8 @@ class SGDashBoard(SGGameSpace):
         self.IDincr = +1
         if entity == 'cell':
             self.setCellWatchers(attribute, indicator)
+        if entity == 'agent' or entity in species:
+            self.setAgentWatchers(indicator)
         return indicator
 
     def setCellWatchers(self, attribut, indicator):
@@ -108,6 +111,18 @@ class SGDashBoard(SGGameSpace):
             if attribut not in cellCollection["watchers"].keys():
                 cellCollection["watchers"][attribut] = []
             cellCollection["watchers"][attribut].append(indicator)
+        
+    def setAgentWatchers(self,indicator,attribut=None):
+        species=self.model.getAgentSpecies()
+        if attribut is None:
+            if indicator.entity == 'agent':
+                attribut='globalNb'
+            attribut = 'nb'
+        for aSpecies in species:
+            agentSpeciesDict=self.model.agentSpecies[aSpecies.name]
+            if attribut not in agentSpeciesDict["watchers"].keys():
+                agentSpeciesDict["watchers"][attribut]=[]
+            agentSpeciesDict["watchers"][attribut].append(indicator)
 
     def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
         """
@@ -216,7 +231,7 @@ class SGDashBoard(SGGameSpace):
         """
         Add a sum indicator
         Args :
-            entity (str) : "cell" or "agent
+            entity (str) : "cell" or "agent" or aAgentSpecies
             attribute (str) : concerned attribute 
             value (str, optionnal) : non required
             indicatorName (str, optionnal) : name displayed on the dashboard

@@ -75,6 +75,7 @@ class SGIndicators(QtWidgets.QWidget):
     def byMethod(self):
         calcValue=0.0
         counter=0
+        species=self.dashboard.model.getAgentSpecies()
         if self.entity=='cell':
             grids=self.dashboard.model.getGrids()
             for grid in grids:
@@ -130,10 +131,18 @@ class SGIndicators(QtWidgets.QWidget):
 
 
         elif self.entity=="agent":
-            agents=self.dashboard.model.getAgents(species=self.entity)
+            agents=self.dashboard.model.getAgents()
             if self.method =='nb':
                 calcValue=len(agents)
                 return calcValue
+        
+        elif self.entity in [instance.name for instance in species]:
+            aSpecies=self.dashboard.model.getAgentSpecie(self.entity)
+            agents=self.dashboard.model.getAgents(aSpecies.name)
+            if self.method =='nb':
+                calcValue=len(agents)
+                return calcValue
+
         
         elif self.entity is None:
             if self.method=="score":
