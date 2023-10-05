@@ -100,7 +100,7 @@ class SGDashBoard(SGGameSpace):
         self.IDincr = +1
         if entity == 'cell':
             self.setCellWatchers(attribute, indicator)
-        if entity == 'agent' or entity in species:
+        if entity == 'agent' or entity in [instance.name for instance in species]:
             self.setAgentWatchers(indicator)
         return indicator
 
@@ -117,7 +117,8 @@ class SGDashBoard(SGGameSpace):
         if attribut is None:
             if indicator.entity == 'agent':
                 attribut='globalNb'
-            attribut = 'nb'
+            else:
+                attribut = 'nb'
         for aSpecies in species:
             agentSpeciesDict=self.model.agentSpecies[aSpecies.name]
             if attribut not in agentSpeciesDict["watchers"].keys():
