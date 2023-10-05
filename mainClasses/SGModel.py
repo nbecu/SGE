@@ -146,7 +146,7 @@ class SGModel(QtWidgets.QMainWindow):
             self.timer.timeout.connect(self.maj_coordonnees)
             self.timer.start(100)
 
-        self.singletimer = QTimer.singleShot(500, self.updateFunction)
+        self.singletimer = QTimer.singleShot(1000, self.updateFunction)
 
     def maj_coordonnees(self):
         pos_souris_globale = QCursor.pos()
@@ -647,6 +647,31 @@ class SGModel(QtWidgets.QMainWindow):
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
         aAgent.show()
         return aAgent
+    
+    def newAgent_ADMINONLY(self, aGrid, aAgentSpecies, ValueX, ValueY, aDictofAttributs, aPrivateID):
+        """
+        Do not use.
+        """
+        locationCell = aGrid.getCell(int(ValueX), int(ValueY))
+        if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
+            uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+        anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        aAgent.isDisplay = True
+        aAgent.species = str(aAgentSpecies.name)
+        aAgent.privateID = aPrivateID
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        aAgent.show()
+        return aAgent
+
+
+    def getIdFromPrivateId(self, aPrivateID, aSpeciesName):
+        result=re.search(f'{aSpeciesName}(\d+)', aPrivateID)
+        if result:
+            anID=result.group(1)
+            return anID
+        raise ValueError("Check again!")
+
 
     def getAgents(self, species=None):
         """
@@ -1168,6 +1193,12 @@ class SGModel(QtWidgets.QMainWindow):
             if isinstance(aGameSpace, SGGrid):
                 listOfGrid.append(aGameSpace)
         return listOfGrid
+    
+    def getGrid_withID(self, aGridID):
+        Grids=self.getGrids()
+        for aGrid in Grids:
+            if aGrid.id==aGridID:
+                return aGrid
 
     # To get all type of gameSpace who are legends
     def getLegends(self):
@@ -1210,61 +1241,57 @@ class SGModel(QtWidgets.QMainWindow):
         msg = self.q.get()
         msg_decoded = msg.decode("utf-8")
         msg_list = eval(msg_decoded)
-        print("Update processing...")
-        nbCells = int(msg_list[1][0])
-        nbAgents = int(msg_list[1][1])
-
-        if msg_list[-2] != self.currentPlayer:  # ! maybe switch with update id
+        processedMajs=set()
+        if msg_list[0][0] not in processedMajs:
+            print("Update processing...")
+        else:
+            return print("Maj already processed !")
+        # CELL MANAGEMENT
+        gridNumber=0
+        for aGrid in self.getGrids():
+            cellCount=int(msg_list[1][gridNumber])
             allCells = []
-            for aGrid in self.getGrids():
-                agents = self.getAgents()
-                id_list = self.getAgentsPrivateID() # liste du model 
-                id_maj = self.getAgentIDFromMessage(msg_list,nbCells) # liste maj
-                for agent in agents:
-                    if agent.privateID not in id_maj:
-                        self.deleteAgent(agent.privateID)
-                for aCell in list(self.getCells(aGrid)):
-                    allCells.append(aCell)
-                for i in range(len(msg_list[2:nbCells+1])):
-                    allCells[i].isDisplay = msg_list[2+i][0]
-                    allCells[i].dictOfAttributs = msg_list[2+i][1]
-                    allCells[i].owner = msg_list[2+i][2]
-                    allCells[i].agents=[]
-                for j in range(len(msg_list[nbCells+2:-4])):
-                    agID = msg_list[nbCells+2+j][0]
-                    if len(agents) != 0:
-                        for agent in agents:
-                            if agID in id_list: #*Agent in the model
-                                if agent.privateID == agID:
-                                    agent.dictOfAttributs = msg_list[nbCells+2+j][2]
-                                    agent.owner = msg_list[nbCells+2+j][3]
-                                    if agent.cell != aGrid.getCell_withId(aGrid,msg_list[nbCells+2+j][4]): #*Agent has moved
-                                        #agent.cell.updateDepartureAgent(agent)
-                                        newCell = aGrid.getCell_withId(aGrid,msg_list[nbCells+2+j][4])
-                                        newAgent=self.copyOfAgentAtCoord(newCell,agent)
-                                        newCell.updateIncomingAgent(newAgent)
-                                    else: #*Agent is at the same place
-                                        agent.show()
-                            else: #*Agent not yet in the model
-                                agX = int(msg_list[nbCells+2+j][4][-3])
-                                agY = int(msg_list[nbCells+2+j][4][-1])
-                                aSpecies=self.getAgentSpecie(msg_list[nbCells+2+j][1])
-                                newAgent=self.newAgentAtCoords(aGrid,aSpecies,agX, agY,msg_list[nbCells+2+j][2],agID,init=False)
-                                
-                    else: #the model has no Agent yet
-                        agX = msg_list[nbCells+2+j][4][-3]
-                        agY = msg_list[nbCells+2+j][4][-1]
-                        aSpecies=self.getAgentSpecie(msg_list[nbCells+2+j][1])
-                        newAgent=self.newAgentAtCoords(aGrid,aSpecies,agX, agY,msg_list[nbCells+2+j][2],agID,init=False)
-                        
-            self.timeManager.currentPhase = msg_list[-3][0]
-            self.timeManager.currentRound = msg_list[-3][1]
-            if self.myTimeLabel is not None:
-                        self.myTimeLabel.updateTimeLabel()
-            if self.timeManager.currentPhase == 0:
-                # We reset GM
-                for gm in self.getGM():
-                    gm.reset()
+            for aCell in list(self.getCells(aGrid)):
+                allCells.append(aCell)
+            for i in range(len(msg_list[2:cellCount+1])):
+                allCells[i].isDisplay = msg_list[2+i][0]
+                allCells[i].dictOfAttributs = msg_list[2+i][1]
+                allCells[i].owner = msg_list[2+i][2]
+            gridNumber=+1
+
+        # AGENT MANAGEMENT
+        nbToStart=sum(msg_list[1])
+        for aAgent in self.getAgents():
+            self.deleteAgent(aAgent.species,aAgent.id) # delete all the agents
+        for j in range(len(msg_list[nbToStart+2:-4])):
+            privateID=msg_list[nbToStart+2+j][0]
+            speciesName=msg_list[nbToStart+2+j][1]
+            dictOfAttributs=msg_list[nbToStart+2+j][2]
+            owner=msg_list[nbToStart+2+j][3]
+            agentX=msg_list[nbToStart+2+j][4][-3]
+            agentY=msg_list[nbToStart+2+j][4][-1]
+            grid=msg_list[nbToStart+2+j][5]
+            theGrid=self.getGrid_withID(grid)
+            aAgentSpecies=self.getAgentSpecie(speciesName)
+            newAgent=self.newAgent_ADMINONLY(theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID)
+            newAgent.cell.updateIncomingAgent()
+            newAgent.owner=owner
+        
+        # AGENT SPECIES MEMORY ID
+        speciesMemoryIdDict=msg_list[-4][0]
+        for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
+            theSpecies=self.getAgentSpecie(aSpeciesName)
+            theSpecies.memoryID=speciesMemoryID
+
+        # TIME MANAGEMENT
+        self.timeManager.currentPhase = msg_list[-3][0]
+        self.timeManager.currentRound = msg_list[-3][1]
+        if self.myTimeLabel is not None:
+                    self.myTimeLabel.updateTimeLabel()
+        if self.timeManager.currentPhase == 0:
+            # We reset GM
+            for gm in self.getGM():
+                gm.reset()
 
         self.update()
         print("Update processed !")
@@ -1278,7 +1305,7 @@ class SGModel(QtWidgets.QMainWindow):
             - nbCells (int) : value in the message
         """
         majIDs=set()
-        for j in range(len(message[nbCells+2:-3])):
+        for j in range(len(message[nbCells+2:-4])):
             agID = message[nbCells+2+j][0]
             majIDs.add(agID)
         return majIDs
@@ -1354,24 +1381,26 @@ class SGModel(QtWidgets.QMainWindow):
         nb = str(majID)+"-"+self.currentPlayer
         message = "[['"+nb+"'],"
         allCells = []
+        listCellsByGrid=[]
         theAgents = self.getAgents()
+        theSpecies = self.getAgentSpecies()
+        speciesMemoryIdDict={}
         for aGrid in self.getGrids():
             for aCell in list(self.getCells(aGrid)):
                 allCells.append(aCell)
-        message = message+"["+str(len(allCells))+","+str(len(theAgents))+"],"
-        for i in range(len(allCells)):
-            message = message+"["
-            message = message+str(allCells[i].isDisplay)
-            message = message+","
-            message = message+str(allCells[i].dictOfAttributs)
-            message = message+","
-            message = message+"'"+str(allCells[i].owner)+"'"
-            #message = message+","
-            #message = message+str(allCells[i].history)
-            #message = message+","
-            message = message+"]"
-            if i != len(allCells):
+            listCellsByGrid.append(len(allCells))
+        message = message+str(listCellsByGrid)+","
+        for aNumberOfCells in listCellsByGrid:
+            for i in range(aNumberOfCells):
+                message = message+"["
+                message = message+str(allCells[i].isDisplay)
                 message = message+","
+                message = message+str(allCells[i].dictOfAttributs)
+                message = message+","
+                message = message+"'"+str(allCells[i].owner)+"'"
+                message = message+"]"
+                if i != aNumberOfCells:
+                    message = message+","
         #message = message + ','
         for aAgent in theAgents:
             message = message+"["
@@ -1383,12 +1412,19 @@ class SGModel(QtWidgets.QMainWindow):
             message = message+","
             message = message+"'"+str(aAgent.owner)+"'"
             message = message+","
-            #message = message+str(aAgent.history)
-            #message = message+","
             message = message+"'"+str(aAgent.cell.name)+"'"
+            message = message+","
+            message = message+"'"+str(aAgent.cell.grid.id)+"'"
             message = message+"]"
             message = message+","
 
+        for aSpecies in theSpecies:
+            speciesMemoryIdDict[aSpecies.name]=aSpecies.memoryID
+
+        message = message+"["
+        message = message+str(speciesMemoryIdDict)
+        message = message+"]"
+        message = message+","
         message = message+"["
         message = message+str(self.timeManager.currentPhase)
         message = message+","
