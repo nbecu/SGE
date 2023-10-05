@@ -201,12 +201,13 @@ class SGAgent(SGEntity):
                         #We now check the feedBack of the actions if it have some
                         """if theAction is not None:
                                 self.feedBack(theAction)"""
-                        for i in reversed(range(len(self.cell.agents))):
+                        """for i in reversed(range(len(self.cell.agents))):
                             if self.cell.agents[i] == self :
                                 self.cell.agents[i].deleteLater()
                                 del self.cell.agents[i]
                                 if self.species in self.model.agentSpecies and 'AgentList' in self.model.agentSpecies[self.species]:
-                                    self.model.agentSpecies[self.species]['AgentList'].pop('1', None)
+                                    self.model.agentSpecies[self.species]['AgentList'].pop('1', None)"""
+                        self.model.deleteAgent(self.species,self.id)
                         self.update()
                 #Change the value of agent
                 # # ! à retravailler   

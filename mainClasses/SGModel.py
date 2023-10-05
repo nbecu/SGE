@@ -595,7 +595,7 @@ class SGModel(QtWidgets.QMainWindow):
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
 
-    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None,aPrivateID=None,init=True):
+    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None):
         """
         Create a new Agent in the associated species.
 
@@ -611,10 +611,6 @@ class SGModel(QtWidgets.QMainWindow):
 
 
         """
-        """anAgentID = self.IDincr+1
-        newIDincr = self.IDincr+1
-        self.updateIDincr(newIDincr)"""
-
         anAgentID = str(aAgentSpecies.memoryID)
         self.updateIDmemory(aAgentSpecies)
 
@@ -630,14 +626,9 @@ class SGModel(QtWidgets.QMainWindow):
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
         aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
-        if not init:
-            locationCell.updateIncomingAgent(aAgent)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
-        if aPrivateID is None:
-            aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
-        else:
-            aAgent.privateID = aPrivateID
+        aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
         
         if aAgentSpecies.dictOfAttributs is not None:
             for aAtt in aAgentSpecies.dictOfAttributs.keys():
@@ -717,31 +708,23 @@ class SGModel(QtWidgets.QMainWindow):
     """IN PROGRESS"""
 
     # To delete an Agent
-    def deleteAgent(self, anAgentID):
+    def deleteAgent(self, aSpeciesName, anAgentID):
         """
         Delete an Agent.
 
         args:
-            anAgentID (int): the ID of the agent you want to delete
+            aSpeciesName (str): name of the AgentSpecies
+            anAgentID (int, optional): the ID of the agent you want to delete. If None, a random agent.
         """
-        AgentPaths = []
-        if len(self.getAgents()) != 0:
-            # harvest of all agents
-            for animal, sub_dict in self.agentSpecies.items():
-                for agent_id, agent_dict in sub_dict['AgentList'].items():
-                    AgentPath = {agent_id: agent_dict}
-                    AgentPaths.append(AgentPath)
-            # find the agent
-            for paths in AgentPaths:
-                for key in paths:
-                    if anAgentID == str(key):
-                        aAgent = paths[str(key)]['AgentObject']
-                        print(aAgent)
-                        break
-            aAgent.cell.updateDepartureAgent(aAgent)
-            aAgent.deleteLater()
-            self.update()
-            self.updateLegendAdmin()
+        if anAgentID is None:
+            theSpecies=self.getAgentSpecie(aSpeciesName)
+            anAgentID=random.randint(1,theSpecies.memoryID)
+        aAgent = self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]["AgentObject"]
+        aAgent.cell.updateDepartureAgent(aAgent)
+        aAgent.deleteLater()
+        del self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]
+        self.update()
+        self.updateLegendAdmin()
         self.show()
 
     # To randomly move all agents
