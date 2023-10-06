@@ -75,9 +75,8 @@ userSelector = myModel.newUserSelector()
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")
-targetCell = aGrid.getCell(1, 5)
 endGameRule.addEndGameCondition_onEntity(
-    targetCell, 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2")
+    "cell1-5", 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=aGrid)
 endGameRule.showEndGameConditions()
 
 

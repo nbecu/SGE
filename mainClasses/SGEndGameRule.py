@@ -70,18 +70,37 @@ class SGEndGameRule(SGGameSpace):
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
 
-    def addEndGameCondition_onEntity(self, entity, attribute, logicalTest, objective, name="Entity based condition", color=Qt.black, isDisplay=True):
+    def addEndGameCondition_onEntity(self, entityID, attribute, logicalTest, objective, name="Entity based condition",speciesName=None, aGrid=None, color=Qt.black, isDisplay=True):
         """Create an EndGame Condition with an Entity
 
         Args:
-            indicator (instance) : an entity (a cell)
+            entityID (str) : the id of an entity (cell, agent)
             attribute (str) : attribute concerned
             logicalTest (str): logical test concerned, see list on documentation
             objective (int) : objective value to do logical test with
             name (str) : name of the end game condition, displayed (default : “Entity based condition")
+            speciesName (str) : name of the AgentSpecies (only if your entity is an Agent, default : None)
+            aGrid (instance) : instance of the concerned grid (only if your entity is a Cell, default : None)
             color (Qt.color) : text color (default : black)
             isDisplay (bool) : is displayed in the EndGameRule board (default : True)
         """
+        if "cell" in entityID:
+            if aGrid is not None:
+                entity = aGrid.getCell_withId(aGrid,entityID)
+                if entity is None:
+                    raise ValueError("Cell not found on"+name+" please check again")
+            else:
+                raise ValueError("You need to add a Grid.")
+            
+        else:
+            if speciesName is not None:
+                entity = self.model.getAgent(speciesName, entityID)
+                if entity is None:
+                    raise ValueError("Agent not found on"+name+" please check again")
+            else:
+                raise ValueError("You need to add a Species Name.")
+
+        
         aCondition = SGEndGameCondition(self, name, entity=entity, method=logicalTest, objective=objective,
                                         attribut=attribute, color=color, calcType="onEntity", isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
