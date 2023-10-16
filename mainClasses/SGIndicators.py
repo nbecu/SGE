@@ -4,25 +4,27 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null
 import numpy as np
+from mainClasses.SGCell import SGCell
+from mainClasses.SGAgent import SGAgent
 
 
    
 #Class who is responsible of indicator creation 
 class SGIndicators(QtWidgets.QWidget):
-    def __init__(self,parent,y,name,method,attribut,value,entity,color=Qt.blue,isDisplay=True):
+    def __init__(self,parent,y,name,method,attribut,value,entity,logicOp,color=Qt.blue,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
         self.method=method
         self.value=value
-        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","score"]
+        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"]
         self.entity=entity
         self.result=float
         self.name=name
         self.attribut=attribut
         self.y=y
         self.color=color
-        self.id=int
+        self.logicOp=logicOp
         self.isDisplay=isDisplay
         self.initUI()
         
@@ -150,6 +152,34 @@ class SGIndicators(QtWidgets.QWidget):
                 if calcValue==None:
                     calcValue=0
                 return calcValue
+        
+        elif isinstance(self.entity,SGAgent) or isinstance(self.entity,SGCell):
+            if self.method =="display":
+                calcValue=self.entity.dictOfAttributs[self.attribut]
+                return calcValue
+            if self.method=="thresoldToLogicOp":
+                if self.logicOp =="greater":
+                    if self.entity.dictOfAttributs[self.attribut]>self.value:
+                        calcValue="greater than"+str(self.value)
+                        return calcValue
+                if self.logicOp =="greater or equal":
+                    if self.entity.dictOfAttributs[self.attribut]>=self.value:
+                        calcValue="greater than or equal to"+str(self.value)
+                        return calcValue
+                if self.logicOp =="equal":
+                    if self.entity.dictOfAttributs[self.attribut]==self.value:
+                        calcValue="equal to"+str(self.value)
+                        return calcValue
+                if self.logicOp =="less or equal":
+                    if self.entity.dictOfAttributs[self.attribut]<=self.value:
+                        calcValue="less than or equal to"+str(self.value)
+                        return calcValue
+                if self.logicOp =="less":
+                    if self.entity.dictOfAttributs[self.attribut]<self.value:
+                        calcValue="less than"+str(self.value)
+                        return calcValue
+
+
             
 
     def getMethods(self):

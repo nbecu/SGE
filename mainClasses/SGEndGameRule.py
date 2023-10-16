@@ -59,7 +59,7 @@ class SGEndGameRule(SGGameSpace):
 
         Args:
             indicator (instance) : indicator concerned
-            logicalTest (str): logical test concerned, see list on documentation
+            logicalTest (str): logical test concerned in ["greater","greater or equal","equal", "less or equal","less"]
             objective (int) : objective value to do logical test with
             name (str) : name of the end game condition, displayed (default : "Indicator based condition")
             color (Qt.color) : text color (default : black)
@@ -76,7 +76,7 @@ class SGEndGameRule(SGGameSpace):
         Args:
             entityID (str) : the id of an entity (cell, agent)
             attribute (str) : attribute concerned
-            logicalTest (str): logical test concerned, see list on documentation
+            logicalTest (str): logical test concerned in ["greater","greater or equal","equal", "less or equal","less"]
             objective (int) : objective value to do logical test with
             name (str) : name of the end game condition, displayed (default : “Entity based condition")
             speciesName (str) : name of the AgentSpecies (only if your entity is an Agent, default : None)
@@ -111,7 +111,7 @@ class SGEndGameRule(SGGameSpace):
         Create an EndGame Condition on the time (game rounds)
 
         Args:
-            logicalTest (str): logical test concerned, see list on documentation
+            logicalTest (str): logical test concerned in ["greater","greater or equal","equal", "less or equal","less"]
             objective (int) : objective value to do logical test with
             name (str) : name of the end game condition, displayed (default : “Entity based condition")
             color (Qt.color) : text color (default : black)

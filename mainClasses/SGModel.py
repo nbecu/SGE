@@ -283,7 +283,7 @@ class SGModel(QtWidgets.QMainWindow):
 
     def nextTurn(self):
         self.timeManager.nextPhase()
-        self.eventTime()
+        # self.eventTime()
 
     def closeEvent(self, event):
         print("trigger")
@@ -1349,7 +1349,7 @@ class SGModel(QtWidgets.QMainWindow):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
-            self.authorizeMsgProcess(msg.payload)
+            self.handleMessageMainThread()
 
         self.connect_mqtt()
         self.mqtt=True
@@ -1441,20 +1441,20 @@ class SGModel(QtWidgets.QMainWindow):
         self.listOfMajs.append(str(majID)+"-"+self.currentPlayer)
         return message
 
-    # Event that append at every end of the timer ( litteral )
-    def eventTime(self):
-        if self.mqtt:
-            if not self.q.empty():
-                self.handleMessageMainThread()
+    # # Event that append at every end of the timer ( litteral )
+    # def eventTime(self):
+    #     if self.mqtt:
+    #         if not self.q.empty():
+    #             self.handleMessageMainThread()
 
     def getMajID(self):
         majID = len(self.listOfMajs)
         return majID
 
-    def authorizeMsgProcess(self, msg):
-        majID = re.search(r'\[(.*?)\]', msg.decode('utf-8')).group(1)
-        if majID not in self.processedMAJ:
-            self.processedMAJ.add(majID)
-            self.handleMessageMainThread()
-        else:
-            print("Update already processed")
+    # def authorizeMsgProcess(self, msg):
+    #     majID = re.search(r'\[(.*?)\]', msg.decode('utf-8')).group(1)
+    #     if majID not in self.processedMAJ:
+    #         self.processedMAJ.add(majID)
+    #         self.handleMessageMainThread()
+    #     else:
+    #         print("Update already processed")
