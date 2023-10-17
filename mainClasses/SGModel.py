@@ -1261,8 +1261,6 @@ class SGModel(QtWidgets.QMainWindow):
 
         # AGENT MANAGEMENT
         nbToStart=sum(msg_list[1])
-        for aAgent in self.getAgents():
-            self.deleteAgent(aAgent.species,aAgent.id) # delete all the agents
         for j in range(len(msg_list[nbToStart+2:-4])):
             privateID=msg_list[nbToStart+2+j][0]
             speciesName=msg_list[nbToStart+2+j][1]
@@ -1349,6 +1347,8 @@ class SGModel(QtWidgets.QMainWindow):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
+            for aAgent in self.getAgents():
+                self.deleteAgent(aAgent.species,aAgent.id)
             self.handleMessageMainThread()
 
         self.connect_mqtt()
