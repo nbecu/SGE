@@ -294,6 +294,7 @@ class SGCell(SGEntity):
 
         # for aAgent in self.model.getAgents():
         #     aAgent.cell.moveAgentByRecreating_it(aAgent)
+        self.model.updateAgentsAtMAJ()  
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))

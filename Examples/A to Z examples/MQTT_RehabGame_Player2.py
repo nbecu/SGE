@@ -33,7 +33,7 @@ Workers = myModel.newAgentSpecies(
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 
-aWorker = myModel.newAgentAtCoords(aGrid,Workers,1,1)
+aWorker = myModel.newAgentAtCoords(aGrid,Workers,5,2)
 
 
 globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
@@ -58,7 +58,6 @@ myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
 myModel.currentPlayer = 'Player 2'
 
-userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
     title='Début du jeu', textToWrite="Bonjour et bienvenue dans RehabGame !")

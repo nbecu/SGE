@@ -116,6 +116,7 @@ class SGModel(QtWidgets.QMainWindow):
         random.seed(self.randomSeed)
         self.mqtt=False
         self.testMode=testMode
+        self.dictAgentsAtMAJ={} 
 
         self.initUI()
 
@@ -1271,9 +1272,12 @@ class SGModel(QtWidgets.QMainWindow):
             grid=msg_list[nbToStart+2+j][5]
             theGrid=self.getGrid_withID(grid)
             aAgentSpecies=self.getAgentSpecie(speciesName)
-            newAgent=self.newAgent_ADMINONLY(theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID)
-            newAgent.cell.updateIncomingAgent()
-            newAgent.owner=owner
+
+            self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID]
+
+            # newAgent=self.newAgent_ADMINONLY(theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID)
+            # newAgent.cell.updateIncomingAgent()
+            # newAgent.owner=owner
         
         # AGENT SPECIES MEMORY ID
         speciesMemoryIdDict=msg_list[-4][0]
@@ -1347,9 +1351,11 @@ class SGModel(QtWidgets.QMainWindow):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
+            # print msg.sender
             for aAgent in self.getAgents():
                 self.deleteAgent(aAgent.species,aAgent.id)
-            self.handleMessageMainThread()
+                self.handleMessageMainThread()
+            # self.updateAgentsAtMAJ()   
 
         self.connect_mqtt()
         self.mqtt=True
@@ -1458,3 +1464,9 @@ class SGModel(QtWidgets.QMainWindow):
     #         self.handleMessageMainThread()
     #     else:
     #         print("Update already processed")
+
+    def updateAgentsAtMAJ(self):
+        for j in self.dictAgentsAtMAJ.keys():
+            newAgent=self.newAgent_ADMINONLY(self.dictAgentsAtMAJ[j][0],self.dictAgentsAtMAJ[j][1],self.dictAgentsAtMAJ[j][2],self.dictAgentsAtMAJ[j][3],self.dictAgentsAtMAJ[j][4],self.dictAgentsAtMAJ[j][5])
+            newAgent.cell.updateIncomingAgent(newAgent)
+        self.dictAgentsAtMAJ={}
