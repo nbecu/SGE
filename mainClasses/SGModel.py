@@ -1225,8 +1225,19 @@ class SGModel(QtWidgets.QMainWindow):
         self.show()
 
     # To open and launch the game
-    def launch_withMQTT(self):
+    def launch_withMQTT(self,majType):
+        """
+        Launch the game with mqtt protocol
+
+        Args:
+            majType (str): "Phase" or "Instantaneous"
+        
+        """
+        self.majTimer = QTimer(self)
+        self.majTimer.timeout.connect(self.onMAJTimer)
+        self.majTimer.start(1000)
         self.initMQTT()
+        self.mqttMajType=majType
         self.show()
 
     # Return all the GM of players
@@ -1238,10 +1249,7 @@ class SGModel(QtWidgets.QMainWindow):
         return listOfGm
 
     # Function that process the message
-    def handleMessageMainThread(self):
-        msg = self.q.get()
-        msg_decoded = msg.decode("utf-8")
-        msg_list = eval(msg_decoded)
+    def handleMessageMainThread(self,msg_list):
         processedMajs=set()
         if msg_list[0][0] not in processedMajs:
             print("Update processing...")
@@ -1289,7 +1297,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.timeManager.currentPhase = msg_list[-3][0]
         self.timeManager.currentRound = msg_list[-3][1]
         if self.myTimeLabel is not None:
-                    self.myTimeLabel.updateTimeLabel()
+            self.myTimeLabel.updateTimeLabel()
         if self.timeManager.currentPhase == 0:
             # We reset GM
             for gm in self.getGM():
@@ -1346,41 +1354,42 @@ class SGModel(QtWidgets.QMainWindow):
                 break
 
     # Init the MQTT client
-
     def initMQTT(self):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
-            # print msg.sender
-            for aAgent in self.getAgents():
-                self.deleteAgent(aAgent.species,aAgent.id)
-                self.handleMessageMainThread()
-            # self.updateAgentsAtMAJ()   
+            message = self.q.get()
+            msg_decoded = message.decode("utf-8")
+            msg_list = eval(msg_decoded)
+            if self.currentPlayer not in msg_list[0][0]:
+                for aAgent in self.getAgents():
+                    self.deleteAgent(aAgent.species,aAgent.id)
+                    self.handleMessageMainThread(msg_list)
+            else:
+                print("Own update, no action required.")   
 
         self.connect_mqtt()
         self.mqtt=True
 
         # IF not admin Request which channel to sub
         if self.currentPlayer != "Admin":
-            # self.client.subscribe("Admin")
             self.client.subscribe("Gamestates")
             self.client.on_message = on_message
             self.listOfSubChannel.append("Gamestates")
         # If Admin
         else:
-            # self.client.subscribe("createPlayer")
             self.client.subscribe("Gamestates")
             self.client.on_message = on_message
             self.listOfSubChannel.append("Gamestates")
 
-    # publish on mqtt broker the state of all entities of the world
 
+    # publish on mqtt broker the state of all entities of the world
     def publishEntitiesState(self):
         if hasattr(self, 'client'):
             self.client.publish('Gamestates', self.submitMessage())
 
-    # Send a message
 
+    # Send a message
     def submitMessage(self):
         print(self.currentPlayer+" send un message")
         majID = self.getMajID()
@@ -1407,7 +1416,6 @@ class SGModel(QtWidgets.QMainWindow):
                 message = message+"]"
                 if i != aNumberOfCells:
                     message = message+","
-        #message = message + ','
         for aAgent in theAgents:
             message = message+"["
             message = message+"'"+str(aAgent.privateID)+"'"
@@ -1447,23 +1455,12 @@ class SGModel(QtWidgets.QMainWindow):
         self.listOfMajs.append(str(majID)+"-"+self.currentPlayer)
         return message
 
-    # # Event that append at every end of the timer ( litteral )
-    # def eventTime(self):
-    #     if self.mqtt:
-    #         if not self.q.empty():
-    #             self.handleMessageMainThread()
-
     def getMajID(self):
         majID = len(self.listOfMajs)
         return majID
-
-    # def authorizeMsgProcess(self, msg):
-    #     majID = re.search(r'\[(.*?)\]', msg.decode('utf-8')).group(1)
-    #     if majID not in self.processedMAJ:
-    #         self.processedMAJ.add(majID)
-    #         self.handleMessageMainThread()
-    #     else:
-    #         print("Update already processed")
+    
+    def onMAJTimer(self):
+        self.updateAgentsAtMAJ()
 
     def updateAgentsAtMAJ(self):
         for j in self.dictAgentsAtMAJ.keys():

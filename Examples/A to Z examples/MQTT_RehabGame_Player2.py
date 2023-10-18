@@ -79,6 +79,6 @@ endGameRule.addEndGameCondition_onEntity(
 endGameRule.showEndGameConditions()
 
 
-myModel.launch_withMQTT() # https://mosquitto.org/download/
+myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
 
 sys.exit(monApp.exec_())

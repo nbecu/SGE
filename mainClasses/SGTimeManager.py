@@ -63,8 +63,8 @@ class SGTimeManager():
                                 aAction()  # this command executes aAction
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
-
-                    self.model.publishEntitiesState()
+                    if self.model.mqttMajType=="Phase":
+                        self.model.publishEntitiesState()
                     #watchers update
                     for grid in self.model.getGrids():
                         for attribut in self.model.cellCollection[grid.id]["watchers"]:

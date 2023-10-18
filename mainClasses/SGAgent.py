@@ -201,13 +201,9 @@ class SGAgent(SGEntity):
                         #We now check the feedBack of the actions if it have some
                         """if theAction is not None:
                                 self.feedBack(theAction)"""
-                        """for i in reversed(range(len(self.cell.agents))):
-                            if self.cell.agents[i] == self :
-                                self.cell.agents[i].deleteLater()
-                                del self.cell.agents[i]
-                                if self.species in self.model.agentSpecies and 'AgentList' in self.model.agentSpecies[self.species]:
-                                    self.model.agentSpecies[self.species]['AgentList'].pop('1', None)"""
                         self.model.deleteAgent(self.species,self.id)
+                        if self.model.mqttMajType == "Instantaneous":
+                            SGGameActions.sendMqttMessage(self)
                         self.update()
                 #Change the value of agent
                 # # ! à retravailler   
@@ -218,7 +214,9 @@ class SGAgent(SGEntity):
                         #We now check the feedBack of the actions if it have some
                         """if theAction is not None:
                                 self.feedBack(theAction)"""
-                        aDictWithValue={self.model.selected[4]:self.model.selected[3]}    
+                        aDictWithValue={self.model.selected[4]:self.model.selected[3]}
+                        if self.model.mqttMajType == "Instantaneous":
+                            SGGameActions.sendMqttMessage(self)  
                         """for aVal in list(aDictWithValue.keys()) :
                             if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
                                     for anAttribute in list(self.theCollection.povs[self.model.nameOfPov].keys()):

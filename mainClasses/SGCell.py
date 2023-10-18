@@ -125,6 +125,8 @@ class SGCell(SGEntity):
         oldAgent=e.source()
         self.moveAgentByRecreating_it(oldAgent)
         e.setDropAction(Qt.MoveAction)
+        if self.model.mqttMajType == "Instantaneous":
+            SGGameActions.sendMqttMessage(self)
 
 
     def moveAgentByRecreating_it(self,oldAgent):
@@ -170,6 +172,8 @@ class SGCell(SGEntity):
                                 updatePermit=watcher.getUpdatePermission()
                                 if updatePermit:
                                     watcher.updateText()
+                        if self.model.mqttMajType == "Instantaneous":
+                            SGGameActions.sendMqttMessage(self)
                         self.show()
                         self.repaint()    
 
@@ -218,6 +222,8 @@ class SGCell(SGEntity):
                                 updatePermit=watcher.getUpdatePermission()
                                 if updatePermit:
                                     watcher.updateText()
+                        if self.model.mqttMajType == "Instantaneous":
+                            SGGameActions.sendMqttMessage(self)
                         self.update()
                         
 
@@ -247,6 +253,8 @@ class SGCell(SGEntity):
                                     updatePermit=watcher.getUpdatePermission()
                                     if updatePermit:
                                         watcher.updateText()
+                            if self.model.mqttMajType == "Instantaneous":
+                                SGGameActions.sendMqttMessage(self)
                             self.update()
                             self.grid.model.update()
 

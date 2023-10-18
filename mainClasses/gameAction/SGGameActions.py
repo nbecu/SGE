@@ -31,6 +31,9 @@ class SGGameActions():
                     theAction.use()
         return authorisation
     
+    def sendMqttMessage(aObject):
+        aObject.model.publishEntitiesState()
+    
 
     
 
