@@ -34,12 +34,12 @@ userSelector=myModel.newUserSelector()
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
 myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("landUse","forest"),lambda: aGrid.setRandomCells("landUse","shrub",3)])
 
-aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",2,"landUse","forest"))
+# aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
-aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
+# aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
 
 aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
-aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) 
+aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
 myModel.timeManager.newModelPhase(aModelAction2)
 
@@ -49,6 +49,7 @@ DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
 DashBoard.showIndicators()
 aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
+myModel.timeManager.newModelPhase(aModelAction4)
 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(

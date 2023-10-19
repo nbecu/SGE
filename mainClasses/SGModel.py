@@ -115,6 +115,7 @@ class SGModel(QtWidgets.QMainWindow):
         self.randomSeed=42
         random.seed(self.randomSeed)
         self.mqtt=False
+        self.mqttMajType=None
         self.testMode=testMode
         self.dictAgentsAtMAJ={} 
 
@@ -1282,10 +1283,6 @@ class SGModel(QtWidgets.QMainWindow):
             aAgentSpecies=self.getAgentSpecie(speciesName)
 
             self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID]
-
-            # newAgent=self.newAgent_ADMINONLY(theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID)
-            # newAgent.cell.updateIncomingAgent()
-            # newAgent.owner=owner
         
         # AGENT SPECIES MEMORY ID
         speciesMemoryIdDict=msg_list[-4][0]
@@ -1461,6 +1458,8 @@ class SGModel(QtWidgets.QMainWindow):
     
     def onMAJTimer(self):
         self.updateAgentsAtMAJ()
+        self.timeManager.checkDashBoard()
+        self.timeManager.checkEndGame()
 
     def updateAgentsAtMAJ(self):
         for j in self.dictAgentsAtMAJ.keys():

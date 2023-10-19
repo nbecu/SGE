@@ -63,15 +63,10 @@ class SGTimeManager():
                                 aAction()  # this command executes aAction
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
-                    if self.model.mqttMajType=="Phase":
+                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
                         self.model.publishEntitiesState()
                     #watchers update
-                    for grid in self.model.getGrids():
-                        for attribut in self.model.cellCollection[grid.id]["watchers"]:
-                            for watcher in self.model.cellCollection[grid.id]["watchers"][attribut]:
-                                updatePermit=watcher.getUpdatePermission()
-                                if updatePermit:
-                                    watcher.updateText()
+                    self.checkDashBoard()
 
                 else:
                     self.nextPhase()
@@ -97,6 +92,15 @@ class SGTimeManager():
         if endGame:
             print("C'est fini !")
         return endGame
+    
+    def checkDashBoard(self):
+        for grid in self.model.getGrids():
+            for attribut in self.model.cellCollection[grid.id]["watchers"]:
+                for watcher in self.model.cellCollection[grid.id]["watchers"][attribut]:
+                    updatePermit=watcher.getUpdatePermission()
+                    if updatePermit:
+                        watcher.updateText()
+
 
     def getRoundNumber(self):
         return self.currentRound

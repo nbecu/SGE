@@ -53,8 +53,13 @@ Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1, Player2])
-myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
+
+myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
+myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource","3"),lambda: aGrid.setRandomCells("Resource","1",3)])
+aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("Resource","3",2,condition=(lambda x: x.value("Resource") != "1" and x.value("Resource") != "0"  )))
+myModel.timeManager.newModelPhase(aModelAction2)
+aModelAction4=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
+aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
 myModel.currentPlayer = 'Player 2'
 
@@ -67,7 +72,10 @@ TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
+i3 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
 DashBoard.showIndicators()
+aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
+myModel.timeManager.newModelPhase(aModelAction4)
 
 userSelector = myModel.newUserSelector()
 
