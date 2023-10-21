@@ -10,7 +10,7 @@ class SGUpdate():
         self.dictNewValues=dictNewValues
         key = list(self.dictNewValues.keys())[0]  # Récupère la clé du dictionnaire
         value = self.dictNewValues[key]  # Récupère la valeur correspondante
-        result = key + " " + value
+        result = key + " " + str(value)
         self.name="UpdateAction "+result
         self.restrictions=restrictions
         self.feedback=feedBack

@@ -377,17 +377,18 @@ class SGGrid(SGGameSpace):
         for aCell in self.getCells():
             aCell.setValue(aAttribute, aValue)
 
-    def setCell(self, aAttribute, aValue, aValueX, aValueY):
+    def setCell(self, x, y, aAttribute, aValue):
         """
         set the value of attribute value for a specific cell
 
         Args:
+            x (int): a column number
+            y (int): a row number
             aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
-            aValueX (int): a column number
-            aValueY (int): a row number
+
         """
-        self.getCell(aValueX, aValueY).setValue(aAttribute, aValue)
+        self.getCell(x, y).setValue(aAttribute, aValue)
 
     # set the value of attribut to all cells in a specified column
     def setCells_withColumn(self, aAttribute, aValue, aColumnNumber):

@@ -154,7 +154,7 @@ class SGPlayer():
                             if self.model.selected[2] in list(self.model.agentSpecies.keys()):
                                 return aGameAction
                     # Update of a Cell
-                    elif isinstance(aGameAction, SGUpdate) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(aGameAction.dictNewValues.values())[0] and self.model.selected[4] in list(aGameAction.dictNewValues.keys()):
+                    elif isinstance(aGameAction, SGUpdate) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(aGameAction.dictNewValues.values()) and self.model.selected[4] in list(aGameAction.dictNewValues.keys()):
                         return aGameAction
                     # Delete of a Cell
                     elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and aGameAction.anObject == SGCell: #and self.model.selected[3] in list(anItem.dictOfAttributs.values()):
