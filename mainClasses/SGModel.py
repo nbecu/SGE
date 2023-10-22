@@ -103,6 +103,7 @@ class SGModel(QtWidgets.QMainWindow):
         # List of players
         self.players = {}
         self.currentPlayer = "Admin"
+        self.adminLegend = None
 
         self.myUserSelector = None
         self.myTimeLabel = None
@@ -493,6 +494,7 @@ class SGModel(QtWidgets.QMainWindow):
         aLegend = SGLegend(self, Name, CellElements,
                            "Admin", agents, showAgentsWithNoAtt)
         self.gameSpaces[Name] = aLegend
+        self.adminLegend=aLegend
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aLegend)
         aLegend.setStartXBase(newPos[0])
@@ -512,7 +514,7 @@ class SGModel(QtWidgets.QMainWindow):
         return aLegend
 
     # To update the admin Legend when the modeler add a new pov after the creation of the Legend
-
+    # TO BE REMOVED. IT IS a useless method
     def updateLegendAdmin(self):
         if "adminLegend" in list(self.gameSpaces.keys()):
             aLegend = self.gameSpaces["adminLegend"]
@@ -524,8 +526,8 @@ class SGModel(QtWidgets.QMainWindow):
         To create an User Selector in your game. Functions automatically with the players declared in your model. 
 
         """
-        if len(self.users) > 1 and len(self.players) > 0:
-            userSelector = SGUserSelector(self, self.users)
+        if len(self.users_withControlPanel()) > 1 and len(self.players) > 0:
+            userSelector = SGUserSelector(self, self.users_withControlPanel())
             self.myUserSelector = userSelector
             self.gameSpaces["userSelector"] = userSelector
             # Realocation of the position thanks to the layout
@@ -546,6 +548,16 @@ class SGModel(QtWidgets.QMainWindow):
             return userSelector
         else:
             print('You need to add players to the game')
+
+    # To select only users with a control panel
+    def users_withControlPanel(self):
+        selection=[]
+        if self.adminLegend != None:
+            selection.append('Admin')     
+        for aP in self.players.values():
+            if aP.controlPanel !=  None:
+                selection.append(aP.name) 
+        return selection
 
     # To create a New kind of agents
     def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictOfAttributs=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
@@ -751,7 +763,7 @@ class SGModel(QtWidgets.QMainWindow):
         aAgent.deleteLater()
         del self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]
         self.update()
-        self.updateLegendAdmin()
+        # self.updateLegendAdmin()    --> Removed. This is a useless method
         self.show()
 
     # To randomly move all agents

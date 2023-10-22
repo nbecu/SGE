@@ -18,8 +18,9 @@ class SGPlayer():
         self.actions = actions
         self.gameActions = []
         self.remainActions = {}
+        self.controlPanel= None
 
-    def newControlPanel(self, Name, showAgentsWithNoAtt=False):
+    def newControlPanel(self, Name=None, showAgentsWithNoAtt=False):
         """
         To create an Player Control Panel (only with the GameActions related elements)
 
@@ -27,6 +28,9 @@ class SGPlayer():
         Name (str): name of the Control Panel, displayed
 
         """
+        #define defaultName if none defined
+        if Name==None:
+             Name= (self.name +' actions')
         # Creation
         # We harvest all the case value
         elements = {}
@@ -66,9 +70,10 @@ class SGPlayer():
                 if agent_key in goodKeys:
                     playerElements[grid_key]['agents'][agent_key] = agent_value
         playerElements["deleteButtons"] = deleteButtons
-        aLegend = SGLegend(self.model, Name, playerElements,
+        aLegend = SGLegend(self.model, Name, playerElements, #Un controlPanel ne doit pas etre uen instance de Legend, Il faut faire une classe fille de Legend, spécifique pour ControlPanel
                            self.name, agents, showAgentsWithNoAtt, legendType="player")
         self.model.gameSpaces[Name] = aLegend
+        self.controlPanel=aLegend
         # Realocation of the position thanks to the layout
         newPos = self.model.layoutOfModel.addGameSpace(aLegend)
         aLegend.setStartXBase(newPos[0])
@@ -116,6 +121,10 @@ class SGPlayer():
         return thePov
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
+
+    def controlPanel(self):
+        # access to the control panel
+        return (self.model.controlPanel[self.name])
 
     def addGameAction(self, aGameAction):
         """

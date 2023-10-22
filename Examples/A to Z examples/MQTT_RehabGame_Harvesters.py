@@ -40,22 +40,21 @@ Birds = myModel.newAgentSpecies(
 aWorker = myModel.newAgentAtCoords(aGrid,Workers,5,2)
 
 
-globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
+# globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
 
-Player1 = myModel.newPlayer("Player 1")
+Player1 = myModel.newPlayer("Harvesters")
 Player1.addGameAction(myModel.newCreateAction(Workers, 20))
 Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
 Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
-Player1ControlPanel = Player1.newControlPanel(
-    "Player 1 Actions", showAgentsWithNoAtt=True)
+Player1ControlPanel = Player1.newControlPanel(showAgentsWithNoAtt=True)
 
-Player2 = myModel.newPlayer("Player 2")
+Player2 = myModel.newPlayer("Parc")
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
+Player2ControlPanel = Player2.newControlPanel()
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
 myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: aGrid.setRandomCells("Resource",1,3)])
@@ -65,14 +64,14 @@ myModel.timeManager.newModelPhase(aModelAction2)
 # aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
-myModel.currentPlayer = 'Player 1'
+# myModel.currentPlayer = 'Player 1'
 
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
-    title='Début du jeu', textToWrite="Bonjour et bienvenue dans RehabGame !")
+    title='Info', textToWrite="Welcome to ReHab game !")
 
-TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
+# TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
