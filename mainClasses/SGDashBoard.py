@@ -160,6 +160,15 @@ class SGDashBoard(SGGameSpace):
             self.setAgentWatchers(indicator)
         return indicator
 
+    def addIndicatorOnSimVariable(self,aSimulationVariable):
+        self.y = self.y+1
+        indicator=SGIndicators(self,self.y,aSimulationVariable.name,"score",None,aSimulationVariable.value,None,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
+        self.indicatorNames.append(indicator.name)
+        self.indicators.append(indicator)
+        indicator.id = self.IDincr
+        self.IDincr = +1
+        return indicator
+
     def setCellWatchers(self, attribut, indicator):
         grids = self.model.getGrids()
         for grid in grids:

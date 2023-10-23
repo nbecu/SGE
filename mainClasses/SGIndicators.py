@@ -17,7 +17,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.dashboard=parent
         self.method=method
         self.value=value
-        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"]
+        self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp"]
         self.entity=entity
         self.result=float
         self.name=name

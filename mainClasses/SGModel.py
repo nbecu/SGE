@@ -20,6 +20,7 @@ from mainClasses.SGModelAction import SGModelAction
 from mainClasses.SGEndGameRule import SGEndGameRule
 from mainClasses.SGUserSelector import SGUserSelector
 from mainClasses.SGDashBoard import SGDashBoard
+from mainClasses.SGSimulationVariables import SGSimulationVariables
 from mainClasses.SGTextBox import SGTextBox
 from mainClasses.SGTimeLabel import SGTimeLabel
 from mainClasses.SGTimeManager import SGTimeManager
@@ -80,7 +81,7 @@ class SGModel(QtWidgets.QMainWindow):
         # Definition of the AgentCollection and CellCollection
         self.agentSpecies = {}
         self.cellCollection = {}
-        # self.agents=self.getAgents() #cet attribut est à proscrire car agents n'est pas remis à jour après qu'il y ait eu un ajout ou une suppression d'un agent
+        self.simulationVariables = []
         self.IDincr = 0
         # We create the layout
         self.typeOfLayout = typeOfLayout
@@ -549,16 +550,6 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             print('You need to add players to the game')
 
-    # To select only users with a control panel
-    def users_withControlPanel(self):
-        selection=[]
-        if self.adminLegend != None:
-            selection.append('Admin')     
-        for aP in self.players.values():
-            if aP.controlPanel !=  None:
-                selection.append(aP.name) 
-        return selection
-
     # To create a New kind of agents
     def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictOfAttributs=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
         """
@@ -826,6 +817,16 @@ class SGModel(QtWidgets.QMainWindow):
     # To get all the players
     def getPlayer(self, playerName):
         return self.players[playerName]
+    
+    # To select only users with a control panel
+    def users_withControlPanel(self):
+        selection=[]
+        if self.adminLegend != None:
+            selection.append('Admin')     
+        for aP in self.players.values():
+            if aP.controlPanel !=  None:
+                selection.append(aP.name) 
+        return selection
 
     # To create a Time Label
     def newTimeLabel(self, name="Phases&Rounds", backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
@@ -970,6 +971,11 @@ class SGModel(QtWidgets.QMainWindow):
     def getCurrentPhase(self):
         """Return the actual ingame phase"""
         return self.timeManager.currentPhase
+    
+    def newSimVariable(self,initValue,name,color,isDisplay=True):
+        aSimVar=SGSimulationVariables(self,initValue,name,color,isDisplay)
+        self.simulationVariables.append(aSimVar)
+        return aSimVar
 
     # ---------
 # Layout
@@ -1283,7 +1289,7 @@ class SGModel(QtWidgets.QMainWindow):
 
         # AGENT MANAGEMENT
         nbToStart=sum(msg_list[1])
-        for j in range(len(msg_list[nbToStart+2:-4])):
+        for j in range(len(msg_list[nbToStart+2:-5])):
             privateID=msg_list[nbToStart+2+j][0]
             speciesName=msg_list[nbToStart+2+j][1]
             dictOfAttributs=msg_list[nbToStart+2+j][2]
@@ -1297,14 +1303,14 @@ class SGModel(QtWidgets.QMainWindow):
             self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID]
         
         # AGENT SPECIES MEMORY ID
-        speciesMemoryIdDict=msg_list[-4][0]
+        speciesMemoryIdDict=msg_list[-5][0]
         for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
             theSpecies=self.getAgentSpecie(aSpeciesName)
             theSpecies.memoryID=speciesMemoryID
 
         # TIME MANAGEMENT
-        self.timeManager.currentPhase = msg_list[-3][0]
-        self.timeManager.currentRound = msg_list[-3][1]
+        self.timeManager.currentPhase = msg_list[-4][0]
+        self.timeManager.currentRound = msg_list[-4][1]
         if self.myTimeLabel is not None:
             self.myTimeLabel.updateTimeLabel()
         if self.timeManager.currentPhase == 0:
@@ -1324,7 +1330,7 @@ class SGModel(QtWidgets.QMainWindow):
             - nbCells (int) : value in the message
         """
         majIDs=set()
-        for j in range(len(message[nbCells+2:-4])):
+        for j in range(len(message[nbCells+2:-5])):
             agID = message[nbCells+2+j][0]
             majIDs.add(agID)
         return majIDs
@@ -1452,6 +1458,13 @@ class SGModel(QtWidgets.QMainWindow):
         message = message+str(self.timeManager.currentPhase)
         message = message+","
         message = message+str(self.timeManager.currentRound)
+        message = message+"]"
+        message = message+","
+        message = message+"["
+        for k in range(len(self.simulationVariables)):
+            message = message+str(self.simulationVariables[k].value)
+            if k != len(self.simulationVariables):
+                message = message+","
         message = message+"]"
         message = message+","
         message = message+"["
