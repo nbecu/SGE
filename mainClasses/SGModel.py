@@ -119,7 +119,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.mqtt=False
         self.mqttMajType=None
         self.testMode=testMode
-        self.dictAgentsAtMAJ={} 
+        self.dictAgentsAtMAJ={}
+        self.simulationVariablesAtMAJ=[] 
 
         self.initUI()
 
@@ -972,7 +973,7 @@ class SGModel(QtWidgets.QMainWindow):
         """Return the actual ingame phase"""
         return self.timeManager.currentPhase
     
-    def newSimVariable(self,initValue,name,color,isDisplay=True):
+    def newSimVariable(self,initValue,name,color=Qt.black,isDisplay=True):
         aSimVar=SGSimulationVariables(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
@@ -1318,6 +1319,9 @@ class SGModel(QtWidgets.QMainWindow):
             for gm in self.getGM():
                 gm.reset()
 
+        # SIMULATION VARIABLES
+        self.simulationVariablesAtMAJ=msg_list[-3]
+
         self.update()
         print("Update processed !")
 
@@ -1462,7 +1466,7 @@ class SGModel(QtWidgets.QMainWindow):
         message = message+","
         message = message+"["
         for k in range(len(self.simulationVariables)):
-            message = message+str(self.simulationVariables[k].value)
+            message = message+str({self.simulationVariables[k].name:self.simulationVariables[k].value})
             if k != len(self.simulationVariables):
                 message = message+","
         message = message+"]"
@@ -1483,11 +1487,23 @@ class SGModel(QtWidgets.QMainWindow):
     
     def onMAJTimer(self):
         self.updateAgentsAtMAJ()
+        self.updateScoreAtMAJ()
         self.timeManager.checkDashBoard()
         self.timeManager.checkEndGame()
-
+        
     def updateAgentsAtMAJ(self):
         for j in self.dictAgentsAtMAJ.keys():
             newAgent=self.newAgent_ADMINONLY(self.dictAgentsAtMAJ[j][0],self.dictAgentsAtMAJ[j][1],self.dictAgentsAtMAJ[j][2],self.dictAgentsAtMAJ[j][3],self.dictAgentsAtMAJ[j][4],self.dictAgentsAtMAJ[j][5])
             newAgent.cell.updateIncomingAgent(newAgent)
         self.dictAgentsAtMAJ={}
+    
+    def updateScoreAtMAJ(self):
+        for aGameSpace in self.gameSpaces:
+            if isinstance(aGameSpace,SGDashBoard):
+                for aIndicator in aGameSpace.indicators:
+                    if isinstance(aIndicator.entity,SGSimulationVariables):
+                        for aDictOfSimVar in self.simulationVariablesAtMAJ:
+                            if aIndicator.entity.name == aDictOfSimVar.keys():
+                                aIndicator.updateByMqtt(aDictOfSimVar.values())
+        self.simulationVariablesAtMAJ=[]
+

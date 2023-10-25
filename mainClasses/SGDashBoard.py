@@ -162,7 +162,7 @@ class SGDashBoard(SGGameSpace):
 
     def addIndicatorOnSimVariable(self,aSimulationVariable):
         self.y = self.y+1
-        indicator=SGIndicators(self,self.y,aSimulationVariable.name,"score",None,aSimulationVariable.value,None,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
+        indicator=SGIndicators(self,self.y,aSimulationVariable.name,"score",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -314,7 +314,7 @@ class SGDashBoard(SGGameSpace):
 
     def getSizeYGlobal(self):
         somme = 100
-        return somme+len(self.indicatorNames)
+        return somme+len(self.indicatorNames)*20
 
     def getLongest(self):
         # print(self.indicatorNames)

@@ -31,16 +31,16 @@ myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magent
 # STEP3 Agents
 Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", uniqueColor=Qt.black)
 Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", uniqueColor=Qt.yellow)
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
-Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-Sheeps.initDefaultAttValue("hunger","bad")
+# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
+# Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+# Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+# Sheeps.initDefaultAttValue("hunger","bad")
 
 aSecondBird=myModel.newAgentAtCoords(aGrid,Birds,4,5)
 aWorker=myModel.newAgentAtCoords(aGrid,Workers,2,2)
-aSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,3)
-aSecondSheep=myModel.newAgentAtCoords(aGrid,Sheeps,1,5)
-aThirdSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,5)
+# aSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,3)
+# aSecondSheep=myModel.newAgentAtCoords(aGrid,Sheeps,1,5)
+# aThirdSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,5)
 
 
 
@@ -60,7 +60,7 @@ Player1ControlPanel = Player1.newControlPanel(
 Player2 = myModel.newPlayer("Player 2")
 #Player2.addGameAction(myModel.newCreateAction(Sheeps,4))
 Player2.addGameAction(myModel.newCreateAction(Birds,4))
-Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
+# Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
 Player2.addGameAction(myModel.newUpdateAction(
@@ -77,11 +77,13 @@ myModel.currentPlayer = 'Player 1'
 
 
 # STEP6 DashBoard and EndGameRule
+score1= myModel.newSimVariable(0,"Global Score:")
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicator("nb","agent",color=Qt.black)
 i4 = DashBoard.addIndicator("nb","Workers",color=Qt.black)
+i5 = DashBoard.addIndicatorOnSimVariable(score1)
 DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)

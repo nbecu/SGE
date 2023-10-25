@@ -6,6 +6,7 @@ from sqlalchemy import null
 import numpy as np
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGSimulationVariables import SGSimulationVariables
 
 
    
@@ -43,18 +44,27 @@ class SGIndicators(QtWidgets.QWidget):
         self.indicatorLayout.addWidget(self.label)
 
     def setName(self,calcValue):
-        if self.value is not None:
-            aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
-        else:
-            if self.attribut is not None:
-                aName = self.method+' '+self.attribut+" : "+str(calcValue)
+        if self.name == None:
+            if self.value is not None:
+                aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
             else:
-                aName = self.method+' : '+str(calcValue)
+                if self.attribut is not None:
+                    aName = self.method+' '+self.attribut+" : "+str(calcValue)
+                else:
+                    aName = self.method+' : '+str(calcValue)
+        else:
+            aName = str(self.name)+" "+str(calcValue)
         return aName
 
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
+        newText= self.setName(self.result)
+        self.label.setPlainText(newText)
+        self.dashboard.model.timeManager.updateEndGame()
+    
+    def updateByMqtt(self,newValue):
+        self.result=newValue
         newText= self.setName(self.result)
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
@@ -64,6 +74,8 @@ class SGIndicators(QtWidgets.QWidget):
         self.result=aValue
         newText= self.setName(self.result)
         self.label.setPlainText(newText)
+        if isinstance(self.entity,SGSimulationVariables):
+            self.entity.value=aValue
     
     def getUpdatePermission(self):
         if self.dashboard.displayRefresh=='instantaneous':
@@ -145,13 +157,11 @@ class SGIndicators(QtWidgets.QWidget):
                 calcValue=len(agents)
                 return calcValue
 
-        
-        elif self.entity is None:
-            if self.method=="score":
-                calcValue=self.value
-                if calcValue==None:
-                    calcValue=0
-                return calcValue
+        elif self.method=="score":
+            calcValue=self.value
+            if calcValue==None:
+                calcValue=0
+            return calcValue
         
         elif isinstance(self.entity,SGAgent) or isinstance(self.entity,SGCell):
             if self.method =="display":

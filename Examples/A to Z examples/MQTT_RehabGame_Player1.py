@@ -67,10 +67,11 @@ TextBox = myModel.newTextBox(
 
 TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
+globalScore=myModel.newSimVariable(0,"Global Score :")
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
-i3 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
+i3 = DashBoard.addIndicatorOnSimVariable(globalScore)
 DashBoard.showIndicators()
 aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
 myModel.timeManager.newModelPhase(aModelAction4)
