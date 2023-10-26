@@ -70,7 +70,7 @@ class SGPlayer():
                 if agent_key in goodKeys:
                     playerElements[grid_key]['agents'][agent_key] = agent_value
         playerElements["deleteButtons"] = deleteButtons
-        aLegend = SGLegend(self.model, Name, playerElements, #Un controlPanel ne doit pas etre uen instance de Legend, Il faut faire une classe fille de Legend, spécifique pour ControlPanel
+        aLegend = SGLegend(self.model, Name, playerElements, #Un controlPanel ne doit pas etre une instance de Legend, Il faut faire une classe fille de Legend, spécifique pour ControlPanel
                            self.name, agents, showAgentsWithNoAtt, legendType="player")
         self.model.gameSpaces[Name] = aLegend
         self.controlPanel=aLegend
