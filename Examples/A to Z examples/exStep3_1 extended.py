@@ -13,36 +13,35 @@ aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)
 
-myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+aGrid.setCells("age",1)
+aGrid.setRandomCells("age",2,10)
+aGrid.setRandomCells("age",3,10)
+
+myModel.newPov("ICanSeeShrub","landUse",{"grass":QColor.fromRgb(30,190,0),"shrub":Qt.yellow,"forest":Qt.darkGreen})
 myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-myModel.newPov_OnCells_typeCategoriesPerAttribute(nameOfPov="I See from above",att="landUse",
-        categories=[
-                ['lowGrass', Qt.green, ["grass","shrub"]],
-                ['highGrass', Qt.darkGreen, ["forest"]]
-                ])
-            #    "landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+myModel.newPov("povAge","age",{1:Qt.green,2:QColor.fromRgb(30,190,0),3:QColorConstants.DarkGreen})
 
 # Here, a "type" of agent is called a species.
 # To create a species, it needs : a name and a shape 
 # You can add a dict of attributs with values (optionnal).
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"}})
-# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"},"age":{1,2,3}})
 
 # For each attribute, you can set up points of view with colors :
-# Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-# Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.newPov("Sheeps -> Age","age",{1:Qt.green,2:QColor.fromRgb(30,190,0),3:QColorConstants.DarkGreen})
+
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
-# m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad"})
-m2=myModel.newAgentAtCoords(aGrid,Sheeps,4,4)
-# m2.setValueAgent('health','good')
+m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad","age":2})
+m2=myModel.newAgentAtCoords(aGrid,Sheeps,None,None)
 
 #You can also edit your agent attribute values like this :
-# m2.setValueAgent('health','good')
-# m2.setValueAgent('hunger','good')
+m2.setValueAgent('health','good')
+m2.setValueAgent('hunger','good')
+m2.setValueAgent('age',3)
 
 
 

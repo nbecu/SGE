@@ -121,7 +121,7 @@ class SGAgent(SGEntity):
             for aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
                 if aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
                     path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                    theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][str(path)]
+                    theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][path]
                     self.color=theColor
                     return theColor
 
@@ -130,7 +130,7 @@ class SGAgent(SGEntity):
                 for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
                     if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
                         path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][str(path)]
+                        theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][path]
                         self.color=theColor
                 return theColor
             
