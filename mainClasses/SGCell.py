@@ -311,23 +311,7 @@ class SGCell(SGEntity):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #To handle the attributs and values
-    def setValue(self,aAttribut,aValue):
-        """
-        Sets the value of an attribut
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
-        """       
-        self.dictOfAttributs[aAttribut]=aValue
 
-    def value(self,att):
-        """
-        Return the value of a cell Attribut
-        Args:
-            att (str): Name of the attribute
-        """
-        return self.dictOfAttributs[att]
     
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
@@ -353,11 +337,19 @@ class SGCell(SGEntity):
      
     
     #To get all of a kind of agent on a cell 
-    def getAgents(self):
+    def getAgents(self,specie=None):
+        if specie != None:
+            return self.getAgentsOfSpecie(specie)
         listOfAgents=[]
         for agent in self.agents:
            listOfAgents.append(agent)
         return  listOfAgents
+    
+    def nbAgents(self,specie=None):
+        if specie != None:
+            listAgts = self.getAgentsOfSpecie(specie)
+        else: listAgts = self.getAgents()
+        return  len(listAgts)
  
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):

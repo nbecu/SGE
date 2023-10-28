@@ -33,7 +33,8 @@ myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 Workers = myModel.newAgentSpecies(
-    "Workers", "triangleAgent1", uniqueColor=Qt.black)
+    "Workers", "triangleAgent1", {'harvest':{0}},uniqueColor=Qt.black)
+# Workers.initDefaultAttValue('harvest',0)
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 
@@ -50,16 +51,75 @@ Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Parc")
+
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", 3, {"ProtectionLevel": "Reserve"}))
+    "Cell", "infinite", {"ProtectionLevel": "Reserve"}
+    ,[lambda: aGrid.nbCells_withValue("ProtectionLevel","Reserve")<3]))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel()
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
-myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: aGrid.setRandomCells("Resource",1,3)])
-aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("Resource",3,2,condition=(lambda x: x.value("Resource") != 1 and x.value("Resource") != 0  )))
-myModel.timeManager.newModelPhase(aModelAction2)
+# harvestWhenOneHarvester=myModel.newModelAction(lambda: harvest(myModel.getCells()))
+# harvestWhenOneHarvester=myModel.newModelAction_onCells(lambda cell: cell.getAgents()[0].incValue('harvest',min(2,cell.value('Resource'))), lambda cell: cell.nbAgents()==1   )
+# harvestWhenOneHarvester=myModel.newModelAction_onCells(lambda cell: harvest2(cell))
+harvestWhenOneHarvester=myModel.newModelAction(lambda: harvest3())
+myModel.timeManager.newModelPhase(harvestWhenOneHarvester)
+
+def harvest3():
+    for cell in myModel.getCells():
+        if cell.nbAgents()==1:
+            aQt = min(2,cell.value('Resource'))
+            cell.getAgents()[0].incValue('harvest',aQt)
+            cell.decValue('Resource',aQt)
+def harvest2(cell):
+    print(myModel)
+    if cell.nbAgents()==1:
+        aQt = min(2,cell.value('Resource'))
+        cell.getAgents()[0].incValue('harvest',aQt)
+        cell.decValue('Resource',aQt)
+
+def harvest(cells):
+    for cell in cells:
+        if cell.nbAgents()==1:
+            aQt = min(2,cell.value('Resource'))
+            cell.getAgents()[0].incValue('harvest',aQt)
+            cell.decValue('Resource',aQt)
+    return 1    
+
+# myModel.timeManager.newModelPhase(lambda: harvest())
+
+myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: harvest2(cell)))
+
+def harvest():
+    for cell in myModel.getCells():
+        if cell.nbAgents()==1:
+            aQt = min(2,cell.value('Resource'))
+            cell.getAgents()[0].incValue('total harvest',aQt)
+            cell.getAgents()[0].setValue('harvest',aQt)
+            cell.decValue('Resource',aQt)
+        elif cell.nbAgents()>1:
+            aQt = min(2,cell.value('Resource'))
+            for aAgt in random.sample(cell.getAgents(), aQt):
+                aAgt.incValue('total harvest',1)
+                aAgt.setValue('harvest',1)
+                cell.decValue('Resource',1)
+def harvest2(cell):
+    if cell.nbAgents()==1:
+        aQt = min(2,cell.value('Resource'))
+        cell.getAgents()[0].incValue('total harvest',aQt)
+        cell.getAgents()[0].setValue('harvest',aQt)
+        cell.decValue('Resource',aQt)
+    elif cell.nbAgents()>1:
+        aQt = min(2,cell.value('Resource'))
+        for aAgt in random.sample(cell.getAgents(), aQt):
+            aAgt.incValue('total harvest',1)
+            aAgt.setValue('harvest',1)
+            cell.decValue('Resource',1)
+
+# myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: aGrid.setRandomCells("Resource",1,3)])
+# aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("Resource",3,2,condition=(lambda x: x.value("Resource") != 1 and x.value("Resource") != 0  )))
+# myModel.timeManager.newModelPhase(aModelAction2)
 # aModelAction4=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
 # aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
@@ -74,8 +134,8 @@ TextBox = myModel.newTextBox(
 # TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator("sum", 'cell', attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator("avg", 'cell', attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
 DashBoard.showIndicators()
 # aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
@@ -95,3 +155,4 @@ myModel.launch()
 
 
 sys.exit(monApp.exec_())
+

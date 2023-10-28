@@ -17,6 +17,7 @@ from mainClasses.SGVoid import SGVoid
 from mainClasses.SGCell import SGCell
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGModelAction import SGModelAction
+from mainClasses.SGModelAction import SGModelAction_OnEntities
 from mainClasses.SGEndGameRule import SGEndGameRule
 from mainClasses.SGUserSelector import SGUserSelector
 from mainClasses.SGDashBoard import SGDashBoard
@@ -448,7 +449,9 @@ class SGModel(QtWidgets.QMainWindow):
         self.cellCollection[grid.id]['watchers']={}
 
     # To get all the cells of the collection
-    def getCells(self,grid):
+    def getCells(self,grid=None):
+        if grid == None:
+            grid = self.getGrids()[0]
         return list(self.cellCollection[grid.id]['cells'].values())
     
     # To get all the povs of the collection
@@ -758,6 +761,18 @@ class SGModel(QtWidgets.QMainWindow):
         # self.updateLegendAdmin()    --> Removed. This is a useless method
         self.show()
 
+    def setAgents(self, aSpeciesName, aAttribute, aValue):
+        """
+        Set the value of attribut value of all agents of a given specie
+
+        Args:
+            aAttribute (str): Name of the attribute to set
+            aValue : Value to set the attribute to
+        """
+        for aAgt in self.getAgents(aSpeciesName):
+            aAgt.setValue(aAttribute, aValue)
+
+
     # To randomly move all agents
     def moveRandomlyAgents(self, aGrid, numberOfMovement):
         for aAgent in self.getAgents():
@@ -777,6 +792,22 @@ class SGModel(QtWidgets.QMainWindow):
         aModelAction.id = self.id_modelActions
         aModelAction.model = self
         return aModelAction
+    
+        # To create a modelAction that executes on each cell
+    def newModelAction_onCells(self, actions=[], conditions=[], feedbacks=[]):
+        """
+        To add a model action which can be executed during a modelPhase
+        args:
+            actions (lambda function): Actions the cell performs during the phase (add, delete, move...)
+            conditions (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): Feedback actions performed only if the actions are executed
+        """
+        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getCells()))
+        self.id_modelActions += 1
+        aModelAction.id = self.id_modelActions
+        aModelAction.model = self
+        return aModelAction
+    
 
     # To create a player
     def newPlayer(self, name):
