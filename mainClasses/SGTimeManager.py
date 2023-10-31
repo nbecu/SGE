@@ -64,10 +64,12 @@ class SGTimeManager():
                                 aAction()  # this command executes aAction
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
-                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                        self.model.publishEntitiesState()
                     #watchers update
                     self.checkDashBoard()
+                    #mqtt update
+                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
+                        self.model.publishEntitiesState()
+
 
                 else:
                     self.nextPhase()
@@ -101,6 +103,13 @@ class SGTimeManager():
                     updatePermit=watcher.getUpdatePermission()
                     if updatePermit:
                         watcher.updateText()
+        for specie in self.model.agentSpecies.values():
+            for watchers in specie["watchers"].values():
+                for watcher in watchers:
+                    updatePermit=watcher.getUpdatePermission()
+                    if updatePermit:
+                        watcher.updateText()
+
 
 
     def getRoundNumber(self):

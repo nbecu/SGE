@@ -101,7 +101,7 @@ class SGDashBoard(SGGameSpace):
         self.IDincr = +1
         if entity == 'cell':
             self.setCellWatchers(attribute, indicator)
-        if entity == 'agent' or entity in [instance.name for instance in species]:
+        if entity == 'agents' or entity in [instance.name for instance in species]:
             self.setAgentWatchers(indicator)
         return indicator
     
@@ -156,7 +156,7 @@ class SGDashBoard(SGGameSpace):
         self.IDincr = +1
         if entity == 'cell':
             self.setCellWatchers(attribute, indicator)
-        if entity == 'agent' or entity in [instance.name for instance in species]:
+        if entity == 'agents' or entity in [instance.name for instance in species]:
             self.setAgentWatchers(indicator)
         return indicator
 
@@ -177,18 +177,21 @@ class SGDashBoard(SGGameSpace):
                 cellCollection["watchers"][attribut] = []
             cellCollection["watchers"][attribut].append(indicator)
         
-    def setAgentWatchers(self,indicator,attribut=None):
-        species=self.model.getAgentSpecies()
-        if attribut is None:
-            if indicator.entity == 'agent':
-                attribut='globalNb'
-            else:
-                attribut = 'nb'
-        for aSpecies in species:
-            agentSpeciesDict=self.model.agentSpecies[aSpecies.name]
-            if attribut not in agentSpeciesDict["watchers"].keys():
-                agentSpeciesDict["watchers"][attribut]=[]
-            agentSpeciesDict["watchers"][attribut].append(indicator)
+    def setAgentWatchers(self,indicator):
+        if indicator.attribut is None:
+            aAtt = 'nb'
+        else:
+            aAtt = indicator.attribut
+        if indicator.entity == 'agents':
+            if 'agents' not in self.model.agentSpecies.keys():
+                self.model.agentSpecies['agents']={'watchers':{}}
+            watchersDict=self.model.agentSpecies['agents']['watchers']
+        else:
+             watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
+
+        if aAtt not in watchersDict.keys():
+            watchersDict[aAtt]=[]
+        watchersDict[aAtt].append(indicator)
 
     def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
         """

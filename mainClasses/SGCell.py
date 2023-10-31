@@ -248,8 +248,13 @@ class SGCell(SGEntity):
                             theSpecies = self.model.getAgentSpecie(Species)
                             aAgent=self.grid.model.newAgentAtCoords(self.grid, theSpecies, self.x, self.y, aDictWithValue)             #(self,theSpecies,aDictWithValue)
                             self.updateIncomingAgent(aAgent)
-                            for attribut in self.model.agentSpecies[Species]["watchers"]:
-                                for watcher in self.model.agentSpecies[Species]["watchers"][attribut]:
+                            for method in self.model.agentSpecies[Species]["watchers"]:
+                                for watcher in self.model.agentSpecies[Species]["watchers"][method]:
+                                    updatePermit=watcher.getUpdatePermission()
+                                    if updatePermit:
+                                        watcher.updateText()
+                            for method in self.model.agentSpecies['agents']["watchers"]:
+                                for watcher in self.model.agentSpecies['agents']["watchers"][method]:
                                     updatePermit=watcher.getUpdatePermission()
                                     if updatePermit:
                                         watcher.updateText()

@@ -34,8 +34,8 @@ class SGIndicators(QtWidgets.QWidget):
         self.indicatorLayout = QtWidgets.QHBoxLayout()
         calcValue=self.byMethod()
         self.result=calcValue
-        self.name=self.setName(calcValue)
-        self.label = QtWidgets.QTextEdit(self.name)
+        self.setName()
+        self.label = QtWidgets.QTextEdit(self.name + str(calcValue))
         self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.label.setReadOnly(True)
         color = QColor(self.color)
@@ -43,37 +43,39 @@ class SGIndicators(QtWidgets.QWidget):
         self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
         self.indicatorLayout.addWidget(self.label)
 
-    def setName(self,calcValue):
-        if self.name == None:
-            if self.value is not None:
-                aName= self.method+' '+self.attribut+" "+self.value+" : "+str(calcValue)
-            else:
-                if self.attribut is not None:
-                    aName = self.method+' '+self.attribut+" : "+str(calcValue)
-                else:
-                    aName = self.method+' : '+str(calcValue)
+    def setName(self):
+        if self.name is not None:
+            self.name = self.name + ' : '
+            return 
+        if self.method in ["nbWithLess","nbWithMore","nbEqualTo"]:
+        # if self.value is not None and self.attribut is not None:
+            aName= 'nb '+self.attribut+ ' '+self.method[2:]+" "+self.value+" : "
+        elif self.attribut is not None:
+                aName = self.method+' '+self.attribut+" : "
+        elif self.method == 'nb':
+            aName = self.method+' '+self.entity+' : '
         else:
-            aName = str(self.name)+" "+str(calcValue)
-        return aName
+            aName = self.method+' : '
+        self.name = aName
+
 
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
-        newText= self.setName(self.result)
+        newText= self.name + str(self.result)
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
     
     def updateByMqtt(self,newValue):
         self.result=newValue
-        newText= self.setName(self.result)
+        newText= self.name + str(newValue)
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
 
     def setResult(self, aValue):
         """Function to configure a score in an Indicator"""
         self.result=aValue
-        newText= self.setName(self.result)
-        self.label.setPlainText(newText)
+        self.label.setPlainText(self.name + str(self.result))
         if isinstance(self.entity,SGSimulationVariables):
             self.entity.value=aValue
     
@@ -91,71 +93,37 @@ class SGIndicators(QtWidgets.QWidget):
         counter=0
         species=self.dashboard.model.getAgentSpecies()
         if self.entity=='cell':
-            grids=self.dashboard.model.getGrids()
-            for grid in grids:
-                cells=grid.getCells()
-                aCell=grid.getCell(1,1)
-                valForMin=aCell.dictOfAttributs[self.attribut]
-                valForMax=aCell.dictOfAttributs[self.attribut]
-                if self.method == "sumAtt" or self.method =='avgAtt':
-                    for cell in cells :
-                        if cell.isDisplay ==True:
-                            calcValue=calcValue+float(cell.dictOfAttributs[self.attribut])
-                    if self.method=='avgAtt':
-                        calcValue=round(calcValue/len((cells)),2) #! toutes ou juste visibles ?
-                if self.method == "minAtt" or self.method == "maxAtt":
-                    if self.method == "minAtt":
-                        for cell in cells:
-                            if cell.isDisplay ==True:
-                                if float(cell.dictOfAttributs[self.attribut])<valForMin:
-                                    calcValue=float(cell.dictOfAttributs[self.attribut])
-                                    valForMin=float(cell.dictOfAttributs[self.attribut])
-                    else:
-                        for cell in cells:
-                            if cell.isDisplay ==True:
-                                if float(cell.dictOfAttributs[self.attribut])>valForMax:
-                                    calcValue=float(cell.dictOfAttributs[self.attribut])
-                                    valForMax=float(cell.dictOfAttributs[self.attribut])
-                if self.method == "nbEqualTo" or  self.method == "nbWithLess" or self.method == "nbWithMore":
-                    if self.method == "nbEqualTo":
-                        for cell in cells:
-                            if cell.isDisplay ==True:
-                                if cell.dictOfAttributs[self.attribut]==self.value:
-                                    counter=counter+1
-                        calcValue=counter
-                    if self.method == "nbWithLess":
-                        for cell in cells:
-                            if cell.isDisplay ==True:
-                                if cell.dictOfAttributs[self.attribut]<self.value:
-                                    counter=counter+1
-                        calcValue=counter
-                    if self.method == "nbWithMore":
-                        for cell in cells:
-                            if cell.isDisplay ==True:
-                                if cell.dictOfAttributs[self.attribut]>self.value:
-                                    counter=counter+1
-                        calcValue=counter
-                if self.method == "nb":
-                    for cell in cells:
-                        if cell.isDisplay ==True:
-                            if cell.dictOfAttributs[self.attribut]==self.value:
-                                counter=counter+1
-                    calcValue=counter
-                return calcValue
+            allCells = []
+            for grid in self.dashboard.model.getGrids(): allCells = allCells + [aC for aC in grid.getCells() if aC.isDisplay]
+            if self.method =='nb': return len(allCells)
+            if self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
+                listOfValues = [aCell.dictOfAttributs[self.attribut] for aCell in allCells]
+                if self.method == 'sumAtt': return sum(listOfValues)
+                if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
+                if self.method == 'minAtt': return min(listOfValues)
+                if self.method == 'maxAtt': return max(listOfValues)
+                if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
+                if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
+                if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
 
-
-        elif self.entity=="agent":
+        elif self.entity=="agents":
             agents=self.dashboard.model.getAgents()
             if self.method =='nb':
                 calcValue=len(agents)
                 return calcValue
         
         elif self.entity in [instance.name for instance in species]:
-            aSpecies=self.dashboard.model.getAgentSpecie(self.entity)
-            agents=self.dashboard.model.getAgents(aSpecies.name)
-            if self.method =='nb':
-                calcValue=len(agents)
-                return calcValue
+            agents=self.dashboard.model.getAgents(self.entity)
+            if self.method =='nb': return len(agents)
+            if self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
+                listOfValues = [float(aAgt.dictOfAttributs[self.attribut]) for aAgt in agents]
+                if self.method == 'sumAtt': return sum(listOfValues)
+                if self.method == 'avgAtt': return round(listOfValues.sum() / len(listOfValues),2)
+                if self.method == 'minAtt': return min(listOfValues)
+                if self.method == 'maxAtt': return max(listOfValues)
+                if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
+                if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
+                if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
 
         elif self.method=="score":
             calcValue=self.value
@@ -168,6 +136,8 @@ class SGIndicators(QtWidgets.QWidget):
                 calcValue=self.entity.dictOfAttributs[self.attribut]
                 return calcValue
             if self.method=="thresoldToLogicOp":
+                # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
+                # renommer l'attribute self.value en self.threshold
                 if self.logicOp =="greater":
                     if self.entity.dictOfAttributs[self.attribut]>self.value:
                         calcValue="greater than"+str(self.value)

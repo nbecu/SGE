@@ -47,9 +47,9 @@ aWorker = myModel.newAgentAtCoords(aGrid,harvesters,5,2)
 
 Player1 = myModel.newPlayer("Harvesters")
 Player1.addGameAction(myModel.newCreateAction(harvesters, 20))
-Player1.addGameAction(myModel.newDeleteAction(harvesters, "infinite"))
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"biomass": 3}))
-Player1.addGameAction(myModel.newMoveAction(harvesters, 1))
+# Player1.addGameAction(myModel.newDeleteAction(harvesters, "infinite"))
+# Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"biomass": 3}))
+# Player1.addGameAction(myModel.newMoveAction(harvesters, 1))
 Player1ControlPanel = Player1.newControlPanel(showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Parc")
@@ -121,22 +121,18 @@ TextBox = myModel.newTextBox(
 # TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sum", 'cell', attribute='biomass',color=Qt.black)
-i2 = DashBoard.addIndicator("avg", 'cell', attribute='biomass',color=Qt.black)
-# i3 = DashBoard.addIndicator("sum", 'harvesters', attribute='harvest',color=Qt.black)
-# i4 = DashBoard.addIndicator("sum", 'harvesters', attribute='total harvest',color=Qt.black)
-# i3 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
+i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='biomass',color=Qt.black, indicatorName='Total biomass')
+i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='biomass',color=Qt.black, indicatorName='Avg biomass')
+i3 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='harvest',color=Qt.black)
+i4 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='total harvest',color=Qt.black)
 DashBoard.showIndicators()
-# aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
-# myModel.timeManager.newModelPhase(aModelAction4)
 
-
-endGameRule = myModel.newEndGameRule(numberRequired=2)
-endGameRule.addEndGameCondition_onIndicator(
-    i1, "equal", 90, name="biomass equal to 90")
-endGameRule.addEndGameCondition_onEntity(
-    "cell1-2", 'biomass', "greater", 2, name="Cell 1-2 biomass is greater than 2",aGrid=aGrid)
-endGameRule.showEndGameConditions()
+# endGameRule = myModel.newEndGameRule(numberRequired=2)
+# endGameRule.addEndGameCondition_onIndicator(
+#     i1, "equal", 90, name="biomass equal to 90")
+# endGameRule.addEndGameCondition_onEntity(
+#     "cell1-2", 'biomass', "greater", 2, name="Cell 1-2 biomass is greater than 2",aGrid=aGrid)
+# endGameRule.showEndGameConditions()
 
 
 myModel.launch()

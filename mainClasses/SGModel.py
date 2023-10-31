@@ -574,13 +574,21 @@ class SGModel(QtWidgets.QMainWindow):
                                 dictOfAttributs, None, me='collec', uniqueColor=uniqueColor)
         aAgentSpecies.isDisplay = False
         aAgentSpecies.species=aSpeciesName
-        self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {
-        }, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        if 'agents' not in self.agentSpecies: self.agentSpecies['agents'] = {"watchers":{}}
         return aAgentSpecies
 
-    def agentSpecie(self, aStrSpecie):
-        # send back the specie collec correspond to aStrSpecie
+    def getAgentSpecieDict(self, aStrSpecie):
+        # send back the specie dict (specie definition dict) that corresponds to aStrSpecie
         return self.agentSpecies[aStrSpecie]
+
+    def getAgentSpeciesName(self):
+        # send back a list of the names of all the species
+        return [x for x in self.agentSpecies.keys() if x != 'agents']
+    
+    def getAgentSpeciesDict(self):
+        # send back a list of all the species Dict (specie definition dict)
+        return [x for x in self.agentSpecies if x != 'agents']
 
     def getAgentSpecie(self, aStrSpecie):
         AgentSpecie = None
@@ -591,6 +599,13 @@ class SGModel(QtWidgets.QMainWindow):
         return AgentSpecie
 
     def getAgentSpecies(self):
+        # ATTENTION
+        # Il y a un soucis dans la façon dont les infos sur les species sont stockés, car il y a une partie qui sont dans les clés du dico self.agentSpecies[NomDeLaSpecie] et une autre partie qui est dans l'instance d'Agent (dont me='collec' et species= 'NomDeLaSpecie') qui est stockée dans self.agentSpecies[NomDeLaSpecie]['defSpecies']
+        # Il faut que toutes les infos soient rassemblées au meme endroit.
+        # Le plus propre serait de créer une Class SGEntityDef  qui portera toutes les infos de la specie  
+        # (peut être qu'il faudra faire un SGCellDef et un SGAgentDef)
+        #       voici les info pour un SGAgentDef (name, watchers, colorPov, borderPov, attributList , size, defaultSize, defaultColor, shape,  format, instancesDeCetteSpecie, methodOfPlacement)
+        #       voici les info pour un SGCellDef (grid, watchers, colorPov, borderPov)  -->    apparameent ca ne stock pas les autres infos comme ( attributList , size, defaultSize, defaultColor, shape,  format)  Ces infos st peut etre ds la grid
         species=[]
         for instance in SGAgent.instances:
             if instance.me == 'collec':
@@ -687,21 +702,23 @@ class SGModel(QtWidgets.QMainWindow):
         Return the list of all Agents in the model
         """
         agent_list = []
-        for animal, sub_dict in self.agentSpecies.items():
-            for agent_id, agent_dict in sub_dict['AgentList'].items():
-                agent_list.append(agent_dict['AgentObject'])
-        # If we want only the agents of one specie
-        if species is not None:
-            agent_list = []
-            agent_objects = []
-            if species in self.agentSpecies.keys():
-                animal = species
-                subdict = self.agentSpecies[animal]["AgentList"]
-                for agent in subdict:
-                    agent_objects.append(subdict[agent]["AgentObject"])
+        for aSpecie, sub_dict in self.agentSpecies.items():
+            if aSpecie != 'agents' : # 'agents' entry is a specific one used for watchers on the whole population of agents
+               if species is None or species == aSpecie: 
+                    for agent_id, agent_dict in sub_dict['AgentList'].items():
+                        agent_list.append(agent_dict['AgentObject'])
+        # # If we want only the agents of one specie
+        # if species is not None:
+        #     agent_list = []
+        #     agent_objects = []
+        #     if species in self.agentSpecies.keys():
+        #         aSpecie = species
+        #         subdict = self.agentSpecies[aSpecie]["AgentList"]
+        #         for agent in subdict:
+        #             agent_objects.append(subdict[agent]["AgentObject"])
 
-                return agent_objects
-        # All agents in model
+        #         return agent_objects
+        # # All agents in model
         return agent_list
     
     def getAgentsPrivateID(self):

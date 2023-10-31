@@ -136,7 +136,7 @@ TextBox = myModel.newTextBox(
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator("sum", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avg", 'cell', attribute='Resource',color=Qt.black)
-i3 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
+i3 = DashBoard.addIndicator("score",None,indicatorName="Score")
 DashBoard.showIndicators()
 # aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
 # myModel.timeManager.newModelPhase(aModelAction4)

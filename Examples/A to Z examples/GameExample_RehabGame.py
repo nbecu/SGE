@@ -16,16 +16,16 @@ myModel = SGModel(
 # STEP2 Grid and Cells
 aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
-aGrid.setCells("Resource", "2")
+aGrid.setCells("Resource", 2)
 aGrid.setCells("ProtectionLevel", "Free")
-aGrid.setRandomCells("Resource", "3", 7)
-aGrid.setRandomCells("Resource", "1", 3)
+aGrid.setRandomCells("Resource", 3, 7)
+aGrid.setRandomCells("Resource", 1, 3)
 
-aGrid.setRandomCells("Resource", "0", 8)
+aGrid.setRandomCells("Resource", 0, 8)
 aGrid.setRandomCells("ProtectionLevel", "Reserve", 1)
 
 
-myModel.newPov("Resource", "Resource", {"3": Qt.darkGreen, "2": Qt.green, "1": Qt.yellow, "0": Qt.white})
+myModel.newPov("Resource", "Resource", {3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow, 0: Qt.white})
 myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
 
 # STEP3 Agents
@@ -52,7 +52,7 @@ createA1=myModel.newCreateAction(Workers, 20)
 Player1.addGameAction(createA1)
 Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
 Player1.addGameAction(myModel.newDeleteAction('Cell', "infinite"))
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": "3"}))
+Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
@@ -81,7 +81,7 @@ score1= myModel.newSimVariable(0,"Global Score:")
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
-i3 = DashBoard.addIndicator("nb","agent",color=Qt.black)
+i3 = DashBoard.addIndicator("nb","agents",color=Qt.black)
 i4 = DashBoard.addIndicator("nb","Workers",color=Qt.black)
 i5 = DashBoard.addIndicatorOnSimVariable(score1)
 DashBoard.showIndicators()

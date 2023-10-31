@@ -50,7 +50,7 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 # Each score is defined by the word indicator.
 # You have several methods to calculate indicators like : sum, average, max, min... you can find the complete list by searching the function or by reading the documentation
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("nb", 'cell', attribute='landUse',value='forest',color=Qt.black)
+i1 = DashBoard.addIndicator("nbEqualTo", 'cell', attribute='landUse',value='forest',color=Qt.black)
 # Be careful ! Your value needs to be integrers or float to be logical tested. Only number functions for string values.
 DashBoard.showIndicators()
 
