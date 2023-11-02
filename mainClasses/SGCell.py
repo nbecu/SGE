@@ -246,7 +246,7 @@ class SGCell(SGEntity):
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
                             theSpecies = self.model.getAgentSpecie(Species)
-                            aAgent=self.grid.model.newAgentAtCoords(self.grid, theSpecies, self.x, self.y, aDictWithValue)             #(self,theSpecies,aDictWithValue)
+                            aAgent=self.newAgentHere(theSpecies,aDictWithValue)
                             self.updateIncomingAgent(aAgent)
                             for method in self.model.agentSpecies[Species]["watchers"]:
                                 for watcher in self.model.agentSpecies[Species]["watchers"][method]:
@@ -433,5 +433,21 @@ class SGCell(SGEntity):
             del self.collectionOfAgents.agents[i]
         self.update()
 
+    #Create agents on the cell
+    def newAgentHere(self, aAgentSpecies,aDictofAttributs=None):
+        """
+        Create a new Agent in the associated species.
+
+        Args:
+            aAgentSpecies (instance) : the species of your agent
+            aDictofAttributs to set the values
+
+        Return:
+            a new agent"""
+        return self.model.newAgentAtCoords(self.grid, aAgentSpecies,self.x, self.y,aDictofAttributs)
+
+    #To perform action
     def doAction(self, aLambdaFunction):
         aLambdaFunction(self)
+
+    
