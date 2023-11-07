@@ -712,10 +712,12 @@ class SGModel(QtWidgets.QMainWindow):
         # Need Refactoring
         agent_list = []
         for aSpecie, sub_dict in self.agentSpecies.items():
-            if aSpecie != 'agents' : # 'agents' entry is a specific one used for watchers on the whole population of agents
+            # if aSpecie != 'agents' : # 'agents' entry is a specific one used for watchers on the whole population of agents
                if species is None or species == aSpecie: 
-                    for agent_id, agent_dict in sub_dict['AgentList'].items():
-                        agent_list.append(agent_dict['AgentObject'])
+                    agent_list += sub_dict.entities
+
+                    # for agent_id, agent_dict in sub_dict['AgentList'].items():
+                    #     agent_list.append(agent_dict['AgentObject'])
         # # If we want only the agents of one specie
         # if species is not None:
         #     agent_list = []

@@ -50,8 +50,8 @@ class SGEntity(QtWidgets.QWidget):
         if self.isDisplay==False:
             return Qt.transparent
         grid=self.grid
-        if self.model.nameOfPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
-            self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
+        if self.model.nameOfPov in self.classDef.povShapeColor.keys():
+            self.classDef.povShapeColo['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
             for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
                 if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
                     self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
