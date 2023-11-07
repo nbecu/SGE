@@ -23,7 +23,7 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"100","90","
 Sheeps.newPov("Sheeps -> Health","health",{"100":Qt.blue,"90":Qt.blue,"80":Qt.blue,"70":Qt.blue,"60":Qt.blue,"50":Qt.blue,"40":Qt.red,"30":Qt.red,"20":Qt.red,"10":Qt.red,"0":Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{"100":Qt.green,"90":Qt.green,"80":Qt.green,"70":Qt.green,"60":Qt.green,"50":Qt.green,"40":Qt.yellow,"30":Qt.yellow,"20":Qt.yellow,"10":Qt.yellow,"0":Qt.yellow})
 
-m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,aDictofAttributs={"health":"70","hunger":"20"})
+m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,adictAttributes={"health":"70","hunger":"20"})
 m2=myModel.newAgentAtCoords(aGrid,Sheeps,None,None)
 
 m2.setValueAgent('health','90')

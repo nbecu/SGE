@@ -11,44 +11,18 @@ from mainClasses.SGGameSpace import SGGameSpace
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    instances=[]
+    # instances=[]
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,aParent,cell,name,shape,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
-        super().__init__(aParent,shape,defaultsize,me)
-        #Basic initialize
-        self.me=me
-        if me == 'collec':
-            self.model=aParent
-            self.memoryID=1
-        if me == 'agent': #in the case of an agent, the parent is the grid
-            self.model=aParent.model
-        self.name=name
-        self.format=shape
-        self.size=defaultsize
-        #We init the dict of Attribute
-        self.dictOfAttributs=dictOfAttributs
-        if me == 'collec' and dictOfAttributs is not None:
-            self.dictOfAttributesDefaultValues = self.initDefaultDictAtt(dictOfAttributs)
-        #For the placement of the agents
-        self.cell=cell
-        if cell is not None : cell.updateIncomingAgent(self)
-        self.methodOfPlacement=methodOfPlacement
+    def __init__(self,parent,cell,size,attributesAndValues,shapeColor,classDef):
+        super().__init__(parent,classDef, size,shapeColor,attributesAndValues)
+        self.cell=None
+        if cell is not None:
+            self.moveTo(cell)
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
-        #We define an owner by default
-        self.owner="admin"    
-        #We define variable to handle an history 
-        self.history={}
-        self.history["value"]=[]
-        self.history["coordinates"]=[]
-        #We define the identification parameters
-        self.id=id
-        self.species=0
-        self.privateID=0
-        self.isDisplay=bool
-        self.instances.append(self)
-        self.color=uniqueColor
+        
+
         
 
         
@@ -160,25 +134,19 @@ class SGAgent(SGEntity):
             x=0
             return x
         
-    def getRandomX(self):
-        if self.me=='agent':
-            maxSize=self.cell.size
-            originPoint=self.cell.pos()
-            x = random.randint(originPoint.x()+5,originPoint.x()+maxSize-10)
-            return x
-        else:
-            x=0
-            return x
+    def getRandomX(self):        
+        maxSize=self.cell.size
+        originPoint=self.cell.pos()
+        x = random.randint(originPoint.x()+5,originPoint.x()+maxSize-10)
+        return x
+        
     
-    def getRandomY(self):
-        if self.me=='agent':
-            maxSize=self.cell.size
-            originPoint=self.cell.pos()
-            y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
-            return y
-        else:
-            y=0
-            return y
+    def getRandomY(self): 
+        maxSize=self.cell.size
+        originPoint=self.cell.pos()
+        y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
+        return y
+        
 
 
 
@@ -256,17 +224,6 @@ class SGAgent(SGEntity):
             drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
 
-    def initDefaultDictAtt(self,d):
-            if isinstance(d, dict):
-                newDict = {}
-                for key, value in d.items():
-                    if isinstance(value, dict):
-                        newDict[key] = self.initDefaultDictAtt(value)
-                    elif isinstance(value, set):
-                        newDict[key] = None
-                return newDict
-            else:
-                return d
     
     def addPovinMenuBar(self,nameOfPov):
         if nameOfPov not in self.model.listOfPovsForMenu :
@@ -275,46 +232,12 @@ class SGAgent(SGEntity):
             self.model.povMenu.addAction(anAction)
             anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
 
-    def manageAttributeValues(self,aAgentSpecies,aAtt): #ONLY IF THERE IS NO DEFINED VALUE BY MODELER
-        if aAgentSpecies.dictOfAttributesDefaultValues[aAtt] is not None: #there is a default value
-            defaultValue=aAgentSpecies.dictOfAttributesDefaultValues[aAtt]
-            self.setValueAgent(aAtt,defaultValue)
-        else: #random
-            aRandom=self.getRandomAttributValue(aAgentSpecies,aAtt)
-            values=list(aAgentSpecies.dictOfAttributs[aAtt])
-            aValue=values[aRandom]
-            self.setValueAgent(aAtt,aValue)
 
-    def getRandomAttributValue(self,aAgentSpecies,aAtt):
-        if aAgentSpecies.dictOfAttributs is not None:
-            values = list(aAgentSpecies.dictOfAttributs[aAtt])
-            number=len(values)
-            aRandomValue=random.randint(0,number-1)          
-        return aRandomValue
             
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #To set up a POV
-    def newPov(self,nameofPOV,concernedAtt,dictOfColor):
-        """
-        Declare a new Point of View for the Species.
-
-        Args:
-            self (Species object): aSpecies
-            nameOfPov (str): name of POV, will appear in the interface
-            concernedAtt (str): name of the attribut concerned by the declaration
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-            
-        """
-        if self.model.agentSpecies[str(self.name)]['me']=='collec':
-            self.model.agentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
-            self.addPovinMenuBar(nameofPOV)
-        else:
-            print("Warning, a POV can be only define on a Species")
-
-    
     def setValueAgent(self,attribut,value):
         """
         Update a Agent attribut value
@@ -324,8 +247,9 @@ class SGAgent(SGEntity):
             value (str): value previously declared in the species, to update
         """
         # cette méthode semble etre utilisé pour set la defaultValue, et si c'est le cas la façon d'appeler est à reprendre  Entity
+        #sinon supprimer cette méthode car elle est remplaé par setValue de Entity
         if self.me=='agent':
-            self.dictOfAttributs[attribut]=value 
+            self.dictAttributes[attribut]=value 
     
     def initDefaultAttValue(self,Att,Val):
         """
@@ -337,11 +261,18 @@ class SGAgent(SGEntity):
 
         """
         # cette méthode est à remonter au niveau de Entity
-        if self.me=='collec' and self.dictOfAttributs is not None:
+        if self.me=='collec' and self.dictAttributes is not None:
             self.dictOfAttributesDefaultValues[Att]=Val
         else:
             raise ValueError("A default attribute value needs to be on a Species.")
     
+    def moveTo(self, aDestinationCell):
+        if self.cell != None:
+            self.cell.updateDepartureAgent(self)
+        self.cell = aDestinationCell
+        aDestinationCell.updateIncomingAgent(self)
+
+
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
         """

@@ -97,7 +97,7 @@ class SGIndicators(QtWidgets.QWidget):
             for grid in self.dashboard.model.getGrids(): allCells = allCells + [aC for aC in grid.getCells() if aC.isDisplay]
             if self.method =='nb': return len(allCells)
             if self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
-                listOfValues = [aCell.dictOfAttributs[self.attribut] for aCell in allCells]
+                listOfValues = [aCell.dictAttributes[self.attribut] for aCell in allCells]
                 if self.method == 'sumAtt': return sum(listOfValues)
                 if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
                 if self.method == 'minAtt': return min(listOfValues)
@@ -116,7 +116,7 @@ class SGIndicators(QtWidgets.QWidget):
             agents=self.dashboard.model.getAgents(self.entity)
             if self.method =='nb': return len(agents)
             if self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
-                listOfValues = [float(aAgt.dictOfAttributs[self.attribut]) for aAgt in agents]
+                listOfValues = [float(aAgt.dictAttributes[self.attribut]) for aAgt in agents]
                 if self.method == 'sumAtt': return sum(listOfValues)
                 if self.method == 'avgAtt': return round(listOfValues.sum() / len(listOfValues),2)
                 if self.method == 'minAtt': return min(listOfValues)
@@ -133,29 +133,29 @@ class SGIndicators(QtWidgets.QWidget):
         
         elif isinstance(self.entity,SGAgent) or isinstance(self.entity,SGCell):
             if self.method =="display":
-                calcValue=self.entity.dictOfAttributs[self.attribut]
+                calcValue=self.entity.dictAttributes[self.attribut]
                 return calcValue
             if self.method=="thresoldToLogicOp":
                 # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
                 # renommer l'attribute self.value en self.threshold
                 if self.logicOp =="greater":
-                    if self.entity.dictOfAttributs[self.attribut]>self.value:
+                    if self.entity.dictAttributes[self.attribut]>self.value:
                         calcValue="greater than"+str(self.value)
                         return calcValue
                 if self.logicOp =="greater or equal":
-                    if self.entity.dictOfAttributs[self.attribut]>=self.value:
+                    if self.entity.dictAttributes[self.attribut]>=self.value:
                         calcValue="greater than or equal to"+str(self.value)
                         return calcValue
                 if self.logicOp =="equal":
-                    if self.entity.dictOfAttributs[self.attribut]==self.value:
+                    if self.entity.dictAttributes[self.attribut]==self.value:
                         calcValue="equal to"+str(self.value)
                         return calcValue
                 if self.logicOp =="less or equal":
-                    if self.entity.dictOfAttributs[self.attribut]<=self.value:
+                    if self.entity.dictAttributes[self.attribut]<=self.value:
                         calcValue="less than or equal to"+str(self.value)
                         return calcValue
                 if self.logicOp =="less":
-                    if self.entity.dictOfAttributs[self.attribut]<self.value:
+                    if self.entity.dictAttributes[self.attribut]<self.value:
                         calcValue="less than"+str(self.value)
                         return calcValue
 

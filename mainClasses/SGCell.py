@@ -10,43 +10,24 @@ import re
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,grid,rows,columns,shape,defaultsize,gap):
-        super().__init__(grid,shape,defaultsize,me='cell')
+    def __init__(self,classDef, x, y):
+        super().__init__(classDef.grid,classDef,classDef.defaultsize,classDef.defaultShapeColor,attributesAndValues=None)
         #Basic initialize
-        self.grid=grid
-        self.theCollection=self.grid.model.cellCollection
-        self.model=self.grid.model
-        self.me='cell'
-        self.x=columns
-        self.y=rows
-        self.name="cell"+str(columns)+'-'+str(rows)
-        self.gap=gap
+        self.grid=classDef.grid
+        self.x=x
+        self.y=y
+        self.gap=self.grid.gap
         #Save the basic value for the zoom ( temporary)
-        self.saveGap=gap
-        self.saveSize=defaultsize
+        self.saveGap=self.gap
+        self.saveSize=classDef.defaultsize
         #We place the default pos
         self.startXBase=self.grid.startXBase
         self.startYBase=self.grid.startYBase
-        self.isDisplay=True
-        #We init the dict of Attribute
-        self.dictOfAttributs={}
-        #We init the Collection for the future Agents
-        self.agents=[]
         #We allow the drops for the agents
         self.setAcceptDrops(True)
-        #We define an owner
-        self.owner="admin"
-        #We define variables to handle the history 
-        self.history={}
-        self.history["value"]=[]
-        self.borderColor=Qt.black
-        self.species="Cell"
-        self.color=Qt.white
+        self.agents=[]
         self.initUI()
-  
-    # to extract the format of the cell
-    def getShape(self):
-        return self.shape
+
     
     def initUI(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -152,7 +133,7 @@ class SGCell(SGEntity):
                 if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
                     if authorisation : 
                         if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.dictOfAttributs])
+                            self.history["value"].append([0,0,self.dictAttributes])
                         #We now check the feedBack of the actions if it have some
                         """if theAction is not None:
                             self.feedBack(theAction)"""
@@ -182,7 +163,7 @@ class SGCell(SGEntity):
                     if  authorisation :
                         #We now check the feedBack of the actions if it have some
                         if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.dictOfAttributs])
+                            self.history["value"].append([0,0,self.dictAttributes])
                         """if theAction is not None:
                             self.feedBack(theAction)"""
                         if self.grid.model.selected[0].legend.id!="adminLegend":
@@ -201,7 +182,7 @@ class SGCell(SGEntity):
                             for aVal in list(aDictWithValue.keys()) :
                                 if aVal in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()) :
                                         for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
-                                            self.dictOfAttributs.pop(anAttribute,None)
+                                            self.dictAttributes.pop(anAttribute,None)
 
                         elif self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["BorderPOV"]):
                             # borderPov
@@ -213,10 +194,10 @@ class SGCell(SGEntity):
                             for aVal in list(aDictWithValue.keys()) :  
                                 if aVal in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()) :
                                     for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                                            self.dictOfAttributs.pop(anAttribute,None)
+                                            self.dictAttributes.pop(anAttribute,None)
                         
-                        self.dictOfAttributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.dictOfAttributs])
+                        self.dictAttributes[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
+                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.dictAttributes])
                         if self.grid.model.selected[4] in self.model.cellCollection[self.grid.id]["watchers"]:
                             for watcher in self.model.cellCollection[self.grid.id]["watchers"][self.grid.model.selected[4]]:
                                 updatePermit=watcher.getUpdatePermission()
@@ -290,7 +271,7 @@ class SGCell(SGEntity):
             
     #To handle the arrival of an agent on the cell (this is a private method)
     def updateIncomingAgent(self,anAgent):
-        anAgent.cell=self
+        # anAgent.cell=self #Should be removed. Its the responsability of the agent
         self.agents.append(anAgent)
     
     #To handle the departure of an agent of the cell (this is a private method)
@@ -322,15 +303,10 @@ class SGCell(SGEntity):
     def checkValue(self,aDictOfValue):
         """NOT TESTED"""
         theKey=list(aDictOfValue.keys())[0] 
-        if theKey in list(self.dictOfAttributs.keys()):
-            return aDictOfValue[theKey]==self.dictOfAttributs[theKey]
+        if theKey in list(self.dictAttributes.keys()):
+            return aDictOfValue[theKey]==self.dictAttributes[theKey]
         return False
-    
-    def testCondition(self,aCondition):
-        res = False 
-        if callable(aCondition):
-            res = aCondition(self)
-        return res
+
     
     #To change the value
     def changeValue(self,aDictOfValue):
@@ -434,17 +410,17 @@ class SGCell(SGEntity):
         self.update()
 
     #Create agents on the cell
-    def newAgentHere(self, aAgentSpecies,aDictofAttributs=None):
+    def newAgentHere(self, aAgentSpecies,adictAttributes=None):
         """
         Create a new Agent in the associated species.
 
         Args:
             aAgentSpecies (instance) : the species of your agent
-            aDictofAttributs to set the values
+            adictAttributes to set the values
 
         Return:
             a new agent"""
-        return self.model.newAgentAtCoords(self.grid, aAgentSpecies,self.x, self.y,aDictofAttributs)
+        return self.model.newAgentAtCoords(self.grid, aAgentSpecies,self.x, self.y,adictAttributes)
 
     #To perform action
     def doAction(self, aLambdaFunction):

@@ -12,7 +12,7 @@ class SGAgent(QtWidgets.QWidget):
     instances=[]
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,defaultsize,dictAttributes,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.me=me
@@ -28,7 +28,7 @@ class SGAgent(QtWidgets.QWidget):
         self.startXBase=0
         self.startYBase=0
         #We init the dict of Attribute
-        self.dictOfAttributs=dictOfAttributs
+        self.dictAttributes=dictAttributes
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.x=0

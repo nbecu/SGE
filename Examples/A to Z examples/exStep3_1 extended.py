@@ -35,7 +35,7 @@ Sheeps.newPov("Sheeps -> Age","age",{1:Qt.green,2:QColor.fromRgb(30,190,0),3:QCo
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
-m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad","age":2})
+m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,adictAttributes={"health":"good","hunger":"bad","age":2})
 m2=myModel.newAgentAtCoords(aGrid,Sheeps,None,None)
 
 #You can also edit your agent attribute values like this :

@@ -18,7 +18,7 @@ myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"for
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad"})
+m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,adictAttributes={"health":"good","hunger":"bad"})
 m2=myModel.newAgentAtCoords(aGrid,Sheeps,5,1)
 
 theFirstLegend=myModel.newLegendAdmin()

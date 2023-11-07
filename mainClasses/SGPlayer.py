@@ -166,7 +166,7 @@ class SGPlayer():
                     elif isinstance(aGameAction, SGUpdate) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(aGameAction.dictNewValues.values()) and self.model.selected[4] in list(aGameAction.dictNewValues.keys()):
                         return aGameAction
                     # Delete of a Cell
-                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and aGameAction.anObject == SGCell: #and self.model.selected[3] in list(anItem.dictOfAttributs.values()):
+                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and aGameAction.anObject == SGCell: #and self.model.selected[3] in list(anItem.dictAttributes.values()):
                         return aGameAction
         elif isinstance(anItem, SGAgent):
             for aGameAction in self.gameActions:
@@ -192,9 +192,9 @@ class SGPlayer():
                 if isinstance(aGameAction, SGMove):
                     # Move an Angent
                     if aGameAction.dictAttributs is not None:
-                        for att in list(anItem.dictOfAttributs.keys()):
+                        for att in list(anItem.dictAttributes.keys()):
                             if att in list(aGameAction.dictAttributs.keys()):
-                                if (anItem.dictOfAttributs[att] in list(aGameAction.dictAttributs.values())[0]):
+                                if (anItem.dictAttributes[att] in list(aGameAction.dictAttributs.values())[0]):
                                     return aGameAction
                     else:
                         if anItem.species in list(self.model.agentSpecies.keys()):

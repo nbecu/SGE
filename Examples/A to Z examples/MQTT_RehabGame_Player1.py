@@ -37,13 +37,13 @@ globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newCreateAction(Workers, 20))
-    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictOfAttributs
+    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
 Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
     # Pourquoi une deleteAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
     # "infinite" doit etre la valeur par défaut de aNumber
 Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
-    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictOfAttributs
-    #le paramètre aNumber doit être placé après dictOfAttributs
+    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
+    #le paramètre aNumber doit être placé après dictAttributes
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
     # Pourquoi une moveAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
     # Y'a un truc qui cloche entre feedback et feedbackAgent. Si l'actuel feeback concerne la cellule (a priori la cellule de destination), alors il faut inverser les noms des attributs : feedbackAgent doit etre feedback et et l'actuel feedback doit etre feedbackOnDestinationCell.     Si possible, il faudrait intégrer aussi un feedbackOnOriginCell

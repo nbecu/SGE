@@ -5,19 +5,47 @@ import random
 
 # Class who is in charged of entities : cells and agents
 class SGEntity(QtWidgets.QWidget):
-    def __init__(self,parent,shape,defaultsize,me,uniqueColor=Qt.white):
+    def __init__(self,parent,classDef, size,shapeColor,attributesAndValues):
         super().__init__(parent)
-        self.me=me
-        self.dictOfAttributs={}
-        self.shape=shape
+        self.classDef=classDef
+        self.id=self.classDef.nextId()
+        self.privateID = self.classDef.entityName+str(self.id)
+        self.model=self.classDef.model
+        self.shape= self.classDef.shape
+        self.size=size
+        self.color=shapeColor
+        self.borderColor=self.classDef.defaultBorderColor
         self.isDisplay=True
+        self.initAttributesAndValuesWith(attributesAndValues)
         self.owner="admin"
-        self.size=defaultsize
-        self.color=uniqueColor
-
+        #We define variables to handle the history 
+        self.history={}
+        self.history["value"]=[]
     
+    def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
+        self.dictAttributes={}
+        if thisAgentAttributesAndValues is None : thisAgentAttributesAndValues={}
+        for aAtt in self.classDef.attributesPossibleValues.keys():
+            if aAtt in thisAgentAttributesAndValues.keys():
+                valueToSet = thisAgentAttributesAndValues[aAtt]
+            elif aAtt in self.classDef.attributesDefaultValues.keys():
+                valueToSet = self.classDef.attributesDefaultValues[aAtt]
+            else: valueToSet = None
+            if callable(valueToSet):
+                self.setValue(aAtt,valueToSet())
+            else:
+                self.setValue(aAtt,valueToSet)
 
-        
+
+
+    def getRandomAttributValue(self,aAgentSpecies,aAtt):
+        if aAgentSpecies.dictAttributes is not None:
+            values = list(aAgentSpecies.dictAttributes[aAtt])
+            number=len(values)
+            aRandomValue=random.randint(0,number-1)          
+        return aRandomValue
+
+
     def getColor(self):
         if self.isDisplay==False:
             return Qt.transparent
@@ -26,15 +54,15 @@ class SGEntity(QtWidgets.QWidget):
             self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
             for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
                 if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                    self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
-                    return self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+                    self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
+                    return self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
         
         else:
             if self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
                 for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
                     if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                        self.color=self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
-                        return self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictOfAttributs[aVal]]
+                        self.color=self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictAttributes[aVal]]
+                        return self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictAttributes[aVal]]
             else: 
                 self.color=Qt.white
                 return Qt.white
@@ -52,8 +80,8 @@ class SGEntity(QtWidgets.QWidget):
                 self.model.cellCollection[grid.id]["BorderPOV"]['selectedBorderPov']=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()]
                 for aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
                     if aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                        self.borderColor=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
-                        return self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictOfAttributs[aVal]]
+                        self.borderColor=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
+                        return self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
             
             else:
                 self.borderColor=Qt.black
@@ -86,7 +114,7 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """       
-        self.dictOfAttributs[aAttribut]=aValue
+        self.dictAttributes[aAttribut]=aValue
 
     def value(self,att):
         """
@@ -94,7 +122,7 @@ class SGEntity(QtWidgets.QWidget):
         Args:
             att (str): Name of the attribute
         """
-        return self.dictOfAttributs[att]
+        return self.dictAttributes[att]
     
     def incValue(self,aAttribut,aValue=1,max=None):
         """
@@ -103,7 +131,7 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be added to the current value of the attribute
         """       
-        self.dictOfAttributs[aAttribut]= (self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max))
+        self.dictAttributes[aAttribut]= (self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max))
 
     def decValue(self,aAttribut,aValue=1,min=None):
         """
@@ -112,4 +140,4 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be subtracted to the current value of the attribute
         """       
-        self.dictOfAttributs[aAttribut]= (self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min))
+        self.dictAttributes[aAttribut]= (self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min))

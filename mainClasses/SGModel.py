@@ -28,6 +28,7 @@ from mainClasses.SGTimeManager import SGTimeManager
 from mainClasses.SGPlayer import SGPlayer
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGEntity import SGEntity
+from mainClasses.SGEntityDef import *
 from email.policy import default
 from logging.config import listen
 import sys
@@ -79,12 +80,13 @@ class SGModel(QtWidgets.QMainWindow):
         # Definition of variable
         # Definition for all gameSpaces
         self.gameSpaces = {}
-        self.TextBoxes = []
+        self.TextBoxes = []   # Why textBoxes are not in gameSpaces ?
         # Definition of the AgentCollection and CellCollection
         self.agentSpecies = {}
-        self.cellCollection = {}
+        self.cellsInGrid = {}
+        # Definition of simulation variables
         self.simulationVariables = []
-        self.IDincr = 0
+        # self.IDincr = 0     TO BE REMOVED
         # We create the layout
         self.typeOfLayout = typeOfLayout
         if (typeOfLayout == "vertical"):
@@ -97,9 +99,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.numberOfZoom = 2
         # To handle the selection of an item in a legend in a global way
         self.selected = [None]
-        # To keep in memory all the povs already displayed in the menue
+        # To keep in memory all the povs already displayed in the menu
         self.listOfPovsForMenu = []
-        self.AgentPOVs = self.getAgentPOVs()
         # To handle the flow of time in the game
         self.users = ["Admin"]
         self.timeManager = SGTimeManager(self)
@@ -437,31 +438,35 @@ class SGModel(QtWidgets.QMainWindow):
                        pos[0], aGrid.getStartYBase()+20*pos[1])
         return aGrid
     
-    def newCellCollection(self,grid,columns, rows, shape, size, gap):
-        self.cellCollection[grid.id]={}
-        self.cellCollection[grid.id]['cells']={}
-        for i in range(1, rows + 1):
-            for j in range(1, columns + 1):
-                aCell = SGCell(grid, i, j,
-                               shape, size, gap)
-                self.cellCollection[grid.id]['cells'][aCell.getId()] = aCell
-        self.cellCollection[grid.id]['ColorPOV']={}
-        self.cellCollection[grid.id]['BorderPOV']={}
-        self.cellCollection[grid.id]['watchers']={}
+    def newCellsFromGrid(self,grid):
+        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white )
+        self.cellsInGrid[grid.id] = CellDef
+        for i in range(1, grid.rows + 1):
+            for j in range(1, grid.columns + 1):
+                CellDef.newCell(i, j)
+
+    # To get the CellDef corresponding to a Grid
+    def getCellDef(self, grid):
+        return self.cellsInGrid[grid.id]
+
 
     # To get all the cells of the collection
     def getCells(self,grid=None):
         if grid == None:
             grid = self.getGrids()[0]
-        return list(self.cellCollection[grid.id]['cells'].values())
+        return self.getCellDef(grid).entities
     
     # To get all the povs of the collection
     def getCellPovs(self,grid):
-        return {key: value for dict in (self.cellCollection[grid.id]['ColorPOV'],self.cellCollection[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
+        return {key: value for dict in (self.cellsInGrid[grid.id]['ColorPOV'],self.cellsInGrid[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
 
     # To get a cell in particular
-    def getCell(self, aGrid, aID):
-        return self.cellCollection[aGrid.id]['cells'][aID]
+    def getCell(self, aGrid, aId):
+        result = filter(lambda cell: cell.id == aId, self.cellsInGrid[aGrid.id].entities)
+        [cell for cell in self.cellsInGrid[aGrid.id].entities if cell.id == aId]
+        if len(result)!=1: raise ValueError("No cell with such Id!")
+
+        return result[0]
 
     # To create a void
     def createVoid(self, name, sizeX=200, sizeY=200):
@@ -498,7 +503,7 @@ class SGModel(QtWidgets.QMainWindow):
             CellElements[grid]['agents'].update(AgentPOVs)
         agents = self.getAgents()
         aLegend = SGLegend(self, Name, CellElements,
-                           "Admin", agents, showAgentsWithNoAtt)
+                           "Admin", agents, showAgentsWithNoAtt)  # ICI -> Il faut comprendre qu'est ce qui est attendu en arguments dans cette fonction
         self.gameSpaces[Name] = aLegend
         self.adminLegend=aLegend
         # Realocation of the position thanks to the layout
@@ -556,26 +561,27 @@ class SGModel(QtWidgets.QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictOfAttributs=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
+    def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictAttributes=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
         """
         Create a new specie of Agents.
 
         Args:
             aSpeciesName (str) : the species name
             aSpeciesShape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
-            dictofAttributs (dict) : all the species attributs with all the values
+            dictAttributes (dict) : all the species attributs with all the values
             aSpeciesDefaultSize (int) : the species shape size (Default=10)
         Return:
             a nested dict for the species
             a species
 
         """
-        aAgentSpecies = SGAgent(self, None,aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
-                                dictOfAttributs, None, me='collec', uniqueColor=uniqueColor)
-        aAgentSpecies.isDisplay = False
-        aAgentSpecies.species=aSpeciesName
-        self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
-        if 'agents' not in self.agentSpecies: self.agentSpecies['agents'] = {"watchers":{}}
+        aAgentSpecies = SGAgentDef(self, aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
+                                dictAttributes, uniqueColor)
+        # aAgentSpecies.isDisplay = False
+        # aAgentSpecies.species=aSpeciesName
+        # self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictAttributes, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        # if 'agents' not in self.agentSpecies: self.agentSpecies['agents'] = {"watchers":{}}
+        self.agentSpecies[aSpeciesName]=aAgentSpecies
         return aAgentSpecies
 
     def getAgentSpecieDict(self, aStrSpecie):
@@ -619,7 +625,7 @@ class SGModel(QtWidgets.QMainWindow):
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
 
-    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None):
+    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, adictAttributes=None):
         """
         Create a new Agent in the associated species.
 
@@ -649,32 +655,32 @@ class SGModel(QtWidgets.QMainWindow):
 
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
-        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
         aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
         
-        if aAgentSpecies.dictOfAttributs is not None:
-            for aAtt in aAgentSpecies.dictOfAttributs.keys():
-                if aAgent.dictOfAttributs is None:
-                    aAgent.dictOfAttributs={}
-                    aAgent.dictOfAttributs[aAtt]=None
+        if aAgentSpecies.dictAttributes is not None:
+            for aAtt in aAgentSpecies.dictAttributes.keys():
+                if aAgent.dictAttributes is None:
+                    aAgent.dictAttributes={}
+                    aAgent.dictAttributes[aAtt]=None
                     aAgent.manageAttributeValues(aAgentSpecies,aAtt)
                 else :
-                    if aAtt in aAgent.dictOfAttributs.keys():
-                        if aAgent.dictOfAttributs[aAtt] is None:
+                    if aAtt in aAgent.dictAttributes.keys():
+                        if aAgent.dictAttributes[aAtt] is None:
                             aAgent.manageAttributeValues(aAgentSpecies,aAtt)
                     else:
-                        aAgent.dictOfAttributs[aAtt]=None
+                        aAgent.dictAttributes[aAtt]=None
                         aAgent.manageAttributeValues(aAgentSpecies,aAtt)
 
-        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
         # C'est très curieux que le dictOfAttributes soit à la fois dans l'instance d'agent et dans la lise agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]
         # C'est un doublon, qui ne devrait pas exister 
         aAgent.show()
         return aAgent
     
-    def newAgent_ADMINONLY(self, aGrid, aAgentSpecies, ValueX, ValueY, aDictofAttributs, aPrivateID):
+    def newAgent_ADMINONLY(self, aGrid, aAgentSpecies, ValueX, ValueY, adictAttributes, aPrivateID):
         """
         Do not use.
         """
@@ -682,11 +688,11 @@ class SGModel(QtWidgets.QMainWindow):
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
         anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
-        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
         aAgent.privateID = aPrivateID
-        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
         aAgent.show()
         return aAgent
 
@@ -746,12 +752,12 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell, oldAgent):
-        newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictOfAttributs, oldAgent.id, me='agent')
+        newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictAttributes, oldAgent.id, me='agent')
         newAgent.isDisplay = True
         newAgent.species = oldAgent.species
         newAgent.color = oldAgent.color
         newAgent.privateID = oldAgent.privateID
-        self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictOfAttributs, "AgentObject": newAgent}                                                                           
+        self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictAttributes, "AgentObject": newAgent}                                                                           
         newAgent.update()
         newAgent.show()
         self.update()
@@ -1168,7 +1174,7 @@ class SGModel(QtWidgets.QMainWindow):
             listOfGridsToApply = [listOfGridsToApply]
         for aGrid in listOfGridsToApply:
             if (isinstance(aGrid, SGGrid) == True):
-                self.cellCollection[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
+                self.cellsInGrid[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
         self.addPovinMenuBar(nameOfPov)
 
     def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
@@ -1189,32 +1195,29 @@ class SGModel(QtWidgets.QMainWindow):
             listOfGridsToApply = [listOfGridsToApply]
         for aGrid in listOfGridsToApply:
             if (isinstance(aGrid, SGGrid) == True):
-                self.cellCollection[aGrid.id]["BorderPOV"][nameOfPov] = {
+                self.cellsInGrid[aGrid.id]["BorderPOV"][nameOfPov] = {
                     aAtt: DictofColors}
-                self.cellCollection[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
+                self.cellsInGrid[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
         self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV
     def getAgentPOVs(self):
         list_POV = {}
-        for species in self.agentSpecies.keys():
-            list_POV[species] = {}
-            if "POV" in self.agentSpecies[species]:
-                list_POV[species].update(self.agentSpecies[species]['POV'])
-        self.AgentPOVs = list_POV
-        return self.AgentPOVs
+        for specieName, agentDef in self.agentSpecies.items():
+            list_POV[specieName]= agentDef.povShapeColor
+        return list_POV
 
     def getPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
-            for aPov in self.cellCollection[aGrid.id]["ColorPOV"]:
-                for anAttribut in self.cellCollection[aGrid.id]["ColorPOV"][aPov].keys():
+            for aPov in self.cellsInGrid[aGrid.id]["ColorPOV"]:
+                for anAttribut in self.cellsInGrid[aGrid.id]["ColorPOV"][aPov].keys():
                     if attribut == anAttribut:
                         return aPov
 
     def getBorderPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
-            for aBorderPov in self.cellCollection[aGrid.id]["BorderPOV"]:
-                for anAttribut in self.cellCollection[aGrid.id]["BorderPOV"][aBorderPov].keys():
+            for aBorderPov in self.cellsInGrid[aGrid.id]["BorderPOV"]:
+                for anAttribut in self.cellsInGrid[aGrid.id]["BorderPOV"][aBorderPov].keys():
                     if attribut == anAttribut:
                         return aBorderPov
 
@@ -1370,7 +1373,7 @@ class SGModel(QtWidgets.QMainWindow):
                 allCells.append(aCell)
             for i in range(len(msg_list[2:cellCount+1])):
                 allCells[i].isDisplay = msg_list[2+i][0]
-                allCells[i].dictOfAttributs = msg_list[2+i][1]
+                allCells[i].dictAttributes = msg_list[2+i][1]
                 allCells[i].owner = msg_list[2+i][2]
             gridNumber=+1
 
@@ -1379,7 +1382,7 @@ class SGModel(QtWidgets.QMainWindow):
         for j in range(len(msg_list[nbToStart+2:-5])):
             privateID=msg_list[nbToStart+2+j][0]
             speciesName=msg_list[nbToStart+2+j][1]
-            dictOfAttributs=msg_list[nbToStart+2+j][2]
+            dictAttributes=msg_list[nbToStart+2+j][2]
             owner=msg_list[nbToStart+2+j][3]
             agentX=msg_list[nbToStart+2+j][4][-3]
             agentY=msg_list[nbToStart+2+j][4][-1]
@@ -1387,7 +1390,7 @@ class SGModel(QtWidgets.QMainWindow):
             theGrid=self.getGrid_withID(grid)
             aAgentSpecies=self.getAgentSpecie(speciesName)
 
-            self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID]
+            self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictAttributes,privateID]
         
         # AGENT SPECIES MEMORY ID
         speciesMemoryIdDict=msg_list[-5][0]
@@ -1517,7 +1520,7 @@ class SGModel(QtWidgets.QMainWindow):
                 message = message+"[" # A refactorer !!!!   Utiliser +=  et rassembler les lignes en trop
                 message = message+str(allCells[i].isDisplay)
                 message = message+","
-                message = message+str(allCells[i].dictOfAttributs)
+                message = message+str(allCells[i].dictAttributes)
                 message = message+","
                 message = message+"'"+str(allCells[i].owner)+"'"
                 message = message+"]"
@@ -1531,7 +1534,7 @@ class SGModel(QtWidgets.QMainWindow):
             message = message+","
             message = message+"'"+str(aAgent.species)+"'"
             message = message+","
-            message = message+str(aAgent.dictOfAttributs)
+            message = message+str(aAgent.dictAttributes)
             message = message+","
             message = message+"'"+str(aAgent.owner)+"'"
             message = message+","

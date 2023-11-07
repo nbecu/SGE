@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGModel import *
 
 
 from PyQt5.QtWidgets import QAction
@@ -14,7 +15,7 @@ import copy
 
 
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, rows=8, columns=8, format="square", gap=3, size=30, aColor=None, moveable=True):
+    def __init__(self, parent, name, rows=8, columns=8, cellShape="square", gap=3, size=30, aColor=None, moveable=True):
         super().__init__(parent, 0, 60, 0, 0)
         # Basic initialize
         self.zoom = 1
@@ -23,7 +24,7 @@ class SGGrid(SGGameSpace):
         self.id = name
         self.rows = rows
         self.columns = columns
-        self.format = format
+        self.cellShape = cellShape
         self.gap = gap
         self.size = size
         self.moveable = moveable
@@ -42,12 +43,12 @@ class SGGrid(SGGameSpace):
             self.setColor(aColor)
 
         # We initialize the user interface related to the grid
-        self.initUI()
+        self.initCells()
 
     # Initialize the user interface
-    def initUI(self):
-        # Init the cellCollection
-        self.myCollectionOfCells = self.model.newCellCollection(self,self.columns, self.rows, self.format, self.size, self.gap)
+    def initCells(self):
+        # Init the CellDef and Cells
+        self.model.newCellsFromGrid(self)
 
     # Drawing the game board with the cell
 
@@ -56,13 +57,13 @@ class SGGrid(SGGameSpace):
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         # Base of the gameBoard
-        if (self.format == "square"):
+        if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1) *
                                 self.gap+1)+3, int(self.rows*self.size+(self.rows+1)*self.gap)+3)
             painter.drawRect(0, 0, int(self.columns*self.size+(self.columns+1)
                              * self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
-        elif (self.format == "hexagonal"):
+        elif (self.cellShape == "hexagonal"):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(
                 self.size/2)+3,  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 3))
             painter.drawRect(0, 0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(
@@ -150,15 +151,15 @@ class SGGrid(SGGameSpace):
     # Funtion to have the global size of a gameSpace
 
     def getSizeXGlobal(self):
-        if (self.format == "square"):
+        if (self.cellShape == "square"):
             return int(self.columns*self.size+(self.columns+1)*self.gap+1)
-        if (self.format == "hexagonal"):
+        if (self.cellShape == "hexagonal"):
             return int(self.columns*self.size+(self.columns+1)*self.gap+1) + int(self.size/2)
 
     def getSizeYGlobal(self):
-        if (self.format == "square"):
+        if (self.cellShape == "square"):
             return int(self.rows*self.size+(self.rows+1)*self.gap)
-        if (self.format == "hexagonal"):
+        if (self.cellShape == "hexagonal"):
             return int((self.rows+1)*(self.size/3)*2) + self.gap*2
 
     # To get all the values possible for Legend
@@ -227,17 +228,6 @@ class SGGrid(SGGameSpace):
     def getFirstCell(self):
         return self.getCell_withId("cell1-1")
 
-    # Return the cell at specified coordinates
-    def getCell(self, x, y):
-        """
-        Return a cell with column and row number.
-        args:
-            x (int): column number
-            y (int): row number
-        """
-        if x < 1 or x > self.columns or y < 1 or y > self.rows:
-            return None
-        return self.getCell_withId(self,"cell"+str(x)+'-'+str(y))
 
    # Return the cells at a specified column
     def getCells_withColumn(self, columnNumber):
@@ -246,10 +236,8 @@ class SGGrid(SGGameSpace):
         args:
             columnNumber (int): column number
         """
-        litsOfCells = []
-        for i in range(1, self.rows + 1):
-            litsOfCells.append(self.getCell(columnNumber, i))
-        return litsOfCells
+        return [ cell for cell in self.model.getCells(self) if cell.x== columnNumber]
+        
 
   # Return the cells at a specified row
     def getCells_withRow(self, rowNumber):
@@ -258,243 +246,9 @@ class SGGrid(SGGameSpace):
         args:
             rowNumber (int): row number
         """
-        litsOfCells = []
-        for i in range(1, self.rows + 1):
-            litsOfCells.append(self.getCell(i, rowNumber))
-        return litsOfCells
-
-# to get all cells with a certain value
-    def getCells_withValue(self, att, val):
-        # litsOfCells = []
-        # for cell in self.getCells():
-        #     if cell.value(att)==val:
-        #         litsOfCells.append(cell) 
-        # return litsOfCells
-        # le code ci dessous est équivalent au code ci-dessus mais en plus compact
-        return list(filter(lambda cell: cell.value(att)==val, self.getCells()))
-
-# to get all cells not having a certain value
-    def getCells_withValueNot(self, att, val):
-        litsOfCells = []
-        for cell in list(self.collectionOfCells.cells.values()):
-            if att in cell.attributs:
-                if val != cell.attributs[att]:
-                    litsOfCells.append(cell)
-        return litsOfCells
-
-  # Return a random cell
-    def getRandomCell(self, condition=None, listOfEntitiesToPickFrom=None):
-        """
-        Return a random cell.
-        """
-        if listOfEntitiesToPickFrom == None:
-            listOfEntitiesToPickFrom = self.getCells()
-        if condition == None:
-            listOfEntities = listOfEntitiesToPickFrom
-        else:
-            listOfEntities = []
-            for aEntity in listOfEntitiesToPickFrom:
-                if aEntity.testCondition(condition):
-                    listOfEntities.append(aEntity)
-        if listOfEntities == []:
-            return False
-        else:
-            return random.choice(listOfEntities)
-
-   # Return a random cell with a certain value
-    def getRandomCell_withValue(self, att, val, condition=None):
-        """
-        Return a random cell.
-        """
-        return self.getRandomCell(condition=condition, listOfEntitiesToPickFrom=self.getCells_withValue(att, val))
-
-        # if condition == None:
-        #     listOfCells = self.getCells_withValue(att,val)
-        # else:
-        #     listOfCells =[]
-        #     for aCell in self.getCells_withValue(att,val):
-        #         if aCell.testCondition(condition):
-        #              listOfCells.append(aCell)
-        # return random.choice(listOfCells)
-
-  # Return a random cell not having a certain value
-    def getRandomCell_withValueNot(self, att, val, condition=None):
-        """
-        Return a random cell.
-        """
-        return self.getRandomCell(condition=condition, listOfEntitiesToPickFrom=self.getCells_withValueNot(att, val))
-
-    def getRandomCells(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):
-        """
-        Return a specified number of random cells.
-        args:
-            aNumber (int): a number of cells to be randomly selected
-        """
-        if listOfEntitiesToPickFrom == None:
-            listOfEntitiesToPickFrom = self.getCells()
-        if condition == None:
-            listOfEntities = listOfEntitiesToPickFrom
-        else:
-            listOfEntities = []
-            for aEntity in listOfEntitiesToPickFrom:
-                if aEntity.testCondition(condition):
-                    listOfEntities.append(aEntity)
-        if len(listOfEntities) < aNumber:
-            return listOfEntities
-        else:
-            return random.sample(listOfEntities, aNumber)
-
-    # Return random cells with a certain value
-    def getRandomCells_withValue(self, aNumber, att, val, condition=None):
-        """
-        Return a specified number of random cells.
-        args:
-            aNumber (int): a number of cells to be randomly selected
-        """
-        return self.getRandomCells(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getCells_withValue(att, val))
-
-    # Return random cells not having a certain value
-    def getRandomCells_withValueNot(self, aNumber, att, val, condition=None):
-        """
-        Return a specified number of random cells.
-        args:
-            aNumber (int): a number of cells to be randomly selected
-        """
-        return self.getRandomCells(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getCells_withValueNot(att, val))
+        return [ cell for cell in self.model.getCells(self) if cell.y== rowNumber]
 
 
-# To handle POV and placing on cell
-    # To define a value for all cells
-
-
-    def setCells(self, aAttribute, aValue):
-        """
-        Set the value of attribut value of all cells
-
-        Args:
-            aAttribute (str): Name of the attribute to set
-            aValue (str): Value to set the attribute to
-        """
-        for aCell in self.getCells():
-            aCell.setValue(aAttribute, aValue)
-
-    def setCell(self, x, y, aAttribute, aValue):
-        """
-        set the value of attribute value for a specific cell
-
-        Args:
-            x (int): a column number
-            y (int): a row number
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-
-        """
-        self.getCell(x, y).setValue(aAttribute, aValue)
-
-    # set the value of attribut to all cells in a specified column
-    def setCells_withColumn(self, aAttribute, aValue, aColumnNumber):
-        """
-        Set the value of attribut to all cells in a specified column
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            aColumnNumber (int): a column number
-
-        """
-        for aCell in self.getCells_withColumn(aColumnNumber):
-            aCell.setValue(aAttribute, aValue)
-
-    # set the value of attribut to all cells in a specified row
-    def setCells_withRow(self, aAttribute, aValue, aRowNumber):
-        """
-        Set the value of attribut to all cells in a specified row
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            aRowNumber (int): a row number
-
-        """
-        for aCell in self.getCells_withRow(aRowNumber):
-            aCell.setValue(aAttribute, aValue)
-
-    # To apply a value to a random cell
-    def setRandomCell(self, aAttribute, aValue, condition=None):
-        """
-        Apply a value to a random cell
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        self.getRandomCell(condition=condition).setValue(aAttribute, aValue)
-
-    # To apply a value to a random cell with a certain value
-    def setRandomCell_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
-        """
-        To apply a value to a random cell with a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        self.getRandomCell_withValue(
-            conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
-
-   # To apply a value to a random cell not having a certain value
-    def setRandomCell_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
-        """
-       To apply a value to a random cell not having a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        self.getRandomCell_withValueNot(
-            conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
-
-    # To apply a value to some random cell
-    def setRandomCells(self, aAttribute, aValue, numberOfCells, condition=None):
-        """
-        Applies the same attribut value for a random number of cells
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            numberOfCells (int): number of cells
-        """
-        aList = self.getRandomCells(numberOfCells, condition)
-        if aList == []:
-            return False
-        for aCell in aList:
-            aCell.setValue(aAttribute, aValue)
-
-    # To apply a value to some random cells with a certain value
-    def setRandomCells_withValue(self, aAttribut, aValue, numberOfCells, conditionAtt, conditionVal, condition=None):
-        """
-        To apply a value to some random cells with a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            numberOfCells (int): number of cells
-        """
-        for aCell in self.getRandomCells_withValue(numberOfCells, conditionAtt, conditionVal, condition):
-            aCell.setValue(aAttribut, aValue)
-
-   # To apply a value to some random cells noty having a certain value
-    def setRandomCells_withValueNot(self, aAttribut, aValue, numberOfCells, conditionAtt, conditionVal, condition=None):
-        """
-        To apply a value to some random cells noty having a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            numberOfCells (int): number of cells
-        """
-        for aCell in self.getRandomCells_withValueNot(numberOfCells, conditionAtt, conditionVal, condition):
-            aCell.setValue(aAttribut, aValue)
 
     # To define a value for all Agents
     def setValueForAgents(self, typeOfAgent, aDictWithValue):
@@ -596,7 +350,7 @@ class SGGrid(SGGameSpace):
 
     # to get all cells who respect certain value
     def nbCells_withValue(self, att, value):
-        return len(self.getCells_withValue(att, value))
+        return len(self.getEntities_withValue(att, value))
 
     # To return all agent of a type in neighborhood
     def getNeighborAgent(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):
