@@ -28,7 +28,7 @@ class SGEntityDef():
         self.entities=[]
 
     def nextId(self):
-        self.IDincr =+1
+        self.IDincr +=1
         return self.IDincr
     
 

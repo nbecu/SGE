@@ -46,54 +46,34 @@ class SGEntity(QtWidgets.QWidget):
         return aRandomValue
 
 
+    def readColorFromPovDef(self,aPovDef,aDefaultColor):
+        if aPovDef is None: return aDefaultColor
+        aAtt=list(aPovDef.keys())[0]
+        aDictOfValueAndColor=list(aPovDef.values())[0]
+        aColor = aDictOfValueAndColor.get(self.value(aAtt))
+        return aColor if aColor is not None else aDefaultColor
+
     def getColor(self):
-        if self.isDisplay==False:
-            return Qt.transparent
-        grid=self.grid
-        if self.model.nameOfPov in self.classDef.povShapeColor.keys():
-            self.classDef.povShapeColo['selectedPov']=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()]
-            for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"][self.model.nameOfPov].keys()):
-                    self.color=self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
-                    return self.model.cellCollection[grid.id]["ColorPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
-        
-        else:
-            if self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'] is not None:
-                for aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                    if aVal in list(self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'].keys()):
-                        self.color=self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictAttributes[aVal]]
-                        return self.model.cellCollection[grid.id]["ColorPOV"]['selectedPov'][aVal][self.dictAttributes[aVal]]
-            else: 
-                self.color=Qt.white
-                return Qt.white
-                
+        if self.isDisplay==False: return Qt.transparent
+        aPovDef = self.classDef.povShapeColor.get(self.model.nameOfPov)
+        aDefaultColor= self.classDef.defaultShapeColor
+        return self.readColorFromPovDef(aPovDef,aDefaultColor)
+      
     
     def getBorderColor(self):
-        if self.isDisplay==False:
-            return Qt.transparent
-        if self.me == 'agent':
-            self.borderColor=Qt.black
-            return Qt.black
-        if self.me == 'cell':
-            grid=self.grid
-            if self.grid.model.nameOfPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
-                self.model.cellCollection[grid.id]["BorderPOV"]['selectedBorderPov']=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()]
-                for aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                    if aVal in list(self.model.cellCollection[grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                        self.borderColor=self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
-                        return self.model.cellCollection[grid.id]["BorderPOV"][self.getPov()][aVal][self.dictAttributes[aVal]]
-            
-            else:
-                self.borderColor=Qt.black
-                return Qt.black
+        if self.isDisplay==False: return Qt.transparent
+        aPovDef = self.classDef.povBorderColor.get(self.model.nameOfPov)
+        aDefaultColor= self.classDef.defaultBorderColor
+        return self.readColorFromPovDef(aPovDef,aDefaultColor)
+
     
     def getBorderWidth(self):
-        if self.me == 'agent':
-            return int(1)
-        if self.me == 'cell':
-            grid=self.grid
-            if self.model.cellCollection[grid.id]["BorderPOV"] is not None and self.grid.model.nameOfPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
-                    return int(self.model.cellCollection[grid.id]["BorderPOV"]["BorderWidth"])
+        # if self.me == 'agent':
+        #     return int(1)
+        # if self.me == 'cell':
+        #     grid=self.grid
+        #     if self.model.cellCollection[grid.id]["BorderPOV"] is not None and self.grid.model.nameOfPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
+        #             return int(self.model.cellCollection[grid.id]["BorderPOV"]["BorderWidth"])
             return int(1)
     
     #To get the pov

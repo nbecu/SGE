@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null
-import numpy as np
+# import numpy as np
 
 from mainClasses.SGIndicators import SGIndicators
 from mainClasses.SGAgent import SGAgent
