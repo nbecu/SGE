@@ -4,19 +4,16 @@ from mainClasses.SGCell import SGCell
 
 #Class who manage the game mechanics of creation
 class SGCreate():
-    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,anObject,number,dictAttributs,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
-        self.aDictOfAcceptedValue=aDictOfAcceptedValue
+        self.dictAttributs=dictAttributs
+        self.name="CreateAction "+str(anObject.name)
         self.restrictions=restrictions
-        if isinstance(anObject,SGAgent):
-            self.name=anObject.getId()
-        elif isinstance(anObject,SGCell):
-            self.name=anObject.parent
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
-            
+
         
     #Function which increment the number of use
     def use(self):
@@ -36,6 +33,9 @@ class SGCreate():
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
+        
+    def reset(self):
+        self.numberUsed=0
 
     def addRestrictions(self,aRestriction):
         self.restrictions.append(aRestriction)
@@ -45,9 +45,13 @@ class SGCreate():
         
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
-        
-    def reset(self):
-        self.numberUsed=0
+
+    def getnumberUsed(self):
+        return self.numberUsed
+    
+    def getRemainActionNumber(self,thePlayer):
+        remainNumber=self.number-self.numberUsed
+        thePlayer.remainActions[self.name]=remainNumber
         
     
 

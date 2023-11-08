@@ -3,16 +3,13 @@ from mainClasses.SGCell import SGCell
 
 #Class who manage the game mechanics of mooving
 class SGMove():
-    def __init__(self,anObject,number,aDictOfAcceptedValue,restrictions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
+    def __init__(self,anObject,number,dictAttributs,restrictions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
-        self.aDictOfAcceptedValue=aDictOfAcceptedValue
+        self.dictAttributs=dictAttributs
         self.restrictions=restrictions
-        if isinstance(anObject,SGAgent):
-            self.name=anObject.getId()
-        elif isinstance(anObject,SGCell):
-            self.name=anObject.parent
+        self.name="Move "+str(anObject.name)
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
         self.feedbackAgent=feedbackAgent
@@ -25,6 +22,7 @@ class SGMove():
         
     #Function to test if the game action could be use
     def getAuthorize(self,anObject):
+        """NOT TESTED"""
         returnValue=True
         #We check each condition 
         for aCond in self.restrictions:

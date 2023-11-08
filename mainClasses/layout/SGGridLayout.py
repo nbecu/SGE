@@ -12,9 +12,9 @@ class SGGridLayout():
         self.x=x
         self.y=y
         #Init of the grid
-        self.listOfGameSpace=[]
+        self.GameSpaces=[]
         for i in range(self.y):
-            self.listOfGameSpace.append([])
+            self.GameSpaces.append([])
         
     
     #Return the number of element
@@ -24,7 +24,7 @@ class SGGridLayout():
     #Add a game space to the layout and return the basic position
     def addGameSpace(self,aGameSpace):
         self.count=self.count+1
-        aListe = self.listOfGameSpace[((self.count-1)%self.y)]
+        aListe = self.GameSpaces[((self.count-1)%self.y)]
         aGameSpace.posYInLayout=((self.count-1)%self.y)
         if len(aListe)<self.x and self.foundInLayout(aGameSpace) is None:
             aGameSpace.posXInLayout=len(aListe)
@@ -42,17 +42,17 @@ class SGGridLayout():
         #We shearch the size of the column so in Y
         for i in range(self.y):
             if i<ligneTrouve :
-                sizeY=sizeY+self.listOfGameSpace[colonneTrouve][i].getSizeYGlobal()
+                sizeY=sizeY+self.GameSpaces[colonneTrouve][i].getSizeYGlobal()
         #We shearch the size of the row so in X
         for i in range(self.x):
             if i<colonneTrouve :
-                sizeX=sizeX+self.listOfGameSpace[i][ligneTrouve].getSizeXGlobal()
+                sizeX=sizeX+self.GameSpaces[i][ligneTrouve].getSizeXGlobal()
         return (sizeX,sizeY)
     
     #Found in layout a gameSpace
     def foundInLayout(self,aGameSpace):
         count=0
-        for aListe in self.listOfGameSpace:
+        for aListe in self.GameSpaces:
             if aGameSpace in aListe:
                 countX=0
                 for element in aListe:
@@ -69,7 +69,7 @@ class SGGridLayout():
             ordered.append([])
         
         
-        for aList in self.listOfGameSpace :
+        for aList in self.GameSpaces :
             for anElement in aList :
                 count=0
                 for aGameSpace in ordered[anElement.posYInLayout] :
@@ -79,12 +79,12 @@ class SGGridLayout():
                 ordered[anElement.posYInLayout].insert(count,anElement)
                     
                     
-        self.listOfGameSpace=ordered
+        self.GameSpaces=ordered
         self.reAllocateSpace()  
     
     #Re allocate the space of the model
     def reAllocateSpace(self):
-        for aList in self.listOfGameSpace :
+        for aList in self.GameSpaces :
             for anElement in aList :
                 size=self.calculateSize(anElement)
                 anElement.startXBase=size[0]
@@ -95,7 +95,7 @@ class SGGridLayout():
     def getMax(self):
         maxX=0
         maxY=0
-        for aColumn in self.listOfGameSpace:
+        for aColumn in self.GameSpaces:
             tempMaxY=0
             for anElement in aColumn:
                 tempMaxY = tempMaxY+anElement.getSizeYGlobal()
@@ -105,8 +105,8 @@ class SGGridLayout():
         for i in range(self.x):
             tempMaxX=0
             for j in range(self.y):
-                if len(self.listOfGameSpace[j])>i :
-                    tempMaxX=tempMaxX+self.listOfGameSpace[j][i].getSizeXGlobal()
+                if len(self.GameSpaces[j])>i :
+                    tempMaxX=tempMaxX+self.GameSpaces[j][i].getSizeXGlobal()
             if maxX<tempMaxX:
                 maxX=tempMaxX
             

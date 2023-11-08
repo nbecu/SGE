@@ -6,14 +6,16 @@ from PyQt5.QtCore import *
 
             
 class SGGameSpace(QtWidgets.QWidget):
-    def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroudColor=Qt.gray):
+    def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroudColor=Qt.gray,forceDisplay=False):
         super().__init__(parent)
+        self.model=parent
         self.posXInLayout=posXInLayout
         self.posYInLayout=posYInLayout
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.isDraggable = isDraggable
         self.backgroudColor = backgroudColor
+        self.forceDisplay = forceDisplay
         
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
@@ -47,6 +49,11 @@ class SGGameSpace(QtWidgets.QWidget):
     def setStartYBase(self,number):
         self.startYBase = number
     
+    #Calculate the area
+    def areaCalc(self):
+        self.area = float(self.width() * self.height())
+        return self.area
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 

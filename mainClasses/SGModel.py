@@ -1,303 +1,377 @@
 
+from PyQt5.QtSvg import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QAction,QMenu
+from PyQt5 import QtWidgets
+from mainClasses.layout.SGVerticalLayout import SGVerticalLayout
+from mainClasses.layout.SGHorizontalLayout import SGHorizontalLayout
+from mainClasses.layout.SGGridLayout import SGGridLayout
+from mainClasses.gameAction.SGGameActions import SGGameActions
+from mainClasses.gameAction.SGMove import SGMove
+from mainClasses.gameAction.SGDelete import SGDelete
+from mainClasses.gameAction.SGUpdate import SGUpdate
+from mainClasses.gameAction.SGCreate import SGCreate
+from mainClasses.SGLegend import SGLegend
+from mainClasses.SGVoid import SGVoid
+from mainClasses.SGCell import SGCell
+from mainClasses.SGGrid import SGGrid
+from mainClasses.SGModelAction import SGModelAction
+from mainClasses.SGEndGameRule import SGEndGameRule
+from mainClasses.SGUserSelector import SGUserSelector
+from mainClasses.SGDashBoard import SGDashBoard
+from mainClasses.SGSimulationVariables import SGSimulationVariables
+from mainClasses.SGTextBox import SGTextBox
+from mainClasses.SGTimeLabel import SGTimeLabel
+from mainClasses.SGTimeManager import SGTimeManager
+from mainClasses.SGPlayer import SGPlayer
+from mainClasses.SGAgent import SGAgent
+from mainClasses.SGEntity import SGEntity
 from email.policy import default
 from logging.config import listen
-import sys 
+import sys
 import copy
 from pathlib import Path
+from pyrsistent import s
 from win32api import GetSystemMetrics
 from paho.mqtt import client as mqtt_client
-import threading ,queue
-
-
+import threading
+import queue
+import random
+import re
 
 sys.path.insert(0, str(Path(__file__).parent))
-from SGAgent import SGAgent
-from SGPlayer import SGPlayer
-from SGTimeManager import SGTimeManager
-
-from SGGrid import SGGrid
-from SGVoid import SGVoid
-from SGLegende import SGLegende
-
-from gameAction.SGCreate import SGCreate
-from gameAction.SGUpdate import SGUpdate
-from gameAction.SGDelete import SGDelete
-from gameAction.SGMove import SGMove
-
-from layout.SGGridLayout import SGGridLayout
-from layout.SGHorizontalLayout import SGHorizontalLayout
-from layout.SGVerticalLayout import SGVerticalLayout
 
 
-from PyQt5 import QtWidgets
-from PyQt5.QtSvg import * 
-from PyQt5.QtWidgets import  QAction
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-
-
-#Mother class of all the SGE System
+# Mother class of all the SGE System
 class SGModel(QtWidgets.QMainWindow):
-    def __init__(self,width,height,typeOfLayout="vertical",x=3,y=3,parent=None):
-        super().__init__()
-        
-        #Definition the size of the window ( temporary here)
-        screensize = GetSystemMetrics(0),GetSystemMetrics(1)
-        self.setGeometry(int((screensize[0]/2)-width/2),int((screensize[1]/2)-height/2),width,height)
-        #Init of variable of the Model
-        self.name="Simulation of a boardGame"
-        #Definition of the title of the window ( temporary) 
-        self.setWindowTitle(self.name)
-        #We allow the drag in this widget
-        self.setAcceptDrops(True)
-        
-        #Definition of variable
-        #Definition for all gameSpaces
-        self.gameSpaces={}
-        #We create the layout
-        self.typeOfLayout=typeOfLayout
-        if(typeOfLayout=="vertical"):
-            self.layoutOfModel=SGVerticalLayout()
-        elif(typeOfLayout=="horizontal"):
-            self.layoutOfModel=SGHorizontalLayout()
-        else:
-            self.layoutOfModel=SGGridLayout(x,y)
-        #To limit the number of zoom out of players
-        self.numberOfZoom=2
-        #To handle the selection of an item in a legend in a global way
-        self.selected=[None]
-        #To keep in memory all the povs already displayed in the menue
-        self.listOfPovsForMenu=[]
-        #To handle the flow of time in the game
-        self.timeManager=SGTimeManager(self)
-        #List of players
-        self.collectionOfPlayers={}
-        self.actualPlayer=None
-        #Wich instance is it 
-        self.whoIAm=""
-        self.listOfSubChannel=[]
-        self.timer= QTimer()
-        self.timer.timeout.connect(self.eventTime)
-        self.haveToBeClose=False
-        self.initUI()
-        
-    
-    def initUI(self):
-        #Definition of the view through the a widget
-        self.window = QtWidgets.QWidget() 
-        self.layout = QtWidgets.QGridLayout() 
-        self.setCentralWidget(self.window) 
-        self.window.setLayout(self.layout)
-        #Definition of the toolbar via a menue and the ac
-        self.createAction()
-        self.createMenue()
-        
-        self.nameOfPov="default"
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame",testMode=False):
+        """
+        Declaration of a new model
 
-    #Create the menu of the menue 
-    def createMenue(self):
+        Args:
+            width (int): width of the main window in pixels (default:1800)
+            height (int): height of the main window in pixels (default:900)
+            typeOfLayout ("vertical", "horizontal" or "grid"): the type of layout used to position the different graphic elements of the simulation (default:"grid")
+            x (int, optional): used only for grid layout. defines the number layout grid width (default:3)
+            y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
+            name (str, optional): the name of the model. (default:"Simulation")
+            windowTitle (str, optional): the title of the main window of the simulation (default :"myGame")
+        """
+        super().__init__()
+        # Definition the size of the window ( temporary here)
+        screensize = GetSystemMetrics(0), GetSystemMetrics(1)
+        self.setGeometry(
+            int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
+        # Init of variable of the Model
+        self.name = name
+        # Definition of the title of the window ( temporary)
+        if windowTitle is None:
+            self.windowTitle = self.name
+        else:
+            self.windowTitle = windowTitle
+        self.setWindowTitle(self.windowTitle)
+        # We allow the drag in this widget
+        self.setAcceptDrops(True)
+
+        # Definition of variable
+        # Definition for all gameSpaces
+        self.gameSpaces = {}
+        self.TextBoxes = []
+        # Definition of the AgentCollection and CellCollection
+        self.agentSpecies = {}
+        self.cellCollection = {}
+        self.simulationVariables = []
+        self.IDincr = 0
+        # We create the layout
+        self.typeOfLayout = typeOfLayout
+        if (typeOfLayout == "vertical"):
+            self.layoutOfModel = SGVerticalLayout()
+        elif (typeOfLayout == "horizontal"):
+            self.layoutOfModel = SGHorizontalLayout()
+        else:
+            self.layoutOfModel = SGGridLayout(x, y)
+        # To limit the number of zoom out of players
+        self.numberOfZoom = 2
+        # To handle the selection of an item in a legend in a global way
+        self.selected = [None]
+        # To keep in memory all the povs already displayed in the menue
+        self.listOfPovsForMenu = []
+        self.AgentPOVs = self.getAgentPOVs()
+        # To handle the flow of time in the game
+        self.users = ["Admin"]
+        self.timeManager = SGTimeManager(self)
+        # List of players
+        self.players = {}
+        self.currentPlayer = "Admin"
+        self.adminLegend = None
+
+        self.myUserSelector = None
+        self.myTimeLabel = None
+
+        self.listOfSubChannel = []
+        self.listOfMajs = []
+        self.processedMAJ = set()
+        self.timer = QTimer()
+        self.haveToBeClose = False
+        self.randomSeed=42
+        random.seed(self.randomSeed)
+        self.mqtt=False
+        self.mqttMajType=None
+        self.testMode=testMode
+        self.dictAgentsAtMAJ={}
+        self.simulationVariablesAtMAJ=[] 
+
+        self.initUI()
+
+        self.initModelActions()
+
+    def initModelActions(self):
+        self.id_modelActions = 0
+
+    def initUI(self):
+        # Definition of the view through the a widget
+        self.window = QtWidgets.QWidget()
+        self.layout = QtWidgets.QGridLayout()
+        self.setCentralWidget(self.window)
+        self.window.setLayout(self.layout)
+        # Definition of the toolbar via a menue and the ac
+        self.createAction()
+        self.createMenu()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
+
+        self.nameOfPov = "default"
+
+        if self.testMode:
+            self.label = QtWidgets.QLabel(self)
+            self.label.setGeometry(10, 10, 350, 30)
+
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self.maj_coordonnees)
+            self.timer.start(100)
+
+        self.singletimer = QTimer.singleShot(1000, self.updateFunction)
+
+    def maj_coordonnees(self):
+        pos_souris_globale = QCursor.pos()
+        coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
+        self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
+    
+    def updateFunction(self):
+        for aAgent in self.getAgents():
+            aAgent.cell.moveAgentByRecreating_it(aAgent)
+        self.show()
+
+    # Create the menu of the menue
+    def createMenu(self):
         self.menuBar().addAction(self.openSave)
-        
+
         self.menuBar().addAction(self.save)
-        
+
         self.menuBar().addAction(self.inspect)
-        
+
         sep = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep)
         self.menuBar().addAction(self.backward)
-        
+
         self.menuBar().addAction(self.forward)
-        
+
         sep2 = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep2)
-        
+
         self.menuBar().addAction(self.play)
-        
+
         sep3 = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep3)
-        
+
         self.menuBar().addAction(self.zoomPlus)
-        
+
         self.menuBar().addAction(self.zoomLess)
-        
+
         self.menuBar().addAction(self.zoomToFit)
-        
+
         sep4 = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep4)
-        
-        inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"),"&inspectElement")
-        """To be finished to be implementd"""
-        
-        self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"),"&pov")
-        
 
-        
-        graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"),"&graph")
+        inspectMenu = self.menuBar().addMenu(
+            QIcon("./icon/information.png"), "&inspectElement")
         """To be finished to be implementd"""
-        
+
+        self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
+
+        graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"), "&graph")
+        """To be finished to be implementd"""
+
         sep5 = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep5)
-        
-        extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"),"&Extract")
+
+        extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"), "&Extract")
         extractMenu.addAction(self.extractPng)
         extractMenu.addAction(self.extractSvg)
         extractMenu.addAction(self.extractHtml)
-        
-       
-    
-    #Create all the action related to the menu  
+
+    # Create all the action related to the menu
+
     def createAction(self):
-        self.openSave = QAction(QIcon("./icon/ouvrir.png")," &open", self)
+        self.openSave = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
         self.openSave.triggered.connect(self.openFromSave)
-        
-        self.save = QAction(QIcon("./icon/save.png")," &save", self)
+
+        self.save = QAction(QIcon("./icon/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
-        
-        self.backward = QAction(QIcon("./icon/backwardArrow.png")," &backward", self)
+
+        self.backward = QAction(
+            QIcon("./icon/backwardArrow.png"), " &backward", self)
         self.backward.triggered.connect(self.backwardAction)
-        
-        self.forward = QAction(QIcon("./icon/forwardArrow.png")," &forward", self)
+
+        self.forward = QAction(
+            QIcon("./icon/forwardArrow.png"), " &forward", self)
         self.forward.triggered.connect(self.forwardAction)
-        
-        self.inspect = QAction(QIcon("./icon/inspect.png")," &inspectAll", self)
+
+        self.inspect = QAction(
+            QIcon("./icon/inspect.png"), " &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)
-        
-        self.play = QAction(QIcon("./icon/play.png")," &play", self)
+
+        self.play = QAction(QIcon("./icon/play.png"), " &play", self)
         self.play.triggered.connect(self.nextTurn)
-        
-        self.zoomPlus = QAction(QIcon("./icon/zoomPlus.png")," &zoomPlus", self)
+
+        self.zoomPlus = QAction(
+            QIcon("./icon/zoomPlus.png"), " &zoomPlus", self)
         self.zoomPlus.triggered.connect(self.zoomPlusModel)
-        
-        self.zoomLess = QAction(QIcon("./icon/zoomLess.png")," &zoomLess", self)
+
+        self.zoomLess = QAction(
+            QIcon("./icon/zoomLess.png"), " &zoomLess", self)
         self.zoomLess.triggered.connect(self.zoomLessModel)
-        
-        self.zoomToFit = QAction(QIcon("./icon/zoomToFit.png")," &zoomToFit", self)
+
+        self.zoomToFit = QAction(
+            QIcon("./icon/zoomToFit.png"), " &zoomToFit", self)
         self.zoomToFit.triggered.connect(self.zoomFitModel)
-        
+
         self.extractPng = QAction(" &ToPNG", self)
         self.extractPng.triggered.connect(self.extractPngFromWidget)
         self.extractSvg = QAction(" &ToSVG", self)
         self.extractSvg.triggered.connect(self.extractSvgFromWidget)
         self.extractHtml = QAction(" &ToHtml", self)
         self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
-        
-        self.changeThePov= QAction(" &default", self)
-        
-        
-         
-    #Create the function for the action of the menu
-    #Loading a Save
+
+        self.changeThePov = QAction(" &default", self)
+
+    # Create the function for the action of the menu
+    # Loading a Save
+
     def openFromSave(self):
         """To be implemented"""
         return True
-    
-    #Save the game in a file
+
+    # Save the game in a file
     def saveTheGame(self):
         """To be implemented"""
         return True
-    
-    #Inspect All of the variables of the game
+
+    # Inspect All of the variables of the game
     def inspectAll(self):
         """To be implemented"""
         return True
-    
-    #Make the game go to precedent state
+
+    # Make the game go to precedent state
     def backwardAction(self):
         """To be implemented"""
         return True
-    
-    #Make the game go to next step
+
+    # Make the game go to next step
     def forwardAction(self):
         """To be implemented"""
         return True
-    
-    
-    #Trigger the next turn
+
+    # Trigger the next turn
+
     def nextTurn(self):
         self.timeManager.nextPhase()
-        
+        # self.eventTime()
+
     def closeEvent(self, event):
         print("trigger")
-        self.haveToBeClose=True
-        self.client.disconnect()
+        self.haveToBeClose = True
+        self.getTextBoxHistory(self.TextBoxes)
+        if hasattr(self, 'client'):
+            self.client.disconnect()
         self.close()
 
-            
-    
-    #Trigger the zoom in
+    # Trigger the zoom in
+
     def zoomPlusModel(self):
+        """NOT TESTED"""
         self.setNumberOfZoom(self.numberOfZoom+1)
         for aGameSpaceName in self.gameSpaces:
             self.gameSpaces[aGameSpaceName].zoomIn()
         self.update()
 
+    # Trigger the zoom out
 
-            
-    
-    #Trigger the zoom out
     def zoomLessModel(self):
-        if self.numberOfZoom != 0 :
+        """NOT TESTED"""
+        if self.numberOfZoom != 0:
             for aGameSpaceName in self.gameSpaces:
                 self.gameSpaces[aGameSpaceName].zoomOut()
             self.setNumberOfZoom(self.numberOfZoom-1)
         self.update()
 
-    
-    #Trigger the basic zoom
+    # Trigger the basic zoom
+
     def zoomFitModel(self):
-        #if the window to display is to big we zoom out and reapply the layout
-        if self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height():
-            while(self.layoutOfModel.getMax()[0]>self.width() or self.layoutOfModel.getMax()[1]>self.height()):
+        """NOT TESTED"""
+        # if the window to display is to big we zoom out and reapply the layout
+        if self.layoutOfModel.getMax()[0] > self.width() or self.layoutOfModel.getMax()[1] > self.height():
+            while (self.layoutOfModel.getMax()[0] > self.width() or self.layoutOfModel.getMax()[1] > self.height()):
                 self.zoomLessModel()
                 self.applyPersonalLayout()
-        else :
-            #if the window to display is to small we zoom in and out when we over do it once and then reapply the layout
-            while(self.layoutOfModel.getMax()[0]<(self.width()) or self.layoutOfModel.getMax()[1]<self.height()):
+        else:
+            # if the window to display is to small we zoom in and out when we over do it once and then reapply the layout
+            while (self.layoutOfModel.getMax()[0] < (self.width()) or self.layoutOfModel.getMax()[1] < self.height()):
                 self.zoomPlusModel()
                 self.applyPersonalLayout()
-                if self.layoutOfModel.getMax()[0]>(self.width()) and self.layoutOfModel.getMax()[1]>self.height():
+                if self.layoutOfModel.getMax()[0] > (self.width()) and self.layoutOfModel.getMax()[1] > self.height():
                     self.zoomLessModel()
                     self.zoomLessModel()
                     self.applyPersonalLayout()
                     break
         self.update()
 
+    # Extract the current gameboard into png
 
-            
-     
-    #Extract the actual gameboard into png   
     def extractPngFromWidget(self):
-        #To be reworked
+        """NOT TESTED"""
+        # To be reworked
         self.window.grab().save("image.png")
-    
-    #Extract the actual gameboard into svg 
+
+    # Extract the current gameboard into svg
     def extractSvgFromWidget(self):
+        """NOT TESTED"""
         generator = QSvgGenerator()
         generator.setFileName("image.svg")
         painter = QPainter(generator)
-        self.window.render( painter )
+        self.window.render(painter)
         painter.end()
-    
-    #Extract the actual gameboard into html
+
+    # Extract the current gameboard into html
     def extractHtmlFromWidget(self):
         """To be implemented"""
         return True
-    
-    
-    #Event
-    #wheel event we zoom in or out
-    def wheelEvent(self,event):
-        if(event.angleDelta().y()==120):
+
+    # Event
+    # wheel event we zoom in or out
+    def wheelEvent(self, event):
+        if (event.angleDelta().y() == 120):
             self.zoomPlusModel()
-        else :
+        else:
             self.zoomLessModel()
 
-    
-    #Function to handle the drag of widget
+    # Function to handle the drag of widget
+
     def dragEnterEvent(self, e):
         e.accept()
-        
+
     def dropEvent(self, e):
         position = e.pos()
         position.setX(position.x()-int(e.source().getSizeXGlobal()/2))
@@ -307,457 +381,1129 @@ class SGModel(QtWidgets.QMainWindow):
         e.setDropAction(Qt.MoveAction)
         e.accept()
 
-    
-    
-#-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use
+    # Contextual Menu
+    def show_menu(self, point):
+        menu = QMenu(self)
 
-#For create elements
-    #To create a grid
-    def createGrid(self,name,rows=8, columns=8,format="square",color=Qt.gray,gap=3,size=30):
-        #Creation
-        aGrid = SGGrid(self,name,rows, columns,format,gap,size,color)
-        self.gameSpaces[name]=aGrid
-        #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aGrid)
+        option1 = QAction("LayoutCheck", self)
+        option1.triggered.connect(self.moveWidgets)
+        menu.addAction(option1)
+
+        if self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))
+
+
+# -----------------------------------------------------------------------------------------
+# Definiton of the methods who the modeler will use
+
+# For create elements
+    # To create a grid
+    def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
+        """
+        Create a grid that contains cells
+
+        Args:
+            columns (int): number of columns (width).
+            rows (int): number of rows (height).
+            format ("square", "hexagonal"): shape of the cells. Defaults to "square".
+            color (a color, optional): background color of the grid . Defaults to Qt.gray.
+            gap (int, optional): gap size between cells. Defaults to 0.
+            size (int, optional): size of the cells. Defaults to 30.
+            name (st): name of the grid.
+            moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
+
+        Returns:
+            aGrid: the grid created with its cells
+        """
+        # Creation
+        aGrid = SGGrid(self, name, rows, columns, format,
+                       gap, size, color, moveable)
+        self.gameSpaces[name] = aGrid
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aGrid)
         aGrid.setStartXBase(newPos[0])
         aGrid.setStartYBase(newPos[1])
-        if(self.typeOfLayout=="vertical"):
-            aGrid.move(aGrid.getStartXBase(),aGrid.getStartYBase()+20*self.layoutOfModel.getNumberOfAnElement(aGrid))
-        elif(self.typeOfLayout=="horizontal"):
-            aGrid.move(aGrid.getStartXBase()+20*self.layoutOfModel.getNumberOfAnElement(aGrid),aGrid.getStartYBase())    
+        if (self.typeOfLayout == "vertical"):
+            aGrid.move(aGrid.getStartXBase(), aGrid.getStartYBase() +
+                       20*self.layoutOfModel.getNumberOfAnElement(aGrid))
+        elif (self.typeOfLayout == "horizontal"):
+            aGrid.move(aGrid.getStartXBase(
+            )+20*self.layoutOfModel.getNumberOfAnElement(aGrid), aGrid.getStartYBase())
         else:
-            pos=self.layoutOfModel.foundInLayout(aGrid)
-            aGrid.move(aGrid.getStartXBase()+20*pos[0],aGrid.getStartYBase()+20*pos[1])
+            pos = self.layoutOfModel.foundInLayout(aGrid)
+            aGrid.move(aGrid.getStartXBase()+20 *
+                       pos[0], aGrid.getStartYBase()+20*pos[1])
         return aGrid
     
-    #To create a void
-    def createVoid(self,name,sizeX=200,sizeY=200):
-        #Creation
-        aVoid = SGVoid(self,name,sizeX,sizeY)
-        self.gameSpaces[name]=aVoid
-        
-        #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aVoid)
+    def newCellCollection(self,grid,columns, rows, shape, size, gap):
+        self.cellCollection[grid.id]={}
+        self.cellCollection[grid.id]['cells']={}
+        for i in range(1, rows + 1):
+            for j in range(1, columns + 1):
+                aCell = SGCell(grid, i, j,
+                               shape, size, gap)
+                self.cellCollection[grid.id]['cells'][aCell.getId()] = aCell
+        self.cellCollection[grid.id]['ColorPOV']={}
+        self.cellCollection[grid.id]['BorderPOV']={}
+        self.cellCollection[grid.id]['watchers']={}
+
+    # To get all the cells of the collection
+    def getCells(self,grid):
+        return list(self.cellCollection[grid.id]['cells'].values())
+    
+    # To get all the povs of the collection
+    def getCellPovs(self,grid):
+        return {key: value for dict in (self.cellCollection[grid.id]['ColorPOV'],self.cellCollection[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
+
+    # To get a cell in particular
+    def getCell(self, aGrid, aID):
+        return self.cellCollection[aGrid.id]['cells'][aID]
+
+    # To create a void
+    def createVoid(self, name, sizeX=200, sizeY=200):
+        # Creation
+        aVoid = SGVoid(self, name, sizeX, sizeY)
+        self.gameSpaces[name] = aVoid
+
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aVoid)
         aVoid.setStartXBase(newPos[0])
         aVoid.setStartYBase(newPos[1])
-        aVoid.move(aVoid.getStartXBase(),aVoid.getStartYBase())
+        aVoid.move(aVoid.getStartXBase(), aVoid.getStartYBase())
         return aVoid
-    
-    
-    #To create a legende
-    def createLegendeAdmin(self):
-        #Creation
-        #We harvest all the case value
-        allElements={}
-        for anElement in self.getGrids() :
-            allElements[anElement.id]=anElement.getValuesForLegende()
-        aLegende = SGLegende(self,"adminLegende",allElements,"Admin")
-        for aGrid in self.getGrids() :
-            for anAgent in aGrid.collectionOfAcceptAgent :
-                aLegende.addAgentToTheLegend(anAgent)
-        self.gameSpaces["adminLegende"]=aLegende
-        #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aLegende)
-        aLegende.setStartXBase(newPos[0])
-        aLegende.setStartYBase(newPos[1])
-        if(self.typeOfLayout=="vertical"):
-            aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
-        elif(self.typeOfLayout=="horizontal"):
-            aLegende.move(aLegende.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende),aLegende.startYBase)    
-        else:
-            pos=self.layoutOfModel.foundInLayout(aLegende)
-            aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
-        aLegende.addDeleteButton("Delete")
-        return aLegende
-    
-    #To update the admin legende when the modeler add a new pov after the creation of the legende 
-    def updateLegendeAdmin(self):
-        if "adminLegende" in list(self.gameSpaces.keys()):
-            self.gameSpaces["adminLegende"].deleteLater()
-            del self.gameSpaces["adminLegende"]
-        aLegende=self.createLegendeAdmin()
-        aLegende.addDeleteButton()
-    
-    
-    #To create a legende
-    def createLegendeForPlayer(self,name,aListOfElement,playerName):
-        #Creation        
-        aLegende = SGLegende(self,name,aListOfElement,playerName)
-        self.gameSpaces[name]=aLegende
-        #Realocation of the position thanks to the layout
-        newPos=self.layoutOfModel.addGameSpace(aLegende)
-        aLegende.setStartXBase(newPos[0])
-        aLegende.setStartYBase(newPos[1])
-        if(self.typeOfLayout=="vertical"):
-            aLegende.move(aLegende.startXBase,aLegende.startYBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende))
-        elif(self.typeOfLayout=="horizontal"):
-            aLegende.move(aLegende.startXBase+20*self.layoutOfModel.getNumberOfAnElement(aLegende),aLegende.startYBase)    
-        else:
-            pos=self.layoutOfModel.foundInLayout(aLegende)
-            aLegende.move(aLegende.startXBase+20*pos[0],aLegende.startYBase+20*pos[1])
-        return aLegende
-    
-            
-    #To create a New kind of agents
-    def newAgent(self,anAgentName,anAgentFormat,listOfAcceptGrid,size=10):
-        for aGrid in listOfAcceptGrid:
-            anAgent=SGAgent(None,anAgentName,anAgentFormat,size)
-            self.gameSpaces[aGrid.id].collectionOfAcceptAgent[anAgentName]=anAgent
-        return anAgent
-            
-    
-    #To create a newPlayer
-    def newPlayer(self,name):
-        player=SGPlayer(self,name)
-        self.collectionOfPlayers[name]=player
-        return player
-        
-    #To get a player
-    def getAPlayer(self,name):
-        return self.collectionOfPlayers[name]
-    
-    #To get the player
-    def getPlayer(self):
-        return self.actualPlayer
 
-            
+    # To create a Legend
+    def newLegendAdmin(self, Name='Legend', showAgentsWithNoAtt=False):
+        """
+        To create an Admin Legend (with all the cell and agent values)
+
+        Args:
+        Name (str): name of the Legend (default : Legend)
+        showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
+
+        """
+        # Creation
+        # We harvest all the case value
+        CellElements = {}
+        AgentPOVs = self.getAgentPOVs()
+        for anElement in self.getGrids():
+            CellElements[anElement.id] = {}
+            CellElements[anElement.id]['cells'] = anElement.getValuesForLegend()
+            CellElements[anElement.id]['agents'] = {}
+        for grid in CellElements:
+            CellElements[grid]['agents'].update(AgentPOVs)
+        agents = self.getAgents()
+        aLegend = SGLegend(self, Name, CellElements,
+                           "Admin", agents, showAgentsWithNoAtt)
+        self.gameSpaces[Name] = aLegend
+        self.adminLegend=aLegend
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aLegend)
+        aLegend.setStartXBase(newPos[0])
+        aLegend.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aLegend.move(aLegend.startXBase, aLegend.startYBase +
+                         20*self.layoutOfModel.getNumberOfAnElement(aLegend))
+        elif (self.typeOfLayout == "horizontal"):
+            aLegend.move(aLegend.startXBase+20 *
+                         self.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aLegend)
+            aLegend.move(aLegend.startXBase+20 *
+                         pos[0], aLegend.startYBase+20*pos[1])
+        aLegend.addDeleteButton("Delete")
+        self.applyPersonalLayout()
+        return aLegend
+
+    # To update the admin Legend when the modeler add a new pov after the creation of the Legend
+    # TO BE REMOVED. IT IS a useless method
+    def updateLegendAdmin(self):
+        if "adminLegend" in list(self.gameSpaces.keys()):
+            aLegend = self.gameSpaces["adminLegend"]
+            aLegend.initUI()
+            aLegend.update()
     
-    #---------
-#Layout
+    def newUserSelector(self):
+        """
+        To create an User Selector in your game. Functions automatically with the players declared in your model. 
+
+        """
+        if len(self.users_withControlPanel()) > 1 and len(self.players) > 0:
+            userSelector = SGUserSelector(self, self.users_withControlPanel())
+            self.myUserSelector = userSelector
+            self.gameSpaces["userSelector"] = userSelector
+            # Realocation of the position thanks to the layout
+            newPos = self.layoutOfModel.addGameSpace(userSelector)
+            userSelector.setStartXBase(newPos[0])
+            userSelector.setStartYBase(newPos[1])
+            if (self.typeOfLayout == "vertical"):
+                userSelector.move(userSelector.startXBase, userSelector.startYBase +
+                                  20*self.layoutOfModel.getNumberOfAnElement(userSelector))
+            elif (self.typeOfLayout == "horizontal"):
+                userSelector.move(userSelector.startXBase+20*self.layoutOfModel.getNumberOfAnElement(
+                    userSelector), userSelector.startYBase)
+            else:
+                pos = self.layoutOfModel.foundInLayout(userSelector)
+                userSelector.move(userSelector.startXBase +
+                                  20*pos[0], userSelector.startYBase+20*pos[1])
+            self.applyPersonalLayout()
+            return userSelector
+        else:
+            print('You need to add players to the game')
+
+    # To create a New kind of agents
+    def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictOfAttributs=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
+        """
+        Create a new specie of Agents.
+
+        Args:
+            aSpeciesName (str) : the species name
+            aSpeciesShape (str) : the species shape (see list in doc)
+            dictofAttributs (dict) : all the species attributs with all the values
+            aSpeciesDefaultSize (int) : the species shape size (Default=10)
+
+        Return:
+            a nested dict for the species
+            a species
+
+        """
+        aAgentSpecies = SGAgent(self, None,aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
+                                dictOfAttributs, None, me='collec', uniqueColor=uniqueColor)
+        aAgentSpecies.isDisplay = False
+        aAgentSpecies.species=aSpeciesName
+        self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {
+        }, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        return aAgentSpecies
+
+    def agentSpecie(self, aStrSpecie):
+        # send back the specie collec correspond to aStrSpecie
+        return self.agentSpecies[aStrSpecie]
+
+    def getAgentSpecie(self, aStrSpecie):
+        AgentSpecie = None
+        for instance in SGAgent.instances:
+            if instance.me == 'collec' and instance.name == aStrSpecie:
+                AgentSpecie = instance
+                break
+        return AgentSpecie
+
+    def getAgentSpecies(self):
+        species=[]
+        for instance in SGAgent.instances:
+            if instance.me == 'collec':
+                species.append(instance)
+        return species
+
+    def updateIDincr(self, newValue):
+        self.IDincr = newValue
+        return self.IDincr
+    
+    def updateIDmemory(self, aSpecies):
+        aSpecies.memoryID = aSpecies.memoryID+1
+
+    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, aDictofAttributs=None):
+        """
+        Create a new Agent in the associated species.
+
+        Args:
+            aGrid (instance) : the grid you want your agent in
+            aAgentSpecies (instance) : the species of your agent
+            ValueX (int) : Column position in grid (Default=Random)
+            ValueY (int) : Row position in grid (Default=Random)
+
+        Return:
+            a new nest in the species dict for the agent
+            a agent
+
+
+        """
+        anAgentID = str(aAgentSpecies.memoryID)
+        self.updateIDmemory(aAgentSpecies)
+
+
+        if ValueX == None:
+            ValueX = random.randint(1, aGrid.columns)
+        if ValueY == None:
+            ValueY = random.randint(1, aGrid.rows)
+            if ValueY < 1:
+                ValueY = +1
+        locationCell = aGrid.getCell(ValueX, ValueY)
+
+        if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
+            uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        aAgent.isDisplay = True
+        aAgent.species = str(aAgentSpecies.name)
+        aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
         
-    #To get a gameSpace in particular
-    def getGameSpace(self,name):
-        return self.gameSpaces[name]
+        if aAgentSpecies.dictOfAttributs is not None:
+            for aAtt in aAgentSpecies.dictOfAttributs.keys():
+                if aAgent.dictOfAttributs is None:
+                    aAgent.dictOfAttributs={}
+                    aAgent.dictOfAttributs[aAtt]=None
+                    aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+                else :
+                    if aAtt in aAgent.dictOfAttributs.keys():
+                        if aAgent.dictOfAttributs[aAtt] is None:
+                            aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+                    else:
+                        aAgent.dictOfAttributs[aAtt]=None
+                        aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        aAgent.show()
+        return aAgent
     
-    #To apply the layout to all the current game spaces
+    def newAgent_ADMINONLY(self, aGrid, aAgentSpecies, ValueX, ValueY, aDictofAttributs, aPrivateID):
+        """
+        Do not use.
+        """
+        locationCell = aGrid.getCell(int(ValueX), int(ValueY))
+        if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
+            uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+        anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
+        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,aDictofAttributs, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        aAgent.isDisplay = True
+        aAgent.species = str(aAgentSpecies.name)
+        aAgent.privateID = aPrivateID
+        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        aAgent.show()
+        return aAgent
+
+
+    def getIdFromPrivateId(self, aPrivateID, aSpeciesName):
+        result=re.search(f'{aSpeciesName}(\d+)', aPrivateID)
+        if result:
+            anID=result.group(1)
+            return anID
+        raise ValueError("Check again!")
+
+
+    def getAgents(self, species=None):
+        """
+        Return the list of all Agents in the model
+        """
+        agent_list = []
+        for animal, sub_dict in self.agentSpecies.items():
+            for agent_id, agent_dict in sub_dict['AgentList'].items():
+                agent_list.append(agent_dict['AgentObject'])
+        # If we want only the agents of one specie
+        if species is not None:
+            agent_list = []
+            agent_objects = []
+            if species in self.agentSpecies.keys():
+                animal = species
+                subdict = self.agentSpecies[animal]["AgentList"]
+                for agent in subdict:
+                    agent_objects.append(subdict[agent]["AgentObject"])
+
+                return agent_objects
+        # All agents in model
+        return agent_list
+    
+    def getAgentsPrivateID(self):
+        agents=self.getAgents()
+        agents_privateID=[]
+        for agent in agents:
+            agents_privateID.append(agent.privateID)
+        return agents_privateID
+
+    def getAgent(self,aSpecies,aID):
+        """Function to get an Agent with a Species and an ID.
+        
+        Args:
+            aSpecies (str): the name of the concerned species
+            anID (str): species related identificator of the agent
+            """
+        agent_list=self.getAgents(species=aSpecies.name)
+        for aAgent in agent_list:
+            if aAgent.id==aID:
+                return aAgent
+
+
+    # To copy an Agent to make a move
+    def copyOfAgentAtCoord(self, aCell, oldAgent):
+        newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictOfAttributs, oldAgent.id, me='agent')
+        newAgent.isDisplay = True
+        newAgent.species = oldAgent.species
+        newAgent.color = oldAgent.color
+        newAgent.privateID = oldAgent.privateID
+        self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictOfAttributs, "AgentObject": newAgent}                                                                           
+        newAgent.update()
+        newAgent.show()
+        self.update()
+        return newAgent
+    
+    # To add an Agent on a particular Cell type
+
+    """IN PROGRESS"""
+
+    # To delete an Agent
+    def deleteAgent(self, aSpeciesName, anAgentID):
+        """
+        Delete an Agent.
+
+        args:
+            aSpeciesName (str): name of the AgentSpecies
+            anAgentID (int, optional): the ID of the agent you want to delete. If None, a random agent.
+        """
+        if anAgentID is None:
+            theSpecies=self.getAgentSpecie(aSpeciesName)
+            anAgentID=random.randint(1,theSpecies.memoryID)
+        aAgent = self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]["AgentObject"]
+        aAgent.cell.updateDepartureAgent(aAgent)
+        aAgent.deleteLater()
+        del self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]
+        self.update()
+        # self.updateLegendAdmin()    --> Removed. This is a useless method
+        self.show()
+
+    # To randomly move all agents
+    def moveRandomlyAgents(self, aGrid, numberOfMovement):
+        for aAgent in self.getAgents():
+            aAgent.moveAgent(aGrid, numberOfMovement=numberOfMovement)
+
+    # To create a modelAction
+    def newModelAction(self, actions=[], conditions=[], feedbacks=[]):
+        """
+        To add a model action which can be executed during a modelPhase
+        args:
+            actions (lambda function): Actions the model performs during the phase (add, delete, move...)
+            conditions (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): Feedback actions performed only if the actions are executed
+        """
+        aModelAction = SGModelAction(actions, conditions, feedbacks)
+        self.id_modelActions += 1
+        aModelAction.id = self.id_modelActions
+        aModelAction.model = self
+        return aModelAction
+
+    # To create a player
+    def newPlayer(self, name):
+        """"
+        Create a new player
+
+        Args:
+            name (str) : name of the Player (will be displayed)
+        """
+        player = SGPlayer(self, name)
+        self.players[name] = player
+        self.users.append(player.name)
+        return player
+
+    # To get the current player
+
+    def getCurrentPlayer(self):
+        return self.currentPlayer
+
+    def getPlayerObject(self, playerName):
+        if playerName == "Admin":
+            return playerName
+        else:
+            return self.players[playerName]
+    
+    def setCurrentPlayer(self, playerName):
+        """
+        Set the Active Player at the initialisation
+
+        Args:
+            playerName (str): predefined playerName
+
+        """
+        if playerName in self.players.keys():
+            self.currentPlayer = playerName
+            if self.myUserSelector is not None:
+                self.myUserSelector.initSelector(playerName)
+
+    # To get all the players
+    def getPlayer(self, playerName):
+        return self.players[playerName]
+    
+    # To select only users with a control panel
+    def users_withControlPanel(self):
+        selection=[]
+        if self.adminLegend != None:
+            selection.append('Admin')     
+        for aP in self.players.values():
+            if aP.controlPanel !=  None:
+                selection.append(aP.name) 
+        return selection
+
+    # To create a Time Label
+    def newTimeLabel(self, name="Phases&Rounds", backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
+        """
+        Create the visual time board of the game
+
+        Args:
+        name (str) : name of the widget (default:"Phases&Rounds")
+        backgroundColor (Qt Color) : color of the background (default : Qt.white)
+        borderColor (Qt Color) : color of the border (default : Qt.black)
+        textColor (Qt Color) : color of the text (default : Qt.black)
+        """
+        aTimeLabel = SGTimeLabel(
+            self, name, backgroundColor, borderColor, textColor)
+        self.myTimeLabel = aTimeLabel
+        self.gameSpaces[name] = aTimeLabel
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aTimeLabel)
+        aTimeLabel.setStartXBase(newPos[0])
+        aTimeLabel.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aTimeLabel.move(aTimeLabel.startXBase, aTimeLabel.startYBase +
+                            20*self.layoutOfModel.getNumberOfAnElement(aTimeLabel))
+        elif (self.typeOfLayout == "horizontal"):
+            aTimeLabel.move(aTimeLabel.startXBase+20 *
+                            self.layoutOfModel.getNumberOfAnElement(aTimeLabel), aTimeLabel.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aTimeLabel)
+            aTimeLabel.move(aTimeLabel.startXBase+20 *
+                            pos[0], aTimeLabel.startYBase+20*pos[1])
+
+        self.applyPersonalLayout()
+
+        return aTimeLabel
+
+    # To create a Text Box
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box'):
+        """
+        Create a text box
+
+        Args:
+        textToWrite (str) : displayed text in the widget (default: "Welcome in the game!")
+        title (str) : name of the widget (default: "Text Box")
+
+        """
+        aTextBox = SGTextBox(self, textToWrite, title)
+        self.TextBoxes.append(aTextBox)
+        self.gameSpaces[title] = aTextBox
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aTextBox)
+        aTextBox.setStartXBase(newPos[0])
+        aTextBox.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aTextBox.move(aTextBox.startXBase, aTextBox.startYBase +
+                          20*self.layoutOfModel.getNumberOfAnElement(aTextBox))
+        elif (self.typeOfLayout == "horizontal"):
+            aTextBox.move(aTextBox.startXBase+20 *
+                          self.layoutOfModel.getNumberOfAnElement(aTextBox), aTextBox.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aTextBox)
+            aTextBox.move(aTextBox.startXBase+20 *
+                          pos[0], aTextBox.startYBase+20*pos[1])
+
+        self.applyPersonalLayout()
+
+        return aTextBox
+
+    def deleteTextBox(self, titleOfTheTextBox):
+        del self.gameSpaces[titleOfTheTextBox]
+
+    def getTextBoxHistory(self, TextBoxes):
+        for aTextBox in TextBoxes:
+            print(str(aTextBox.id)+' : '+str(aTextBox.history))
+
+    def newDashBoard(self, title='DashBoard', displayRefresh='instantaneous', borderColor=Qt.black, backgroundColor=Qt.transparent, textColor=Qt.black):
+        """
+        Create the score board of the game
+
+        Args:
+        title (str) : title of the widget (default:"Phases&Rounds")
+        displayRefresh (str) : type of refresh in ['instantaneous', 'withButton'] (default:'instantaneous') 
+        backgroundColor (Qt Color) : color of the background (default : Qt.transparent)
+        borderColor (Qt Color) : color of the border (default : Qt.black)
+        textColor (Qt Color) : color of the text (default : Qt.black)
+        """
+        aDashBoard = SGDashBoard(
+            self, title, displayRefresh, borderColor, backgroundColor, textColor)
+        self.gameSpaces[title] = aDashBoard
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aDashBoard)
+        aDashBoard.setStartXBase(newPos[0])
+        aDashBoard.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aDashBoard.move(aDashBoard.startXBase, aDashBoard.startYBase +
+                            20*self.layoutOfModel.getNumberOfAnElement(aDashBoard))
+        elif (self.typeOfLayout == "horizontal"):
+            aDashBoard.move(aDashBoard.startXBase+20 *
+                            self.layoutOfModel.getNumberOfAnElement(aDashBoard), aDashBoard.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aDashBoard)
+            aDashBoard.move(aDashBoard.startXBase+20 *
+                            pos[0], aDashBoard.startYBase+20*pos[1])
+
+        self.applyPersonalLayout()
+
+        return aDashBoard
+
+    def newEndGameRule(self, title='EndGame Rules', numberRequired=1):
+        """
+        Create the EndGame Rule Board of the game
+
+        Args:
+            title (str) : header of the board, displayed (default : EndGame Rules)
+            numberRequired (int) : number of completed conditions to trigger EndGame
+        """
+        aEndGameRule = SGEndGameRule(self, title, numberRequired)
+        self.gameSpaces[title] = aEndGameRule
+        self.endGameRule = aEndGameRule
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aEndGameRule)
+        aEndGameRule.setStartXBase(newPos[0])
+        aEndGameRule.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aEndGameRule.move(aEndGameRule.startXBase, aEndGameRule.startYBase +
+                              20*self.layoutOfModel.getNumberOfAnElement(aEndGameRule))
+        elif (self.typeOfLayout == "horizontal"):
+            aEndGameRule.move(aEndGameRule.startXBase+20*self.layoutOfModel.getNumberOfAnElement(
+                aEndGameRule), aEndGameRule.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aEndGameRule)
+            aEndGameRule.move(aEndGameRule.startXBase+20 *
+                              pos[0], aEndGameRule.startYBase+20*pos[1])
+
+        self.applyPersonalLayout()
+
+        return aEndGameRule
+
+    def getCurrentRound(self):
+        """Return the actual ingame round"""
+        return self.timeManager.currentRound
+
+    def getCurrentPhase(self):
+        """Return the actual ingame phase"""
+        return self.timeManager.currentPhase
+    
+    def newSimVariable(self,initValue,name,color=Qt.black,isDisplay=True):
+        aSimVar=SGSimulationVariables(self,initValue,name,color,isDisplay)
+        self.simulationVariables.append(aSimVar)
+        return aSimVar
+
+    # ---------
+# Layout
+
+    # To get a gameSpace in particular
+
+    def getGameSpace(self, name):
+        return self.gameSpaces[name]
+
+    # To apply the layout to all the current game spaces
     def applyPersonalLayout(self):
         self.layoutOfModel.ordered()
-        for anElement in self.gameSpaces :
-            if(self.typeOfLayout=="vertical"):
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase,self.gameSpaces[anElement].startYBase+20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]))
-            elif(self.typeOfLayout=="horizontal"):
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]),self.gameSpaces[anElement].startYBase)    
+        for anElement in self.gameSpaces:
+            if (self.typeOfLayout == "vertical"):
+                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase, self.gameSpaces[anElement].startYBase +
+                                                20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]))
+            elif (self.typeOfLayout == "horizontal"):
+                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*self.layoutOfModel.getNumberOfAnElement(
+                    self.gameSpaces[anElement]), self.gameSpaces[anElement].startYBase)
             else:
-                pos=self.layoutOfModel.foundInLayout(self.gameSpaces[anElement])
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*pos[0],self.gameSpaces[anElement].startYBase+20*pos[1])
+                pos = self.layoutOfModel.foundInLayout(
+                    self.gameSpaces[anElement])
+                self.gameSpaces[anElement].move(
+                    self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
+    
+    def checkLayout(self,name,element,otherName,otherElement):
+        if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
+            #print(f"{name} intersects or contains {otherName}.")
+            return True
+        return False
+    
+    def moveWidgets(self):
+        for name,element in self.gameSpaces.items():
+            for otherName,otherElement in self.gameSpaces.items():
+                while self.checkLayout(name,element,otherName,otherElement):
+                    if element.areaCalc() <= otherElement.areaCalc():
+                                local_pos=element.pos()
+                                element.move(local_pos.x()+10,local_pos.y()+10)
+                    else:
+                        local_pos=otherElement.pos()
+                        otherElement.move(local_pos.x()+10,local_pos.y()+10)
+
+    def moveToCoords(self,gameSpaceName,x,y):
+        """
+        Permits to move a GameSpace at a specific coordinate based on the left upper corner
+
+        Args:
+            gameSpaceName (str) : name of the GameSpace you want to move
+            x (int) : x-axis corrdinate in pixels
+            y (int) : y-axis corrdinate in pixels
+        """
+        for name,element in self.gameSpaces.items():
+            if name==gameSpaceName:
+                theGameSpace=element
+                break
+        if theGameSpace is None:
+            raise ValueError("This name doesn't exist. Please check.")
+        if x < self.width() + theGameSpace.width() or x < 0:
+            if y < self.height() + theGameSpace.height() or y < 0:
+                theGameSpace.move(x,y)
+            else:
+                raise ValueError('The y value is too high or negative')
+        else:
+            raise ValueError('The x value is too high or negative')
+        
         
 
-            
-        
-            
-    #------
-#Pov
+    # ------
+# Pov
 
-    #To choose the global inital pov when the game start
-    def setInitialPovGlobal(self,nameOfPov):
-        self.nameOfPov=nameOfPov
-        for anGameSpace in self.getLegends():
-            self.gameSpaces[anGameSpace.id].initUI()
+    # To choose the global inital pov when the game start
+
+    def setInitialPov(self, nameOfPov):
+        self.nameOfPov = nameOfPov
+        for aGameSpace in self.getLegends():
+            self.gameSpaces[aGameSpace.id].initUI()
         self.update()
-        
-    
-    #To add a new POV and apply a value to cell
-    def setUpCellValueAndPov(self,aNameOfPov,aDict,items,defaultAttributForPov=None,DefaultValueAttribut=None,listOfGridToApply=None):
-        if not isinstance(items,list):
-            items=[items]
-        for anItem in items :
-            if(isinstance(anItem,SGGrid)==True):
-                anItem.collectionOfCells.povs[aNameOfPov]=aDict
-                for aCell in list(anItem.collectionOfCells.getCells().values()) :
-                        if aCell.attributs is None :
-                            aCell.attributs = {}
-                        if defaultAttributForPov ==None :
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aCell.attributs.keys() :
-                                    aCell.attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]       
-                        elif defaultAttributForPov and DefaultValueAttribut is None:
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aCell.attributs.keys() :
-                                    aCell.attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
-                        else :
-                            for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                if aNameOfPov not in aCell.attributs.keys() :
-                                    aCell.attributs[defaultAttributForPov]=DefaultValueAttribut
-            elif(isinstance(anItem,str)==True):
-                for aGrid in listOfGridToApply:
-                    for anAgent in aGrid.collectionOfAcceptAgent :
-                        if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
-                            if defaultAttributForPov ==None :
-                                for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[list(aDict.keys())[anAttributeIndex]]=list(aDict[list(aDict.keys())[anAttributeIndex]].keys())[0]           
-                            elif defaultAttributForPov and DefaultValueAttribut is None:
-                                for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=list(aDict[defaultAttributForPov].keys())[0]
-                            else :
-                                for anAttributeIndex in range(len(list(aDict.keys()))) :
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]={}
-                                    aGrid.collectionOfAcceptAgent[anAgent].attributs[defaultAttributForPov]=DefaultValueAttribut
-            #Adding the Pov to the menue bar
-            if aNameOfPov not in self.listOfPovsForMenu :
-                self.listOfPovsForMenu.append(aNameOfPov)
-                anAction=QAction(" &"+aNameOfPov, self)
-                self.povMenu.addAction(anAction)
-                anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
-                
-                
-    #To add a new POV and apply a value to cell
-    def setUpPov(self,aNameOfPov,aDict,items,listOfGridToApply=None):
-        if not isinstance(items,list):
-            items=[items]
-        for anItem in items :
-            if(isinstance(anItem,SGGrid)==True):
-                anItem.collectionOfCells.povs[aNameOfPov]=aDict
-            elif(isinstance(anItem,str)==True):
-                for aGrid in listOfGridToApply:
-                    for anAgent in aGrid.collectionOfAcceptAgent :
-                        if aGrid.collectionOfAcceptAgent[anAgent].name ==anItem:
-                            aGrid.collectionOfAcceptAgent[anAgent].theCollection.povs[aNameOfPov]=aDict
-            #Adding the Pov to the menue bar
-            if aNameOfPov not in self.listOfPovsForMenu :
-                self.listOfPovsForMenu.append(aNameOfPov)
-                anAction=QAction(" &"+aNameOfPov, self)
-                self.povMenu.addAction(anAction)
-                anAction.triggered.connect(lambda: self.setInitialPovGlobal(aNameOfPov))
-                
-                        
-                    
-                
-        
-    #-----------------------------------------------------------  
-    #TimeManager functions
-    
-    def getTimeManager(self):
-        return self.timeManager   
-    
-    #-----------------------------------------------------------  
-    #Game mechanics function 
-    
-    def createCreateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
-        return SGCreate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
-    
-    def createUpdateAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
-        return SGUpdate(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
-    
-    def createDeleteAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[]):
-        return SGDelete(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack) 
-    
-    def createMooveAction(self,anObjectType,aNumber,aDictOfAcceptedValue={},listOfRestriction=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
-        return SGMove(anObjectType,aNumber,aDictOfAcceptedValue,listOfRestriction,feedBack,conditionOfFeedBack,feedbackAgent,conditionOfFeedBackAgent) 
-    
-    #-----------------------------------------------------------  
-    #Getter
-    
-    #To get all type of gameSpace who are grids
-    def getGrids(self):
-        listOfGrid=[]
-        for aGameSpace in list(self.gameSpaces.values()) :
-            if isinstance(aGameSpace,SGGrid):
-                listOfGrid.append(aGameSpace)
-        return listOfGrid 
-    
-    #To get all type of gameSpace who are legends
-    def getLegends(self):
-        listOfLegende=[]
-        for aGameSpace in list(self.gameSpaces.values()) :
-            if isinstance(aGameSpace,SGLegende):
-                listOfLegende.append(aGameSpace)
-        return listOfLegende 
 
+    # Adding the Pov to the menu bar
+    def addPovinMenuBar(self, nameOfPov):
+        if nameOfPov not in self.listOfPovsForMenu:
+            self.listOfPovsForMenu.append(nameOfPov)
+            anAction = QAction(" &"+nameOfPov, self)
+            self.povMenu.addAction(anAction)
+            anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
+        # if this is the pov is the first pov to be declared, than set it as the initial pov
+        if len(self.listOfPovsForMenu) == 1:
+            self.setInitialPov(nameOfPov)
+
+    # To add a new POV
+    def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None):
+        """
+        Declare a new Point of View for cells.
+
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+
+        """
+        if listOfGridsToApply == None:
+            # get the fisrt value of the dict
+            listOfGridsToApply = [list(self.gameSpaces.values())[0]]
+        if not isinstance(listOfGridsToApply, list):
+            listOfGridsToApply = [listOfGridsToApply]
+        for aGrid in listOfGridsToApply:
+            if (isinstance(aGrid, SGGrid) == True):
+                self.cellCollection[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
+        self.addPovinMenuBar(nameOfPov)
+
+    def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
+        """
+        Declare a new Point of View for cells (only for border color).
+
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+
+        """
+        if listOfGridsToApply == None:
+            # get the fisrt value of the dict
+            listOfGridsToApply = [list(self.gameSpaces.values())[0]]
+        if not isinstance(listOfGridsToApply, list):
+            listOfGridsToApply = [listOfGridsToApply]
+        for aGrid in listOfGridsToApply:
+            if (isinstance(aGrid, SGGrid) == True):
+                self.cellCollection[aGrid.id]["BorderPOV"][nameOfPov] = {
+                    aAtt: DictofColors}
+                self.cellCollection[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
+        self.addPovinMenuBar(nameOfPov)
+
+    # To get the list of Agent POV
+    def getAgentPOVs(self):
+        list_POV = {}
+        for species in self.agentSpecies.keys():
+            list_POV[species] = {}
+            if "POV" in self.agentSpecies[species]:
+                list_POV[species].update(self.agentSpecies[species]['POV'])
+        self.AgentPOVs = list_POV
+        return self.AgentPOVs
+
+    def getPovWithAttribut(self, attribut):
+        for aGrid in self.getGrids():
+            for aPov in self.cellCollection[aGrid.id]["ColorPOV"]:
+                for anAttribut in self.cellCollection[aGrid.id]["ColorPOV"][aPov].keys():
+                    if attribut == anAttribut:
+                        return aPov
+
+    def getBorderPovWithAttribut(self, attribut):
+        for aGrid in self.getGrids():
+            for aBorderPov in self.cellCollection[aGrid.id]["BorderPOV"]:
+                for anAttribut in self.cellCollection[aGrid.id]["BorderPOV"][aBorderPov].keys():
+                    if attribut == anAttribut:
+                        return aBorderPov
+
+    # -----------------------------------------------------------
+    # TimeManager functions
+
+    def getTimeManager(self):
+        return self.timeManager
+
+    # -----------------------------------------------------------
+    # Game mechanics function
+
+    def newCreateAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+        """
+        Add a Create GameAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies or the keyword "Cell"
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+
+        """
+        if aNumber == "infinite":
+            aNumber = 9999999
+        return SGCreate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
+
+    def newUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+        """
+        Add a Update GameAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies or the keyword "Cell"
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+
+        """
+        if anObjectType == 'Cell':
+            anObjectType = SGCell
+        if aNumber == "infinite":
+            aNumber = 9999999
+        return SGUpdate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
+
+    def newDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+        """
+        Add a Delete GameAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+
+        """
+        if aNumber == "infinite":
+            aNumber = 9999999
+        if anObjectType == 'Cell':
+            anObjectType = SGCell
+        return SGDelete(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
+
+    def newMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
+        """
+        Add a MoveAction to the game.
+
+        Args:
+        - anObjectType : a AgentSpecies
+        - a Number (int) : number of utilisation, could use "infinite"
+        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+
+        """
+        if aNumber == "infinite":
+            aNumber = 9999999
+        return SGMove(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack, feedbackAgent, conditionOfFeedBackAgent)
+
+    # -----------------------------------------------------------
+    # Getter
+
+    # To get all type of gameSpace who are grids
+    def getGrids(self):
+        listOfGrid = []
+        for aGameSpace in list(self.gameSpaces.values()):
+            if isinstance(aGameSpace, SGGrid):
+                listOfGrid.append(aGameSpace)
+        return listOfGrid
     
-    #To change the number of zoom we actually are
-    def setNumberOfZoom(self,number):
-        self.numberOfZoom = number    
-        
-    #To change the number of zoom we actually are
-    def iAm(self,aNameOfPlayer):
-        self.whoIAm=aNameOfPlayer
-        
-    #To open and launch the game
+    def getGrid_withID(self, aGridID):
+        Grids=self.getGrids()
+        for aGrid in Grids:
+            if aGrid.id==aGridID:
+                return aGrid
+
+    # To get all type of gameSpace who are legends
+    def getLegends(self):
+        listOfLegend = []
+        for aGameSpace in list(self.gameSpaces.values()):
+            if isinstance(aGameSpace, SGLegend):
+                listOfLegend.append(aGameSpace)
+        return listOfLegend
+
+    # To change the number of zoom we currently are
+    def setNumberOfZoom(self, number):
+        self.numberOfZoom = number
+
+    # To set User list
+    def setUsers(self, listOfUsers):
+        self.users = listOfUsers
+
+    # To open and launch the game without a mqtt broker
     def launch(self):
-        self.initMQTT()
+        """
+        Launch the game.
+        """
         self.show()
+
+    # To open and launch the game
+    def launch_withMQTT(self,majType):
+        """
+        Launch the game with mqtt protocol
+
+        Args:
+            majType (str): "Phase" or "Instantaneous"
         
-    #Dunction that process the message
-    def handleMessageMainThread(self):
-            msg = str(self.q.get())
-            print(msg)
-            info=eval(str(msg)[2:-1])
-            print("process un message")
-            if len(info)==1:
-                if msg not in self.listOfSubChannel:
-                    self.listOfSubChannel.append(info[0])
-                self.client.subscribe(info[0])
-                self.client.publish(self.whoIAm,self.submitMessage())
-            else:
-                if info[2]!= self.whoIAm:
-                    allCells=[]
-                    for aGrid in self.getGrids():
-                        for aCell in list(aGrid.collectionOfCells.getCells().values()):
-                            allCells.append(aCell)
-                        
-                    for i in range(len(info[0])):
-                        allCells[i].isDisplay=info[0][i][0]
-                        allCells[i].attributs=info[0][i][1]
-                        allCells[i].owner=info[0][i][2]
-                        allCells[i].history=info[0][i][3]
-                        if allCells[i].x==0 and allCells[i].y==0:
-                            if allCells[i].parent.haveAgents():
-                                for aCell in allCells[i].parent.collectionOfCells.getCells().values():
-                                    aCell.deleteAllAgent()
-                        if len(info[0][i][4]) !=0:
-                            for j in range(len(info[0][i][4])):
-                                agent=allCells[i].parent.addOnXandY(info[0][i][4][j][0],allCells[i].x+1,allCells[i].y+1)
-                                agent.attributs=info[0][i][4][j][1]
-                                agent.owner=info[0][i][4][j][2]
-                                agent.history=info[0][i][4][j][3]
-                                agent.x=info[0][i][4][j][4]
-                                agent.y=info[0][i][4][j][5]
-                    #We change the time manager
-                    self.timeManager.actualPhase=info[1][0]
-                    self.timeManager.actualRound=info[1][1]
-                    #We subscribe 
-                    for sub in info[3]:
-                        if sub != self.whoIAm:
-                            self.client.subscribe(sub)
-                    if self.timeManager.actualPhase==0:
-                        #We reset GM
-                        for gm in self.getGM():
-                            gm.reset()
-                    
+        """
+        self.majTimer = QTimer(self)
+        self.majTimer.timeout.connect(self.onMAJTimer)
+        self.majTimer.start(1000)
+        self.initMQTT()
+        self.mqttMajType=majType
+        self.show()
+
+    # Return all the GM of players
+    def getGM(self):
+        listOfGm = []
+        for player in self.players.values():
+            for gm in player.gameActions:
+                listOfGm.append(gm)
+        return listOfGm
+
+    # Function that process the message
+    def handleMessageMainThread(self,msg_list):
+        processedMajs=set()
+        if msg_list[0][0] not in processedMajs:
+            print("Update processing...")
+        else:
+            return print("Maj already processed !")
+        # CELL MANAGEMENT
+        gridNumber=0
+        for aGrid in self.getGrids():
+            cellCount=int(msg_list[1][gridNumber])
+            allCells = []
+            for aCell in list(self.getCells(aGrid)):
+                allCells.append(aCell)
+            for i in range(len(msg_list[2:cellCount+1])):
+                allCells[i].isDisplay = msg_list[2+i][0]
+                allCells[i].dictOfAttributs = msg_list[2+i][1]
+                allCells[i].owner = msg_list[2+i][2]
+            gridNumber=+1
+
+        # AGENT MANAGEMENT
+        nbToStart=sum(msg_list[1])
+        for j in range(len(msg_list[nbToStart+2:-5])):
+            privateID=msg_list[nbToStart+2+j][0]
+            speciesName=msg_list[nbToStart+2+j][1]
+            dictOfAttributs=msg_list[nbToStart+2+j][2]
+            owner=msg_list[nbToStart+2+j][3]
+            agentX=msg_list[nbToStart+2+j][4][-3]
+            agentY=msg_list[nbToStart+2+j][4][-1]
+            grid=msg_list[nbToStart+2+j][5]
+            theGrid=self.getGrid_withID(grid)
+            aAgentSpecies=self.getAgentSpecie(speciesName)
+
+            self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictOfAttributs,privateID]
         
-    #MQTT BAsic function to  connect to the broker
+        # AGENT SPECIES MEMORY ID
+        speciesMemoryIdDict=msg_list[-5][0]
+        for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
+            theSpecies=self.getAgentSpecie(aSpeciesName)
+            theSpecies.memoryID=speciesMemoryID
+
+        # TIME MANAGEMENT
+        self.timeManager.currentPhase = msg_list[-4][0]
+        self.timeManager.currentRound = msg_list[-4][1]
+        if self.myTimeLabel is not None:
+            self.myTimeLabel.updateTimeLabel()
+        if self.timeManager.currentPhase == 0:
+            # We reset GM
+            for gm in self.getGM():
+                gm.reset()
+
+        # SIMULATION VARIABLES
+        self.simulationVariablesAtMAJ=msg_list[-3]
+
+        self.update()
+        print("Update processed !")
+
+    def getAgentIDFromMessage(self,message,nbCells):
+        """
+        Get the Agent ID list from an update message
+
+        args:
+            - message (array of string) : decoded mqtt message
+            - nbCells (int) : value in the message
+        """
+        majIDs=set()
+        for j in range(len(message[nbCells+2:-5])):
+            agID = message[nbCells+2+j][0]
+            majIDs.add(agID)
+        return majIDs
+
+    # MQTT Basic function to  connect to the broker
     def connect_mqtt(self):
+        def on_log(client, userdata, level, buf):
+            print("log: "+buf)
+
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
                 print("Connected to MQTT Broker!")
             else:
                 print("Failed to connect, return code %d\n", rc)
-                
+
+        def on_disconnect(client, userdata, flags, rc=0):
+            print("disconnect result code "+str(rc))
+
         print("connectMQTT")
-        self.client = mqtt_client.Client(self.whoIAm)
+        self.client = mqtt_client.Client(self.currentPlayer)
         self.client.on_connect = on_connect
+        self.client.on_disconnect = on_disconnect
+        self.client.on_log = on_log
         self.q = queue.Queue()
-        self.t1 = threading.Thread(target=self.handleClientThread,args=())
+        self.t1 = threading.Thread(target=self.handleClientThread, args=())
         self.t1.start()
-        self.timer.start(100)
+        self.timer.start(5)
         self.client.connect("localhost", 1883)
         self.client.user_data_set(self)
-    
-    #Thread that handle the listen of the client 
+
+    # Thread that handle the listen of the client
     def handleClientThread(self):
         while True:
             self.client.loop(.1)
-            if self.haveToBeClose==True:
+            if self.haveToBeClose == True:
                 break
-    
-     
-    #Init the MQTT client   
+
+    # Init the MQTT client
     def initMQTT(self):
         def on_message(client, userdata, msg):
             userdata.q.put(msg.payload)
-            
-        
-        
+            print("message received " + msg.topic)
+            message = self.q.get()
+            msg_decoded = message.decode("utf-8")
+            msg_list = eval(msg_decoded)
+            if self.currentPlayer not in msg_list[0][0]:
+                for aAgent in self.getAgents():
+                    self.deleteAgent(aAgent.species,aAgent.id)
+                    self.handleMessageMainThread(msg_list)
+            else:
+                print("Own update, no action required.")   
+
         self.connect_mqtt()
-        
-        #IF not admin Request which channel to sub
-        if self.whoIAm!="Admin":
-            print("on est notAdmin")
-            self.client.subscribe("Admin")
-            print("onSub a Admin")
+        self.mqtt=True
+
+        # IF not admin Request which channel to sub
+        if self.currentPlayer != "Admin":
+            self.client.subscribe("Gamestates")
             self.client.on_message = on_message
-            self.listOfSubChannel.append(self.whoIAm)
-            self.client.publish("newPlayer",str([self.whoIAm]))
-        #If Admin
+            self.listOfSubChannel.append("Gamestates")
+        # If Admin
         else:
-            print("On Est admin")
-            self.client.subscribe("newPlayer")
-            print("onSub a newPlayer")
+            self.client.subscribe("Gamestates")
             self.client.on_message = on_message
-            
+            self.listOfSubChannel.append("Gamestates")
 
-            
-    
-            
-        
-    #Send a message                   
+
+    # publish on mqtt broker the state of all entities of the world
+    def publishEntitiesState(self):
+        if hasattr(self, 'client'):
+            self.client.publish('Gamestates', self.submitMessage())
+
+
+    # Send a message
     def submitMessage(self):
-        print(self.whoIAm+" send un message")
-        message="["
-        allCells=[]
+        print(self.currentPlayer+" send un message")
+        majID = self.getMajID()
+        nb = str(majID)+"-"+self.currentPlayer
+        message = "[['"+nb+"'],"
+        allCells = []
+        listCellsByGrid=[]
+        theAgents = self.getAgents()
+        theSpecies = self.getAgentSpecies()
+        speciesMemoryIdDict={}
         for aGrid in self.getGrids():
-            for aCell in list(aGrid.collectionOfCells.getCells().values()):
+            for aCell in list(self.getCells(aGrid)):
                 allCells.append(aCell)
-        for i in range(len(allCells)):
-            message=message+"["
-            message=message+str(allCells[i].isDisplay)
-            message=message+","
-            message=message+str(allCells[i].attributs)
-            message=message+","
-            message=message+"'"+str(allCells[i].owner)+"'"
-            message=message+","
-            message=message+str(allCells[i].history)
-            message=message+","
-            message=message+"["
-            theAgents =allCells[i].collectionOfAgents.getAgents()
-            for j in range(len(theAgents)):
-                print("envoie agent "+str(j))
-                message=message+"["
-                message=message+"'"+str(theAgents[j].name)+"'"
-                message=message+","
-                message=message+str(theAgents[j].attributs)
-                message=message+","
-                message=message+"'"+str(theAgents[j].owner)+"'"
-                message=message+","
-                message=message+str(theAgents[j].history)
-                message=message+","
-                message=message+str(theAgents[j].x)
-                message=message+","
-                message=message+str(theAgents[j].y)
-                message=message+"]"
-                if j != len(theAgents):
-                    message=message+","
-            message=message+"]"
-            message=message+"]"
-            if i != len(allCells):
-                message=message+","
-        message=message+"]"
-        message=message+","
-        message=message+"["
-        message=message+str(self.timeManager.actualPhase)
-        message=message+","
-        message=message+str(self.timeManager.actualRound)
-        message=message+","
-        message=message+"]"
-        message=message+","
-        message=message+"["
-        message=message+"'"+str(self.whoIAm)+"'"
-        message=message+"]"
-        message=message+","
-        message=message+str(self.listOfSubChannel)
-        print(message)
-        return message
-        
-    #Event that append at every end of the timer ( litteral )  
-    def eventTime(self):
-        if not self.q.empty():
-            self.handleMessageMainThread()
-     
-     #Return all the GM of players 
-    def getGM(self):
-        listOfGm=[]
-        for player in self.collectionOfPlayers.values() :
-            for gm in player.gameActions:
-                listOfGm.append(gm)
-        return listOfGm
-    
-    
-            
-        
-    
+            listCellsByGrid.append(len(allCells))
+        message = message+str(listCellsByGrid)+","
+        for aNumberOfCells in listCellsByGrid:
+            for i in range(aNumberOfCells):
+                message = message+"["
+                message = message+str(allCells[i].isDisplay)
+                message = message+","
+                message = message+str(allCells[i].dictOfAttributs)
+                message = message+","
+                message = message+"'"+str(allCells[i].owner)+"'"
+                message = message+"]"
+                if i != aNumberOfCells:
+                    message = message+","
+        for aAgent in theAgents:
+            message = message+"["
+            message = message+"'"+str(aAgent.privateID)+"'"
+            message = message+","
+            message = message+"'"+str(aAgent.species)+"'"
+            message = message+","
+            message = message+str(aAgent.dictOfAttributs)
+            message = message+","
+            message = message+"'"+str(aAgent.owner)+"'"
+            message = message+","
+            message = message+"'"+str(aAgent.cell.name)+"'"
+            message = message+","
+            message = message+"'"+str(aAgent.cell.grid.id)+"'"
+            message = message+"]"
+            message = message+","
 
+        for aSpecies in theSpecies:
+            speciesMemoryIdDict[aSpecies.name]=aSpecies.memoryID
+
+        message = message+"["
+        message = message+str(speciesMemoryIdDict)
+        message = message+"]"
+        message = message+","
+        message = message+"["
+        message = message+str(self.timeManager.currentPhase)
+        message = message+","
+        message = message+str(self.timeManager.currentRound)
+        message = message+"]"
+        message = message+","
+        message = message+"["
+        for k in range(len(self.simulationVariables)):
+            message = message+str({self.simulationVariables[k].name:self.simulationVariables[k].value})
+            if k != len(self.simulationVariables):
+                message = message+","
+        message = message+"]"
+        message = message+","
+        message = message+"["
+        message = message+"'"+str(self.currentPlayer)+"'"
+        message = message+"]"
+        message = message+","
+        message = message+str(self.listOfSubChannel)
+        message = message+"]"
+        print(message)
+        self.listOfMajs.append(str(majID)+"-"+self.currentPlayer)
+        return message
+
+    def getMajID(self):
+        majID = len(self.listOfMajs)
+        return majID
     
+    def onMAJTimer(self):
+        self.updateAgentsAtMAJ()
+        self.updateScoreAtMAJ()
+        self.timeManager.checkDashBoard()
+        self.timeManager.checkEndGame()
+        
+    def updateAgentsAtMAJ(self):
+        for j in self.dictAgentsAtMAJ.keys():
+            newAgent=self.newAgent_ADMINONLY(self.dictAgentsAtMAJ[j][0],self.dictAgentsAtMAJ[j][1],self.dictAgentsAtMAJ[j][2],self.dictAgentsAtMAJ[j][3],self.dictAgentsAtMAJ[j][4],self.dictAgentsAtMAJ[j][5])
+            newAgent.cell.updateIncomingAgent(newAgent)
+        self.dictAgentsAtMAJ={}
+    
+    def updateScoreAtMAJ(self):
+        for aGameSpace in self.gameSpaces:
+            if isinstance(aGameSpace,SGDashBoard):
+                for aIndicator in aGameSpace.indicators:
+                    if isinstance(aIndicator.entity,SGSimulationVariables):
+                        for aDictOfSimVar in self.simulationVariablesAtMAJ:
+                            if aIndicator.entity.name == aDictOfSimVar.keys():
+                                aIndicator.updateByMqtt(aDictOfSimVar.values())
+        self.simulationVariablesAtMAJ=[]
+
