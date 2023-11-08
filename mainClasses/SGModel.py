@@ -197,8 +197,7 @@ class SGModel(QtWidgets.QMainWindow):
         sep4 = QAction('|', self, enabled=False)
         self.menuBar().addAction(sep4)
 
-        inspectMenu = self.menuBar().addMenu(
-            QIcon("./icon/information.png"), "&inspectElement")
+        inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"), "&inspectElement")
         """To be finished to be implementd"""
 
         self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
@@ -1160,11 +1159,23 @@ class SGModel(QtWidgets.QMainWindow):
 
     def addClassDefPovinMenuBar(self, aClassDef,nameOfPov):
         anAction = QAction(" &"+nameOfPov, self)
-        self.povMenu.addAction(anAction)
-        anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
+        anAction.triggered.connect(lambda: aClassDef.applyPov(nameOfPov))
+        aSubMenu = self.povSubMenuForEntity(aClassDef.entityName)
+        aSubMenu.addAction(anAction)
         # if this is the pov is the first pov to be declared, than set it as the initial pov
-        if len(self.listOfPovsForMenu) == 1:
-            self.setInitialPov(nameOfPov)
+        # if len(self.listOfPovsForMenu) == 1:
+        #     self.setInitialPov(nameOfPov)
+    def povSubMenuForEntity(self,entityName):
+        self.menuBar().addMenu('&test')
+        self.findChild(QMenu,'&test')
+        self.menuBar().findChild(QObject,'&test')
+        len(self.menuBar().children())
+        self.menuBar().findChild(QMenu,"&pov")
+
+        #code utilisé plus haut
+        # self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
+
+
 
     # To add a new POV
     # def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None):

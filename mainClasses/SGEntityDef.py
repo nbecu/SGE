@@ -52,7 +52,8 @@ class SGEntityDef():
             
         """
         self.povShapeColor[nameofPOV]={str(concernedAtt):dictOfColor}
-        self.model.addPovinMenuBar(nameofPOV)
+        # self.model.addPovinMenuBar(nameofPOV)
+        self.model.addClassDefPovinMenuBar(self,nameofPOV)
         # if self.model.agentSpecies[self.entityName]['me']=='collec':
         #     self.color[str(nameofPOV)]={str(concernedAtt):dictOfColor}
         #     self.model.addPovinMenuBar(nameofPOV)
