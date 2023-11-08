@@ -1067,7 +1067,7 @@ class SGModel(QtWidgets.QMainWindow):
             self.setInitialPov(nameOfPov)
 
     # To add a new POV
-    def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None):
+    def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None, isDisplay=True):
         """
         Declare a new Point of View for cells.
 
@@ -1086,9 +1086,10 @@ class SGModel(QtWidgets.QMainWindow):
         for aGrid in listOfGridsToApply:
             if (isinstance(aGrid, SGGrid) == True):
                 self.cellCollection[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
-        self.addPovinMenuBar(nameOfPov)
+        if isDisplay == True:
+            self.addPovinMenuBar(nameOfPov)
 
-    def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
+    def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None, isDisplay=True):
         """
         Declare a new Point of View for cells (only for border color).
 
