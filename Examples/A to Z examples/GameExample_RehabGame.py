@@ -14,8 +14,7 @@ myModel = SGModel(
 
 
 # STEP2 Grid and Cells
-aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,
-                        name='grid1')  # ,posXY=[20,90]
+aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,name='grid1')
 aGrid.setCells("Resource", "2")
 aGrid.setCells("ProtectionLevel", "Free")
 aGrid.setRandomCells("Resource", "3", 7)
@@ -31,16 +30,10 @@ myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magent
 # STEP3 Agents
 Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", uniqueColor=Qt.black)
 Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", uniqueColor=Qt.yellow)
-# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
-# Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-# Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-# Sheeps.initDefaultAttValue("hunger","bad")
 
-aSecondBird=myModel.newAgentAtCoords(aGrid,Birds,4,5)
-aWorker=myModel.newAgentAtCoords(aGrid,Workers,2,2)
-# aSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,3)
-# aSecondSheep=myModel.newAgentAtCoords(aGrid,Sheeps,1,5)
-# aThirdSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,5)
+myModel.newAgentAtCoords(aGrid,Birds,4,5)
+myModel.newAgentAtCoords(aGrid,Workers,2,2)
+
 
 
 
@@ -58,9 +51,7 @@ Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-#Player2.addGameAction(myModel.newCreateAction(Sheeps,4))
 Player2.addGameAction(myModel.newCreateAction(Birds,4))
-# Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
 Player2.addGameAction(myModel.newUpdateAction(
