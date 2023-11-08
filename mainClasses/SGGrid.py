@@ -5,25 +5,22 @@ from PyQt5.QtCore import *
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGModel import *
-
-
 from PyQt5.QtWidgets import QAction
-
 import copy
 
 # Class who is responsible of the grid creation
 
 
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, rows=8, columns=8, cellShape="square", gap=3, size=30, aColor=None, moveable=True):
+    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True):
         super().__init__(parent, 0, 60, 0, 0)
         # Basic initialize
         self.zoom = 1
         # self.parent=parent
         self.model = parent
         self.id = name
-        self.rows = rows
         self.columns = columns
+        self.rows = rows
         self.cellShape = cellShape
         self.gap = gap
         self.size = size
@@ -37,7 +34,7 @@ class SGGrid(SGGameSpace):
 
         self.startXBase = 0
         self.startYBase = 0
-        random.seed(self.model.randomSeed)
+        # random.seed(self.model.randomSeed)
 
         if aColor != "None":
             self.setColor(aColor)

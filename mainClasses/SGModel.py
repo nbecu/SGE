@@ -117,8 +117,8 @@ class SGModel(QtWidgets.QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
-        self.randomSeed=42
-        random.seed(self.randomSeed)
+        # self.randomSeed=42
+        # random.seed(self.randomSeed)
         self.mqtt=False
         self.mqttMajType=None
         self.testMode=testMode
@@ -419,8 +419,7 @@ class SGModel(QtWidgets.QMainWindow):
             aGrid: the grid created with its cells
         """
         # Creation
-        aGrid = SGGrid(self, name, rows, columns, format,
-                       gap, size, color, moveable)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable)
         self.gameSpaces[name] = aGrid
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aGrid)
@@ -441,9 +440,9 @@ class SGModel(QtWidgets.QMainWindow):
     def newCellsFromGrid(self,grid):
         CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white )
         self.cellsInGrid[grid.id] = CellDef
-        for i in range(1, grid.rows + 1):
-            for j in range(1, grid.columns + 1):
-                CellDef.newCell(i, j)
+        for lin in range(1, grid.rows + 1):
+            for col in range(1, grid.columns + 1):
+                CellDef.newCell(col, lin)
 
     # To get the CellDef corresponding to a Grid
     def getCellDef(self, grid):
@@ -1159,50 +1158,58 @@ class SGModel(QtWidgets.QMainWindow):
         if len(self.listOfPovsForMenu) == 1:
             self.setInitialPov(nameOfPov)
 
+    def addClassDefPovinMenuBar(self, aClassDef,nameOfPov):
+        anAction = QAction(" &"+nameOfPov, self)
+        self.povMenu.addAction(anAction)
+        anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
+        # if this is the pov is the first pov to be declared, than set it as the initial pov
+        if len(self.listOfPovsForMenu) == 1:
+            self.setInitialPov(nameOfPov)
+
     # To add a new POV
-    def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None):
-        """
-        Declare a new Point of View for cells.
+    # def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None):
+    #     """
+    #     Declare a new Point of View for cells.
 
-        Args:
-            nameOfPov (str): name of POV, will appear in the interface
-            aAtt (str): name of the attribut
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+    #     Args:
+    #         nameOfPov (str): name of POV, will appear in the interface
+    #         aAtt (str): name of the attribut
+    #         DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+    #         listOfGridsToApply (list): list of grid names where the POV applies (default:None)
 
-        """
-        if listOfGridsToApply == None:
-            # get the fisrt value of the dict
-            listOfGridsToApply = [list(self.gameSpaces.values())[0]]
-        if not isinstance(listOfGridsToApply, list):
-            listOfGridsToApply = [listOfGridsToApply]
-        for aGrid in listOfGridsToApply:
-            if (isinstance(aGrid, SGGrid) == True):
-                self.cellsInGrid[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
-        self.addPovinMenuBar(nameOfPov)
+    #     """
+    #     if listOfGridsToApply == None:
+    #         # get the fisrt value of the dict
+    #         listOfGridsToApply = [list(self.gameSpaces.values())[0]]
+    #     if not isinstance(listOfGridsToApply, list):
+    #         listOfGridsToApply = [listOfGridsToApply]
+    #     for aGrid in listOfGridsToApply:
+    #         if (isinstance(aGrid, SGGrid) == True):
+    #             self.cellsInGrid[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
+    #     self.addPovinMenuBar(nameOfPov)
 
-    def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
-        """
-        Declare a new Point of View for cells (only for border color).
+    # def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
+    #     """
+    #     Declare a new Point of View for cells (only for border color).
 
-        Args:
-            nameOfPov (str): name of POV, will appear in the interface
-            aAtt (str): name of the attribut
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+    #     Args:
+    #         nameOfPov (str): name of POV, will appear in the interface
+    #         aAtt (str): name of the attribut
+    #         DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+    #         listOfGridsToApply (list): list of grid names where the POV applies (default:None)
 
-        """
-        if listOfGridsToApply == None:
-            # get the fisrt value of the dict
-            listOfGridsToApply = [list(self.gameSpaces.values())[0]]
-        if not isinstance(listOfGridsToApply, list):
-            listOfGridsToApply = [listOfGridsToApply]
-        for aGrid in listOfGridsToApply:
-            if (isinstance(aGrid, SGGrid) == True):
-                self.cellsInGrid[aGrid.id]["BorderPOV"][nameOfPov] = {
-                    aAtt: DictofColors}
-                self.cellsInGrid[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
-        self.addPovinMenuBar(nameOfPov)
+    #     """
+    #     if listOfGridsToApply == None:
+    #         # get the fisrt value of the dict
+    #         listOfGridsToApply = [list(self.gameSpaces.values())[0]]
+    #     if not isinstance(listOfGridsToApply, list):
+    #         listOfGridsToApply = [listOfGridsToApply]
+    #     for aGrid in listOfGridsToApply:
+    #         if (isinstance(aGrid, SGGrid) == True):
+    #             self.cellsInGrid[aGrid.id]["BorderPOV"][nameOfPov] = {
+    #                 aAtt: DictofColors}
+    #             self.cellsInGrid[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
+    #     self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV
     def getAgentPOVs(self):
