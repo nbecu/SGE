@@ -41,9 +41,11 @@ SQLAlchemy        2.0.3
 ```
 
 ## Future plan
-- [ ] SGEntity class to replace SGCell and SGAgent
+- [x] SGEntity class to replace SGCell and SGAgent
 - [x] Score and EndGame Rule refresh at each round
-- [ ] Find a permanent repair for Agent drag and drop
+- [x] Find a permanent repair for Agent drag and drop
+- [ ] Classification for entities
+- [ ] Debug Init phase
 
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)
