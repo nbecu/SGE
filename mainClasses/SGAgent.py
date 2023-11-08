@@ -31,28 +31,29 @@ class SGAgent(SGEntity):
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         self.setGeometry(0,0,self.size+1,self.size+1)
+        agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
         if self.isDisplay==True:
-            if(self.format=="circleAgent"):
+            if(agentShape=="circleAgent"):
                 self.setGeometry(x,y,self.size+1,self.size+1)
                 painter.drawEllipse(x,y,self.size,self.size)
-            elif self.format=="squareAgent":
+            elif agentShape=="squareAgent":
                 self.setGeometry(x,y,self.size+1,self.size+1)
                 painter.drawRect(x,y,self.size,self.size)
-            elif self.format=="ellipseAgent1": 
+            elif agentShape=="ellipseAgent1": 
                 self.setGeometry(x,y,self.size*2+1,self.size+1)
                 painter.drawEllipse(0,0,self.size*2,self.size)
-            elif self.format=="ellipseAgent2": 
+            elif agentShape=="ellipseAgent2": 
                 self.setGeometry(x,y,self.size+1,self.size*2+1)
                 painter.drawEllipse(0,0,self.size,self.size*2)
-            elif self.format=="rectAgent1": 
+            elif agentShape=="rectAgent1": 
                 self.setGeometry(x,y,self.size*2+1,self.size+1)
                 painter.drawRect(0,0,self.size*2,self.size)
-            elif self.format=="rectAgent2": 
+            elif agentShape=="rectAgent2": 
                 self.setGeometry(x,y,self.size+1,self.size*2+1)
                 painter.drawRect(0,0,self.size,self.size*2)
-            elif self.format=="triangleAgent1": 
+            elif agentShape=="triangleAgent1": 
                 self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
@@ -60,7 +61,7 @@ class SGAgent(SGEntity):
                 QPoint(self.size,  self.size)
                 ])
                 painter.drawPolygon(points)
-            elif self.format=="triangleAgent2": 
+            elif agentShape=="triangleAgent2": 
                 self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(0,0),
@@ -68,7 +69,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
-            elif self.format=="arrowAgent1": 
+            elif agentShape=="arrowAgent1": 
                 self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
@@ -77,7 +78,7 @@ class SGAgent(SGEntity):
                 QPoint(self.size,  self.size)
                 ])
                 painter.drawPolygon(points)
-            elif self.format=="arrowAgent2": 
+            elif agentShape=="arrowAgent2": 
                 self.setGeometry(x,y,self.size+1,self.size+1)
                 points = QPolygon([
                 QPoint(0,0),
@@ -88,32 +89,32 @@ class SGAgent(SGEntity):
                 painter.drawPolygon(points)
             painter.end()
     
-    def getColor(self):
-        if self.isDisplay==False:
-            return Qt.transparent
-        actualPov= self.getPov()
-        if actualPov in list(self.model.agentSpecies[self.species]['POV'].keys()):
-            self.model.agentSpecies[self.species]['selectedPOV']=self.model.agentSpecies[self.species]['POV'][actualPov]
-            for aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
-                if aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
-                    path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                    theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][path]
-                    self.color=theColor
-                    return theColor
+    # def getColor(self):
+    #     if self.isDisplay==False:
+    #         return Qt.transparent
+    #     actualPov= self.getPov()
+    #     if actualPov in list(self.model.agentSpecies[self.species]['POV'].keys()):
+    #         self.model.agentSpecies[self.species]['selectedPOV']=self.model.agentSpecies[self.species]['POV'][actualPov]
+    #         for aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
+    #             if aAtt in list(self.model.agentSpecies[self.species]['POV'][actualPov].keys()):
+    #                 path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+    #                 theColor=self.model.agentSpecies[self.species]['POV'][str(actualPov)][str(aAtt)][path]
+    #                 self.color=theColor
+    #                 return theColor
 
-        elif actualPov not in list(self.model.agentSpecies[self.species]['POV'].keys()):
-            if self.model.agentSpecies[self.species]['selectedPOV'] is not None:
-                for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
-                    if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
-                        path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
-                        theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][path]
-                        self.color=theColor
-                return theColor
+    #     elif actualPov not in list(self.model.agentSpecies[self.species]['POV'].keys()):
+    #         if self.model.agentSpecies[self.species]['selectedPOV'] is not None:
+    #             for aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
+    #                 if aAtt in list(self.model.agentSpecies[self.species]['selectedPOV'].keys()):
+    #                     path=self.model.agentSpecies[self.species]['AgentList'][str(self.id)]['attributs'][aAtt]
+    #                     theColor=self.model.agentSpecies[self.species]['selectedPOV'][str(aAtt)][path]
+    #                     self.color=theColor
+    #             return theColor
             
-            else:
-                return self.color
-        else:
-            return self.color
+    #         else:
+    #             return self.color
+    #     else:
+    #         return self.color
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):

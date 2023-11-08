@@ -752,14 +752,16 @@ class SGModel(QtWidgets.QMainWindow):
                 return aAgent
 
 
-    # To copy an Agent to make a move
+    # To copy an Agent to make a move // THIS METHOD SHOULD BE OVED TO AgentDef
     def copyOfAgentAtCoord(self, aCell, oldAgent):
-        newAgent = SGAgent(aCell.grid,aCell, oldAgent.name, oldAgent.format,oldAgent.size, oldAgent.dictAttributes, oldAgent.id, me='agent')
+        newAgent = SGAgent(aCell.grid,aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
         newAgent.isDisplay = True
-        newAgent.species = oldAgent.species
-        newAgent.color = oldAgent.color
+        # newAgent.species = oldAgent.species
+        # newAgent.color = oldAgent.color
         newAgent.privateID = oldAgent.privateID
-        self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictAttributes, "AgentObject": newAgent}                                                                           
+        newAgent.classDef.entities.remove(oldAgent)
+        newAgent.classDef.entities.append(newAgent)
+        # self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictAttributes, "AgentObject": newAgent}                                                                           
         newAgent.update()
         newAgent.show()
         self.update()
@@ -1377,7 +1379,7 @@ class SGModel(QtWidgets.QMainWindow):
                 allCells[i].isDisplay = msg_list[2+i][0]
                 allCells[i].dictAttributes = msg_list[2+i][1]
                 allCells[i].owner = msg_list[2+i][2]
-            gridNumber=+1
+            gridNumber+=1
 
         # AGENT MANAGEMENT
         nbToStart=sum(msg_list[1])
