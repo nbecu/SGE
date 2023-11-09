@@ -296,7 +296,8 @@ class SGCell(SGEntity):
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
-        text= "Agent count on this cell : "+str(len(self.agents))
+        # text= "Agent count on this cell : "+str(len(self.agents))
+        text = "Taux de présence Merlu : "+str(self.dictOfAttributs["txPrésenceMerlu"])+" // Taux de présence Sole : "+str(self.dictOfAttributs["txPrésenceSole"] )
         option1 = QAction(text, self)
         menu.addAction(option1)
 
