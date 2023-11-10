@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import  QAction, QGraphicsRectItem, QGraphicsView, QGraphic
 import random
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
+from mainClasses.SGGrid import SGGrid
 from mainClasses.SGGameSpace import SGGameSpace
 
    
@@ -15,7 +16,11 @@ class SGAgent(SGEntity):
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,parent,cell,size,attributesAndValues,shapeColor,classDef):
-        super().__init__(parent,classDef, size,shapeColor,attributesAndValues)
+        from mainClasses.SGEntityDef import SGCellDef
+        if isinstance(parent,SGGrid): aGrid = parent
+        elif isinstance(parent,SGCellDef): aGrid = parent.grid
+        else: raise ValueError("wrong parent")
+        super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
         self.cell=None
         if cell is not None:
             self.moveTo(cell)

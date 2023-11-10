@@ -3,7 +3,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGGameSpace import SGGameSpace
-from mainClasses.SGAgent import SGAgent
 from mainClasses.SGModel import *
 from PyQt5.QtWidgets import QAction
 import copy
@@ -45,10 +44,9 @@ class SGGrid(SGGameSpace):
     # Initialize the user interface
     def initCells(self):
         # Init the CellDef and Cells
-        self.model.newCellsFromGrid(self)
+        self.cellDef = self.model.newCellsFromGrid(self)
 
     # Drawing the game board with the cell
-
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)

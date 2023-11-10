@@ -7,8 +7,8 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(6,4,"square",gap=2)
-Cell=myModel.cellsInGrid[aGrid.id]
+Cell=myModel.newGrid(6,4,"square",gap=2)
+# Cell=aGrid.cellDef
 Cell.setEntities("landUse","grass")
 ##  Pour pouvoir rassembler Agents et Cells (sous ENtity), faut que newGrid renvoie la CellCollection
 #      il faudra certainement renonmmer CellCollection en CellSpec   (comme AgentSpec qui est parfois appelé AgentDict ou AgentCollec)
@@ -31,8 +31,8 @@ Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
-m1=Sheeps.newAgentAtCoords(aGrid,3,3,{"health":"good","hunger":"bad"})
-m2=Sheeps.newAgentAtCoords(aGrid)
+m1=Sheeps.newAgentAtCoords(Cell,3,3,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell)
 
 #You can also edit your agent attribute values like this :
 m2.setValue('health','good')

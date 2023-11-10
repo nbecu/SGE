@@ -81,9 +81,9 @@ class SGModel(QtWidgets.QMainWindow):
         # Definition for all gameSpaces
         self.gameSpaces = {}
         self.TextBoxes = []   # Why textBoxes are not in gameSpaces ?
-        # Definition of the AgentCollection and CellCollection
+        # Definition of the AgentDef and CellDef
         self.agentSpecies = {}
-        self.cellsInGrid = {}
+        self.cellOfGrids = {}
         # Definition of simulation variables
         self.simulationVariables = []
         # self.IDincr = 0     TO BE REMOVED
@@ -199,6 +199,10 @@ class SGModel(QtWidgets.QMainWindow):
 
         inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"), "&inspectElement")
         """To be finished to be implementd"""
+
+        self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
+        # dictionnaire pour stocker les actions du sous-menu Symbology
+        self.submenuSymbology_actions = {}
 
         self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
@@ -434,18 +438,20 @@ class SGModel(QtWidgets.QMainWindow):
             pos = self.layoutOfModel.foundInLayout(aGrid)
             aGrid.move(aGrid.getStartXBase()+20 *
                        pos[0], aGrid.getStartYBase()+20*pos[1])
-        return aGrid
+        return self.getCellDef(aGrid)
     
     def newCellsFromGrid(self,grid):
         CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white )
-        self.cellsInGrid[grid.id] = CellDef
+        self.cellOfGrids[grid.id] = CellDef
         for lin in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
                 CellDef.newCell(col, lin)
+        return CellDef
 
     # To get the CellDef corresponding to a Grid
-    def getCellDef(self, grid):
-        return self.cellsInGrid[grid.id]
+    def getCellDef(self, aGrid):
+        if isinstance(aGrid,SGCellDef): return aGrid
+        return self.cellOfGrids[aGrid.id]
 
 
     # To get all the cells of the collection
@@ -456,12 +462,12 @@ class SGModel(QtWidgets.QMainWindow):
     
     # To get all the povs of the collection
     def getCellPovs(self,grid):
-        return {key: value for dict in (self.cellsInGrid[grid.id]['ColorPOV'],self.cellsInGrid[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
+        return {key: value for dict in (self.cellOfGrids[grid.id]['ColorPOV'],self.cellOfGrids[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
 
     # To get a cell in particular
     def getCell(self, aGrid, aId):
-        result = filter(lambda cell: cell.id == aId, self.cellsInGrid[aGrid.id].entities)
-        [cell for cell in self.cellsInGrid[aGrid.id].entities if cell.id == aId]
+        result = filter(lambda cell: cell.id == aId, self.cellOfGrids[aGrid.id].entities)
+        [cell for cell in self.cellOfGrids[aGrid.id].entities if cell.id == aId]
         if len(result)!=1: raise ValueError("No cell with such Id!")
 
         return result[0]
@@ -1144,11 +1150,11 @@ class SGModel(QtWidgets.QMainWindow):
         self.nameOfPov = nameOfPov
         for aGameSpace in self.getLegends():
             self.gameSpaces[aGameSpace.id].initUI()
-        self.update()
+        self.update() #  Un update()  relance le calcul de l'affichage de l'ensemble de l'interface !!
 
     # Adding the Pov to the menu bar
-    def addPovinMenuBar(self, nameOfPov):
-        if nameOfPov not in self.listOfPovsForMenu:
+    def addPovinMenuBar(self, nameOfPov): #OBSOLETE
+        if nameOfPov not in self.listOfPovsForMenu: #OBSOLETE
             self.listOfPovsForMenu.append(nameOfPov)
             anAction = QAction(" &"+nameOfPov, self)
             self.povMenu.addAction(anAction)
@@ -1157,23 +1163,67 @@ class SGModel(QtWidgets.QMainWindow):
         if len(self.listOfPovsForMenu) == 1:
             self.setInitialPov(nameOfPov)
 
-    def addClassDefPovinMenuBar(self, aClassDef,nameOfPov):
-        anAction = QAction(" &"+nameOfPov, self)
-        anAction.triggered.connect(lambda: aClassDef.applyPov(nameOfPov))
-        aSubMenu = self.povSubMenuForEntity(aClassDef.entityName)
-        aSubMenu.addAction(anAction)
-        # if this is the pov is the first pov to be declared, than set it as the initial pov
-        # if len(self.listOfPovsForMenu) == 1:
-        #     self.setInitialPov(nameOfPov)
-    def povSubMenuForEntity(self,entityName):
-        self.menuBar().addMenu('&test')
-        self.findChild(QMenu,'&test')
-        self.menuBar().findChild(QObject,'&test')
-        len(self.menuBar().children())
-        self.menuBar().findChild(QMenu,"&pov")
+    def getSubmenuSymbology(self, entityName):
+        # renvoie le sous-menu 
+        # selectionList = [submenu for submenu in self.submenuSymbology_actions.keys() if submenu.title() == entityName]
+        # return selectionList[0] if selectionList else None
+        return next((item for item in self.submenuSymbology_actions.keys() if item.title() == entityName), None)
 
-        #code utilisé plus haut
-        # self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
+        # if any((match := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
+        #     return match
+        # else: return None
+
+        # if not any((matchitem := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
+        #     matchitem = None
+        # return matchitem
+
+
+    def getOrCreateSubmenuSymbology(self, submenu_name):
+        # renvoie le sous-menu (et création du sous-menu si il n'existe pas encore)
+        submenu = self.getSubmenuSymbology(submenu_name)
+        if submenu is not None:
+            return submenu
+        else:
+            submenu = QMenu(submenu_name, self)
+            self.symbologyMenu.addMenu(submenu)
+            self.submenuSymbology_actions[submenu]=[]
+            return submenu
+            
+    def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
+        submenu_name= aClassDef.entityName
+        # récupérer le sous-menu (avec création du sous-menu si il n'existe pas encore)
+        submenu = self.getOrCreateSubmenuSymbology(submenu_name)
+        # Créez un élément de menu avec une case à cocher
+        item = QAction(nameOfSymbology, self, checkable=True)
+        item.triggered.connect(self.menu_item_triggered)
+        # Ajouter le sous-menu au menu principal
+        submenu.addAction(item)
+        # Ajouter les actions de sous-menu au dictionnaire pour accès facile
+        self.submenuSymbology_actions[submenu].append(item)
+
+        
+    def menu_item_triggered(self):
+        # Obtener l'objet QAction qui a été déclenché
+        action = self.sender()
+        # Parcourer le dictionnaire pour décocher les autres éléments du même sous-menu
+        for submenu, actions in self.submenuSymbology_actions.items():
+            if action in actions:
+                for other_action in actions:
+                    if other_action is not action:
+                        other_action.setChecked(False)
+                break
+        if action.isChecked():
+            print(f"{action.text()} est sélectionné dans {submenu.title()}")
+            self.update()
+        else:
+            print(f"{action.text()} est désélectionné dans {submenu.title()}")
+            self.update()
+
+    def getCheckedSymbologyOfEntityName(self, entityName):
+        # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
+        submenu = self.getSubmenuSymbology(entityName)
+        submenu_items = self.submenuSymbology_actions[submenu]    
+        return next((item.text() for item in submenu_items if item.isChecked()),None)
 
 
 
@@ -1196,7 +1246,7 @@ class SGModel(QtWidgets.QMainWindow):
     #         listOfGridsToApply = [listOfGridsToApply]
     #     for aGrid in listOfGridsToApply:
     #         if (isinstance(aGrid, SGGrid) == True):
-    #             self.cellsInGrid[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
+    #             self.cellOfGrids[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
     #     self.addPovinMenuBar(nameOfPov)
 
     # def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
@@ -1217,9 +1267,9 @@ class SGModel(QtWidgets.QMainWindow):
     #         listOfGridsToApply = [listOfGridsToApply]
     #     for aGrid in listOfGridsToApply:
     #         if (isinstance(aGrid, SGGrid) == True):
-    #             self.cellsInGrid[aGrid.id]["BorderPOV"][nameOfPov] = {
+    #             self.cellOfGrids[aGrid.id]["BorderPOV"][nameOfPov] = {
     #                 aAtt: DictofColors}
-    #             self.cellsInGrid[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
+    #             self.cellOfGrids[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
     #     self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV
@@ -1231,15 +1281,15 @@ class SGModel(QtWidgets.QMainWindow):
 
     def getPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
-            for aPov in self.cellsInGrid[aGrid.id]["ColorPOV"]:
-                for anAttribut in self.cellsInGrid[aGrid.id]["ColorPOV"][aPov].keys():
+            for aPov in self.cellOfGrids[aGrid.id]["ColorPOV"]:
+                for anAttribut in self.cellOfGrids[aGrid.id]["ColorPOV"][aPov].keys():
                     if attribut == anAttribut:
                         return aPov
 
     def getBorderPovWithAttribut(self, attribut):
         for aGrid in self.getGrids():
-            for aBorderPov in self.cellsInGrid[aGrid.id]["BorderPOV"]:
-                for anAttribut in self.cellsInGrid[aGrid.id]["BorderPOV"][aBorderPov].keys():
+            for aBorderPov in self.cellOfGrids[aGrid.id]["BorderPOV"]:
+                for anAttribut in self.cellOfGrids[aGrid.id]["BorderPOV"][aBorderPov].keys():
                     if attribut == anAttribut:
                         return aBorderPov
 
@@ -1315,6 +1365,12 @@ class SGModel(QtWidgets.QMainWindow):
     # -----------------------------------------------------------
     # Getter
 
+    def getGrid(self,anObject):
+        if isinstance(anObject,SGCellDef): return anObject.grid
+        elif isinstance(anObject,SGGrid): return anObject
+        else: raise ValueError('Wrong object type')
+
+
     # To get all type of gameSpace who are grids
     def getGrids(self):
         listOfGrid = []
@@ -1329,6 +1385,12 @@ class SGModel(QtWidgets.QMainWindow):
             if aGrid.id==aGridID:
                 return aGrid
 
+    def getGrid_withID(self, aGridID):
+        Grids=self.getGrids()
+        for aGrid in Grids:
+            if aGrid.id==aGridID:
+                return aGrid
+            
     # To get all type of gameSpace who are legends
     def getLegends(self):
         listOfLegend = []

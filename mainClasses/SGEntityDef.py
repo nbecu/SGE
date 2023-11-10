@@ -1,9 +1,8 @@
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.SGEntity import SGEntity
-from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+from mainClasses.SGAgent import SGAgent
 import random
 
 # Class who is in charged of the definition of an entity type (like entities and agents)
@@ -52,8 +51,8 @@ class SGEntityDef():
             
         """
         self.povShapeColor[nameofPOV]={str(concernedAtt):dictOfColor}
-        # self.model.addPovinMenuBar(nameofPOV)
-        self.model.addClassDefPovinMenuBar(self,nameofPOV)
+        self.model.addPovinMenuBar(nameofPOV)
+        self.model.addClassDefSymbologyinMenuBar(self,nameofPOV)
         # if self.model.agentSpecies[self.entityName]['me']=='collec':
         #     self.color[str(nameofPOV)]={str(concernedAtt):dictOfColor}
         #     self.model.addPovinMenuBar(nameofPOV)
@@ -110,7 +109,7 @@ class SGEntityDef():
         if condition == None:
             listOfEntities = listOfEntitiesToPickFrom
         else:
-            listOfEntities = [aEntity for ent in listOfEntitiesToPickFrom if condition(aEntity)]
+            listOfEntities = [ent for ent in listOfEntitiesToPickFrom if condition(ent)]
         
         return random.sample(listOfEntities, aNumber) if len(listOfEntities) > 0 else False
 
@@ -278,10 +277,11 @@ class SGAgentDef(SGEntityDef):
         """
         # anAgentID = str(aAgentSpecies.memoryID)
         # self.updateIDmemory(aAgentSpecies)
-
+        aCellDef = self.model.getCellDef(aGrid)
+        aGrid = self.model.getGrid(aGrid)
         if xCoord == None: xCoord = random.randint(1, aGrid.columns)
         if yCoord == None: yCoord = random.randint(1, aGrid.rows)
-        locationCell = self.model.getCellDef(aGrid).getCell(xCoord, yCoord)
+        locationCell = aCellDef.getCell(xCoord, yCoord)
         aAgent = SGAgent(aGrid,locationCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self)
         self.entities.append(aAgent)
         aAgent.show()
@@ -289,10 +289,10 @@ class SGAgentDef(SGEntityDef):
     
 
 class SGCellDef(SGEntityDef):
-    def __init__(self,grid, shape,defaultsize,defaultColor=Qt.white,entityName='entity'):
+    def __init__(self,grid, shape,defaultsize,defaultColor=Qt.white,entityName='Cell'):
         attributesPossibleValues=None
         super().__init__(grid.model, entityName,shape,defaultsize,attributesPossibleValues,defaultColor)
-        self.grid= grid
+        self.grid= grid 
 
     def newCell (self, x, y):
         ent = SGCell(self, x, y)
@@ -312,15 +312,21 @@ class SGCellDef(SGEntityDef):
         return ent
     
     # Return the cell at specified coordinates
-    def getCell(self, x, y):
+    def getCell(self, x, y=None):
         """
-        Return a cell with column and row number.
+        Return a cell identified by its column number and row number.
         args:
             x (int): column number
             y (int): row number
+        Alternativly can also return a cell identified by its id
+        arg:
+            id (int): id of the cell
         """
-        aId= self.cellIdFromCoords(x,y)
-        return list(filter(lambda ent: ent.id==aId, self.entities))[0]
+        if isinstance(y, int):
+            aId= self.cellIdFromCoords(x,y)
+        else:
+            aId=x
+        return next(filter(lambda ent: ent.id==aId, self.entities),None)
 
     def cellIdFromCoords(self,x,y):
         return x+ (self .grid.columns * (y -1))
