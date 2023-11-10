@@ -244,18 +244,19 @@ class SGAgent(SGEntity):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    def setValueAgent(self,attribut,value):
-        """
-        Update a Agent attribut value
+    # def setValueAgent(self,attribut,value):
+    #     #OBSOLETE    should use setValue()
+    #     """
+    #     Update a Agent attribut value
 
-        Args:
-            attribut (str): attribut concerned by the update
-            value (str): value previously declared in the species, to update
-        """
-        # cette méthode semble etre utilisé pour set la defaultValue, et si c'est le cas la façon d'appeler est à reprendre  Entity
-        #sinon supprimer cette méthode car elle est remplaé par setValue de Entity
-        if self.me=='agent':
-            self.dictAttributes[attribut]=value 
+    #     Args:
+    #         attribut (str): attribut concerned by the update
+    #         value (str): value previously declared in the species, to update
+    #     """
+    #     # cette méthode semble etre utilisé pour set la defaultValue, et si c'est le cas la façon d'appeler est à reprendre  Entity
+    #     #sinon supprimer cette méthode car elle est remplaé par setValue de Entity
+    #     if self.me=='agent':
+    #         self.dictAttributes[attribut]=value 
     
     def initDefaultAttValue(self,Att,Val):
         """

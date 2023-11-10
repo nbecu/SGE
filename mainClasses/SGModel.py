@@ -629,60 +629,61 @@ class SGModel(QtWidgets.QMainWindow):
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
 
-    def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, adictAttributes=None):
-        """
-        Create a new Agent in the associated species.
+    # def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, adictAttributes=None):
+    #     # OBSOLETE   This method shoudl e called by a  AgentDef
+    #     """
+    #     Create a new Agent in the associated species.
 
-        Args:
-            aGrid (instance) : the grid you want your agent in
-            aAgentSpecies (instance) : the species of your agent
-            ValueX (int) : Column position in grid (Default=Random)
-            ValueY (int) : Row position in grid (Default=Random)
+    #     Args:
+    #         aGrid (instance) : the grid you want your agent in
+    #         aAgentSpecies (instance) : the species of your agent
+    #         ValueX (int) : Column position in grid (Default=Random)
+    #         ValueY (int) : Row position in grid (Default=Random)
 
-        Return:
-            a new nest in the species dict for the agent
-            a agent
-
-
-        """
-        anAgentID = str(aAgentSpecies.memoryID)
-        self.updateIDmemory(aAgentSpecies)
+    #     Return:
+    #         a new nest in the species dict for the agent
+    #         a agent
 
 
-        if ValueX == None:
-            ValueX = random.randint(1, aGrid.columns)
-        if ValueY == None:
-            ValueY = random.randint(1, aGrid.rows)
-            if ValueY < 1:
-                ValueY = +1
-        locationCell = aGrid.getCell(ValueX, ValueY)
+    #     """
+    #     anAgentID = str(aAgentSpecies.memoryID)
+    #     self.updateIDmemory(aAgentSpecies)
 
-        if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
-            uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
-        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
-        aAgent.isDisplay = True
-        aAgent.species = str(aAgentSpecies.name)
-        aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
+
+    #     if ValueX == None:
+    #         ValueX = random.randint(1, aGrid.columns)
+    #     if ValueY == None:
+    #         ValueY = random.randint(1, aGrid.rows)
+    #         if ValueY < 1:
+    #             ValueY = +1
+    #     locationCell = aGrid.getCell(ValueX, ValueY)
+
+    #     if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
+    #         uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+    #     aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+    #     aAgent.isDisplay = True
+    #     aAgent.species = str(aAgentSpecies.name)
+    #     aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
         
-        if aAgentSpecies.dictAttributes is not None:
-            for aAtt in aAgentSpecies.dictAttributes.keys():
-                if aAgent.dictAttributes is None:
-                    aAgent.dictAttributes={}
-                    aAgent.dictAttributes[aAtt]=None
-                    aAgent.manageAttributeValues(aAgentSpecies,aAtt)
-                else :
-                    if aAtt in aAgent.dictAttributes.keys():
-                        if aAgent.dictAttributes[aAtt] is None:
-                            aAgent.manageAttributeValues(aAgentSpecies,aAtt)
-                    else:
-                        aAgent.dictAttributes[aAtt]=None
-                        aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+    #     if aAgentSpecies.dictAttributes is not None:
+    #         for aAtt in aAgentSpecies.dictAttributes.keys():
+    #             if aAgent.dictAttributes is None:
+    #                 aAgent.dictAttributes={}
+    #                 aAgent.dictAttributes[aAtt]=None
+    #                 aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+    #             else :
+    #                 if aAtt in aAgent.dictAttributes.keys():
+    #                     if aAgent.dictAttributes[aAtt] is None:
+    #                         aAgent.manageAttributeValues(aAgentSpecies,aAtt)
+    #                 else:
+    #                     aAgent.dictAttributes[aAtt]=None
+    #                     aAgent.manageAttributeValues(aAgentSpecies,aAtt)
 
-        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
-        # C'est très curieux que le dictOfAttributes soit à la fois dans l'instance d'agent et dans la lise agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]
-        # C'est un doublon, qui ne devrait pas exister 
-        aAgent.show()
-        return aAgent
+    #     self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
+    #     # C'est très curieux que le dictOfAttributes soit à la fois dans l'instance d'agent et dans la lise agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]
+    #     # C'est un doublon, qui ne devrait pas exister 
+    #     aAgent.show()
+    #     return aAgent
     
     def newAgent_ADMINONLY(self, aGrid, aAgentSpecies, ValueX, ValueY, adictAttributes, aPrivateID):
         """

@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
 Cell=myModel.newGrid(6,4,"square",gap=2)
-# Cell=aGrid.cellDef
+# Cell=Cell.cellDef
 Cell.setEntities("landUse","grass")
 ##  Pour pouvoir rassembler Agents et Cells (sous ENtity), faut que newGrid renvoie la CellCollection
 #      il faudra certainement renonmmer CellCollection en CellSpec   (comme AgentSpec qui est parfois appelé AgentDict ou AgentCollec)
