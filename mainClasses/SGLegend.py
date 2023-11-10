@@ -17,10 +17,13 @@ from mainClasses.gameAction.SGMove import SGMove
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):
-    def __init__(self,parent,name,elementPov,playerName,AgentList,showAgents=False,borderColor=Qt.black,backgroundColor=Qt.transparent,legendType="global"):
+    def __init__(self, parent,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
+    
+    # basic init method. Use ex. SGLegend(parent).init1(model,name,elementPov,playerName,agents)
+    def init1(self, model,name,elementPov,playerName,AgentList,showAgents=False,borderColor=Qt.black,legendType="global"):
         self.id=name
-        self.model=parent
+        self.model=model
         self.elementsPov=elementPov
         self.AgentList=AgentList
         self.showAgents=showAgents
@@ -30,7 +33,8 @@ class SGLegend(SGGameSpace):
         self.haveADeleteButton=False
         self.y=0
         self.legendType=legendType
-        self.initUI()
+        self.initUI()      
+        return self
 
     def initUI(self):
         if self.legendType=="global":

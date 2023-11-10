@@ -486,6 +486,53 @@ class SGModel(QtWidgets.QMainWindow):
         return aVoid
 
     # To create a Legend
+    def newLegend(self, grid=None,Name='Legend', showAgentsWithNoAtt=False):
+        #It is supposed to a legend for a given Grid
+        # for the moment we assume that its a legend for the main (first) grid
+        """
+        To create an Admin Legend (with all the cell and agent values)
+
+        Args:
+        Name (str): name of the Legend (default : Legend)
+        showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
+
+        """
+        # We get the active symbology of each type of entity
+        if grid is None: grid = self.getGrids()[0]
+        aCellDef = self.getCellDef(grid)
+        self.getCheckedSymbologyOfEntityName(aCellDef.entityName)
+        CellElements = {}
+        AgentPOVs = self.getAgentPOVs()
+        # for anElement in self.getGrids():
+        #     CellElements[anElement.id] = {}
+        #     CellElements[anElement.id]['cells'] = anElement.getValuesForLegend()
+        #     CellElements[anElement.id]['agents'] = {}
+        # for grid in CellElements:
+        #     CellElements[grid]['agents'].update(AgentPOVs)
+        agents = self.getAgents()
+        aLegend = SGLegend(self).init1(self, Name, CellElements,
+                           "Admin", agents, showAgentsWithNoAtt)  # ICI -> Il faut comprendre qu'est ce qui est attendu en arguments dans cette fonction
+        self.gameSpaces[Name] = aLegend
+        self.adminLegend=aLegend
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aLegend)
+        aLegend.setStartXBase(newPos[0])
+        aLegend.setStartYBase(newPos[1])
+        if (self.typeOfLayout == "vertical"):
+            aLegend.move(aLegend.startXBase, aLegend.startYBase +
+                         20*self.layoutOfModel.getNumberOfAnElement(aLegend))
+        elif (self.typeOfLayout == "horizontal"):
+            aLegend.move(aLegend.startXBase+20 *
+                         self.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
+        else:
+            pos = self.layoutOfModel.foundInLayout(aLegend)
+            aLegend.move(aLegend.startXBase+20 *
+                         pos[0], aLegend.startYBase+20*pos[1])
+        aLegend.addDeleteButton("Delete")
+        self.applyPersonalLayout()
+        return aLegend
+
+    # To create a Legend
     def newLegendAdmin(self, Name='Legend', showAgentsWithNoAtt=False):
         """
         To create an Admin Legend (with all the cell and agent values)
@@ -527,7 +574,7 @@ class SGModel(QtWidgets.QMainWindow):
         aLegend.addDeleteButton("Delete")
         self.applyPersonalLayout()
         return aLegend
-
+    
     # To update the admin Legend when the modeler add a new pov after the creation of the Legend
     # TO BE REMOVED. IT IS a useless method
     def updateLegendAdmin(self):
