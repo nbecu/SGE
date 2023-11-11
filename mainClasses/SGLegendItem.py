@@ -134,7 +134,6 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setFont(QFont("Verdana",8))
                 painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
-            print ('y='+str(self.y) + ' '+self.type)
             self.move(10,self.y*25)#25
             painter.end()
             

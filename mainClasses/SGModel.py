@@ -297,7 +297,6 @@ class SGModel(QtWidgets.QMainWindow):
         # self.eventTime()
 
     def closeEvent(self, event):
-        print("trigger")
         self.haveToBeClose = True
         self.getTextBoxHistory(self.TextBoxes)
         if hasattr(self, 'client'):
@@ -1244,7 +1243,7 @@ class SGModel(QtWidgets.QMainWindow):
         # Obtener l'objet QAction qui a été déclenché
         action = self.sender()
         # Parcourer le dictionnaire pour décocher les autres éléments du même sous-menu
-        for submenu, actions in self.submenuSymbology_actions.items():
+        for actions in self.submenuSymbology_actions.values():
             if action in actions:
                 for other_action in actions:
                     if other_action is not action:
