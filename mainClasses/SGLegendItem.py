@@ -120,11 +120,22 @@ class SGLegendItem(QtWidgets.QWidget):
                 aFont.setUnderline(True)
                 painter.setFont(aFont)
                 painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+            elif self.type =="Title1":
+                aFont=QFont("Verdana",10)
+                aFont.setUnderline(True)
+                painter.setFont(aFont)
+                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+            elif self.type =="Title2":
+                aFont=QFont("Verdana",10)
+                # aFont.setUnderline(True)
+                painter.setFont(aFont)
+                painter.drawText(QRect(10,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             else :
                 painter.setFont(QFont("Verdana",8))
-                painter.drawText(QRect(40,5,self.legend.getSizeXGlobal()-50,15), Qt.AlignLeft, self.text)
+                painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
-            self.move(10,self.y*20+5*self.y)
+            print ('y='+str(self.y) + ' '+self.type)
+            self.move(10,self.y*25)#25
             painter.end()
             
     def getId(self):

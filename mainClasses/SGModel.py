@@ -486,7 +486,7 @@ class SGModel(QtWidgets.QMainWindow):
         return aVoid
 
     # To create a Legend
-    def newLegend(self, grid=None,Name='Legend', showAgentsWithNoAtt=False):
+    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):
         #It is supposed to a legend for a given Grid
         # for the moment we assume that its a legend for the main (first) grid
         """
@@ -497,22 +497,12 @@ class SGModel(QtWidgets.QMainWindow):
         showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
 
         """
-        # We get the active symbology of each type of entity
-        if grid is None: grid = self.getGrids()[0]
-        aCellDef = self.getCellDef(grid)
-        self.getCheckedSymbologyOfEntityName(aCellDef.entityName)
-        CellElements = {}
-        AgentPOVs = self.getAgentPOVs()
-        # for anElement in self.getGrids():
-        #     CellElements[anElement.id] = {}
-        #     CellElements[anElement.id]['cells'] = anElement.getValuesForLegend()
-        #     CellElements[anElement.id]['agents'] = {}
-        # for grid in CellElements:
-        #     CellElements[grid]['agents'].update(AgentPOVs)
-        agents = self.getAgents()
-        aLegend = SGLegend(self).init1(self, Name, CellElements,
-                           "Admin", agents, showAgentsWithNoAtt)  # ICI -> Il faut comprendre qu'est ce qui est attendu en arguments dans cette fonction
-        self.gameSpaces[Name] = aLegend
+        #For the active symbology to be the first one for each Entity
+        self.checkFirstSymbologyOfEntitiesInMenu()
+        
+        selectedSymbologies=self.getAllCheckedSymbologies()
+        aLegend = SGLegend(self).init2(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
+        self.gameSpaces[name] = aLegend
         self.adminLegend=aLegend
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aLegend)
@@ -528,7 +518,7 @@ class SGModel(QtWidgets.QMainWindow):
             pos = self.layoutOfModel.foundInLayout(aLegend)
             aLegend.move(aLegend.startXBase+20 *
                          pos[0], aLegend.startYBase+20*pos[1])
-        aLegend.addDeleteButton("Delete")
+        # aLegend.addDeleteButton("Delete")
         self.applyPersonalLayout()
         return aLegend
 
@@ -1260,19 +1250,32 @@ class SGModel(QtWidgets.QMainWindow):
                     if other_action is not action:
                         other_action.setChecked(False)
                 break
-        if action.isChecked():
-            print(f"{action.text()} est sélectionné dans {submenu.title()}")
-            self.update()
-        else:
-            print(f"{action.text()} est désélectionné dans {submenu.title()}")
-            self.update()
+        for aLegend in self.getLegends():
+            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
+        self.update() #rafraichi l'ensemble de l'affichage de l'interface'
 
-    def getCheckedSymbologyOfEntityName(self, entityName):
+    def getCheckedSymbologyNameOfEntity(self, entityName):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
         submenu = self.getSubmenuSymbology(entityName)
         submenu_items = self.submenuSymbology_actions[submenu]    
         return next((item.text() for item in submenu_items if item.isChecked()),None)
 
+    def getAllCheckedSymbologies(self, grid=None):
+        # return the active symbology of each type of entity
+        #It is supposed to be for a given Grid
+        # for the moment we assume that its for the main (first) grid
+        if grid is None: grid = self.getGrids()[0]
+        cellDef = self.getCellDef(grid)
+        selectedSymbologies={}
+        entitiesDef=[cellDef] + list(self.agentSpecies.values())
+        for entDef in entitiesDef: 
+            selectedSymbologies[entDef]=(self.getCheckedSymbologyNameOfEntity(entDef.entityName))
+        return selectedSymbologies
+
+    def checkFirstSymbologyOfEntitiesInMenu(self):
+        # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
+        for aListOfSubmenuItems in self.submenuSymbology_actions.values():
+            aListOfSubmenuItems[0].setChecked(True)
 
 
     # To add a new POV

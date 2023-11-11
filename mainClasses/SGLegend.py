@@ -35,6 +35,37 @@ class SGLegend(SGGameSpace):
         self.legendType=legendType
         self.initUI()      
         return self
+    
+    def init2(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
+        self.id=legendName
+        self.model=model
+        self.listOfSymbologies=listOfSymbologies
+        self.playerName=playerName
+        self.showAgents=showAgents
+        self.legendItems={}
+        self.borderColor=borderColor
+        self.haveADeleteButton=False
+        self.updateWithSymbologies(listOfSymbologies)
+        return self
+
+    def updateWithSymbologies(self,listOfSymbologies):
+        self.listOfSymbologies=listOfSymbologies
+        self.legendItems=[]
+        y = 0
+        anItem=SGLegendItem(self,'Title1',y,self.id) #self.id is equivalent to name
+        y+=1
+        for entDef, aSymbology in self.listOfSymbologies.items():
+            anItem=SGLegendItem(self,'Title2',y,entDef.entityName)
+            y +=1
+            self.legendItems.append(anItem)
+            dictSymbolNameAndColor= list(entDef.povShapeColor[aSymbology].values())[0]
+            for aSymbolName, aColor in dictSymbolNameAndColor.items():
+                anItem=SGLegendItem(self,entDef.shape,y,aSymbolName,aColor)
+                y +=1
+                self.legendItems.append(anItem)
+        for anItem in self.legendItems:
+            anItem.show()
+        self.setMinimumSize(self.getSizeXGlobal(),10)
 
     def initUI(self):
         if self.legendType=="global":
@@ -262,15 +293,25 @@ class SGLegend(SGGameSpace):
 
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
+        listOfLengths = [len(item.text) for item in self.legendItems ]
+        lMax= sorted(listOfLengths,reverse=True)[0]
         if self.haveADeleteButton :
-            if len(self.getLongest()) > len("delete"):
-                return 70+len(self.getLongest())*5+50
+            if lMax > len("delete"):
+                return lMax*5+50
             else:
-                return 70+len("delete")*5+50
+                return len("delete")*5+50
         else :
-            return 70+len(self.getLongest())*5+50
+            return lMax*10+60
+        #OLD CODE
+        # if self.haveADeleteButton :
+        #     if len(self.getLongest()) > len("delete"):
+        #         return 70+len(self.getLongest())*5+50
+        #     else:
+        #         return 70+len("delete")*5+50
+        # else :
+        #     return 70+len(self.getLongest())*5+50
     
-    def getLongest(self):
+    def getLongest(self): #A priori Obsolete
         longestWord=""
         for key in self.legendItems :
             for element in self.legendItems[key] :
@@ -279,10 +320,7 @@ class SGLegend(SGGameSpace):
         return longestWord
     
     def getSizeYGlobal(self):
-        somme=30
-        for key in self.legendItems :
-            somme= somme+ 27*len(self.legendItems[key])
-        return somme
+        return 25*(len(self.legendItems)+1)
     
     #Funtion to handle the zoom
     def zoomIn(self):
@@ -312,7 +350,7 @@ class SGLegend(SGGameSpace):
     #Drawing the Legend
     def paintEvent(self,event):
         if self.checkDisplay():
-            if len(self.elementsPov)!=0:
+            # if len(self.elementsPov)!=0:
                 painter = QPainter() 
                 painter.begin(self)
                 if self.model.currentPlayer==self.playerName or self.playerName =="Admin":

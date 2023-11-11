@@ -40,7 +40,7 @@ m2.setValue('hunger','good')
 
 
 
-# Legend=myModel.newLegendAdmin(showAgentsWithNoAtt=True)
+Legend=myModel.newLegend(showAgentsWithNoAtt=True)
 myModel.launch() 
 
 sys.exit(monApp.exec_())
