@@ -56,7 +56,7 @@ class SGEntity(QtWidgets.QWidget):
     def getColor(self):
         if self.isDisplay==False: return Qt.transparent
         # replace the search of model name of pov by getCheckedSymbologyNameOfEntity (which look for the symbolgy which is checked for this item in the menu)
-        aChoosenPov = self.model.getCheckedSymbologyNameOfEntity(self.classDef.entityName)
+        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
         aPovDef = self.classDef.povShapeColor.get(aChoosenPov) #self.model.nameOfPov
         aDefaultColor= self.classDef.defaultShapeColor
         return self.readColorFromPovDef(aPovDef,aDefaultColor)

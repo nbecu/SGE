@@ -39,7 +39,7 @@ class SGLegend(SGGameSpace):
     def init2(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
         self.id=legendName
         self.model=model
-        self.listOfSymbologies=listOfSymbologies
+        # self.listOfSymbologies=listOfSymbologies
         self.playerName=playerName
         self.showAgents=showAgents
         self.legendItems={}
@@ -48,9 +48,14 @@ class SGLegend(SGGameSpace):
         self.updateWithSymbologies(listOfSymbologies)
         return self
 
-    def updateWithSymbologies(self,listOfSymbologies):
-        self.listOfSymbologies=listOfSymbologies
+    def clearAllLegendItems(self):
+        for aItem in self.legendItems:
+            aItem.deleteLater()
         self.legendItems=[]
+        
+    def updateWithSymbologies(self,listOfSymbologies):
+        self.clearAllLegendItems()
+        self.listOfSymbologies=listOfSymbologies
         y = 0
         anItem=SGLegendItem(self,'Title1',y,self.id) #self.id is equivalent to name
         y+=1
@@ -58,6 +63,12 @@ class SGLegend(SGGameSpace):
             anItem=SGLegendItem(self,'Title2',y,entDef.entityName)
             y +=1
             self.legendItems.append(anItem)
+            if aSymbology is None:
+                #In this case, it should return the default Symbology
+                anItem=SGLegendItem(self,entDef.shape,y,'default',entDef.defaultShapeColor)
+                y +=1
+                self.legendItems.append(anItem)
+                continue
             dictSymbolNameAndColor= list(entDef.povShapeColor[aSymbology].values())[0]
             for aSymbolName, aColor in dictSymbolNameAndColor.items():
                 anItem=SGLegendItem(self,entDef.shape,y,aSymbolName,aColor)

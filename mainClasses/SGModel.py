@@ -202,7 +202,7 @@ class SGModel(QtWidgets.QMainWindow):
 
         self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
         # dictionnaire pour stocker les actions du sous-menu Symbology
-        self.submenuSymbology_actions = {}
+        self.symbologiesInSubmenus = {}
 
         self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
@@ -497,7 +497,7 @@ class SGModel(QtWidgets.QMainWindow):
 
         """
         #For the active symbology to be the first one for each Entity
-        self.checkFirstSymbologyOfEntitiesInMenu()
+        # self.checkFirstSymbologyOfEntitiesInMenu()
         
         selectedSymbologies=self.getAllCheckedSymbologies()
         aLegend = SGLegend(self).init2(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
@@ -1204,8 +1204,8 @@ class SGModel(QtWidgets.QMainWindow):
         # renvoie le sous-menu 
         # selectionList = [submenu for submenu in self.submenuSymbology_actions.keys() if submenu.title() == entityName]
         # return selectionList[0] if selectionList else None
-        return next((item for item in self.submenuSymbology_actions.keys() if item.title() == entityName), None)
-
+        return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == entityName), None)
+        # Above code is equivalent to the following
         # if any((match := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
         #     return match
         # else: return None
@@ -1223,7 +1223,7 @@ class SGModel(QtWidgets.QMainWindow):
         else:
             submenu = QMenu(submenu_name, self)
             self.symbologyMenu.addMenu(submenu)
-            self.submenuSymbology_actions[submenu]=[]
+            self.symbologiesInSubmenus[submenu]=[]
             return submenu
             
     def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
@@ -1236,28 +1236,50 @@ class SGModel(QtWidgets.QMainWindow):
         # Ajouter le sous-menu au menu principal
         submenu.addAction(item)
         # Ajouter les actions de sous-menu au dictionnaire pour accès facile
-        self.submenuSymbology_actions[submenu].append(item)
+        self.symbologiesInSubmenus[submenu].append(item)
 
-        
+    def setCheckedSymbologyinMenuBar(self, aClassDef,nameOfSymbology,checkValue=True):
+        #This method is not used. Could be discard
+        symbologies = self.getSymbologiesOfEntity(aClassDef.entityName)
+        if any((match := item).text() == nameOfSymbology for item in symbologies):
+            match.setChecked(checkValue)
+        # Above code is identical to
+        # for aSymbology in symbologies:
+        #     if aSymbology.text() == nameOfSymbology:
+        #         aSymbology.setChecked(True)
+
+    def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
+        symbologies = self.getSymbologiesOfEntity(aClassDef.entityName)
+        for aSymbology in symbologies:
+            if aSymbology.text() == nameOfSymbology:
+                aSymbology.setChecked(True)
+            else: aSymbology.setChecked(False)
+
     def menu_item_triggered(self):
         # Obtener l'objet QAction qui a été déclenché
-        action = self.sender()
+        selectedSymbology = self.sender()
         # Parcourer le dictionnaire pour décocher les autres éléments du même sous-menu
-        for actions in self.submenuSymbology_actions.values():
-            if action in actions:
-                for other_action in actions:
-                    if other_action is not action:
-                        other_action.setChecked(False)
-                break
+        for symbologies in self.symbologiesInSubmenus.values():
+            if selectedSymbology in symbologies:
+                [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
+                # Above code is identical to      
+                # for aSymbology in symbologies :
+                #     if aSymbology is not selectedSymbology:
+                #         aSymbology.setChecked(False)
+                # break
         for aLegend in self.getLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
         self.update() #rafraichi l'ensemble de l'affichage de l'interface'
 
-    def getCheckedSymbologyNameOfEntity(self, entityName):
-        # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
+    def getSymbologiesOfEntity(self, entityName):
+        # return the  symbologies of a entity present in tyhe menuBar
         submenu = self.getSubmenuSymbology(entityName)
-        submenu_items = self.submenuSymbology_actions[submenu]    
-        return next((item.text() for item in submenu_items if item.isChecked()),None)
+        return self.symbologiesInSubmenus[submenu] 
+    
+    def getCheckedSymbologyOfEntity(self, entityName):
+        # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
+        symbologies = self.getSymbologiesOfEntity(entityName)
+        return next((aSymbology.text() for aSymbology in symbologies if aSymbology.isChecked()),None)
 
     def getAllCheckedSymbologies(self, grid=None):
         # return the active symbology of each type of entity
@@ -1268,12 +1290,12 @@ class SGModel(QtWidgets.QMainWindow):
         selectedSymbologies={}
         entitiesDef=[cellDef] + list(self.agentSpecies.values())
         for entDef in entitiesDef: 
-            selectedSymbologies[entDef]=(self.getCheckedSymbologyNameOfEntity(entDef.entityName))
+            selectedSymbologies[entDef]=(self.getCheckedSymbologyOfEntity(entDef.entityName))
         return selectedSymbologies
 
     def checkFirstSymbologyOfEntitiesInMenu(self):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
-        for aListOfSubmenuItems in self.submenuSymbology_actions.values():
+        for aListOfSubmenuItems in self.symbologiesInSubmenus.values():
             aListOfSubmenuItems[0].setChecked(True)
 
 

@@ -53,12 +53,11 @@ class SGEntityDef():
         self.povShapeColor[nameofPOV]={str(concernedAtt):dictOfColor}
         self.model.addPovinMenuBar(nameofPOV)
         self.model.addClassDefSymbologyinMenuBar(self,nameofPOV)
-        # if self.model.agentSpecies[self.entityName]['me']=='collec':
-        #     self.color[str(nameofPOV)]={str(concernedAtt):dictOfColor}
-        #     self.model.addPovinMenuBar(nameofPOV)
-        # else:
-        #     print("Warning, a POV can be only define on a Species")
+        if len(self.povShapeColor)==1:
+            self.setInitialPov(nameofPOV)
 
+    def setInitialPov(self,nameofPOV):
+        self.model.checkSymbologyinMenuBar(self,nameofPOV)
 # ********************************************************    
 
 # to get all entities with a certain value
@@ -332,4 +331,6 @@ class SGCellDef(SGEntityDef):
         return x+ (self .grid.columns * (y -1))
 
 
+    def setCells(self, aAttribute, aValue):
+        return self.setEntities(aAttribute, aValue)
 

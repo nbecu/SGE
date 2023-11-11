@@ -311,23 +311,23 @@ class SGAgent(QtWidgets.QWidget):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #To set up a POV
-    def newPov(self,nameofPOV,concernedAtt,dictOfColor):
-        """
-        Declare a new Point of View for the Species.
+    #To set up a POV   OBSOLETE
+    # def newPov(self,nameofPOV,concernedAtt,dictOfColor):
+    #     """
+    #     Declare a new Point of View for the Species.
 
-        Args:
-            self (Species object): aSpecies
-            nameOfPov (str): name of POV, will appear in the interface
-            concernedAtt (str): name of the attribut concerned by the declaration
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+    #     Args:
+    #         self (Species object): aSpecies
+    #         nameOfPov (str): name of POV, will appear in the interface
+    #         concernedAtt (str): name of the attribut concerned by the declaration
+    #         DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
             
-        """
-        if self.model.agentSpecies[str(self.name)]['me']=='collec':
-            self.model.agentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
-            self.addPovinMenuBar(nameofPOV)
-        else:
-            print("Warning, a POV can be only define on a Species")
+    #     """
+    #     if self.model.agentSpecies[str(self.name)]['me']=='collec':
+    #         self.model.agentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
+    #         self.addPovinMenuBar(nameofPOV)
+    #     else:
+    #         print("Warning, a POV can be only define on a Species")
 
     def addPovinMenuBar(self,nameOfPov):
         if nameOfPov not in self.model.listOfPovsForMenu :
