@@ -99,6 +99,7 @@ class SGCell(SGEntity):
         
     #Function to handle the drag of widget
     def dragEnterEvent(self, e):
+        # I'm not sure to what this corresponds
         e.accept()
         
     def dropEvent(self, e):
@@ -108,6 +109,11 @@ class SGCell(SGEntity):
         e.setDropAction(Qt.MoveAction)
         if self.model.mqttMajType == "Instantaneous":
             SGGameActions.sendMqttMessage(self)
+                            
+    #To handle the drag of the grid
+    # def mouseMoveEvent(self, e): #CA N'A PAS DE RAISON D'ETRE
+    #     if e.buttons() != Qt.LeftButton:
+    #         return
 
 
     def moveAgentByRecreating_it(self,oldAgent):
@@ -144,12 +150,7 @@ class SGCell(SGEntity):
                 for aFeedback in  theAction.feedbackAgent :
                     aFeedback(theAgentForMoveGM)
             
-                            
-    #To handle the drag of the grid
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-                        
+                      
             
     #To handle the arrival of an agent on the cell (this is a private method)
     def updateIncomingAgent(self,anAgent):

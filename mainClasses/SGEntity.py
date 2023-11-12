@@ -163,8 +163,8 @@ class SGEntity(QtWidgets.QWidget):
                                     watcher.updateText()
                         if self.model.mqttMajType == "Instantaneous":
                             SGGameActions.sendMqttMessage(self)
-                        self.update()
-                        self.grid.model.update()
+                        # self.update()
+                        # self.grid.model.update()
 
     def updateMqtt(self):
         if self.model.mqttMajType == "Instantaneous":

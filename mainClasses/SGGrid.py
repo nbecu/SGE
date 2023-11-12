@@ -25,6 +25,7 @@ class SGGrid(SGGameSpace):
         self.size = size
         self.moveable = moveable
         self.rule = 'moore'
+        self.painter = QPainter()
 
         self.currentPOV = {'Cell': {}, 'Agent': {}}
 
@@ -48,16 +49,20 @@ class SGGrid(SGGameSpace):
 
     # Drawing the game board with the cell
     def paintEvent(self, event):
-        painter = QPainter()
+        # painter = QPainter()
+        event.type()== QEvent.Paint #QEvent.MouseMove   QEvent.HoverMove    #OBSOLETE  It was for a test
+        painter = self.painter
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1) *
-                                self.gap+1)+3, int(self.rows*self.size+(self.rows+1)*self.gap)+3)
-            painter.drawRect(0, 0, int(self.columns*self.size+(self.columns+1)
-                             * self.gap+1), int(self.rows*self.size+(self.rows+1)*self.gap))
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+20,
+                                int(self.rows*self.size+(self.rows+1)*self.gap)+20)
+            painter.drawRect(0,
+                             0,
+                             int(self.columns*self.size+(self.columns+1)* self.gap+15),#c'était +1.
+                             int(self.rows*self.size+(self.rows+1)*self.gap+15))#c'était +0.
         elif (self.cellShape == "hexagonal"):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(
                 self.size/2)+3,  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 3))
@@ -205,9 +210,9 @@ class SGGrid(SGGameSpace):
         print(self.currentPOV)
         return self.currentPOV
     
-    def removeVisiblityCell(self,aCellID):
-        self.getCell_withId(self,aCellID).isDisplay = False
-        self.update()
+    # def removeVisiblityCell(self,aCellID):
+    #     self.getCell_withId(self,aCellID).isDisplay = False
+    #     self.update()
 
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use

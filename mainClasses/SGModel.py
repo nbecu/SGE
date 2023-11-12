@@ -2,7 +2,7 @@
 from PyQt5.QtSvg import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import QAction,QMenu
+from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar)
 from PyQt5 import QtWidgets
 from mainClasses.layout.SGVerticalLayout import SGVerticalLayout
 from mainClasses.layout.SGHorizontalLayout import SGHorizontalLayout
@@ -47,7 +47,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 
 # Mother class of all the SGE System
-class SGModel(QtWidgets.QMainWindow):
+class SGModel(QMainWindow):
     def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame",testMode=False):
         """
         Declaration of a new model
@@ -68,14 +68,10 @@ class SGModel(QtWidgets.QMainWindow):
             int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
         # Init of variable of the Model
         self.name = name
-        # Definition of the title of the window ( temporary)
-        if windowTitle is None:
-            self.windowTitle = self.name
-        else:
-            self.windowTitle = windowTitle
-        self.setWindowTitle(self.windowTitle)
+        # Definition of the title of the window
+        self.setWindowTitle(self.name) if windowTitle is None else self.setWindowTitle(windowTitle)
         # We allow the drag in this widget
-        self.setAcceptDrops(True)
+        self.setAcceptDrops(False)
 
         # Definition of variable
         # Definition for all gameSpaces
@@ -136,9 +132,12 @@ class SGModel(QtWidgets.QMainWindow):
         self.layout = QtWidgets.QGridLayout()
         self.setCentralWidget(self.window)
         self.window.setLayout(self.layout)
-        # Definition of the toolbar via a menue and the ac
-        self.createAction()
-        self.createMenu()
+        # Definition of the toolbar via a menu and the ac
+        self.symbologyMenu=None #init in case no menu is created
+        # self.createAction()
+        # self.createMenu()
+        self.createMenu3()
+
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_menu)
 
@@ -160,67 +159,94 @@ class SGModel(QtWidgets.QMainWindow):
         self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
     
     def updateFunction(self):
-        for aAgent in self.getAgents():
+        aList = self.getAgents()
+        if not aList : return False
+        for aAgent in aList:
             aAgent.cell.moveAgentByRecreating_it(aAgent)
         self.show()
 
+
+    #Create ToolBar / tentative pour éleminer le bug du refresh sur e menu
+    def createMenu3(self):
+        self.menuBar= QMenuBar()
+        aAction = QAction("Test", self.menuBar)
+        self.menuBar.addAction(aAction)
+        # self.menuBar.addMenu(QMenu('test'))
+        self.layout.setMenuBar(self.menuBar)
+        self.eventFilter = self.customEvent_filter
+
+
+    def createMenu2(self):
+        self.menuBar().eventFilter = self.customEvent_filter
+        aAction = QAction("Test", self)
+        # aAction = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
+        aAction.triggered.connect(lambda self: self.openFromSave())
+        # aAction.hovered()(False)
+        aAction.eventFilter = self.customEvent_filter
+        self.menuBar().addAction(aAction)
+    
+    @staticmethod
+    def customEvent_filter(_, event):
+        if event.type() == QEvent.StatusTip:
+            return True
+        return False
+    
     # Create the menu of the menue
     def createMenu(self):
-        self.menuBar().addAction(self.openSave)
+        aAction = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
+        aAction.triggered.connect(self.openFromSave)
+        self.menuBar().addAction(aAction)
 
-        self.menuBar().addAction(self.save)
+        # self.menuBar().addAction(self.save)
 
-        self.menuBar().addAction(self.inspect)
+        # self.menuBar().addAction(self.inspect)
 
-        sep = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep)
-        self.menuBar().addAction(self.backward)
+        # sep = QAction('|', self, enabled=False)
+        # self.menuBar().addAction(sep)
+        # self.menuBar().addAction(self.backward)
 
-        self.menuBar().addAction(self.forward)
+        # self.menuBar().addAction(self.forward)
 
-        sep2 = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep2)
+        # sep2 = QAction('|', self, enabled=False)
+        # self.menuBar().addAction(sep2)
 
-        self.menuBar().addAction(self.play)
+        # self.menuBar().addAction(self.play)
 
-        sep3 = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep3)
+        # sep3 = QAction('|', self, enabled=False)
+        # self.menuBar().addAction(sep3)
 
-        self.menuBar().addAction(self.zoomPlus)
+        # self.menuBar().addAction(self.zoomPlus)
 
-        self.menuBar().addAction(self.zoomLess)
+        # self.menuBar().addAction(self.zoomLess)
 
-        self.menuBar().addAction(self.zoomToFit)
+        # self.menuBar().addAction(self.zoomToFit)
 
-        sep4 = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep4)
+        # sep4 = QAction('|', self, enabled=False)
+        # self.menuBar().addAction(sep4)
 
-        inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"), "&inspectElement")
-        """To be finished to be implementd"""
+        # inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"), "&inspectElement")
+        # """To be finished to be implementd"""
 
-        self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
-        # dictionnaire pour stocker les actions du sous-menu Symbology
-        self.symbologiesInSubmenus = {}
+        # self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
+        # # dictionnaire pour stocker les actions du sous-menu Symbology
+        # self.symbologiesInSubmenus = {}
 
-        self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
+        # self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
-        graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"), "&graph")
-        """To be finished to be implementd"""
+        # graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"), "&graph")
+        # """To be finished to be implementd"""
 
-        sep5 = QAction('|', self, enabled=False)
-        self.menuBar().addAction(sep5)
+        # sep5 = QAction('|', self, enabled=False)
+        # self.menuBar().addAction(sep5)
 
-        extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"), "&Extract")
-        extractMenu.addAction(self.extractPng)
-        extractMenu.addAction(self.extractSvg)
-        extractMenu.addAction(self.extractHtml)
+        # extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"), "&Extract")
+        # extractMenu.addAction(self.extractPng)
+        # extractMenu.addAction(self.extractSvg)
+        # extractMenu.addAction(self.extractHtml)
 
     # Create all the action related to the menu
 
     def createAction(self):
-        self.openSave = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
-        self.openSave.triggered.connect(self.openFromSave)
-
         self.save = QAction(QIcon("./icon/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
@@ -1161,6 +1187,7 @@ class SGModel(QtWidgets.QMainWindow):
             return submenu
             
     def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
+        if self.symbologyMenu is None: return False
         submenu_name= aClassDef.entityName
         # récupérer le sous-menu (avec création du sous-menu si il n'existe pas encore)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
@@ -1183,6 +1210,7 @@ class SGModel(QtWidgets.QMainWindow):
         #         aSymbology.setChecked(True)
 
     def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
+        if self.symbologyMenu is None: return False
         symbologies = self.getSymbologiesOfEntity(aClassDef.entityName)
         for aSymbology in symbologies:
             if aSymbology.text() == nameOfSymbology:
@@ -1203,7 +1231,7 @@ class SGModel(QtWidgets.QMainWindow):
                 # break
         for aLegend in self.getLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
-        self.update() #rafraichi l'ensemble de l'affichage de l'interface'
+        # self.update() #rafraichi l'ensemble de l'affichage de l'interface'
 
     def getSymbologiesOfEntity(self, entityName):
         # return the  symbologies of a entity present in tyhe menuBar
@@ -1212,6 +1240,7 @@ class SGModel(QtWidgets.QMainWindow):
     
     def getCheckedSymbologyOfEntity(self, entityName):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
+        if self.symbologyMenu is None: return False
         symbologies = self.getSymbologiesOfEntity(entityName)
         return next((aSymbology.text() for aSymbology in symbologies if aSymbology.isChecked()),None)
 
