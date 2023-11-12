@@ -135,8 +135,7 @@ class SGModel(QMainWindow):
         # Definition of the toolbar via a menu and the ac
         self.symbologyMenu=None #init in case no menu is created
         # self.createAction()
-        # self.createMenu()
-        self.createMenu3()
+        self.createMenu()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_menu)
@@ -165,37 +164,12 @@ class SGModel(QMainWindow):
             aAgent.cell.moveAgentByRecreating_it(aAgent)
         self.show()
 
-
-    #Create ToolBar / tentative pour éleminer le bug du refresh sur e menu
-    def createMenu3(self):
-        self.menuBar= QMenuBar()
-        aAction = QAction("Test", self.menuBar)
-        self.menuBar.addAction(aAction)
-        # self.menuBar.addMenu(QMenu('test'))
-        self.layout.setMenuBar(self.menuBar)
-        self.eventFilter = self.customEvent_filter
-
-
-    def createMenu2(self):
-        self.menuBar().eventFilter = self.customEvent_filter
-        aAction = QAction("Test", self)
-        # aAction = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
-        aAction.triggered.connect(lambda self: self.openFromSave())
-        # aAction.hovered()(False)
-        aAction.eventFilter = self.customEvent_filter
-        self.menuBar().addAction(aAction)
-    
-    @staticmethod
-    def customEvent_filter(_, event):
-        if event.type() == QEvent.StatusTip:
-            return True
-        return False
     
     # Create the menu of the menue
     def createMenu(self):
-        aAction = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
-        aAction.triggered.connect(self.openFromSave)
-        self.menuBar().addAction(aAction)
+        # aAction = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
+        # aAction.triggered.connect(self.openFromSave)
+        # self.menuBar().addAction(aAction)
 
         # self.menuBar().addAction(self.save)
 
@@ -210,28 +184,34 @@ class SGModel(QMainWindow):
         # sep2 = QAction('|', self, enabled=False)
         # self.menuBar().addAction(sep2)
 
-        # self.menuBar().addAction(self.play)
+        aAction = QAction(QIcon("./icon/play.png"), " &play", self)
+        aAction.triggered.connect(self.nextTurn)
+        self.menuBar().addAction(aAction)
 
-        # sep3 = QAction('|', self, enabled=False)
-        # self.menuBar().addAction(sep3)
+        self.menuBar().addSeparator()
 
-        # self.menuBar().addAction(self.zoomPlus)
+        aAction = QAction(QIcon("./icon/zoomPlus.png"), " &zoomPlus", self)
+        aAction.triggered.connect(self.zoomPlusModel)
+        self.menuBar().addAction(aAction)
 
-        # self.menuBar().addAction(self.zoomLess)
+        aAction = QAction(QIcon("./icon/zoomLess.png"), " &zoomLess", self)
+        aAction .triggered.connect(self.zoomLessModel)
+        self.menuBar().addAction(aAction)
 
-        # self.menuBar().addAction(self.zoomToFit)
+        aAction  = QAction(QIcon("./icon/zoomToFit.png"), " &zoomToFit", self)
+        aAction .triggered.connect(self.zoomFitModel)
+        self.menuBar().addAction(aAction)
 
-        # sep4 = QAction('|', self, enabled=False)
-        # self.menuBar().addAction(sep4)
+        self.menuBar().addSeparator()
 
         # inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"), "&inspectElement")
         # """To be finished to be implementd"""
 
-        # self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
-        # # dictionnaire pour stocker les actions du sous-menu Symbology
-        # self.symbologiesInSubmenus = {}
+        self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
+        # dictionnaire pour stocker les actions du sous-menu Symbology
+        self.symbologiesInSubmenus = {}
 
-        # self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
+        self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
         # graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"), "&graph")
         # """To be finished to be implementd"""
@@ -262,21 +242,6 @@ class SGModel(QMainWindow):
         self.inspect = QAction(
             QIcon("./icon/inspect.png"), " &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)
-
-        self.play = QAction(QIcon("./icon/play.png"), " &play", self)
-        self.play.triggered.connect(self.nextTurn)
-
-        self.zoomPlus = QAction(
-            QIcon("./icon/zoomPlus.png"), " &zoomPlus", self)
-        self.zoomPlus.triggered.connect(self.zoomPlusModel)
-
-        self.zoomLess = QAction(
-            QIcon("./icon/zoomLess.png"), " &zoomLess", self)
-        self.zoomLess.triggered.connect(self.zoomLessModel)
-
-        self.zoomToFit = QAction(
-            QIcon("./icon/zoomToFit.png"), " &zoomToFit", self)
-        self.zoomToFit.triggered.connect(self.zoomFitModel)
 
         self.extractPng = QAction(" &ToPNG", self)
         self.extractPng.triggered.connect(self.extractPngFromWidget)
@@ -452,8 +417,7 @@ class SGModel(QMainWindow):
         aGrid.setStartXBase(newPos[0])
         aGrid.setStartYBase(newPos[1])
         if (self.typeOfLayout == "vertical"):
-            aGrid.move(aGrid.getStartXBase(), aGrid.getStartYBase() +
-                       20*self.layoutOfModel.getNumberOfAnElement(aGrid))
+            aGrid.move(aGrid.getStartXBase(), aGrid.getStartYBase() + 20*self.layoutOfModel.getNumberOfAnElement(aGrid))
         elif (self.typeOfLayout == "horizontal"):
             aGrid.move(aGrid.getStartXBase(
             )+20*self.layoutOfModel.getNumberOfAnElement(aGrid), aGrid.getStartYBase())

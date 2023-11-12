@@ -25,7 +25,8 @@ class SGGrid(SGGameSpace):
         self.size = size
         self.moveable = moveable
         self.rule = 'moore'
-        self.painter = QPainter()
+        self.countPaintEvent=0
+        self.frameMargin = 8
 
         self.currentPOV = {'Cell': {}, 'Agent': {}}
 
@@ -47,22 +48,20 @@ class SGGrid(SGGameSpace):
         # Init the CellDef and Cells
         self.cellDef = self.model.newCellsFromGrid(self)
 
+    
     # Drawing the game board with the cell
-    def paintEvent(self, event):
-        # painter = QPainter()
-        event.type()== QEvent.Paint #QEvent.MouseMove   QEvent.HoverMove    #OBSOLETE  It was for a test
-        painter = self.painter
+    def paintEvent(self, event): 
+        self.countPaintEvent += 1
+        print("Grid paintEvent called: " +str(self.countPaintEvent))
+        painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+20,
-                                int(self.rows*self.size+(self.rows+1)*self.gap)+20)
-            painter.drawRect(0,
-                             0,
-                             int(self.columns*self.size+(self.columns+1)* self.gap+15),#c'était +1.
-                             int(self.rows*self.size+(self.rows+1)*self.gap+15))#c'était +0.
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+2*self.frameMargin,
+                                int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
+            painter.drawRect(0,0,self.minimumWidth()-1,self.minimumHeight()-1)
         elif (self.cellShape == "hexagonal"):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(
                 self.size/2)+3,  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 3))

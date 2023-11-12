@@ -30,7 +30,7 @@ class SGVerticalLayout():
     
     #Calculate the space needed for a GameSpaces involving the others
     def calculateSize(self,aGameSpace):
-        size=20
+        size=30     #30 instead of 20 to leave space at top because of menuBar
         for i in range(self.count):
             if self.GameSpaces[i].id == aGameSpace.id:
                 break;

@@ -42,21 +42,22 @@ class SGCell(SGEntity):
         # print(time.localtime())
         if self.isDisplay==True:
             painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
-            self.startXBase=0
-            self.startYBase=0
-            self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
-            self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
+            self.startXBase=self.grid.frameMargin
+            self.startYBase=self.grid.frameMargin
+            # self.gap=1
+            self.startX=int(self.startXBase+(self.x -1)*(self.size+self.gap)+self.gap) 
+            self.startY=int(self.startYBase+(self.y -1)*(self.size+self.gap)+self.gap)
             if (self.shape=="hexagonal"):
                 self.startY=self.startY+self.size/4
             #Base of the gameBoard
             if(self.shape=="square"):
                 painter.drawRect(0,0,self.size,self.size)
                 self.setMinimumSize(self.size,self.size+1)
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                # self.setGeometry(0,0,self.size+1,self.size+1) #CELA PROVOQUE UNE Infinite Loop de paintEvent
                 self.move(self.startX,self.startY)
             elif(self.shape=="hexagonal"):
                 self.setMinimumSize(self.size,self.size)
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                # self.setGeometry(0,0,self.size+1,self.size+1)
                 points = QPolygon([
                     QPoint(int(self.size/2), 0),
                     QPoint(self.size, int(self.size/4)),
