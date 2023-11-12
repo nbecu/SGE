@@ -105,8 +105,8 @@ class SGModelAction():
     # def addConditionOfFeedBack(self,aCondition):
     #     self.conditionOfFeedBack.append(aCondition)
         
-    def setRandomCells(self, att, value,nb):
-        self.actions = self.actions + [lambda : self.model.grid.setRandomCells(att, value,nb)]
+    def setRandomEntities(self, att, value,nb):
+        self.actions = self.actions + [lambda : self.model.grid.setRandomEntities(att, value,nb)]
         return self
 
   

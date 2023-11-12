@@ -12,8 +12,8 @@ myModel = SGModel(
 
 aGrid = myModel.newGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')  # ,posXY=[20,90]
-aGrid.setCells("Resource", 1)
-aGrid.setCells("ProtectionLevel", "Free")
+Cell.setEntities("Resource", 1)
+Cell.setEntities("ProtectionLevel", "Free")
 aGrid.setCell(3,1,"Resource", 2)
 aGrid.setCell(1,2,"Resource", 2)
 aGrid.setCell(2,2,"Resource", 0)
@@ -27,7 +27,7 @@ aGrid.setCell(4,4,"Resource", 0)
 aGrid.setCell(5,4,"Resource", 2)
 
 # GlobalColor.
-myModel.newPov("Resource", "Resource", {
+Cell.newPov("Resource", "Resource", {
                0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
 myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
@@ -41,7 +41,7 @@ Birds = myModel.newAgentSpecies(
 aWorker = myModel.newAgentAtCoords(aGrid,Workers,5,2)
 
 
-# globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
+# globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Harvesters")
 Player1.addGameAction(myModel.newCreateAction(Workers, 20))
@@ -117,10 +117,10 @@ def harvest2(cell):
             aAgt.setValue('harvest',1)
             cell.decValue('Resource',1)
 
-# myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: aGrid.setRandomCells("Resource",1,3)])
-# aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("Resource",3,2,condition=(lambda x: x.value("Resource") != 1 and x.value("Resource") != 0  )))
+# myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
+# aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") != 1 and x.value("Resource") != 0  )))
 # myModel.timeManager.newModelPhase(aModelAction2)
-# aModelAction4=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
+# aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 # aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)

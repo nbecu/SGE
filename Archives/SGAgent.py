@@ -337,7 +337,7 @@ class SGAgent(QtWidgets.QWidget):
             anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
         
 
-    def setValueAgent(self,attribut,value):
+    def setValue(self,attribut,value):
         """
         Update a Agent attribut value
 

@@ -39,15 +39,22 @@ class SGLegend(SGGameSpace):
     def init2(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
         self.id=legendName
         self.model=model
-        # self.listOfSymbologies=listOfSymbologies
         self.playerName=playerName
         self.showAgents=showAgents
         self.legendItems={}
+        self.isActive=True
+        self.selected = None # To handle the selection of an item in the legend
         self.borderColor=borderColor
         self.haveADeleteButton=False
         self.updateWithSymbologies(listOfSymbologies)
         return self
 
+    def isActiveAndSelected(self):
+        return self.isActive and self.selected is not None
+    
+    def isAdminLegend(self):
+        return self.playerName=='Admin'
+    
     def clearAllLegendItems(self):
         for aItem in self.legendItems:
             aItem.deleteLater()
@@ -65,15 +72,20 @@ class SGLegend(SGGameSpace):
             self.legendItems.append(anItem)
             if aSymbology is None:
                 #In this case, it should return the default Symbology
-                anItem=SGLegendItem(self,entDef.shape,y,'default',entDef.defaultShapeColor)
+                anItem=SGLegendItem(self,'default',y,'default',entDef.shape,entDef.defaultShapeColor)
                 y +=1
                 self.legendItems.append(anItem)
                 continue
+            aAtt = list(entDef.povShapeColor[aSymbology].keys())[0]
             dictSymbolNameAndColor= list(entDef.povShapeColor[aSymbology].values())[0]
             for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                anItem=SGLegendItem(self,entDef.shape,y,aSymbolName,aColor)
+                anItem=SGLegendItem(self,'symbol',y,aSymbolName,entDef.shape,aColor,aAtt,aSymbolName)
                 y +=1
                 self.legendItems.append(anItem)
+        anItem=SGLegendItem(self,'delete',y,"Delete","square",Qt.darkGray)
+        y +=1
+        self.legendItems.append(anItem)
+
         for anItem in self.legendItems:
             anItem.show()
         self.setMinimumSize(self.getSizeXGlobal(),10)
@@ -394,8 +406,7 @@ class SGLegend(SGGameSpace):
                     return aResult
     
     def checkViability(self,text):
-        playerName=self.playerName
-        thePlayer=self.model.getPlayer(playerName)
+        thePlayer=self.model.players[self.playerName]
         for action in thePlayer.gameActions:
             if isinstance(action,SGCreate) or isinstance(action,SGDelete): 
                 if action.dictAttributs is not None: # case of att+val agents WITH attribut info in Action

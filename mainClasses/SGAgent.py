@@ -166,40 +166,41 @@ class SGAgent(SGEntity):
         return self.cell.grid.getCurrentPOV()
         
     #To handle the selection of an element int the legend
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
-            #Something is selected
-            if self.model.selected[0]!=None :
-                authorisation=SGGameActions.getActionPermission(self)
-                #The delete Action
-                if self.model.selected[2].split()[0]== "Delete" or self.model.selected[2].split()[0]== "Remove":
-                    if  authorisation :
-                        #We now check the feedBack of the actions if it have some
-                        """if theAction is not None:
-                                self.feedBack(theAction)"""
-                        self.model.deleteAgent(self.species,self.id)
-                        if self.model.mqttMajType == "Instantaneous":
-                            SGGameActions.sendMqttMessage(self)
-                        self.update()
-                #Change the value of agent
-                # # ! à retravailler   
-                elif self.model.selected[1] in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"):
-                    if  authorisation :
-                        """if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.attributs])"""
-                        #We now check the feedBack of the actions if it have some
-                        """if theAction is not None:
-                                self.feedBack(theAction)"""
-                        aDictWithValue={self.model.selected[4]:self.model.selected[3]}
-                        if self.model.mqttMajType == "Instantaneous":
-                            SGGameActions.sendMqttMessage(self)  
-                        """for aVal in list(aDictWithValue.keys()) :
-                            if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
-                                    for anAttribute in list(self.theCollection.povs[self.model.nameOfPov].keys()):
-                                        self.attributs.pop(anAttribute,None)
-                                        self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.attributs])
-                        self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]"""
-                        self.update()
+    def mousePressEvent(self, event):
+        return super().mousePressEvent(event)
+        # if event.button() == Qt.LeftButton:
+        #     #Something is selected
+        #     if self.model.selected[0]!=None :
+        #         authorisation=SGGameActions.getActionPermission(self)
+        #         #The delete Action
+        #         if self.model.selected[2].split()[0]== "Delete" or self.model.selected[2].split()[0]== "Remove":
+        #             if  authorisation :
+        #                 #We now check the feedBack of the actions if it have some
+        #                 """if theAction is not None:
+        #                         self.feedBack(theAction)"""
+        #                 self.model.deleteAgent(self.species,self.id)
+        #                 if self.model.mqttMajType == "Instantaneous":
+        #                     SGGameActions.sendMqttMessage(self)
+        #                 self.update()
+        #         #Change the value of agent
+        #         # # ! à retravailler   
+        #         elif self.model.selected[1] in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"):
+        #             if  authorisation :
+        #                 """if len(self.history["value"])==0:
+        #                     self.history["value"].append([0,0,self.attributs])"""
+        #                 #We now check the feedBack of the actions if it have some
+        #                 """if theAction is not None:
+        #                         self.feedBack(theAction)"""
+        #                 aDictWithValue={self.model.selected[4]:self.model.selected[3]}
+        #                 if self.model.mqttMajType == "Instantaneous":
+        #                     SGGameActions.sendMqttMessage(self)  
+        #                 """for aVal in list(aDictWithValue.keys()) :
+        #                     if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
+        #                             for anAttribute in list(self.theCollection.povs[self.model.nameOfPov].keys()):
+        #                                 self.attributs.pop(anAttribute,None)
+        #                                 self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.attributs])
+        #                 self.attributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]"""
+        #                 self.update()
                         
 
                     
@@ -244,7 +245,7 @@ class SGAgent(SGEntity):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    # def setValueAgent(self,attribut,value):
+    # def setValue(self,attribut,value):
     #     #OBSOLETE    should use setValue()
     #     """
     #     Update a Agent attribut value

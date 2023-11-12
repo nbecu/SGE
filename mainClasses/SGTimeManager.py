@@ -14,7 +14,7 @@ class SGTimeManager():
 
     def __init__(self, parent):
         self.model = parent
-        self.currentRound = 1
+        self.currentRound = 0
         self.currentPhase = 1
         self.phases = []
         self.conditionOfEndGame = []

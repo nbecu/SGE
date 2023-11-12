@@ -97,8 +97,6 @@ class SGModel(QtWidgets.QMainWindow):
             self.layoutOfModel = SGGridLayout(x, y)
         # To limit the number of zoom out of players
         self.numberOfZoom = 2
-        # To handle the selection of an item in a legend in a global way
-        self.selected = [None]
         # To keep in memory all the povs already displayed in the menu
         self.listOfPovsForMenu = []
         # To handle the flow of time in the game
@@ -107,7 +105,7 @@ class SGModel(QtWidgets.QMainWindow):
         # List of players
         self.players = {}
         self.currentPlayer = "Admin"
-        self.adminLegend = None
+        # self.adminLegend = None
 
         self.myUserSelector = None
         self.myTimeLabel = None
@@ -502,7 +500,7 @@ class SGModel(QtWidgets.QMainWindow):
         selectedSymbologies=self.getAllCheckedSymbologies()
         aLegend = SGLegend(self).init2(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
         self.gameSpaces[name] = aLegend
-        self.adminLegend=aLegend
+        # self.adminLegend=aLegend
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aLegend)
         aLegend.setStartXBase(newPos[0])
@@ -522,55 +520,56 @@ class SGModel(QtWidgets.QMainWindow):
         return aLegend
 
     # To create a Legend
-    def newLegendAdmin(self, Name='Legend', showAgentsWithNoAtt=False):
-        """
-        To create an Admin Legend (with all the cell and agent values)
+    # def newLegendAdmin(self, Name='Legend', showAgentsWithNoAtt=False):
+        # #OBSOLETE  --> Delete the method
+        # """
+        # To create an Admin Legend (with all the cell and agent values)
 
-        Args:
-        Name (str): name of the Legend (default : Legend)
-        showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
+        # Args:
+        # Name (str): name of the Legend (default : Legend)
+        # showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
 
-        """
-        # Creation
-        # We harvest all the case value
-        CellElements = {}
-        AgentPOVs = self.getAgentPOVs()
-        for anElement in self.getGrids():
-            CellElements[anElement.id] = {}
-            CellElements[anElement.id]['cells'] = anElement.getValuesForLegend()
-            CellElements[anElement.id]['agents'] = {}
-        for grid in CellElements:
-            CellElements[grid]['agents'].update(AgentPOVs)
-        agents = self.getAgents()
-        aLegend = SGLegend(self, Name, CellElements,
-                           "Admin", agents, showAgentsWithNoAtt)  # ICI -> Il faut comprendre qu'est ce qui est attendu en arguments dans cette fonction
-        self.gameSpaces[Name] = aLegend
-        self.adminLegend=aLegend
-        # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aLegend)
-        aLegend.setStartXBase(newPos[0])
-        aLegend.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aLegend.move(aLegend.startXBase, aLegend.startYBase +
-                         20*self.layoutOfModel.getNumberOfAnElement(aLegend))
-        elif (self.typeOfLayout == "horizontal"):
-            aLegend.move(aLegend.startXBase+20 *
-                         self.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aLegend)
-            aLegend.move(aLegend.startXBase+20 *
-                         pos[0], aLegend.startYBase+20*pos[1])
-        aLegend.addDeleteButton("Delete")
-        self.applyPersonalLayout()
-        return aLegend
+        # """
+        # # Creation
+        # # We harvest all the case value
+        # CellElements = {}
+        # AgentPOVs = self.getAgentPOVs()
+        # for anElement in self.getGrids():
+        #     CellElements[anElement.id] = {}
+        #     CellElements[anElement.id]['cells'] = anElement.getValuesForLegend()
+        #     CellElements[anElement.id]['agents'] = {}
+        # for grid in CellElements:
+        #     CellElements[grid]['agents'].update(AgentPOVs)
+        # agents = self.getAgents()
+        # aLegend = SGLegend(self, Name, CellElements,
+        #                    "Admin", agents, showAgentsWithNoAtt)  # ICI -> Il faut comprendre qu'est ce qui est attendu en arguments dans cette fonction
+        # self.gameSpaces[Name] = aLegend
+        # self.adminLegend=aLegend
+        # # Realocation of the position thanks to the layout
+        # newPos = self.layoutOfModel.addGameSpace(aLegend)
+        # aLegend.setStartXBase(newPos[0])
+        # aLegend.setStartYBase(newPos[1])
+        # if (self.typeOfLayout == "vertical"):
+        #     aLegend.move(aLegend.startXBase, aLegend.startYBase +
+        #                  20*self.layoutOfModel.getNumberOfAnElement(aLegend))
+        # elif (self.typeOfLayout == "horizontal"):
+        #     aLegend.move(aLegend.startXBase+20 *
+        #                  self.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
+        # else:
+        #     pos = self.layoutOfModel.foundInLayout(aLegend)
+        #     aLegend.move(aLegend.startXBase+20 *
+        #                  pos[0], aLegend.startYBase+20*pos[1])
+        # aLegend.addDeleteButton("Delete")
+        # self.applyPersonalLayout()
+        # return aLegend
     
     # To update the admin Legend when the modeler add a new pov after the creation of the Legend
     # TO BE REMOVED. IT IS a useless method
-    def updateLegendAdmin(self):
-        if "adminLegend" in list(self.gameSpaces.keys()):
-            aLegend = self.gameSpaces["adminLegend"]
-            aLegend.initUI()
-            aLegend.update()
+    # def updateLegendAdmin(self):
+    #     if "adminLegend" in list(self.gameSpaces.keys()):
+    #         aLegend = self.gameSpaces["adminLegend"]
+    #         aLegend.initUI()
+    #         aLegend.update()
     
     def newUserSelector(self):
         """
@@ -808,64 +807,9 @@ class SGModel(QtWidgets.QMainWindow):
         self.update()
         return newAgent
     
-    # To add an Agent on a particular Cell type
-
-    """IN PROGRESS"""
-
-    # To delete an Agent
-    def deleteAgent(self, aSpeciesName, anAgentID):
-        """
-        Delete an Agent.
-
-        args:
-            aSpeciesName (str): name of the AgentSpecies
-            anAgentID (int, optional): the ID of the agent you want to delete. If None, a random agent.
-        """
-        if anAgentID is None:
-            theSpecies=self.getAgentSpecie(aSpeciesName)
-            anAgentID=random.randint(1,theSpecies.memoryID)
-        aAgent = self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]["AgentObject"]
-        aAgent.cell.updateDepartureAgent(aAgent)
-        aAgent.deleteLater()
-        del self.agentSpecies[aSpeciesName]['AgentList'][anAgentID]
-        self.update()
-        # self.updateLegendAdmin()    --> Removed. This is a useless method
-        self.show()
-
-    # To delete all Agents of a species
-    def deleteAgents(self, speciesName=None):
-        """
-        Delete all aAgents of a species.
-        args:
-            speciesName (str, optional): name of the AgentSpecies. If None, all species will be deleted
-        """
-        if speciesName is None: list_species = self.getAgentSpeciesName()
-        else:  list_species = [speciesName]
-        for aSpeciesName in list_species:
-            for anAgentSpec in self.agentSpecies[aSpeciesName]['AgentList'].values():
-                aAgent = anAgentSpec["AgentObject"]
-                aAgent.cell.updateDepartureAgent(aAgent)
-                aAgent.deleteLater()
-            self.agentSpecies[aSpeciesName]['AgentList']={} 
-        self.update()
-        self.show()
-
-    def setAgents(self, aSpeciesName, aAttribute, aValue):
-        """
-        Set the value of attribut value of all agents of a given specie
-
-        Args:
-            aAttribute (str): Name of the attribute to set
-            aValue : Value to set the attribute to
-        """
-        for aAgt in self.getAgents(aSpeciesName):
-            aAgt.setValue(aAttribute, aValue)
 
 
-    # To randomly move all agents
-    def moveRandomlyAgents(self, aGrid, numberOfMovement):
-        for aAgent in self.getAgents():
-            aAgent.moveAgent(aGrid, numberOfMovement=numberOfMovement)
+
 
     # To create a modelAction
     def newModelAction(self, actions=[], conditions=[], feedbacks=[]):
@@ -925,11 +869,6 @@ class SGModel(QtWidgets.QMainWindow):
         self.users.append(player.name)
         return player
 
-    # To get the current player
-
-    def getCurrentPlayer(self):
-        return self.currentPlayer
-
     def getPlayerObject(self, playerName):
         if playerName == "Admin":
             return playerName
@@ -949,14 +888,10 @@ class SGModel(QtWidgets.QMainWindow):
             if self.myUserSelector is not None:
                 self.myUserSelector.initSelector(playerName)
 
-    # To get all the players
-    def getPlayer(self, playerName):
-        return self.players[playerName]
-    
     # To select only users with a control panel
     def users_withControlPanel(self):
         selection=[]
-        if self.adminLegend != None:
+        if self.getAdminLegend() != None:
             selection.append('Admin')     
         for aP in self.players.values():
             if aP.controlPanel !=  None:
@@ -1099,7 +1034,7 @@ class SGModel(QtWidgets.QMainWindow):
 
         return aEndGameRule
 
-    def getCurrentRound(self):
+    def round(self):
         """Return the actual ingame round"""
         return self.timeManager.currentRound
 
@@ -1182,23 +1117,22 @@ class SGModel(QtWidgets.QMainWindow):
 # Pov
 
     # To choose the global inital pov when the game start
-
-    def setInitialPov(self, nameOfPov):
-        self.nameOfPov = nameOfPov
-        for aGameSpace in self.getLegends():
-            self.gameSpaces[aGameSpace.id].initUI()
-        self.update() #  Un update()  relance le calcul de l'affichage de l'ensemble de l'interface !!
+    # def setInitialPov(self, nameOfPov): #OBSOLETE
+    #     self.nameOfPov = nameOfPov
+    #     for aGameSpace in self.getLegends():
+    #         self.gameSpaces[aGameSpace.id].initUI()
+    #     self.update() #  Un update()  relance le calcul de l'affichage de l'ensemble de l'interface !!
 
     # Adding the Pov to the menu bar
-    def addPovinMenuBar(self, nameOfPov): #OBSOLETE
-        if nameOfPov not in self.listOfPovsForMenu: #OBSOLETE
-            self.listOfPovsForMenu.append(nameOfPov)
-            anAction = QAction(" &"+nameOfPov, self)
-            self.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
-        # if this is the pov is the first pov to be declared, than set it as the initial pov
-        if len(self.listOfPovsForMenu) == 1:
-            self.setInitialPov(nameOfPov)
+    # def addPovinMenuBar(self, nameOfPov): #OBSOLETE
+    #     if nameOfPov not in self.listOfPovsForMenu: #OBSOLETE
+    #         self.listOfPovsForMenu.append(nameOfPov)
+    #         anAction = QAction(" &"+nameOfPov, self)
+    #         self.povMenu.addAction(anAction)
+    #         anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
+    #     # if this is the pov is the first pov to be declared, than set it as the initial pov
+    #     if len(self.listOfPovsForMenu) == 1:
+    #         self.setInitialPov(nameOfPov)
 
     def getSubmenuSymbology(self, entityName):
         # renvoie le sous-menu 
@@ -1445,32 +1379,25 @@ class SGModel(QtWidgets.QMainWindow):
 
     # To get all type of gameSpace who are grids
     def getGrids(self):
-        listOfGrid = []
-        for aGameSpace in list(self.gameSpaces.values()):
-            if isinstance(aGameSpace, SGGrid):
-                listOfGrid.append(aGameSpace)
-        return listOfGrid
+        return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGGrid)]
     
     def getGrid_withID(self, aGridID):
-        Grids=self.getGrids()
-        for aGrid in Grids:
-            if aGrid.id==aGridID:
-                return aGrid
-
-    def getGrid_withID(self, aGridID):
-        Grids=self.getGrids()
-        for aGrid in Grids:
-            if aGrid.id==aGridID:
-                return aGrid
+        # Grids=self.getGrids()
+        # for aGrid in Grids:
+        #     if aGrid.id==aGridID:
+        #         return aGrid
+        return next((item for item in self.getGrids() if item.id==aGridID), None)
             
     # To get all type of gameSpace who are legends
     def getLegends(self):
-        listOfLegend = []
-        for aGameSpace in list(self.gameSpaces.values()):
-            if isinstance(aGameSpace, SGLegend):
-                listOfLegend.append(aGameSpace)
-        return listOfLegend
+        return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGLegend)]
 
+    def getAdminLegend(self):
+        return next((item for item in self.getLegends() if item.isAdminLegend), None)
+    
+    def getSelectedLegendItem(self):
+        return next((item.selected for item in self.getLegends() if item.isActiveAndSelected), None)
+    
     # To change the number of zoom we currently are
     def setNumberOfZoom(self, number):
         self.numberOfZoom = number
@@ -1627,7 +1554,7 @@ class SGModel(QtWidgets.QMainWindow):
             msg_list = eval(msg_decoded)
             if msg_list[0][0] != self.clientId:
                 for aAgent in self.getAgents():
-                    self.deleteAgent(aAgent.species,aAgent.id)
+                    self.deleteAgent(aAgent.species,aAgent.id) #lancer la méthode depuis EntityDef
                     self.handleMessageMainThread(msg_list)
             else:
                 print("Own update, no action required.")   

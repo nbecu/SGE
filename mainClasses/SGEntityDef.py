@@ -34,6 +34,21 @@ class SGEntityDef():
     #a mettre coté instance
         # isDisplay
 
+    ###Definition of the developer methods
+    def updateWatchersOnAttribute(self,aAtt):
+        if aAtt in self.watchers:
+            for watcher in self.watchers:
+                updatePermit=watcher.getUpdatePermission()
+                if updatePermit:
+                    watcher.updateText()
+
+    def updateWatchersOnPop(self):
+        if 'nb' in self.watchers:
+            for watcher in self.watchers:
+                updatePermit=watcher.getUpdatePermission()
+                if updatePermit:
+                    watcher.updateText()
+
     ###Definiton of the methods who the modeler will use
     def setDefaultValue(self, aAtt, aDefaultValue):
         self.attributesDefaultValues[aAtt] = aDefaultValue
@@ -51,7 +66,7 @@ class SGEntityDef():
             
         """
         self.povShapeColor[nameofPOV]={str(concernedAtt):dictOfColor}
-        self.model.addPovinMenuBar(nameofPOV)
+        # self.model.addPovinMenuBar(nameofPOV)
         self.model.addClassDefSymbologyinMenuBar(self,nameofPOV)
         if len(self.povShapeColor)==1:
             self.setInitialPov(nameofPOV)
@@ -132,9 +147,8 @@ class SGEntityDef():
 
 
 # To handle POV and placing on entity
+
     # To define a value for all entities
-
-
     def setEntities(self, aAttribute, aValue):
         """
         Set the value of attribut value of all entities
@@ -250,7 +264,21 @@ class SGEntityDef():
         """
         for ent in self.getRandomEntities_withValueNot(numberOfentities, conditionAtt, conditionVal, condition):
             ent.setValue(aAttribut, aValue)
+    
+    # To delete a specific entity
+    def deleteEntity(self,aEntity):
+        aEntity.deleteLater()
+        self.entities.remove(aEntity)
+        self.updateWatchersOnPopulation(self)
+        self.updateWatchersOnAllAttributes(self)
 
+    # To delete all entities of a species
+    def deleteAllEntitiess(self):
+        """
+        Delete all entities of the species.
+        """
+        for ent in self.entities[:]:
+            self.deleteEntity(ent)
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
@@ -258,26 +286,21 @@ class SGAgentDef(SGEntityDef):
         super().__init__(sgModel, entityName,shape,defaultsize,attributesPossibleValues,defaultColor)
         self.locationInentity=locationInentity
 
-    def newAgentAtCoords(self, aGrid, xCoord=None, yCoord=None, attributesAndValues=None):
+    def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None):
         """
         Create a new Agent in the associated species.
 
         Args:
-            aGrid (instance) : the grid you want your agent in
-            aAgentSpecies (instance) : the species of your agent
+            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
             ValueX (int) : Column position in grid (Default=Random)
             ValueY (int) : Row position in grid (Default=Random)
-
         Return:
-            a new nest in the species dict for the agent
             a agent
-
-
         """
         # anAgentID = str(aAgentSpecies.memoryID)
         # self.updateIDmemory(aAgentSpecies)
-        aCellDef = self.model.getCellDef(aGrid)
-        aGrid = self.model.getGrid(aGrid)
+        aCellDef = self.model.getCellDef(cellDef_or_grid)
+        aGrid = self.model.getGrid(cellDef_or_grid)
         if xCoord == None: xCoord = random.randint(1, aGrid.columns)
         if yCoord == None: yCoord = random.randint(1, aGrid.rows)
         locationCell = aCellDef.getCell(xCoord, yCoord)
@@ -286,12 +309,40 @@ class SGAgentDef(SGEntityDef):
         aAgent.show()
         return aAgent
     
+    def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None):
+        """
+        Create a new Agent in the associated species a place it on a random cell.
+        Args:
+            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
+        Return:
+            a agent
+            """
+        return self.newAgentAtCoords(cellDef_or_grid, None, None, attributesAndValues)
+
+
+    # To randomly move all agents
+    def moveRandomly(self, numberOfMovement):
+        for aAgent in self.entities:
+            aAgent.moveAgent(numberOfMovement=numberOfMovement)
+
+
+    def deleteEntity(self, aAgent):
+        """
+        Delete a given agent
+        args:
+            aAgent (instance): the agent to de deleted
+        """
+        aAgent.cell.updateDepartureAgent(aAgent)
+        super().deleteEntity(aAgent)
+        aAgent.update()#ou alors aAgent.parent.update()
+
 
 class SGCellDef(SGEntityDef):
     def __init__(self,grid, shape,defaultsize,defaultColor=Qt.white,entityName='Cell'):
         attributesPossibleValues=None
         super().__init__(grid.model, entityName,shape,defaultsize,attributesPossibleValues,defaultColor)
-        self.grid= grid 
+        self.grid= grid
+        self.deletedCells=[]
 
     def newCell (self, x, y):
         ent = SGCell(self, x, y)
@@ -330,7 +381,23 @@ class SGCellDef(SGEntityDef):
     def cellIdFromCoords(self,x,y):
         return x+ (self .grid.columns * (y -1))
 
+    def deleteEntity(self,aEntity):
+        aEntity.deleteLater()
+        self.entities.remove(aEntity)
 
-    def setCells(self, aAttribute, aValue):
-        return self.setEntities(aAttribute, aValue)
-
+    def deleteEntity(self, aEntity):
+        """
+        Delete a given entity
+        args:
+            aEntity (instance): the cell to de deleted
+        """
+        self.deletedCells.append(aEntity)
+        aEntity.isDisplay = False
+        self.entities.remove(aEntity)
+        # aEntity.update()#ou alors aEntity.parent.update()
+    
+    def reviveThisCell(self, aDeletedCell):
+        aDeletedCell.isDispay = True
+        self.deletedCells.remove(aDeletedCell)
+        self.entities.append(aDeletedCell)
+        

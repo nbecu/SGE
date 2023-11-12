@@ -3,7 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
-import re
+# import time
 
 
    
@@ -39,6 +39,7 @@ class SGCell(SGEntity):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        # print(time.localtime())
         if self.isDisplay==True:
             painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
             self.startXBase=0
@@ -123,125 +124,7 @@ class SGCell(SGEntity):
              
     #To handle the selection of an element int the legend
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            #Something is selected
-            if self.grid.model.selected[0]!=None :
-                authorisation=SGGameActions.getActionPermission(self)
-         
-                #The delete Action
-                if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
-                    if authorisation : 
-                        if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.dictAttributes])
-                        #We now check the feedBack of the actions if it have some
-                        """if theAction is not None:
-                            self.feedBack(theAction)"""
-                        if len(self.agents) !=0:
-                            for i in reversed(range(len(self.agents))):
-                                self.agents[i].deleteLater()
-                                del self.agents[i]
-                        self.grid.removeVisiblityCell(self.getId())
-                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
-                        if self.grid.model.selected[4] == "delete" or self.grid.model.selected[4] == "playerDelete":
-                            updatePermit=True
-                            for item in self.grid.model.cellCollection[self.grid.id]['watchers']:
-                                for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][item]:
-                                    watcher.updateText()
-                        else:
-                            for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][self.grid.model.selected[4]]:
-                                updatePermit=watcher.getUpdatePermission()
-                                if updatePermit:
-                                    watcher.updateText()
-                        if self.model.mqttMajType == "Instantaneous":
-                            SGGameActions.sendMqttMessage(self)
-                        self.show()
-                        self.repaint()    
-
-                #The Replace cell and change value Action
-                elif self.grid.model.selected[1]== "square" or self.grid.model.selected[1]=="hexagonal":
-                    if  authorisation :
-                        #We now check the feedBack of the actions if it have some
-                        if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.dictAttributes])
-                        """if theAction is not None:
-                            self.feedBack(theAction)"""
-                        if self.grid.model.selected[0].legend.id!="adminLegend":
-                             self.owner=self.grid.model.currentPlayer
-                        self.isDisplay=True
-                        value =self.grid.model.selected[3]
-                        #attribut=self.grid.model.selected[2]
-                        theKey=""
-                        if self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["ColorPOV"]):
-                            # pov
-                            for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
-                                if value in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov][anAttribute].keys()) :
-                                    theKey=anAttribute
-                                    break
-                            aDictWithValue={theKey:value}    
-                            for aVal in list(aDictWithValue.keys()) :
-                                if aVal in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()) :
-                                        for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
-                                            self.dictAttributes.pop(anAttribute,None)
-
-                        elif self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["BorderPOV"]):
-                            # borderPov
-                            for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                                if value in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov][anAttribute].keys()) :
-                                    theKey=anAttribute
-                                    break
-                            aDictWithValue={theKey:value}  
-                            for aVal in list(aDictWithValue.keys()) :  
-                                if aVal in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()) :
-                                    for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                                            self.dictAttributes.pop(anAttribute,None)
-                        
-                        self.dictAttributes[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.dictAttributes])
-                        if self.grid.model.selected[4] in self.model.cellCollection[self.grid.id]["watchers"]:
-                            for watcher in self.model.cellCollection[self.grid.id]["watchers"][self.grid.model.selected[4]]:
-                                updatePermit=watcher.getUpdatePermission()
-                                if updatePermit:
-                                    watcher.updateText()
-                        if self.model.mqttMajType == "Instantaneous":
-                            SGGameActions.sendMqttMessage(self)
-                        self.update()
-                        
-
-                #For agent placement         
-                else :
-                    if  authorisation :
-                        aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
-                        if self.grid.model.selected[4] =="empty" or self.grid.model.selected[3]=='empty':
-                            Species=self.grid.model.selected[2]
-                        elif self.grid.model.selected[4] ==None or self.grid.model.selected[3]==None:
-                            Species=self.grid.model.selected[2]
-                        elif ":" in self.grid.model.selected[2] :
-                            selected=self.grid.model.selected[2]
-                            chain=selected.split(' : ')
-                            Species = chain[0]
-                        else:
-                            Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
-                        if self.isDisplay==True :
-                            #We now check the feedBack of the actions if it have some
-                            """if theAction is not None:
-                                self.feedBack(theAction)"""
-                            theSpecies = self.model.getAgentSpecie(Species)
-                            aAgent=self.newAgentHere(theSpecies,aDictWithValue)
-                            self.updateIncomingAgent(aAgent)
-                            for method in self.model.agentSpecies[Species]["watchers"]:
-                                for watcher in self.model.agentSpecies[Species]["watchers"][method]:
-                                    updatePermit=watcher.getUpdatePermission()
-                                    if updatePermit:
-                                        watcher.updateText()
-                            for method in self.model.agentSpecies['agents']["watchers"]:
-                                for watcher in self.model.agentSpecies['agents']["watchers"][method]:
-                                    updatePermit=watcher.getUpdatePermission()
-                                    if updatePermit:
-                                        watcher.updateText()
-                            if self.model.mqttMajType == "Instantaneous":
-                                SGGameActions.sendMqttMessage(self)
-                            self.update()
-                            self.grid.model.update()
+        return super().mousePressEvent(event)
 
                             
                                     
@@ -278,6 +161,9 @@ class SGCell(SGEntity):
         self.agents.remove(anAgent)
         anAgent.cell=None
 
+    def isDeleted(self):
+        return not self.isDisplay
+    
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
@@ -291,7 +177,6 @@ class SGCell(SGEntity):
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
-
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
@@ -400,12 +285,10 @@ class SGCell(SGEntity):
                             break
         return haveChange
     
-    #Delete All the Agent       
-    def deleteAllAgent(self):
-        """NOT TESTED"""
-        for i in reversed(range(len(self.collectionOfAgents.agents))):
-            self.collectionOfAgents.agents[i].deleteLater()
-            del self.collectionOfAgents.agents[i]
+    #Delete all agents on the cell
+    def deleteAllAgents(self):
+        for agt in self.agents[:]:
+            agt.classDef.deleteEntity(agt)
         self.update()
 
     #Create agents on the cell
@@ -419,7 +302,7 @@ class SGCell(SGEntity):
 
         Return:
             a new agent"""
-        return self.model.newAgentAtCoords(self.grid, aAgentSpecies,self.x, self.y,adictAttributes)
+        return aAgentSpecies.newAgentAtCoords(self.grid, self.x, self.y,adictAttributes)
 
     #To perform action
     def doAction(self, aLambdaFunction):

@@ -5,9 +5,9 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
+myModel=SGModel(500,300, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
-Cell=myModel.newGrid(6,4,"square",gap=2)
+Cell=myModel.newGrid(6,4,"square",gap=2,size=40)
 # Cell=Cell.cellDef
 Cell.setEntities("landUse","grass")
 ##  Pour pouvoir rassembler Agents et Cells (sous ENtity), faut que newGrid renvoie la CellCollection

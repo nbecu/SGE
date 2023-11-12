@@ -13,9 +13,9 @@ myModel = SGModel(
 
 aGrid = myModel.newGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')  # ,posXY=[20,90]
-aGrid.setCells("biomass", 1)
-aGrid.setCells("ProtectionLevel", "Free")
-aGrid.setCells("noHarvestPeriod", 0)
+Cell.setEntities("biomass", 1)
+Cell.setEntities("ProtectionLevel", "Free")
+Cell.setEntities("noHarvestPeriod", 0)
 aGrid.setCell(3,1,"biomass", 2)
 aGrid.setCell(1,2,"biomass", 2)
 aGrid.setCell(2,2,"biomass", 0)
@@ -29,7 +29,7 @@ aGrid.setCell(4,4,"biomass", 0)
 aGrid.setCell(5,4,"biomass", 2)
 
 # GlobalColor.
-myModel.newPov("biomass", "biomass", {
+Cell.newPov("biomass", "biomass", {
                0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
 myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
@@ -46,7 +46,7 @@ Bird.initDefaultAttValue('nb reproduction',0)
 Chick = myModel.newAgentSpecies("Chick","triangleAgent2", aSpeciesDefaultSize=5, uniqueColor=QColorConstants.Magenta)
 
 
-# globalLegend = myModel.newLegendAdmin("Global Legend", showAgentsWithNoAtt=True)
+# globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Clans = myModel.newPlayer("Clan")
 Clans.addGameAction(myModel.newCreateAction(harvesters, 20))

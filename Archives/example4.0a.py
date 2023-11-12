@@ -7,14 +7,14 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1000,700, windowTitle="A simulation/game with one agent")
 
-aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
-aGrid.setCells("landUse","grass")
-aGrid.setCells_withColumn("landUse","forest",1)
-aGrid.setCells_withColumn("landUse","forest",2)
-aGrid.setRandomCells("landUse","shrub",10)
+Cell=myModel.newGrid(10,10,"square",size=60, gap=2)
+Cell.setEntities("landUse","grass")
+Cell.setEntities_withColumn("landUse","forest",1)
+Cell.setEntities_withColumn("landUse","forest",2)
+Cell.setRandomEntities("landUse","shrub",10)
 
-myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+Cell.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+Cell.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 
 Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
@@ -24,10 +24,10 @@ Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
 m2=myModel.newAgent(aGrid,Moutons,6,3)
-m2.setValueAgent('health','good')
-m1.setValueAgent('health','bad')
-m2.setValueAgent('hunger','good')
-m1.setValueAgent('hunger','bad')
+m2.setValue('health','good')
+m1.setValue('health','bad')
+m2.setValue('hunger','good')
+m1.setValue('hunger','bad')
 #print(myModel.AgentSpecies)
 
 agent_list = []
@@ -36,12 +36,12 @@ for animal, sub_dict in myModel.agentSpecies.items():
         agent_list.append(agent_dict['AgentObject'])
 
 #print(agent_list)
-theFirstLegend=myModel.newLegendAdmin()
+theFirstLegend=myModel.newLegend()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 myModel.timeManager.newGamePhase('Phase 1',
                                  None,
-                                 [lambda: aGrid.setRandomCells("landUse","shrub",3)])
+                                 [lambda: Cell.setRandomEntities("landUse","shrub",3)])
 myModel.timeManager.newGamePhase('Phase 2',
                                  None,
                                  [lambda: aGrid.setRandomCell("landUse","forest")])

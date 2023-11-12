@@ -1,7 +1,7 @@
 class SGGameActions():
     def getActionPermission(aObject):
     #Autorisation Game Action (Create Delete Update)
-        thePlayer=aObject.model.getPlayerObject(aObject.model.getCurrentPlayer())
+        thePlayer=aObject.model.getPlayerObject(aObject.model.currentPlayer)
         authorisation=False
         theAction = None
         if thePlayer == "Admin":
@@ -17,7 +17,7 @@ class SGGameActions():
         return authorisation
 
     def getMovePermission(aObject):
-        thePlayer=aObject.model.getPlayerObject(aObject.model.getCurrentPlayer())
+        thePlayer=aObject.model.getPlayerObject(aObject.model.currentPlayer)
         authorisation=False
         theAction = None
         if thePlayer == "Admin":
