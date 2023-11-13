@@ -41,8 +41,8 @@ myModel.newTextBox("Place les bateaux à l'endroit où ils doivent pêcher","Com
 myModel.newLegendAdmin(showAgentsWithNoAtt=True)
 
 DashBoard=myModel.newDashBoard()
-indicateurPêcheMerlu = DashBoard.addIndicator_Sum("cell","quantitéPêchéeMerlu",indicatorName="Quantité de merlu pêchée : ")
-indicateurPêcheSole = DashBoard.addIndicator_Sum("cell","quantitéPêchéeSole",indicatorName="Quantité de sole pêchée : ")
+indicateurPêcheMerlu = DashBoard.addIndicator("sumAtt","cell",attribute="quantitéPêchéeMerlu",indicatorName="Quantité de merlu pêchée")
+indicateurPêcheSole = DashBoard.addIndicator("sumAtt","cell",attribute="quantitéPêchéeSole",indicatorName="Quantité de sole pêchée")
 
 def tx_présence():
     nbNavires=len(myModel.getAgents("Navire"))
@@ -56,8 +56,8 @@ def pêche():
     for cell in aGrid.getCells():
       if len(cell.agents)!=0:
           for navire in cell.agents:
-            navire.dictOfAttributs['Quantité_pêchée_Merlu']=cell.dictOfAttributs["txPrésenceMerlu"]*cell.dictOfAttributs["stockCellMerlu"]*navire.dictOfAttributs["txCapture_Merlu"]
-            navire.dictOfAttributs['Quantité_pêchée_Sole']=cell.dictOfAttributs["txPrésenceSole"]*cell.dictOfAttributs["stockCellSole"]*navire.dictOfAttributs["txCapture_Sole"] 
+            navire.dictOfAttributs['Quantité_pêchée_Merlu']=cell.dictOfAttributs["txPrésenceMerlu"]*Merlus.dictOfAttributs["stock"]*navire.dictOfAttributs["txCapture_Merlu"]
+            navire.dictOfAttributs['Quantité_pêchée_Sole']=cell.dictOfAttributs["txPrésenceSole"]*Soles.dictOfAttributs["stock"]*navire.dictOfAttributs["txCapture_Sole"] 
             cell.dictOfAttributs["quantitéPêchéeMerlu"]=+navire.dictOfAttributs['Quantité_pêchée_Merlu']
             cell.dictOfAttributs["quantitéPêchéeSole"]=+navire.dictOfAttributs['Quantité_pêchée_Sole']
 
