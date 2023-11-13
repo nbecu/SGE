@@ -18,8 +18,6 @@ class SGAgent(SGEntity):
         super().__init__(aParent,shape,defaultsize,me)
         #Basic initialize
         self.me=me
-        self.cell=cell
-        
         if me == 'collec':
             self.model=aParent
             self.memoryID=1
@@ -33,6 +31,8 @@ class SGAgent(SGEntity):
         if me == 'collec' and dictOfAttributs is not None:
             self.dictOfAttributesDefaultValues = self.initDefaultDictAtt(dictOfAttributs)
         #For the placement of the agents
+        self.cell=cell
+        if cell is not None : cell.updateIncomingAgent(self)
         self.methodOfPlacement=methodOfPlacement
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
@@ -49,6 +49,8 @@ class SGAgent(SGEntity):
         self.isDisplay=bool
         self.instances.append(self)
         self.color=uniqueColor
+        
+
         
     def paintEvent(self,event):
         painter = QPainter() 
@@ -207,7 +209,7 @@ class SGAgent(SGEntity):
                         self.update()
                 #Change the value of agent
                 # # ! à retravailler   
-                elif self.model.selected[1]== "circleAgent" or self.model.selected[1]=="squareAgent" or self.model.selected[1]== "ellipseAgent1" or self.model.selected[1]=="ellipseAgent2" or self.model.selected[1]== "rectAgent1" or self.model.selected[1]=="rectAgent2" or self.model.selected[1]== "triangleAgent1" or self.model.selected[1]=="triangleAgent2" or self.model.selected[1]== "arrowAgent1" or self.model.selected[1]=="arrowAgent2":
+                elif self.model.selected[1] in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"):
                     if  authorisation :
                         """if len(self.history["value"])==0:
                             self.history["value"].append([0,0,self.attributs])"""
@@ -321,6 +323,7 @@ class SGAgent(SGEntity):
             attribut (str): attribut concerned by the update
             value (str): value previously declared in the species, to update
         """
+        # cette méthode semble etre utilisé pour set la defaultValue, et si c'est le cas la façon d'appeler est à reprendre  Entity
         if self.me=='agent':
             self.dictOfAttributs[attribut]=value 
     
@@ -333,6 +336,7 @@ class SGAgent(SGEntity):
             Val : default value
 
         """
+        # cette méthode est à remonter au niveau de Entity
         if self.me=='collec' and self.dictOfAttributs is not None:
             self.dictOfAttributesDefaultValues[Att]=Val
         else:

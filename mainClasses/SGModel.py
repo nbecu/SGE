@@ -17,6 +17,7 @@ from mainClasses.SGVoid import SGVoid
 from mainClasses.SGCell import SGCell
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGModelAction import SGModelAction
+from mainClasses.SGModelAction import SGModelAction_OnEntities
 from mainClasses.SGEndGameRule import SGEndGameRule
 from mainClasses.SGUserSelector import SGUserSelector
 from mainClasses.SGDashBoard import SGDashBoard
@@ -38,6 +39,7 @@ from paho.mqtt import client as mqtt_client
 import threading
 import queue
 import random
+import uuid
 import re
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -448,7 +450,9 @@ class SGModel(QtWidgets.QMainWindow):
         self.cellCollection[grid.id]['watchers']={}
 
     # To get all the cells of the collection
-    def getCells(self,grid):
+    def getCells(self,grid=None):
+        if grid == None:
+            grid = self.getGrids()[0]
         return list(self.cellCollection[grid.id]['cells'].values())
     
     # To get all the povs of the collection
@@ -558,10 +562,9 @@ class SGModel(QtWidgets.QMainWindow):
 
         Args:
             aSpeciesName (str) : the species name
-            aSpeciesShape (str) : the species shape (see list in doc)
+            aSpeciesShape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
             dictofAttributs (dict) : all the species attributs with all the values
             aSpeciesDefaultSize (int) : the species shape size (Default=10)
-
         Return:
             a nested dict for the species
             a species
@@ -571,13 +574,21 @@ class SGModel(QtWidgets.QMainWindow):
                                 dictOfAttributs, None, me='collec', uniqueColor=uniqueColor)
         aAgentSpecies.isDisplay = False
         aAgentSpecies.species=aSpeciesName
-        self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {
-        }, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictOfAttributs, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        if 'agents' not in self.agentSpecies: self.agentSpecies['agents'] = {"watchers":{}}
         return aAgentSpecies
 
-    def agentSpecie(self, aStrSpecie):
-        # send back the specie collec correspond to aStrSpecie
+    def getAgentSpecieDict(self, aStrSpecie):
+        # send back the specie dict (specie definition dict) that corresponds to aStrSpecie
         return self.agentSpecies[aStrSpecie]
+
+    def getAgentSpeciesName(self):
+        # send back a list of the names of all the species
+        return [x for x in self.agentSpecies.keys() if x != 'agents']
+    
+    def getAgentSpeciesDict(self):
+        # send back a list of all the species Dict (specie definition dict)
+        return [x for x in self.agentSpecies if x != 'agents']
 
     def getAgentSpecie(self, aStrSpecie):
         AgentSpecie = None
@@ -588,6 +599,13 @@ class SGModel(QtWidgets.QMainWindow):
         return AgentSpecie
 
     def getAgentSpecies(self):
+        # ATTENTION
+        # Il y a un soucis dans la façon dont les infos sur les species sont stockés, car il y a une partie qui sont dans les clés du dico self.agentSpecies[NomDeLaSpecie] et une autre partie qui est dans l'instance d'Agent (dont me='collec' et species= 'NomDeLaSpecie') qui est stockée dans self.agentSpecies[NomDeLaSpecie]['defSpecies']
+        # Il faut que toutes les infos soient rassemblées au meme endroit.
+        # Le plus propre serait de créer une Class SGEntityDef  qui portera toutes les infos de la specie  
+        # (peut être qu'il faudra faire un SGCellDef et un SGAgentDef)
+        #       voici les info pour un SGAgentDef (name, watchers, colorPov, borderPov, attributList , size, defaultSize, defaultColor, shape,  format, instancesDeCetteSpecie, methodOfPlacement)
+        #       voici les info pour un SGCellDef (grid, watchers, colorPov, borderPov)  -->    apparameent ca ne stock pas les autres infos comme ( attributList , size, defaultSize, defaultColor, shape,  format)  Ces infos st peut etre ds la grid
         species=[]
         for instance in SGAgent.instances:
             if instance.me == 'collec':
@@ -651,6 +669,8 @@ class SGModel(QtWidgets.QMainWindow):
                         aAgent.manageAttributeValues(aAgentSpecies,aAtt)
 
         self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': aDictofAttributs, "AgentObject": aAgent}
+        # C'est très curieux que le dictOfAttributes soit à la fois dans l'instance d'agent et dans la lise agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]
+        # C'est un doublon, qui ne devrait pas exister 
         aAgent.show()
         return aAgent
     
@@ -683,22 +703,25 @@ class SGModel(QtWidgets.QMainWindow):
         """
         Return the list of all Agents in the model
         """
+        # Need Refactoring
         agent_list = []
-        for animal, sub_dict in self.agentSpecies.items():
-            for agent_id, agent_dict in sub_dict['AgentList'].items():
-                agent_list.append(agent_dict['AgentObject'])
-        # If we want only the agents of one specie
-        if species is not None:
-            agent_list = []
-            agent_objects = []
-            if species in self.agentSpecies.keys():
-                animal = species
-                subdict = self.agentSpecies[animal]["AgentList"]
-                for agent in subdict:
-                    agent_objects.append(subdict[agent]["AgentObject"])
+        for aSpecie, sub_dict in self.agentSpecies.items():
+            if aSpecie != 'agents' : # 'agents' entry is a specific one used for watchers on the whole population of agents
+               if species is None or species == aSpecie: 
+                    for agent_id, agent_dict in sub_dict['AgentList'].items():
+                        agent_list.append(agent_dict['AgentObject'])
+        # # If we want only the agents of one specie
+        # if species is not None:
+        #     agent_list = []
+        #     agent_objects = []
+        #     if species in self.agentSpecies.keys():
+        #         aSpecie = species
+        #         subdict = self.agentSpecies[aSpecie]["AgentList"]
+        #         for agent in subdict:
+        #             agent_objects.append(subdict[agent]["AgentObject"])
 
-                return agent_objects
-        # All agents in model
+        #         return agent_objects
+        # # All agents in model
         return agent_list
     
     def getAgentsPrivateID(self):
@@ -758,6 +781,36 @@ class SGModel(QtWidgets.QMainWindow):
         # self.updateLegendAdmin()    --> Removed. This is a useless method
         self.show()
 
+    # To delete all Agents of a species
+    def deleteAgents(self, speciesName=None):
+        """
+        Delete all aAgents of a species.
+        args:
+            speciesName (str, optional): name of the AgentSpecies. If None, all species will be deleted
+        """
+        if speciesName is None: list_species = self.getAgentSpeciesName()
+        else:  list_species = [speciesName]
+        for aSpeciesName in list_species:
+            for anAgentSpec in self.agentSpecies[aSpeciesName]['AgentList'].values():
+                aAgent = anAgentSpec["AgentObject"]
+                aAgent.cell.updateDepartureAgent(aAgent)
+                aAgent.deleteLater()
+            self.agentSpecies[aSpeciesName]['AgentList']={} 
+        self.update()
+        self.show()
+
+    def setAgents(self, aSpeciesName, aAttribute, aValue):
+        """
+        Set the value of attribut value of all agents of a given specie
+
+        Args:
+            aAttribute (str): Name of the attribute to set
+            aValue : Value to set the attribute to
+        """
+        for aAgt in self.getAgents(aSpeciesName):
+            aAgt.setValue(aAttribute, aValue)
+
+
     # To randomly move all agents
     def moveRandomlyAgents(self, aGrid, numberOfMovement):
         for aAgent in self.getAgents():
@@ -770,9 +823,39 @@ class SGModel(QtWidgets.QMainWindow):
         args:
             actions (lambda function): Actions the model performs during the phase (add, delete, move...)
             conditions (lambda function): Actions are performed only if the condition returns true  
-            feedbacks (lambda function): Feedback actions performed only if the actions are executed
+            feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
         aModelAction = SGModelAction(actions, conditions, feedbacks)
+        self.id_modelActions += 1
+        aModelAction.id = self.id_modelActions
+        aModelAction.model = self
+        return aModelAction
+    
+    # To create a modelAction that executes on each cell
+    def newModelAction_onCells(self, actions=[], conditions=[], feedbacks=[]):
+        """
+        To add a model action which can be executed during a modelPhase
+        args:
+            actions (lambda function): Actions the cell performs during the phase (add, delete, move...)
+            conditions (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): feedback actions performed only if the actions are executed
+        """
+        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getCells()))
+        self.id_modelActions += 1
+        aModelAction.id = self.id_modelActions
+        aModelAction.model = self
+        return aModelAction
+    
+    # To create a modelAction that executes on each agent of a specific Specie
+    def newModelAction_onAgents(self, specieName, actions=[], conditions=[], feedbacks=[]):
+        """
+        To add a model action which can be executed during a modelPhase
+        args:
+            actions (lambda function): Actions the cell performs during the phase (add, delete, move...)
+            conditions (lambda function): Actions are performed only if the condition returns true  
+            feedbacks (lambda function): feedback actions performed only if the actions are executed
+        """
+        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getAgents(specieName)))
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
         aModelAction.model = self
@@ -1144,7 +1227,7 @@ class SGModel(QtWidgets.QMainWindow):
     # -----------------------------------------------------------
     # Game mechanics function
 
-    def newCreateAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+    def newCreateAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Create GameAction to the game.
 
@@ -1156,9 +1239,9 @@ class SGModel(QtWidgets.QMainWindow):
         """
         if aNumber == "infinite":
             aNumber = 9999999
-        return SGCreate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
+        return SGCreate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
 
-    def newUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+    def newUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Update GameAction to the game.
 
@@ -1172,9 +1255,9 @@ class SGModel(QtWidgets.QMainWindow):
             anObjectType = SGCell
         if aNumber == "infinite":
             aNumber = 9999999
-        return SGUpdate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
+        return SGUpdate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
 
-    def newDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[]):
+    def newDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Delete GameAction to the game.
 
@@ -1188,9 +1271,9 @@ class SGModel(QtWidgets.QMainWindow):
             aNumber = 9999999
         if anObjectType == 'Cell':
             anObjectType = SGCell
-        return SGDelete(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack)
+        return SGDelete(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
 
-    def newMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedBack=[], conditionOfFeedBack=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
+    def newMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
         """
         Add a MoveAction to the game.
 
@@ -1202,7 +1285,7 @@ class SGModel(QtWidgets.QMainWindow):
         """
         if aNumber == "infinite":
             aNumber = 9999999
-        return SGMove(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedBack, conditionOfFeedBack, feedbackAgent, conditionOfFeedBackAgent)
+        return SGMove(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback, feedbackAgent, conditionOfFeedBackAgent)
 
     # -----------------------------------------------------------
     # Getter
@@ -1253,6 +1336,7 @@ class SGModel(QtWidgets.QMainWindow):
             majType (str): "Phase" or "Instantaneous"
         
         """
+        self.clientId= uuid.uuid4().hex
         self.majTimer = QTimer(self)
         self.majTimer.timeout.connect(self.onMAJTimer)
         self.majTimer.start(1000)
@@ -1274,6 +1358,8 @@ class SGModel(QtWidgets.QMainWindow):
         if msg_list[0][0] not in processedMajs:
             print("Update processing...")
         else:
+            # Ce n'arrive jamais car la Maj n'est jamais ajouté à la list processedMajs
+            # Du coup, il faut supprimer cette vérification qui ne sert rien
             return print("Maj already processed !")
         # CELL MANAGEMENT
         gridNumber=0
@@ -1380,7 +1466,7 @@ class SGModel(QtWidgets.QMainWindow):
             message = self.q.get()
             msg_decoded = message.decode("utf-8")
             msg_list = eval(msg_decoded)
-            if self.currentPlayer not in msg_list[0][0]:
+            if msg_list[0][0] != self.clientId:
                 for aAgent in self.getAgents():
                     self.deleteAgent(aAgent.species,aAgent.id)
                     self.handleMessageMainThread(msg_list)
@@ -1390,17 +1476,10 @@ class SGModel(QtWidgets.QMainWindow):
         self.connect_mqtt()
         self.mqtt=True
 
-        # IF not admin Request which channel to sub
-        if self.currentPlayer != "Admin":
-            self.client.subscribe("Gamestates")
-            self.client.on_message = on_message
-            self.listOfSubChannel.append("Gamestates")
-        # If Admin
-        else:
-            self.client.subscribe("Gamestates")
-            self.client.on_message = on_message
-            self.listOfSubChannel.append("Gamestates")
-
+        self.client.subscribe("Gamestates")
+        self.client.on_message = on_message
+        self.listOfSubChannel.append("Gamestates")
+        
 
     # publish on mqtt broker the state of all entities of the world
     def publishEntitiesState(self):
@@ -1410,10 +1489,19 @@ class SGModel(QtWidgets.QMainWindow):
 
     # Send a message
     def submitMessage(self):
-        print(self.currentPlayer+" send un message")
-        majID = self.getMajID()
-        nb = str(majID)+"-"+self.currentPlayer
-        message = "[['"+nb+"'],"
+        print(self.currentPlayer+" send a message")
+            # Il faudra changer le format du message
+            #   Utiliser un dict plutôt qu'une list
+            #   Et utiliser les key pour identifier les différents types d'info, plutôt que de se baser sur les index de la list comme c'est le cas actuellement dans la méthode handleMessageMainThread (qu'il faudra aussi refaire)
+            #  ex. du format {'msg identifers':[clientId,majID,currentPlayer], 'cells':[.....], 'agents':[.....], 'time manager':[.....], 'simulation variables':[.....], 'players':[.....], 'gameActions':[.....], 'chat box':[.....]}    
+
+        # First infos : identifiers of the message [clientId,majID,currentPlayer]
+        message = "[['"+self.clientId+"',"
+        majID = self.getMajID() #getMajID et majID est a priori plus utilisé. A priori, à retirer
+        message += str(majID)+",'"
+        message += self.currentPlayer+"'],"
+
+        # Next infos : Cells of the different grids
         allCells = []
         listCellsByGrid=[]
         theAgents = self.getAgents()
@@ -1426,7 +1514,7 @@ class SGModel(QtWidgets.QMainWindow):
         message = message+str(listCellsByGrid)+","
         for aNumberOfCells in listCellsByGrid:
             for i in range(aNumberOfCells):
-                message = message+"["
+                message = message+"[" # A refactorer !!!!   Utiliser +=  et rassembler les lignes en trop
                 message = message+str(allCells[i].isDisplay)
                 message = message+","
                 message = message+str(allCells[i].dictOfAttributs)
@@ -1435,6 +1523,8 @@ class SGModel(QtWidgets.QMainWindow):
                 message = message+"]"
                 if i != aNumberOfCells:
                     message = message+","
+
+        # Next : Agents
         for aAgent in theAgents:
             message = message+"["
             message = message+"'"+str(aAgent.privateID)+"'"
@@ -1472,10 +1562,10 @@ class SGModel(QtWidgets.QMainWindow):
         message = message+"]"
         message = message+","
         message = message+"["
-        message = message+"'"+str(self.currentPlayer)+"'"
+        message = message+"'"+str(self.currentPlayer)+"'" # Cette info est déjà présente tout au début du message (dans la première lis). A retirer
         message = message+"]"
         message = message+","
-        message = message+str(self.listOfSubChannel)
+        message = message+str(self.listOfSubChannel) # Cette info est déjà présente dans le message topic. A retirer
         message = message+"]"
         print(message)
         self.listOfMajs.append(str(majID)+"-"+self.currentPlayer)

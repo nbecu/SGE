@@ -265,12 +265,13 @@ class SGGrid(SGGameSpace):
 
 # to get all cells with a certain value
     def getCells_withValue(self, att, val):
-        litsOfCells = []
-        for cell in list(self.collectionOfCells.cells.values()):
-            if att in cell.attributs:
-                if val == cell.attributs[att]:
-                    litsOfCells.append(cell)
-        return litsOfCells
+        # litsOfCells = []
+        # for cell in self.getCells():
+        #     if cell.value(att)==val:
+        #         litsOfCells.append(cell) 
+        # return litsOfCells
+        # le code ci dessous est équivalent au code ci-dessus mais en plus compact
+        return list(filter(lambda cell: cell.value(att)==val, self.getCells()))
 
 # to get all cells not having a certain value
     def getCells_withValueNot(self, att, val):
@@ -594,15 +595,8 @@ class SGGrid(SGGameSpace):
                             # self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
 
     # to get all cells who respect certain value
-    def getCellOfValue(self, aDictValueForAgent):
-        """NOT TESTED"""
-        result = []
-        for cell in list(self.collectionOfCells.cells.values()):
-            aKey = list(aDictValueForAgent.keys())[0]
-            if aKey in cell.attributs:
-                if aDictValueForAgent[aKey] == cell.attributs[aKey]:
-                    result.append(cell)
-        return result
+    def nbCells_withValue(self, att, value):
+        return len(self.getCells_withValue(att, value))
 
     # To return all agent of a type in neighborhood
     def getNeighborAgent(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):

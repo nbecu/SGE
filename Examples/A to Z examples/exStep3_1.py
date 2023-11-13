@@ -9,6 +9,9 @@ myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLay
 
 aGrid=myModel.newGrid(6,6,"square",gap=2)
 aGrid.setCells("landUse","grass")
+##  Pour pouvoir rassembler Agents et Cells (sous ENtity), faut que newGrid renvoie la CellCollection
+#      il faudra certainement renonmmer CellCollection en CellSpec   (comme AgentSpec qui est parfois appelé AgentDict ou AgentCollec)
+#       et ce serai plus propre de créer une class CellSpec et AgentSpec plutot que d'utiliser l'attribut me='collec' 
 aGrid.setCells_withColumn("landUse","forest",1)
 aGrid.setCells_withColumn("landUse","forest",2)
 aGrid.setRandomCells("landUse","shrub",10)

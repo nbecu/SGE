@@ -1,7 +1,3 @@
-from email import feedparser
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGCell import SGCell
-
 # TO BE CONTINUED
 # #Class who manage a action to be executed by the model.
 # It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
@@ -117,3 +113,46 @@ class SGModelAction():
             
     
 
+class SGModelAction_OnEntities(SGModelAction):
+    def __init__(self,actions=[],conditions=[],feedbacks=[], entities=None):
+        super().__init__(actions,conditions,feedbacks)
+                # super().__init__(parent)
+
+        self.entitiesContainer=None
+        self.setEntities(entities)
+
+    def setEntities(self,entities):
+        self.entitiesContainer = entities
+        if type(self.entitiesContainer) == list:
+            self.containerType = list
+        elif callable(self.entitiesContainer):
+            self.containerType = callable
+        else:
+            raise Exception("Sorry, wrong entities type")
+    
+    def getEntities(self):
+        if self.containerType == list:
+            return self.entitiesContainer
+        else:
+            return self.entitiesContainer()
+
+    def execute(self):
+        for aEntity in self.getEntities():
+            if self.testConditions(aEntity):
+                # allActionsDone = True
+                for aAction in self.actions:
+                    if callable(aAction):
+                        test = aAction(aEntity)  #this command executes aAction
+                        # if test == False:
+                            # allActionsDone = False
+                    # else:
+                    #     raise ValueError("Syntax error of actions")
+        # if allActionsDone:
+        for aFeedbackAction in self.feedbacks:
+            aFeedbackAction.execute()
+
+    def testConditions(self,aEntity):
+        res = True 
+        for aCondition in self.conditions:
+            res = res and aCondition(aEntity)
+        return res

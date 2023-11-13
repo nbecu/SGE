@@ -26,6 +26,8 @@ theFirstLegend=myModel.newLegendAdmin()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
+# Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
+
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
@@ -46,7 +48,7 @@ myModel.timeManager.newModelPhase(aModelAction2)
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("score",None,indicatorName="Score : ")
+i1 = DashBoard.addIndicator("score",None,indicatorName="Score")
 DashBoard.showIndicators()
 aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
 myModel.timeManager.newModelPhase(aModelAction4)
