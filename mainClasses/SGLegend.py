@@ -28,7 +28,7 @@ class SGLegend(SGGameSpace):
         self.AgentList=AgentList
         self.showAgents=showAgents
         self.playerName=playerName
-        self.legendItems={}
+        self.legendItems=[]
         self.borderColor=borderColor
         self.haveADeleteButton=False
         self.y=0
@@ -425,6 +425,7 @@ class SGLegend(SGGameSpace):
 #Definiton of the methods who the modeler will use
 
 #To add Povs in a legend
+#OBSOLETE
     def addToTheLegend(self,aListOfElement,aDictOfAcceptedValue={}):
         """NOT TESTED"""
         #For the grid value
@@ -453,6 +454,7 @@ class SGLegend(SGGameSpace):
         
         
 #Adding the delete Button
+#OBSOLETE
     def addDeleteButton(self,name,elementsAllowed="all"):
         self.haveADeleteButton=True
         if "deleteButton" not in self.elementsPov:

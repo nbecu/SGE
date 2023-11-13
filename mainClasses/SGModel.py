@@ -635,6 +635,12 @@ class SGModel(QMainWindow):
         return AgentSpecie
 
     def getAgentSpecies(self):
+        return self.agentSpecies()
+    
+    def getEntitiesDef(self):
+        return list(self.cellOfGrids.values()) + list(self.agentSpecies.values())
+
+    def getAgentSpeciesOLD(self):
         # ATTENTION
         # Il y a un soucis dans la façon dont les infos sur les species sont stockés, car il y a une partie qui sont dans les clés du dico self.agentSpecies[NomDeLaSpecie] et une autre partie qui est dans l'instance d'Agent (dont me='collec' et species= 'NomDeLaSpecie') qui est stockée dans self.agentSpecies[NomDeLaSpecie]['defSpecies']
         # Il faut que toutes les infos soient rassemblées au meme endroit.
@@ -1327,11 +1333,14 @@ class SGModel(QMainWindow):
         - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
 
         """
-        if anObjectType == 'Cell':
-            anObjectType = SGCell
+        # if anObjectType == 'Cell':
+        #     anObjectType = SGCell
+        if isinstance(anObjectType,str):
+            any((aClassDef := item).entityName == anObjectType for item in self.getEntitiesDef()) 
+        if aClassDef is None: return False
         if aNumber == "infinite":
             aNumber = 9999999
-        return SGUpdate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
+        return SGUpdate(aClassDef, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
 
     def newDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """

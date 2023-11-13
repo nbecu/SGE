@@ -1,4 +1,5 @@
 from mainClasses.SGLegend import SGLegend
+from mainClasses.SGControlPanel import SGControlPanel
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
@@ -20,7 +21,38 @@ class SGPlayer():
         self.remainActions = {}
         self.controlPanel= None
 
-    def newControlPanel(self, Name=None, showAgentsWithNoAtt=False):
+    def newControlPanel(self, title=None, showAgentsWithNoAtt=False):
+        """
+        To create an Player Control Panel (only with the GameActions related elements)
+
+        Args:
+        Name (str): name of the Control Panel, displayed
+
+        """
+        if title==None: title = (self.name +' actions')
+        
+        self.controlPanel=SGControlPanel(self,title)
+        self.model.gameSpaces[title] = self.controlPanel
+        # Realocation of the position thanks to the layout
+        newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)
+        self.controlPanel.setStartXBase(newPos[0])
+        self.controlPanel.setStartYBase(newPos[1])
+        if (self.model.typeOfLayout == "vertical"):
+            self.controlPanel.move(self.controlPanel.startXBase, self.controlPanel.startYBase+20 *
+                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel))
+        elif (self.model.typeOfLayout == "horizontal"):
+            self.controlPanel.move(self.controlPanel.startXBase+20 *
+                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel), self.controlPanel.startYBase)
+        else:
+            pos = self.model.layoutOfModel.foundInLayout(self.controlPanel)
+            self.controlPanel.move(self.controlPanel.startXBase+20 *
+                         pos[0], self.controlPanel.startYBase+20*pos[1])
+        self.model.applyPersonalLayout()
+        return self.controlPanel
+
+
+
+    def newControlPanel2(self, Name=None, showAgentsWithNoAtt=False):
         """
         To create an Player Control Panel (only with the GameActions related elements)
 

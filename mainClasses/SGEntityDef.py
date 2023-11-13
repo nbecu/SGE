@@ -59,6 +59,16 @@ class SGEntityDef():
                 updatePermit=watcher.getUpdatePermission()
                 if updatePermit:
                     watcher.updateText()
+                    
+    def  getColorOfFirstOccurenceOfAttAndValue(self, att, value):
+        for aDictWith_Att_ColorDict in list(self.povShapeColor.values()):
+            aAtt=list(aDictWith_Att_ColorDict.keys())[0]
+            aColorDict=aDictWith_Att_ColorDict[aAtt]
+            if aAtt == att:
+                aColor = aColorDict.get(value)
+                if aColor is not None: return aColor
+                # any((aClassDef := item).entityName == anObjectType for item in self.getEntitiesDef()) 
+        return self.defaultShapeColor
 
     ###Definiton of the methods who the modeler will use
     def setDefaultValue(self, aAtt, aDefaultValue):
@@ -406,10 +416,10 @@ class SGCellDef(SGEntityDef):
         aCell.updateMqtt()
         aCell.update()
 
-    def reviveThisCell(self, aDeletedCell):
-        self.entities.append(aDeletedCell)
-        aDeletedCell.isDisplay = True
-        self.deletedCells.remove(aDeletedCell)
+    def reviveThisCell(self, aCell):
+        self.entities.append(aCell)
+        aCell.isDisplay = True
+        self.deletedCells.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         aCell.updateMqtt()
