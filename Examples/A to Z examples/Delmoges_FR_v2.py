@@ -40,6 +40,9 @@ Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 myModel.newTextBox("Place les bateaux à l'endroit où ils doivent pêcher","Comment jouer ?")
 myModel.newLegendAdmin(showAgentsWithNoAtt=True)
 
+DashBoard=myModel.newDashBoard()
+indicateurPêcheMerlu = DashBoard.addIndicator_Sum("cell","quantitéPêchéeMerlu",indicatorName="Quantité de merlu pêchée : ")
+indicateurPêcheSole = DashBoard.addIndicator_Sum("cell","quantitéPêchéeSole",indicatorName="Quantité de sole pêchée : ")
 
 def tx_présence():
     nbNavires=len(myModel.getAgents("Navire"))
@@ -49,7 +52,30 @@ def tx_présence():
                 if cell.dictOfAttributs["sédim"] != "côte":
                     cell.dictOfAttributs["txPrésence"+Species.name]=list(Species.dictOfAttributs[cell.dictOfAttributs["sédim"]])[0]/(90*nbNavires)
 
+def pêche():
+    for cell in aGrid.getCells():
+      if len(cell.agents)!=0:
+          for navire in cell.agents:
+            navire.dictOfAttributs['Quantité_pêchée_Merlu']=cell.dictOfAttributs["txPrésenceMerlu"]*cell.dictOfAttributs["stockCellMerlu"]*navire.dictOfAttributs["txCapture_Merlu"]
+            navire.dictOfAttributs['Quantité_pêchée_Sole']=cell.dictOfAttributs["txPrésenceSole"]*cell.dictOfAttributs["stockCellSole"]*navire.dictOfAttributs["txCapture_Sole"] 
+            cell.dictOfAttributs["quantitéPêchéeMerlu"]=+navire.dictOfAttributs['Quantité_pêchée_Merlu']
+            cell.dictOfAttributs["quantitéPêchéeSole"]=+navire.dictOfAttributs['Quantité_pêchée_Sole']
+
+def updateGlobalStock():
+    sommePêcheMerlu=0
+    sommePêcheSole=0
+    for navire in myModel.getAgents("Navire"):
+        sommePêcheMerlu=+navire.dictOfAttributs['Quantité_pêchée_Merlu']
+        sommePêcheSole=+navire.dictOfAttributs['Quantité_pêchée_Sole']
+        navire.dictOfAttributs['Quantité_pêchée_Merlu']=0
+        navire.dictOfAttributs['Quantité_pêchée_Sole']=0
+    Soles.dictOfAttributs["stock"]=(-sommePêcheSole)*Soles.dictOfAttributs["txrenouv"]
+    Merlus.dictOfAttributs["stock"]=(-sommePêcheMerlu)*Merlus.dictOfAttributs["txrenouv"]
+
 tx_présence()
+
+
+
 
 myModel.launch()
 sys.exit(monApp.exec_())

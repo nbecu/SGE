@@ -190,7 +190,7 @@ class SGDashBoard(SGGameSpace):
                 agentSpeciesDict["watchers"][attribut]=[]
             agentSpeciesDict["watchers"][attribut].append(indicator)
 
-    def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
+    def addIndicator_Sum(self, entity, attribut, value=None, indicatorName=None, color=Qt.black, isDisplay=True):
         """
         Add a sum indicator
         Args :
