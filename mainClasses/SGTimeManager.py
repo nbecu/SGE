@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGModelAction import SGModelAction
+from mainClasses.SGModelAction import SGModelAction_OnEntities
 
 # Class that handle the overall management of time
 
@@ -63,10 +64,12 @@ class SGTimeManager():
                                 aAction()  # this command executes aAction
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
-                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                        self.model.publishEntitiesState()
                     #watchers update
                     self.checkDashBoard()
+                    #mqtt update
+                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
+                        self.model.publishEntitiesState()
+
 
                 else:
                     self.nextPhase()
@@ -100,6 +103,13 @@ class SGTimeManager():
                     updatePermit=watcher.getUpdatePermission()
                     if updatePermit:
                         watcher.updateText()
+        for specie in self.model.agentSpecies.values():
+            for watchers in specie["watchers"].values():
+                for watcher in watchers:
+                    updatePermit=watcher.getUpdatePermission()
+                    if updatePermit:
+                        watcher.updateText()
+
 
 
     def getRoundNumber(self):
@@ -146,7 +156,7 @@ class SGTimeManager():
             name (str): Name displayed on the TimeLabel
         """
         modelActions = []
-        if isinstance(actions, SGModelAction):
+        if isinstance(actions, (SGModelAction,SGModelAction_OnEntities)):
             actions.addCondition(condition)
             modelActions.append((actions))
         elif callable(actions):

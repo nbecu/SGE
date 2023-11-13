@@ -246,10 +246,15 @@ class SGCell(SGEntity):
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
                             theSpecies = self.model.getAgentSpecie(Species)
-                            aAgent=self.grid.model.newAgentAtCoords(self.grid, theSpecies, self.x, self.y, aDictWithValue)             #(self,theSpecies,aDictWithValue)
+                            aAgent=self.newAgentHere(theSpecies,aDictWithValue)
                             self.updateIncomingAgent(aAgent)
-                            for attribut in self.model.agentSpecies[Species]["watchers"]:
-                                for watcher in self.model.agentSpecies[Species]["watchers"][attribut]:
+                            for method in self.model.agentSpecies[Species]["watchers"]:
+                                for watcher in self.model.agentSpecies[Species]["watchers"][method]:
+                                    updatePermit=watcher.getUpdatePermission()
+                                    if updatePermit:
+                                        watcher.updateText()
+                            for method in self.model.agentSpecies['agents']["watchers"]:
+                                for watcher in self.model.agentSpecies['agents']["watchers"][method]:
                                     updatePermit=watcher.getUpdatePermission()
                                     if updatePermit:
                                         watcher.updateText()
@@ -312,23 +317,7 @@ class SGCell(SGEntity):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #To handle the attributs and values
-    def setValue(self,aAttribut,aValue):
-        """
-        Sets the value of an attribut
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
-        """       
-        self.dictOfAttributs[aAttribut]=aValue
 
-    def value(self,att):
-        """
-        Return the value of a cell Attribut
-        Args:
-            att (str): Name of the attribute
-        """
-        return self.dictOfAttributs[att]
     
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
@@ -354,11 +343,19 @@ class SGCell(SGEntity):
      
     
     #To get all of a kind of agent on a cell 
-    def getAgents(self):
+    def getAgents(self,specie=None):
+        if specie != None:
+            return self.getAgentsOfSpecie(specie)
         listOfAgents=[]
         for agent in self.agents:
            listOfAgents.append(agent)
         return  listOfAgents
+    
+    def nbAgents(self,specie=None):
+        if specie != None:
+            listAgts = self.getAgentsOfSpecie(specie)
+        else: listAgts = self.getAgents()
+        return  len(listAgts)
  
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
@@ -437,5 +434,21 @@ class SGCell(SGEntity):
             del self.collectionOfAgents.agents[i]
         self.update()
 
+    #Create agents on the cell
+    def newAgentHere(self, aAgentSpecies,aDictofAttributs=None):
+        """
+        Create a new Agent in the associated species.
+
+        Args:
+            aAgentSpecies (instance) : the species of your agent
+            aDictofAttributs to set the values
+
+        Return:
+            a new agent"""
+        return self.model.newAgentAtCoords(self.grid, aAgentSpecies,self.x, self.y,aDictofAttributs)
+
+    #To perform action
     def doAction(self, aLambdaFunction):
         aLambdaFunction(self)
+
+    
