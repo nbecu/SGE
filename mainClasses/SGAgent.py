@@ -35,7 +35,7 @@ class SGAgent(SGEntity):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        self.setGeometry(0,0,self.size+1,self.size+1)
+        # self.setGeometry(0,0,self.size+1,self.size+1) #CELA PROVOQUE UNE Infinite Loop de paintEvent
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
@@ -164,10 +164,34 @@ class SGAgent(SGEntity):
     # To get the pov via grid
     def getPov2(self):
         return self.cell.grid.getCurrentPOV()
-        
-    #To handle the selection of an element int the legend
+
+
     def mousePressEvent(self, event):
-        return super().mousePressEvent(event)
+        if event.button() == Qt.LeftButton:
+            #Something is selected
+            aLegendItem = self.model.getSelectedLegendItem()
+            if aLegendItem is None : return #Exit the method
+
+            authorisation=SGGameActions.getActionPermission(self)
+        
+            #The delete Action
+            if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
+                if authorisation : 
+                    #We now check the feedBack of the actions if it have some
+                    """if theAction is not None:
+                        self.feedBack(theAction)"""
+                    self.classDef.deleteEntity(self)
+                    self.updateMqtt()
+
+            #The  change value on agent
+            elif aLegendItem.isValueOnAgent() :
+                if  authorisation :
+                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
+                    # self.update()
+
+    #To handle the selection of an element int the legend
+    # def mousePressEvent(self, event):
+    #     return super().mousePressEvent(event)
         # if event.button() == Qt.LeftButton:
         #     #Something is selected
         #     if self.model.selected[0]!=None :

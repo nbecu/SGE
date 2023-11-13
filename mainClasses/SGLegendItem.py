@@ -9,14 +9,18 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,text,shape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False):
+    def __init__(self,parent,type,y,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
         self.type=type
         self.y=y
         self.text=str(text)
-        self.shape=shape
+        if classDefOrShape == 'square' or classDefOrShape is None:
+            self.shape= classDefOrShape
+        else:
+            self.classDef=classDefOrShape
+            self.shape=self.classDef.shape
         self.color=color
         self.nameOfAttribut=nameOfAttribut
         self.valueOfAttribut=valueOfAttribut
@@ -51,10 +55,10 @@ class SGLegendItem(QtWidgets.QWidget):
         return False if self.type in ['Title1','Title2'] else True
     
     def isValueOnCell(self):
-        return self.type == 'symbol' and self.shape in ["square","hexagonal"]
+        return self.type == 'symbol' and self.classDef.entityType() == 'Cell'#self.shape in ["square","hexagonal"]
 
     def isValueOnAgent(self):
-        return self.type == 'symbol' and self.shape in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
+        return self.type == 'symbol' and self.classDef.entityType() =='Agent' # in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
 
     #Drawing function
     def paintEvent(self,event):

@@ -158,6 +158,7 @@ class SGModel(QMainWindow):
         self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
     
     def updateFunction(self):
+        #This method will need to be modified so that agent are placed at the right place right from the start
         aList = self.getAgents()
         if not aList : return False
         for aAgent in aList:
@@ -782,7 +783,7 @@ class SGModel(QMainWindow):
                 return aAgent
 
 
-    # To copy an Agent to make a move // THIS METHOD SHOULD BE OVED TO AgentDef
+    # To copy an Agent to make a move // THIS METHOD SHOULD BE MOVED TO AgentDef
     def copyOfAgentAtCoord(self, aCell, oldAgent):
         newAgent = SGAgent(aCell.grid,aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
         newAgent.isDisplay = True
@@ -1195,17 +1196,18 @@ class SGModel(QMainWindow):
                 # break
         for aLegend in self.getLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
-        # self.update() #rafraichi l'ensemble de l'affichage de l'interface'
+        self.update() #rafraichi l'ensemble de l'affichage de l'interface'
 
     def getSymbologiesOfEntity(self, entityName):
         # return the  symbologies of a entity present in tyhe menuBar
         submenu = self.getSubmenuSymbology(entityName)
-        return self.symbologiesInSubmenus[submenu] 
+        return self.symbologiesInSubmenus.get(submenu) 
     
     def getCheckedSymbologyOfEntity(self, entityName):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
         if self.symbologyMenu is None: return False
         symbologies = self.getSymbologiesOfEntity(entityName)
+        if symbologies is None: return False
         return next((aSymbology.text() for aSymbology in symbologies if aSymbology.isChecked()),None)
 
     def getAllCheckedSymbologies(self, grid=None):

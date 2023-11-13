@@ -63,10 +63,8 @@ class SGGrid(SGGameSpace):
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
             painter.drawRect(0,0,self.minimumWidth()-1,self.minimumHeight()-1)
         elif (self.cellShape == "hexagonal"):
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(
-                self.size/2)+3,  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 3))
-            painter.drawRect(0, 0, int(self.columns*self.size+(self.columns+1)*self.gap+1)+int(
-                self.size/2),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4))
+            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1+self.size/2+1.5*self.frameMargin),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 2*self.frameMargin))
+            painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()
 
     # Funtion to handle the zoom

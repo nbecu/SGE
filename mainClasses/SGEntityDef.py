@@ -30,17 +30,28 @@ class SGEntityDef():
         self.IDincr +=1
         return self.IDincr
     
+    def entityType(self):
+        if isinstance(self,SGCellDef): return 'Cell'
+        elif isinstance(self,SGAgentDef): return 'Agent'
+        else: raise ValueError('Wrong or new entity type')
 
     #a mettre coté instance
         # isDisplay
 
     ###Definition of the developer methods
+    def attributes(self):
+        return list(self.attributesPossibleValues.keys())
+    
     def updateWatchersOnAttribute(self,aAtt):
         if aAtt in self.watchers:
             for watcher in self.watchers:
                 updatePermit=watcher.getUpdatePermission()
                 if updatePermit:
                     watcher.updateText()
+
+    def updateWatchersOnAllAttributes(self):
+        for aAtt in self.attributes():
+            self.updateWatchersOnAttribute(aAtt)
 
     def updateWatchersOnPop(self):
         if 'nb' in self.watchers:
@@ -264,14 +275,7 @@ class SGEntityDef():
         """
         for ent in self.getRandomEntities_withValueNot(numberOfentities, conditionAtt, conditionVal, condition):
             ent.setValue(aAttribut, aValue)
-    
-    # To delete a specific entity
-    def deleteEntity(self,aEntity):
-        aEntity.deleteLater()
-        self.entities.remove(aEntity)
-        self.updateWatchersOnPopulation(self)
-        self.updateWatchersOnAllAttributes(self)
-
+   
     # To delete all entities of a species
     def deleteAllEntitiess(self):
         """
@@ -306,6 +310,9 @@ class SGAgentDef(SGEntityDef):
         locationCell = aCellDef.getCell(xCoord, yCoord)
         aAgent = SGAgent(aGrid,locationCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self)
         self.entities.append(aAgent)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aAgent.updateMqtt()
         aAgent.show()
         return aAgent
     
@@ -333,8 +340,12 @@ class SGAgentDef(SGEntityDef):
             aAgent (instance): the agent to de deleted
         """
         aAgent.cell.updateDepartureAgent(aAgent)
-        super().deleteEntity(aAgent)
-        aAgent.update()#ou alors aAgent.parent.update()
+        aAgent.deleteLater()
+        self.entities.remove(aAgent)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aAgent.updateMqtt()
+        aAgent.update()
 
 
 class SGCellDef(SGEntityDef):
@@ -381,23 +392,26 @@ class SGCellDef(SGEntityDef):
     def cellIdFromCoords(self,x,y):
         return x+ (self .grid.columns * (y -1))
 
-    def deleteEntity(self,aEntity):
-        aEntity.deleteLater()
-        self.entities.remove(aEntity)
-
-    def deleteEntity(self, aEntity):
+    def deleteEntity(self, aCell):
         """
-        Delete a given entity
+        Delete a given cell
         args:
-            aEntity (instance): the cell to de deleted
+            aCell (instance): the cell to de deleted
         """
-        self.deletedCells.append(aEntity)
-        aEntity.isDisplay = False
-        self.entities.remove(aEntity)
-        # aEntity.update()#ou alors aEntity.parent.update()
-    
+        self.deletedCells.append(aCell)
+        aCell.isDisplay = False
+        self.entities.remove(aCell)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aCell.updateMqtt()
+        aCell.update()
+
     def reviveThisCell(self, aDeletedCell):
-        aDeletedCell.isDispay = True
-        self.deletedCells.remove(aDeletedCell)
         self.entities.append(aDeletedCell)
+        aDeletedCell.isDisplay = True
+        self.deletedCells.remove(aDeletedCell)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aCell.updateMqtt()
+        aCell.update()
         

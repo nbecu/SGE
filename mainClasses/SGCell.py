@@ -99,9 +99,9 @@ class SGCell(SGEntity):
         return local_pos
         
     #Function to handle the drag of widget
-    def dragEnterEvent(self, e):
-        # I'm not sure to what this corresponds
-        e.accept()
+    # def dragEnterEvent(self, e):
+    #     # I'm not sure to what this corresponds
+    #     e.accept()
         
     def dropEvent(self, e):
         e.accept()
@@ -111,7 +111,7 @@ class SGCell(SGEntity):
         if self.model.mqttMajType == "Instantaneous":
             SGGameActions.sendMqttMessage(self)
                             
-    #To handle the drag of the grid
+    # To handle the drag of the grid
     # def mouseMoveEvent(self, e): #CA N'A PAS DE RAISON D'ETRE
     #     if e.buttons() != Qt.LeftButton:
     #         return
@@ -133,7 +133,42 @@ class SGCell(SGEntity):
     def mousePressEvent(self, event):
         return super().mousePressEvent(event)
 
-                            
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            #Something is selected
+            aLegendItem = self.model.getSelectedLegendItem()
+            if aLegendItem is None : return #Exit the method
+
+            authorisation=SGGameActions.getActionPermission(self)
+        
+            #The delete Action
+            if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
+                if authorisation : 
+                    #We now check the feedBack of the actions if it have some
+                    """if theAction is not None:
+                        self.feedBack(theAction)"""
+                    if len(self.agents) !=0:
+                        self.deleteAllAgents()
+                    self.classDef.deleteEntity(self)
+
+            #The Replace cell and change value Action
+            elif aLegendItem.isValueOnCell():
+                if  authorisation :
+                    #We now check the feedBack of the actions if it have some
+                    if not aLegendItem.legend.isAdminLegend():
+                        self.owner=self.grid.model.currentPlayer
+                    if self.isDeleted() : self.classDef.reviveThisCell(self) 
+                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
+
+            #For agent placement         
+            elif aLegendItem.isValueOnAgent() and self.isDisplay:
+                if  authorisation :
+                    aLegendItem.classDef
+                    #We now check the feedBack of the actions if it have some
+                    """if theAction is not None:
+                        self.feedBack(theAction)"""
+                    aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
+                    self.newAgentHere(aLegendItem.classDef,aDictWithValue)
                                     
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction,theAgentForMoveGM=None):
@@ -182,8 +217,6 @@ class SGCell(SGEntity):
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
-
-
     
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
