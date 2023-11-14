@@ -45,7 +45,7 @@ class SGControlPanel(SGLegend):
             #case of UpdateAction
             for aAtt, aValue in aGameAction.dictNewValues.items():
                 aColor = entDef.getColorOfFirstOccurenceOfAttAndValue(aAtt,aValue)
-                anItem=SGLegendItem(self,'symbol',y,aAtt+'->'+str(aValue),entDef,aColor,aAtt,aValue)
+                anItem=SGLegendItem(self,'symbol',y,aAtt+'->'+str(aValue),entDef,aColor,aAtt,aValue,gameAction=aGameAction)
                 y +=1
                 self.legendItems.append(anItem)
         anItem=SGLegendItem(self,'delete',y,"Delete","square",Qt.darkGray)

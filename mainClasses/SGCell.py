@@ -98,10 +98,10 @@ class SGCell(SGEntity):
         local_pos = self.mapFromGlobal(global_pos)
         return local_pos
         
-    #Function to handle the drag of widget
-    # def dragEnterEvent(self, e):
-    #     # I'm not sure to what this corresponds
-    #     e.accept()
+    # Function to handle the drag of widget
+    def dragEnterEvent(self, e):
+        # this is event is called during an agent drag 
+        e.accept()
         
     def dropEvent(self, e):
         e.accept()
@@ -112,9 +112,9 @@ class SGCell(SGEntity):
             SGGameActions.sendMqttMessage(self)
                             
     # To handle the drag of the grid
-    # def mouseMoveEvent(self, e): #CA N'A PAS DE RAISON D'ETRE
-    #     if e.buttons() != Qt.LeftButton:
-    #         return
+    def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
+        if e.buttons() != Qt.LeftButton:
+            return
 
 
     def moveAgentByRecreating_it(self,oldAgent):

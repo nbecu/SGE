@@ -9,7 +9,7 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False):
+    def __init__(self,parent,type,y,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False,gameAction=None):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
@@ -26,6 +26,7 @@ class SGLegendItem(QtWidgets.QWidget):
         self.valueOfAttribut=valueOfAttribut
         self.border=border
         self.remainNumber=int
+        self.gameAction= gameAction
         self.initUI()
 
     
@@ -36,16 +37,16 @@ class SGLegendItem(QtWidgets.QWidget):
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
-        number=self.updateRemainNumber()
+        # number=self.updateRemainNumber()
+        number=self.gameAction.number-self.gameAction.numberUsed
         text= "Actions remaining : "+str(number)
         option1 = QAction(text, self)
         menu.addAction(option1)
-
-        if self.rect().contains(point) and self.clickable:
+        if self.rect().contains(point) and number is not None:
             menu.exec_(self.mapToGlobal(point))
         
     
-    def updateRemainNumber(self):
+    def updateRemainNumber(self): # A priori OBSOLETE
         thePlayer=self.legend.model.getPlayerObject(self.legend.playerName)
         self.crossAction(thePlayer)
         return self.remainNumber
@@ -212,7 +213,7 @@ class SGLegendItem(QtWidgets.QWidget):
     def isFromAdmin(self):
         return self.legend.id=="adminLegend"
     
-    def crossAction(self,thePlayer):
+    def crossAction(self,thePlayer): # A priori OBSOLETE
         if thePlayer!="Admin":
             self.clickable=True
             for actionText in thePlayer.remainActions.keys():

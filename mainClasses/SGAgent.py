@@ -243,7 +243,6 @@ class SGAgent(SGEntity):
         if e.buttons() != Qt.LeftButton:
             return
         authorisation = SGGameActions.getMovePermission(self)
-        
         if authorisation:
             self.cell.updateDepartureAgent(self)
             mimeData = QMimeData()

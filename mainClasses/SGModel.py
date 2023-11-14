@@ -591,27 +591,27 @@ class SGModel(QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, aSpeciesName, aSpeciesShape, dictAttributes=None, aSpeciesDefaultSize=10, uniqueColor=Qt.white):
+    def newAgentSpecies(self, name, shape, dictAttributes=None, defaultSize=10, uniqueColor=Qt.white):
         """
         Create a new specie of Agents.
 
         Args:
-            aSpeciesName (str) : the species name
-            aSpeciesShape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
+            name (str) : the species name
+            shape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
             dictAttributes (dict) : all the species attributs with all the values
-            aSpeciesDefaultSize (int) : the species shape size (Default=10)
+            defaultSize (int) : the species shape size (Default=10)
         Return:
             a nested dict for the species
             a species
 
         """
-        aAgentSpecies = SGAgentDef(self, aSpeciesName, aSpeciesShape, aSpeciesDefaultSize,
+        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize,
                                 dictAttributes, uniqueColor)
         # aAgentSpecies.isDisplay = False
         # aAgentSpecies.species=aSpeciesName
-        # self.agentSpecies[str(aSpeciesName)] = {"me": aAgentSpecies.me, "Shape": aSpeciesShape, "DefaultSize": aSpeciesDefaultSize, "AttributList": dictAttributes, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
+        # self.agentSpecies[str(name)] = {"me": aAgentSpecies.me, "Shape": shape, "DefaultSize": defaultSize, "AttributList": dictAttributes, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
         # if 'agents' not in self.agentSpecies: self.agentSpecies['agents'] = {"watchers":{}}
-        self.agentSpecies[aSpeciesName]=aAgentSpecies
+        self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 
     def getAgentSpecieDict(self, aStrSpecie):
@@ -1200,7 +1200,7 @@ class SGModel(QMainWindow):
                 #     if aSymbology is not selectedSymbology:
                 #         aSymbology.setChecked(False)
                 # break
-        for aLegend in self.getLegends():
+        for aLegend in self.getAdminLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
         self.update() #rafraichi l'ensemble de l'affichage de l'interface'
 
@@ -1397,10 +1397,13 @@ class SGModel(QMainWindow):
         return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGLegend)]
 
     def getAdminLegend(self):
-        return next((item for item in self.getLegends() if item.isAdminLegend), None)
+        return next((item for item in self.getLegends() if item.isAdminLegend()), None)
+
+    def getAdminLegends(self): #useful in case they arre several admin legends
+        return [item for item in self.getLegends() if item.isAdminLegend()]
     
     def getSelectedLegendItem(self):
-        return next((item.selected for item in self.getLegends() if item.isActiveAndSelected), None)
+        return next((item.selected for item in self.getLegends() if item.isActiveAndSelected()), None)
     
     # To change the number of zoom we currently are
     def setNumberOfZoom(self, number):

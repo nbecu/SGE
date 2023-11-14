@@ -1,5 +1,5 @@
 class SGGameActions():
-    def getActionPermission(aObject):
+    def getActionPermission(aObject): #   CETTE METHODE EEST A REPRENDRE. PAS BESOIN D EPASSER PAR LA.
     #Autorisation Game Action (Create Delete Update)
         thePlayer=aObject.model.getPlayerObject(aObject.model.currentPlayer)
         authorisation=False
@@ -13,7 +13,7 @@ class SGGameActions():
                 authorisation=theAction.getAuthorize(aObject)
                 if authorisation : 
                     theAction.use()
-                    theAction.getRemainActionNumber(thePlayer)
+                    theAction.getRemainActionNumber(thePlayer) #  ET Pas besoin de getRemainActionNumber
         return authorisation
 
     def getMovePermission(aObject):
