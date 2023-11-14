@@ -305,10 +305,13 @@ class SGCell(SGEntity):
         text = "Taux de présence Merlu : "+str(self.dictOfAttributs["txPrésenceMerlu"])+" // Taux de présence Sole : "+str(self.dictOfAttributs["txPrésenceSole"] )
         option1 = QAction(text, self)
         menu.addAction(option1)
+        text2 = "Quantité pêchée Merlu : "+str(self.dictOfAttributs["quantitéPêchéeMerlu"])+" // Quantité pêchée Sole : "+str(self.dictOfAttributs["quantitéPêchéeSole"] )
+        option2 = QAction(text2, self)
+        menu.addAction(option2)
 
         # for aAgent in self.model.getAgents():
         #     aAgent.cell.moveAgentByRecreating_it(aAgent)
-        self.model.updateAgentsAtMAJ()  
+        # self.model.updateAgentsAtMAJ()  
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
