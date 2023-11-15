@@ -5,6 +5,8 @@ from sqlalchemy import null, true
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGIndicators import SGIndicators
+from mainClasses.SGEntityDef import *
+from mainClasses.SGEntity import SGEntity
 
 
 # Class who is responsible of the Legend creation
@@ -83,7 +85,7 @@ class SGDashBoard(SGGameSpace):
 
         Args:
             method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
-            entityName (str) : "cell" or "agent" or aAgentSpecies Name or None (only for score)
+            entityName (str) :  aEntityDef name, or aEntityDef, of a List of EntityDef or names, or None (only for score)
             color (Qt.color) : text color
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
@@ -93,18 +95,33 @@ class SGDashBoard(SGGameSpace):
 
         """
         self.y = self.y+1
-        # species=self.model.getAgentSpeciesName()
-        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entityName, logicOp, color, isDisplay)
+        if isinstance(entityName,str) :
+            res = self.model.getEntityDef(entityName)
+            if res is None: raise ValueError('Wrong type')  
+            listOfEntDef = [self.model.getEntityDef(entityName)]
+        elif issubclass(type(entityName),SGEntityDef) :
+            listOfEntDef = [entityName]
+        elif entityName is None :
+            listOfEntDef = None
+        elif isinstance(entityName,list) and isinstance(entityName[0],str) :
+            listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
+        elif isinstance(entityName,list) and issubclass(type(entityName[0]),SGEntityDef) :
+            listOfEntDef = entityName
+        elif issubclass(type(entityName),SGEntity) :
+            listOfEntDef = entityName
+        elif callable(entityName):
+            listOfEntDef = entityName
+        else:
+            raise ValueError('Wrong type')
+        
+        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
-        # if entityName == 'cell':
-        #     self.setCellWatchers(attribute, indicator)
-        # if entityName == 'agents' or entityName in [instance.name for instance in species]:
-        #     self.setAgentWatchers(indicator)
-        entDef = self.model.getEntityDef(entityName)
-        entDef.addWatcher(indicator) 
+ 
+        for entDef in listOfEntDef:
+            entDef.addWatcher(indicator)
         return indicator
     
 
@@ -235,8 +252,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'minAtt'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_Max(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -250,8 +266,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'maxAtt'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_EqualTo(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -265,8 +280,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbEqualTo'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_WithLess(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -280,8 +294,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithLess'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_WithMore(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -295,8 +308,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithMore'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_Nb(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -310,8 +322,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nb'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     # *Functions to have the global size of a gameSpace

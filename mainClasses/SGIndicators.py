@@ -12,14 +12,18 @@ from mainClasses.SGSimulationVariables import SGSimulationVariables
    
 #Class who is responsible of indicator creation 
 class SGIndicators(QtWidgets.QWidget):
-    def __init__(self,parent,y,name,method,attribut,value,entity,logicOp,color=Qt.blue,isDisplay=True):
+    def __init__(self,parent,y,name,method,attribut,value,listOfEntDef,logicOp,color=Qt.blue,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
         self.method=method
-        self.value=value
+        if self.method=="thresoldToLogicOp":
+            self.threshold= value
+        else : 
+            self.value=value
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp"]
-        self.entity=entity
+        self.listOfEntDef=listOfEntDef
+        if self.method in ["display", "thresoldToLogicOp"]: self.entity=listOfEntDef  
         self.result=float
         self.name=name
         self.attribut=attribut
@@ -88,77 +92,53 @@ class SGIndicators(QtWidgets.QWidget):
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
     
+    def getListOfEntities(self):
+        return [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  #This list comprehension expression concatenates the list of entities of all specified EntDef    
     def byMethod(self):
         calcValue=0.0
         counter=0
-        species=self.dashboard.model.getAgentSpeciesName()
-        if self.entity=='cell':
-            allCells = []
-            for grid in self.dashboard.model.getGrids(): allCells = allCells + [aC for aC in grid.getCells() if aC.isDisplay]
-            if self.method =='nb': return len(allCells)
-            if self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
-                listOfValues = [aCell.dictAttributes[self.attribut] for aCell in allCells]
-                if self.method == 'sumAtt': return sum(listOfValues)
-                if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
-                if self.method == 'minAtt': return min(listOfValues)
-                if self.method == 'maxAtt': return max(listOfValues)
-                if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
-                if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
-                if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
-
-        elif self.entity=="agents":
-            agents=self.dashboard.model.getAgents()
-            if self.method =='nb':
-                calcValue=len(agents)
-                return calcValue
+        listEntities = self.getListOfEntities()
         
-        elif self.entity in [instance.name for instance in species]:
-            agents=self.dashboard.model.getAgents(self.entity)
-            if self.method =='nb': return len(agents)
-            if self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
-                listOfValues = [float(aAgt.dictAttributes[self.attribut]) for aAgt in agents]
-                if self.method == 'sumAtt': return sum(listOfValues)
-                if self.method == 'avgAtt': return round(listOfValues.sum() / len(listOfValues),2)
-                if self.method == 'minAtt': return min(listOfValues)
-                if self.method == 'maxAtt': return max(listOfValues)
-                if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
-                if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
-                if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
+        if self.method =='nb': return len(listEntities)
+        
+        elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
+            listOfValues = [aEnt.value(self.attribut) for aEnt in listEntities]
+            if self.method == 'sumAtt': return sum(listOfValues)
+            if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
+            if self.method == 'minAtt': return min(listOfValues)
+            if self.method == 'maxAtt': return max(listOfValues)
+            if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
+            if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
+            if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
 
         elif self.method=="score":
             calcValue=self.value
-            if calcValue==None:
-                calcValue=0
-            return calcValue
+            return 0 if self.value is None else self.value
         
-        elif isinstance(self.entity,SGAgent) or isinstance(self.entity,SGCell):
-            if self.method =="display":
-                calcValue=self.entity.dictAttributes[self.attribut]
-                return calcValue
-            if self.method=="thresoldToLogicOp":
-                # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
-                # renommer l'attribute self.value en self.threshold
-                if self.logicOp =="greater":
-                    if self.entity.dictAttributes[self.attribut]>self.value:
-                        calcValue="greater than"+str(self.value)
-                        return calcValue
-                if self.logicOp =="greater or equal":
-                    if self.entity.dictAttributes[self.attribut]>=self.value:
-                        calcValue="greater than or equal to"+str(self.value)
-                        return calcValue
-                if self.logicOp =="equal":
-                    if self.entity.dictAttributes[self.attribut]==self.value:
-                        calcValue="equal to"+str(self.value)
-                        return calcValue
-                if self.logicOp =="less or equal":
-                    if self.entity.dictAttributes[self.attribut]<=self.value:
-                        calcValue="less than or equal to"+str(self.value)
-                        return calcValue
-                if self.logicOp =="less":
-                    if self.entity.dictAttributes[self.attribut]<self.value:
-                        calcValue="less than"+str(self.value)
-                        return calcValue
-
+        elif self.method =="display":
+            return self.entity.value(self.attribut)
+        elif self.method=="thresoldToLogicOp":
+            # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
+            if self.logicOp =="greater":
+                if self.entity.value(self.attribut) > self.threshold:
+                    calcValue="greater than"+str(self.threshold)
+                    return calcValue
+            if self.logicOp =="greater or equal":
+                if self.entity.value(self.attribut)>=self.threshold:
+                    calcValue="greater than or equal to"+str(self.threshold)
+                    return calcValue
+            if self.logicOp =="equal":
+                if self.entity.value(self.attribut)==self.threshold:
+                    calcValue="equal to"+str(self.threshold)
+                    return calcValue
+            if self.logicOp =="less or equal":
+                if self.entity.value(self.attribut)<=self.threshold:
+                    calcValue="less than or equal to"+str(self.threshold)
+                    return calcValue
+            if self.logicOp =="less":
+                if self.entity.value(self.attribut)<self.threshold:
+                    calcValue="less than"+str(self.threshold)
+                    return calcValue
 
             
 
