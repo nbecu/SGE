@@ -41,8 +41,13 @@ Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
 
 DashBoard=myModel.newDashBoard()
-indicateurPêcheMerlu = DashBoard.addIndicator("sumAtt","cell",attribute="quantitéPêchéeMerlu",indicatorName="Quantité de merlu pêchée")
-indicateurPêcheSole = DashBoard.addIndicator("sumAtt","cell",attribute="quantitéPêchéeSole",indicatorName="Quantité de sole pêchée")
+totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
+totSole=myModel.newSimVariable(0,"Total Sole pêché")
+indicateurPêcheMerlu = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Merlu",indicatorName="Quantité de merlu pêchée")
+indicateurPêcheSole = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Sole",indicatorName="Quantité de sole pêchée")
+indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
+indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
+DashBoard.showIndicators()
 
 def tx_présence():
     nbNavires=len(myModel.getAgents("Navire"))
@@ -73,6 +78,9 @@ def renouvellementStock_port():
     Merlus.dictOfAttributs["stock"]=(-sommePêcheMerlu)*list(Merlus.dictOfAttributs["txrenouv"])[0]
     total_pêcheMerlu=+sommePêcheMerlu
     total_pêcheSole=+sommePêcheSole
+    indTotMerlu.setResult(total_pêcheMerlu)
+    indTotSole.setResult(total_pêcheSole)
+    
 
     print("total merlu péché"+str(total_pêcheMerlu))
     print("total sole péché"+str(total_pêcheSole))
