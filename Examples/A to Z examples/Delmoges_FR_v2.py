@@ -31,6 +31,9 @@ myModel.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher"
 Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0}},uniqueColor=Qt.yellow,aSpeciesDefaultSize=20)
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1}},uniqueColor=Qt.green,aSpeciesDefaultSize=20)
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0}},uniqueColor=Qt.darkBlue,aSpeciesDefaultSize=20)
+
+
+
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
@@ -43,41 +46,42 @@ myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
 DashBoard=myModel.newDashBoard()
 totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
 totSole=myModel.newSimVariable(0,"Total Sole pêché")
-indicateurPêcheMerlu = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Merlu",indicatorName="Quantité de merlu pêchée")
-indicateurPêcheSole = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Sole",indicatorName="Quantité de sole pêchée")
+# indicateurPêcheMerlu = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Merlu",indicatorName="Quantité de merlu pêchée")
+# indicateurPêcheSole = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Sole",indicatorName="Quantité de sole pêchée")
 indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
 indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
 DashBoard.showIndicators()
 
 def tx_présence():
+    nbCellsMer= len([cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])])
     nbNavires=len(myModel.getAgents("Navire"))
     for Species in myModel.getAgentSpecies():
         if Species.name != "Navire":
             for cell in myModel.getCells(aGrid):  
-                if cell.dictOfAttributs["sédim"] != "côte":
-                    cell.dictOfAttributs["txPrésence"+Species.name]=list(Species.dictOfAttributs[cell.dictOfAttributs["sédim"]])[0]/(90*nbNavires)
+                if cell.value("sédim") != "côte":
+                    cell.setValue("txPrésence"+Species.name,list(Species.dictOfAttributs[cell.dictOfAttributs["sédim"]])[0]/(nbCellsMer*nbNavires))
 
 def pêche(cell):
     if len(cell.agents)!=0:
         for navire in cell.agents:
-            navire.dictOfAttributs['Quantité_pêchée_Merlu']=cell.dictOfAttributs["txPrésenceMerlu"]*Merlus.dictOfAttributs["stock"]*navire.dictOfAttributs["txCapture_Merlu"]
-            navire.dictOfAttributs['Quantité_pêchée_Sole']=cell.dictOfAttributs["txPrésenceSole"]*Soles.dictOfAttributs["stock"]*navire.dictOfAttributs["txCapture_Sole"] 
-            cell.dictOfAttributs["quantitéPêchéeMerlu"]=+navire.dictOfAttributs['Quantité_pêchée_Merlu']
-            cell.dictOfAttributs["quantitéPêchéeSole"]=+navire.dictOfAttributs['Quantité_pêchée_Sole']
+            navire.setValue('Quantité_pêchée_Merlu',cell.value("txPrésenceMerlu")*Merlus.value("stock")*navire.value("txCapture_Merlu"))
+            navire.setValue('Quantité_pêchée_Sole',cell.value("txPrésenceSole")*Soles.value("stock")*navire.value("txCapture_Sole"))
+            cell.setValue("quantitéPêchéeMerlu",cell.value("quantitéPêchéeMerlu")+navire.value('Quantité_pêchée_Merlu'))
+            cell.setValue("quantitéPêchéeSole",cell.value("quantitéPêchéeSole")+navire.value('Quantité_pêchée_Sole'))
 
-def renouvellementStock_port():
+def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     sommePêcheMerlu=0
     sommePêcheSole=0
     for navire in myModel.getAgents("Navire"):
-        sommePêcheMerlu=+navire.dictOfAttributs['Quantité_pêchée_Merlu']
-        sommePêcheSole=+navire.dictOfAttributs['Quantité_pêchée_Sole']
-        navire.dictOfAttributs['Quantité_pêchée_Merlu']=0
-        navire.dictOfAttributs['Quantité_pêchée_Sole']=0
+        sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
+        sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
+        navire.setValue('Quantité_pêchée_Merlu',0)
+        navire.setValue('Quantité_pêchée_Sole',0)
         
-    Soles.dictOfAttributs["stock"]=(-sommePêcheSole)*list(Soles.dictOfAttributs["txrenouv"])[0]
-    Merlus.dictOfAttributs["stock"]=(-sommePêcheMerlu)*list(Merlus.dictOfAttributs["txrenouv"])[0]
-    total_pêcheMerlu=+sommePêcheMerlu
-    total_pêcheSole=+sommePêcheSole
+    Soles.setValue("stock",((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0]))
+    Merlus.setValue("stock",((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0]))
+    total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
+    total_pêcheSole=total_pêcheSole+sommePêcheSole
     indTotMerlu.setResult(total_pêcheMerlu)
     indTotSole.setResult(total_pêcheSole)
     
@@ -92,7 +96,7 @@ def renouvellementStock_port():
         navire.moveAgent(method='cell',cellID='cell10-1')
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
-ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port())
+ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port(total_pêcheMerlu,total_pêcheSole))
 
 PhasePêche=myModel.timeManager.newModelPhase(ModelActionPêche, name="Pêche")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")

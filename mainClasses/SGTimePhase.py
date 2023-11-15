@@ -17,6 +17,8 @@ class SGTimePhase():
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 
+    def setText(aTextBox, aText):
+        aTextBox.setText(aText)
 
     def setActivePlayers(self, activePlayers):
         self.activePlayers = activePlayers
