@@ -139,7 +139,14 @@ class SGCell(SGEntity):
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
 
-            authorisation=SGGameActions.getActionPermission(self)
+            if aLegendItem.legend.isAdminLegend():
+                authorisation= True
+            else :
+                aLegendItem.gameAction.perform_with(self,aLegendItem) 
+                # authorisation=SGGameActions.getActionPermission(self)
+                return
+
+            if not authorisation : return #Exit the method
         
             #The delete Action
             if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
@@ -156,7 +163,7 @@ class SGCell(SGEntity):
                 if  authorisation :
                     #We now check the feedBack of the actions if it have some
                     if not aLegendItem.legend.isAdminLegend():
-                        self.owner=self.grid.model.currentPlayer
+                        self.owner=self.grid.model.currentPlayer #ce concept de Owner est à enlever
                     if self.isDeleted() : self.classDef.reviveThisCell(self) 
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
 

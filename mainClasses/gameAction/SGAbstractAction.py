@@ -3,35 +3,56 @@ from mainClasses.SGCell import SGCell
 
 #Class who manage the game mechanics of Update
 class SGAbstractAction():
-    def __init__(self,anObject,number,dictNewValues,restrictions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,anObject,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
         self.anObject=anObject
         self.number=number
         self.numberUsed=0
-        self.dictNewValues=dictNewValues
-        key = list(self.dictNewValues.keys())[0]  # Récupère la clé du dictionnaire
-        value = self.dictNewValues[key]  # Récupère la valeur correspondante
-        result = key + " " + str(value)
-        self.name="UpdateAction "+result
-        self.restrictions=restrictions
-        self.feedback=feedBack
-        self.conditionOfFeedBack=conditionOfFeedBack            
+        self.conditions=conditions
+        self.feedbacks=feedBacks
+        self.conditionsOfFeedBack=conditionsOfFeedBack            
         
     #Function which increment the number of use
-    def use(self):
-        self.numberUsed= self.numberUsed+1
-    
-    #Function to test if the game action could be use    
-    def getAuthorize(self,anObject):
-        if self.numberUsed+1>self.number:
-            return False
-        returnValue=True 
-        #We check each condition 
-        for aCond in self.restrictions:
-            aCondResult = aCond() if aCond.__code__.co_argcount == 0 else aCond(anObject)
-            returnValue=returnValue and aCondResult
-        return returnValue
+    def incNbUsed(self):
+        self.numberUsed += 1
 
+
+    def perform_with(self,aTargetEntity,aParameterHolder):
+        if self.checkAuhorization(aTargetEntity):
+            resAction = self.executeAction(aTargetEntity)
+            aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,aParameterHolder,resAction])
+            if self.checkFeedbackAuhorization(aFeedbackTarget):
+                resFeedback = self.executeFeedback(aFeedbackTarget)
+            self.incNbUsed()
+            return resFeedback
+        else:
+            return False
+
+
+    #Function to test if the game action could be use
+    def checkAuhorization(self,anObject):
+        if self.numberUsed >= self.number:
+            return False
+        res = True 
+        for aCondition in self.conditions:
+            res = res and aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(anObject)
+        return res
+
+    #Function to test if the game action could be use
+    def checkFeedbackAuhorization(self,aFeedbackTarget):
+        res = True 
+        for aCondition in self.conditionsOfFeedBack:
+            res = res and aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aFeedbackTarget)
+        return res
     
+    def chooseFeedbackTargetAmong(self,listOfPossibleFedbackTarget):
+        return listOfPossibleFedbackTarget[0]
+
+
+    def executeFeedback(self, feddbackTarget):
+        if callable(feddbackTarget):
+            return feddbackTarget()     
+        else:
+            return False    
     
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
@@ -39,11 +60,11 @@ class SGAbstractAction():
     def reset(self):
         self.numberUsed=0
     
-    def addRestrictions(self,aRestriction):
-        # self.restrictions.append(aRestriction)
-        restrictionList=self.restrictions
-        restrictionList.append(aRestriction)
-        self.restrictions=restrictionList
+    def addConditions(self,aCondition):
+        # self.Conditions.append(aCondition)
+        ConditionList=self.Conditions
+        ConditionList.append(aCondition)
+        self.Conditions=ConditionList
     
     def addFeedback(self,aFeedback):
         self.feedback.append(aFeedback)
@@ -51,12 +72,9 @@ class SGAbstractAction():
     def addConditionOfFeedBack(self,aCondition):
         self.conditionOfFeedBack.append(aCondition)
         
-    def getRemainActionNumber(self,thePlayer):
-        remainNumber=self.number-self.numberUsed
-        thePlayer.remainActions[self.name]=remainNumber
-    
-    def getnumberUsed(self):
-        return self.numberUsed
+    def getNbRemainingActions(self):
+        return self.number-self.numberUsed
+        # thePlayer.remainActions[self.name]=remainNumber
     
 
   

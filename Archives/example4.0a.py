@@ -44,7 +44,7 @@ myModel.timeManager.newGamePhase('Phase 1',
                                  [lambda: Cell.setRandomEntities("landUse","shrub",3)])
 myModel.timeManager.newGamePhase('Phase 2',
                                  None,
-                                 [lambda: aGrid.setRandomCell("landUse","forest")])
+                                 [lambda: Cell.setRandomEntities("landUse","forest")])
 
 
 

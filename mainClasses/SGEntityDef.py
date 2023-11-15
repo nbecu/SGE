@@ -42,6 +42,33 @@ class SGEntityDef():
     def attributes(self):
         return list(self.attributesPossibleValues.keys())
     
+    def addWatcher(self,aIndicator):
+        1
+    # def setCellWatchers(self, attribut, indicator):
+    #     grids = self.model.getGrids()
+    #     for grid in grids:
+    #         cellCollection = self.model.cellCollection[grid.id]
+    #         if attribut not in cellCollection["watchers"].keys():
+    #             cellCollection["watchers"][attribut] = []
+    #         cellCollection["watchers"][attribut].append(indicator)
+        
+    # def setAgentWatchers(self,indicator):
+    #     if indicator.attribut is None:
+    #         aAtt = 'nb'
+    #     else:
+    #         aAtt = indicator.attribut
+    #     if indicator.entity == 'agents':
+    #         if 'agents' not in self.model.agentSpecies.keys():
+    #             self.model.agentSpecies['agents']={'watchers':{}}
+    #         watchersDict=self.model.agentSpecies['agents']['watchers']
+    #     else:
+    #          watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
+
+    #     if aAtt not in watchersDict.keys():
+    #         watchersDict[aAtt]=[]
+    #     watchersDict[aAtt].append(indicator)
+
+    
     def updateWatchersOnAttribute(self,aAtt):
         if aAtt in self.watchers:
             for watcher in self.watchers:
@@ -245,7 +272,7 @@ class SGEntityDef():
             conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
 
     # To apply a value to some random entity
-    def setRandomEntities(self, aAttribute, aValue, numberOfentities, condition=None):
+    def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):
         """
         Applies the same attribut value for a random number of entities
 

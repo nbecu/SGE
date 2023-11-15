@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your ModelPhase")
 
-Cell=myModel.newGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newGrid(10,10,"square",size=50, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -34,8 +34,8 @@ userSelector=myModel.newUserSelector()
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
 # SGE is also able to have ModelPhase : this phase includes model activities/events
 myModel.timeManager.newModelPhase(
-    [lambda: aGrid.setRandomCell("landUse","forest"),
-    lambda: Cell.setRandomEntities("landUse","shrub",3)]
+    [lambda: Cell.setRandomEntities("landUse","shrub",3),
+    lambda: Cell.setRandomEntities("landUse","forest")] #If no number of entities is defined, it will pick 1 entity by default
     )
 # this Model Phase has an Action. THis Action will randomly update 1 cell to landUse forest and 3 cells to shrub
 # and will be performed after every Phase 1

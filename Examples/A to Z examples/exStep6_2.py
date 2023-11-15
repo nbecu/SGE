@@ -34,7 +34,7 @@ userSelector=myModel.newUserSelector()
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
 aModelAction5=myModel.newModelAction(lambda: myModel.getAgent(Sheeps,"1").moveAgent(method="cardinal",direction="South"))
 myModel.timeManager.newModelPhase(aModelAction5)
-myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))

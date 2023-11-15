@@ -27,7 +27,7 @@ theFirstLegend=myModel.newLegend()
 Player1=myModel.newPlayer("Player 1")
 # you can add GameAction to your Player here.
 # This is a Update Action : the player can update 3 cells to landUse grass
-Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
+Player1.addGameAction(myModel.newUpdateAction('Cell',4,{"landUse":"grass"}))
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()

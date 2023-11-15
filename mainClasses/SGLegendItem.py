@@ -36,9 +36,10 @@ class SGLegendItem(QtWidgets.QWidget):
 
     # To show a menu
     def show_menu(self, point):
+        if self.gameAction is None: return
         menu = QMenu(self)
         # number=self.updateRemainNumber()
-        number=self.gameAction.number-self.gameAction.numberUsed
+        number=self.gameAction.getNbRemainingActions()
         text= "Actions remaining : "+str(number)
         option1 = QAction(text, self)
         menu.addAction(option1)

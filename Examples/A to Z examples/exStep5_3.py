@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your ModelActions")
 
-Cell=myModel.newGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newGrid(10,10,"square",size=50, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -32,7 +32,7 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 # You also can, with the same scheme as GamePhase, first create ModelActions and place them after on a ModelPhase
 # MODEL ACTIONS CREATION
@@ -46,7 +46,7 @@ aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","
 aModelAction4.addCondition(lambda: myModel.round()==3) 
 
     # You can add a general feedback :
-aModelAction4.addFeedback(lambda : aGrid.setRandomCell('landUse','grass'))
+aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 # Don't forget to add your Actions to a ModelPhase!
 myModel.timeManager.newModelPhase(aModelAction2)

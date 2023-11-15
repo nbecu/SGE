@@ -21,18 +21,7 @@ class SGModelAction():
         #     breakpoint
         # self.testIfCallableAndPutInList(conditions)
         self.feedbacks=feedbacks
-        
-        
-    #Function to test if the game action could be use
-    def getAuthorize(self,anObject):
-        """NOT TESTED"""
-        returnValue=True
-        #We check each condition 
-        for aCond in self.restrictions:
-            returnValue=returnValue and aCond(anObject)
-        if self.numberUsed+1>self.number:
-            returnValue=False
-        return returnValue
+
 
     def testIfCallableAndPutInList(self,anObject):
         if isinstance(anObject, list):

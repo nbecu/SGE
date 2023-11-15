@@ -55,7 +55,7 @@ Player2.addGameAction(myModel.newUpdateAction("Cell", "infinite", {"ProtectionLe
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
-myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
+myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") not in [0,1] )))
 myModel.timeManager.newModelPhase(aModelAction2)
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))

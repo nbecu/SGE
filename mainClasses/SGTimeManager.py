@@ -96,19 +96,26 @@ class SGTimeManager():
             print("C'est fini !")
         return endGame
     
-    def checkDashBoard(self):
+    def checkDashBoard(self): # This method should not be defined here
         for grid in self.model.getGrids():
-            for attribut in self.model.cellCollection[grid.id]["watchers"]:
+            for attribut in self.model.getCellDef(grid).watchers:
                 for watcher in self.model.cellCollection[grid.id]["watchers"][attribut]:
                     updatePermit=watcher.getUpdatePermission()
                     if updatePermit:
                         watcher.updateText()
-        for specie in self.model.agentSpecies.values():
-            for watchers in specie["watchers"].values():
+        for specie in self.model.getAgentSpeciesDict():
+            for watchers in specie.watchers:
                 for watcher in watchers:
                     updatePermit=watcher.getUpdatePermission()
                     if updatePermit:
                         watcher.updateText()
+        # the above code should be simplified with the following
+        for entDef in self.model.getEntitiesDef():
+            for attribut,aWatcher in entDef.watchers.items():
+                aWatcher.update()
+                # updatePermit=watcher.getUpdatePermission()
+                # if updatePermit:
+                #     watcher.updateText()
 
 
 

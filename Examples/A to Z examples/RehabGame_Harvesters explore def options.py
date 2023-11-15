@@ -117,7 +117,7 @@ def harvest2(cell):
             aAgt.setValue('harvest',1)
             cell.decValue('Resource',1)
 
-# myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
+# myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
 # aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") != 1 and x.value("Resource") != 0  )))
 # myModel.timeManager.newModelPhase(aModelAction2)
 # aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))

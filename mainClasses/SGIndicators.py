@@ -91,7 +91,7 @@ class SGIndicators(QtWidgets.QWidget):
     def byMethod(self):
         calcValue=0.0
         counter=0
-        species=self.dashboard.model.getAgentSpecies()
+        species=self.dashboard.model.getAgentSpeciesName()
         if self.entity=='cell':
             allCells = []
             for grid in self.dashboard.model.getGrids(): allCells = allCells + [aC for aC in grid.getCells() if aC.isDisplay]

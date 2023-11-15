@@ -88,7 +88,7 @@ class SGControlPanel(SGLegend):
                         for aButton in aList:
                             item_key = aButton
                             split=item_key.split()
-                            Species=self.model.getAgentSpecie(split[1])
+                            Species=self.model.getAgentsOfSpecie(split[1])
                             if  Species is not None:
                                 shape=Species.format
                             else:

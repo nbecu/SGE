@@ -614,31 +614,32 @@ class SGModel(QMainWindow):
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 
-    def getAgentSpecieDict(self, aStrSpecie):
-        # send back the specie dict (specie definition dict) that corresponds to aStrSpecie
-        return self.agentSpecies[aStrSpecie]
+    def getAgentSpecieDict(self, aSpecieName):
+        # send back the specie dict (specie definition dict) that corresponds to aSpecieName
+        return self.agentSpecies.get(aSpecieName)
 
     def getAgentSpeciesName(self):
         # send back a list of the names of all the species
-        return [x for x in self.agentSpecies.keys() if x != 'agents']
+        return list(self.agentSpecies.keys())
     
     def getAgentSpeciesDict(self):
         # send back a list of all the species Dict (specie definition dict)
-        return [x for x in self.agentSpecies if x != 'agents']
+        return list(self.agentSpecies.values())
 
-    def getAgentSpecie(self, aStrSpecie):
-        AgentSpecie = None
-        for instance in SGAgent.instances:
-            if instance.me == 'collec' and instance.name == aStrSpecie:
-                AgentSpecie = instance
-                break
-        return AgentSpecie
+    def getAgentsOfSpecie(self, aSpecieName):
+        agentDef = self.getAgentSpecieDict(aSpecieName)
+        if agentDef is None:  return None
+        else: return agentDef.entities
 
-    def getAgentSpecies(self):
-        return self.agentSpecies()
+    def getAllAgents(self):
+        # send back the agents of all the species
+        return sum(entDef.entities for entDef in self.getAgentSpeciesDict())
     
     def getEntitiesDef(self):
         return list(self.cellOfGrids.values()) + list(self.agentSpecies.values())
+
+    def getEntityDef(self, entityName):
+        return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
 
     def getAgentSpeciesOLD(self):
         # ATTENTION
@@ -1478,14 +1479,14 @@ class SGModel(QMainWindow):
             agentY=msg_list[nbToStart+2+j][4][-1]
             grid=msg_list[nbToStart+2+j][5]
             theGrid=self.getGrid_withID(grid)
-            aAgentSpecies=self.getAgentSpecie(speciesName)
+            aAgentSpecies=self.getAgentsOfSpecie(speciesName)
 
             self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictAttributes,privateID]
         
         # AGENT SPECIES MEMORY ID
         speciesMemoryIdDict=msg_list[-5][0]
         for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
-            theSpecies=self.getAgentSpecie(aSpeciesName)
+            theSpecies=self.getAgentsOfSpecie(aSpeciesName)
             theSpecies.memoryID=speciesMemoryID
 
         # TIME MANAGEMENT

@@ -10,10 +10,10 @@ class SGGameActions():
         elif thePlayer is not None and thePlayer != "Admin":
             theAction=thePlayer.getGameActionOn(aObject)
             if theAction is not None:
-                authorisation=theAction.getAuthorize(aObject)
+                authorisation=theAction.checkAuhorization(aObject)
                 if authorisation : 
-                    theAction.use()
-                    theAction.getRemainActionNumber(thePlayer) #  ET Pas besoin de getRemainActionNumber
+                    theAction.incNbUsed()
+                    # theAction.getRemainActionNumber(thePlayer) #  ET Pas besoin de getRemainActionNumber
         return authorisation
 
     def getMovePermission(aObject):
@@ -26,9 +26,9 @@ class SGGameActions():
         elif thePlayer is not None and thePlayer != "Admin":
             theAction=thePlayer.getMooveActionOn(aObject)  
             if theAction is not None:
-                authorisation=theAction.getAuthorize(aObject)
+                authorisation=theAction.checkAuhorization(aObject)
                 if authorisation :
-                    theAction.use()
+                    theAction.incNbUsed()
         return authorisation
     
     def sendMqttMessage(aObject):

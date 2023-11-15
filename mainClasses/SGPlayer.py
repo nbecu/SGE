@@ -167,13 +167,13 @@ class SGPlayer():
         """
         if isinstance(aGameAction, SGDelete):
             self.gameActions.append(aGameAction)
-            aGameAction.getRemainActionNumber(self)
+            # aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction, SGCreate):
             self.gameActions.append(aGameAction)
-            aGameAction.getRemainActionNumber(self)
+            # aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction, SGUpdate):
             self.gameActions.append(aGameAction)
-            aGameAction.getRemainActionNumber(self)
+            # aGameAction.getRemainActionNumber(self)
         if isinstance(aGameAction, SGMove):
             self.gameActions.append(aGameAction)
         return aGameAction

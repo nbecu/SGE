@@ -77,13 +77,13 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, method, entity, color=Qt.black, attribute=None, value=None, logicOp= None, indicatorName=None, isDisplay=True):
+    def addIndicator(self, method, entityName, color=Qt.black, attribute=None, value=None, logicOp= None, indicatorName=None, isDisplay=True):
         """
         Add an Indicator on the DashBoard.
 
         Args:
             method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
-            entity (str) : "cell" or "agent" or aAgentSpecies Name or None (only for score)
+            entityName (str) : "cell" or "agent" or aAgentSpecies Name or None (only for score)
             color (Qt.color) : text color
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
@@ -93,16 +93,18 @@ class SGDashBoard(SGGameSpace):
 
         """
         self.y = self.y+1
-        species=self.model.getAgentSpecies()
-        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
+        # species=self.model.getAgentSpeciesName()
+        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entityName, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
-        if entity == 'cell':
-            self.setCellWatchers(attribute, indicator)
-        if entity == 'agents' or entity in [instance.name for instance in species]:
-            self.setAgentWatchers(indicator)
+        # if entityName == 'cell':
+        #     self.setCellWatchers(attribute, indicator)
+        # if entityName == 'agents' or entityName in [instance.name for instance in species]:
+        #     self.setAgentWatchers(indicator)
+        entDef = self.model.getEntityDef(entityName)
+        entDef.addWatcher(indicator) 
         return indicator
     
 
@@ -132,7 +134,7 @@ class SGDashBoard(SGGameSpace):
         
         species=self.model.getAgentSpecies()
         if speciesName in [instance.name for instance in species]:
-            aSpecies = self.model.getAgentSpecie(speciesName)
+            aSpecies = self.model.getAgentsOfSpecie(speciesName)
             entity = self.model.getAgent(aSpecies,entityID)
             if entity is None:
                 raise ValueError("Agent not found on"+indicatorName+" please check again")
@@ -169,29 +171,30 @@ class SGDashBoard(SGGameSpace):
         self.IDincr = +1
         return indicator
 
-    def setCellWatchers(self, attribut, indicator):
-        grids = self.model.getGrids()
-        for grid in grids:
-            cellCollection = self.model.cellCollection[grid.id]
-            if attribut not in cellCollection["watchers"].keys():
-                cellCollection["watchers"][attribut] = []
-            cellCollection["watchers"][attribut].append(indicator)
+    # BASCULE COTE EntityDef
+    # def setCellWatchers(self, attribut, indicator):
+    #     grids = self.model.getGrids()
+    #     for grid in grids:
+    #         cellCollection = self.model.cellCollection[grid.id]
+    #         if attribut not in cellCollection["watchers"].keys():
+    #             cellCollection["watchers"][attribut] = []
+    #         cellCollection["watchers"][attribut].append(indicator)
         
-    def setAgentWatchers(self,indicator):
-        if indicator.attribut is None:
-            aAtt = 'nb'
-        else:
-            aAtt = indicator.attribut
-        if indicator.entity == 'agents':
-            if 'agents' not in self.model.agentSpecies.keys():
-                self.model.agentSpecies['agents']={'watchers':{}}
-            watchersDict=self.model.agentSpecies['agents']['watchers']
-        else:
-             watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
+    # def setAgentWatchers(self,indicator):
+    #     if indicator.attribut is None:
+    #         aAtt = 'nb'
+    #     else:
+    #         aAtt = indicator.attribut
+    #     if indicator.entity == 'agents':
+    #         if 'agents' not in self.model.agentSpecies.keys():
+    #             self.model.agentSpecies['agents']={'watchers':{}}
+    #         watchersDict=self.model.agentSpecies['agents']['watchers']
+    #     else:
+    #          watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
 
-        if aAtt not in watchersDict.keys():
-            watchersDict[aAtt]=[]
-        watchersDict[aAtt].append(indicator)
+    #     if aAtt not in watchersDict.keys():
+    #         watchersDict[aAtt]=[]
+    #     watchersDict[aAtt].append(indicator)
 
     def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
         """
