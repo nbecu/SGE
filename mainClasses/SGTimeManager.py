@@ -31,9 +31,6 @@ class SGTimeManager():
                         if self.model.myTimeLabel is not None:
                             self.model.myTimeLabel.updateTimeLabel()
             
-            for phase in self.phases:
-                if 
-
                 else:
                     # We reset GM
                     for gm in self.model.getGM():
