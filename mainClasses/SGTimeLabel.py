@@ -32,8 +32,8 @@ class SGTimeLabel(SGGameSpace):
         self.label3 = QtWidgets.QLabel(self)
 
         self.labelTitle.setText(self.id)
-        self.label1.setText('Round Number: Not started')
-        self.label2.setText('Phase Number: Not started')
+        self.label1.setText('Round Number: 1')
+        self.label2.setText('Phase Number: 1')
         currentPhase = self.timeManager.phases[int(
             self.timeManager.currentPhase)-1]
         self.label3.setText(currentPhase.name)

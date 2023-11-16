@@ -30,7 +30,7 @@ myModel.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher"
 
 Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0}},uniqueColor=Qt.yellow,aSpeciesDefaultSize=20)
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1}},uniqueColor=Qt.green,aSpeciesDefaultSize=20)
-Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0}},uniqueColor=Qt.darkBlue,aSpeciesDefaultSize=20)
+Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0},"PêcheCumMerlu":{0},"PêcheCumSole":{0}},uniqueColor=Qt.darkBlue,aSpeciesDefaultSize=20)
 
 EspècesHalieutiques=[Soles,Merlus]
 
@@ -41,7 +41,12 @@ myModel.newAgentAtCoords(aGrid,Navire,10,1)
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
-myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
+
+theTextBox=myModel.newTextBox("...","Comment jouer ?")
+
+GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
+GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
+
 
 DashBoard=myModel.newDashBoard()
 totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
@@ -74,6 +79,8 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     for navire in myModel.getAgents("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
+        navire.setValue("PêcheCumMerlu", navire.value("PêcheCumMerlu")+navire.value('Quantité_pêchée_Merlu'))
+        navire.setValue("PêcheCumSole", navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
         
@@ -84,13 +91,6 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     indTotMerlu.setResult(total_pêcheMerlu)
     indTotSole.setResult(total_pêcheSole)
     
-
-    print("total merlu péché"+str(total_pêcheMerlu))
-    print("total sole péché"+str(total_pêcheSole))
-
-
-
-
     for navire in myModel.getAgents("Navire"):
         navire.moveAgent(method='cell',cellID='cell10-1')
 
@@ -98,9 +98,10 @@ ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port(total_pêcheMerlu,total_pêcheSole))
 
 PhasePêche=myModel.timeManager.newModelPhase(ModelActionPêche, name="Pêche")
+PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
+PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
-myModel.newTextBox("Place les bateaux à l'endroit où ils doivent pêcher","Comment jouer ?")
 myModel.newLegendAdmin(showAgentsWithNoAtt=True)
 myModel.newTimeLabel()
 

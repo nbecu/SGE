@@ -140,7 +140,7 @@ class SGTextBox(SGGameSpace):
         # Update the QTextEdit content
         newText = self.textEdit.toPlainText() + self.new_text
         self.textEdit.setPlainText(newText)
-        self.history.append(self.textForHistory)
+        #self.history.append(self.textForHistory)
 
     def setNewText(self, text):
         """
@@ -149,7 +149,7 @@ class SGTextBox(SGGameSpace):
         args :
             - text (str) : new text
         """
-        self.textToWrite = text
+        self.new_text = text
 
     def setTitle(self, title):
         """

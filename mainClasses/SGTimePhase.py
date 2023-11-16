@@ -7,6 +7,7 @@ class SGTimePhase():
     def __init__(self, name, activePlayers, modelActions=[]):
         self.name = name
         self.activePlayers = activePlayers
+        self.associatedTextBoxes=[]
         if isinstance(modelActions, list):
             self.modelActions = modelActions
         else:
@@ -17,8 +18,12 @@ class SGTimePhase():
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 
-    def setText(aTextBox, aText):
-        aTextBox.setText(aText)
+    def setTextBoxText(self,aTextBox, aText):
+        """Ne fonctionne pas encore"""
+        self.associatedTextBoxes.append(aTextBox)
+        
+        aTextBox.setNewText(aText)
+        aTextBox.updateText()
 
     def setActivePlayers(self, activePlayers):
         self.activePlayers = activePlayers
