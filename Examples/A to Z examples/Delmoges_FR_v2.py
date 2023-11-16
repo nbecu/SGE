@@ -32,7 +32,7 @@ Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1}},uniqueColor=Qt.green,aSpeciesDefaultSize=20)
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0}},uniqueColor=Qt.darkBlue,aSpeciesDefaultSize=20)
 
-
+EspècesHalieutiques=[Soles,Merlus]
 
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
@@ -53,13 +53,12 @@ indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
 DashBoard.showIndicators()
 
 def tx_présence():
-    nbCellsMer= len([cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])])
+    CellsMer=[cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])]
+    nbCellsMer=len(CellsMer)
     nbNavires=len(myModel.getAgents("Navire"))
-    for Species in myModel.getAgentSpecies():
-        if Species.name != "Navire":
-            for cell in myModel.getCells(aGrid):  
-                if cell.value("sédim") != "côte":
-                    cell.setValue("txPrésence"+Species.name,list(Species.dictOfAttributs[cell.dictOfAttributs["sédim"]])[0]/(nbCellsMer*nbNavires))
+    for Species in EspècesHalieutiques:
+        for cell in CellsMer:
+            cell.setValue("txPrésence"+Species.name,list(Species.value(cell.value("sédim")))[0]/(nbCellsMer*nbNavires))
 
 def pêche(cell):
     if len(cell.agents)!=0:
