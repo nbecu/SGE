@@ -30,7 +30,7 @@ class SGUserSelector(SGGameSpace):
             authorizedPlayers = self.getAuthorizePlayers()
             if user not in authorizedPlayers:
                 checkbox.setEnabled(False)
-            checkbox.stateChanged.connect(self.checkstate)
+            checkbox.stateChanged.connect(self.checkboxChecked)
             for aCheckbox in self.checkboxes:
                 if checkbox.text() == aCheckbox.text():
                     return
@@ -38,24 +38,24 @@ class SGUserSelector(SGGameSpace):
             layout.addWidget(checkbox)
             layout.addSpacing(5)
     
-    def initSelector(self, currentPlayer):
+    def setCheckboxesWithSelection(self, aUserName):
         for checkbox in self.checkboxes:
-            if checkbox.text() == currentPlayer:
-                break
-        checkbox.setChecked(True)
-        checkbox.stateChanged.connect(self.checkstate)
+            checkbox.setChecked(checkbox.text() == aUserName)
 
 
-    def checkstate(self, state):
+    def checkboxChecked(self, state):
         sender = self.sender()
-        if state == 2:
+        if state == 2: #C'est quoi le state ?
             for checkbox in self.checkboxes:
                 if checkbox is not sender:
                     checkbox.setChecked(False)
                 else:
-                    self.model.currentPlayer = checkbox.text()
-        self.model.update()
-        # print(self.model.currentPlayer)
+                    self.model.setCurrentPlayer(checkbox.text())
+
+        selectedCheckboxText = sender.text() if sender.isChecked() else None
+
+        self.model.setCurrentPlayer(selectedCheckboxText)
+        self.model.update() # Pas sur qu'on ai besoin de ce update()
 
     def getAuthorizePlayers(self):
         phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]

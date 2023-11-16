@@ -10,7 +10,7 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
-aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,
+Cell = myModel.newGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
@@ -62,7 +62,7 @@ aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","f
 aModelAction4.addCondition(lambda: myModel.round()==2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
-myModel.currentPlayer = 'Player 1'
+myModel.setCurrentPlayer('Player 1')
 
 userSelector=myModel.newUserSelector()
 

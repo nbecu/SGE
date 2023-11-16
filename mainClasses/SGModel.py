@@ -13,6 +13,7 @@ from mainClasses.gameAction.SGDelete import SGDelete
 from mainClasses.gameAction.SGUpdate import SGUpdate
 from mainClasses.gameAction.SGCreate import SGCreate
 from mainClasses.SGLegend import SGLegend
+from mainClasses.SGControlPanel import SGControlPanel
 from mainClasses.SGVoid import SGVoid
 from mainClasses.SGCell import SGCell
 from mainClasses.SGGrid import SGGrid
@@ -100,10 +101,9 @@ class SGModel(QMainWindow):
         self.timeManager = SGTimeManager(self)
         # List of players
         self.players = {}
-        self.currentPlayer = "Admin"
-        # self.adminLegend = None
+        self.currentPlayer = None
 
-        self.myUserSelector = None
+        self.userSelector = None
         self.myTimeLabel = None
 
         self.listOfSubChannel = []
@@ -150,7 +150,11 @@ class SGModel(QMainWindow):
             self.timer.timeout.connect(self.maj_coordonnees)
             self.timer.start(100)
 
-        self.singletimer = QTimer.singleShot(1000, self.updateFunction)
+    
+    def initAfterOpening(self):
+        QTimer.singleShot(100, self.updateFunction)
+        if self.currentPlayer is None:
+            self.setCurrentPlayer(self.getUsers_withControlPanel()[0])
 
     def maj_coordonnees(self):
         pos_souris_globale = QCursor.pos()
@@ -567,9 +571,9 @@ class SGModel(QMainWindow):
         To create an User Selector in your game. Functions automatically with the players declared in your model. 
 
         """
-        if len(self.users_withControlPanel()) > 1 and len(self.players) > 0:
-            userSelector = SGUserSelector(self, self.users_withControlPanel())
-            self.myUserSelector = userSelector
+        if len(self.getUsers_withControlPanel()) > 1 and len(self.players) > 0:
+            userSelector = SGUserSelector(self, self.getUsers_withControlPanel())
+            self.userSelector = userSelector
             self.gameSpaces["userSelector"] = userSelector
             # Realocation of the position thanks to the layout
             newPos = self.layoutOfModel.addGameSpace(userSelector)
@@ -741,6 +745,10 @@ class SGModel(QMainWindow):
             anID=result.group(1)
             return anID
         raise ValueError("Check again!")
+    
+    def checkAndUpdateWatchers(self):
+        for entDef in self.getEntitiesDef():
+            entDef.updateAllWatchers()
 
 
     def getAgents(self, species=None):
@@ -873,7 +881,7 @@ class SGModel(QMainWindow):
         else:
             return self.players[playerName]
     
-    def setCurrentPlayer(self, playerName):
+    def setCurrentPlayer(self, aUserName):
         """
         Set the Active Player at the initialisation
 
@@ -881,13 +889,29 @@ class SGModel(QMainWindow):
             playerName (str): predefined playerName
 
         """
-        if playerName in self.players.keys():
-            self.currentPlayer = playerName
-            if self.myUserSelector is not None:
-                self.myUserSelector.initSelector(playerName)
+        if aUserName in self.getUsersName():
+            self.currentPlayer = aUserName
+            #update the userSelector interface
+            if self.userSelector is not None:
+                self.userSelector.setCheckboxesWithSelection(aUserName)
+            #update the ControlPanel and adminLegend interfaces
+            for aItem in self.getControlPanels()+self.getAdminLegends() :
+                aItem.isActive = (aItem.playerName == self.currentPlayer)
+                aItem.update()
+    
+
+
+
+    def getUsersName(self):
+        aList = [aP.name for aP in list(self.players.values())]
+        aList.append('Admin')
+        return aList
+
+    def getUserControlPanelOrLegend(self, aUserName):
+        self.getLegends()
 
     # To select only users with a control panel
-    def users_withControlPanel(self):
+    def getUsers_withControlPanel(self):
         selection=[]
         if self.getAdminLegend() != None:
             selection.append('Admin')     
@@ -1397,10 +1421,13 @@ class SGModel(QMainWindow):
     def getLegends(self):
         return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGLegend)]
 
+    def getControlPanels(self):
+        return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGControlPanel)]
+
     def getAdminLegend(self):
         return next((item for item in self.getLegends() if item.isAdminLegend()), None)
 
-    def getAdminLegends(self): #useful in case they arre several admin legends
+    def getAdminLegends(self): #useful in case they are several admin legends
         return [item for item in self.getLegends() if item.isAdminLegend()]
     
     def getSelectedLegendItem(self):
@@ -1420,6 +1447,7 @@ class SGModel(QMainWindow):
         Launch the game.
         """
         self.show()
+        self.initAfterOpening()
 
     # To open and launch the game
     def launch_withMQTT(self,majType):
@@ -1437,14 +1465,14 @@ class SGModel(QMainWindow):
         self.initMQTT()
         self.mqttMajType=majType
         self.show()
+        self.initAfterOpening()
 
-    # Return all the GM of players
-    def getGM(self):
-        listOfGm = []
+    # Return all gameActions of all players
+    def getAllGameActions(self):
+        aList= []
         for player in self.players.values():
-            for gm in player.gameActions:
-                listOfGm.append(gm)
-        return listOfGm
+            aList.extend(player.gameActions)
+        return aList
 
     # Function that process the message
     def handleMessageMainThread(self,msg_list):
@@ -1496,7 +1524,7 @@ class SGModel(QMainWindow):
             self.myTimeLabel.updateTimeLabel()
         if self.timeManager.currentPhase == 0:
             # We reset GM
-            for gm in self.getGM():
+            for gm in self.getAllGameActions():
                 gm.reset()
 
         # SIMULATION VARIABLES
@@ -1672,7 +1700,7 @@ class SGModel(QMainWindow):
     def onMAJTimer(self):
         self.updateAgentsAtMAJ()
         self.updateScoreAtMAJ()
-        self.timeManager.checkDashBoard()
+        self.checkAndUpdateWatchers()
         self.timeManager.checkEndGame()
         
     def updateAgentsAtMAJ(self):

@@ -10,7 +10,7 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
-aGrid = myModel.newGrid(5, 4, "square", size=60, gap=0,
+Cell = myModel.newGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 1)
 Cell.setEntities("ProtectionLevel", "Free")
@@ -124,7 +124,7 @@ def harvest2(cell):
 # aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
-# myModel.currentPlayer = 'Player 1'
+# myModel.setCurrentPlayer('Player 1')
 
 userSelector=myModel.newUserSelector()
 

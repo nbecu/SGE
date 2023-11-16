@@ -30,7 +30,7 @@ Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=
 
 
 # if you want to start the application as Player 1 :
-myModel.currentPlayer='Player 1'
+myModel.setCurrentPlayer('Player 1')
 
 
 myModel.launch() 

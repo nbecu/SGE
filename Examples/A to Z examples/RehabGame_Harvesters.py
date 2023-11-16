@@ -136,7 +136,7 @@ def renewBiomass(cell):
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
-# myModel.currentPlayer = 'Player 1'
+# myModel.setCurrentPlayer('Player 1')
 
 userSelector=myModel.newUserSelector()
 

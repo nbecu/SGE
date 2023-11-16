@@ -32,18 +32,11 @@ class SGTimeManager():
                             self.model.myTimeLabel.updateTimeLabel()
 
                 else:
-                    # We reset GM
-                    for gm in self.model.getGM():
-                        gm.reset()
+                    #reset GameActions count
+                    for action in self.model.getAllGameActions():
+                        action.reset()
                     self.currentPhase = 1
                 
-                #reset GameActions count
-                for user in self.model.users:
-                    if user != "Admin":
-                        player=self.model.getPlayerObject(user)
-
-                        for action in player.gameActions:
-                            action.reset()
 
                 thePhase = self.phases[self.currentPhase]
                 # check conditions for the phase
@@ -52,8 +45,8 @@ class SGTimeManager():
                     self.currentRound += 1
                     if self.model.myTimeLabel is not None:
                         self.model.myTimeLabel.updateTimeLabel()
-                    if self.model.myUserSelector is not None:
-                        self.model.myUserSelector.updateUI(QHBoxLayout())
+                    if self.model.userSelector is not None:
+                        self.model.userSelector.updateUI(QHBoxLayout())
 
                 # execute the actions of the phase
                 if doThePhase:
@@ -65,7 +58,7 @@ class SGTimeManager():
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
                     #watchers update
-                    self.checkDashBoard()
+                    self.model.checkAndUpdateWatchers()
                     #mqtt update
                     if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
                         self.model.publishEntitiesState()
@@ -95,29 +88,6 @@ class SGTimeManager():
         if endGame:
             print("C'est fini !")
         return endGame
-    
-    def checkDashBoard(self): # This method should not be defined here
-        for grid in self.model.getGrids():
-            for attribut in self.model.getCellDef(grid).watchers:
-                for watcher in self.model.cellCollection[grid.id]["watchers"][attribut]:
-                    updatePermit=watcher.getUpdatePermission()
-                    if updatePermit:
-                        watcher.updateText()
-        for specie in self.model.getAgentSpeciesDict():
-            for watchers in specie.watchers:
-                for watcher in watchers:
-                    updatePermit=watcher.getUpdatePermission()
-                    if updatePermit:
-                        watcher.updateText()
-        # the above code should be simplified with the following
-        for entDef in self.model.getEntitiesDef():
-            for attribut,aWatcher in entDef.watchers.items():
-                aWatcher.update()
-                # updatePermit=watcher.getUpdatePermission()
-                # if updatePermit:
-                #     watcher.updateText()
-
-
 
     def getRoundNumber(self):
         return self.currentRound

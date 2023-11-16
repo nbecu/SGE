@@ -43,7 +43,6 @@ aModelAction4.addCondition(lambda: myModel.round()==3)
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 myModel.timeManager.newModelPhase(aModelAction2)
-
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 # The DashBoard is a widget which permits to create scores.

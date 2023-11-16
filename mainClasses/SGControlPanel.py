@@ -177,7 +177,7 @@ class SGControlPanel(SGLegend):
             # if len(self.elementsPov)!=0:
                 painter = QPainter() 
                 painter.begin(self)
-                if self.model.currentPlayer==self.playerName or self.playerName =="Admin":
+                if self.isActive:
                     painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
                 else:
                     painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))

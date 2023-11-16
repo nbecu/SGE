@@ -14,7 +14,7 @@ myModel = SGModel(
 
 
 # STEP2 Grid and Cells
-aGrid = myModel.newGrid(7, 7, "square", size=60, gap=2,
+Cell = myModel.newGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
@@ -72,7 +72,7 @@ userSelector=myModel.newUserSelector()
 myModel.timeManager.newGamePhase('Phase 1', [Player1, Player2])
 myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
-myModel.currentPlayer = 'Player 1'
+myModel.setCurrentPlayer('Player 1')
 
 
 # STEP6 DashBoard and EndGameRule

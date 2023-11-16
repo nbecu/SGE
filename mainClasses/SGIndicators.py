@@ -62,7 +62,10 @@ class SGIndicators(QtWidgets.QWidget):
             aName = self.method+' : '
         self.name = aName
 
-
+    def checkAndUpdate(self):
+        if self.getUpdatePermission():
+            self.updateText()
+        
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc

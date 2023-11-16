@@ -43,6 +43,13 @@ class SGEntityDef():
         return list(self.attributesPossibleValues.keys())
     
     def addWatcher(self,aIndicator):
+        if aIndicator.attribut is None:
+            aAtt = 'nb'
+        else: aAtt = aIndicator.attribut
+        if aAtt not in self.watchers.keys():
+            self.watchers[aAtt]=[]
+        self.watchers[aAtt].append(aIndicator)
+
         1
     # def setCellWatchers(self, attribut, indicator):
     #     grids = self.model.getGrids()
@@ -70,22 +77,20 @@ class SGEntityDef():
 
     
     def updateWatchersOnAttribute(self,aAtt):
-        if aAtt in self.watchers:
-            for watcher in self.watchers:
-                updatePermit=watcher.getUpdatePermission()
-                if updatePermit:
-                    watcher.updateText()
+        for watcher in self.watchers.get(aAtt,[]):
+            watcher.checkAndUpdate()
 
     def updateWatchersOnAllAttributes(self):
         for aAtt in self.attributes():
             self.updateWatchersOnAttribute(aAtt)
 
     def updateWatchersOnPop(self):
-        if 'nb' in self.watchers:
-            for watcher in self.watchers:
-                updatePermit=watcher.getUpdatePermission()
-                if updatePermit:
-                    watcher.updateText()
+        self.updateWatchersOnAttribute('nb')
+    
+    def updateAllWatchers(self):
+        for listOfWatchers in self.watchers.values():
+            for watcher in listOfWatchers:
+                watcher.checkAndUpdate()
                     
     def  getColorOfFirstOccurenceOfAttAndValue(self, att, value):
         for aDictWith_Att_ColorDict in list(self.povShapeColor.values()):

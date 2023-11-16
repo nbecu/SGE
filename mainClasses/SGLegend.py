@@ -22,6 +22,7 @@ class SGLegend(SGGameSpace):
     
     # basic init method. Use ex. SGLegend(parent).init1(model,name,elementPov,playerName,agents)
     def init1(self, model,name,elementPov,playerName,AgentList,showAgents=False,borderColor=Qt.black,legendType="global"):
+        #OBSOLETE / To be removed
         self.id=name
         self.model=model
         self.elementsPov=elementPov
@@ -376,7 +377,7 @@ class SGLegend(SGGameSpace):
             # if len(self.elementsPov)!=0:
                 painter = QPainter() 
                 painter.begin(self)
-                if self.model.currentPlayer==self.playerName or self.playerName =="Admin":
+                if self.isActive:
                     painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
                 else:
                     painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
