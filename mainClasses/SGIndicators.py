@@ -100,11 +100,13 @@ class SGIndicators(QtWidgets.QWidget):
     def byMethod(self):
         calcValue=0.0
         counter=0
-        listEntities = self.getListOfEntities()
         
-        if self.method =='nb': return len(listEntities)
+        if self.method =='nb':
+            listEntities = self.getListOfEntities()
+            return len(listEntities)
         
         elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
+            listEntities = self.getListOfEntities()
             listOfValues = [aEnt.value(self.attribut) for aEnt in listEntities]
             if self.method == 'sumAtt': return sum(listOfValues)
             if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)

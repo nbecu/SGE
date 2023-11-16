@@ -16,28 +16,28 @@ Cell = myModel.newGrid(5, 4, "square", size=60, gap=0,
 Cell.setEntities("biomass", 1)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setEntities("noHarvestPeriod", 0)
-aGrid.setCell(3,1,"biomass", 2)
-aGrid.setCell(1,2,"biomass", 2)
-aGrid.setCell(2,2,"biomass", 0)
-aGrid.setCell(3,2,"biomass", 2)
-aGrid.setCell(4,2,"biomass", 3)
-aGrid.setCell(5,2,"biomass", 2)
-aGrid.setCell(2,3,"biomass", 3)
-aGrid.setCell(4,3,"biomass", 2)
-aGrid.setCell(2,4,"biomass", 3)
-aGrid.setCell(4,4,"biomass", 0)
-aGrid.setCell(5,4,"biomass", 2)
+Cell.setCell(3,1,"biomass", 2)
+Cell.setCell(1,2,"biomass", 2)
+Cell.setCell(2,2,"biomass", 0)
+Cell.setCell(3,2,"biomass", 2)
+Cell.setCell(4,2,"biomass", 3)
+Cell.setCell(5,2,"biomass", 2)
+Cell.setCell(2,3,"biomass", 3)
+Cell.setCell(4,3,"biomass", 2)
+Cell.setCell(2,4,"biomass", 3)
+Cell.setCell(4,4,"biomass", 0)
+Cell.setCell(5,4,"biomass", 2)
 
 # GlobalColor.
 Cell.newPov("biomass", "biomass", {
                0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
-myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
+Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 harvesters = myModel.newAgentSpecies(
     "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}},uniqueColor=Qt.black)
 # harvesters.initDefaultAttValue('harvest',0)
-# aHarvester = myModel.newAgentAtCoords(aGrid,harvesters,5,2)
+# aHarvester = myModel.newAgentAtCoords(Cell,harvesters,5,2)
 Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, uniqueColor=Qt.yellow)
 # Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:QColor.fromRgb(170,205,50),2:Qt.green})
 # Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:Qt.black,2:Qt.green})
@@ -59,7 +59,7 @@ Parc = myModel.newPlayer("Parc")
 
 Parc.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-    ,[lambda: aGrid.nbCells_withValue("ProtectionLevel","Reserve")<3]))
+    ,[lambda: Cell.nbCells_withValue("ProtectionLevel","Reserve")<3]))
 Parc.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Parc.newControlPanel()
@@ -159,7 +159,7 @@ DashBoard.showIndicators()
 # endGameRule.addEndGameCondition_onIndicator(
 #     i1, "equal", 90, name="biomass equal to 90")
 # endGameRule.addEndGameCondition_onEntity(
-#     "cell1-2", 'biomass', "greater", 2, name="Cell 1-2 biomass is greater than 2",aGrid=aGrid)
+#     "cell1-2", 'biomass', "greater", 2, name="Cell 1-2 biomass is greater than 2",Cell=Cell)
 # endGameRule.showEndGameConditions()
 
 

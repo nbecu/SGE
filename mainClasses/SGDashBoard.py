@@ -107,9 +107,7 @@ class SGDashBoard(SGGameSpace):
             listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
         elif isinstance(entityName,list) and issubclass(type(entityName[0]),SGEntityDef) :
             listOfEntDef = entityName
-        elif issubclass(type(entityName),SGEntity) :
-            listOfEntDef = entityName
-        elif callable(entityName):
+        elif issubclass(type(entityName),SGEntity) : # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR IL utilise la méthode addIndicatorOnEntity()
             listOfEntDef = entityName
         else:
             raise ValueError('Wrong type')
@@ -342,14 +340,10 @@ class SGDashBoard(SGGameSpace):
         return longestWord
 
     def mouseMoveEvent(self, e):
-
         if e.buttons() != Qt.LeftButton:
             return
-
         mimeData = QMimeData()
-
         drag = QDrag(self)
         drag.setMimeData(mimeData)
         drag.setHotSpot(e.pos() - self.rect().topLeft())
-
         drag.exec_(Qt.MoveAction)

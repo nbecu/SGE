@@ -48,8 +48,8 @@ myModel.timeManager.newModelPhase(aModelAction2)
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("score",None,indicatorName="Score",color=Qt.black)
-i2 = DashBoard.addIndicator("nbEqualTo", 'cell', attribute='landUse',value='forest',color=Qt.black)
+i1 = DashBoard.addIndicator("score",None,indicatorName="Score",color=Qt.black) #eput etre qu'il faut créer une méthode spécifique pour ajouter un indicateur sur un socre (une méthode qui créére automatiqueemnt une simVariable du meme nom)
+i2 = DashBoard.addIndicator("nbEqualTo", Cell, attribute='landUse',value='forest',color=Qt.black)
 DashBoard.showIndicators()
 # Here is the way to add feedback on score on ModelAction
 aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
@@ -59,8 +59,7 @@ myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
 # Here you can add a Widget to show the EndGame Conditions of your game
 # This game will be declared ended when the score declared in the DashBoard is equal to 90. 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
-endGameRule.addEndGameCondition_onIndicator(
-    i1, "equal", 90, name="Score equal to 90")
+endGameRule.addEndGameCondition_onIndicator(i1, "equal", 90, name="Score equal to 90")
 endGameRule.showEndGameConditions()
 
 myModel.launch() 
