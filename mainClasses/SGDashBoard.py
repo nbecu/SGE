@@ -122,13 +122,14 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        if "cell" in entityID:
-            if aGrid is not None:
-                entity = aGrid.getCell_withId(aGrid,entityID)
-                if entity is None:
-                    raise ValueError("Cell not found on"+indicatorName+" please check again")
-            else:
-                raise ValueError("You need to add a Grid.")
+        if type(entityID) != int:
+            if "cell" in entityID:
+                if aGrid is not None:
+                    entity = aGrid.getCell_withId(aGrid,entityID)
+                    if entity is None:
+                        raise ValueError("Cell not found on"+indicatorName+" please check again")
+                else:
+                    raise ValueError("You need to add a Grid.")
         
         species=self.model.getAgentSpecies()
         if speciesName in [instance.name for instance in species]:

@@ -35,10 +35,10 @@ Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5
 EspècesHalieutiques=[Soles,Merlus]
 
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
+# myModel.newAgentAtCoords(aGrid,Navire,10,1)
+# myModel.newAgentAtCoords(aGrid,Navire,10,1)
+# myModel.newAgentAtCoords(aGrid,Navire,10,1)
+# myModel.newAgentAtCoords(aGrid,Navire,10,1)
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 
@@ -57,6 +57,8 @@ totSole=myModel.newSimVariable(0,"Total Sole pêché")
 # indicateurPêcheSole = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Sole",indicatorName="Quantité de sole pêchée")
 indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
 indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
+indBateau1Merlu = DashBoard.addIndicatorOnEntity("1","PêcheCumMerlu","Navire",indicatorName="Merlu pêché par le bateau 1")
+indBateau1Sole = DashBoard.addIndicatorOnEntity("1","PêcheCumSole","Navire",indicatorName="Sole pêché par le bateau 1")
 DashBoard.showIndicators()
 
 def tx_présence():
@@ -85,6 +87,8 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
         navire.setValue("PêcheCumSole", navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
+        indBateau1Sole.setResult(navire.value("PêcheCumSole"))
+        indBateau1Merlu.setResult(navire.value("PêcheCumMerlu"))
         
     Soles.setValue("stock",((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0]))
     Merlus.setValue("stock",((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0]))
