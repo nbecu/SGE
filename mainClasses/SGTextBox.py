@@ -150,6 +150,8 @@ class SGTextBox(SGGameSpace):
             - text (str) : new text
         """
         self.new_text = text
+        self.textEdit.setPlainText(text)
+        self.updateText()
 
     def setTitle(self, title):
         """

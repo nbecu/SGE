@@ -63,6 +63,7 @@ class SGTimeManager():
                                 aAction()  # this command executes aAction
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
+                    thePhase.notifyNewText()
                     #watchers update
                     self.checkDashBoard()
                     #mqtt update
