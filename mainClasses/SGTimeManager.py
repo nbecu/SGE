@@ -18,7 +18,6 @@ class SGTimeManager():
         self.currentPhase = 1
         self.phases = []
         self.conditionOfEndGame = []
-        self.newGamePhase('Initialisation', None)
 
     # To increment the time of the game
     def nextPhase(self):

@@ -20,7 +20,7 @@ class SGTimePhase():
 
     def setTextBoxText(self,aTextBox, aText):
         """Ne fonctionne pas encore"""
-        self.associatedTextBoxes.append(aTextBox)
+        #self.associatedTextBoxes.append(aTextBox)
         
         aTextBox.setNewText(aText)
         aTextBox.updateText()
