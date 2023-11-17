@@ -9,12 +9,13 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,y,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False,gameAction=None):
+    def __init__(self,parent,type,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False,gameAction=None):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
         self.type=type
-        self.y=y
+        self.posY=self.legend.posYOfItems
+        self.legend.posYOfItems +=1
         self.text=str(text)
         if classDefOrShape == 'square' or classDefOrShape is None:
             self.shape= classDefOrShape
@@ -152,13 +153,10 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setFont(QFont("Verdana",8))
                 painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
-            self.move(10,self.y*25)#25
+            self.move(10,self.posY*25)#25
             painter.end()
             
-    def getId(self):
-        return "cell"+str(self.x)+str(self.y)
     
-
     #Funtion to handle the zoom
     def zoomIn(self):
         self.size=self.parent.size

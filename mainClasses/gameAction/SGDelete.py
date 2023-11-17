@@ -1,5 +1,6 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 import copy
@@ -20,3 +21,12 @@ class SGDelete(SGAbstractAction):
         self.feedback=feedBack
         self.conditionOfFeedBack=conditionOfFeedBack
         self.addRestrictions(lambda selectedEntity: selectedEntity.species == entName)
+
+    def executeAction(self, aTargetEntity):
+                    self.classDef.deleteEntity(self)
+
+
+    def generateLegendItems(self,aControlPanel):
+        entDef = self.anObject
+        aColor = entDef.defaultShapeColor
+        return [SGLegendItem(aControlPanel,'symbol','delete',entDef,aColor,gameAction=self)]

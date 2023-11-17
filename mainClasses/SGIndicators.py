@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariables import SGSimulationVariables
    
 #Class who is responsible of indicator creation 
 class SGIndicators(QtWidgets.QWidget):
-    def __init__(self,parent,y,name,method,attribut,value,listOfEntDef,logicOp,color=Qt.blue,isDisplay=True):
+    def __init__(self,parent,name,method,attribut,value,listOfEntDef,logicOp,color=Qt.blue,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -27,7 +27,8 @@ class SGIndicators(QtWidgets.QWidget):
         self.result=float
         self.name=name
         self.attribut=attribut
-        self.y=y
+        self.posY = self.dashboard.posYOfItems
+        self.dashboard.posYOfItems += 1
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
@@ -57,10 +58,13 @@ class SGIndicators(QtWidgets.QWidget):
         elif self.attribut is not None:
                 aName = self.method+' '+self.attribut+" : "
         elif self.method == 'nb':
-            aName = self.method+' '+self.entity+' : '
+            aName = self.method+' '+self.strOfEntitiesName()+' : '
         else:
             aName = self.method+' : '
         self.name = aName
+
+    def strOfEntitiesName(self):
+        return ",".join([entDef.entityName for entDef in self.listOfEntDef])
 
     def checkAndUpdate(self):
         if self.getUpdatePermission():

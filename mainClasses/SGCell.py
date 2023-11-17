@@ -105,8 +105,9 @@ class SGCell(SGEntity):
         
     def dropEvent(self, e):
         e.accept()
-        oldAgent=e.source()
-        self.moveAgentByRecreating_it(oldAgent)
+        aAgent=e.source()
+        aAgent.moveTo(self)
+        aAgent.updateAgentByRecreating_it()
         e.setDropAction(Qt.MoveAction)
         if self.model.mqttMajType == "Instantaneous":
             SGGameActions.sendMqttMessage(self)
@@ -117,11 +118,7 @@ class SGCell(SGEntity):
             return
 
 
-    def moveAgentByRecreating_it(self,oldAgent):
-        theAgent=self.grid.model.copyOfAgentAtCoord(self,oldAgent)
-        self.updateIncomingAgent(theAgent)
-        theAgent.show()
-        oldAgent.deleteLater()
+
 
              
     #To get the pov
@@ -154,8 +151,6 @@ class SGCell(SGEntity):
                     #We now check the feedBack of the actions if it have some
                     """if theAction is not None:
                         self.feedBack(theAction)"""
-                    if len(self.agents) !=0:
-                        self.deleteAllAgents()
                     self.classDef.deleteEntity(self)
 
             #The Replace cell and change value Action
@@ -215,9 +210,7 @@ class SGCell(SGEntity):
         option1 = QAction(text, self)
         menu.addAction(option1)
 
-        # for aAgent in self.model.getAgents():
-        #     aAgent.cell.moveAgentByRecreating_it(aAgent)
-        self.model.updateAgentsAtMAJ()  
+        # self.model.updateAgentsAtMAJ()  
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
@@ -247,10 +240,11 @@ class SGCell(SGEntity):
     def getAgents(self,specie=None):
         if specie != None:
             return self.getAgentsOfSpecie(specie)
-        listOfAgents=[]
-        for agent in self.agents:
-           listOfAgents.append(agent)
-        return  listOfAgents
+        # listOfAgents=[]
+        # for agent in self.agents:
+        #    listOfAgents.append(agent)
+        # return  listOfAgents
+        return  self.agents[:]
     
     def nbAgents(self,specie=None):
         if specie != None:
@@ -260,11 +254,12 @@ class SGCell(SGEntity):
  
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
-        listOfAgents=[]
-        for agent in self.agents:
-            if agent.name ==nameOfSpecie:
-                listOfAgents.append(agent)
-        return  listOfAgents
+        # listOfAgents=[]
+        # for agent in self.agents:
+        #     if agent.name ==nameOfSpecie:
+        #         listOfAgents.append(agent)
+        # return  listOfAgents
+        return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):
@@ -274,10 +269,10 @@ class SGCell(SGEntity):
                 if i == self.x and j == self.y:
                     continue
                 if rule=="moore":
-                    c = self.grid.getCell(i, j)
+                    c = self.classDef.getCell(i, j)
                 elif rule=='neumann':
                     if (i == self.x or j == self.y) and (i != self.x or j != self.y):
-                        c = self.grid.getCell(i,j)
+                        c = self.classDef.getCell(i,j)
                     else:
                         c = None
                 else:
@@ -344,7 +339,7 @@ class SGCell(SGEntity):
 
         Return:
             a new agent"""
-        return aAgentSpecies.newAgentAtCoords(self.grid, self.x, self.y,adictAttributes)
+        return aAgentSpecies.newAgentOnCell(self,adictAttributes)
 
     #To perform action
     def doAction(self, aLambdaFunction):

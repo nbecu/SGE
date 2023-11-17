@@ -23,7 +23,7 @@ Cell.setRandomEntities("ProtectionLevel", "Reserve", 1)
 
 Cell.newPov("Resource", "Resource", {
                "3": Qt.darkGreen, "2": Qt.green, "1": Qt.yellow, "0": Qt.white})
-myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
+Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 Workers = myModel.newAgentSpecies(

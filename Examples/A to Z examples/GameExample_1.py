@@ -26,7 +26,7 @@ Cell.setRandomEntities("ProtectionLevel", "Reserve", 1)
 
 
 Cell.newPov("Resource", "Resource", {3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow, 0: Qt.white})
-myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
+Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
 
 # STEP3 Agents
 Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", uniqueColor=Qt.black)
@@ -34,7 +34,7 @@ Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", uniqueColor=Qt.yellow
 # Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
 # Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 # Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-# Sheeps.initDefaultAttValue("hunger","bad")
+# Sheeps.setDefaultValue("hunger","bad")
 
 aSecondBird=myModel.newAgentAtCoords(aGrid,Birds,4,5)
 aWorker=myModel.newAgentAtCoords(aGrid,Workers,2,2)

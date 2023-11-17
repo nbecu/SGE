@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
+from mainClasses.SGGrid import SGGrid
 from mainClasses.SGAgent import SGAgent
 import random
 
@@ -106,8 +107,9 @@ class SGEntityDef():
     def setDefaultValue(self, aAtt, aDefaultValue):
         self.attributesDefaultValues[aAtt] = aDefaultValue
 
+
     #To set up a POV
-    def newPov(self,nameofPOV,concernedAtt,dictOfColor):
+    def newPov(self,nameOfPov,concernedAtt,dictOfColor):
         """
         Declare a new Point of View for the Species.
 
@@ -118,14 +120,35 @@ class SGEntityDef():
             DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
             
         """
-        self.povShapeColor[nameofPOV]={str(concernedAtt):dictOfColor}
+        self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
         # self.model.addPovinMenuBar(nameofPOV)
-        self.model.addClassDefSymbologyinMenuBar(self,nameofPOV)
+        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
         if len(self.povShapeColor)==1:
-            self.setInitialPov(nameofPOV)
+            self.setInitialPov(nameOfPov)
 
-    def setInitialPov(self,nameofPOV):
-        self.model.checkSymbologyinMenuBar(self,nameofPOV)
+    def setInitialPov(self,nameOfPov):
+        self.model.checkSymbologyinMenuBar(self,nameOfPov)
+
+    def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=4):
+        """
+        Declare a new Point of View for cells (only for border color).
+
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
+
+        """
+        dictOfColorAndWidth = self.addWidthInPovDictOfColors(borderWidth,dictOfColor)
+        self.povBorderColor[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
+        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
+        if len(self.povShapeColor)==1:
+            self.setInitialPov(nameOfPov)
+
+    def addWidthInPovDictOfColors(self,borderWidth,dictOfColor):
+        for aKey, aColor in dictOfColor.items():
+            dictOfColor[aKey] = {'color':aColor,'width':borderWidth}
 # ********************************************************    
 
 # to get all entities with a certain value
@@ -178,7 +201,7 @@ class SGEntityDef():
         else:
             listOfEntities = [ent for ent in listOfEntitiesToPickFrom if condition(ent)]
         
-        return random.sample(listOfEntities, aNumber) if len(listOfEntities) > 0 else False
+        return random.sample(listOfEntities, min(aNumber,len(listOfEntities))) if len(listOfEntities) > 0 else []
 
     # Return random Entities with a certain value
     def getRandomEntities_withValue(self, aNumber, att, val, condition=None):
@@ -319,7 +342,7 @@ class SGEntityDef():
             ent.setValue(aAttribut, aValue)
    
     # To delete all entities of a species
-    def deleteAllEntitiess(self):
+    def deleteAllEntities(self):
         """
         Delete all entities of the species.
         """
@@ -332,6 +355,26 @@ class SGAgentDef(SGEntityDef):
         super().__init__(sgModel, entityName,shape,defaultsize,attributesPossibleValues,defaultColor)
         self.locationInentity=locationInentity
 
+    def newAgentOnCell(self, aCell, attributesAndValues=None):
+        """
+        Create a new Agent in the associated species.
+        Args:
+            aCell : aCell located on a grid
+            attributesAndValues : attributes and values of the new agent
+        Return:
+            a agent
+        """
+        # anAgentID = str(aAgentSpecies.memoryID)
+        # self.updateIDmemory(aAgentSpecies)
+        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self)
+        self.entities.append(aAgent)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aAgent.updateMqtt()
+        aAgent.show()
+        return aAgent
+
+
     def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None):
         """
         Create a new Agent in the associated species.
@@ -343,21 +386,16 @@ class SGAgentDef(SGEntityDef):
         Return:
             a agent
         """
-        # anAgentID = str(aAgentSpecies.memoryID)
-        # self.updateIDmemory(aAgentSpecies)
         aCellDef = self.model.getCellDef(cellDef_or_grid)
         aGrid = self.model.getGrid(cellDef_or_grid)
         if xCoord == None: xCoord = random.randint(1, aGrid.columns)
         if yCoord == None: yCoord = random.randint(1, aGrid.rows)
         locationCell = aCellDef.getCell(xCoord, yCoord)
-        aAgent = SGAgent(aGrid,locationCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self)
-        self.entities.append(aAgent)
-        self.updateWatchersOnPop()
-        self.updateWatchersOnAllAttributes()
-        aAgent.updateMqtt()
-        aAgent.show()
-        return aAgent
+        return self.newAgentOnCell(locationCell, attributesAndValues)
+
     
+
+
     def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None):
         """
         Create a new Agent in the associated species a place it on a random cell.
@@ -370,8 +408,8 @@ class SGAgentDef(SGEntityDef):
 
 
     # To randomly move all agents
-    def moveRandomly(self, numberOfMovement):
-        for aAgent in self.entities:
+    def moveRandomly(self, numberOfMovement=1):
+        for aAgent in self.entities[:]: # Need to iterate on a copy of the entities list, because , due to the moveByRecreating, the entities list changes during the loop
             aAgent.moveAgent(numberOfMovement=numberOfMovement)
 
 
@@ -426,12 +464,14 @@ class SGCellDef(SGEntityDef):
             id (int): id of the cell
         """
         if isinstance(y, int):
+            if x < 0 or y < 0 : return None
             aId= self.cellIdFromCoords(x,y)
         else:
             aId=x
         return next(filter(lambda ent: ent.id==aId, self.entities),None)
 
     def cellIdFromCoords(self,x,y):
+        if x < 0 or y < 0 : return None
         return x+ (self .grid.columns * (y -1))
 
     def deleteEntity(self, aCell):
@@ -440,6 +480,8 @@ class SGCellDef(SGEntityDef):
         args:
             aCell (instance): the cell to de deleted
         """
+        if len(aCell.agents) !=0:
+            aCell.deleteAllAgents()
         self.deletedCells.append(aCell)
         aCell.isDisplay = False
         self.entities.remove(aCell)

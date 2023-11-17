@@ -21,7 +21,7 @@ class SGDashBoard(SGGameSpace):
         self.borderColor = borderColor
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
-        self.y = 0
+        self.posYOfItems = 0
         self.isDisplay = True
         self.displayRefresh = displayRefresh
         self.IDincr = 0
@@ -94,7 +94,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        self.y = self.y+1
+        self.posYOfItems = self.posYOfItems+1
         if isinstance(entityName,str) :
             res = self.model.getEntityDef(entityName)
             if res is None: raise ValueError('Wrong type')  
@@ -112,7 +112,7 @@ class SGDashBoard(SGGameSpace):
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
+        indicator = SGIndicators(self, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -164,9 +164,9 @@ class SGDashBoard(SGGameSpace):
             else:
                 raise ValueError("You need to specify a logicOp")
         
-        self.y = self.y+1
+        self.posYOfItems = self.posYOfItems+1
         
-        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
+        indicator = SGIndicators(self, self.posYOfItems, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -178,8 +178,8 @@ class SGDashBoard(SGGameSpace):
         return indicator
 
     def addIndicatorOnSimVariable(self,aSimulationVariable):
-        self.y = self.y+1
-        indicator=SGIndicators(self,self.y,aSimulationVariable.name,"score",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
+        self.posYOfItems = self.posYOfItems+1
+        indicator=SGIndicators(self,self.posYOfItems,aSimulationVariable.name,"score",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr

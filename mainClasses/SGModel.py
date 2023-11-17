@@ -166,8 +166,8 @@ class SGModel(QMainWindow):
         aList = self.getAgents()
         if not aList : return False
         for aAgent in aList:
-            aAgent.cell.moveAgentByRecreating_it(aAgent)
-        self.show()
+            aAgent.updateAgentByRecreating_it()
+        # self.show()
 
     
     # Create the menu of the menue
@@ -644,6 +644,10 @@ class SGModel(QMainWindow):
 
     def getEntityDef(self, entityName):
         return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+    
+    def deleteAllAgents(self):
+        for aAgentDef in self.getAgentSpeciesDict():
+            aAgentDef.deleteAllEntities()
 
     def getAgentSpeciesOLD(self):
         # ATTENTION
@@ -730,7 +734,7 @@ class SGModel(QMainWindow):
         if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
             uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
         anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
-        aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        aAgent = SGAgent(locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
         aAgent.isDisplay = True
         aAgent.species = str(aAgentSpecies.name)
         aAgent.privateID = aPrivateID
@@ -796,25 +800,6 @@ class SGModel(QMainWindow):
         for aAgent in agent_list:
             if aAgent.id==aID:
                 return aAgent
-
-
-    # To copy an Agent to make a move // THIS METHOD SHOULD BE MOVED TO AgentDef
-    def copyOfAgentAtCoord(self, aCell, oldAgent):
-        newAgent = SGAgent(aCell.grid,aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
-        newAgent.isDisplay = True
-        # newAgent.species = oldAgent.species
-        # newAgent.color = oldAgent.color
-        newAgent.privateID = oldAgent.privateID
-        newAgent.classDef.entities.remove(oldAgent)
-        newAgent.classDef.entities.append(newAgent)
-        # self.agentSpecies[str(newAgent.name)]['AgentList'][str(newAgent.id)] = {"me": newAgent.me, 'position': newAgent.cell, 'species': newAgent.name, 'size': newAgent.size,'attributs': oldAgent.dictAttributes, "AgentObject": newAgent}                                                                           
-        newAgent.update()
-        newAgent.show()
-        self.update()
-        return newAgent
-    
-
-
 
 
     # To create a modelAction

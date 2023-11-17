@@ -64,27 +64,22 @@ class SGLegend(SGGameSpace):
     def updateWithSymbologies(self,listOfSymbologies):
         self.clearAllLegendItems()
         self.listOfSymbologies=listOfSymbologies
-        y = 0
-        anItem=SGLegendItem(self,'Title1',y,self.id) #self.id is equivalent to name
-        y+=1
+        self.posYOfItems = 0
+        anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
         for entDef, aSymbology in self.listOfSymbologies.items():
-            anItem=SGLegendItem(self,'Title2',y,entDef.entityName)
-            y +=1
+            anItem=SGLegendItem(self,'Title2',entDef.entityName)
             self.legendItems.append(anItem)
             if aSymbology is None:
                 #In this case, it should return the default Symbology
-                anItem=SGLegendItem(self,'default',y,'default',entDef,entDef.defaultShapeColor)
-                y +=1
+                anItem=SGLegendItem(self,'default','default',entDef,entDef.defaultShapeColor)
                 self.legendItems.append(anItem)
                 continue
             aAtt = list(entDef.povShapeColor[aSymbology].keys())[0]
             dictSymbolNameAndColor= list(entDef.povShapeColor[aSymbology].values())[0]
             for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                anItem=SGLegendItem(self,'symbol',y,aSymbolName,entDef,aColor,aAtt,aSymbolName)
-                y +=1
+                anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
                 self.legendItems.append(anItem)
-        anItem=SGLegendItem(self,'delete',y,"Delete","square",Qt.darkGray)
-        y +=1
+        anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
         self.legendItems.append(anItem)
 
         for anItem in self.legendItems:

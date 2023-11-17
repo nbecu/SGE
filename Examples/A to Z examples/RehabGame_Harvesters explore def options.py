@@ -29,12 +29,12 @@ aGrid.setCell(5,4,"Resource", 2)
 # GlobalColor.
 Cell.newPov("Resource", "Resource", {
                0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
-myModel.newBorderPov("ProtectionLevel", "ProtectionLevel", {
+Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 Workers = myModel.newAgentSpecies(
     "Workers", "triangleAgent1", {'harvest':{0}},uniqueColor=Qt.black)
-# Workers.initDefaultAttValue('harvest',0)
+# Workers.setDefaultValue('harvest',0)
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 

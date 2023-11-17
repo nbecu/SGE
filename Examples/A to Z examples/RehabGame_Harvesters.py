@@ -31,19 +31,20 @@ Cell.setCell(5,4,"biomass", 2)
 # GlobalColor.
 Cell.newPov("biomass", "biomass", {
                0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
-Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
+Cell.newBorderPov("Parc info", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 harvesters = myModel.newAgentSpecies(
     "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}},uniqueColor=Qt.black)
-# harvesters.initDefaultAttValue('harvest',0)
+harvesters.setDefaultValue('harvest',0)
+harvesters.setDefaultValue('total harvest',0)
 # aHarvester = myModel.newAgentAtCoords(Cell,harvesters,5,2)
 Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, uniqueColor=Qt.yellow)
 # Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:QColor.fromRgb(170,205,50),2:Qt.green})
 # Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:Qt.black,2:Qt.green})
-Bird.initDefaultAttValue('nb reproduction',0)
+Bird.setDefaultValue('nb reproduction',0)
 
-Chick = myModel.newAgentSpecies("Chick","triangleAgent2", aSpeciesDefaultSize=5, uniqueColor=QColorConstants.Magenta)
+Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, uniqueColor=QColorConstants.Magenta)
 
 
 # globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
@@ -66,10 +67,10 @@ Player2ControlPanel = Parc.newControlPanel()
 
 
 firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')
-firstPhase.setModelActions(lambda: myModel.setAgents('harvesters','harvest',0))
-#faut changer le nom setModelActions() par addAction()
+firstPhase.addModelAction(lambda: harvesters.setEntities('harvest',0))
+#faut changer le nom addModelAction() par addAction()
 settleAction= myModel.newModelAction_onCells(lambda cell: cell.newAgentHere(Bird),(lambda cell: cell.value('biomass')>=2))
-firstPhase.setModelActions(settleAction)
+firstPhase.addModelAction(settleAction)
 
 myModel.timeManager.newGamePhase('Parc actions', [Parc])
 myModel.timeManager.newGamePhase('Clans actions', [Clans])
@@ -91,7 +92,7 @@ def reproduce(aBird):
         aBird.cell.newAgentHere(Chick)
 
 myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='update biomass')
-myModel.timeManager.newModelPhase(lambda : myModel.deleteAgents(),name='Clear the gameboard')
+myModel.timeManager.newModelPhase(lambda : myModel.deleteAllAgents(),name='Clear the gameboard')
 
 
 # def harvest(cell):
@@ -146,8 +147,8 @@ TextBox = myModel.newTextBox(
 # TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='biomass',color=Qt.black, indicatorName='Total biomass')
-i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='biomass',color=Qt.black, indicatorName='Avg biomass')
+i1 = DashBoard.addIndicator("sumAtt", Cell, attribute='biomass',color=Qt.black, indicatorName='Total biomass')
+i2 = DashBoard.addIndicator("avgAtt", Cell, attribute='biomass',color=Qt.black, indicatorName='Avg biomass')
 i3 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='harvest',color=Qt.black)
 i4 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='total harvest',color=Qt.black)
 i5 = DashBoard.addIndicator("nb", 'Bird',color=Qt.magenta)

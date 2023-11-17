@@ -110,7 +110,7 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
-        if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute")
+        # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue

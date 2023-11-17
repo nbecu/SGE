@@ -1,5 +1,6 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of Update
@@ -18,3 +19,10 @@ class SGUpdate(SGAbstractAction):
         aTargetEntity.setValue(self.att,self.value)
         return aTargetEntity
 
+    def generateLegendItems(self,aControlPanel):
+        entDef = self.anObject
+        aList = []
+        for aAtt, aValue in self.dictNewValues.items():
+            aColor = entDef.getColorOfFirstOccurenceOfAttAndValue(aAtt,aValue)
+            aList.append(SGLegendItem(aControlPanel,'symbol',aAtt+'->'+str(aValue),entDef,aColor,aAtt,aValue,gameAction=self))
+        return aList

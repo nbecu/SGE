@@ -15,15 +15,13 @@ class SGAgent(SGEntity):
     # instances=[]
 
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,cell,size,attributesAndValues,shapeColor,classDef):
-        from mainClasses.SGEntityDef import SGCellDef
-        if isinstance(parent,SGGrid): aGrid = parent
-        elif isinstance(parent,SGCellDef): aGrid = parent.grid
-        else: raise ValueError("wrong parent")
+    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
+        aGrid = cell.grid
         super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
         self.cell=None
         if cell is not None:
             self.moveTo(cell)
+        else: raise ValueError('This icase is not handleded')
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
         
@@ -181,7 +179,7 @@ class SGAgent(SGEntity):
                     """if theAction is not None:
                         self.feedBack(theAction)"""
                     self.classDef.deleteEntity(self)
-                    self.updateMqtt()
+                    self.updateMqtt() # Check if we need to updateMqtt here
 
             #The  change value on agent
             elif aLegendItem.isValueOnAgent() :
@@ -282,28 +280,43 @@ class SGAgent(SGEntity):
     #     if self.me=='agent':
     #         self.dictAttributes[attribut]=value 
     
-    def initDefaultAttValue(self,Att,Val):
-        """
-        Initialize a default attribute value in a species
 
-        Args:
-            Att : concerned attribute
-            Val : default value
+    def updateAgentByRecreating_it(self):
+        aDestinationCell = self.cell
+        self.cell.updateDepartureAgent(self)
+        self.copyOfAgentAtCoord(aDestinationCell)
+        self.deleteLater()
 
-        """
-        # cette méthode est à remonter au niveau de Entity
-        if self.me=='collec' and self.dictAttributes is not None:
-            self.dictOfAttributesDefaultValues[Att]=Val
-        else:
-            raise ValueError("A default attribute value needs to be on a Species.")
+    # To copy an Agent to make a move // THIS METHOD SHOULD BE MOVED TO AgentDef
+    def copyOfAgentAtCoord(self, aCell):
+        oldAgent = self
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
+        newAgent.isDisplay = True
+        newAgent.privateID = oldAgent.privateID
+        newAgent.classDef.entities.remove(oldAgent)
+        newAgent.classDef.entities.append(newAgent)
+        newAgent.update()
+        newAgent.show()
+        self.update()
+        return newAgent
     
     def moveTo(self, aDestinationCell):
-        if self.cell != None:
+        if self.cell is not None:
             self.cell.updateDepartureAgent(self)
         self.cell = aDestinationCell
         aDestinationCell.updateIncomingAgent(self)
 
-
+    def moveTo2(self, aDestinationCell):
+        if self.cell is not None:
+            return self.moveByRecreating(aDestinationCell)
+        self.cell = aDestinationCell
+        aDestinationCell.updateIncomingAgent(self)
+        
+    def moveByRecreating(self,aDestinationCell):
+        self.cell.updateDepartureAgent(self)
+        self.copyOfAgentAtCoord(aDestinationCell)
+        self.deleteLater()
+            
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
         """
@@ -346,8 +359,9 @@ class SGAgent(SGEntity):
             if newCell is None:
                 pass
             else:
-                theAgent = self.model.copyOfAgentAtCoord(newCell,oldAgent)
-                oldAgent.deleteLater()
+                theAgent = self.moveTo2(newCell)
+                # theAgent = self.model.copyOfAgentAtCoord(newCell,oldAgent)
+                # oldAgent.deleteLater()
         pass
                 
     #Function to check the ownership  of the agent          
