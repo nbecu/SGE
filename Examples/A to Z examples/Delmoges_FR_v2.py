@@ -42,10 +42,9 @@ myModel.newAgentAtCoords(aGrid,Navire,10,1)
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 
-theTextBox=myModel.newTextBox("...","Comment jouer ?")
+theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !","Comment jouer ?")
 
-GamePhase=myModel.timeManager.newGamePhase("Début du jeu, le joueur peut jouer",Player1)
-
+InitPhase=myModel.timeManager.newGamePhase("Début du jeu, le joueur peut jouer",Player1)
 
 GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")

@@ -19,11 +19,11 @@ class SGTimePhase():
 # Definiton of the methods who the modeler will use
 
     def setTextBoxText(self,aTextBox, aText):
-        self.observers[aTextBox]:aText
+        self.observers[aTextBox]=aText
     
     def notifyNewText(self):
         for aTextBox, aText in self.observers.items():
-            aTextBox.setnewText(aText,totheLine=True)
+            aTextBox.setNewText(aText)
 
     def setActivePlayers(self, activePlayers):
         self.activePlayers = activePlayers
