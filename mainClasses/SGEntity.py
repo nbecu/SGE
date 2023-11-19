@@ -20,6 +20,7 @@ class SGEntity(QtWidgets.QWidget):
         #Define variables to handle the history 
         self.history={}
         self.history["value"]=[]
+        self.watchers={}
         #Set the attributes
         self.initAttributesAndValuesWith(attributesAndValues)
         self.owner="admin"
@@ -38,7 +39,6 @@ class SGEntity(QtWidgets.QWidget):
                 self.setValue(aAtt,valueToSet())
             else:
                 self.setValue(aAtt,valueToSet)
-
 
 
     def getRandomAttributValue(self,aAgentSpecies,aAtt):
@@ -91,10 +91,19 @@ class SGEntity(QtWidgets.QWidget):
         x = random.randint(1,maxSize-1)
         return x
 
-
     def updateMqtt(self):
         if self.model.mqttMajType == "Instantaneous":
             SGGameActions.sendMqttMessage(self)
+
+    def addWatcher(self,aIndicator):
+        aAtt = aIndicator.attribut
+        if aAtt not in self.watchers.keys():
+            self.watchers[aAtt]=[]
+        self.watchers[aAtt].append(aIndicator)
+
+    def updateWatchersOnAttribute(self,aAtt):
+        for watcher in self.watchers.get(aAtt,[]):
+            watcher.checkAndUpdate()
 
     def saveHistoryValue(self):
         if len(self.history["value"])==0:
@@ -115,7 +124,8 @@ class SGEntity(QtWidgets.QWidget):
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
 
-        self.classDef.updateWatchersOnAttribute(aAttribut)
+        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
+        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         self.updateMqtt()
         self.update()
         return True
@@ -135,7 +145,7 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be added to the current value of the attribute
         """       
-        self.dictAttributes[aAttribut]= (self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max))
+        self.setValue((self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
 
     def decValue(self,aAttribut,aValue=1,min=None):
         """
@@ -144,4 +154,12 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be subtracted to the current value of the attribute
         """       
-        self.dictAttributes[aAttribut]= (self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min))
+        self.setValue((self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
+
+    def calValue(self,aAttribut,aLambdaFunction):
+        # NOT TESTED YET
+        if callable(aLambdaFunction):
+            currentValue = self.value(aAttribut)
+            result = aLambdaFunction(currentValue)
+            self.setValue(result)
+        else: raise ValueError ('calcValue works with a lambda function')

@@ -62,8 +62,8 @@ TextBox = myModel.newTextBox(
 TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)
 DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)

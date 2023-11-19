@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from sqlalchemy import null
 # import numpy as np
 
-from mainClasses.SGIndicators import SGIndicators
+from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
@@ -59,7 +59,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
 
     def byCalcType(self):
         if self.calcType == 'onIndicator':
-            if isinstance(self.entity, SGIndicators):
+            if isinstance(self.entity, SGIndicator):
                 valueToCheck = self.entity.result
                 if self.logicalTests(valueToCheck, self.method, self.objective):
                     self.checkStatus = True

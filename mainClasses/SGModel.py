@@ -154,7 +154,8 @@ class SGModel(QMainWindow):
     def initAfterOpening(self):
         QTimer.singleShot(100, self.updateFunction)
         if self.currentPlayer is None:
-            self.setCurrentPlayer(self.getUsers_withControlPanel()[0])
+            possibleUsers = self.getUsers_withControlPanel()
+            if possibleUsers != [] : self.setCurrentPlayer(self.getUsers_withControlPanel()[0])
 
     def maj_coordonnees(self):
         pos_souris_globale = QCursor.pos()
@@ -458,8 +459,9 @@ class SGModel(QMainWindow):
 
     # To get a cell in particular
     def getCell(self, aGrid, aId):
-        result = filter(lambda cell: cell.id == aId, self.cellOfGrids[aGrid.id].entities)
-        [cell for cell in self.cellOfGrids[aGrid.id].entities if cell.id == aId]
+        result = filter(lambda cell: cell.id == aId, self.getCells(aGrid))
+        # This is an equivalent Expression
+        # result = [cell for cell in self.getCells(aGrid) if cell.id == aId]
         if len(result)!=1: raise ValueError("No cell with such Id!")
 
         return result[0]

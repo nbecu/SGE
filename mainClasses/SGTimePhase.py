@@ -4,7 +4,8 @@ from mainClasses.SGModelAction import SGModelAction
 
 
 class SGTimePhase():
-    def __init__(self, name, activePlayers, modelActions=[]):
+    def __init__(self, timeManager, name, activePlayers, modelActions=[]):
+        self.timeManager = timeManager
         self.name = name
         self.activePlayers = activePlayers
         if isinstance(modelActions, list):
@@ -24,13 +25,17 @@ class SGTimePhase():
     def setNextStepAction(self, nextStepAction):
         self.nextStepAction = nextStepAction
 
-    def addModelAction(self, anAction):
-        self.modelActions.append(anAction)
+    def addModelAction(self, aModelAction):
+        if isinstance(aModelAction,SGModelAction):
+            self.modelActions.append(aModelAction)
+        else :
+            self.modelActions.append( self.timeManager.model.newModelAction(aModelAction) )
 
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
-    def __init__(self, modelActions=[], feedbacks=[], feedbacksCondition=[], name=''):
+    def __init__(self, timeManager, modelActions=[], feedbacks=[], feedbacksCondition=[], name=''):
+        self.timeManager = timeManager
         if isinstance(modelActions, SGModelAction):
             modelActions = [modelActions]
         elif isinstance(modelActions, list):

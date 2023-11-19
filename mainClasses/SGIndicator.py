@@ -11,7 +11,7 @@ from mainClasses.SGSimulationVariables import SGSimulationVariables
 
    
 #Class who is responsible of indicator creation 
-class SGIndicators(QtWidgets.QWidget):
+class SGIndicator(QtWidgets.QWidget):
     def __init__(self,parent,name,method,attribut,value,listOfEntDef,logicOp,color=Qt.blue,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
@@ -24,6 +24,7 @@ class SGIndicators(QtWidgets.QWidget):
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp"]
         self.listOfEntDef=listOfEntDef
         if self.method in ["display", "thresoldToLogicOp"]: self.entity=listOfEntDef  
+        if self.method == "simVar": self.simVar=listOfEntDef  
         self.result=float
         self.name=name
         self.attribut=attribut
@@ -120,7 +121,11 @@ class SGIndicators(QtWidgets.QWidget):
             if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
             if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
 
+        elif self.method=="simVar":
+            return self.simVar.value
+
         elif self.method=="score":
+            # This is an Obsolete method. Should be removed
             calcValue=self.value
             return 0 if self.value is None else self.value
         

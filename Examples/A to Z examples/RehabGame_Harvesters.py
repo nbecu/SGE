@@ -60,7 +60,7 @@ Parc = myModel.newPlayer("Parc")
 
 Parc.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-    ,[lambda: Cell.nbCells_withValue("ProtectionLevel","Reserve")<3]))
+    ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
 Parc.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Parc.newControlPanel()

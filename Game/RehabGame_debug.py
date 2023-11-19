@@ -65,8 +65,8 @@ myModel.setCurrentPlayer('Player 1')
 
 # STEP6 DashBoard and EndGameRule
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("sumAtt", 'cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", 'cell', attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)
 DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)

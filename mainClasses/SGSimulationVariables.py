@@ -17,7 +17,40 @@ class SGSimulationVariables():
         self.name=name
         self.color=color
         self.isDisplay=isDisplay
+        self.watchers=[]
         
 
-    def updateValue(self,newValue):
+    def setValue(self,newValue):
         self.value=newValue
+        for watcher in self.watchers:
+            watcher.checkAndUpdate()
+
+    def incValue(self,aValue=1,max=None):
+        """
+        Increase the value with an additional value
+        Args:
+            aValue (str): Value to be added to the current value of the attribute
+        """       
+        self.setValue(self.value+aValue if max is None else min(self.value+aValue,max))
+
+    def decValue(self,aValue=1,min=None):
+        """
+        Decrease the value with an additional value
+        Args:
+            aValue (str): Value to be subtracted to the current value of the attribute
+        """       
+        self.setValue(self.value-aValue if min is None else max(self.value-aValue,min))
+
+    def calValue(self,aLambdaFunction):
+        # NOT TESTED YET
+        if callable(aLambdaFunction):
+            result = aLambdaFunction(self.value)
+            self.setValue(result)
+        else: raise ValueError ('calcValue works with a lambda function')
+
+    
+    def addWatcher(self,aIndicator):
+        self.watchers.append(aIndicator)
+    
+    
+    

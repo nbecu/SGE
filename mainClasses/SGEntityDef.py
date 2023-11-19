@@ -151,6 +151,24 @@ class SGEntityDef():
             dictOfColor[aKey] = {'color':aColor,'width':borderWidth}
 # ********************************************************    
 
+# to get the entity matching a Id or at a specified coordinates
+    def getEntity(self, x, y=None):
+        """
+        Return an entity identified by its id or its coordinates on a grid
+        arg:
+            id (int): id of the entity
+        Alternativly, can return an entity identified by its if or coordinates on a grid 
+             x (int): column number
+            y (int):  row number
+        """
+        if isinstance(y, int):
+            if x < 0 or y < 0 : return None
+            aId= self.grid.cellIdFromCoords(x,y)
+        else:
+            aId=x
+        return next(filter(lambda ent: ent.id==aId, self.entities),None)
+
+
 # to get all entities with a certain value
     def getEntities_withValue(self, att, val):
         return list(filter(lambda ent: ent.value(att)==val, self.entities))
@@ -247,7 +265,7 @@ class SGEntityDef():
             aColumnNumber (int): a column number
 
         """
-        for ent in self.grid.getCells_withColumn(aColumnNumber):
+        for ent in self.getEntities_withColumn(aColumnNumber):
             ent.setValue(aAttribute, aValue)
 
     # set the value of attribut to all entities in a specified row
@@ -261,7 +279,7 @@ class SGEntityDef():
             aRowNumber (int): a row number
 
         """
-        for ent in self.entities_withRow(aRowNumber):
+        for ent in self.getEntities_withRow(aRowNumber):
             ent.setValue(aAttribute, aValue)
 
     # To apply a value to a random entity
@@ -348,6 +366,12 @@ class SGEntityDef():
         """
         for ent in self.entities[:]:
             self.deleteEntity(ent)
+
+    # Indicators
+    # to get all entities who respect certain value
+    def nb_withValue(self, att, value):
+        return len(self.getEntities_withValue(att, value))
+    
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
@@ -452,7 +476,7 @@ class SGCellDef(SGEntityDef):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)
         return ent
     
-    # Return the cell at specified coordinates
+    # Return the cell matching a Id or at specified coordinates
     def getCell(self, x, y=None):
         """
         Return a cell identified by its column number and row number.
@@ -470,9 +494,19 @@ class SGCellDef(SGEntityDef):
             aId=x
         return next(filter(lambda ent: ent.id==aId, self.entities),None)
 
+    # Return the cell at specified coordinates
+    def getEntity(self, x, y=None):
+        return self.getCell(self, x, y)
+
+    def getEntities_withRow(self, aRowNumber):
+        return self.grid.getCells_withRow(aRowNumber)
+
+    def getEntities_withColumn(self, aColumnNumber):
+        return self.grid.getCells_withColumn(aColumnNumber)
+
     def cellIdFromCoords(self,x,y):
         if x < 0 or y < 0 : return None
-        return x+ (self .grid.columns * (y -1))
+        return x + (self.grid.columns * (y -1))
 
     def deleteEntity(self, aCell):
         """

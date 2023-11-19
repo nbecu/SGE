@@ -2,9 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null, true
-
 from mainClasses.SGGameSpace import SGGameSpace
-from mainClasses.SGIndicators import SGIndicators
+from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGEntityDef import *
 from mainClasses.SGEntity import SGEntity
 
@@ -107,12 +106,12 @@ class SGDashBoard(SGGameSpace):
             listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
         elif isinstance(entityName,list) and issubclass(type(entityName[0]),SGEntityDef) :
             listOfEntDef = entityName
-        elif issubclass(type(entityName),SGEntity) : # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR IL utilise la méthode addIndicatorOnEntity()
+        elif issubclass(type(entityName),SGEntity) : # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
             listOfEntDef = entityName
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicators(self, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
+        indicator = SGIndicator(self, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -123,38 +122,22 @@ class SGDashBoard(SGGameSpace):
         return indicator
     
 
-    def addIndicatorOnEntity(self, entityID, attribute, speciesName=None, aGrid=None, color=Qt.black, value=None, logicOp=None, indicatorName=None, isDisplay=True):
+    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, indicatorName=None, isDisplay=True):
         """
         Add an Indicator on a particular entity on the DashBoard only two methods available : display (default) & thresoldToLogicOp (if a value and a logicOp defined).
 
         Args:
-            entityID (str) : "cellX-Y" or "AgentID"
+            entity (SGEntity) : an entity (cell, or agent)
             attribute (str) : concerned attribute 
-            speciesName (str) : name of the AgentSpecies (only if your entity is an Agent, default : None)
-            aGrid (instance) : instance of the concerned grid (only if your entity is a Cell, default : None)
             color (Qt.color) : text color
-            value (str, optionnal) : thresold value (only if the indicator is in relation to a threshold, default :None )
             logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
+            thresold (str, optionnal) : only if method = thresoldToLogicOp, thresold value (default :None )
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        if "cell" in entityID:
-            if aGrid is not None:
-                entity = aGrid.getCell_withId(aGrid,entityID)
-                if entity is None:
-                    raise ValueError("Cell not found on"+indicatorName+" please check again")
-            else:
-                raise ValueError("You need to add a Grid.")
-        
-        species=self.model.getAgentSpecies()
-        if speciesName in [instance.name for instance in species]:
-            aSpecies = self.model.getAgentsOfSpecie(speciesName)
-            entity = self.model.getAgent(aSpecies,entityID)
-            if entity is None:
-                raise ValueError("Agent not found on"+indicatorName+" please check again")
-        else:
-            raise ValueError("Entity or Agent Species not found, please check again "+indicatorName)
+        if not isinstance(entity,SGEntity): raise ValueError ('Wrong enity format')
+        self.entity= entity
 
         if value is None:
             method = "display"
@@ -165,25 +148,27 @@ class SGDashBoard(SGGameSpace):
                 raise ValueError("You need to specify a logicOp")
         
         self.posYOfItems = self.posYOfItems+1
-        
-        indicator = SGIndicators(self, self.posYOfItems, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
+    
+        indicator = SGIndicator(self, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
-        if entity == 'cell':
-            self.setCellWatchers(attribute, indicator)
-        if entity == 'agents' or entity in [instance.name for instance in species]:
-            self.setAgentWatchers(indicator)
+        
+        entity.addWatcher(indicator)
+
         return indicator
 
     def addIndicatorOnSimVariable(self,aSimulationVariable):
         self.posYOfItems = self.posYOfItems+1
-        indicator=SGIndicators(self,self.posYOfItems,aSimulationVariable.name,"score",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
+        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
+
+        aSimulationVariable.addWatcher(indicator)
+    
         return indicator
 
     # BASCULE COTE EntityDef

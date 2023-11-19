@@ -1,36 +1,30 @@
-# TO BE CONTINUED
-# #Class who manage a action to be executed by the model.
-# It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
+# A ModelAction manages an action to be executed by the model.
+# It can handle more than one action, as well as a trigger condition.
+# Feedbacks are modelActions that are executed after the actions (in case the actions have been executed)
+# Each feedback beeing a modelActtion, can have one or several actions and can have conditions
+# There are no feedbacksIfFalse for the moment (feedbacks that are executed if the condition of the main modelAction is not verified) 
 class SGModelAction():
     def __init__(self,actions=[],conditions=[],feedbacks=[]):
-        self.actions=[]
-        self.conditions=[]
-        self.feedbacks=[]
-        if isinstance(actions, list):
-            self.actions=actions
-        elif callable(actions): 
-            self.actions= [actions]
-        else:
-            raise ValueError("Syntax error of actions")
-        if isinstance(conditions, list):
-            self.conditions=conditions
-        elif callable(conditions): 
-            self.conditions= [conditions]
-        # if len(conditions) !=0:
-        #     self.conditions = conditions # to be corrected
-        #     breakpoint
-        # self.testIfCallableAndPutInList(conditions)
-        self.feedbacks=feedbacks
-
+        self.actions=self.testIfCallableAndPutInList(actions)
+        self.conditions=self.testIfCallableAndPutInList(conditions)
+        if isinstance(feedbacks, list):
+            if any(not isinstance(item, SGModelAction) for item in feedbacks):
+                raise ValueError("A feedback should be a ModelAction or list of ModelActons")
+            self.feedbacks=feedbacks
+        elif isinstance(feedbacks, SGModelAction):
+            self.feedbacks=[feedbacks]
+        else : raise ValueError("A feedback should be a ModelAction or list of ModelActons")
+    
 
     def testIfCallableAndPutInList(self,anObject):
-        if isinstance(anObject, list):
-            aList=anObject
+        if anObject is None:
+            return []
+        elif isinstance(anObject, list):
+            return anObject
         elif callable(anObject): 
-            aList = [anObject]
+            return [anObject]
         else:
             raise ValueError("Syntax error of actions")
-        return aList
 
     def testConditions(self):
         res = True 

@@ -22,7 +22,9 @@ class SGTimeManager():
 
     # To increment the time of the game
     def nextPhase(self):
-        if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
+        if len(self.phases) != 0:
+#          Cette instructio a été commenté car il n'y a pas vraiment de raison e faire un test pour savoir si le current player est soit ml'un des joueurs soit l'admin
+#         if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
             end = self.checkEndGame()
             if not end:
                 if self.currentPhase+2 <= len(self.phases):
@@ -118,12 +120,11 @@ class SGTimeManager():
         modelActions=[]
         if activePlayers == None:
             activePlayers = self.model.users
-        aPhase = SGTimePhase(name, activePlayers, modelActions)
+        aPhase = SGTimePhase(self, name, activePlayers, modelActions)
         self.phases = self.phases + [aPhase]
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
- # TO BE CONTINUED
     def newModelPhase(self, actions=[], condition=[], name=''):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
@@ -155,7 +156,7 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(modelActions=modelActions, name=name)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name)
         self.phases = self.phases + [aPhase]
         return aPhase
 
@@ -169,7 +170,7 @@ class SGTimeManager():
             activePlayer (?): Player concerned about the phase (default:None)
             modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
         """
-        aPhase = SGTimePhase(name, activePlayer, modelActions)
+        aPhase = SGTimePhase(self, name, activePlayer, modelActions)
         if activePlayer == None:
             self.model.actualPlayer = activePlayer
         self.phases.append(aPhase)

@@ -54,7 +54,7 @@ Player2 = myModel.newPlayer("Parc")
 
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-    ,[lambda: aGrid.nbCells_withValue("ProtectionLevel","Reserve")<3]))
+    ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel()
@@ -134,8 +134,8 @@ TextBox = myModel.newTextBox(
 # TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sum", 'cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avg", 'cell', attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator("sum", 'Cell', attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator("avg", 'Cell', attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicator("score",None,indicatorName="Score")
 DashBoard.showIndicators()
 # aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))

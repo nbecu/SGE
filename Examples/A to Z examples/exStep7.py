@@ -41,17 +41,24 @@ aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","f
 # aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
 
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
-aModelAction4.addCondition(lambda: myModel.round()==2) 
+aModelAction4.addCondition(lambda: Cell.nb_withValue("landUse","forest")> 10) 
 
 myModel.timeManager.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("score",None,indicatorName="Score")
-DashBoard.showIndicators()
-aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
+
+score1= myModel.newSimVariable(0,"Global Score:")
+i1 = DashBoard.addIndicatorOnSimVariable(score1)
+
+aModelAction4.addFeedback(lambda: score1.incValue(3))
 myModel.timeManager.newModelPhase(aModelAction4)
+
+DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
+DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')
+
+DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(

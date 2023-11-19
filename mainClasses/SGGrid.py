@@ -219,8 +219,16 @@ class SGGrid(SGGameSpace):
         return self.model.getCells(self)
 
     # Return the cell
-    def getCell_withId(self, aGrid, aCellID):
+    def getCell_withId(self, aCellID):
         return self.model.getCell(self,aCellID)
+
+    def cellIdFromCoords(self,x,y):
+        if x < 0 or y < 0 : return None
+        return x + (self.columns * (y -1))
+
+    def getCell_withCoords(self,x,y):
+        return self.getCell_withId(self.cellIdFromCoords(x,y))
+
 
     def getFirstCell(self):
         return self.getCell_withId("cell1-1")
@@ -345,9 +353,6 @@ class SGGrid(SGGameSpace):
                                 aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
                             # self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
 
-    # to get all cells who respect certain value
-    def nbCells_withValue(self, att, value):
-        return len(self.getEntities_withValue(att, value))
 
     # To return all agent of a type in neighborhood
     def getNeighborAgent(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):
