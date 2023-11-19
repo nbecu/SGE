@@ -66,19 +66,29 @@ class SGLegend(SGGameSpace):
         self.listOfSymbologies=listOfSymbologies
         self.posYOfItems = 0
         anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
-        for entDef, aSymbology in self.listOfSymbologies.items():
+        for entDef, aDictOfSymbology in self.listOfSymbologies.items():
             anItem=SGLegendItem(self,'Title2',entDef.entityName)
             self.legendItems.append(anItem)
-            if aSymbology is None:
-                #In this case, it should return the default Symbology
+            # aDictOfSymbology is a dict with keys 'shape' and 'border'
+            aShapeSymbology = aDictOfSymbology['shape']
+            aBorderSymbology = aDictOfSymbology['border']
+            if aShapeSymbology is None and aBorderSymbology is None:
+                #In this case, it should return the default shape Symbology
                 anItem=SGLegendItem(self,'default','default',entDef,entDef.defaultShapeColor)
                 self.legendItems.append(anItem)
                 continue
-            aAtt = list(entDef.povShapeColor[aSymbology].keys())[0]
-            dictSymbolNameAndColor= list(entDef.povShapeColor[aSymbology].values())[0]
-            for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
-                self.legendItems.append(anItem)
+            if aShapeSymbology is not None:
+                aAtt = list(entDef.povShapeColor[aShapeSymbology].keys())[0]
+                dictSymbolNameAndColor= list(entDef.povShapeColor[aShapeSymbology].values())[0]
+                for aSymbolName, aColor in dictSymbolNameAndColor.items():
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
+                    self.legendItems.append(anItem)
+            if aBorderSymbology is not None:
+                aAtt = list(entDef.povBorderColor[aBorderSymbology].keys())[0]
+                dictSymbolNameAndColor= list(entDef.povBorderColor[aBorderSymbology].values())[0]
+                for aSymbolName, aColor in dictSymbolNameAndColor.items():
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName,border=True)
+                    self.legendItems.append(anItem)
         anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
         self.legendItems.append(anItem)
 

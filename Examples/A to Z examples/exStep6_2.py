@@ -48,7 +48,8 @@ myModel.timeManager.newModelPhase(aModelAction2)
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("score",None,indicatorName="Score",color=Qt.black) #eput etre qu'il faut créer une méthode spécifique pour ajouter un indicateur sur un socre (une méthode qui créére automatiqueemnt une simVariable du meme nom)
+score1= myModel.newSimVariable(0,"Score")
+i1 = DashBoard.addIndicatorOnSimVariable(score1) 
 i2 = DashBoard.addIndicator("nbEqualTo", Cell, attribute='landUse',value='forest',color=Qt.black)
 DashBoard.showIndicators()
 # Here is the way to add feedback on score on ModelAction

@@ -41,7 +41,8 @@ class SGCell(SGEntity):
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         # print(time.localtime())
         if self.isDisplay==True:
-            painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
+            penColorAndWidth = self.getBorderColorAndWidth()
+            painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
             self.startXBase=self.grid.frameMargin
             self.startYBase=self.grid.frameMargin
             # self.gap=1

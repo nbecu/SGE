@@ -56,6 +56,14 @@ class SGEntity(QtWidgets.QWidget):
         aColor = aDictOfValueAndColor.get(self.value(aAtt))
         return aColor if aColor is not None else aDefaultColor
 
+    def readColorAndWidthFromBorderPovDef(self,aBorderPovDef,aDefaultColor,aDefaultWidth):
+        if aBorderPovDef is None: return {'color':aDefaultColor,'width':aDefaultWidth}
+        aAtt=list(aBorderPovDef.keys())[0]
+        aDictOfValueAndColorWidth=list(aBorderPovDef.values())[0]
+        dictColorAndWidth = aDictOfValueAndColorWidth.get(self.value(aAtt))
+        if not isinstance(dictColorAndWidth,dict): raise ValueError('wrong format')
+        return dictColorAndWidth
+
     def getColor(self):
         if self.isDisplay==False: return Qt.transparent
         # replace the search of model name of pov by getCheckedSymbologyNameOfEntity (which look for the symbolgy which is checked for this item in the menu)
@@ -63,23 +71,15 @@ class SGEntity(QtWidgets.QWidget):
         aPovDef = self.classDef.povShapeColor.get(aChoosenPov) #self.model.nameOfPov
         aDefaultColor= self.classDef.defaultShapeColor
         return self.readColorFromPovDef(aPovDef,aDefaultColor)
-      
-    
-    def getBorderColor(self):
-        if self.isDisplay==False: return Qt.transparent
-        aPovDef = self.classDef.povBorderColor.get(self.model.nameOfPov)
-        aDefaultColor= self.classDef.defaultBorderColor
-        return self.readColorFromPovDef(aPovDef,aDefaultColor)
 
-    
-    def getBorderWidth(self):
-        # if self.me == 'agent':
-        #     return int(1)
-        # if self.me == 'cell':
-        #     grid=self.grid
-        #     if self.model.cellCollection[grid.id]["BorderPOV"] is not None and self.grid.model.nameOfPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
-        #             return int(self.model.cellCollection[grid.id]["BorderPOV"]["BorderWidth"])
-            return int(1)
+    def getBorderColorAndWidth(self):
+        if self.isDisplay==False: return Qt.transparent
+        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName, borderSymbology=True)
+        aBorderPovDef = self.classDef.povBorderColor.get(aChoosenPov)
+        aDefaultColor= self.classDef.defaultBorderColor
+        aDefaultWidth=self.classDef.defaultBorderWidth
+        return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
+  
     
     #To get the pov
     def getPov(self):

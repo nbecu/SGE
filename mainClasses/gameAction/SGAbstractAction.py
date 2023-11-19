@@ -8,6 +8,7 @@ class SGAbstractAction():
         self.number=number
         self.numberUsed=0
         self.conditions=conditions
+        # self.restrictions=copy.deepcopy(aListOfrestrictions)
         self.feedbacks=feedBacks
         self.conditionsOfFeedBack=conditionsOfFeedBack            
         
@@ -60,11 +61,11 @@ class SGAbstractAction():
     def reset(self):
         self.numberUsed=0
     
-    def addConditions(self,aCondition):
+    def addCondition(self,aCondition):
         # self.Conditions.append(aCondition)
-        ConditionList=self.Conditions
+        ConditionList=self.conditions
         ConditionList.append(aCondition)
-        self.Conditions=ConditionList
+        self.conditions=ConditionList
     
     def addFeedback(self,aFeedback):
         self.feedback.append(aFeedback)

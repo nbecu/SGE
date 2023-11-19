@@ -56,8 +56,8 @@ class SGControlPanel(SGLegend):
             anItem=SGLegendItem(self,'Title2',entDef.entityName)
             self.legendItems.append(anItem)
             #case of UpdateAction
-            listOfLegendItemps = aGameAction.generateLegendItems(self)
-            for anItem in listOfLegendItemps:
+            listOfLegendItems = aGameAction.generateLegendItems(self)
+            for anItem in listOfLegendItems:
                 self.legendItems.append(anItem)
             # for aAtt, aValue in aGameAction.dictNewValues.items():
             #     aColor = entDef.getColorOfFirstOccurenceOfAttAndValue(aAtt,aValue)

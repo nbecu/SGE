@@ -216,6 +216,7 @@ class SGModel(QMainWindow):
         self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
         # dictionnaire pour stocker les actions du sous-menu Symbology
         self.symbologiesInSubmenus = {}
+        self.keyword_borderSubmenu = ' border'
 
         self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
@@ -645,6 +646,8 @@ class SGModel(QMainWindow):
         return list(self.cellOfGrids.values()) + list(self.agentSpecies.values())
 
     def getEntityDef(self, entityName):
+        if isinstance(entityName,SGEntityDef):
+            return entityName
         return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
     
     def deleteAllAgents(self):
@@ -1143,11 +1146,11 @@ class SGModel(QMainWindow):
     #     if len(self.listOfPovsForMenu) == 1:
     #         self.setInitialPov(nameOfPov)
 
-    def getSubmenuSymbology(self, entityName):
+    def getSubmenuSymbology(self, submenuName):
         # renvoie le sous-menu 
         # selectionList = [submenu for submenu in self.submenuSymbology_actions.keys() if submenu.title() == entityName]
         # return selectionList[0] if selectionList else None
-        return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == entityName), None)
+        return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == submenuName), None)
         # Above code is equivalent to the following
         # if any((match := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
         #     return match
@@ -1169,9 +1172,10 @@ class SGModel(QMainWindow):
             self.symbologiesInSubmenus[submenu]=[]
             return submenu
             
-    def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
+    def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology,isBorder=False):
         if self.symbologyMenu is None: return False
         submenu_name= aClassDef.entityName
+        if isBorder: submenu_name = submenu_name + self.keyword_borderSubmenu
         # récupérer le sous-menu (avec création du sous-menu si il n'existe pas encore)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
         # Créez un élément de menu avec une case à cocher
@@ -1184,7 +1188,7 @@ class SGModel(QMainWindow):
 
     def setCheckedSymbologyinMenuBar(self, aClassDef,nameOfSymbology,checkValue=True):
         #This method is not used. Could be discard
-        symbologies = self.getSymbologiesOfEntity(aClassDef.entityName)
+        symbologies = self.getSymbologiesOfSubmenu(aClassDef.entityName)
         if any((match := item).text() == nameOfSymbology for item in symbologies):
             match.setChecked(checkValue)
         # Above code is identical to
@@ -1194,7 +1198,7 @@ class SGModel(QMainWindow):
 
     def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
         if self.symbologyMenu is None: return False
-        symbologies = self.getSymbologiesOfEntity(aClassDef.entityName)
+        symbologies = self.getSymbologiesOfSubmenu(aClassDef.entityName)
         for aSymbology in symbologies:
             if aSymbology.text() == nameOfSymbology:
                 aSymbology.setChecked(True)
@@ -1216,16 +1220,17 @@ class SGModel(QMainWindow):
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
         self.update() #rafraichi l'ensemble de l'affichage de l'interface'
 
-    def getSymbologiesOfEntity(self, entityName):
+    def getSymbologiesOfSubmenu(self, submenuName):
         # return the  symbologies of a entity present in tyhe menuBar
-        submenu = self.getSubmenuSymbology(entityName)
+        submenu = self.getSubmenuSymbology(submenuName)
         return self.symbologiesInSubmenus.get(submenu) 
     
-    def getCheckedSymbologyOfEntity(self, entityName):
+    def getCheckedSymbologyOfEntity(self, entityName, borderSymbology = False):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
-        if self.symbologyMenu is None: return False
-        symbologies = self.getSymbologiesOfEntity(entityName)
-        if symbologies is None: return False
+        if self.symbologyMenu is None: return None
+        if borderSymbology: entityName = entityName + self.keyword_borderSubmenu
+        symbologies = self.getSymbologiesOfSubmenu(entityName)
+        if symbologies is None: return None
         return next((aSymbology.text() for aSymbology in symbologies if aSymbology.isChecked()),None)
 
     def getAllCheckedSymbologies(self, grid=None):
@@ -1236,8 +1241,11 @@ class SGModel(QMainWindow):
         cellDef = self.getCellDef(grid)
         selectedSymbologies={}
         entitiesDef=[cellDef] + list(self.agentSpecies.values())
-        for entDef in entitiesDef: 
-            selectedSymbologies[entDef]=(self.getCheckedSymbologyOfEntity(entDef.entityName))
+        for entDef in entitiesDef:
+            selectedSymbologies[entDef]={
+                'shape':self.getCheckedSymbologyOfEntity(entDef.entityName),
+                'border': self.getCheckedSymbologyOfEntity(entDef.entityName, borderSymbology = True)
+                }
         return selectedSymbologies
 
     def checkFirstSymbologyOfEntitiesInMenu(self):
@@ -1331,9 +1339,10 @@ class SGModel(QMainWindow):
         - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
 
         """
-        if aNumber == "infinite":
-            aNumber = 9999999
-        return SGCreate(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aNumber == "infinite": aNumber = 9999999
+        return SGCreate(aClassDef, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
 
     def newUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
@@ -1345,16 +1354,12 @@ class SGModel(QMainWindow):
         - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
 
         """
-        # if anObjectType == 'Cell':
-        #     anObjectType = SGCell
-        if isinstance(anObjectType,str):
-            any((aClassDef := item).entityName == anObjectType for item in self.getEntitiesDef()) 
-        if aClassDef is None: return False
-        if aNumber == "infinite":
-            aNumber = 9999999
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aNumber == "infinite": aNumber = 9999999
         return SGUpdate(aClassDef, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
 
-    def newDeleteAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
+    def newDeleteAction(self, anObjectType, aNumber, listOfConditions=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Delete GameAction to the game.
 
@@ -1364,13 +1369,12 @@ class SGModel(QMainWindow):
         - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
 
         """
-        if aNumber == "infinite":
-            aNumber = 9999999
-        if anObjectType == 'Cell':
-            anObjectType = SGCell
-        return SGDelete(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aNumber == "infinite": aNumber = 9999999
+        return SGDelete(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback)
 
-    def newMoveAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
+    def newMoveAction(self, anObjectType, aNumber, listOfConditions=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
         """
         Add a MoveAction to the game.
 
@@ -1380,9 +1384,10 @@ class SGModel(QMainWindow):
         - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
 
         """
-        if aNumber == "infinite":
-            aNumber = 9999999
-        return SGMove(anObjectType, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback, feedbackAgent, conditionOfFeedBackAgent)
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aNumber == "infinite": aNumber = 9999999
+        return SGMove(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback, feedbackAgent, conditionOfFeedBackAgent)
 
     # -----------------------------------------------------------
     # Getter

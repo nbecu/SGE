@@ -19,6 +19,7 @@ class SGEntityDef():
         self.defaultsize=defaultsize
         self.defaultShapeColor=defaultShapeColor
         self.defaultBorderColor=Qt.black
+        self.defaultBorderWidth=1
         self.povShapeColor={}
         self.povBorderColor={}
         self.shapeColorClassif={} # Classif devra remplacer les Pov à terme
@@ -129,26 +130,41 @@ class SGEntityDef():
     def setInitialPov(self,nameOfPov):
         self.model.checkSymbologyinMenuBar(self,nameOfPov)
 
-    def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=4):
+    def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
         """
-        Declare a new Point of View for cells (only for border color).
-
+        Declare a new Point of View (only for border color).
         Args:
             nameOfPov (str): name of POV, will appear in the interface
             aAtt (str): name of the attribut
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-            listOfGridsToApply (list): list of grid names where the POV applies (default:None)
-
-        """
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)        """
         dictOfColorAndWidth = self.addWidthInPovDictOfColors(borderWidth,dictOfColor)
         self.povBorderColor[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
-        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
-        if len(self.povShapeColor)==1:
-            self.setInitialPov(nameOfPov)
+        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+
+    def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):
+        """
+        Declare a new Point of View (only for border color).
+        Args:
+            nameOfPov (str): name of POV, will appear in the interface
+            aAtt (str): name of the attribut
+            DictofColorsAndWidth (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+        """
+        dictOfColorAndWidth = self.reformatDictOfColorAndWidth(dictOfColorAndWidth)
+        self.povBorderColor[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
+        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+
 
     def addWidthInPovDictOfColors(self,borderWidth,dictOfColor):
+        dictOfColorAndWidth ={}
         for aKey, aColor in dictOfColor.items():
-            dictOfColor[aKey] = {'color':aColor,'width':borderWidth}
+            dictOfColorAndWidth[aKey] = {'color':aColor,'width':borderWidth}
+        return dictOfColorAndWidth
+    
+    def reformatDictOfColorAndWidth(self,dictOfColorAndWidth):
+        reformatedDict ={}
+        for aKey, aListOfColorAndWidth in dictOfColorAndWidth.items():
+            reformatedDict[aKey] = {'color':aListOfColorAndWidth[0],'width':aListOfColorAndWidth[1]}
+        return reformatedDict
 # ********************************************************    
 
 # to get the entity matching a Id or at a specified coordinates
@@ -496,7 +512,7 @@ class SGCellDef(SGEntityDef):
 
     # Return the cell at specified coordinates
     def getEntity(self, x, y=None):
-        return self.getCell(self, x, y)
+        return self.getCell(x, y)
 
     def getEntities_withRow(self, aRowNumber):
         return self.grid.getCells_withRow(aRowNumber)
