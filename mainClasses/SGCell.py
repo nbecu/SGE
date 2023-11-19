@@ -107,7 +107,7 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         aAgent=e.source()
-        aAgent.moveTo(self)
+        aAgent.moveTo(self) # NOrmallement il faudrait utiliser moveTo2() !!!!
         aAgent.updateAgentByRecreating_it()
         e.setDropAction(Qt.MoveAction)
         if self.model.mqttMajType == "Instantaneous":
@@ -128,8 +128,10 @@ class SGCell(SGEntity):
        
              
     #To handle the selection of an element int the legend
-    def mousePressEvent(self, event):
-        return super().mousePressEvent(event)
+    # def mousePressEvent(self, event):
+    # # C'est Bizarrre , car mousePressEvent est définit juste en dessous.
+    # # A priori il faut supprimer cette méthode
+    #     return super().mousePressEvent(event)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -137,11 +139,12 @@ class SGCell(SGEntity):
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
 
+            # These next 7 lines need a bit of refactoring
             if aLegendItem.legend.isAdminLegend():
                 authorisation= True
             else :
                 aLegendItem.gameAction.perform_with(self,aLegendItem) 
-                # authorisation=SGGameActions.getActionPermission(self)
+                # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
                 return
 
             if not authorisation : return #Exit the method
@@ -155,7 +158,7 @@ class SGCell(SGEntity):
                     self.classDef.deleteEntity(self)
 
             #The Replace cell and change value Action
-            elif aLegendItem.isValueOnCell():
+            elif aLegendItem.isSymbolOnCell():
                 if  authorisation :
                     #We now check the feedBack of the actions if it have some
                     if not aLegendItem.legend.isAdminLegend():
@@ -163,8 +166,8 @@ class SGCell(SGEntity):
                     if self.isDeleted() : self.classDef.reviveThisCell(self) 
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
 
-            #For agent placement         
-            elif aLegendItem.isValueOnAgent() and self.isDisplay:
+            #For agent creation on cell         
+            elif aLegendItem.isSymbolOnAgent() and self.isDisplay:
                 if  authorisation :
                     aLegendItem.classDef
                     #We now check the feedBack of the actions if it have some
@@ -283,7 +286,16 @@ class SGCell(SGEntity):
                     neighbors.append(c)
         return neighbors
         
-        
+    #To get the neighbor cell at cardinal
+    def getNeighborN(self):
+        return self.classDef.getCell(self.x,self.y-1)
+    def getNeighborS(self):
+        return self.classDef.getCell(self.x,self.y+1)
+    def getNeighborE(self):
+        return self.classDef.getCell(self.x+1,self.y)
+    def getNeighborW(self):
+        return self.classDef.getCell(self.x-1,self.y)
+
         
     #Function to check the ownership  of the cell          
     def isMine(self):

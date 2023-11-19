@@ -164,7 +164,7 @@ class SGModel(QMainWindow):
     
     def updateFunction(self):
         #This method will need to be modified so that agent are placed at the right place right from the start
-        aList = self.getAgents()
+        aList = self.getAllAgents()
         if not aList : return False
         for aAgent in aList:
             aAgent.updateAgentByRecreating_it()
@@ -449,6 +449,7 @@ class SGModel(QMainWindow):
 
 
     # To get all the cells of the collection
+    # If several grids, this method only returns the cells of the first grid
     def getCells(self,grid=None):
         if grid == None:
             grid = self.getGrids()[0]
@@ -621,10 +622,6 @@ class SGModel(QMainWindow):
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 
-    def getAgentSpecieDict(self, aSpecieName):
-        # send back the specie dict (specie definition dict) that corresponds to aSpecieName
-        return self.agentSpecies.get(aSpecieName)
-
     def getAgentSpeciesName(self):
         # send back a list of the names of all the species
         return list(self.agentSpecies.keys())
@@ -633,14 +630,21 @@ class SGModel(QMainWindow):
         # send back a list of all the species Dict (specie definition dict)
         return list(self.agentSpecies.values())
 
+    def getAgentSpecieDict(self, aSpecieName):
+        # send back the specie dict (specie definition dict) that corresponds to aSpecieName
+        return self.agentSpecies.get(aSpecieName)
+
     def getAgentsOfSpecie(self, aSpecieName):
         agentDef = self.getAgentSpecieDict(aSpecieName)
         if agentDef is None:  return None
-        else: return agentDef.entities
+        else: return agentDef.entities[:]
 
     def getAllAgents(self):
         # send back the agents of all the species
-        return sum(entDef.entities for entDef in self.getAgentSpeciesDict())
+        aList= []
+        for entDef in self.getAgentSpeciesDict():
+            aList.extend(entDef.entities)
+        return aList
     
     def getEntitiesDef(self):
         return list(self.cellOfGrids.values()) + list(self.agentSpecies.values())
@@ -764,6 +768,7 @@ class SGModel(QMainWindow):
         """
         Return the list of all Agents in the model
         """
+        # OBSOLETE .  CAn Remove (  it is replaced by getAllAgents()  )
         # Need Refactoring
         agent_list = []
         for aSpecie, sub_dict in self.agentSpecies.items():
@@ -788,23 +793,11 @@ class SGModel(QMainWindow):
         return agent_list
     
     def getAgentsPrivateID(self):
-        agents=self.getAgents()
+        agents=self.getAllAgents()
         agents_privateID=[]
         for agent in agents:
             agents_privateID.append(agent.privateID)
         return agents_privateID
-
-    def getAgent(self,aSpecies,aID):
-        """Function to get an Agent with a Species and an ID.
-        
-        Args:
-            aSpecies (str): the name of the concerned species
-            anID (str): species related identificator of the agent
-            """
-        agent_list=self.getAgents(species=aSpecies.name)
-        for aAgent in agent_list:
-            if aAgent.id==aID:
-                return aAgent
 
 
     # To create a modelAction
@@ -846,7 +839,7 @@ class SGModel(QMainWindow):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
-        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getAgents(specieName)))
+        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getAgentsOfSpecie(specieName)))
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
         aModelAction.model = self
@@ -1581,7 +1574,7 @@ class SGModel(QMainWindow):
             msg_decoded = message.decode("utf-8")
             msg_list = eval(msg_decoded)
             if msg_list[0][0] != self.clientId:
-                for aAgent in self.getAgents():
+                for aAgent in self.getAllAgents():
                     self.deleteAgent(aAgent.species,aAgent.id) #lancer la méthode depuis EntityDef
                     self.handleMessageMainThread(msg_list)
             else:
@@ -1618,7 +1611,7 @@ class SGModel(QMainWindow):
         # Next infos : Cells of the different grids
         allCells = []
         listCellsByGrid=[]
-        theAgents = self.getAgents()
+        theAgents = self.getAllAgents()
         theSpecies = self.getAgentSpecies()
         speciesMemoryIdDict={}
         for aGrid in self.getGrids():

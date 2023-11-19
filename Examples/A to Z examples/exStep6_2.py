@@ -18,8 +18,8 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
-m2=Sheeps.newAgentAtCoords(Cell,5,1)
+m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell,5,2)
 
 theFirstLegend=myModel.newLegend()
 
@@ -32,7 +32,7 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
-aModelAction5=myModel.newModelAction(lambda: myModel.getAgent(Sheeps,"1").moveAgent(method="cardinal",direction="South"))
+aModelAction5=myModel.newModelAction(lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"))
 myModel.timeManager.newModelPhase(aModelAction5)
 myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
@@ -53,7 +53,7 @@ i1 = DashBoard.addIndicatorOnSimVariable(score1)
 i2 = DashBoard.addIndicator("nbEqualTo", Cell, attribute='landUse',value='forest',color=Qt.black)
 DashBoard.showIndicators()
 # Here is the way to add feedback on score on ModelAction
-aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5))
+aModelAction4.addFeedback(lambda: score1.incValue(5))
 myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
 
 

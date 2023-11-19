@@ -21,7 +21,7 @@ class SGEntityDef():
         self.defaultBorderColor=Qt.black
         self.defaultBorderWidth=1
         self.povShapeColor={}
-        self.povBorderColor={}
+        self.povBorderColorAndWidth={}
         self.shapeColorClassif={} # Classif devra remplacer les Pov à terme
         self.borderColorClassif={}# Classif devra remplacer les Pov à terme
         self.watchers={}
@@ -138,7 +138,7 @@ class SGEntityDef():
             aAtt (str): name of the attribut
             DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)        """
         dictOfColorAndWidth = self.addWidthInPovDictOfColors(borderWidth,dictOfColor)
-        self.povBorderColor[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
+        self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
 
     def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):
@@ -150,7 +150,7 @@ class SGEntityDef():
             DictofColorsAndWidth (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
         """
         dictOfColorAndWidth = self.reformatDictOfColorAndWidth(dictOfColorAndWidth)
-        self.povBorderColor[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
+        self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
 
 

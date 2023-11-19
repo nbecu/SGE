@@ -24,11 +24,8 @@ class SGAgent(SGEntity):
         else: raise ValueError('This icase is not handleded')
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
-        
 
-        
 
-        
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
@@ -170,8 +167,15 @@ class SGAgent(SGEntity):
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
 
-            authorisation=SGGameActions.getActionPermission(self)
-        
+            # These next 7 lines need a bit of refactoring
+            if aLegendItem.legend.isAdminLegend():
+                authorisation= True
+            else :
+                aLegendItem.gameAction.perform_with(self,aLegendItem) 
+                # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
+                return
+            if not authorisation : return #Exit the method
+
             #The delete Action
             if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
                 if authorisation : 
@@ -182,7 +186,7 @@ class SGAgent(SGEntity):
                     self.updateMqtt() # Check if we need to updateMqtt here
 
             #The  change value on agent
-            elif aLegendItem.isValueOnAgent() :
+            elif aLegendItem.isSymbolOnAgent() :
                 if  authorisation :
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
                     # self.update()
@@ -291,8 +295,10 @@ class SGAgent(SGEntity):
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
         newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
-        newAgent.isDisplay = True
+        self.classDef.IDincr -=1
+        newAgent.id = oldAgent.id
         newAgent.privateID = oldAgent.privateID
+        newAgent.isDisplay = True
         newAgent.classDef.entities.remove(oldAgent)
         newAgent.classDef.entities.append(newAgent)
         newAgent.update()
@@ -348,13 +354,13 @@ class SGAgent(SGEntity):
 
             if method == "cardinal" or direction is not None:
                 if direction =="North":
-                    newCell=aGrid.getCell(originCell.x,originCell.y-1)
+                    newCell=originCell.getNeighborN()
                 if direction =="South":
-                    newCell=aGrid.getCell(originCell.x,originCell.y+1)
+                    newCell=originCell.getNeighborS()
                 if direction =="East":
-                    newCell=aGrid.getCell(originCell.x+1,originCell.y)
+                    newCell=originCell.getNeighborE()
                 if direction =="West":
-                    newCell=aGrid.getCell(originCell.x-1,originCell.y)
+                    newCell=originCell.getNeighborW()
             
             if newCell is None:
                 pass

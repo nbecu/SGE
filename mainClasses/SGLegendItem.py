@@ -9,7 +9,7 @@ from sqlalchemy import null
    
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",border=False,gameAction=None):
+    def __init__(self,parent,type,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
@@ -25,7 +25,10 @@ class SGLegendItem(QtWidgets.QWidget):
         self.color=color
         self.nameOfAttribut=nameOfAttribut
         self.valueOfAttribut=valueOfAttribut
-        self.border=border
+        self.isBorderItem=isBorderItem
+        if self.isBorderItem:
+            self.borderColorAndWidth=borderColorAndWidth
+            self.color= self.classDef.defaultShapeColor
         self.remainNumber=int
         self.gameAction= gameAction
         self.initUI()
@@ -57,10 +60,10 @@ class SGLegendItem(QtWidgets.QWidget):
         #Title1 and Title2 items are not selectable
         return False if self.type in ['Title1','Title2'] else True
     
-    def isValueOnCell(self):
+    def isSymbolOnCell(self):
         return self.type == 'symbol' and self.classDef.entityType() == 'Cell'#self.shape in ["square","hexagonal"]
 
-    def isValueOnAgent(self):
+    def isSymbolOnAgent(self):
         return self.type == 'symbol' and self.classDef.entityType() =='Agent' # in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
 
     #Drawing function
@@ -71,8 +74,9 @@ class SGLegendItem(QtWidgets.QWidget):
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
             if self.legend.selected == self :
                 painter.setPen(QPen(Qt.red,2));
-            if self.border:
-                painter.setPen(QPen(self.color,2))
+            if self.isBorderItem:
+                painter.setPen(QPen(self.borderColorAndWidth['color'],self.borderColorAndWidth['width']))
+                # painter.setBrush(QBrush(self.color, Qt.SolidPattern))
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.shape=="square") :   

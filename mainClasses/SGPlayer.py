@@ -74,7 +74,7 @@ class SGPlayer():
             elements[anElement.id]['agents'] = {}
         for grid in elements:
             elements[grid]['agents'].update(AgentPOVs)
-        agents = self.model.getAgents()
+        agents = self.model.getAllAgents()
         goodKeys = self.getAttributs()
         thePov = self.getPov()
         actions = self.gameActions

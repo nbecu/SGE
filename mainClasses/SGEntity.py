@@ -75,7 +75,7 @@ class SGEntity(QtWidgets.QWidget):
     def getBorderColorAndWidth(self):
         if self.isDisplay==False: return Qt.transparent
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName, borderSymbology=True)
-        aBorderPovDef = self.classDef.povBorderColor.get(aChoosenPov)
+        aBorderPovDef = self.classDef.povBorderColorAndWidth.get(aChoosenPov)
         aDefaultColor= self.classDef.defaultBorderColor
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)

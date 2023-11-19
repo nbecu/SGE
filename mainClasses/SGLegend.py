@@ -74,7 +74,7 @@ class SGLegend(SGGameSpace):
             aBorderSymbology = aDictOfSymbology['border']
             if aShapeSymbology is None and aBorderSymbology is None:
                 #In this case, it should return the default shape Symbology
-                anItem=SGLegendItem(self,'default','default',entDef,entDef.defaultShapeColor)
+                anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
                 self.legendItems.append(anItem)
                 continue
             if aShapeSymbology is not None:
@@ -84,10 +84,11 @@ class SGLegend(SGGameSpace):
                     anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
                     self.legendItems.append(anItem)
             if aBorderSymbology is not None:
-                aAtt = list(entDef.povBorderColor[aBorderSymbology].keys())[0]
-                dictSymbolNameAndColor= list(entDef.povBorderColor[aBorderSymbology].values())[0]
-                for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName,border=True)
+                aPovBorderDef = entDef.povBorderColorAndWidth.get(aBorderSymbology)
+                aAtt = list(aPovBorderDef.keys())[0]
+                dictSymbolNameAndColorAndWidth= list(aPovBorderDef.values())[0]
+                for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
                     self.legendItems.append(anItem)
         anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
         self.legendItems.append(anItem)
