@@ -35,10 +35,10 @@ Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5
 EspècesHalieutiques=[Soles,Merlus]
 
 myModel.newAgentAtCoords(aGrid,Navire,10,1)
-# myModel.newAgentAtCoords(aGrid,Navire,10,1)
-# myModel.newAgentAtCoords(aGrid,Navire,10,1)
-# myModel.newAgentAtCoords(aGrid,Navire,10,1)
-# myModel.newAgentAtCoords(aGrid,Navire,10,1)
+myModel.newAgentAtCoords(aGrid,Navire,10,1)
+myModel.newAgentAtCoords(aGrid,Navire,10,1)
+myModel.newAgentAtCoords(aGrid,Navire,10,1)
+myModel.newAgentAtCoords(aGrid,Navire,10,1)
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 
@@ -53,13 +53,15 @@ GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doiv
 DashBoard=myModel.newDashBoard()
 totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
 totSole=myModel.newSimVariable(0,"Total Sole pêché")
-# indicateurPêcheMerlu = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Merlu",indicatorName="Quantité de merlu pêchée")
-# indicateurPêcheSole = DashBoard.addIndicator("sumAtt","Navire",attribute="Quantité_pêchée_Sole",indicatorName="Quantité de sole pêchée")
 indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
 indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
-indBateau1Merlu = DashBoard.addIndicatorOnEntity("1","PêcheCumMerlu","Navire",indicatorName="Merlu pêché par le bateau 1")
-indBateau1Sole = DashBoard.addIndicatorOnEntity("1","PêcheCumSole","Navire",indicatorName="Sole pêché par le bateau 1")
+indicateursMerlu = {}
+indicateursSole = {}
+for i in range(1, 6):
+    indicateursMerlu[i] = DashBoard.addIndicatorOnEntity(str(i), "PêcheCumMerlu", "Navire", indicatorName=f"Merlu pêché par le bateau {i}")
+    indicateursSole[i] = DashBoard.addIndicatorOnEntity(str(i), "PêcheCumSole", "Navire", indicatorName=f"Sole pêché par le bateau {i}")
 DashBoard.showIndicators()
+
 
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])]
@@ -87,9 +89,11 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
         navire.setValue("PêcheCumSole", navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
-        indBateau1Sole.setResult(navire.value("PêcheCumSole"))
-        indBateau1Merlu.setResult(navire.value("PêcheCumMerlu"))
-        
+        indBateauMerlu = indicateursMerlu[int(navire.id)]
+        indBateauSole = indicateursSole[int(navire.id)]
+        indBateauSole.setResult(navire.value("PêcheCumSole"))
+        indBateauMerlu.setResult(navire.value("PêcheCumMerlu"))  
+    
     Soles.setValue("stock",((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0]))
     Merlus.setValue("stock",((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0]))
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
