@@ -111,8 +111,8 @@ class SGModel(QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
-        # self.randomSeed=42
-        # random.seed(self.randomSeed)
+        self.randomSeed=42
+        random.seed(self.randomSeed)
         self.mqtt=False
         self.mqttMajType=None
         self.testMode=testMode
@@ -461,11 +461,10 @@ class SGModel(QMainWindow):
 
     # To get a cell in particular
     def getCell(self, aGrid, aId):
-        result = filter(lambda cell: cell.id == aId, self.getCells(aGrid))
+        result = list(filter(lambda cell: cell.id == aId, self.getCells(aGrid)))
         # This is an equivalent Expression
         # result = [cell for cell in self.getCells(aGrid) if cell.id == aId]
         if len(result)!=1: raise ValueError("No cell with such Id!")
-
         return result[0]
 
     # To create a void
@@ -735,20 +734,23 @@ class SGModel(QMainWindow):
     #     aAgent.show()
     #     return aAgent
     
-    def newAgent_ADMINONLY(self, aGrid, aAgentSpecies, ValueX, ValueY, adictAttributes, aPrivateID):
+    def newAgent_ADMINONLY(self, aGrid, aAgtDef, ValueX, ValueY, adictAttributes, anAgentID):
         """
         Do not use.
         """
-        locationCell = aGrid.getCell(int(ValueX), int(ValueY))
-        if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
-            uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
-        anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
-        aAgent = SGAgent(locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
+        locationCell = aGrid.getCell_withCoords(int(ValueX), int(ValueY))
+        # if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
+        #     uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
+        # anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
+        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef)
         aAgent.isDisplay = True
-        aAgent.species = str(aAgentSpecies.name)
-        aAgent.privateID = aPrivateID
-        self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
+        aAgent.id = anAgentID
+        aAgtDef.entities.append(aAgent)
+        # aAgent.species = str(aAgentSpecies.name)
+        # aAgent.privateID = aPrivateID
+        # self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
         aAgent.show()
+                    # si ca ne s'affiche pas correctement, penser à essayer avec update()
         return aAgent
 
 
@@ -1487,23 +1489,27 @@ class SGModel(QMainWindow):
         # AGENT MANAGEMENT
         nbToStart=sum(msg_list[1])
         for j in range(len(msg_list[nbToStart+2:-5])):
-            privateID=msg_list[nbToStart+2+j][0]
-            speciesName=msg_list[nbToStart+2+j][1]
+            entityName=msg_list[nbToStart+2+j][0]
+            id=msg_list[nbToStart+2+j][1]
             dictAttributes=msg_list[nbToStart+2+j][2]
             owner=msg_list[nbToStart+2+j][3]
-            agentX=msg_list[nbToStart+2+j][4][-3]
-            agentY=msg_list[nbToStart+2+j][4][-1]
-            grid=msg_list[nbToStart+2+j][5]
+            agentX=msg_list[nbToStart+2+j][4]
+            agentY=msg_list[nbToStart+2+j][5]
+            grid=msg_list[nbToStart+2+j][6]
             theGrid=self.getGrid_withID(grid)
-            aAgentSpecies=self.getAgentsOfSpecie(speciesName)
+            aAgtDef=self.getEntityDef(entityName)
 
-            self.dictAgentsAtMAJ[j]=[theGrid,aAgentSpecies,agentX,agentY,dictAttributes,privateID]
+            self.dictAgentsAtMAJ[j]=[theGrid,aAgtDef,agentX,agentY,dictAttributes,id]
         
         # AGENT SPECIES MEMORY ID
-        speciesMemoryIdDict=msg_list[-5][0]
-        for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
-            theSpecies=self.getAgentsOfSpecie(aSpeciesName)
-            theSpecies.memoryID=speciesMemoryID
+        # speciesMemoryIdDict=msg_list[-5][0]
+        # for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
+        #     theSpecies=self.getAgentsOfSpecie(aSpeciesName)
+        #     theSpecies.memoryID=speciesMemoryID
+        agentDef_IDincr=msg_list[-5][0]
+        for entityName, aIDincr in dict(agentDef_IDincr).items():
+            aAgtDef=self.getEntityDef(entityName)
+            aAgtDef.IDincr=aIDincr
 
         # TIME MANAGEMENT
         self.timeManager.currentPhase = msg_list[-4][0]
@@ -1577,9 +1583,8 @@ class SGModel(QMainWindow):
             msg_decoded = message.decode("utf-8")
             msg_list = eval(msg_decoded)
             if msg_list[0][0] != self.clientId:
-                for aAgent in self.getAllAgents():
-                    self.deleteAgent(aAgent.species,aAgent.id) #lancer la méthode depuis EntityDef
-                    self.handleMessageMainThread(msg_list)
+                self.deleteAllAgents()
+                self.handleMessageMainThread(msg_list)
             else:
                 print("Own update, no action required.")   
 
@@ -1615,8 +1620,9 @@ class SGModel(QMainWindow):
         allCells = []
         listCellsByGrid=[]
         theAgents = self.getAllAgents()
-        theSpecies = self.getAgentSpecies()
-        speciesMemoryIdDict={}
+        
+        # speciesMemoryIdDict={}
+        
         for aGrid in self.getGrids():
             for aCell in list(self.getCells(aGrid)):
                 allCells.append(aCell)
@@ -1637,25 +1643,31 @@ class SGModel(QMainWindow):
         # Next : Agents
         for aAgent in theAgents:
             message = message+"["
-            message = message+"'"+str(aAgent.privateID)+"'"
+            message = message+"'"+str(aAgent.classDef.entityName)+"'"
             message = message+","
-            message = message+"'"+str(aAgent.species)+"'"
+            message = message+"'"+str(aAgent.id)+"'"
             message = message+","
             message = message+str(aAgent.dictAttributes)
             message = message+","
             message = message+"'"+str(aAgent.owner)+"'"
             message = message+","
-            message = message+"'"+str(aAgent.cell.name)+"'"
+            message = message+"'"+str(aAgent.cell.x)+"'"
+            message = message+","
+            message = message+"'"+str(aAgent.cell.y)+"'"
             message = message+","
             message = message+"'"+str(aAgent.cell.grid.id)+"'"
             message = message+"]"
             message = message+","
 
-        for aSpecies in theSpecies:
-            speciesMemoryIdDict[aSpecies.name]=aSpecies.memoryID
+        # for aSpecies in theSpecies:
+        #     speciesMemoryIdDict[aSpecies.name]=aSpecies.memoryID
+        agentDef_IDincr={}
+        for aAgtDef in self.getAgentSpeciesDict():
+            agentDef_IDincr[aAgtDef.entityName]=aAgtDef.IDincr
 
         message = message+"["
-        message = message+str(speciesMemoryIdDict)
+        # message = message+str(speciesMemoryIdDict)
+        message = message+str(agentDef_IDincr)
         message = message+"]"
         message = message+","
         message = message+"["

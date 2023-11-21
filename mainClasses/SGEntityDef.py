@@ -473,7 +473,7 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         aAgent.updateMqtt()
-        aAgent.update()
+        # aAgent.update()
 
 
 class SGCellDef(SGEntityDef):

@@ -306,7 +306,7 @@ class SGAgent(SGEntity):
         newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
-        newAgent.privateID = oldAgent.privateID
+        newAgent.privateID = oldAgent.privateID # A priori, on peut retirer cet attribut
         newAgent.isDisplay = True
         newAgent.classDef.entities.remove(oldAgent)
         newAgent.classDef.entities.append(newAgent)

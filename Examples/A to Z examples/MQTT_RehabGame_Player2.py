@@ -30,7 +30,7 @@ Workers = myModel.newAgentSpecies(
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
 
-aWorker = myModel.newAgentAtCoords(aGrid,Workers,5,2)
+aWorker = Workers.newAgentAtCoords(Cell,5,2)
 
 
 globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
@@ -77,8 +77,7 @@ myModel.timeManager.newModelPhase(aModelAction4)
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")
-endGameRule.addEndGameCondition_onEntity(
-    "cell1-5", 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=aGrid)
+endGameRule.addEndGameCondition_onEntity(Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=Cell.grid)
 endGameRule.showEndGameConditions()
 
 
