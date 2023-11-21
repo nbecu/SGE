@@ -94,14 +94,22 @@ class SGEntityDef():
             for watcher in listOfWatchers:
                 watcher.checkAndUpdate()
                     
-    def  getColorOfFirstOccurenceOfAttAndValue(self, att, value):
+    def  getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(self, att, value):
+        # Check first the shape colorDict 
         for aDictWith_Att_ColorDict in list(self.povShapeColor.values()):
             aAtt=list(aDictWith_Att_ColorDict.keys())[0]
             aColorDict=aDictWith_Att_ColorDict[aAtt]
             if aAtt == att:
                 aColor = aColorDict.get(value)
                 if aColor is not None: return aColor
-                # any((aClassDef := item).entityName == anObjectType for item in self.getEntitiesDef()) 
+        #Then check if there is a correspondance in the border colorDict
+        for aDictWith_Att_ColorDict in list(self.povBorderColorAndWidth.values()):
+            aAtt=list(aDictWith_Att_ColorDict.keys())[0]
+            aDictOfDictsOfColorAndWidth=aDictWith_Att_ColorDict[aAtt]
+            if aAtt == att:
+                dictOfColorAndWidth = aDictOfDictsOfColorAndWidth.get(value)
+                return dictOfColorAndWidth
+        # If no matches are found, retunr the default color
         return self.defaultShapeColor
 
     ###Definiton of the methods who the modeler will use

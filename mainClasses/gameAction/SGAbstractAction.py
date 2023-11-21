@@ -1,14 +1,15 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+import copy
 
 #Class who manage the game mechanics of Update
 class SGAbstractAction():
-    def __init__(self,anObject,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
-        self.anObject=anObject
+    def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
+        self.targetEntDef=entDef
         self.number=number
         self.numberUsed=0
-        self.conditions=conditions
-        # self.restrictions=copy.deepcopy(aListOfrestrictions)
+        self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
+                                                 # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
         self.feedbacks=feedBacks
         self.conditionsOfFeedBack=conditionsOfFeedBack            
         
@@ -30,12 +31,12 @@ class SGAbstractAction():
 
 
     #Function to test if the game action could be use
-    def checkAuhorization(self,anObject):
+    def checkAuhorization(self,aTargetEntity):
         if self.numberUsed >= self.number:
             return False
         res = True 
         for aCondition in self.conditions:
-            res = res and aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(anObject)
+            res = res and aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity)
         return res
 
     #Function to test if the game action could be use
@@ -62,10 +63,7 @@ class SGAbstractAction():
         self.numberUsed=0
     
     def addCondition(self,aCondition):
-        # self.Conditions.append(aCondition)
-        ConditionList=self.conditions
-        ConditionList.append(aCondition)
-        self.conditions=ConditionList
+        self.conditions.append(aCondition)
     
     def addFeedback(self,aFeedback):
         self.feedback.append(aFeedback)

@@ -79,7 +79,6 @@ class SGEntity(QtWidgets.QWidget):
         aDefaultColor= self.classDef.defaultBorderColor
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
-  
     
     #To get the pov
     def getPov(self):
@@ -109,6 +108,10 @@ class SGEntity(QtWidgets.QWidget):
         if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
         self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])
+
+
+    def isDeleted(self):
+        return not self.isDisplay
 
 
     #To handle the attributs and values
@@ -144,8 +147,12 @@ class SGEntity(QtWidgets.QWidget):
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be added to the current value of the attribute
-        """       
-        self.setValue((self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
+        """
+        self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
+        # This method is equivalent to 
+        # newValue = self.value(aAttribut)+aValue
+        # if max is not None: newValue = min(newValue,max)    
+        # self.setValue(aAttribut,newValue)
 
     def decValue(self,aAttribut,aValue=1,min=None):
         """
@@ -154,7 +161,7 @@ class SGEntity(QtWidgets.QWidget):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be subtracted to the current value of the attribute
         """       
-        self.setValue((self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
+        self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
 
     def calValue(self,aAttribut,aLambdaFunction):
         # NOT TESTED YET

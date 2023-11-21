@@ -51,16 +51,20 @@ class SGControlPanel(SGLegend):
     def initUI_withGameActions(self,gameActions):
         self.posYOfItems = 0
         anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
-        for aGameAction in gameActions:
-            entDef = aGameAction.anObject
-            anItem=SGLegendItem(self,'Title2',entDef.entityName)
-            self.legendItems.append(anItem)
+        sortedGameActions = sorted(gameActions, key=lambda x: (0, x.targetEntDef.entityName) if x.targetEntDef.entityType() == 'Cell' else (1, x.targetEntDef.entityName))
+
+        lastEntDefTitle = ''
+        for aGameAction in sortedGameActions:
+            if lastEntDefTitle != aGameAction.targetEntDef.entityName:
+                anItem=SGLegendItem(self,'Title2',aGameAction.targetEntDef.entityName)
+                self.legendItems.append(anItem)
+                lastEntDefTitle = aGameAction.targetEntDef.entityName
             #case of UpdateAction
             listOfLegendItems = aGameAction.generateLegendItems(self)
             for anItem in listOfLegendItems:
                 self.legendItems.append(anItem)
             # for aAtt, aValue in aGameAction.dictNewValues.items():
-            #     aColor = entDef.getColorOfFirstOccurenceOfAttAndValue(aAtt,aValue)
+            #     aColor = entDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
             #     anItem=SGLegendItem(self,'symbol',aAtt+'->'+str(aValue),entDef,aColor,aAtt,aValue,gameAction=aGameAction)
             #     self.legendItems.append(anItem)
         # anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)

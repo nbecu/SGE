@@ -7,27 +7,26 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,anObject,number,dictAttributs,conditions=[],feedBack=[],conditionOfFeedBack=[]):
-        super().__init__(anObject,number,conditions,feedBack,conditionOfFeedBack)
-
+    def __init__(self,entDef,number,dictAttributs,conditions=[],feedBack=[],conditionOfFeedBack=[]):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack)
         self.dictAttributs=dictAttributs
-        self.name="CreateAction "+str(anObject.entityName)
+        self.name="Create "+str(self.targetEntDef.entityName)
+        self.addCondition(lambda aTargetEntity: aTargetEntity.classDef.entityType() == 'Cell')
+
 
     def executeAction(self, aTargetEntity):
-        entDef = self.anObject
-        return entDef.newAgentOnCell(aTargetEntity,self.dictAttributs)
+        return self.targetEntDef.newAgentOnCell(aTargetEntity,self.dictAttributs)
 
 
     def generateLegendItems(self,aControlPanel):
-        entDef = self.anObject
         if self.dictAttributs is None:
-            aColor = entDef.defaultShapeColor
-            return [SGLegendItem(aControlPanel,'symbol','create',entDef,aColor,gameAction=self)]
+            aColor = self.targetEntDef.defaultShapeColor
+            return [SGLegendItem(aControlPanel,'symbol','create',self.targetEntDef,aColor,gameAction=self)]
         else:
             aList = []
             for aAtt, aValue in self.dictAttributs.items():
-                aColor = entDef.getColorOfFirstOccurenceOfAttAndValue(aAtt,aValue)
-                aList.append(SGLegendItem(aControlPanel,'symbol','create',entDef,aColor,aAtt,aValue,gameAction=self))
+                aColor = self.targetEntDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
+                aList.append(SGLegendItem(aControlPanel,'symbol','create('+aAtt+'='+str(aValue)+')',self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
             return aList
 
 

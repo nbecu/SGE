@@ -20,8 +20,9 @@ class SGAgent(SGEntity):
         super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
         self.cell=None
         if cell is not None:
-            self.moveTo(cell)
-        else: raise ValueError('This icase is not handleded')
+            self.cell = cell
+            self.cell.updateIncomingAgent(self)
+        else: raise ValueError('This case is not handeled')
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
 
@@ -127,6 +128,7 @@ class SGAgent(SGEntity):
         self.update()
 
     def getRandomXY(self):
+        # Is Obsolete
         if self.me=='agent':
             maxSize=self.cell.size
             x = random.randint(1,maxSize-1)
@@ -147,10 +149,12 @@ class SGAgent(SGEntity):
         originPoint=self.cell.pos()
         y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
         return y
-        
 
 
-
+    def isDeleted(self):
+        if not self.isDisplay:
+            raise ValueError ('An agent which is not displayed is not necessalry deleted.  it''s strange that this method is called') 
+        return not self.isDisplay
 
     #To get the pov
     def getPov(self):
@@ -171,8 +175,9 @@ class SGAgent(SGEntity):
             if aLegendItem.legend.isAdminLegend():
                 authorisation= True
             else :
+                from mainClasses.gameAction.SGMove import SGMove
+                if isinstance(aLegendItem.gameAction,SGMove): return
                 aLegendItem.gameAction.perform_with(self,aLegendItem) 
-                # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
                 return
             if not authorisation : return #Exit the method
 
@@ -229,7 +234,29 @@ class SGAgent(SGEntity):
         #                 self.update()
                         
 
-                    
+    #To handle the drag of the agent
+    def mouseMoveEvent(self, e):
+    
+        if e.buttons() != Qt.LeftButton:
+            return
+        # authorisation = SGGameActions.getMovePermission(self)
+        authorisation = True
+        if authorisation:
+            # self.cell.updateDepartureAgent(self)  #Should not used, because the departure is performed at the drop
+            mimeData = QMimeData()
+            drag = QDrag(self)
+            drag.setMimeData(mimeData)
+            drag.setHotSpot(e.pos() - self.rect().topLeft())
+            drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
+    def dropEvent(self, e):
+        e.accept()
+        # aAgent=e.source()
+        # aAgent.moveTo2(self)
+        # aAgent.updateAgentByRecreating_it()
+        e.setDropAction(Qt.MoveAction)
+    
+                        
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
         booleanForFeedback=True
@@ -239,24 +266,6 @@ class SGAgent(SGEntity):
             for aFeedback in  theAction.feedback :
                 aFeedback(self)
 
-    #To handle the drag of the agent
-    def mouseMoveEvent(self, e):
-    
-        if e.buttons() != Qt.LeftButton:
-            return
-        authorisation = SGGameActions.getMovePermission(self)
-        if authorisation:
-            self.cell.updateDepartureAgent(self)
-            mimeData = QMimeData()
-
-            drag = QDrag(self)
-            drag.setMimeData(mimeData)
-            drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-            drag.exec_(Qt.CopyAction | Qt.MoveAction)
-
-
-    
     def addPovinMenuBar(self,nameOfPov):
         if nameOfPov not in self.model.listOfPovsForMenu :
             self.model.listOfPovsForMenu.append(nameOfPov)
@@ -306,23 +315,23 @@ class SGAgent(SGEntity):
         self.update()
         return newAgent
     
+    def moveTo2(self, aDestinationCell):
+        if self.cell is None:
+            self.cell = aDestinationCell
+            self.cell.updateIncomingAgent(self)
+            self.update()
+        else :
+            self.cell.updateDepartureAgent(self)
+            self.copyOfAgentAtCoord(aDestinationCell)
+            self.deleteLater()
+        self.updateMqtt()
+            
     def moveTo(self, aDestinationCell):
+        #OBSOLETE  should not use
         if self.cell is not None:
             self.cell.updateDepartureAgent(self)
         self.cell = aDestinationCell
         aDestinationCell.updateIncomingAgent(self)
-
-    def moveTo2(self, aDestinationCell):
-        if self.cell is not None:
-            return self.moveByRecreating(aDestinationCell)
-        self.cell = aDestinationCell
-        aDestinationCell.updateIncomingAgent(self)
-        
-    def moveByRecreating(self,aDestinationCell):
-        self.cell.updateDepartureAgent(self)
-        self.copyOfAgentAtCoord(aDestinationCell)
-        self.deleteLater()
-            
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
         """

@@ -1415,6 +1415,9 @@ class SGModel(QMainWindow):
     def getAdminLegends(self): #useful in case they are several admin legends
         return [item for item in self.getLegends() if item.isAdminLegend()]
     
+    def getSelectedLegend(self):
+        return next((item for item in self.getLegends() if item.isActive), None)
+
     def getSelectedLegendItem(self):
         return next((item.selected for item in self.getLegends() if item.isActiveAndSelected()), None)
     

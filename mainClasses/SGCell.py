@@ -98,35 +98,7 @@ class SGCell(SGEntity):
     # Convertit les coordonnées globales en coordonnées locales
         local_pos = self.mapFromGlobal(global_pos)
         return local_pos
-        
-    # Function to handle the drag of widget
-    def dragEnterEvent(self, e):
-        # this is event is called during an agent drag 
-        e.accept()
-        
-    def dropEvent(self, e):
-        e.accept()
-        aAgent=e.source()
-        aAgent.moveTo(self) # NOrmallement il faudrait utiliser moveTo2() !!!!
-        aAgent.updateAgentByRecreating_it()
-        e.setDropAction(Qt.MoveAction)
-        if self.model.mqttMajType == "Instantaneous":
-            SGGameActions.sendMqttMessage(self)
-                            
-    # To handle the drag of the grid
-    def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
-        if e.buttons() != Qt.LeftButton:
-            return
-
-
-
-
-             
-    #To get the pov
-    def getPov(self):
-        return self.grid.model.nameOfPov
-       
-             
+     
     #To handle the selection of an element int the legend
     # def mousePressEvent(self, event):
     # # C'est Bizarrre , car mousePressEvent est définit juste en dessous.
@@ -155,7 +127,7 @@ class SGCell(SGEntity):
                     #We now check the feedBack of the actions if it have some
                     """if theAction is not None:
                         self.feedBack(theAction)"""
-                    self.classDef.deleteEntity(self)
+                    if not self.isDeleted() :self.classDef.deleteEntity(self)
 
             #The Replace cell and change value Action
             elif aLegendItem.isSymbolOnCell():
@@ -175,7 +147,43 @@ class SGCell(SGEntity):
                         self.feedBack(theAction)"""
                     aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
                     self.newAgentHere(aLegendItem.classDef,aDictWithValue)
-                                    
+        
+    def dropEvent(self, e):
+        e.accept()
+        aAgent=e.source()
+
+        aActiveLegend = self.model.getSelectedLegend()
+        aLegendItem = self.model.getSelectedLegendItem()
+        if aActiveLegend.isAdminLegend():
+            aAgent.moveTo2(self)
+        elif aLegendItem is None : None #Exit the method
+        # These next 7 lines need a bit of refactoring
+        else :
+            aLegendItem.gameAction.perform_with(aAgent,aLegendItem,self) 
+            # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
+
+        # aAgent=e.source()
+        # aAgent.moveTo2(self)
+        # aAgent.updateAgentByRecreating_it()
+        e.setDropAction(Qt.MoveAction)
+        # if self.model.mqttMajType == "Instantaneous":
+        #     SGGameActions.sendMqttMessage(self)
+                            
+    # To handle the drag of the grid
+    def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
+        if e.buttons() != Qt.LeftButton:
+            return
+                                            
+    # Function to handle the drag of widget
+    def dragEnterEvent(self, e):
+        # this is event is called during an agent drag 
+        e.accept()
+
+             
+    #To get the pov
+    def getPov(self):
+        return self.grid.model.nameOfPov
+       
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction,theAgentForMoveGM=None):
         booleanForFeedback=True
@@ -203,9 +211,6 @@ class SGCell(SGEntity):
     def updateDepartureAgent(self,anAgent):
         self.agents.remove(anAgent)
         anAgent.cell=None
-
-    def isDeleted(self):
-        return not self.isDisplay
     
     # To show a menu
     def show_menu(self, point):

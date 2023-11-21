@@ -16,6 +16,7 @@ class SGGameActions():
                     # theAction.getRemainActionNumber(thePlayer) #  ET Pas besoin de getRemainActionNumber
         return authorisation
 
+#  Ce serai bien de se passer de cette class GameActions
     def getMovePermission(aObject):
         thePlayer=aObject.model.getPlayerObject(aObject.model.currentPlayer)
         authorisation=False

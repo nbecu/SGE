@@ -36,11 +36,11 @@ Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 Sheeps.setDefaultValue("hunger","bad")
 
-aSecondBird=myModel.newAgentAtCoords(aGrid,Birds,4,5)
-aWorker=myModel.newAgentAtCoords(aGrid,Workers,2,2)
-aSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,3)
-aSecondSheep=myModel.newAgentAtCoords(aGrid,Sheeps,1,5)
-aThirdSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,5)
+aSecondBird=Birds.newAgentAtCoords(Cell,4,5)
+aWorker=Workers.newAgentAtCoords(Cell,2,2)
+aSheep=Sheeps.newAgentAtCoords(Cell,3,3)
+aSecondSheep=Sheeps.newAgentAtCoords(Cell,1,5)
+aThirdSheep=Sheeps.newAgentAtCoords(Cell,3,5)
 
 
 
@@ -78,10 +78,10 @@ myModel.setCurrentPlayer('Player 1')
 # STEP6 DashBoard and EndGameRule
 score1= myModel.newSimVariable(0,"Global Score:")
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)
-i3 = DashBoard.addIndicator("nb","agents",color=Qt.black)
-i4 = DashBoard.addIndicator("nb","Workers",color=Qt.black)
+i1 = DashBoard.addIndicator("sumAtt", Cell, attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator("avgAtt", Cell, attribute='Resource',color=Qt.black)
+i3 = DashBoard.addIndicator("nb",[Workers,Birds,Sheeps],color=Qt.black)
+i4 = DashBoard.addIndicator("nb",Workers,color=Qt.black)
 i5 = DashBoard.addIndicatorOnSimVariable(score1)
 DashBoard.showIndicators()
 
@@ -89,7 +89,7 @@ endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")
 endGameRule.addEndGameCondition_onEntity(
-    "cell1-5", 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=aGrid)
+    Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=Cell.grid)
 endGameRule.showEndGameConditions()
 
 # STEP7 TextBox

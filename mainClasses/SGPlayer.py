@@ -7,6 +7,7 @@ from mainClasses.gameAction.SGDelete import SGDelete
 from mainClasses.gameAction.SGUpdate import SGUpdate
 from mainClasses.gameAction.SGCreate import SGCreate
 from mainClasses.gameAction.SGMove import SGMove
+from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 import copy
 
@@ -136,6 +137,7 @@ class SGPlayer():
         return attributs
 
     def getPov(self):
+        # Pourquoi un player à une méthode getPov. C'est bizarre et peut etre Obsolete
         thePov = {}
         for action in self.gameActions:
             if (isinstance(action.anObject, SGCell) or action.anObject == SGCell) and isinstance(action, SGUpdate):  # ! cas des cellules
@@ -166,20 +168,15 @@ class SGPlayer():
         Args:
             aGameAction (instance) : myModel.createAction instance
         """
-        if isinstance(aGameAction, SGDelete):
-            self.gameActions.append(aGameAction)
-            # aGameAction.getRemainActionNumber(self)
-        if isinstance(aGameAction, SGCreate):
-            self.gameActions.append(aGameAction)
-            # aGameAction.getRemainActionNumber(self)
-        if isinstance(aGameAction, SGUpdate):
-            self.gameActions.append(aGameAction)
-            # aGameAction.getRemainActionNumber(self)
-        if isinstance(aGameAction, SGMove):
+        if isinstance(aGameAction,SGAbstractAction):
+            # isinstance() checks that a gameAction is a instance of SGAbstractAction or of one of its subclasses (SGMove, SGUpdate...)
             self.gameActions.append(aGameAction)
         return aGameAction
 
     def getGameActionOn(self, anItem):
+        # Verifier si cettte méthode est encore utilisée ou pas
+        # Elle est peut etre Obsolete
+
         # On cell
         if isinstance(anItem, SGCell) or anItem == SGCell:
             for aGameAction in self.gameActions:
