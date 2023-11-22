@@ -51,10 +51,12 @@ GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doiv
 
 
 DashBoard=myModel.newDashBoard()
-totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
-totSole=myModel.newSimVariable(0,"Total Sole pêché")
-indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
-indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
+# totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
+# totSole=myModel.newSimVariable(0,"Total Sole pêché")
+# indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
+# indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
+CelltotalMerlu=DashBoard.addIndicator("sumAtt","cell",attribute="quantitéPêchéeMerlu",indicatorName="Merlu pêché")
+CelltotalSole=DashBoard.addIndicator("sumAtt","cell",attribute="quantitéPêchéeSole",indicatorName="Sole pêché")
 indicateursMerlu = {}
 indicateursSole = {}
 for i in range(1, 6):
@@ -78,6 +80,7 @@ def pêche(cell):
             navire.setValue('Quantité_pêchée_Sole',cell.value("txPrésenceSole")*Soles.value("stock")*navire.value("txCapture_Sole"))
             cell.setValue("quantitéPêchéeMerlu",cell.value("quantitéPêchéeMerlu")+navire.value('Quantité_pêchée_Merlu'))
             cell.setValue("quantitéPêchéeSole",cell.value("quantitéPêchéeSole")+navire.value('Quantité_pêchée_Sole'))
+    
 
 def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     sommePêcheMerlu=0
@@ -85,6 +88,8 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     for navire in myModel.getAgents("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
+        print("Pêche du jour :")
+        print(navire.value('Quantité_pêchée_Merlu'))
         navire.setValue("PêcheCumMerlu", navire.value("PêcheCumMerlu")+navire.value('Quantité_pêchée_Merlu'))
         navire.setValue("PêcheCumSole", navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
         navire.setValue('Quantité_pêchée_Merlu',0)
@@ -96,10 +101,13 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     
     Soles.setValue("stock",((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0]))
     Merlus.setValue("stock",((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0]))
+    print("STOCK MERLU :")
+    print(Merlus.value("stock"))
+    print(myModel.timeManager.currentRound)
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
     total_pêcheSole=total_pêcheSole+sommePêcheSole
-    indTotMerlu.setResult(total_pêcheMerlu)
-    indTotSole.setResult(total_pêcheSole)
+    # indTotMerlu.setResult(total_pêcheMerlu)
+    # indTotSole.setResult(total_pêcheSole)
     
     for navire in myModel.getAgents("Navire"):
         navire.moveAgent(method='cell',cellID='cell10-1')
