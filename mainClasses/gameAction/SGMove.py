@@ -13,16 +13,18 @@ class SGMove(SGAbstractAction):
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
 
 
-    def perform_with(self,aTargetEntity,aParameterHolder,aDestinationEntity=None):
-        # The third argument has a default value set to None, because the method is also defined at the superclass level and it takes only 2 arguments 
+    def perform_with(self,aTargetEntity,aDestinationEntity=None,serverUpdate=True):
+        # The arg aDestinationEntity has a default value set to None, because the method is also defined at the superclass level and it takes only 2 arguments 
+         #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
         aMovingEntity = aTargetEntity
         if self.checkAuhorization(aMovingEntity):
             aOriginEntity = aMovingEntity.cell
             resAction = self.executeAction(aMovingEntity,aDestinationEntity)
-            aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity,aParameterHolder,resAction])
+            aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity,resAction]) # Previously Five choices. The choice aParameterHolder, has been removed
             if self.checkFeedbackAuhorization(aFeedbackTarget):
                 resFeedback = self.executeFeedback(aFeedbackTarget)
             self.incNbUsed()
+            if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity,aDestinationEntity)
             return resFeedback
         else:
             return False
@@ -36,4 +38,5 @@ class SGMove(SGAbstractAction):
     
     def chooseFeedbackTargetAmong(self,aListOfChoices):
         # aListOfChoices -> [aMovingEntity,aDestinationEntity,aOriginEntity,aParameterHolder,resAction]
+        # The choice aParameterHolder   has been removed
         return aListOfChoices[0]

@@ -43,12 +43,16 @@ import queue
 import random
 import uuid
 import re
+import json
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 
 # Mother class of all the SGE System
 class SGModel(QMainWindow):
+
+    JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
+
     def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame",testMode=False):
         """
         Declaration of a new model
@@ -117,6 +121,7 @@ class SGModel(QMainWindow):
         self.mqttMajType=None
         self.testMode=testMode
         self.dictAgentsAtMAJ={}
+        self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
 
         self.initUI()
@@ -289,7 +294,10 @@ class SGModel(QMainWindow):
     # Trigger the next turn
 
     def nextTurn(self):
+        # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
         self.timeManager.nextPhase()
+        if self.mqttMajType in ["Phase","Instantaneous"]:
+            self.buildNextTurnMsgAndPublishToBroker()
         # self.eventTime()
 
     def closeEvent(self, event):
@@ -652,7 +660,14 @@ class SGModel(QMainWindow):
         if isinstance(entityName,SGEntityDef):
             return entityName
         return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
-    
+
+    #This method is used by updateServer to retrieve a entity used has argument in a game action 
+    def getSGObject_withIdentfier(self, aIdentificationDict):
+        # Works only for entities (cell , agents)
+        entDef = self.getEntityDef(aIdentificationDict['entityName'])
+        targetEntity = entDef.getEntity(aIdentificationDict['id'])
+        return targetEntity 
+
     def deleteAllAgents(self):
         for aAgentDef in self.getAgentSpeciesDict():
             aAgentDef.deleteAllEntities()
@@ -1422,7 +1437,11 @@ class SGModel(QMainWindow):
 
     def getSelectedLegendItem(self):
         return next((item.selected for item in self.getLegends() if item.isActiveAndSelected()), None)
-    
+
+    def getGameAction_withClassAndId(self,aClassName,aId):
+        return next((item for item in self.getAllGameActions() if item.__class__.__name__==aClassName and item.id==aId), None)
+        
+            
     # To change the number of zoom we currently are
     def setNumberOfZoom(self, number):
         self.numberOfZoom = number
@@ -1451,7 +1470,7 @@ class SGModel(QMainWindow):
         self.clientId= uuid.uuid4().hex
         self.majTimer = QTimer(self)
         self.majTimer.timeout.connect(self.onMAJTimer)
-        self.majTimer.start(1000)
+        self.majTimer.start(100)
         self.initMQTT()
         self.mqttMajType=majType
         self.show()
@@ -1576,13 +1595,23 @@ class SGModel(QMainWindow):
 
     # Init the MQTT client
     def initMQTT(self):
-        def on_message(client, userdata, msg):
+        def on_message(aClient, userdata, msg):
             userdata.q.put(msg.payload)
             print("message received " + msg.topic)
             message = self.q.get()
             msg_decoded = message.decode("utf-8")
+            if msg.topic in ['gameAction_performed','nextTurn']:
+                unserializedMsg= json.loads(msg_decoded)
+                if unserializedMsg['clientId']== self.clientId:
+                    print("Own update, no action required.") 
+                else:
+                    if msg.topic == 'gameAction_performed':
+                        self.processBrokerMsg_gameAction_performed(unserializedMsg)
+                    elif msg.topic == 'nextTurn':
+                        self.processBrokerMsg_nextTrun(unserializedMsg)
+                return
             msg_list = eval(msg_decoded)
-            if msg_list[0][0] != self.clientId:
+            if msg_list[0][0] != self.clientId: #This test should be unnecessary now
                 self.deleteAllAgents()
                 self.handleMessageMainThread(msg_list)
             else:
@@ -1592,12 +1621,79 @@ class SGModel(QMainWindow):
         self.mqtt=True
 
         self.client.subscribe("Gamestates")
+        self.client.subscribe("gameAction_performed")
+        self.client.subscribe("nextTurn")
         self.client.on_message = on_message
-        self.listOfSubChannel.append("Gamestates")
+        self.listOfSubChannel.append("Gamestates") #Je ne pense pas que ce soit utile
         
+    def buildNextTurnMsgAndPublishToBroker(self):
+        msgTopic = 'nextTurn'
+        msg_dict={}
+        msg_dict['clientId']=self.clientId
+        #eventually, one can add some more info about this nextTurn action
+        # msg_dict['foo']= foo
+        serializedMsg = json.dumps(msg_dict)
+        if hasattr(self, 'client'):
+            self.client.publish(msgTopic,serializedMsg)
+        else: raise ValueError('Why does this case happens?')
+
+    # Method to build a json_string 'Execution message' and publish it mqtt broker
+    # A 'Execution message' is a message that will triger a specified method, of a specified object, to be executed with some specified arguments
+    def buildExeMsgAndPublishToBroker(self,*args):
+        msgTopic = args[0] # The first arg is the topic of the msg
+        objectAndMethodToExe = args[1] #next if a dict of className, id and method name
+        argsToSerialize= args[2:] # next are all the arguments for the method
+        msg_dict={}
+        msg_dict['clientId']=self.clientId
+        msg_dict['objectAndMethod']= objectAndMethodToExe
+        listOfArgs=[]
+        for arg in argsToSerialize:
+            if isinstance(arg,SGModel.JsonManagedDataTypes):
+                listOfArgs.append(arg)
+                # listOfArgs.append(json.dumps(arg))
+            else:
+                listOfArgs.append(['SGObjectIdentifer',arg.getObjectIdentiferForJsonDumps()])
+                # listOfArgs.append(['SGObjectIdentifer',json.dumps(arg.getObjectIdentiferForJsonDumps())])
+        msg_dict['listOfArgs']= listOfArgs
+        serializedMsg = json.dumps(msg_dict)
+
+        if hasattr(self, 'client'):
+            self.client.publish(msgTopic,serializedMsg)
+        else: raise ValueError('Why does this case happens?')
+
+    def processBrokerMsg_nextTrun(self, unserializedMsg):
+        #eventually, one can add and process some more info about this nextTurn action
+        self.actionsFromBrokerToBeExecuted.append({
+            'action_type':'nextTurn'
+             })
+        
+    #Method to process the incoming of a "gameAction_performed" msg
+    def processBrokerMsg_gameAction_performed(self, unserializedMsg):
+        msg = unserializedMsg
+        objectAndMethod = msg['objectAndMethod']
+        classOfObjectToExe = objectAndMethod['class_name']
+        idOfObjectToExe = objectAndMethod['id']
+        methodOfObjectToExe = objectAndMethod['method']
+        if methodOfObjectToExe != 'perform_with': raise ValueError('This method only works for msg that should execute gameAction.perform_with(*args)')
+        aGameAction = self.getGameAction_withClassAndId(classOfObjectToExe,idOfObjectToExe)
+        listOfArgs=[]
+        for aArgSpec in msg['listOfArgs']:
+            if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
+                aArg=self.getSGObject_withIdentfier(aArgSpec[1])
+            else:
+                aArg= aArgSpec
+            listOfArgs.append(aArg)
+        self.actionsFromBrokerToBeExecuted.append({
+            'action_type':'gameAction',
+            'gameAction':aGameAction,
+             'listOfArgs':listOfArgs
+             })
+
 
     # publish on mqtt broker the state of all entities of the world
     def publishEntitiesState(self):
+        #JUst to test another mqqt method, I skip this instruction temporarily
+        return
         if hasattr(self, 'client'):
             self.client.publish('Gamestates', self.submitMessage())
 
@@ -1698,10 +1794,12 @@ class SGModel(QMainWindow):
         return majID
     
     def onMAJTimer(self):
-        self.updateAgentsAtMAJ()
-        self.updateScoreAtMAJ()
-        self.checkAndUpdateWatchers()
-        self.timeManager.checkEndGame()
+        self.executeGameActionsAfterBrokerMsg()
+#The instructions below have been commented temporarily to test a new process for broker msg 
+        # self.updateAgentsAtMAJ()
+        # self.updateScoreAtMAJ()
+        # self.checkAndUpdateWatchers()
+        # self.timeManager.checkEndGame()
         
     def updateAgentsAtMAJ(self):
         for j in self.dictAgentsAtMAJ.keys():
@@ -1709,6 +1807,20 @@ class SGModel(QMainWindow):
             newAgent.cell.updateIncomingAgent(newAgent)
         self.dictAgentsAtMAJ={}
     
+    def executeGameActionsAfterBrokerMsg(self):
+        for item in self.actionsFromBrokerToBeExecuted:
+            actionType = item['action_type']
+            if actionType == 'gameAction':
+                aGameAction = item['gameAction']
+                listOfArgs = item['listOfArgs']
+                aGameAction.perform_with(*listOfArgs,serverUpdate=False)
+            elif actionType == 'nextTurn':
+                self.timeManager.nextPhase()
+            else: raise ValueError('No other possible choices')
+
+        self.actionsFromBrokerToBeExecuted=[]
+    
+
     def updateScoreAtMAJ(self):
         for aGameSpace in self.gameSpaces:
             if isinstance(aGameSpace,SGDashBoard):

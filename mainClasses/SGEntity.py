@@ -93,8 +93,14 @@ class SGEntity(QtWidgets.QWidget):
 
     def updateMqtt(self):
         if self.model.mqttMajType == "Instantaneous":
-            SGGameActions.sendMqttMessage(self)
+            self.model.publishEntitiesState()
 
+    def getObjectIdentiferForJsonDumps(self):
+        dict ={}
+        dict['entityName']=self.classDef.entityName
+        dict['id']=self.id
+        return dict
+    
     def addWatcher(self,aIndicator):
         aAtt = aIndicator.attribut
         if aAtt not in self.watchers.keys():

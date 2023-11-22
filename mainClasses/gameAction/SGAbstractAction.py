@@ -4,31 +4,39 @@ import copy
 
 #Class who manage the game mechanics of Update
 class SGAbstractAction():
+    IDincr=0
     def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
+        self.id=self.nextId()
+        print(self.id) # To test
         self.targetEntDef=entDef
+        self.model=self.targetEntDef.model 
         self.number=number
         self.numberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
         self.feedbacks=feedBacks
         self.conditionsOfFeedBack=conditionsOfFeedBack            
-        
+
+    def nextId(self):
+        SGAbstractAction.IDincr +=1
+        return SGAbstractAction.IDincr   
+    
     #Function which increment the number of use
     def incNbUsed(self):
         self.numberUsed += 1
 
 
-    def perform_with(self,aTargetEntity,aParameterHolder):
+    def perform_with(self,aTargetEntity,serverUpdate=True): #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
         if self.checkAuhorization(aTargetEntity):
             resAction = self.executeAction(aTargetEntity)
-            aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,aParameterHolder,resAction])
+            aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
             if self.checkFeedbackAuhorization(aFeedbackTarget):
                 resFeedback = self.executeFeedback(aFeedbackTarget)
             self.incNbUsed()
+            if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
             return resFeedback
         else:
             return False
-
 
     #Function to test if the game action could be use
     def checkAuhorization(self,aTargetEntity):
@@ -56,6 +64,14 @@ class SGAbstractAction():
         else:
             return False    
     
+    def updateServer_gameAction_performed(self, *args):
+        if self.model.mqttMajType == "Instantaneous":
+            dict ={}
+            dict['class_name']=self.__class__.__name__
+            dict['id']=self.id
+            dict['method']='perform_with'
+            self.model.buildExeMsgAndPublishToBroker('gameAction_performed',dict, *args)
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
         

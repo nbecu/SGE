@@ -62,8 +62,9 @@ class SGTimeManager():
                     #watchers update
                     self.model.checkAndUpdateWatchers()
                     #mqtt update
-                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                        self.model.publishEntitiesState()
+        #The instructions below have been commented temporarily to test a new process for broker msg  
+                    # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
+                    #     self.model.publishEntitiesState()
 
 
                 else:

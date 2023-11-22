@@ -44,7 +44,7 @@ Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
 Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
     # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
     #le paramètre aNumber doit être placé après dictAttributes
-Player1.addGameAction(myModel.newMoveAction(Workers, 1))
+Player1.addGameAction(myModel.newMoveAction(Workers, 5))
     # Pourquoi une moveAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
     # Y'a un truc qui cloche entre feedback et feedbackAgent. Si l'actuel feeback concerne la cellule (a priori la cellule de destination), alors il faut inverser les noms des attributs : feedbackAgent doit etre feedback et et l'actuel feedback doit etre feedbackOnDestinationCell.     Si possible, il faudrait intégrer aussi un feedbackOnOriginCell
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", showAgentsWithNoAtt=True)

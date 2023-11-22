@@ -177,7 +177,7 @@ class SGAgent(SGEntity):
             else :
                 from mainClasses.gameAction.SGMove import SGMove
                 if isinstance(aLegendItem.gameAction,SGMove): return
-                aLegendItem.gameAction.perform_with(self,aLegendItem) 
+                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
                 return
             if not authorisation : return #Exit the method
 
@@ -211,7 +211,7 @@ class SGAgent(SGEntity):
         #                         self.feedBack(theAction)"""
         #                 self.model.deleteAgent(self.species,self.id)
         #                 if self.model.mqttMajType == "Instantaneous":
-        #                     SGGameActions.sendMqttMessage(self)
+        #                     self.model.publishEntitiesState(self)
         #                 self.update()
         #         #Change the value of agent
         #         # # ! à retravailler   
@@ -224,7 +224,7 @@ class SGAgent(SGEntity):
         #                         self.feedBack(theAction)"""
         #                 aDictWithValue={self.model.selected[4]:self.model.selected[3]}
         #                 if self.model.mqttMajType == "Instantaneous":
-        #                     SGGameActions.sendMqttMessage(self)  
+        #                     self.model.publishEntitiesState(self)  
         #                 """for aVal in list(aDictWithValue.keys()) :
         #                     if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
         #                             for anAttribute in list(self.theCollection.povs[self.model.nameOfPov].keys()):

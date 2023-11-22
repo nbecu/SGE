@@ -33,6 +33,7 @@ class SGGameActions():
         return authorisation
     
     def sendMqttMessage(aObject):
+        #OBSOLETE. CAN Removee
         aObject.model.publishEntitiesState()
     
 

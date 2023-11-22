@@ -115,7 +115,7 @@ class SGCell(SGEntity):
             if aLegendItem.legend.isAdminLegend():
                 authorisation= True
             else :
-                aLegendItem.gameAction.perform_with(self,aLegendItem) 
+                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
                 # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
                 return
 
@@ -159,7 +159,7 @@ class SGCell(SGEntity):
         elif aLegendItem is None : None #Exit the method
         # These next 7 lines need a bit of refactoring
         else :
-            aLegendItem.gameAction.perform_with(aAgent,aLegendItem,self) 
+            aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
             # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
 
         # aAgent=e.source()
@@ -167,7 +167,7 @@ class SGCell(SGEntity):
         # aAgent.updateAgentByRecreating_it()
         e.setDropAction(Qt.MoveAction)
         # if self.model.mqttMajType == "Instantaneous":
-        #     SGGameActions.sendMqttMessage(self)
+        #     self.model.publishEntitiesState(self)
                             
     # To handle the drag of the grid
     def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
