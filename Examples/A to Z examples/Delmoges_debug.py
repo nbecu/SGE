@@ -51,7 +51,7 @@ theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !",
 InitPhase=myModel.timeManager.newGamePhase("Début du jeu, le joueur peut jouer",Player1)
 
 GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
-# GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
+GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 
 # DashBoard=myModel.newDashBoard()
@@ -120,9 +120,9 @@ ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port(total_pêcheMerlu,total_pêcheSole))
 
 PhasePêche=myModel.timeManager.newModelPhase(ModelActionPêche, name="Pêche")
-# PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
+PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
-# PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
+PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
 myModel.newLegend(showAgentsWithNoAtt=True)
 myModel.newTimeLabel()
