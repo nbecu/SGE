@@ -41,9 +41,6 @@ class SGEntityDef():
         # isDisplay
 
     ###Definition of the developer methods
-    def attributes(self):
-        return list(self.attributesPossibleValues.keys())
-    
     def addWatcher(self,aIndicator):
         if aIndicator.attribut is None:
             aAtt = 'nb'
@@ -83,8 +80,10 @@ class SGEntityDef():
             watcher.checkAndUpdate()
 
     def updateWatchersOnAllAttributes(self):
-        for aAtt in self.attributes():
-            self.updateWatchersOnAttribute(aAtt)
+        for aAtt, listOfWatchers in self.watchers.items():
+            if aAtt == 'nb': continue
+            for watcher in listOfWatchers:
+                watcher.checkAndUpdate()
 
     def updateWatchersOnPop(self):
         self.updateWatchersOnAttribute('nb')

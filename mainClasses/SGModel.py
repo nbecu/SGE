@@ -4,32 +4,31 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar)
 from PyQt5 import QtWidgets
-from mainClasses.layout.SGVerticalLayout import SGVerticalLayout
-from mainClasses.layout.SGHorizontalLayout import SGHorizontalLayout
-from mainClasses.layout.SGGridLayout import SGGridLayout
-from mainClasses.gameAction.SGGameActions import SGGameActions
-from mainClasses.gameAction.SGMove import SGMove
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGUpdate import SGUpdate
-from mainClasses.gameAction.SGCreate import SGCreate
-from mainClasses.SGLegend import SGLegend
-from mainClasses.SGControlPanel import SGControlPanel
-from mainClasses.SGVoid import SGVoid
-from mainClasses.SGCell import SGCell
-from mainClasses.SGGrid import SGGrid
-from mainClasses.SGModelAction import SGModelAction
-from mainClasses.SGModelAction import SGModelAction_OnEntities
-from mainClasses.SGEndGameRule import SGEndGameRule
-from mainClasses.SGUserSelector import SGUserSelector
-from mainClasses.SGDashBoard import SGDashBoard
-from mainClasses.SGSimulationVariables import SGSimulationVariables
-from mainClasses.SGTextBox import SGTextBox
-from mainClasses.SGTimeLabel import SGTimeLabel
-from mainClasses.SGTimeManager import SGTimeManager
-from mainClasses.SGPlayer import SGPlayer
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGEntity import SGEntity
-from mainClasses.SGEntityDef import *
+from mainClasses.layout.SGVerticalLayout import*
+from mainClasses.layout.SGHorizontalLayout import*
+from mainClasses.layout.SGGridLayout import*
+from mainClasses.gameAction.SGGameActions import* # This one might be obsolete
+from mainClasses.gameAction.SGMove import*
+from mainClasses.gameAction.SGDelete import*
+from mainClasses.gameAction.SGUpdate import*
+from mainClasses.gameAction.SGCreate import*
+from mainClasses.SGAgent import*
+from mainClasses.SGCell import*
+from mainClasses.SGControlPanel import*
+from mainClasses.SGDashBoard import*
+from mainClasses.SGEndGameRule import*
+from mainClasses.SGEntity import*
+from mainClasses.SGEntityDef import*
+from mainClasses.SGGrid import*
+from mainClasses.SGLegend import*
+from mainClasses.SGModelAction import*
+from mainClasses.SGPlayer import*
+from mainClasses.SGSimulationVariables import*
+from mainClasses.SGTextBox import*
+from mainClasses.SGTimeLabel import*
+from mainClasses.SGTimeManager import*
+from mainClasses.SGUserSelector import*
+from mainClasses.SGVoid import*
 from email.policy import default
 from logging.config import listen
 import sys
