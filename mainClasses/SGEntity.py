@@ -30,17 +30,29 @@ class SGEntity(QtWidgets.QWidget):
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
         self.dictAttributes={}
         if thisAgentAttributesAndValues is None : thisAgentAttributesAndValues={}
-        for aAtt in self.classDef.attributesPossibleValues.keys():
-            if aAtt in thisAgentAttributesAndValues.keys():
-                valueToSet = thisAgentAttributesAndValues[aAtt]
-            elif aAtt in self.classDef.attributesDefaultValues.keys():
-                valueToSet = self.classDef.attributesDefaultValues[aAtt]
-            else: valueToSet = None
+        for aAtt, aDefaultValue in self.classDef.attributesDefaultValues.items():
+            if not aAtt in thisAgentAttributesAndValues.keys():
+                thisAgentAttributesAndValues[aAtt]=aDefaultValue
+        for aAtt, valueToSet in thisAgentAttributesAndValues.items():
             if callable(valueToSet):
                 self.setValue(aAtt,valueToSet())
             else:
                 self.setValue(aAtt,valueToSet)
 
+    #       Previous Version of the Method. Should be Obsolete if the new one (above) works fine
+    # def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
+    #     self.dictAttributes={}
+    #     if thisAgentAttributesAndValues is None : thisAgentAttributesAndValues={}
+    #     for aAtt in self.classDef.attributesPossibleValues.keys():
+    #         if aAtt in thisAgentAttributesAndValues.keys():
+    #             valueToSet = thisAgentAttributesAndValues[aAtt]
+    #         elif aAtt in self.classDef.attributesDefaultValues.keys():
+    #             valueToSet = self.classDef.attributesDefaultValues[aAtt]
+    #         else: valueToSet = None
+    #         if callable(valueToSet):
+    #             self.setValue(aAtt,valueToSet())
+    #         else:
+    #             self.setValue(aAtt,valueToSet)
 
     def getRandomAttributValue(self,aAgentSpecies,aAtt):
         if aAgentSpecies.dictAttributes is not None:
@@ -142,11 +154,13 @@ class SGEntity(QtWidgets.QWidget):
 
     def value(self,att):
         """
-        Return the value of a cell Attribut
+        Return the value of a entity attribute
         Args:
             att (str): Name of the attribute
+        Return:
+            the value of the attribute or None if the attribute is not defined for this entity
         """
-        return self.dictAttributes[att]
+        return self.dictAttributes.get(att,None)
     
     def incValue(self,aAttribut,aValue=1,max=None):
         """

@@ -39,14 +39,14 @@ class SGGrid(SGGameSpace):
 
         if aColor != "None":
             self.setColor(aColor)
+#Trying to comment these lines, to call the method newCellsFromGrid directly in the method newGrid of the method, to make it easier to understand that this model method creates a CellDef
+    #     # We initialize the user interface related to the grid
+    #     self.initCells()
 
-        # We initialize the user interface related to the grid
-        self.initCells()
-
-    # Initialize the user interface
-    def initCells(self):
-        # Init the CellDef and Cells
-        self.cellDef = self.model.newCellsFromGrid(self)
+    # # Initialize the user interface
+    # def initCells(self):
+    #     # Init the CellDef and Cells
+    #     self.cellDef = self.model.newCellsFromGrid(self)
 
     
     # Drawing the game board with the cell

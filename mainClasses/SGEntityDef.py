@@ -10,10 +10,10 @@ import random
 # EntityDef has two subclasses entityDef and AgentDef which hold the definition parameters of the entities and agents 
 # entityDef and AgentDef also hold the list of entities of the simulation 
 class SGEntityDef():
-    def __init__(self, sgModel, entityName,shape,defaultsize,attributesPossibleValues, defaultShapeColor):
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues, defaultShapeColor):
         self.model= sgModel
         self.entityName=entityName
-        self.attributesPossibleValues= attributesPossibleValues if attributesPossibleValues is not None else {}
+        self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
         self.attributesDefaultValues={}
         self.shape=shape
         self.defaultsize=defaultsize
@@ -114,6 +114,11 @@ class SGEntityDef():
     ###Definiton of the methods who the modeler will use
     def setDefaultValue(self, aAtt, aDefaultValue):
         self.attributesDefaultValues[aAtt] = aDefaultValue
+    
+    def setDefaultValues(self, aDictOfAttributesAndValues):
+        for att, defValue in aDictOfAttributesAndValues.items():
+            self.attributesDefaultValues[att] = defValue
+
 
 
     #To set up a POV
@@ -191,6 +196,11 @@ class SGEntityDef():
             aId=x
         return next(filter(lambda ent: ent.id==aId, self.entities),None)
 
+# to get all entities. a condition on the entity can be used to select only some entities
+    def getEntities(self, condition=None):
+
+        if condition is None: return self.entities[:]
+        return [ent for ent in self.entities if condition(ent)]
 
 # to get all entities with a certain value
     def getEntities_withValue(self, att, val):
@@ -266,15 +276,16 @@ class SGEntityDef():
 # To handle POV and placing on entity
 
     # To define a value for all entities
-    def setEntities(self, aAttribute, aValue):
+    def setEntities(self, aAttribute, aValue, condition=None):
         """
         Set the value of attribut value of all entities
 
         Args:
             aAttribute (str): Name of the attribute to set
             aValue (str): Value to set the attribute to
+            condition (lambda function): a condition on the entity can be used to select only some entities
         """
-        for ent in self.entities:
+        for ent in self.getEntities(condition):
             ent.setValue(aAttribute, aValue)
 
     # set the value of attribut to all entities in a specified column

@@ -114,7 +114,7 @@ class SGModel(QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
-        self.randomSeed=42
+        self.randomSeed=13 #42
         random.seed(self.randomSeed)
         self.mqtt=False
         self.mqttMajType=None
@@ -159,7 +159,7 @@ class SGModel(QMainWindow):
         QTimer.singleShot(100, self.updateFunction)
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
-            if possibleUsers != [] : self.setCurrentPlayer(self.getUsers_withControlPanel()[0])
+            if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
 
     def maj_coordonnees(self):
         pos_souris_globale = QCursor.pos()
@@ -407,6 +407,7 @@ class SGModel(QMainWindow):
 # For create elements
     # To create a grid
     def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
+        #TODO the order of the variables should be: columns, rows, format, size, gap, color, moveable, name
         """
         Create a grid that contains cells
 
@@ -421,11 +422,17 @@ class SGModel(QMainWindow):
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
 
         Returns:
-            aGrid: the grid created with its cells
+            aCellDef: the cellDef that defines the cells that have been placed on a grid
         """
-        # Creation
+        # Create a grid
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable)
+
+        # Create a CellDef populate the grid with it
+        aCellDef = self.newCellsFromGrid(aGrid)
+        aGrid.cellDef =aCellDef
+
         self.gameSpaces[name] = aGrid
+
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aGrid)
         aGrid.setStartXBase(newPos[0])
@@ -439,7 +446,7 @@ class SGModel(QMainWindow):
             pos = self.layoutOfModel.foundInLayout(aGrid)
             aGrid.move(aGrid.getStartXBase()+20 *
                        pos[0], aGrid.getStartYBase()+20*pos[1])
-        return self.getCellDef(aGrid)
+        return aCellDef
     
     def newCellsFromGrid(self,grid):
         CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white )
@@ -605,7 +612,7 @@ class SGModel(QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, name, shape, dictAttributes=None, defaultSize=10, uniqueColor=Qt.white):
+    def newAgentSpecies(self, name, shape, dictAttributes=None, defaultSize=15, defaultColor=Qt.black):
         """
         Create a new specie of Agents.
 
@@ -620,7 +627,7 @@ class SGModel(QMainWindow):
 
         """
         aAgentSpecies = SGAgentDef(self, name, shape, defaultSize,
-                                dictAttributes, uniqueColor)
+                                dictAttributes, defaultColor)
         # aAgentSpecies.isDisplay = False
         # aAgentSpecies.species=aSpeciesName
         # self.agentSpecies[str(name)] = {"me": aAgentSpecies.me, "Shape": shape, "DefaultSize": defaultSize, "AttributList": dictAttributes, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
@@ -923,13 +930,13 @@ class SGModel(QMainWindow):
     def newTimeLabel(self, name="Phases&Rounds", backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         """
         Create the visual time board of the game
-
         Args:
         name (str) : name of the widget (default:"Phases&Rounds")
         backgroundColor (Qt Color) : color of the background (default : Qt.white)
         borderColor (Qt Color) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
+        # TODO: variable name should be renamed title ; if title is set to None, then the title line should be omited in the display 
         aTimeLabel = SGTimeLabel(
             self, name, backgroundColor, borderColor, textColor)
         self.myTimeLabel = aTimeLabel

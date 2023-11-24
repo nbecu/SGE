@@ -35,16 +35,16 @@ Cell.newBorderPov("Parc info", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 harvesters = myModel.newAgentSpecies(
-    "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}},uniqueColor=Qt.black)
+    "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}})
 harvesters.setDefaultValue('harvest',0)
 harvesters.setDefaultValue('total harvest',0)
 # aHarvester = myModel.newAgentAtCoords(Cell,harvesters,5,2)
-Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, uniqueColor=Qt.yellow)
+Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, defaultColor=Qt.yellow)
 # Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:QColor.fromRgb(170,205,50),2:Qt.green})
 # Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:Qt.black,2:Qt.green})
 Bird.setDefaultValue('nb reproduction',0)
 
-Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, uniqueColor=QColorConstants.Magenta)
+Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
 
 
 # globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
@@ -75,8 +75,7 @@ firstPhase.addModelAction(settleAction)
 myModel.timeManager.newGamePhase('Parc actions', [Parc])
 myModel.timeManager.newGamePhase('Clans actions', [Clans])
 
-# myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: harvest(cell)))
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)))
+myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)),name='harvest updated')
 
 myModel.timeManager.newModelPhase(myModel.newModelAction_onAgents('Bird',lambda bird: reproduce(bird)),name='Bird reproduction')
 
@@ -91,22 +90,9 @@ def reproduce(aBird):
     for i in range(aBird.value('nb reproduction')):
         aBird.cell.newAgentHere(Chick)
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='update biomass')
-myModel.timeManager.newModelPhase(lambda : myModel.deleteAllAgents(),name='Clear the gameboard')
+myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='biomass updated')
+myModel.timeManager.newModelPhase(lambda : myModel.deleteAllAgents(),name='gameboard cleared')
 
-
-# def harvest(cell):
-#     if cell.nbAgents()==1:
-#         aQt = min(2,cell.value('biomass'))
-#         cell.getAgents()[0].incValue('total harvest',aQt)
-#         cell.getAgents()[0].setValue('harvest',aQt)
-#         cell.decValue('biomass',aQt)
-#     elif cell.nbAgents()>1:
-#         aQt = min(2,cell.value('biomass'))
-#         for aAgt in random.sample(cell.getAgents(), aQt):
-#             aAgt.incValue('total harvest',1)
-#             aAgt.setValue('harvest',1)
-#             cell.decValue('biomass',1)
 
 def updateNoHarvestPeriod(cell):
     if len(cell.getAgents('harvesters')) == 0:
@@ -136,7 +122,7 @@ def renewBiomass(cell):
     if nbHarvesters >0: cell.decValue('biomass',nbHarvesters,min=0)
 
 
-GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
+GameRounds = myModel.newTimeLabel(None, Qt.white, Qt.black, Qt.red)
 # myModel.setCurrentPlayer('Player 1')
 
 userSelector=myModel.newUserSelector()

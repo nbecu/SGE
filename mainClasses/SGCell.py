@@ -151,10 +151,10 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         aAgent=e.source()
-
-        aActiveLegend = self.model.getSelectedLegend()
+        
+        aActiveLegend = self.model.getSelectedLegend() 
         aLegendItem = self.model.getSelectedLegendItem()
-        if aActiveLegend.isAdminLegend():
+        if aActiveLegend.isAdminLegend(): # BUG in case there is no adminLegend and not player. Should use a similar test than in mousePressEvent() to correct the bug. Could also use  model.getUsers_withControlPanel()  to test if there is any cibtrolPanel or admiLegend defined
             aAgent.moveTo2(self)
         elif aLegendItem is None : None #Exit the method
         # These next 7 lines need a bit of refactoring
