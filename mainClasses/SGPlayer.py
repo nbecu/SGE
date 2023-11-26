@@ -8,12 +8,14 @@ from mainClasses.gameAction.SGUpdate import SGUpdate
 from mainClasses.gameAction.SGCreate import SGCreate
 from mainClasses.gameAction.SGMove import SGMove
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from mainClasses.AttributeAndValueFunctionalities import *
+
 
 import copy
 
 
 # Class that handle the player
-class SGPlayer():
+class SGPlayer(AttributeAndValueFunctionalities):
     def __init__(self, theModel, name, actions=[]):
         self.model = theModel
         self.name = name

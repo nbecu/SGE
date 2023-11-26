@@ -30,9 +30,13 @@ DashBoard.showIndicators()
 
 #CREATIONS DE MODEL ACTIONS
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2), feedBacks=(lambda: i1.setResult(i1.result -1))) 
+# TODO Trouver un autre exemple car le modeleler n'a pas le droit d'intervenir sur le setResult d'un indicateur (c'est une méthdoe prviée)
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","shrub",2,"landUse","shrub"))
 aFeedbackAction=myModel.newModelAction(lambda: i1.setResult(i1.result - 5))
+# TODO Trouver un autre exemple car le modeleler n'a pas le droit d'intervenir sur le setResult d'un indicateur (c'est une méthdoe prviée)
+# si on veut ajouter des points, il faut passer par un score  qui peut etre déclaré par une simVariable par ex.
+
 aFeedbackAction.addCondition(lambda: i1.result <15)                                     
 aModelAction2.addFeedback(aFeedbackAction)
 

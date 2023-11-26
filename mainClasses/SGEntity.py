@@ -3,9 +3,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
 from mainClasses.gameAction.SGGameActions import SGGameActions
+from mainClasses.AttributeAndValueFunctionalities import *
 
 # Class who is in charged of entities : cells and agents
-class SGEntity(QtWidgets.QWidget):
+class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def __init__(self,parent,classDef,size,shapeColor,attributesAndValues):
         super().__init__(parent)
         self.classDef=classDef
@@ -152,42 +153,42 @@ class SGEntity(QtWidgets.QWidget):
         self.update()
         return True
 
-    def value(self,att):
-        """
-        Return the value of a entity attribute
-        Args:
-            att (str): Name of the attribute
-        Return:
-            the value of the attribute or None if the attribute is not defined for this entity
-        """
-        return self.dictAttributes.get(att,None)
+    # def value(self,att):
+    #     """
+    #     Return the value of a entity attribute
+    #     Args:
+    #         att (str): Name of the attribute
+    #     Return:
+    #         the value of the attribute or None if the attribute is not defined for this entity
+    #     """
+    #     return self.dictAttributes.get(att,None)
     
-    def incValue(self,aAttribut,aValue=1,max=None):
-        """
-        Increase the value of an attribut with an additional value
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be added to the current value of the attribute
-        """
-        self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
-        # This method is equivalent to 
-        # newValue = self.value(aAttribut)+aValue
-        # if max is not None: newValue = min(newValue,max)    
-        # self.setValue(aAttribut,newValue)
+    # def incValue(self,aAttribut,aValue=1,max=None):
+    #     """
+    #     Increase the value of an attribut with an additional value
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be added to the current value of the attribute
+    #     """
+    #     self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
+    #     # This method is equivalent to 
+    #     # newValue = self.value(aAttribut)+aValue
+    #     # if max is not None: newValue = min(newValue,max)    
+    #     # self.setValue(aAttribut,newValue)
 
-    def decValue(self,aAttribut,aValue=1,min=None):
-        """
-        Decrease the value of an attribut with an additional value
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be subtracted to the current value of the attribute
-        """       
-        self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
+    # def decValue(self,aAttribut,aValue=1,min=None):
+    #     """
+    #     Decrease the value of an attribut with an additional value
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be subtracted to the current value of the attribute
+    #     """       
+    #     self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
 
-    def calValue(self,aAttribut,aLambdaFunction):
-        # NOT TESTED YET
-        if callable(aLambdaFunction):
-            currentValue = self.value(aAttribut)
-            result = aLambdaFunction(currentValue)
-            self.setValue(result)
-        else: raise ValueError ('calcValue works with a lambda function')
+    # def calcValue(self,aAttribut,aLambdaFunction):
+    #     # NOT TESTED YET
+    #     if callable(aLambdaFunction):
+    #         currentValue = self.value(aAttribut)
+    #         result = aLambdaFunction(currentValue)
+    #         self.setValue(result)
+    #     else: raise ValueError ('calcValue works with a lambda function')

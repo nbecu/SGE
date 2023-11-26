@@ -32,6 +32,8 @@ aTextBox=myModel.newTextBox(title='La foret regresse petit à petit')
 
 #CREATIONS DE MODEL ACTIONS
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2), feedBacks=(lambda: i1.setResult(i1.result -1))) 
+# TODO Trouver un autre exemple car le modeleler n'a pas le droit d'intervenir sur le setResult d'un indicateur (c'est une méthdoe prviée)
+
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","shrub",2,"landUse","shrub"))
 aFeedbackAction=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",5,"landUse","forest"))

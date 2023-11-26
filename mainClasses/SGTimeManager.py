@@ -53,6 +53,7 @@ class SGTimeManager():
                 # execute the actions of the phase
                 if doThePhase:
                     # We can execute the actions
+                    #TODO déplacer l'execution de la phase coté TimePhase
                     if len(thePhase.modelActions) != 0:
                         for aAction in thePhase.modelActions:
                             if callable(aAction):

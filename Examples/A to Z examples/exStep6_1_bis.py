@@ -15,7 +15,7 @@ Cell.setRandomEntities("landUse","shrub",30)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed,{"health":{"good","bad"},"hunger":{"good","bad"}}
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
@@ -53,7 +53,7 @@ DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("nbEqualTo", 'Cell', attribute='landUse',value='forest',color=Qt.black)
 # Be careful ! Your value needs to be integrers or float to be logical tested. Only number functions for string values.
 DashBoard.showIndicators()
-
+# TODO Why does the modeler need to specify to showIndicators ?
 
 myModel.launch() 
 

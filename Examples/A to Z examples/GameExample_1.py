@@ -32,7 +32,7 @@ Cell.newBorderPovColorAndWidth("ProtectionLevel2", "ProtectionLevel", {"Reserve"
 # STEP3 Agents
 Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", defaultColor=Qt.black)
 Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yellow)
-# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
+# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed,{"health":{"good","bad"},"hunger":{"good","bad"}}
 # Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 # Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 # Sheeps.setDefaultValue("hunger","bad")

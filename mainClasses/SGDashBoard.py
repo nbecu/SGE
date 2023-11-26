@@ -79,6 +79,8 @@ class SGDashBoard(SGGameSpace):
             return False
 
     def addIndicator(self, method, entityName, color=Qt.black, attribute=None, value=None, logicOp= None, indicatorName=None, isDisplay=True):
+        # TODO Changer l'ordre des varaibles --> entityName,method,attribute........ puis la suite
+        # changer le nom indicatorName, par title, ou text
         """
         Add an Indicator on the DashBoard.
 
@@ -136,7 +138,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        if not isinstance(entity,SGEntity): raise ValueError ('Wrong enity format')
+        if not isinstance(entity,(SGEntity,SGEntityDef)): raise ValueError ('Wrong enity format')
         self.entity= entity
 
         if value is None:

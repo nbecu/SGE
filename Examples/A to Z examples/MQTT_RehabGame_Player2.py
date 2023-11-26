@@ -6,7 +6,7 @@ from mainClasses.SGSGE import *
 
 monApp = QtWidgets.QApplication([])
 
-
+random.seed(13)
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 2", typeOfLayout="grid")
 
@@ -20,15 +20,11 @@ Cell.setRandomEntities("Resource", 0, 8)
 Cell.setRandomEntities("ProtectionLevel", "Reserve", 1)
 
 
-Cell.newPov("Resource", "Resource", {
-               3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow, 0: Qt.white})
-Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
-                     "Reserve": Qt.magenta, "Free": Qt.black})
+Cell.newPov("Resource", "Resource", {3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow, 0: Qt.white})
+Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
 
-Workers = myModel.newAgentSpecies(
-    "Workers", "triangleAgent1", uniqueColor=Qt.black)
-Birds = myModel.newAgentSpecies(
-    "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
+Workers = myModel.newAgentSpecies("Workers", "triangleAgent1")
+Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yellow)
 
 aWorker = Workers.newAgentAtCoords(Cell,5,2)
 
@@ -70,7 +66,7 @@ i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.blac
 i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicatorOnSimVariable(globalScore)
 DashBoard.showIndicators()
-aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
+aModelAction4.addFeedback(lambda: globalScore.incValue(5))
 myModel.timeManager.newModelPhase(aModelAction4)
 
 

@@ -1,8 +1,10 @@
 #A class to be inherited, that handlse the attributs and values
 
 class AttributeAndValueFunctionalities():
-    def __init__(self,attributesAndValues={}):
+
+    def initAttributes(self,attributesAndValues):
         self.dictAttributes={}
+        if attributesAndValues is None: return
         for aAtt, valueToSet in attributesAndValues.items():
             if callable(valueToSet):
                 self.setValue(aAtt,valueToSet())
@@ -29,7 +31,7 @@ class AttributeAndValueFunctionalities():
         Args:
             att (str): Name of the attribute
         """
-        return self.dictAttributes[att]
+        return self.dictAttributes.get(att,None)
     
     def incValue(self,aAttribut,aValue=1,max=None):
         """
@@ -53,10 +55,16 @@ class AttributeAndValueFunctionalities():
         """       
         self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
 
-    def calValue(self,aAttribut,aLambdaFunction):
-        # NOT TESTED YET
+    def calcValue(self,aAttribut,aLambdaFunction):
+        """
+        Apply a calculation on the value of an attribut using a lambda function
+        
+        Args:
+            aAttribut (str): Name of the attribute
+            aLambda function(lambda) : a lambda function. ex (lambda x: x * 1.2 +5))
+        """
         if callable(aLambdaFunction):
             currentValue = self.value(aAttribut)
             result = aLambdaFunction(currentValue)
-            self.setValue(result)
+            self.setValue(aAttribut, result)
         else: raise ValueError ('calcValue works with a lambda function')

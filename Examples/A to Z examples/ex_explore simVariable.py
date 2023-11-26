@@ -12,17 +12,19 @@ Square.setEntities("status",'black')
 Square.setEntities("status",'white',lambda c: c.id%2==0)
 Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QColor.fromRgb(254, 254, 226)})
 
-Pawn=myModel.newAgentSpecies(name="Pawn",shape='ellipseAgent1',entDefAttributesAndValues={'foo':5})
+score1= myModel.newSimVariable(1,'score1')
+score2= myModel.newSimVariable(1,'score2')
 
+a1= myModel.newModelAction(lambda: (score1.incValue(1)))
+a2= myModel.newModelAction(lambda: (score2.calcValue(lambda x: x *1.1)))
 
-Pawn.calcValue('foo',(lambda x: 2*x*x+ 5*x -14))
-
-myModel.timeManager.newModelPhase((lambda: Pawn.decValue('foo',1)))
-
+myModel.timeManager.newModelPhase([a1,a2])
 
 dashboard = myModel.newDashBoard()
-dashboard.addIndicatorOnEntity(Pawn,'foo')
+dashboard.addIndicatorOnSimVariable(score1)
+dashboard.addIndicatorOnSimVariable(score2)
 dashboard.showIndicators()
 
+myModel.newTimeLabel()
 myModel.launch() 
 sys.exit(monApp.exec_())

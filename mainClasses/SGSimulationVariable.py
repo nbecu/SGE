@@ -5,11 +5,12 @@ from sqlalchemy import null
 # import numpy as np
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
+from mainClasses.AttributeAndValueFunctionalities import *
 
 
    
 #Class who is responsible of indicator creation 
-class SGSimulationVariables():
+class SGSimulationVariable():
     def __init__(self,parent,initValue,name,color,isDisplay=True):
         #Basic initialize
         self.model=parent
@@ -41,8 +42,13 @@ class SGSimulationVariables():
         """       
         self.setValue(self.value-aValue if min is None else max(self.value-aValue,min))
 
-    def calValue(self,aLambdaFunction):
-        # NOT TESTED YET
+    def calcValue(self,aLambdaFunction):
+        """
+        Apply a calculation on the value using a lambda function
+        
+        Args:
+            aLambda function(lambda) : a lambda function. ex (lambda x: x * 1.2 +5))
+        """
         if callable(aLambdaFunction):
             result = aLambdaFunction(self.value)
             self.setValue(result)

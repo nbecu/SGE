@@ -32,6 +32,7 @@ DashBoard.showIndicators()
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2))
     #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
 aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5)) 
+# TODO Trouver un autre exemple car le modeleler n'a pas le droit d'intervenir sur le setResult d'un indicateur (c'est une méthdoe prviée)
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE

@@ -12,9 +12,6 @@ from mainClasses.SGGameSpace import SGGameSpace
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    # instances=[]
-
-#FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
     def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
@@ -306,6 +303,12 @@ class SGAgent(SGEntity):
         newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
+        newAgent.history = oldAgent.history
+        newAgent.watchers = oldAgent.watchers
+        #apply correction on the watchers on this entity
+        for watchers in list(oldAgent.watchers.values()):
+            for aWatcherOnThisAgent in watchers:
+                aWatcherOnThisAgent.entity=newAgent        
         newAgent.privateID = oldAgent.privateID # A priori, on peut retirer cet attribut
         newAgent.isDisplay = True
         newAgent.classDef.entities.remove(oldAgent)
@@ -315,6 +318,7 @@ class SGAgent(SGEntity):
         self.update()
         return newAgent
     
+
     def moveTo2(self, aDestinationCell):
         if self.cell is None:
             self.cell = aDestinationCell

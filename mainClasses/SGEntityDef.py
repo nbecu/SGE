@@ -4,16 +4,19 @@ from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGAgent import SGAgent
+from mainClasses.AttributeAndValueFunctionalities import *
+
 import random
 
 # Class who is in charged of the definition of an entity type (like entities and agents)
 # EntityDef has two subclasses entityDef and AgentDef which hold the definition parameters of the entities and agents 
 # entityDef and AgentDef also hold the list of entities of the simulation 
-class SGEntityDef():
+class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues, defaultShapeColor):
+        # super().__init__(entDefAttributesAndValues)
         self.model= sgModel
         self.entityName=entityName
-        self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
+        # self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
         self.attributesDefaultValues={}
         self.shape=shape
         self.defaultsize=defaultsize
@@ -27,6 +30,7 @@ class SGEntityDef():
         self.watchers={}
         self.IDincr = 0
         self.entities=[]
+        self.initAttributes(entDefAttributesAndValues)
 
     def nextId(self):
         self.IDincr +=1
@@ -406,12 +410,30 @@ class SGEntityDef():
     def nb_withValue(self, att, value):
         return len(self.getEntities_withValue(att, value))
     
+    # To handle entDefAttributesAndValues
+    # setter
+    def setValue(self,aAttribut,aValue):
+        """
+        Sets the value of an attribut
+        Args:
+            aAttribut (str): Name of the attribute
+            aValue (str): Value to be set
+        """
+        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+        # self.saveHistoryValue()    
+        self.dictAttributes[aAttribut]=aValue
+        # self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        return True
+
+    
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName,shape,defaultsize,attributesPossibleValues,defaultColor=Qt.black,locationInentity="random"):
-        super().__init__(sgModel, entityName,shape,defaultsize,attributesPossibleValues,defaultColor)
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInentity="random"):
+        super().__init__(sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
         self.locationInentity=locationInentity
+
+#Shape of agent availableble : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
 
     def newAgentOnCell(self, aCell, attributesAndValues=None):
         """
@@ -451,10 +473,7 @@ class SGAgentDef(SGEntityDef):
         locationCell = aCellDef.getCell(xCoord, yCoord)
         return self.newAgentOnCell(locationCell, attributesAndValues)
 
-    
-
-
-    def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None):
+    def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None,condition=None):
         """
         Create a new Agent in the associated species a place it on a random cell.
         Args:
@@ -462,8 +481,28 @@ class SGAgentDef(SGEntityDef):
         Return:
             a agent
             """
-        return self.newAgentAtCoords(cellDef_or_grid, None, None, attributesAndValues)
+        aCellDef = self.model.getCellDef(cellDef_or_grid)
+        locationCell=aCellDef.getRandom(condition=condition)
+        return self.newAgentOnCell(locationCell, attributesAndValues)
+        # return self.newAgentAtCoords(cellDef_or_grid, None, None, attributesAndValues)
 
+    def newAgentsAtRandom(self, aNumber, cellDef_or_grid, attributesAndValues=None,condition=None):
+        """
+        Create a number of Agents in the associated species and place them on random cells.
+        Args:
+            aNumber(int) : number of agents to be created
+            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
+        Return:
+            a list of agents
+            """
+        aCellDef = self.model.getCellDef(cellDef_or_grid)
+        locationCells=aCellDef.getRandomEntities(aNumber, condition=condition)
+        alist =[]
+        for aCell in locationCells:
+            alist.append(self.newAgentOnCell(aCell, attributesAndValues))
+        return alist
+        
+    
 
     # To randomly move all agents
     def moveRandomly(self, numberOfMovement=1):
@@ -487,9 +526,8 @@ class SGAgentDef(SGEntityDef):
 
 
 class SGCellDef(SGEntityDef):
-    def __init__(self,grid, shape,defaultsize,defaultColor=Qt.white,entityName='Cell'):
-        attributesPossibleValues=None
-        super().__init__(grid.model, entityName,shape,defaultsize,attributesPossibleValues,defaultColor)
+    def __init__(self,grid, shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.white,entityName='Cell'):
+        super().__init__(grid.model, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
         self.grid= grid
         self.deletedCells=[]
 

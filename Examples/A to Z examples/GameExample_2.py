@@ -29,11 +29,12 @@ Cell.newPov("Resource", "Resource", {3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow,
 Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
 
 # STEP3 Agents
-Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", uniqueColor=Qt.black)
-Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", uniqueColor=Qt.yellow)
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
-Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", defaultColor=Qt.gray)
+Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yellow)
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
+Sheeps.setDefaultValues({"health":(lambda: random.choice(["good","bad"])),"hunger":(lambda: random.choice(["good","bad"]))})
+Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 Sheeps.setDefaultValue("hunger","bad")
 
 aSecondBird=Birds.newAgentAtCoords(Cell,4,5)
@@ -76,7 +77,7 @@ myModel.setCurrentPlayer('Player 1')
 
 
 # STEP6 DashBoard and EndGameRule
-score1= myModel.newSimVariable(0,"Global Score:")
+score1= myModel.newSimVariable(0,"Global Score")
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("sumAtt", Cell, attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", Cell, attribute='Resource',color=Qt.black)

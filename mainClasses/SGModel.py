@@ -23,7 +23,7 @@ from mainClasses.SGGrid import*
 from mainClasses.SGLegend import*
 from mainClasses.SGModelAction import*
 from mainClasses.SGPlayer import*
-from mainClasses.SGSimulationVariables import*
+from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTextBox import*
 from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
@@ -114,8 +114,6 @@ class SGModel(QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
-        self.randomSeed=13 #42
-        random.seed(self.randomSeed)
         self.mqtt=False
         self.mqttMajType=None
         self.testMode=testMode
@@ -449,7 +447,7 @@ class SGModel(QMainWindow):
         return aCellDef
     
     def newCellsFromGrid(self,grid):
-        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white )
+        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None)
         self.cellOfGrids[grid.id] = CellDef
         for lin in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
@@ -612,7 +610,7 @@ class SGModel(QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, name, shape, dictAttributes=None, defaultSize=15, defaultColor=Qt.black):
+    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black):
         """
         Create a new specie of Agents.
 
@@ -626,8 +624,7 @@ class SGModel(QMainWindow):
             a species
 
         """
-        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize,
-                                dictAttributes, defaultColor)
+        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor)
         # aAgentSpecies.isDisplay = False
         # aAgentSpecies.species=aSpeciesName
         # self.agentSpecies[str(name)] = {"me": aAgentSpecies.me, "Shape": shape, "DefaultSize": defaultSize, "AttributList": dictAttributes, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
@@ -1071,7 +1068,8 @@ class SGModel(QMainWindow):
         return self.timeManager.currentPhase
     
     def newSimVariable(self,initValue,name,color=Qt.black,isDisplay=True):
-        aSimVar=SGSimulationVariables(self,initValue,name,color,isDisplay)
+        # TODO change the olrdre of variables : name,iniValue,..
+        aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
 
@@ -1831,7 +1829,7 @@ class SGModel(QMainWindow):
         for aGameSpace in self.gameSpaces:
             if isinstance(aGameSpace,SGDashBoard):
                 for aIndicator in aGameSpace.indicators:
-                    if isinstance(aIndicator.entity,SGSimulationVariables):
+                    if isinstance(aIndicator.entity,SGSimulationVariable):
                         for aDictOfSimVar in self.simulationVariablesAtMAJ:
                             if aIndicator.entity.name == aDictOfSimVar.keys():
                                 aIndicator.updateByMqtt(aDictOfSimVar.values())
