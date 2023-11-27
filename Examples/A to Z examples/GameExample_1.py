@@ -14,7 +14,7 @@ myModel = SGModel(
 
 
 # STEP2 Grid and Cells
-Cell = myModel.newGrid(7, 7, "square", size=50, gap=2,
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=50, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
@@ -78,7 +78,7 @@ myModel.setCurrentPlayer('Player 1')
 
 
 # STEP6 DashBoard and EndGameRule
-score1= myModel.newSimVariable(0,"Global Score:")
+score1= myModel.newSimVariable("Global Score:",0)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)

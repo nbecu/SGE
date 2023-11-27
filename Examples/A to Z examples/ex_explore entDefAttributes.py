@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(400,400)
 
-Square = myModel.newGrid(5, 5, "square",size=45)
+Square = myModel.newCellsOnGrid(5, 5, "square",size=45)
 Square.setEntities("status",'black')
 Square.setEntities("status",'white',lambda c: c.id%2==0)
 Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QColor.fromRgb(254, 254, 226)})

@@ -10,7 +10,7 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
 
-Cell = myModel.newGrid(7, 7, "square", size=60, gap=2,
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", "2")
 Cell.setEntities("ProtectionLevel", "Free")

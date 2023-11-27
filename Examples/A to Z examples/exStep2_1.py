@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(700,600, windowTitle="Step 2 (1) : Create your grid", typeOfLayout='vertical')
 
 # First thing first: define the size of the grid (x, y), the shape of cells, their size, and other parameters
-Cell = myModel.newGrid(10, 10, "square", size=50)
+Cell = myModel.newCellsOnGrid(10, 10, "square", size=50)
 
 # Then set the value of the cells for a given parameter
 # In this example the parameter is landUse, and the values given are 'grass', 'forest' and 'shrub'

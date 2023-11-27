@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(600,600, windowTitle="Step 2 (2) : Points of view and colors")
 
-Cell=myModel.newGrid(10,10,"square",Qt.gray,size=40,gap=8)
+Cell=myModel.newCellsOnGrid(10,10,"square",color=Qt.gray,size=40,gap=8)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)

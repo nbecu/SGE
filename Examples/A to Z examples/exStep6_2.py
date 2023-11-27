@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="EndGame Conditions and Scores")
 
-Cell=myModel.newGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -48,7 +48,7 @@ myModel.timeManager.newModelPhase(aModelAction2)
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-score1= myModel.newSimVariable(0,"Score")
+score1= myModel.newSimVariable("Score",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1) 
 i2 = DashBoard.addIndicator("nbEqualTo", Cell, attribute='landUse',value='forest',color=Qt.black)
 DashBoard.showIndicators()

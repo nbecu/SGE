@@ -10,7 +10,7 @@ random.seed(13)
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 2", typeOfLayout="grid")
 
-Cell = myModel.newGrid(7, 7, "square", size=60, gap=2,
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
@@ -60,7 +60,7 @@ TextBox = myModel.newTextBox(
 
 TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
-globalScore=myModel.newSimVariable(0,"Global Score")
+globalScore=myModel.newSimVariable("Global Score",0)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)

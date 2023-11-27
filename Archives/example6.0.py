@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(800,800, windowTitle="Adding a player with game actions")
 
-Cell=myModel.newGrid(7,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(7,10,"square",size=60, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)

@@ -136,7 +136,6 @@ class SGModel(QMainWindow):
         self.window.setLayout(self.layout)
         # Definition of the toolbar via a menu and the ac
         self.symbologyMenu=None #init in case no menu is created
-        # self.createAction()
         self.createMenu()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -175,23 +174,6 @@ class SGModel(QMainWindow):
     
     # Create the menu of the menue
     def createMenu(self):
-        # aAction = QAction(QIcon("./icon/ouvrir.png"), " &open", self)
-        # aAction.triggered.connect(self.openFromSave)
-        # self.menuBar().addAction(aAction)
-
-        # self.menuBar().addAction(self.save)
-
-        # self.menuBar().addAction(self.inspect)
-
-        # sep = QAction('|', self, enabled=False)
-        # self.menuBar().addAction(sep)
-        # self.menuBar().addAction(self.backward)
-
-        # self.menuBar().addAction(self.forward)
-
-        # sep2 = QAction('|', self, enabled=False)
-        # self.menuBar().addAction(sep2)
-
         aAction = QAction(QIcon("./icon/play.png"), " &play", self)
         aAction.triggered.connect(self.nextTurn)
         self.menuBar().addAction(aAction)
@@ -212,26 +194,12 @@ class SGModel(QMainWindow):
 
         self.menuBar().addSeparator()
 
-        # inspectMenu = self.menuBar().addMenu(QIcon("./icon/information.png"), "&inspectElement")
-        # """To be finished to be implementd"""
-
         self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
         # dictionnaire pour stocker les actions du sous-menu Symbology
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
         self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
-
-        # graphMenu = self.menuBar().addMenu(QIcon("./icon/graph.png"), "&graph")
-        # """To be finished to be implementd"""
-
-        # sep5 = QAction('|', self, enabled=False)
-        # self.menuBar().addAction(sep5)
-
-        # extractMenu = self.menuBar().addMenu(QIcon("./icon/extract.png"), "&Extract")
-        # extractMenu.addAction(self.extractPng)
-        # extractMenu.addAction(self.extractSvg)
-        # extractMenu.addAction(self.extractHtml)
 
     # Create all the action related to the menu
 
@@ -404,8 +372,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newGrid(self, columns=10, rows=10, format="square", color=Qt.gray, gap=0, size=30, name="", moveable=True):
-        #TODO the order of the variables should be: columns, rows, format, size, gap, color, moveable, name
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=""):
         """
         Create a grid that contains cells
 
@@ -413,11 +380,11 @@ class SGModel(QMainWindow):
             columns (int): number of columns (width).
             rows (int): number of rows (height).
             format ("square", "hexagonal"): shape of the cells. Defaults to "square".
-            color (a color, optional): background color of the grid . Defaults to Qt.gray.
-            gap (int, optional): gap size between cells. Defaults to 0.
             size (int, optional): size of the cells. Defaults to 30.
-            name (st): name of the grid.
+            gap (int, optional): gap size between cells. Defaults to 0.
+            color (a color, optional): background color of the grid . Defaults to Qt.gray.
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
+            name (st): name of the grid.
 
         Returns:
             aCellDef: the cellDef that defines the cells that have been placed on a grid
@@ -528,58 +495,6 @@ class SGModel(QMainWindow):
         # aLegend.addDeleteButton("Delete")
         self.applyPersonalLayout()
         return aLegend
-
-    # To create a Legend
-    # def newLegendAdmin(self, Name='Legend', showAgentsWithNoAtt=False):
-        # #OBSOLETE  --> Delete the method
-        # """
-        # To create an Admin Legend (with all the cell and agent values)
-
-        # Args:
-        # Name (str): name of the Legend (default : Legend)
-        # showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
-
-        # """
-        # # Creation
-        # # We harvest all the case value
-        # CellElements = {}
-        # AgentPOVs = self.getAgentPOVs()
-        # for anElement in self.getGrids():
-        #     CellElements[anElement.id] = {}
-        #     CellElements[anElement.id]['cells'] = anElement.getValuesForLegend()
-        #     CellElements[anElement.id]['agents'] = {}
-        # for grid in CellElements:
-        #     CellElements[grid]['agents'].update(AgentPOVs)
-        # agents = self.getAgents()
-        # aLegend = SGLegend(self, Name, CellElements,
-        #                    "Admin", agents, showAgentsWithNoAtt)  # ICI -> Il faut comprendre qu'est ce qui est attendu en arguments dans cette fonction
-        # self.gameSpaces[Name] = aLegend
-        # self.adminLegend=aLegend
-        # # Realocation of the position thanks to the layout
-        # newPos = self.layoutOfModel.addGameSpace(aLegend)
-        # aLegend.setStartXBase(newPos[0])
-        # aLegend.setStartYBase(newPos[1])
-        # if (self.typeOfLayout == "vertical"):
-        #     aLegend.move(aLegend.startXBase, aLegend.startYBase +
-        #                  20*self.layoutOfModel.getNumberOfAnElement(aLegend))
-        # elif (self.typeOfLayout == "horizontal"):
-        #     aLegend.move(aLegend.startXBase+20 *
-        #                  self.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
-        # else:
-        #     pos = self.layoutOfModel.foundInLayout(aLegend)
-        #     aLegend.move(aLegend.startXBase+20 *
-        #                  pos[0], aLegend.startYBase+20*pos[1])
-        # aLegend.addDeleteButton("Delete")
-        # self.applyPersonalLayout()
-        # return aLegend
-    
-    # To update the admin Legend when the modeler add a new pov after the creation of the Legend
-    # TO BE REMOVED. IT IS a useless method
-    # def updateLegendAdmin(self):
-    #     if "adminLegend" in list(self.gameSpaces.keys()):
-    #         aLegend = self.gameSpaces["adminLegend"]
-    #         aLegend.initUI()
-    #         aLegend.update()
     
     def newUserSelector(self):
         """
@@ -625,10 +540,6 @@ class SGModel(QMainWindow):
 
         """
         aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor)
-        # aAgentSpecies.isDisplay = False
-        # aAgentSpecies.species=aSpeciesName
-        # self.agentSpecies[str(name)] = {"me": aAgentSpecies.me, "Shape": shape, "DefaultSize": defaultSize, "AttributList": dictAttributes, 'AgentList': {}, 'DefaultColor': uniqueColor, 'POV': {}, 'selectedPOV': None, "defSpecies": aAgentSpecies, "watchers":{}}
-        # if 'agents' not in self.agentSpecies: self.agentSpecies['agents'] = {"watchers":{}}
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 
@@ -695,80 +606,18 @@ class SGModel(QMainWindow):
     
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
-
-    # def newAgentAtCoords(self, aGrid, aAgentSpecies, ValueX=None, ValueY=None, adictAttributes=None):
-    #     # OBSOLETE   This method shoudl e called by a  AgentDef
-    #     """
-    #     Create a new Agent in the associated species.
-
-    #     Args:
-    #         aGrid (instance) : the grid you want your agent in
-    #         aAgentSpecies (instance) : the species of your agent
-    #         ValueX (int) : Column position in grid (Default=Random)
-    #         ValueY (int) : Row position in grid (Default=Random)
-
-    #     Return:
-    #         a new nest in the species dict for the agent
-    #         a agent
-
-
-    #     """
-    #     anAgentID = str(aAgentSpecies.memoryID)
-    #     self.updateIDmemory(aAgentSpecies)
-
-
-    #     if ValueX == None:
-    #         ValueX = random.randint(1, aGrid.columns)
-    #     if ValueY == None:
-    #         ValueY = random.randint(1, aGrid.rows)
-    #         if ValueY < 1:
-    #             ValueY = +1
-    #     locationCell = aGrid.getCell(ValueX, ValueY)
-
-    #     if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
-    #         uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
-    #     aAgent = SGAgent(aGrid,locationCell, aAgentSpecies.name, aAgentSpecies.format, aAgentSpecies.size,adictAttributes, id=anAgentID, me='agent', uniqueColor=uniqueColor)
-    #     aAgent.isDisplay = True
-    #     aAgent.species = str(aAgentSpecies.name)
-    #     aAgent.privateID = str(aAgentSpecies.name)+aAgent.id
-        
-    #     if aAgentSpecies.dictAttributes is not None:
-    #         for aAtt in aAgentSpecies.dictAttributes.keys():
-    #             if aAgent.dictAttributes is None:
-    #                 aAgent.dictAttributes={}
-    #                 aAgent.dictAttributes[aAtt]=None
-    #                 aAgent.manageAttributeValues(aAgentSpecies,aAtt)
-    #             else :
-    #                 if aAtt in aAgent.dictAttributes.keys():
-    #                     if aAgent.dictAttributes[aAtt] is None:
-    #                         aAgent.manageAttributeValues(aAgentSpecies,aAtt)
-    #                 else:
-    #                     aAgent.dictAttributes[aAtt]=None
-    #                     aAgent.manageAttributeValues(aAgentSpecies,aAtt)
-
-    #     self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
-    #     # C'est très curieux que le dictOfAttributes soit à la fois dans l'instance d'agent et dans la lise agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)]
-    #     # C'est un doublon, qui ne devrait pas exister 
-    #     aAgent.show()
-    #     return aAgent
     
     def newAgent_ADMINONLY(self, aGrid, aAgtDef, ValueX, ValueY, adictAttributes, anAgentID):
         """
         Do not use.
         """
         locationCell = aGrid.getCell_withCoords(int(ValueX), int(ValueY))
-        # if self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor'] is not None:
-        #     uniqueColor = self.agentSpecies[str(aAgentSpecies.name)]['DefaultColor']
-        # anAgentID= self.getIdFromPrivateId(aPrivateID,aAgentSpecies.name)
         aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef)
         aAgent.isDisplay = True
         aAgent.id = anAgentID
         aAgtDef.entities.append(aAgent)
-        # aAgent.species = str(aAgentSpecies.name)
-        # aAgent.privateID = aPrivateID
-        # self.agentSpecies[str(aAgentSpecies.name)]['AgentList'][str(anAgentID)] = {"me": aAgent.me, 'position': aAgent.cell, 'species': aAgent.name, 'size': aAgent.size,'attributs': adictAttributes, "AgentObject": aAgent}
         aAgent.show()
-                    # si ca ne s'affiche pas correctement, penser à essayer avec update()
+            # si ca ne s'affiche pas correctement, penser à essayer avec update()
         return aAgent
 
 
@@ -782,35 +631,6 @@ class SGModel(QMainWindow):
     def checkAndUpdateWatchers(self):
         for entDef in self.getEntitiesDef():
             entDef.updateAllWatchers()
-
-
-    def getAgents(self, species=None):
-        """
-        Return the list of all Agents in the model
-        """
-        # OBSOLETE .  CAn Remove (  it is replaced by getAllAgents()  )
-        # Need Refactoring
-        agent_list = []
-        for aSpecie, sub_dict in self.agentSpecies.items():
-            # if aSpecie != 'agents' : # 'agents' entry is a specific one used for watchers on the whole population of agents
-               if species is None or species == aSpecie: 
-                    agent_list += sub_dict.entities
-
-                    # for agent_id, agent_dict in sub_dict['AgentList'].items():
-                    #     agent_list.append(agent_dict['AgentObject'])
-        # # If we want only the agents of one specie
-        # if species is not None:
-        #     agent_list = []
-        #     agent_objects = []
-        #     if species in self.agentSpecies.keys():
-        #         aSpecie = species
-        #         subdict = self.agentSpecies[aSpecie]["AgentList"]
-        #         for agent in subdict:
-        #             agent_objects.append(subdict[agent]["AgentObject"])
-
-        #         return agent_objects
-        # # All agents in model
-        return agent_list
     
     def getAgentsPrivateID(self):
         agents=self.getAllAgents()
@@ -924,20 +744,19 @@ class SGModel(QMainWindow):
         return selection
 
     # To create a Time Label
-    def newTimeLabel(self, name="Phases&Rounds", backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
+    def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         """
         Create the visual time board of the game
         Args:
-        name (str) : name of the widget (default:"Phases&Rounds")
+        title (str) : name of the widget (default:None)
         backgroundColor (Qt Color) : color of the background (default : Qt.white)
         borderColor (Qt Color) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
-        # TODO: variable name should be renamed title ; if title is set to None, then the title line should be omited in the display 
         aTimeLabel = SGTimeLabel(
-            self, name, backgroundColor, borderColor, textColor)
+            self, title, backgroundColor, borderColor, textColor)
         self.myTimeLabel = aTimeLabel
-        self.gameSpaces[name] = aTimeLabel
+        self.gameSpaces[title] = aTimeLabel
         # Realocation of the position thanks to the layout
         newPos = self.layoutOfModel.addGameSpace(aTimeLabel)
         aTimeLabel.setStartXBase(newPos[0])
@@ -1067,8 +886,7 @@ class SGModel(QMainWindow):
         """Return the actual ingame phase"""
         return self.timeManager.currentPhase
     
-    def newSimVariable(self,initValue,name,color=Qt.black,isDisplay=True):
-        # TODO change the olrdre of variables : name,iniValue,..
+    def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):
         aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
@@ -1141,29 +959,8 @@ class SGModel(QMainWindow):
 
     # ------
 # Pov
-
-    # To choose the global inital pov when the game start
-    # def setInitialPov(self, nameOfPov): #OBSOLETE
-    #     self.nameOfPov = nameOfPov
-    #     for aGameSpace in self.getLegends():
-    #         self.gameSpaces[aGameSpace.id].initUI()
-    #     self.update() #  Un update()  relance le calcul de l'affichage de l'ensemble de l'interface !!
-
-    # Adding the Pov to the menu bar
-    # def addPovinMenuBar(self, nameOfPov): #OBSOLETE
-    #     if nameOfPov not in self.listOfPovsForMenu: #OBSOLETE
-    #         self.listOfPovsForMenu.append(nameOfPov)
-    #         anAction = QAction(" &"+nameOfPov, self)
-    #         self.povMenu.addAction(anAction)
-    #         anAction.triggered.connect(lambda: self.setInitialPov(nameOfPov))
-    #     # if this is the pov is the first pov to be declared, than set it as the initial pov
-    #     if len(self.listOfPovsForMenu) == 1:
-    #         self.setInitialPov(nameOfPov)
-
     def getSubmenuSymbology(self, submenuName):
         # renvoie le sous-menu 
-        # selectionList = [submenu for submenu in self.submenuSymbology_actions.keys() if submenu.title() == entityName]
-        # return selectionList[0] if selectionList else None
         return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == submenuName), None)
         # Above code is equivalent to the following
         # if any((match := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
@@ -1266,52 +1063,6 @@ class SGModel(QMainWindow):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
         for aListOfSubmenuItems in self.symbologiesInSubmenus.values():
             aListOfSubmenuItems[0].setChecked(True)
-
-
-    # To add a new POV
-    # def newPov(self, nameOfPov, aAtt, DictofColors, listOfGridsToApply=None):
-    #     """
-    #     Declare a new Point of View for cells.
-
-    #     Args:
-    #         nameOfPov (str): name of POV, will appear in the interface
-    #         aAtt (str): name of the attribut
-    #         DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-    #         listOfGridsToApply (list): list of grid names where the POV applies (default:None)
-
-    #     """
-    #     if listOfGridsToApply == None:
-    #         # get the fisrt value of the dict
-    #         listOfGridsToApply = [list(self.gameSpaces.values())[0]]
-    #     if not isinstance(listOfGridsToApply, list):
-    #         listOfGridsToApply = [listOfGridsToApply]
-    #     for aGrid in listOfGridsToApply:
-    #         if (isinstance(aGrid, SGGrid) == True):
-    #             self.cellOfGrids[aGrid.id]["ColorPOV"][nameOfPov] = {aAtt: DictofColors}
-    #     self.addPovinMenuBar(nameOfPov)
-
-    # def newBorderPov(self, nameOfPov, aAtt, DictofColors, borderWidth=4, listOfGridsToApply=None):
-    #     """
-    #     Declare a new Point of View for cells (only for border color).
-
-    #     Args:
-    #         nameOfPov (str): name of POV, will appear in the interface
-    #         aAtt (str): name of the attribut
-    #         DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
-    #         listOfGridsToApply (list): list of grid names where the POV applies (default:None)
-
-    #     """
-    #     if listOfGridsToApply == None:
-    #         # get the fisrt value of the dict
-    #         listOfGridsToApply = [list(self.gameSpaces.values())[0]]
-    #     if not isinstance(listOfGridsToApply, list):
-    #         listOfGridsToApply = [listOfGridsToApply]
-    #     for aGrid in listOfGridsToApply:
-    #         if (isinstance(aGrid, SGGrid) == True):
-    #             self.cellOfGrids[aGrid.id]["BorderPOV"][nameOfPov] = {
-    #                 aAtt: DictofColors}
-    #             self.cellOfGrids[aGrid.id]["BorderPOV"]["BorderWidth"] = borderWidth
-    #     self.addPovinMenuBar(nameOfPov)
 
     # To get the list of Agent POV
     def getAgentPOVs(self):
@@ -1417,10 +1168,6 @@ class SGModel(QMainWindow):
         return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGGrid)]
     
     def getGrid_withID(self, aGridID):
-        # Grids=self.getGrids()
-        # for aGrid in Grids:
-        #     if aGrid.id==aGridID:
-        #         return aGrid
         return next((item for item in self.getGrids() if item.id==aGridID), None)
             
     # To get all type of gameSpace who are legends

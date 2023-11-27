@@ -14,7 +14,7 @@ myModel = SGModel(
 
 
 # STEP2 Grid and Cells
-Cell = myModel.newGrid(7, 7, "square", size=60, gap=2,
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")

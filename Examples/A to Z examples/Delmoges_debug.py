@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(10,10,"square",size=60,gap=1)
+aGrid=myModel.newCellsOnGrid(10,10,"square",size=60,gap=1)
 aGrid.setEntities("type","mer")
 aGrid.setEntities("sédim","sable")
 aGrid.setEntities_withColumn("type","grandFond",1)
@@ -58,8 +58,8 @@ GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doiv
 
 
 DashBoard=myModel.newDashBoard()
-# totMerlu=myModel.newSimVariable(0,"Total Merlu pêché")
-# totSole=myModel.newSimVariable(0,"Total Sole pêché")
+# totMerlu=myModel.newSimVariable("Total Merlu pêché",0)
+# totSole=myModel.newSimVariable("Total Sole pêché",0)
 # indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
 # indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
 CelltotalMerlu=DashBoard.addIndicator("sumAtt","Cell",attribute="quantitéPêchéeMerlu",indicatorName="Merlu pêché")
@@ -75,7 +75,7 @@ DashBoard.showIndicators()
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
-    nbNavires=len(myModel.getAgents("Navire"))
+    nbNavires=len(myModel.getAgentsOfSpecie("Navire"))
     for Species in EspècesHalieutiques:
         for cell in CellsMer:
             cell.setValue("txPrésence"+Species.entityName,list(Species.value(cell.value("sédim")))[0]/(nbCellsMer*nbNavires))
@@ -92,7 +92,7 @@ def pêche(cell):
 def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     sommePêcheMerlu=0
     sommePêcheSole=0
-    for navire in myModel.getAgents("Navire"):
+    for navire in myModel.getAgentsOfSpecie("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
         print("Pêche du jour :")
@@ -116,7 +116,7 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     # indTotMerlu.setResult(total_pêcheMerlu)
     # indTotSole.setResult(total_pêcheSole)
     
-    for navire in myModel.getAgents("Navire"):
+    for navire in myModel.getAgentsOfSpecie("Navire"):
         navire.moveAgent(method='cell',cellID=10)
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
@@ -128,7 +128,7 @@ PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name=
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
 myModel.newLegend(showAgentsWithNoAtt=True)
-myModel.newTimeLabel()
+myModel.newTimeLabel("GameTime")
 
 tx_présence()
 

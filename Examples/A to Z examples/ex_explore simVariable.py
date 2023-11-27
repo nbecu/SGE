@@ -7,13 +7,13 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(400,400)
 
-Square = myModel.newGrid(5, 5, "square",size=45)
+Square = myModel.newCellsOnGrid(5, 5, "square",size=45)
 Square.setEntities("status",'black')
 Square.setEntities("status",'white',lambda c: c.id%2==0)
 Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QColor.fromRgb(254, 254, 226)})
 
-score1= myModel.newSimVariable(1,'score1')
-score2= myModel.newSimVariable(1,'score2')
+score1= myModel.newSimVariable('score1',1)
+score2= myModel.newSimVariable('score2',1)
 
 a1= myModel.newModelAction(lambda: (score1.incValue(1)))
 a2= myModel.newModelAction(lambda: (score2.calcValue(lambda x: x *1.1)))

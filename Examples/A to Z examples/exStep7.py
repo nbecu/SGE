@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Add a TextBox")
 
-Cell=myModel.newGrid(10,10,"square",size=45, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=45, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -51,7 +51,7 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 
-score1= myModel.newSimVariable(0,"Global Score:")
+score1= myModel.newSimVariable("Global Score:",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1)
 
 aModelAction4.addFeedback(lambda: score1.incValue(3))

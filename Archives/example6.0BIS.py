@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"About agents (2)")
 
-theFirstGrid=myModel.newGrid(10,10,"hexagonal",Qt.gray, name="basicGrid")
+theFirstGrid=myModel.newCellsOnGrid(10,10,"hexagonal",color=Qt.gray, name="basicGrid")
 myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 myModel.setInitialPov("Forester")
 

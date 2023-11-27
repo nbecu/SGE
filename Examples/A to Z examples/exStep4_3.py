@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create an UserSelector")
 
-Cell=myModel.newGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
