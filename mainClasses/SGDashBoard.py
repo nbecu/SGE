@@ -173,31 +173,6 @@ class SGDashBoard(SGGameSpace):
     
         return indicator
 
-    # BASCULE COTE EntityDef
-    # def setCellWatchers(self, attribut, indicator):
-    #     grids = self.model.getGrids()
-    #     for grid in grids:
-    #         cellCollection = self.model.cellCollection[grid.id]
-    #         if attribut not in cellCollection["watchers"].keys():
-    #             cellCollection["watchers"][attribut] = []
-    #         cellCollection["watchers"][attribut].append(indicator)
-        
-    # def setAgentWatchers(self,indicator):
-    #     if indicator.attribut is None:
-    #         aAtt = 'nb'
-    #     else:
-    #         aAtt = indicator.attribut
-    #     if indicator.entity == 'agents':
-    #         if 'agents' not in self.model.agentSpecies.keys():
-    #             self.model.agentSpecies['agents']={'watchers':{}}
-    #         watchersDict=self.model.agentSpecies['agents']['watchers']
-    #     else:
-    #          watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
-
-    #     if aAtt not in watchersDict.keys():
-    #         watchersDict[aAtt]=[]
-    #     watchersDict[aAtt].append(indicator)
-
     def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
         """
         Add a sum indicator
@@ -319,7 +294,6 @@ class SGDashBoard(SGGameSpace):
         return somme+len(self.indicatorNames)*20
 
     def getLongest(self):
-        # print(self.indicatorNames)
         longestWord = ""
         for indicatorName in self.indicatorNames:
             if len(indicatorName) > len(longestWord):

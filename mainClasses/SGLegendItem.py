@@ -190,21 +190,6 @@ class SGLegendItem(QtWidgets.QWidget):
             #Selection of an item and suppresion of already selected Item
             else :
                 self.legend.selected= self
-                # self.legend.model.selected=[None]
-                # selectedItem=[self]
-                # selectedItem.append(self.type) 
-                # selectedItem.append(self.text)
-                # if self.text.find('Remove ')!=-1 :
-                #     txt=self.text.replace("Remove ","")
-                #     txt=txt.replace(self.valueOfAttribut+" ","")
-                #     selectedItem.append(txt)
-                #     selectedItem.append(self.valueOfAttribut)
-                # else: 
-                #     selectedItem.append(self.valueOfAttribut)
-                #     selectedItem.append(self.nameOfAttribut)
-                # #selectedItem.append(self.text[0:self.text.find(self.nameOfAttribut)-1])
-                # self.legend.model.selected=selectedItem
-                # self.legend.model.update()
             self.legend.update()
         
     #To handle the drag 

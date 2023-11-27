@@ -98,114 +98,6 @@ class SGLegend(SGGameSpace):
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
     def initUI(self):
-        # if self.legendType=="global":
-        #     self.y=0
-        #     for aKeyOfGamespace in self.elementsPov :
-        #         if aKeyOfGamespace in list(self.legendItems.keys()):
-        #             if len(self.legendItems[aKeyOfGamespace]) !=0:
-        #                 for anElement in reversed(range(len(self.legendItems[aKeyOfGamespace]))):
-        #                     self.legendItems[aKeyOfGamespace][anElement].deleteLater()
-        #                     del self.legendItems[aKeyOfGamespace][anElement]
-        #         self.legendItems[aKeyOfGamespace]=[]
-        #     self.y=self.y+1
-        #     anItem=SGLegendItem(self,"None",self.y,self.id)
-        #     self.legendItems["Title"]=[]
-        #     self.legendItems["Title"].append(anItem)
-        #     anItem.show()
-        #     for aKeyOfGamespace in self.elementsPov :
-        #         if aKeyOfGamespace=="deleteButton" or aKeyOfGamespace=="deleteButtons":
-        #             if aKeyOfGamespace=="deleteButton":
-        #                 added=set()
-        #                 item_key = "Delete"
-        #                 if item_key not in added:
-        #                     self.y=self.y+1
-        #                     anItem=SGLegendItem(self,"square",self.y,"Delete",Qt.darkGray,"delete","delete")
-        #                     self.legendItems[aKeyOfGamespace].append(anItem)
-        #                     added.add(item_key)
-        #                     anItem.show()
-        #             if aKeyOfGamespace=="deleteButtons":
-        #                 aList=self.elementsPov[aKeyOfGamespace]
-        #                 added=set()
-        #                 for aButton in aList:
-        #                     item_key = aButton
-        #                     split=item_key.split()
-        #                     Species=self.model.getAgentsOfSpecie(split[1])
-        #                     if  Species is not None:
-        #                         shape=Species.format
-        #                     else:
-        #                         shape='square'
-        #                     if item_key not in added:
-        #                         self.y=self.y+1
-        #                         anItem=SGLegendItem(self,shape,self.y,item_key,Qt.darkGray,"delete","delete")
-        #                         self.legendItems[aKeyOfGamespace].append(anItem)
-        #                         added.add(item_key)
-        #                         anItem.show()
-
-        #         else: 
-        #             for entity in self.elementsPov[aKeyOfGamespace]:
-        #                 if entity == 'cells':
-        #                     added_items = set()
-        #                     added_colors = []
-        #                     grid=self.model.getGameSpace(aKeyOfGamespace)
-        #                     for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
-        #                         if aPov == self.model.nameOfPov:
-        #                             currentPov=aPov
-        #                             for aAttribut in self.elementsPov[aKeyOfGamespace]['cells'][currentPov]:
-        #                                 for aValue in self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut]:
-        #                                     color=self.elementsPov[aKeyOfGamespace]['cells'][currentPov][aAttribut][aValue]
-        #                                     if aPov in self.model.cellCollection[grid.id]["BorderPOV"].keys():
-        #                                         typeOfPov = "BorderPOV"
-        #                                     else: typeOfPov = "ColorPOV"
-        #                                     self.showLegendItem(typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors)
-
-        #                 elif entity == 'agents':
-        #                     for anAgent in self.model.getAgentSpecies():
-        #                         for Species in self.elementsPov[aKeyOfGamespace]['agents'].keys():
-        #                             if anAgent.species == Species:
-        #                                 if self.elementsPov[aKeyOfGamespace]['agents'][Species]:
-        #                                     for aPov in self.elementsPov[aKeyOfGamespace]['agents'][Species].keys():
-        #                                         if aPov == self.model.nameOfPov:
-        #                                             added_items = set()
-        #                                             for anAtt in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov].keys():
-        #                                                 for aValue in self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt].keys():
-        #                                                     item_key = Species + anAtt + str(aValue)
-        #                                                     if item_key not in added_items:
-        #                                                         text = Species +' : '+ anAtt +' : ' + str(aValue)
-        #                                                         self.y = self.y + 1
-        #                                                         aColor = self.elementsPov[aKeyOfGamespace]['agents'][Species][aPov][anAtt][aValue]
-        #                                                         anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, aValue, anAtt)
-        #                                                         self.legendItems[aKeyOfGamespace].append(anItem)
-        #                                                         anItem.show()
-        #                                                         added_items.add(item_key)
-
-        #                                         else:
-        #                                             item_key= Species
-        #                                             text = Species
-        #                                             existed=False
-        #                                             for item in added_items:
-        #                                                 if text in item:
-        #                                                     existed=True
-        #                                                     break
-        #                                             if item_key not in added_items and not existed:
-        #                                                 aColor = anAgent.color
-        #                                                 self.y=self.y+1
-        #                                                 anItem = SGLegendItem(self, anAgent.format, self.y, text, aColor, None,None)
-        #                                                 self.legendItems[aKeyOfGamespace].append(anItem)
-        #                                                 anItem.show()
-        #                                                 added_items.add(item_key)
-        #                                 else:
-        #                                     if self.showAgents==True:
-        #                                         added_species=set()
-        #                                         item_key=Species
-        #                                         if item_key not in added_species and item_key in self.elementsPov[aKeyOfGamespace]['agents']:
-        #                                             aColor=self.model.agentSpecies[Species]["DefaultColor"]
-        #                                             text=Species
-        #                                             self.y=self.y+1
-        #                                             anItem=SGLegendItem(self,self.model.agentSpecies[Species]["Shape"],self.y,text,aColor,"empty","empty")
-        #                                             self.legendItems[aKeyOfGamespace].append(anItem)
-        #                                             anItem.show()
-        #                                             added_species.add(item_key)
-
         if self.legendType=='player':
             self.y=0
             for aKeyOfGamespace in self.elementsPov :
@@ -332,14 +224,6 @@ class SGLegend(SGGameSpace):
                 return len("delete")*5+50
         else :
             return lMax*10+60
-        #OLD CODE
-        # if self.haveADeleteButton :
-        #     if len(self.getLongest()) > len("delete"):
-        #         return 70+len(self.getLongest())*5+50
-        #     else:
-        #         return 70+len("delete")*5+50
-        # else :
-        #     return 70+len(self.getLongest())*5+50
     
     def getLongest(self): #A priori Obsolete
         longestWord=""

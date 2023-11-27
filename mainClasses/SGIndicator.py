@@ -54,7 +54,6 @@ class SGIndicator(QtWidgets.QWidget):
             self.name = self.name + ' : '
             return 
         if self.method in ["nbWithLess","nbWithMore","nbEqualTo"]:
-        # if self.value is not None and self.attribut is not None:
             aName= 'nb '+self.attribut+ ' '+self.method[2:]+" "+self.value+" : "
         elif self.attribut is not None:
                 aName = self.method+' '+self.attribut+" : "

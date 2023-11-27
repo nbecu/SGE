@@ -53,32 +53,6 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)
 
-        1
-    # def setCellWatchers(self, attribut, indicator):
-    #     grids = self.model.getGrids()
-    #     for grid in grids:
-    #         cellCollection = self.model.cellCollection[grid.id]
-    #         if attribut not in cellCollection["watchers"].keys():
-    #             cellCollection["watchers"][attribut] = []
-    #         cellCollection["watchers"][attribut].append(indicator)
-        
-    # def setAgentWatchers(self,indicator):
-    #     if indicator.attribut is None:
-    #         aAtt = 'nb'
-    #     else:
-    #         aAtt = indicator.attribut
-    #     if indicator.entity == 'agents':
-    #         if 'agents' not in self.model.agentSpecies.keys():
-    #             self.model.agentSpecies['agents']={'watchers':{}}
-    #         watchersDict=self.model.agentSpecies['agents']['watchers']
-    #     else:
-    #          watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
-
-    #     if aAtt not in watchersDict.keys():
-    #         watchersDict[aAtt]=[]
-    #     watchersDict[aAtt].append(indicator)
-
-    
     def updateWatchersOnAttribute(self,aAtt):
         for watcher in self.watchers.get(aAtt,[]):
             watcher.checkAndUpdate()
@@ -444,8 +418,6 @@ class SGAgentDef(SGEntityDef):
         Return:
             a agent
         """
-        # anAgentID = str(aAgentSpecies.memoryID)
-        # self.updateIDmemory(aAgentSpecies)
         aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self)
         self.entities.append(aAgent)
         self.updateWatchersOnPop()

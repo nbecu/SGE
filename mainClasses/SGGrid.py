@@ -39,15 +39,6 @@ class SGGrid(SGGameSpace):
 
         if aColor != "None":
             self.setColor(aColor)
-#Trying to comment these lines, to call the method newCellsFromGrid directly in the method newGrid of the method, to make it easier to understand that this model method creates a CellDef
-    #     # We initialize the user interface related to the grid
-    #     self.initCells()
-
-    # # Initialize the user interface
-    # def initCells(self):
-    #     # Init the CellDef and Cells
-    #     self.cellDef = self.model.newCellsFromGrid(self)
-
     
     # Drawing the game board with the cell
     def paintEvent(self, event): 
@@ -81,18 +72,9 @@ class SGGrid(SGGameSpace):
     def zoomOut(self):
         self.zoom = self.zoom*0.9
         self.size = round(self.size-(self.zoom*10))
-
-        
-        # if (self.gap > 2 and self.format == "square"):
         self.gap = round(self.gap-(self.zoom*1))
         for cell in self.getCells():
             cell.zoomOut()
-        # else:
-        #     self.gap = round(self.gap-(self.zoom*1))
-        #     for cell in self.getCells():
-        #         cell.zoomOut()
-        # for cell in self.getCells():
-        #     cell.zoomOut()
         for agent in cell.getAgents():
             agent.zoomOut(self.zoom)
         self.update()
@@ -206,10 +188,6 @@ class SGGrid(SGGameSpace):
 
         print(self.currentPOV)
         return self.currentPOV
-    
-    # def removeVisiblityCell(self,aCellID):
-    #     self.getCell_withId(self,aCellID).isDisplay = False
-    #     self.update()
 
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use

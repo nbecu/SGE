@@ -40,21 +40,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             else:
                 self.setValue(aAtt,valueToSet)
 
-    #       Previous Version of the Method. Should be Obsolete if the new one (above) works fine
-    # def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
-    #     self.dictAttributes={}
-    #     if thisAgentAttributesAndValues is None : thisAgentAttributesAndValues={}
-    #     for aAtt in self.classDef.attributesPossibleValues.keys():
-    #         if aAtt in thisAgentAttributesAndValues.keys():
-    #             valueToSet = thisAgentAttributesAndValues[aAtt]
-    #         elif aAtt in self.classDef.attributesDefaultValues.keys():
-    #             valueToSet = self.classDef.attributesDefaultValues[aAtt]
-    #         else: valueToSet = None
-    #         if callable(valueToSet):
-    #             self.setValue(aAtt,valueToSet())
-    #         else:
-    #             self.setValue(aAtt,valueToSet)
-
     def getRandomAttributValue(self,aAgentSpecies,aAtt):
         if aAgentSpecies.dictAttributes is not None:
             values = list(aAgentSpecies.dictAttributes[aAtt])
@@ -152,43 +137,3 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.updateMqtt()
         self.update()
         return True
-
-    # def value(self,att):
-    #     """
-    #     Return the value of a entity attribute
-    #     Args:
-    #         att (str): Name of the attribute
-    #     Return:
-    #         the value of the attribute or None if the attribute is not defined for this entity
-    #     """
-    #     return self.dictAttributes.get(att,None)
-    
-    # def incValue(self,aAttribut,aValue=1,max=None):
-    #     """
-    #     Increase the value of an attribut with an additional value
-    #     Args:
-    #         aAttribut (str): Name of the attribute
-    #         aValue (str): Value to be added to the current value of the attribute
-    #     """
-    #     self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
-    #     # This method is equivalent to 
-    #     # newValue = self.value(aAttribut)+aValue
-    #     # if max is not None: newValue = min(newValue,max)    
-    #     # self.setValue(aAttribut,newValue)
-
-    # def decValue(self,aAttribut,aValue=1,min=None):
-    #     """
-    #     Decrease the value of an attribut with an additional value
-    #     Args:
-    #         aAttribut (str): Name of the attribute
-    #         aValue (str): Value to be subtracted to the current value of the attribute
-    #     """       
-    #     self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
-
-    # def calcValue(self,aAttribut,aLambdaFunction):
-    #     # NOT TESTED YET
-    #     if callable(aLambdaFunction):
-    #         currentValue = self.value(aAttribut)
-    #         result = aLambdaFunction(currentValue)
-    #         self.setValue(result)
-    #     else: raise ValueError ('calcValue works with a lambda function')

@@ -19,19 +19,6 @@ from mainClasses.gameAction.SGMove import SGMove
 #Class who is responsible of the creation of a ControlPanel
 #A ControlPanel is an interface that permits to operate the game actions of a player
 class SGControlPanel(SGLegend):
-    # def __init__(self, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black):
-    #     self.model=aPlayer.model
-    #     self.copyOf__init__(self.model,0,60,0,0,true,backgroundColor)
-    #     self.id=panelTitle
-    #     self.player=aPlayer
-    #     self.playerName=self.player.name
-    #     self.legendItems=[]
-    #     self.isActive=True
-    #     self.selected = None # To handle the selection of an item in the legend
-    #     self.borderColor=borderColor
-    #     self.haveADeleteButton=False
-    #     self.initUI_withGameActions(self.player.gameActions)
-
     @classmethod
     def forPlayer(cls, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black):
         aModel=aPlayer.model
@@ -63,12 +50,6 @@ class SGControlPanel(SGLegend):
             listOfLegendItems = aGameAction.generateLegendItems(self)
             for anItem in listOfLegendItems:
                 self.legendItems.append(anItem)
-            # for aAtt, aValue in aGameAction.dictNewValues.items():
-            #     aColor = entDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
-            #     anItem=SGLegendItem(self,'symbol',aAtt+'->'+str(aValue),entDef,aColor,aAtt,aValue,gameAction=aGameAction)
-            #     self.legendItems.append(anItem)
-        # anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
-        # self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
             anItem.show()

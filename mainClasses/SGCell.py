@@ -98,12 +98,6 @@ class SGCell(SGEntity):
     # Convertit les coordonnées globales en coordonnées locales
         local_pos = self.mapFromGlobal(global_pos)
         return local_pos
-     
-    #To handle the selection of an element int the legend
-    # def mousePressEvent(self, event):
-    # # C'est Bizarrre , car mousePressEvent est définit juste en dessous.
-    # # A priori il faut supprimer cette méthode
-    #     return super().mousePressEvent(event)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -116,7 +110,6 @@ class SGCell(SGEntity):
                 authorisation= True
             else :
                 aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-                # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
                 return
 
             if not authorisation : return #Exit the method
@@ -157,17 +150,9 @@ class SGCell(SGEntity):
         if aActiveLegend.isAdminLegend(): # BUG in case there is no adminLegend and not player. Should use a similar test than in mousePressEvent() to correct the bug. Could also use  model.getUsers_withControlPanel()  to test if there is any cibtrolPanel or admiLegend defined
             aAgent.moveTo2(self)
         elif aLegendItem is None : None #Exit the method
-        # These next 7 lines need a bit of refactoring
         else :
             aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-            # authorisation=SGGameActions.getActionPermission(self) -->   CAN REMOVE, It's Obsolete
-
-        # aAgent=e.source()
-        # aAgent.moveTo2(self)
-        # aAgent.updateAgentByRecreating_it()
         e.setDropAction(Qt.MoveAction)
-        # if self.model.mqttMajType == "Instantaneous":
-        #     self.model.publishEntitiesState(self)
                             
     # To handle the drag of the grid
     def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
@@ -204,7 +189,6 @@ class SGCell(SGEntity):
             
     #To handle the arrival of an agent on the cell (this is a private method)
     def updateIncomingAgent(self,anAgent):
-        # anAgent.cell=self #Should be removed. Its the responsability of the agent
         self.agents.append(anAgent)
     
     #To handle the departure of an agent of the cell (this is a private method)
@@ -249,10 +233,6 @@ class SGCell(SGEntity):
     def getAgents(self,specie=None):
         if specie != None:
             return self.getAgentsOfSpecie(specie)
-        # listOfAgents=[]
-        # for agent in self.agents:
-        #    listOfAgents.append(agent)
-        # return  listOfAgents
         return  self.agents[:]
     
     def nbAgents(self,specie=None):
@@ -263,11 +243,6 @@ class SGCell(SGEntity):
  
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
-        # listOfAgents=[]
-        # for agent in self.agents:
-        #     if agent.name ==nameOfSpecie:
-        #         listOfAgents.append(agent)
-        # return  listOfAgents
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     
     #To get the neighbor cells
