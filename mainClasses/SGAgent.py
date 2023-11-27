@@ -363,7 +363,7 @@ class SGAgent(SGEntity):
                 newCell=random.choice(neighbors)
 
             if method == "cell" or cellID is not None:
-                newCell=aGrid.getCell_withId(aGrid,cellID)
+                newCell=aGrid.getCell_withId(cellID)
 
             if method == "cardinal" or direction is not None:
                 if direction =="North":

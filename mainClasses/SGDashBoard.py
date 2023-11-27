@@ -138,7 +138,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        if not isinstance(entity,(SGEntity,SGEntityDef)): raise ValueError ('Wrong enity format')
+        if not isinstance(entity,(SGEntity,SGEntityDef)): raise ValueError ('Wrong entity format')
         self.entity= entity
 
         if value is None:
@@ -315,7 +315,7 @@ class SGDashBoard(SGGameSpace):
         return 70+len(self.getLongest())*5+50
 
     def getSizeYGlobal(self):
-        somme = 100
+        somme = 150
         return somme+len(self.indicatorNames)*20
 
     def getLongest(self):
