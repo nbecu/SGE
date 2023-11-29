@@ -102,10 +102,12 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
         # indBateauSole.setResult(navire.value("PêcheCumSole"))
         # indBateauMerlu.setResult(navire.value("PêcheCumMerlu"))  
     
-    Soles.setValue("stock",((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0]))
-    Merlus.setValue("stock",((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0]))
+    Soles.setValue("stock",round((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0],0))
+    Merlus.setValue("stock",round((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0],0))
     print("STOCK MERLU :")
     print(Merlus.value("stock"))
+    print("STOCK SOLE :")
+    print(Soles.value("stock"))
     print(myModel.timeManager.currentRound)
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
     total_pêcheSole=total_pêcheSole+sommePêcheSole

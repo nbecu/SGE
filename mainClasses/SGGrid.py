@@ -43,7 +43,7 @@ class SGGrid(SGGameSpace):
     # Drawing the game board with the cell
     def paintEvent(self, event): 
         self.countPaintEvent += 1
-        print("Grid paintEvent called: " +str(self.countPaintEvent))
+        # print("Grid paintEvent called: " +str(self.countPaintEvent))
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
