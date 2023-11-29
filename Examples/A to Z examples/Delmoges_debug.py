@@ -83,8 +83,8 @@ def tx_présence():
 def pêche(cell):
     if len(cell.agents)!=0:
         for navire in cell.agents:
-            navire.setValue('Quantité_pêchée_Merlu',cell.value("txPrésenceMerlu")*Merlus.value("stock")*list(navire.value("txCapture_Merlu"))[0])
-            navire.setValue('Quantité_pêchée_Sole',cell.value("txPrésenceSole")*Soles.value("stock")*list(navire.value("txCapture_Sole"))[0])
+            navire.setValue('Quantité_pêchée_Merlu',cell.value("txPrésenceMerlu")*Merlus.value("stock")*list(navire.value("txCapture_Merlu"))[0]*6329*12.5)
+            navire.setValue('Quantité_pêchée_Sole',cell.value("txPrésenceSole")*Soles.value("stock")*list(navire.value("txCapture_Sole"))[0]*1029*12.5)
             cell.setValue("quantitéPêchéeMerlu",cell.value("quantitéPêchéeMerlu")+navire.value('Quantité_pêchée_Merlu'))
             cell.setValue("quantitéPêchéeSole",cell.value("quantitéPêchéeSole")+navire.value('Quantité_pêchée_Sole'))
     
