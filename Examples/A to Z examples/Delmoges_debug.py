@@ -16,10 +16,7 @@ aGrid.setEntities_withColumn("sédim","côte",10)
 aGrid.setEntities_withColumn("sédim","vase",1)
 Port=aGrid.getEntity(10,1)
 Port.setValue("type",'port')
-Rocher=aGrid.getRandom_withValue("type","mer")
-Rocher.setValue("sédim","rocher")
-# aGrid.setCell(3,4,"sédim","rocher")
-# aGrid.setCell(10,1,"type",'port')
+aGrid.setRandomEntity_withValue("sédim","rocher","type","mer")
 aGrid.setEntities("stockCellMerlu",0)
 aGrid.setEntities("stockCellSole",0)
 aGrid.setEntities("txPrésenceMerlu",0)
@@ -32,28 +29,28 @@ total_pêcheSole=0
 aGrid.newPov("Cell Type","type",{"côte":Qt.green,"mer":Qt.cyan,"grandFond":Qt.blue,"port":Qt.darkGray})
 aGrid.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher":Qt.red,"côte":Qt.darkGray})
 
-Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0}})
-Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1}})
-Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0},"PêcheCumMerlu":{0},"PêcheCumSole":{0}})
-Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0})
+Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0},"facteurTemps":1029})
+Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1},"facteurTemps":6329})
+Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0},"PêcheCumMerlu":{0},"PêcheCumSole":{0},"facteurEffortMerlu":12.5,"facteurEffortSole":2.84})
+Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84})
 
 
 
 EspècesHalieutiques=[Soles,Merlus]
 
-Navire.newAgentAtCoords(aGrid,10,1)
-Navire.newAgentAtCoords(aGrid,10,1)
-Navire.newAgentAtCoords(aGrid,10,1)
-Navire.newAgentAtCoords(aGrid,10,1)
-Navire.newAgentAtCoords(aGrid,10,1)
+Navire.newAgentsAtCoords(5,aGrid,10,1)
+
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
+Create1=myModel.newCreateAction(Navire,10)
+Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
+Player1.addGameAction(Create1)
+Player1ControlPanel = Player1.newControlPanel()
+
 
 theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !","Comment jouer ?")
 
-InitPhase=myModel.timeManager.newGamePhase("Début du jeu, le joueur peut jouer",Player1)
-
-GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
+GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 
@@ -75,20 +72,19 @@ DashBoard.showIndicators()
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
-    nbNavires=len(myModel.getAgentsOfSpecie("Navire"))
+    nbNavireEquivalentEffortRefZone=len(myModel.getAgentsOfSpecie("Navire"))
     for Species in EspècesHalieutiques:
         for cell in CellsMer:
-            cell.setValue("txPrésence"+Species.entityName,list(Species.value(cell.value("sédim")))[0]/(nbCellsMer*nbNavires))
+            cell.setValue("txPrésence"+Species.entityName,list(Species.value(cell.value("sédim")))[0]/(nbCellsMer*nbNavireEquivalentEffortRefZone))
 
 def pêche(cell):
     if len(cell.agents)!=0:
         for navire in cell.agents:
-            navire.setValue('Quantité_pêchée_Merlu',cell.value("txPrésenceMerlu")*Merlus.value("stock")*list(navire.value("txCapture_Merlu"))[0]*6329*12.5)
-            navire.setValue('Quantité_pêchée_Sole',cell.value("txPrésenceSole")*Soles.value("stock")*list(navire.value("txCapture_Sole"))[0]*1029*12.5)
-            cell.setValue("quantitéPêchéeMerlu",cell.value("quantitéPêchéeMerlu")+navire.value('Quantité_pêchée_Merlu'))
-            cell.setValue("quantitéPêchéeSole",cell.value("quantitéPêchéeSole")+navire.value('Quantité_pêchée_Sole'))
+            navire.setValue('Quantité_pêchée_Merlu',round(cell.value("txPrésenceMerlu")*Merlus.value("stock")*list(navire.value("txCapture_Merlu"))[0]*Merlus.value("facteurTemps")*navire.value("facteurEffortMerlu"),0))
+            navire.setValue('Quantité_pêchée_Sole',round(cell.value("txPrésenceSole")*Soles.value("stock")*list(navire.value("txCapture_Sole"))[0]*Soles.value("facteurTemps")*navire.value("facteurEffortSole"),0))
+            cell.setValue("quantitéPêchéeMerlu",round(cell.value("quantitéPêchéeMerlu")+navire.value('Quantité_pêchée_Merlu'),0))
+            cell.setValue("quantitéPêchéeSole",round(cell.value("quantitéPêchéeSole")+navire.value('Quantité_pêchée_Sole'),0))
     
-
 def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     sommePêcheMerlu=0
     sommePêcheSole=0
@@ -130,6 +126,7 @@ PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 myModel.newLegend(showAgentsWithNoAtt=True)
 myModel.newTimeLabel("GameTime")
 
+userSelector=myModel.newUserSelector()
 tx_présence()
 
 myModel.launch()

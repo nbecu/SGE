@@ -303,7 +303,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandomEntity(condition=condition).setValue(aAttribute, aValue)
+        self.getRandom(condition=condition).setValue(aAttribute, aValue)
 
     # To apply a value to a random entity with a certain value
     def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
@@ -314,8 +314,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandomEntity_withValue(
-            conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
+        self.getRandom_withValue(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
 
    # To apply a value to a random entity not having a certain value
     def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
@@ -326,8 +325,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandomEntity_withValueNot(
-            conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
+        self.getRandom_withValueNot(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
 
     # To apply a value to some random entity
     def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):
@@ -473,8 +471,35 @@ class SGAgentDef(SGEntityDef):
         for aCell in locationCells:
             alist.append(self.newAgentOnCell(aCell, attributesAndValues))
         return alist
-        
     
+    def newAgentsonCell(self, nbAgents, aCell, attributesAndValues=None):
+        """
+        Create a specific number of new Agents in the associated species.
+        Args:
+            nbAgents (int) : number of Agents 
+            aCell : aCell located on a grid
+            attributesAndValues : attributes and values of the new agent
+        Return:
+            agents
+        """
+        for n in range(nbAgents):
+            self.newAgentOnCell(aCell,attributesAndValues)
+
+    def newAgentsAtCoords(self, nbAgents, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None):
+        """
+        Create a specific number of new Agents in the associated species.
+
+        Args:
+            nbAgents (int) : number of Agents 
+            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
+            ValueX (int) : Column position in grid (Default=Random)
+            ValueY (int) : Row position in grid (Default=Random)
+        Return:
+            agents
+        """
+        for n in range(nbAgents):
+            self.newAgentAtCoords(cellDef_or_grid,xCoord,yCoord,attributesAndValues)
+
 
     # To randomly move all agents
     def moveRandomly(self, numberOfMovement=1):
