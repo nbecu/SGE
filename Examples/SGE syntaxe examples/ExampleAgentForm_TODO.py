@@ -12,7 +12,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"grid")
 
-theFirstGrid=myModel.createGrid("basicGrid",10,10,"hexagonal",Qt.gray)
+Cells=myModel.newCellsOnGrid(10,10,"hexagonal",color=Qt.gray)
 
 myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
 
