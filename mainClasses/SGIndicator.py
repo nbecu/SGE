@@ -87,8 +87,8 @@ class SGIndicator(QtWidgets.QWidget):
         """Function to configure a score in an Indicator"""
         self.result=aValue
         self.label.setPlainText(self.name + str(self.result))
-        if isinstance(self.entity,SGSimulationVariable):
-            self.entity.value=aValue
+        if isinstance(self.listOfEntDef,SGSimulationVariable):
+            self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
         if self.dashboard.displayRefresh=='instantaneous':

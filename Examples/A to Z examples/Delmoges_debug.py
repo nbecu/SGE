@@ -55,17 +55,17 @@ GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doiv
 
 
 DashBoard=myModel.newDashBoard()
-# totMerlu=myModel.newSimVariable("Total Merlu pêché",0)
-# totSole=myModel.newSimVariable("Total Sole pêché",0)
-# indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
-# indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
-CelltotalMerlu=DashBoard.addIndicator("sumAtt","Cell",attribute="quantitéPêchéeMerlu",indicatorName="Merlu pêché")
-CelltotalSole=DashBoard.addIndicator("sumAtt","Cell",attribute="quantitéPêchéeSole",indicatorName="Sole pêché")
+totMerlu=myModel.newSimVariable("Merlu (ce tour)",0)
+totSole=myModel.newSimVariable("Sole (ce tour)",0)
+indTotMerlu = DashBoard.addIndicatorOnSimVariable(totMerlu)
+indTotSole = DashBoard.addIndicatorOnSimVariable(totSole)
+DashBoard.addIndicator("sumAtt",Navire,attribute="PêcheCumMerlu",indicatorName="Merlu pêché (depuis an 0)")
+DashBoard.addIndicator("sumAtt",Navire,attribute="PêcheCumSole",indicatorName="Sole pêché (depuis an 0)")
 indicateursMerlu = {}
 indicateursSole = {}
 for i in range(1,6):
-    indicateursMerlu[i] = DashBoard.addIndicatorOnEntity(Navire.getEntity(i), "PêcheCumMerlu", indicatorName=f"Merlu pêché par le bateau {i}")
-    indicateursSole[i] = DashBoard.addIndicatorOnEntity(Navire.getEntity(i), "PêcheCumSole", indicatorName=f"Sole pêché par le bateau {i}")
+    indicateursMerlu[i] = DashBoard.addIndicatorOnEntity(Navire.getEntity(i), "PêcheCumMerlu", indicatorName=f"Merlu bateau {i} (depuis an 0)")
+    indicateursSole[i] = DashBoard.addIndicatorOnEntity(Navire.getEntity(i), "PêcheCumSole", indicatorName=f"Sole bateau {i} (depuis an 0)")
 DashBoard.showIndicators()
 
 
@@ -82,8 +82,6 @@ def pêche(cell):
         for navire in cell.agents:
             navire.setValue('Quantité_pêchée_Merlu',round(cell.value("txPrésenceMerlu")*Merlus.value("stock")*list(navire.value("txCapture_Merlu"))[0]*Merlus.value("facteurTemps")*navire.value("facteurEffortMerlu"),0))
             navire.setValue('Quantité_pêchée_Sole',round(cell.value("txPrésenceSole")*Soles.value("stock")*list(navire.value("txCapture_Sole"))[0]*Soles.value("facteurTemps")*navire.value("facteurEffortSole"),0))
-            cell.setValue("quantitéPêchéeMerlu",round(cell.value("quantitéPêchéeMerlu")+navire.value('Quantité_pêchée_Merlu'),0))
-            cell.setValue("quantitéPêchéeSole",round(cell.value("quantitéPêchéeSole")+navire.value('Quantité_pêchée_Sole'),0))
     
 def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     sommePêcheMerlu=0
@@ -91,28 +89,21 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     for navire in myModel.getAgentsOfSpecie("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
-        print("Pêche du jour :")
-        print(navire.value('Quantité_pêchée_Merlu'))
         navire.setValue("PêcheCumMerlu", navire.value("PêcheCumMerlu")+navire.value('Quantité_pêchée_Merlu'))
         navire.setValue("PêcheCumSole", navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
-        # indBateauMerlu = indicateursMerlu[int(navire.id)]
-        # indBateauSole = indicateursSole[int(navire.id)]
-        # indBateauSole.setResult(navire.value("PêcheCumSole"))
-        # indBateauMerlu.setResult(navire.value("PêcheCumMerlu"))  
+        indBateauMerlu = indicateursMerlu[int(navire.id)]
+        indBateauSole = indicateursSole[int(navire.id)]
+        indBateauSole.setResult(navire.value("PêcheCumSole"))
+        indBateauMerlu.setResult(navire.value("PêcheCumMerlu"))  
     
     Soles.setValue("stock",round((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0],0))
     Merlus.setValue("stock",round((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0],0))
-    print("STOCK MERLU :")
-    print(Merlus.value("stock"))
-    print("STOCK SOLE :")
-    print(Soles.value("stock"))
-    print(myModel.timeManager.currentRound)
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
     total_pêcheSole=total_pêcheSole+sommePêcheSole
-    # indTotMerlu.setResult(total_pêcheMerlu)
-    # indTotSole.setResult(total_pêcheSole)
+    indTotMerlu.setResult(total_pêcheMerlu)
+    indTotSole.setResult(total_pêcheSole)
     
     for navire in myModel.getAgentsOfSpecie("Navire"):
         navire.moveAgent(method='cell',cellID=10)
