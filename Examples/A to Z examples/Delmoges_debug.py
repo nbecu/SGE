@@ -105,8 +105,9 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     Merlus.setValue("stock",round((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0],0))
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
     total_pêcheSole=total_pêcheSole+sommePêcheSole
-    indTotMerlu.setResult(total_pêcheMerlu)
-    indTotSole.setResult(total_pêcheSole)
+    # idem. c'est inutile
+    # indTotMerlu.setResult(total_pêcheMerlu)
+    # indTotSole.setResult(total_pêcheSole)
     
     for navire in myModel.getAgentsOfSpecie("Navire"):
         navire.moveAgent(method='cell',cellID=10)
