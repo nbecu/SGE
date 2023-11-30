@@ -5,9 +5,11 @@ import copy
 #Class who manage the game mechanics of Update
 class SGAbstractAction():
     IDincr=0
+    instances = []
     def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
         self.id=self.nextId()
-        print(self.id) # To test
+        self.__class__.instances.append(self)
+        print('new gameAction: '+str(self.id)) # To test
         self.targetEntDef=entDef
         self.model=self.targetEntDef.model 
         self.number=number
@@ -71,7 +73,6 @@ class SGAbstractAction():
             dict['id']=self.id
             dict['method']='perform_with'
             self.model.buildExeMsgAndPublishToBroker('gameAction_performed',dict, *args)
-
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
         

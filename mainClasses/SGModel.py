@@ -575,12 +575,19 @@ class SGModel(QMainWindow):
             return entityName
         return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
 
-    #This method is used by updateServer to retrieve a entity used has argument in a game action 
-    def getSGObject_withIdentfier(self, aIdentificationDict):
-        # Works only for entities (cell , agents)
+    #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
+    def getSGEntity_withIdentfier(self, aIdentificationDict):
         entDef = self.getEntityDef(aIdentificationDict['entityName'])
-        targetEntity = entDef.getEntity(aIdentificationDict['id'])
+        aId = aIdentificationDict['id']
+        targetEntity = entDef.getEntity(aId)
         return targetEntity 
+
+    #This method is used by updateServer to retrieve any type of SG object (eg. GameAction or Entity) 
+    def getSGObject_withIdentfier(self, aIdentificationDict):
+        className = aIdentificationDict['entityName']
+        aId = aIdentificationDict['id']
+        return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
+        
 
     def deleteAllAgents(self):
         for aAgentDef in self.getAgentSpeciesDict():
@@ -1351,13 +1358,15 @@ class SGModel(QMainWindow):
             print("message received " + msg.topic)
             message = self.q.get()
             msg_decoded = message.decode("utf-8")
-            if msg.topic in ['gameAction_performed','nextTurn']:
+            if msg.topic in ['gameAction_performed','nextTurn','execute_method']:
                 unserializedMsg= json.loads(msg_decoded)
                 if unserializedMsg['clientId']== self.clientId:
                     print("Own update, no action required.") 
                 else:
                     if msg.topic == 'gameAction_performed':
                         self.processBrokerMsg_gameAction_performed(unserializedMsg)
+                    elif msg.topic == 'execute_method':
+                        self.processBrokerMsg_executeMethod(unserializedMsg)
                     elif msg.topic == 'nextTurn':
                         self.processBrokerMsg_nextTrun(unserializedMsg)
                 return
@@ -1374,6 +1383,7 @@ class SGModel(QMainWindow):
         self.client.subscribe("Gamestates")
         self.client.subscribe("gameAction_performed")
         self.client.subscribe("nextTurn")
+        self.client.subscribe("execute_method")
         self.client.on_message = on_message
         self.listOfSubChannel.append("Gamestates") #Je ne pense pas que ce soit utile
         
@@ -1388,12 +1398,17 @@ class SGModel(QMainWindow):
             self.client.publish(msgTopic,serializedMsg)
         else: raise ValueError('Why does this case happens?')
 
-    # Method to build a json_string 'Execution message' and publish it mqtt broker
+    # Method to build a json_string 'Execution message' and publish it on the mqtt broker
     # A 'Execution message' is a message that will triger a specified method, of a specified object, to be executed with some specified arguments
     def buildExeMsgAndPublishToBroker(self,*args):
+        #Check that a client is declared
+        if not hasattr(self, 'client'): raise ValueError('Why does this case happens?')
+        
         msgTopic = args[0] # The first arg is the topic of the msg
-        objectAndMethodToExe = args[1] #next if a dict of className, id and method name
-        argsToSerialize= args[2:] # next are all the arguments for the method
+        objectAndMethodToExe = args[1] #Second arg is a dict that identifies the object and method to be executed. The dict has three keys: 'class_name', 'id', 'method' (method name called by the object )
+        argsToSerialize= args[2:] # The third to the last arg, correspond to all the arguments for the method
+
+        #build the message to publish
         msg_dict={}
         msg_dict['clientId']=self.clientId
         msg_dict['objectAndMethod']= objectAndMethodToExe
@@ -1401,16 +1416,13 @@ class SGModel(QMainWindow):
         for arg in argsToSerialize:
             if isinstance(arg,SGModel.JsonManagedDataTypes):
                 listOfArgs.append(arg)
-                # listOfArgs.append(json.dumps(arg))
             else:
                 listOfArgs.append(['SGObjectIdentifer',arg.getObjectIdentiferForJsonDumps()])
-                # listOfArgs.append(['SGObjectIdentifer',json.dumps(arg.getObjectIdentiferForJsonDumps())])
         msg_dict['listOfArgs']= listOfArgs
-        serializedMsg = json.dumps(msg_dict)
 
-        if hasattr(self, 'client'):
-            self.client.publish(msgTopic,serializedMsg)
-        else: raise ValueError('Why does this case happens?')
+        #serialize (encode) and publish the message
+        serializedMsg = json.dumps(msg_dict)
+        self.client.publish(msgTopic,serializedMsg)
 
     def processBrokerMsg_nextTrun(self, unserializedMsg):
         #eventually, one can add and process some more info about this nextTurn action
@@ -1430,7 +1442,7 @@ class SGModel(QMainWindow):
         listOfArgs=[]
         for aArgSpec in msg['listOfArgs']:
             if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
-                aArg=self.getSGObject_withIdentfier(aArgSpec[1])
+                aArg=self.getSGEntity_withIdentfier(aArgSpec[1])
             else:
                 aArg= aArgSpec
             listOfArgs.append(aArg)
@@ -1439,6 +1451,44 @@ class SGModel(QMainWindow):
             'gameAction':aGameAction,
              'listOfArgs':listOfArgs
              })
+
+        
+    #Method to process the incoming of a "execute_method" message
+    # cette méthode est une généralisation de process game_action et process nextTurn.
+    # Pour l'instant cette méthode n'est pas utilisé mais elle permet de pouvoir demander l'execution coté client, de n'importe quelle méthode executé coté server
+    # pour cela il suffit de mettre coté server un code du type :
+    # self.model.buildExeMsgAndPublishToBroker('execute_method',dictAvec_class_name_id_method, *args (les arguments les uns apres les autres) )
+    def processBrokerMsg_executeMethod(self, unserializedMsg):
+        msg = unserializedMsg
+        objectAndMethod = msg['objectAndMethod']
+        classOfObjectToExe = objectAndMethod['class_name']
+        idOfObjectToExe = objectAndMethod['id']
+        methodNameToExe = objectAndMethod['method']
+
+        aIdentificationDict={}
+        aIdentificationDict['entityName']=classOfObjectToExe
+        aIdentificationDict['id']=idOfObjectToExe 
+        aSGObject = self.getSGObject_withIdentfier(aIdentificationDict)
+        
+        methodToExe = getattr(aSGObject,methodNameToExe) # ce code récupère la méthode a exécuter et la met dans la variable  'methodToExe'. Cette variable 'methodToExe' peut à présent etre utilisé comme si il s'agissait de la méthode à exécuter
+        #récuprération des arguments de la méthode à exécuter
+        listOfArgs=[]
+        for aArgSpec in msg['listOfArgs']:
+            if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
+                aArg=self.getSGObject_withIdentfier(aArgSpec[1])
+            else:
+                aArg= aArgSpec
+            listOfArgs.append(aArg)
+
+        #execution de la méthode avec ces arguments
+        methodToExe(*listOfArgs)
+
+        # le code ci-dessous peut etre utilsié pour différer l'execution de la méthode au thread en dehors du thread de lecture mqtt
+        # self.actionsFromBrokerToBeExecuted.append({
+        #     'action_type':'execute_method',
+        #     'boundMethod':methodToExe,     # une bound method   est une méthod déjà associé à l'objet qui va l'executer
+        #      'listOfArgs':listOfArgs
+        #      })
 
 
     # publish on mqtt broker the state of all entities of the world
