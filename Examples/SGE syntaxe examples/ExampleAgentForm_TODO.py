@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGModel import SGModel
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -9,61 +9,39 @@ from PyQt5.QtCore import *
 monApp=QtWidgets.QApplication([])
 #Example of  form Avalaible for agent
 
+myModel=SGModel(1080,960,"Agent examples")
 
-myModel=SGModel(1080,960,"grid")
+Cells=myModel.newCellsOnGrid(5,2,"square",size=50,color=Qt.gray)
 
-Cells=myModel.newCellsOnGrid(10,10,"hexagonal",color=Qt.gray)
+CircleAgent=myModel.newAgentSpecies("Circle","circleAgent")
+CircleAgent.newAgentAtCoords(Cells,1,1)
 
-myModel.setUpCellValueAndPov("Forester",{"Forest":{"Niv3":Qt.green,"Niv2":Qt.red,"Niv1":Qt.yellow},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
+SquareAgent=myModel.newAgentSpecies("Square","squareAgent")
+SquareAgent.newAgentAtCoords(Cells,1,2)
 
-myModel.setInitialPovGlobal("Forester")
+Ellipse1Agent=myModel.newAgentSpecies("Ellipse1","ellipseAgent1")
+Ellipse1Agent.newAgentAtCoords(Cells,2,1)
 
-theFirstGrid.setForRandom({"Forest":"Niv3"},30)
+Ellipse2Agent=myModel.newAgentSpecies("Ellipse2","ellipseAgent2")
+Ellipse2Agent.newAgentAtCoords(Cells,2,2)
 
-myModel.newAgent("lac","circleAgent",[theFirstGrid])
+Rectangle1Agent=myModel.newAgentSpecies("Rectangle1","rectAgent1")
+Rectangle1Agent.newAgentAtCoords(Cells,3,1)
 
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac","sea","reasonable",[theFirstGrid])
+Rectangle2Agent=myModel.newAgentSpecies("Rectangle2","rectAgent2")
+Rectangle2Agent.newAgentAtCoords(Cells,3,2)
 
-myModel.newAgent("lac2","squareAgent",[theFirstGrid])
+Triangle1Agent=myModel.newAgentSpecies("Triangle1","triangleAgent1")
+Triangle1Agent.newAgentAtCoords(Cells,4,1)
 
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac2","sea","reasonable",[theFirstGrid])
+Triangle2Agent=myModel.newAgentSpecies("Triangle2","triangleAgent2")
+Triangle2Agent.newAgentAtCoords(Cells,4,2)
 
-myModel.newAgent("lac3","ellipseAgent1",[theFirstGrid])
+Arrow1Agent=myModel.newAgentSpecies("Arrow1","arrowAgent1")
+Arrow1Agent.newAgentAtCoords(Cells,5,1)
 
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac3","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac4","ellipseAgent2",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac4","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac5","rectAgent1",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac5","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac6","rectAgent2",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac6","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac7","triangleAgent1",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac7","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac8","triangleAgent2",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac8","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac9","arrowAgent1",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac9","sea","reasonable",[theFirstGrid])
-
-myModel.newAgent("lac10","arrowAgent2",[theFirstGrid])
-
-myModel.setUpCellValueAndPov("Forester",{"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},"lac10","sea","reasonable",[theFirstGrid])
-
-
-theFirstLegende=myModel.createLegendeAdmin()
-
-myModel.iAm("Admin")
+Arrow2Agent=myModel.newAgentSpecies("Arrow2","arrowAgent2")
+Arrow2Agent.newAgentAtCoords(Cells,5,2)
 
 myModel.launch() 
 
