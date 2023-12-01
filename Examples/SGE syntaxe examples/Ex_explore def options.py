@@ -14,17 +14,17 @@ Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')  # ,posXY=[20,90]
 Cell.setEntities("Resource", 1)
 Cell.setEntities("ProtectionLevel", "Free")
-aGrid.setCell(3,1,"Resource", 2)
-aGrid.setCell(1,2,"Resource", 2)
-aGrid.setCell(2,2,"Resource", 0)
-aGrid.setCell(3,2,"Resource", 2)
-aGrid.setCell(4,2,"Resource", 3)
-aGrid.setCell(5,2,"Resource", 2)
-aGrid.setCell(2,3,"Resource", 3)
-aGrid.setCell(4,3,"Resource", 2)
-aGrid.setCell(2,4,"Resource", 3)
-aGrid.setCell(4,4,"Resource", 0)
-aGrid.setCell(5,4,"Resource", 2)
+Cell.setCell(3,1,"Resource", 2)
+Cell.setCell(1,2,"Resource", 2)
+Cell.setCell(2,2,"Resource", 0)
+Cell.setCell(3,2,"Resource", 2)
+Cell.setCell(4,2,"Resource", 3)
+Cell.setCell(5,2,"Resource", 2)
+Cell.setCell(2,3,"Resource", 3)
+Cell.setCell(4,3,"Resource", 2)
+Cell.setCell(2,4,"Resource", 3)
+Cell.setCell(4,4,"Resource", 0)
+Cell.setCell(5,4,"Resource", 2)
 
 # GlobalColor.
 Cell.newPov("Resource", "Resource", {
@@ -33,15 +33,13 @@ Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 Workers = myModel.newAgentSpecies(
-    "Workers", "triangleAgent1", {'harvest':{0}},uniqueColor=Qt.black)
+    "Workers", "triangleAgent1", {'harvest':{0}})
 # Workers.setDefaultValue('harvest',0)
 Birds = myModel.newAgentSpecies(
-    "Birds", "triangleAgent2", uniqueColor=Qt.yellow)
+    "Birds", "triangleAgent2",defaultColor=Qt.yellow)
 
-aWorker = myModel.newAgentAtCoords(aGrid,Workers,5,2)
+aWorker = Workers.newAgentAtCoords(Cell,5,2)
 
-
-# globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Harvesters")
 Player1.addGameAction(myModel.newCreateAction(Workers, 20))
@@ -124,34 +122,28 @@ def harvest2(cell):
 # aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
-# myModel.setCurrentPlayer('Player 1')
 
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
     title='Info', textToWrite="Welcome to ReHab game !")
 
-# TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
-
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator("sum", 'Cell', attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator("avg", 'Cell', attribute='Resource',color=Qt.black)
-i3 = DashBoard.addIndicator("score",None,indicatorName="Score")
 DashBoard.showIndicators()
-# aModelAction4.addFeedback(lambda: i3.setResult(i3.result + 5))
-# myModel.timeManager.newModelPhase(aModelAction4)
+
 
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")
 endGameRule.addEndGameCondition_onEntity(
-    "cell1-2", 'Resource', "greater", 2, name="Cell 1-2 Resource is greater than 2",aGrid=aGrid)
+    "cell1-2", 'Resource', "greater", 2, name="Cell 1-2 Resource is greater than 2")
 endGameRule.showEndGameConditions()
 
 
 myModel.launch()
-# myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
 
 
 sys.exit(monApp.exec_())

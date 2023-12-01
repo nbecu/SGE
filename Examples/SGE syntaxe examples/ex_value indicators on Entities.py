@@ -12,9 +12,7 @@ Square.setEntities("status",'black')
 Square.setEntities("status",'white',lambda c: c.id%2==0)
 Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QColor.fromRgb(254, 254, 226)})
 
-Pawn=myModel.newAgentSpecies(name="Pawn",shape='ellipseAgent1',defaultSize=15,defaultColor=QColor.fromRgb(196,88,36))
-# Pawn=myModel.newAgentSpecies(name="Pawn",shape='circleAgent',defaultSize=8,defaultColor=QColor.fromRgb(196,88,36))
-        # TODO: circleAgent ne fonctionne pas comme shape.
+Pawn=myModel.newAgentSpecies(name="Pawn",shape='circleAgent',defaultSize=8,defaultColor=QColor.fromRgb(196,88,36))
 
 Pawn.setDefaultValue('age',(lambda: random.randint(12, 99)))
 
