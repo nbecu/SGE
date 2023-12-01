@@ -85,3 +85,12 @@ class SGControlPanel(SGLegend):
                 painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
                 painter.end()
+
+    def mouseMoveEvent(self, e):
+        if e.buttons() != Qt.LeftButton:
+            return
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.rect().topLeft())
+        drag.exec_(Qt.MoveAction)

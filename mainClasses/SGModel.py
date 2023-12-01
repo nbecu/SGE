@@ -75,7 +75,7 @@ class SGModel(QMainWindow):
         # Definition of the title of the window
         self.setWindowTitle(self.name) if windowTitle is None else self.setWindowTitle(windowTitle)
         # We allow the drag in this widget
-        self.setAcceptDrops(False)
+        self.setAcceptDrops(True)
 
         # Definition of variable
         # Definition for all gameSpaces
