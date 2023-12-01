@@ -93,22 +93,15 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
         navire.setValue("PêcheCumSole", navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
-        # if navire.id <= 5 :
-        #     indBateauMerlu = indicateursMerlu[navire.id]
-        #     indBateauSole = indicateursSole[navire.id]
-        #     indBateauSole.setResult(navire.value("PêcheCumSole"))
-        #     # Attention, le modeler n'est pas censé faire de setResult sur un indicateur.
-        #     # Et c'est inutile car l'indicateur  se met à jour tous seul (lorsque l'indicateur est créé, un watcher est ajouté ; meme dans le cas d'un indicateur sur entit ou d'un indicateur sur SimVariable  --> vior les ex. SGE Syntax "indicators on entities" et "explore simVariable")
-        #     indBateauMerlu.setResult(navire.value("PêcheCumMerlu"))  
     
     Soles.setValue("stock",round((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0],0))
     Merlus.setValue("stock",round((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0],0))
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
     total_pêcheSole=total_pêcheSole+sommePêcheSole
-    # idem. c'est inutile
     # indTotMerlu.setResult(total_pêcheMerlu)
     # indTotSole.setResult(total_pêcheSole)
-    
+    totMerlu.incValue(total_pêcheMerlu)
+    totSole.incValue(total_pêcheSole)
     for navire in myModel.getAgentsOfSpecie("Navire"):
         navire.moveAgent(method='cell',cellID=10)
 
