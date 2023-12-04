@@ -46,7 +46,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.label.setReadOnly(True)
         color = QColor(self.color)
         color_string = f"color: {color.name()};"
-        self.label.setStyleSheet(color_string+"border: none;background-color: lightgray;")
+        self.label.setStyleSheet(color_string+"border: none;background-color: transparent;")
         self.indicatorLayout.addWidget(self.label)
 
     def setName(self):
@@ -83,7 +83,12 @@ class SGIndicator(QtWidgets.QWidget):
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
 
-    def setResult(self, aValue):
+    def setModelCalcul(self,aCalculus):
+        # test pour une autre méthode non privée pour setResult
+        self.setResult(aCalculus)
+
+
+    def setResult(self, aValue): #this is a private method
         """Function to configure a score in an Indicator"""
         self.result=aValue
         self.label.setPlainText(self.name + str(self.result))
