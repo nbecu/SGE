@@ -46,7 +46,7 @@ class SGAbstractAction():
             return False
         res = True 
         for aCondition in self.conditions:
-            res = res and aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity)
+            res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity))
         return res
 
     #Function to test if the game action could be use

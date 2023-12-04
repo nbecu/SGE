@@ -5,40 +5,40 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid")
+myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid",testMode=True)
 
-aGrid=myModel.newCellsOnGrid(10,10,"square",size=40,gap=1)
-aGrid.setEntities("type","mer")
-aGrid.setEntities("sédim","sable")
-aGrid.setEntities_withColumn("type","grandFond",1)
-aGrid.setEntities_withColumn("type","côte",10)
-aGrid.setEntities_withColumn("sédim","côte",10)
-aGrid.setEntities_withColumn("sédim","vase",1)
-Port=aGrid.getEntity(10,1)
+Cells=myModel.newCellsOnGrid(10,10,"square",size=40,gap=1)
+Cells.setEntities("type","mer")
+Cells.setEntities("sédim","sable")
+Cells.setEntities_withColumn("type","grandFond",1)
+Cells.setEntities_withColumn("type","côte",10)
+Cells.setEntities_withColumn("sédim","côte",10)
+Cells.setEntities_withColumn("sédim","vase",1)
+Port=Cells.getEntity(10,1)
 Port.setValue("type",'port')
-aGrid.setRandomEntity_withValue("sédim","rocher","type","mer")
-aGrid.setEntities("stockCellMerlu",0)
-aGrid.setEntities("stockCellSole",0)
-aGrid.setEntities("txPrésenceMerlu",0)
-aGrid.setEntities("txPrésenceSole",0)
-aGrid.setEntities("quantitéPêchéeMerlu",0)
-aGrid.setEntities("quantitéPêchéeSole",0)
+Cells.setRandomEntity_withValue("sédim","rocher","type","mer")
+Cells.setEntities("stockCellMerlu",0)
+Cells.setEntities("stockCellSole",0)
+Cells.setEntities("txPrésenceMerlu",0)
+Cells.setEntities("txPrésenceSole",0)
+Cells.setEntities("quantitéPêchéeMerlu",0)
+Cells.setEntities("quantitéPêchéeSole",0)
 total_pêcheMerlu=0
 total_pêcheSole=0
 
-aGrid.newPov("Cell Type","type",{"côte":Qt.green,"mer":Qt.cyan,"grandFond":Qt.blue,"port":Qt.darkGray})
-aGrid.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher":Qt.red,"côte":Qt.darkGray})
+Cells.newPov("Cell Type","type",{"côte":Qt.green,"mer":Qt.cyan,"grandFond":Qt.blue,"port":Qt.darkGray})
+Cells.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher":Qt.red,"côte":Qt.darkGray})
 
-Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0},"facteurTemps":1029})
+Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0},"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1},"facteurTemps":6329})
-Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":{0},"Quantité_pêchée_Sole":{0},"PêcheCumMerlu":{0},"PêcheCumSole":{0},"facteurEffortMerlu":12.5,"facteurEffortSole":2.84})
+Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84})
 
 
 
 EspècesHalieutiques=[Soles,Merlus]
 
-Navire.newAgentsAtCoords(5,aGrid,10,1)
+Navire.newAgentsOnCell(5,Port)
 
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
@@ -46,6 +46,7 @@ Create1=myModel.newCreateAction(Navire,10)
 Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
 Player1.addGameAction(Create1)
 Player1ControlPanel = Player1.newControlPanel()
+Player1.setValue("solde",10000)
 
 
 theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !","Comment jouer ?")
@@ -70,7 +71,7 @@ DashBoard.showIndicators()
 
 
 def tx_présence():
-    CellsMer=[cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])]
+    CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
     nbNavireEquivalentEffortRefZone=len(myModel.getAgentsOfSpecie("Navire"))
     for Species in EspècesHalieutiques:

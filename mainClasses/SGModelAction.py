@@ -9,11 +9,11 @@ class SGModelAction():
         self.conditions=self.testIfCallableAndPutInList(conditions)
         if isinstance(feedbacks, list):
             if any(not isinstance(item, SGModelAction) for item in feedbacks):
-                raise ValueError("A feedback should be a ModelAction or list of ModelActons")
+                raise ValueError("A feedback should be a ModelAction or list of ModelActions")
             self.feedbacks=feedbacks
         elif isinstance(feedbacks, SGModelAction):
             self.feedbacks=[feedbacks]
-        else : raise ValueError("A feedback should be a ModelAction or list of ModelActons")
+        else : raise ValueError("A feedback should be a ModelAction or list of ModelActions")
     
 
     def testIfCallableAndPutInList(self,anObject):

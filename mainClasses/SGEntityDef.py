@@ -189,7 +189,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         return list(filter(lambda ent: ent.value(att)!=val, self.entities))
 
   # Return a random entity
-    def getRandom(self, condition=None, listOfEntitiesToPickFrom=None):
+    def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):
         """
         Return a random entity.
         """
@@ -203,19 +203,19 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         return random.choice(listOfEntities) if len(listOfEntities) > 0 else False
 
    # Return a random entity with a certain value
-    def getRandom_withValue(self, att, val, condition=None):
+    def getRandomEntity_withValue(self, att, val, condition=None):
         """
         Return a random entity.
         """
-        return self.getRandom(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValue(att, val))
+        return self.getRandomEntity(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValue(att, val))
 
 
   # Return a random entity not having a certain value
-    def getRandom_withValueNot(self, att, val, condition=None):
+    def getRandomEntity_withValueNot(self, att, val, condition=None):
         """
         Return a random entity.
         """
-        return self.getRandom(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
+        return self.getRandomEntity(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
 
     def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):
         """
@@ -303,7 +303,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribute (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandom(condition=condition).setValue(aAttribute, aValue)
+        self.getRandomEntity(condition=condition).setValue(aAttribute, aValue)
 
     # To apply a value to a random entity with a certain value
     def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
@@ -314,7 +314,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandom_withValue(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
+        self.getRandomEntity_withValue(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
 
    # To apply a value to a random entity not having a certain value
     def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
@@ -325,7 +325,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute to set.
             aValue (str): Value to set the attribute to
         """
-        self.getRandom_withValueNot(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
+        self.getRandomEntity_withValueNot(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
 
     # To apply a value to some random entity
     def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):
@@ -452,7 +452,7 @@ class SGAgentDef(SGEntityDef):
             a agent
             """
         aCellDef = self.model.getCellDef(cellDef_or_grid)
-        locationCell=aCellDef.getRandom(condition=condition)
+        locationCell=aCellDef.getRandomEntity(condition=condition)
         return self.newAgentOnCell(locationCell, attributesAndValues)
         # return self.newAgentAtCoords(cellDef_or_grid, None, None, attributesAndValues)
 
@@ -472,7 +472,7 @@ class SGAgentDef(SGEntityDef):
             alist.append(self.newAgentOnCell(aCell, attributesAndValues))
         return alist
     
-    def newAgentsonCell(self, nbAgents, aCell, attributesAndValues=None):
+    def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):
         """
         Create a specific number of new Agents in the associated species.
         Args:
