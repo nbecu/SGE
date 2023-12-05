@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
-from PyQt5.QtWidgets import  QAction, QGraphicsRectItem, QGraphicsView, QGraphicsScene
+from PyQt5.QtWidgets import QMenu, QAction
 import random
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
@@ -22,6 +22,8 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
+        self.initMenu()
+        self.menuOptions=[]
 
 
     def paintEvent(self,event):
@@ -96,6 +98,23 @@ class SGAgent(SGEntity):
     def zoomOut(self,zoomFactor):
         self.size=round(self.size-(zoomFactor*10))
         self.update()
+            
+    def initMenu(self):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
+
+    # To show a menu
+    def show_menu(self, point):
+        menu = QMenu(self)
+        for text in self.menuOptions:
+            option = QAction(text, self)
+            menu.addAction(option)
+        
+        if self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))
+    
+    def setNewMenuEntry(self,aTextWithValue):
+        self.menuOptions.append(aTextWithValue)
 
     def getRandomXY(self):
         # Is Obsolete

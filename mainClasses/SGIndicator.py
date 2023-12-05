@@ -59,6 +59,8 @@ class SGIndicator(QtWidgets.QWidget):
                 aName = self.method+' '+self.attribut+" : "
         elif self.method == 'nb':
             aName = self.method+' '+self.strOfEntitiesName()+' : '
+        elif self.method == "separator":
+            aName = ""
         else:
             aName = self.method+' : '
         self.name = aName
@@ -83,11 +85,6 @@ class SGIndicator(QtWidgets.QWidget):
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
 
-    def setModelCalcul(self,aCalculus):
-        # test pour une autre méthode non privée pour setResult
-        self.setResult(aCalculus)
-
-
     def setResult(self, aValue): #this is a private method
         """Function to configure a score in an Indicator"""
         self.result=aValue
@@ -106,13 +103,19 @@ class SGIndicator(QtWidgets.QWidget):
     
     def getListOfEntities(self):
         return [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  #This list comprehension expression concatenates the list of entities of all specified EntDef    
+    
     def byMethod(self):
         calcValue=0.0
         counter=0
         
         if self.method =='nb':
-            listEntities = self.getListOfEntities()
-            return len(listEntities)
+            if self.attribut is not None and self.value is not None:
+                listEntities = self.getListOfEntities()
+                filteredList=[entity for entity in listEntities if entity.value(self.attribut)==self.value]
+                return len(filteredList)
+            else:
+                listEntities = self.getListOfEntities()
+                return len(listEntities)
         
         elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
             listEntities = self.getListOfEntities()
@@ -135,6 +138,8 @@ class SGIndicator(QtWidgets.QWidget):
         
         elif self.method =="display":
             return self.entity.value(self.attribut)
+        elif self.method=="separator":
+            return "---------------"
         elif self.method=="thresoldToLogicOp":
             # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
             if self.logicOp =="greater":
@@ -157,6 +162,7 @@ class SGIndicator(QtWidgets.QWidget):
                 if self.entity.value(self.attribut)<self.threshold:
                     calcValue="less than"+str(self.threshold)
                     return calcValue
+
 
             
 

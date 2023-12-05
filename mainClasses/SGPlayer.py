@@ -23,7 +23,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.gameActions = []
         self.remainActions = {}
         self.controlPanel= None
-        self.initAttributes()
+        #self.initAttributes() #! BUG
 
     def newControlPanel(self, title=None, showAgentsWithNoAtt=False):
         """

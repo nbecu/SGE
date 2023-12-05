@@ -120,9 +120,9 @@ class SGDashBoard(SGGameSpace):
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
- 
-        for entDef in listOfEntDef:
-            entDef.addWatcher(indicator)
+        if method != "separator":
+            for entDef in listOfEntDef:
+                entDef.addWatcher(indicator)
         return indicator
     
 
@@ -286,6 +286,10 @@ class SGDashBoard(SGGameSpace):
         method = 'nb'
         indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
+    
+    def addSeparator(self):
+        separator=self.addIndicator("separator",None)
+        return separator
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):

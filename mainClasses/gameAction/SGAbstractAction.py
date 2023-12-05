@@ -83,10 +83,10 @@ class SGAbstractAction():
         self.conditions.append(aCondition)
     
     def addFeedback(self,aFeedback):
-        self.feedback.append(aFeedback)
+        self.feedbacks.append(aFeedback)
         
     def addConditionOfFeedBack(self,aCondition):
-        self.conditionOfFeedBack.append(aCondition)
+        self.conditionsOfFeedBack.append(aCondition)
         
     def getNbRemainingActions(self):
         return self.number-self.numberUsed
