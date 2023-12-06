@@ -37,7 +37,6 @@ Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})
 
-
 EspècesHalieutiques=[Soles,Merlus]
 
 Navire.newAgentsOnCell(5,Port)
@@ -93,11 +92,6 @@ def tx_présence():
     for Species in EspècesHalieutiques:
         for cell in CellsMer:
             cell.setValue("txPrésence"+Species.entityName,list(Species.value(cell.value("sédim")))[0]/(nbCellsMer*nbNavireEquivalentEffortRefZone))
-
-def setAgentsMenu():
-    for navire in myModel.getAgentsOfSpecie("Navire"):
-        navire.setNewMenuEntryOn("Quantité_pêchée_Merlu")
-        navire.setNewMenuEntryOn("Quantité_pêchée_Sole")
 
 def pêche(cell):
     if len(cell.agents)!=0:

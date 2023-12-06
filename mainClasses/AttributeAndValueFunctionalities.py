@@ -10,6 +10,7 @@ class AttributeAndValueFunctionalities():
                 self.setValue(aAtt,valueToSet())
             else:
                 self.setValue(aAtt,valueToSet)
+    
     def setValue(self,aAttribut,aValue):
         """
         Sets the value of an attribut
@@ -68,7 +69,3 @@ class AttributeAndValueFunctionalities():
             result = aLambdaFunction(currentValue)
             self.setValue(aAttribut, result)
         else: raise ValueError ('calcValue works with a lambda function')
-
-    def setMenuOptions(self,aAttribute):
-        self.menuOptions=[]
-        
