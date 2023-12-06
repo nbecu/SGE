@@ -44,7 +44,7 @@ Navire.newAgentsOnCell(5,Port)
 
 Player1 = myModel.newPlayer("Pêcheur")
 Move1=myModel.newMoveAction(Navire, 'infinite')
-Move1.addFeedback(lambda: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
+Move1.addFeedback(lambda navire: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
 Player1.addGameAction(Move1)
 Create1=myModel.newCreateAction(Navire,10)
 Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
@@ -159,7 +159,7 @@ myModel.newTimeLabel("GameTime")
 
 userSelector=myModel.newUserSelector()
 tx_présence()
-setAgentsMenu()
+# setAgentsMenu()
 
 myModel.launch()
 sys.exit(monApp.exec_())

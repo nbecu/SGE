@@ -167,6 +167,7 @@ class SGCell(SGEntity):
              
     #To get the pov
     def getPov(self):
+        raise ValueError('a priori, cette méthode est obsolete')
         return self.grid.model.nameOfPov
        
     #Apply the feedBack of a gameMechanics

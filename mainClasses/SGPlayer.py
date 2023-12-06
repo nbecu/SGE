@@ -140,6 +140,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         return attributs
 
     def getPov(self):
+        raise ValueError('a priori, cette méthode est obsolete')
         # Pourquoi un player à une méthode getPov. C'est bizarre et peut etre Obsolete
         thePov = {}
         for action in self.gameActions:

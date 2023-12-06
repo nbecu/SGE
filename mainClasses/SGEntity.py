@@ -81,6 +81,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     
     #To get the pov
     def getPov(self):
+        raise ValueError('a priori, cette méthode est obsolete')
         return self.model.nameOfPov
 
     def getRandomXY(self):

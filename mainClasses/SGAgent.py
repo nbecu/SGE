@@ -151,6 +151,7 @@ class SGAgent(SGEntity):
 
     #To get the pov
     def getPov(self):
+        raise ValueError('a priori, cette méthode est obsolete')
         return self.model.nameOfPov
     
     # To get the pov via grid
