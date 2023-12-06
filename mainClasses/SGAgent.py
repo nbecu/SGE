@@ -22,7 +22,6 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
-        self.menuOptions=[]
         self.initMenu()
         
 
@@ -101,24 +100,21 @@ class SGAgent(SGEntity):
             
     def initMenu(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        print(self.menuOptions)
         self.customContextMenuRequested.connect(self.show_menu)
 
     # To show a menu
     def show_menu(self, point):
+        # Need to find a solution to get modeler's choice about attributes
         menu = QMenu(self)
-        text="Merlu pêché : "+str(self.value("Quantité_pêchée_Merlu"))
+        text="Merlu pêché : "+str(self.value("Quantité_pêchée_Merlu")) #non definitive
         option = QAction(text, self)
         menu.addAction(option)
-        text="Sole pêché : "+str(self.value("Quantité_pêchée_Sole"))
+        text="Sole pêché : "+str(self.value("Quantité_pêchée_Sole")) #non definitive
         option = QAction(text, self)
         menu.addAction(option)
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
-    
-    # def setNewMenuEntryOn(self,aAttribute):
-    #     self.menuOptions.append(aAttribute)
 
     def getRandomXY(self):
         # Is Obsolete
