@@ -31,12 +31,13 @@ class SGAbstractAction():
     def perform_with(self,aTargetEntity,serverUpdate=True): #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
         if self.checkAuhorization(aTargetEntity):
             resAction = self.executeAction(aTargetEntity)
-            aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
-            if self.checkFeedbackAuhorization(aFeedbackTarget):
-                resFeedback = self.executeFeedback(aFeedbackTarget)
+            if self.feedbacks:
+                aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
+                if self.checkFeedbackAuhorization(aFeedbackTarget):
+                    resFeedback = self.executeFeedbacks(aFeedbackTarget)
             self.incNbUsed()
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
-            return resFeedback
+            return resAction if not self.feedbacks else [resAction,resFeedback]
         else:
             return False
 
@@ -60,11 +61,13 @@ class SGAbstractAction():
         return listOfPossibleFedbackTarget[0]
 
 
-    def executeFeedback(self, feddbackTarget):
-        if callable(feddbackTarget):
-            return feddbackTarget()     
-        else:
-            return False    
+    def executeFeedbacks(self, feddbackTarget):
+        listOfRes = []
+        for aFeedback in self.feedbacks:
+            res = aFeedback() if aFeedback.__code__.co_argcount == 0 else aFeedback(feddbackTarget)
+            listOfRes.append(res)
+        if not listOfRes: raise ValueError('why is this method called when the list of feedbaks is  empty')
+        return res if len(listOfRes) == 1 else listOfRes
     
     def updateServer_gameAction_performed(self, *args):
         if self.model.mqttMajType == "Instantaneous":

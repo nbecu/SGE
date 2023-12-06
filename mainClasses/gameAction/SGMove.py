@@ -19,18 +19,22 @@ class SGMove(SGAbstractAction):
         aMovingEntity = aTargetEntity
         if self.checkAuhorization(aMovingEntity):
             aOriginEntity = aMovingEntity.cell
-            resAction = self.executeAction(aMovingEntity,aDestinationEntity)
-            aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity,resAction]) # Previously Five choices. The choice aParameterHolder, has been removed
-            if self.checkFeedbackAuhorization(aFeedbackTarget):
-                resFeedback = self.executeFeedback(aFeedbackTarget)
+            newCopyOfAgent = self.executeAction(aMovingEntity,aDestinationEntity)
+            aMovingEntity = newCopyOfAgent
+            if self.feedbacks:
+                aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity]) # Previously Five choices. The choice aParameterHolder, has been removed. The choice 'resAction' has been removed as well as it is used to  retrieve the copy of the moving agent
+                if self.checkFeedbackAuhorization(aFeedbackTarget):
+                    resFeedback = self.executeFeedbacks(aFeedbackTarget)
             self.incNbUsed()
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity,aDestinationEntity)
-            return resFeedback
+            return aMovingEntity if not self.feedbacks else [aMovingEntity,resFeedback]
         else:
             return False
 
+
     def executeAction(self, aMovingEntity,aDestinationEntity):
-        aMovingEntity.moveTo2(aDestinationEntity)
+        newCopyOfAgent = aMovingEntity.moveTo2(aDestinationEntity)
+        return newCopyOfAgent
 
     def generateLegendItems(self,aControlPanel):
         aColor = self.targetEntDef.defaultShapeColor

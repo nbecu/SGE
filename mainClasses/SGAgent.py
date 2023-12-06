@@ -261,11 +261,13 @@ class SGAgent(SGEntity):
             self.cell = aDestinationCell
             self.cell.updateIncomingAgent(self)
             self.update()
+            theAgent= self
         else :
             self.cell.updateDepartureAgent(self)
-            self.copyOfAgentAtCoord(aDestinationCell)
+            theAgent= self.copyOfAgentAtCoord(aDestinationCell)
             self.deleteLater()
         self.updateMqtt()
+        return theAgent
             
     def moveTo(self, aDestinationCell):
         #OBSOLETE  should not use
