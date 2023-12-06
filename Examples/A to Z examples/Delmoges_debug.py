@@ -44,7 +44,7 @@ Navire.newAgentsOnCell(5,Port)
 
 Player1 = myModel.newPlayer("Pêcheur")
 Move1=myModel.newMoveAction(Navire, 'infinite')
-Move1.addFeedback(lambda navire: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
+Move1.addFeedback(lambda: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
 Player1.addGameAction(Move1)
 Create1=myModel.newCreateAction(Navire,10)
 Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
@@ -96,8 +96,8 @@ def tx_présence():
 
 def setAgentsMenu():
     for navire in myModel.getAgentsOfSpecie("Navire"):
-        navire.setNewMenuEntry("Pêche Merlu du tour :"+str(navire.value("Quantité_pêchée_Merlu")))
-        navire.setNewMenuEntry("Pêche Sole du tour :"+str(navire.value("Quantité_pêchée_Sole")))
+        navire.setNewMenuEntryOn("Quantité_pêchée_Merlu")
+        navire.setNewMenuEntryOn("Quantité_pêchée_Sole")
 
 def pêche(cell):
     if len(cell.agents)!=0:
@@ -120,6 +120,8 @@ def feedbackPêche():
         sommeRevenus=sommeRevenus+revenusBateau
         print("Incitation Navire : "+str(navire.value('lastIncitationValue')))
         print("Incitation Cellule : "+str(navire.cell.value('incitation')))
+        navire.setValue('lastIncitationValue',navire.cell.value('incitation')) #LIGNE TEST NON DEFINITIVE = feedback
+        print("New Incitation Navire : "+str(navire.value('lastIncitationValue')))
         print("---------")
         if navire.value('lastIncitationValue')=="bonus":
             benefBateau=revenusBateau+revenusBateau*0.1

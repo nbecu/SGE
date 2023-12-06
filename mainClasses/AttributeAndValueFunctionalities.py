@@ -68,3 +68,7 @@ class AttributeAndValueFunctionalities():
             result = aLambdaFunction(currentValue)
             self.setValue(aAttribut, result)
         else: raise ValueError ('calcValue works with a lambda function')
+
+    def setMenuOptions(self,aAttribute):
+        self.menuOptions=[]
+        

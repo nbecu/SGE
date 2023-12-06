@@ -22,15 +22,15 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.xPos=self.getRandomX()
         self.yPos=self.getRandomY()
-        self.initMenu()
         self.menuOptions=[]
+        self.initMenu()
+        
 
 
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        # self.setGeometry(0,0,self.size+1,self.size+1) #CELA PROVOQUE UNE Infinite Loop de paintEvent
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
@@ -101,20 +101,24 @@ class SGAgent(SGEntity):
             
     def initMenu(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
+        print(self.menuOptions)
         self.customContextMenuRequested.connect(self.show_menu)
 
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
-        for text in self.menuOptions:
-            option = QAction(text, self)
-            menu.addAction(option)
+        text="Merlu pêché : "+str(self.value("Quantité_pêchée_Merlu"))
+        option = QAction(text, self)
+        menu.addAction(option)
+        text="Sole pêché : "+str(self.value("Quantité_pêchée_Sole"))
+        option = QAction(text, self)
+        menu.addAction(option)
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
     
-    def setNewMenuEntry(self,aTextWithValue):
-        self.menuOptions.append(aTextWithValue)
+    # def setNewMenuEntryOn(self,aAttribute):
+    #     self.menuOptions.append(aAttribute)
 
     def getRandomXY(self):
         # Is Obsolete
