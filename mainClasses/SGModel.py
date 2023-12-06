@@ -399,18 +399,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[name] = aGrid
 
         # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aGrid)
-        aGrid.setStartXBase(newPos[0])
-        aGrid.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aGrid.move(aGrid.getStartXBase(), aGrid.getStartYBase() + 20*self.layoutOfModel.getNumberOfAnElement(aGrid))
-        elif (self.typeOfLayout == "horizontal"):
-            aGrid.move(aGrid.getStartXBase(
-            )+20*self.layoutOfModel.getNumberOfAnElement(aGrid), aGrid.getStartYBase())
-        else:
-            pos = self.layoutOfModel.foundInLayout(aGrid)
-            aGrid.move(aGrid.getStartXBase()+20 *
-                       pos[0], aGrid.getStartYBase()+20*pos[1])
+        aGrid.globalPosition()
         return aCellDef
     
     def newCellsFromGrid(self,grid):
@@ -477,22 +466,8 @@ class SGModel(QMainWindow):
         selectedSymbologies=self.getAllCheckedSymbologies()
         aLegend = SGLegend(self).init2(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
         self.gameSpaces[name] = aLegend
-        # self.adminLegend=aLegend
         # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aLegend)
-        aLegend.setStartXBase(newPos[0])
-        aLegend.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aLegend.move(aLegend.startXBase, aLegend.startYBase +
-                         20*self.layoutOfModel.getNumberOfAnElement(aLegend))
-        elif (self.typeOfLayout == "horizontal"):
-            aLegend.move(aLegend.startXBase+20 *
-                         self.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aLegend)
-            aLegend.move(aLegend.startXBase+20 *
-                         pos[0], aLegend.startYBase+20*pos[1])
-        # aLegend.addDeleteButton("Delete")
+        aLegend.globalPosition()
         self.applyPersonalLayout()
         return aLegend
     
@@ -506,19 +481,7 @@ class SGModel(QMainWindow):
             self.userSelector = userSelector
             self.gameSpaces["userSelector"] = userSelector
             # Realocation of the position thanks to the layout
-            newPos = self.layoutOfModel.addGameSpace(userSelector)
-            userSelector.setStartXBase(newPos[0])
-            userSelector.setStartYBase(newPos[1])
-            if (self.typeOfLayout == "vertical"):
-                userSelector.move(userSelector.startXBase, userSelector.startYBase +
-                                  20*self.layoutOfModel.getNumberOfAnElement(userSelector))
-            elif (self.typeOfLayout == "horizontal"):
-                userSelector.move(userSelector.startXBase+20*self.layoutOfModel.getNumberOfAnElement(
-                    userSelector), userSelector.startYBase)
-            else:
-                pos = self.layoutOfModel.foundInLayout(userSelector)
-                userSelector.move(userSelector.startXBase +
-                                  20*pos[0], userSelector.startYBase+20*pos[1])
+            userSelector.globalPosition()
             self.applyPersonalLayout()
             return userSelector
         else:
@@ -765,20 +728,7 @@ class SGModel(QMainWindow):
         self.myTimeLabel = aTimeLabel
         self.gameSpaces[title] = aTimeLabel
         # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aTimeLabel)
-        aTimeLabel.setStartXBase(newPos[0])
-        aTimeLabel.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aTimeLabel.move(aTimeLabel.startXBase, aTimeLabel.startYBase +
-                            20*self.layoutOfModel.getNumberOfAnElement(aTimeLabel))
-        elif (self.typeOfLayout == "horizontal"):
-            aTimeLabel.move(aTimeLabel.startXBase+20 *
-                            self.layoutOfModel.getNumberOfAnElement(aTimeLabel), aTimeLabel.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aTimeLabel)
-            aTimeLabel.move(aTimeLabel.startXBase+20 *
-                            pos[0], aTimeLabel.startYBase+20*pos[1])
-
+        aTimeLabel.globalPosition()
         self.applyPersonalLayout()
 
         return aTimeLabel
@@ -797,20 +747,7 @@ class SGModel(QMainWindow):
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
         # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aTextBox)
-        aTextBox.setStartXBase(newPos[0])
-        aTextBox.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aTextBox.move(aTextBox.startXBase, aTextBox.startYBase +
-                          20*self.layoutOfModel.getNumberOfAnElement(aTextBox))
-        elif (self.typeOfLayout == "horizontal"):
-            aTextBox.move(aTextBox.startXBase+20 *
-                          self.layoutOfModel.getNumberOfAnElement(aTextBox), aTextBox.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aTextBox)
-            aTextBox.move(aTextBox.startXBase+20 *
-                          pos[0], aTextBox.startYBase+20*pos[1])
-
+        aTextBox.globalPosition()
         self.applyPersonalLayout()
 
         return aTextBox
@@ -837,20 +774,7 @@ class SGModel(QMainWindow):
             self, title, displayRefresh, borderColor, backgroundColor, textColor)
         self.gameSpaces[title] = aDashBoard
         # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aDashBoard)
-        aDashBoard.setStartXBase(newPos[0])
-        aDashBoard.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aDashBoard.move(aDashBoard.startXBase, aDashBoard.startYBase +
-                            20*self.layoutOfModel.getNumberOfAnElement(aDashBoard))
-        elif (self.typeOfLayout == "horizontal"):
-            aDashBoard.move(aDashBoard.startXBase+20 *
-                            self.layoutOfModel.getNumberOfAnElement(aDashBoard), aDashBoard.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aDashBoard)
-            aDashBoard.move(aDashBoard.startXBase+20 *
-                            pos[0], aDashBoard.startYBase+20*pos[1])
-
+        aDashBoard.globalPosition()
         self.applyPersonalLayout()
 
         return aDashBoard
@@ -867,20 +791,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aEndGameRule
         self.endGameRule = aEndGameRule
         # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aEndGameRule)
-        aEndGameRule.setStartXBase(newPos[0])
-        aEndGameRule.setStartYBase(newPos[1])
-        if (self.typeOfLayout == "vertical"):
-            aEndGameRule.move(aEndGameRule.startXBase, aEndGameRule.startYBase +
-                              20*self.layoutOfModel.getNumberOfAnElement(aEndGameRule))
-        elif (self.typeOfLayout == "horizontal"):
-            aEndGameRule.move(aEndGameRule.startXBase+20*self.layoutOfModel.getNumberOfAnElement(
-                aEndGameRule), aEndGameRule.startYBase)
-        else:
-            pos = self.layoutOfModel.foundInLayout(aEndGameRule)
-            aEndGameRule.move(aEndGameRule.startXBase+20 *
-                              pos[0], aEndGameRule.startYBase+20*pos[1])
-
+        aEndGameRule.globalPosition()
         self.applyPersonalLayout()
 
         return aEndGameRule

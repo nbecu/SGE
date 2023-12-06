@@ -114,7 +114,7 @@ def feedbackPêche():
         sommeRevenus=sommeRevenus+revenusBateau
         print("Incitation Navire : "+str(navire.value('lastIncitationValue')))
         print("Incitation Cellule : "+str(navire.cell.value('incitation')))
-        navire.setValue('lastIncitationValue',navire.cell.value('incitation')) #LIGNE TEST NON DEFINITIVE = feedback
+        # navire.setValue('lastIncitationValue',navire.cell.value('incitation')) #LIGNE TEST NON DEFINITIVE = feedback
         print("New Incitation Navire : "+str(navire.value('lastIncitationValue')))
         print("---------")
         if navire.value('lastIncitationValue')=="bonus":

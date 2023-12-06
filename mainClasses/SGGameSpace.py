@@ -66,6 +66,19 @@ class SGGameSpace(QtWidgets.QWidget):
         self.area = float(self.width() * self.height())
         return self.area
 
+    # global positionning function
+    def globalPosition(self):
+        newPos = self.model.layoutOfModel.addGameSpace(self)
+        self.setStartXBase(newPos[0])
+        self.setStartYBase(newPos[1])
+        if (self.model.typeOfLayout == "vertical"):
+            self.move(self.getStartXBase(), self.getStartYBase() + 20*self.layoutOfModel.getNumberOfAnElement(self))
+        elif (self.model.typeOfLayout == "horizontal"):
+                self.move(self.getStartXBase()+20*self.layoutOfModel.getNumberOfAnElement(self), self.getStartYBase())
+        else:
+            pos = self.model.layoutOfModel.foundInLayout(self)
+            self.move(self.getStartXBase()+20 *pos[0], self.getStartYBase()+20*pos[1])
+
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
