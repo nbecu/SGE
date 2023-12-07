@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid",testMode=True)
+myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid")
 
 Cells=myModel.newCellsOnGrid(10,10,"square",size=40,gap=1)
 Cells.setEntities("type","mer")
@@ -41,7 +41,7 @@ EspècesHalieutiques=[Soles,Merlus]
 
 Navire.newAgentsOnCell(5,Port)
 
-Player1 = myModel.newPlayer("Pêcheur")
+Player1 = myModel.newPlayer("Pêcheur",attributesAndValues=None)
 Move1=myModel.newMoveAction(Navire, 'infinite')
 Move1.addFeedback(lambda navire: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
 Player1.addGameAction(Move1)
@@ -50,7 +50,7 @@ Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
 Player1.addGameAction(Create1)
 Player1ControlPanel = Player1.newControlPanel("Actions Pêcheur")
 
-Player2= myModel.newPlayer("Gestionnaire")
+Player2= myModel.newPlayer("Gestionnaire",attributesAndValues=None)
 Update1=myModel.newUpdateAction("Cell","infinite",{"incitation":"bonus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
 Update2=myModel.newUpdateAction("Cell","infinite",{"incitation":"malus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
 Player2.addGameAction(Update1)

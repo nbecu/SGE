@@ -52,7 +52,7 @@ class SGModel(QMainWindow):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame",testMode=False):
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame"):
         """
         Declaration of a new model
 
@@ -116,7 +116,7 @@ class SGModel(QMainWindow):
         self.haveToBeClose = False
         self.mqtt=False
         self.mqttMajType=None
-        self.testMode=testMode
+
         self.dictAgentsAtMAJ={}
         self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
@@ -143,25 +143,39 @@ class SGModel(QMainWindow):
 
         self.nameOfPov = "default"
 
-        if self.testMode:
-            self.label = QtWidgets.QLabel(self)
-            self.label.setGeometry(10, 10, 350, 30)
+        testMode=QAction(" &"+"Cursor Position", self)
+        self.settingsMenu.addAction(testMode)
+        testMode.triggered.connect(lambda: self.showCursorCoords())
+        self.label = QtWidgets.QLabel(self)
+        self.label.setGeometry(10, 10, 350, 30)
+        self.label.move(300,0)
 
-            self.timer = QTimer(self)
-            self.timer.timeout.connect(self.maj_coordonnees)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.maj_coordonnees)
+        self.isLabelVisible = False
+    
+    def showCursorCoords(self):
+
+        self.isLabelVisible = not self.isLabelVisible
+
+        if self.isLabelVisible:
+            self.label.show()
             self.timer.start(100)
+        else:
+            self.label.hide()
+            self.timer.stop()
 
+    def maj_coordonnees(self):
+        pos_souris_globale = self.mapFromGlobal(QCursor.pos())
+        coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
+        self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
     
     def initAfterOpening(self):
         QTimer.singleShot(100, self.updateFunction)
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-
-    def maj_coordonnees(self):
-        pos_souris_globale = QCursor.pos()
-        coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
-        self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
+    
     
     def updateFunction(self):
         #This method will need to be modified so that agent are placed at the right place right from the start
