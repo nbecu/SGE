@@ -33,7 +33,7 @@ class SGMove(SGAbstractAction):
 
 
     def executeAction(self, aMovingEntity,aDestinationEntity):
-        newCopyOfAgent = aMovingEntity.moveTo2(aDestinationEntity)
+        newCopyOfAgent = aMovingEntity.moveTo(aDestinationEntity)
         return newCopyOfAgent
 
     def generateLegendItems(self,aControlPanel):

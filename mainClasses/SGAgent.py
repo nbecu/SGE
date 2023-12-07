@@ -194,7 +194,6 @@ class SGAgent(SGEntity):
         # authorisation = SGGameActions.getMovePermission(self)
         authorisation = True
         if authorisation:
-            # self.cell.updateDepartureAgent(self)  #Should not used, because the departure is performed at the drop
             mimeData = QMimeData()
             drag = QDrag(self)
             drag.setMimeData(mimeData)
@@ -256,7 +255,7 @@ class SGAgent(SGEntity):
         return newAgent
     
 
-    def moveTo2(self, aDestinationCell):
+    def moveTo(self, aDestinationCell):
         if self.cell is None:
             self.cell = aDestinationCell
             self.cell.updateIncomingAgent(self)
@@ -268,13 +267,6 @@ class SGAgent(SGEntity):
             self.deleteLater()
         self.updateMqtt()
         return theAgent
-            
-    def moveTo(self, aDestinationCell):
-        #OBSOLETE  should not use
-        if self.cell is not None:
-            self.cell.updateDepartureAgent(self)
-        self.cell = aDestinationCell
-        aDestinationCell.updateIncomingAgent(self)
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
         """
@@ -317,7 +309,7 @@ class SGAgent(SGEntity):
             if newCell is None:
                 pass
             else:
-                theAgent = self.moveTo2(newCell)
+                theAgent = self.moveTo(newCell)
         pass
                 
     #Function to check the ownership  of the agent          
@@ -341,16 +333,3 @@ class SGAgent(SGEntity):
     #Function get the ownership        
     def getProperty(self):
         self.owner=self.model.currentPlayer
-    
-        
-    #Function to check the old value of an Agent       
-    def checkPrecedenteValue(self,precedentValue):
-        """OBSOLETE"""
-        if not len(self.history["value"]) ==0:
-            for aVal in list(self.history["value"][len(self.history["value"])].thingsSave.keys()) :
-                if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
-                    return self.history["value"][len(self.history["value"])].thingsSave[aVal]
-        else: 
-            for aVal in list(self.attributs.keys()) :
-                if aVal in list(self.theCollection.povs[self.model.nameOfPov].keys()) :
-                    return self.attributs[aVal]

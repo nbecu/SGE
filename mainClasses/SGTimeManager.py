@@ -164,23 +164,6 @@ class SGTimeManager():
         self.phases = self.phases + [aPhase]
         return aPhase
 
-    def newGamePhase_adv(self, name, activePlayer=None, modelActions=[]):
-        #! OBSOLETE
-        """
-        To add a Game Phase in a round.
-
-        args:
-            name (str): Name displayed on the TimeLabel
-            activePlayer (?): Player concerned about the phase (default:None)
-            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
-        """
-        aPhase = SGTimePhase(self, name, activePlayer, modelActions)
-        if activePlayer == None:
-            self.model.actualPlayer = activePlayer
-        self.phases.append(aPhase)
-        return aPhase
-
-
     # To verify a number of round
     def verifNumberOfRound(self, aNumber):
         return self.currentRound == aNumber

@@ -146,49 +146,6 @@ class SGGrid(SGGameSpace):
     def getValuesForLegend(self):
         return self.model.getCellPovs(self)
 
-    # Agent function
-    # To get all agents on the grid of a particular type
-    def getAgentsOfType(self, aType):
-        """OBSOLETE"""
-        theList = []
-        for aCell in self.collectionOfCells.cells:
-            for anAgent in self.collectionOfCells.getCell(aCell).getAgentsOfType(aType):
-                theList.append(anAgent)
-        return theList
-
-    # To initialise current POV
-
-    def initCurrentPOV(self):
-        """OBSOLETE"""
-        for aCell in self.getCells():
-            listcles = list(aCell.theCollection.povs.keys())
-            self.currentPOV['Cell'] = aCell.theCollection.povs[listcles[0]]
-
-        for animal, sub_dict in self.model.AgentSpecies.items():
-            self.currentPOV['Agent'][animal] = sub_dict['POV'][list(
-                sub_dict['POV'].keys())[0]]
-
-        print(self.currentPOV)
-
-    # To get the current POV
-
-    def getCurrentPOV(self):
-        """"
-        OBSOLETE
-        Get the actual POV displayed by the model for a grid        
-        """
-        for animal, sub_dict in self.model.AgentSpecies.items():
-            for pov in sub_dict['POV'].items():
-                if self.model.nameOfPov == pov:
-                    self.currentPOV['Agent'][animal] = pov
-        for aCell in self.getCells():
-            for pov in aCell.theCollection.povs:
-                if self.model.nameOfPov == pov:
-                    self.currentPOV['Cell'] = aCell.theCollection.povs[pov]
-
-        print(self.currentPOV)
-        return self.currentPOV
-
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 
@@ -235,9 +192,9 @@ class SGGrid(SGGameSpace):
 
     # To define a value for all Agents
     def setValueForAgents(self, typeOfAgent, aDictWithValue):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         for aCell in self.getCells():
-            for anAgent in aCell.getAgentsOfType(typeOfAgent):
+            for anAgent in aCell.getAgentsOfType(typeOfAgent): #non existent function
                 for aVal in list(aDictWithValue.keys()):
                     if aVal in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()):
                         for anAttribute in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()):
@@ -247,7 +204,7 @@ class SGGrid(SGGameSpace):
 
     # To define a value for the model of an Agent
     def setValueForModelAgents(self, typeOfAgent, aDictWithValue):
-        """NOT TESTED"""
+        """OBSOLETE?"""
         anAgent = self.collectionOfAcceptAgent[typeOfAgent]
         # On cherche la pov et on suppr les valeur deja existante de la pov
         for aPov in list(anAgent.theCollection.povs.keys()):
@@ -259,7 +216,7 @@ class SGGrid(SGGameSpace):
 
     # To define a value for all Agents of a cell
     def setValueAgentsOnCell(self, typeOfAgent, aDictWithValue, aCellId):
-        """NOT TESTED"""
+        """OBSOLETE?"""
         aCell = self.getCell_withId(aCellId)
         for anAgent in aCell.collectionOfAgents.agents:
             if anAgent.format == typeOfAgent:
@@ -273,7 +230,7 @@ class SGGrid(SGGameSpace):
 
     # To change the value of an unique agent on a cell
     def setForAnAgentOfCell(self, typeOfAgent, aDictWithValue, aCellId):
-        """NOT TESTED"""
+        """OBSOLETE?"""
         aCell = self.getCell_withId(aCellId)
         for anAgent in aCell.collectionOfAgents.agents:
             if anAgent.name == typeOfAgent:
@@ -299,7 +256,7 @@ class SGGrid(SGGameSpace):
 
     # To grow all attributs of cells of one type
     def makeEvolve(self, listOfAttributsToMakeEvolve):
-        """NOT TESTED"""
+        """OBSOLETE?"""
         for aCell in self.getCells():
             for anAttribut in listOfAttributsToMakeEvolve:
                 if anAttribut in list(aCell.attributs.keys()):
@@ -316,7 +273,7 @@ class SGGrid(SGGameSpace):
 
     # To decrease all attributs of cells of one type
     def makeDecrease(self, listOfAttributsToMakeDecrease):
-        """NOT TESTED"""
+        """OBSOLETE?"""
         for aCell in self.getCells():
             for anAttribut in listOfAttributsToMakeDecrease:
                 if anAttribut in list(aCell.attributs.keys()):
@@ -334,63 +291,63 @@ class SGGrid(SGGameSpace):
 
     # To return all agent of a type in neighborhood
     def getNeighborAgent(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         x = x-1
         y = y-1
         result = []
         for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
-            for agent in cell.getAgentsOfType(agentName):
+            for agent in cell.getAgentsOfType(agentName):#non existent function
                 result.append(agent)
         return result
 
     # To return if a type of agent is in neighborhood
     def haveAgentInNeighborhood(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         return len(self.getNeighborAgent(x, y, agentName, typeNeighbor, rangeNeighbor)) >= 1
 
     # To return all agent in neighborhood
     def getNeighborAllAgent(self, x, y, typeNeighbor="moore", rangeNeighbor=1):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         x = x-1
         y = y-1
         result = []
         for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
             for agentName in list(self.collectionOfAcceptAgent.keys()):
-                for agent in cell.getAgentsOfType(agentName):
+                for agent in cell.getAgentsOfType(agentName):#non existent function
                     result.append(agent)
         return result
 
     # To return all agent of a type in neighborhood
     def getNeighborAgentThroughCell(self, aCell, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         x = aCell.x
         y = aCell.y
         result = []
         for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
-            for agent in cell.getAgentsOfType(agentName):
+            for agent in cell.getAgentsOfType(agentName):#non existent function
                 result.append(agent)
         return result
 
     # To return if a type of agent is in neighborhood through a cell
     def haveAgentInNeighborhoodThroughCell(self, aCell, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         return len(self.getNeighborAgentThroughCell(aCell, agentName, typeNeighbor, rangeNeighbor)) >= 1
 
     # To return all agent in neighborhood through a cell
     def getNeighborAllAgentThroughCell(self, aCell, typeNeighbor="moore", rangeNeighbor=1):
-        """NOT TESTED"""
+        """NON FUNCTIONNAL"""
         x = aCell.x
         y = aCell.y
         result = []
         for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
             for agentName in list(self.collectionOfAcceptAgent.keys()):
-                for agent in cell.getAgentsOfType(agentName):
+                for agent in cell.getAgentsOfType(agentName):#non existent function
                     result.append(agent)
         return result
 
     # To check if the grid have agent
     def haveAgents(self):
-        """NOT TESTED"""
+        """OBSOLETE?"""
         for cell in self.getCells():
             if len(cell.collectionOfAgents.agents) != 0:
                 return True

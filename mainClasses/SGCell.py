@@ -148,7 +148,7 @@ class SGCell(SGEntity):
         aActiveLegend = self.model.getSelectedLegend() 
         aLegendItem = self.model.getSelectedLegendItem()
         if aActiveLegend.isAdminLegend(): # BUG in case there is no adminLegend and not player. Should use a similar test than in mousePressEvent() to correct the bug. Could also use  model.getUsers_withControlPanel()  to test if there is any cibtrolPanel or admiLegend defined
-            aAgent.moveTo2(self)
+            aAgent.moveTo(self)
         elif aLegendItem is None : None #Exit the method
         else :
             aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer

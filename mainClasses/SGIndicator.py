@@ -131,10 +131,10 @@ class SGIndicator(QtWidgets.QWidget):
         elif self.method=="simVar":
             return self.simVar.value
 
-        elif self.method=="score":
-            # This is an Obsolete method. Should be removed
-            calcValue=self.value
-            return 0 if self.value is None else self.value
+        # elif self.method=="score":
+        #     # This is an Obsolete method. Should be removed
+        #     calcValue=self.value
+        #     return 0 if self.value is None else self.value
         
         elif self.method =="display":
             return self.entity.value(self.attribut)

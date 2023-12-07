@@ -112,11 +112,6 @@ def feedbackPêche():
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
         revenusBateau=navire.value('Quantité_pêchée_Merlu')*Merlus.value("prix")+navire.value('Quantité_pêchée_Sole')*Soles.value("prix")
         sommeRevenus=sommeRevenus+revenusBateau
-        print("Incitation Navire : "+str(navire.value('lastIncitationValue')))
-        print("Incitation Cellule : "+str(navire.cell.value('incitation')))
-        # navire.setValue('lastIncitationValue',navire.cell.value('incitation')) #LIGNE TEST NON DEFINITIVE = feedback
-        print("New Incitation Navire : "+str(navire.value('lastIncitationValue')))
-        print("---------")
         if navire.value('lastIncitationValue')=="bonus":
             benefBateau=revenusBateau+revenusBateau*0.1
         if navire.value('lastIncitationValue')=="malus":
@@ -153,7 +148,6 @@ myModel.newTimeLabel("GameTime")
 
 userSelector=myModel.newUserSelector()
 tx_présence()
-# setAgentsMenu()
 
 myModel.launch()
 sys.exit(monApp.exec_())
