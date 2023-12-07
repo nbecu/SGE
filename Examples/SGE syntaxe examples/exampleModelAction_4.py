@@ -23,16 +23,20 @@ theFirstLegend=myModel.newLegend()
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
-i1=DashBoard.addIndicator_Nb('cell','landUse',"forest","Taille de la foret",(Qt.blue))
-# i1.setUpdateAtEachRound(True)
+# TODO il me semble que le "'withButton'" de newDasBoard est Obsolete
+
+scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
+# scoreB.setResetAtEachRound(True) TODO Yet to be implemented
+DashBoard.addIndicator_Nb('Cell','landUse',"forest","Taille de la foret",(Qt.blue))
+DashBoard.addIndicatorOnSimVariable(scoreB)
+
 DashBoard.showIndicators()
 
 
 #CREATIONS DE MODEL ACTIONS
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2))
     #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
-aModelAction4.addFeedback(lambda: i1.setResult(i1.result + 5)) 
-# TODO Trouver un autre exemple car le modeleler n'a pas le droit d'intervenir sur le setResult d'un indicateur (c'est une méthdoe prviée)
+aModelAction4.addFeedback(lambda: scoreB.incValue(5)) 
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE

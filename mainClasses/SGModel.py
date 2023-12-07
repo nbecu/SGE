@@ -619,10 +619,9 @@ class SGModel(QMainWindow):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
-        aModelAction = SGModelAction(actions, conditions, feedbacks)
+        aModelAction = SGModelAction(self,actions, conditions, feedbacks)
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
-        aModelAction.model = self
         return aModelAction
     
     # To create a modelAction that executes on each cell
@@ -634,10 +633,9 @@ class SGModel(QMainWindow):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
-        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getCells()))
+        aModelAction = SGModelAction_OnEntities(self,actions, conditions, feedbacks,(lambda:self.getCells()))
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
-        aModelAction.model = self
         return aModelAction
     
     # To create a modelAction that executes on each agent of a specific Specie
@@ -649,21 +647,20 @@ class SGModel(QMainWindow):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
-        aModelAction = SGModelAction_OnEntities(actions, conditions, feedbacks,(lambda:self.getAgentsOfSpecie(specieName)))
+        aModelAction = SGModelAction_OnEntities(self,actions, conditions, feedbacks,(lambda:self.getAgentsOfSpecie(specieName)))
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
-        aModelAction.model = self
         return aModelAction
 
     # To create a player
-    def newPlayer(self, name):
+    def newPlayer(self, name,attributesAndValues):
         """"
         Create a new player
 
         Args:
             name (str) : name of the Player (will be displayed)
         """
-        player = SGPlayer(self, name)
+        player = SGPlayer(self, name,attributesAndValues=attributesAndValues)
         self.players[name] = player
         self.users.append(player.name)
         return player

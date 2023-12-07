@@ -16,14 +16,15 @@ import copy
 
 # Class that handle the player
 class SGPlayer(AttributeAndValueFunctionalities):
-    def __init__(self, theModel, name, actions=[]):
+    def __init__(self, theModel, name, actions=[],attributesAndValues=None):
         self.model = theModel
         self.name = name
         self.actions = actions
         self.gameActions = []
         self.remainActions = {}
         self.controlPanel= None
-        #self.initAttributes() #! BUG
+        self.watchers={}
+        self.initAttributes(attributesAndValues)
 
     def newControlPanel(self, title=None, showAgentsWithNoAtt=False):
         """
@@ -54,7 +55,32 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.model.applyPersonalLayout()
         return self.controlPanel
 
+    # To handle attributesAndValues
+    # setter
+    def setValue(self,aAttribut,aValue):
+        """
+        Sets the value of an attribut
+        Args:
+            aAttribut (str): Name of the attribute
+            aValue (str): Value to be set
+        """
+        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+        # self.saveHistoryValue()    
+        self.dictAttributes[aAttribut]=aValue
+        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        return True
 
+    def addWatcher(self,aIndicator):
+        if aIndicator.attribut is None:
+            aAtt = 'nb'
+        else: aAtt = aIndicator.attribut
+        if aAtt not in self.watchers.keys():
+            self.watchers[aAtt]=[]
+        self.watchers[aAtt].append(aIndicator)
+
+    def updateWatchersOnAttribute(self,aAtt):
+        for watcher in self.watchers.get(aAtt,[]):
+            watcher.checkAndUpdate()
 
     def newControlPanelOLD(self, Name=None, showAgentsWithNoAtt=False):
         #OBSOLETE

@@ -72,9 +72,9 @@ class SGGameSpace(QtWidgets.QWidget):
         self.setStartXBase(newPos[0])
         self.setStartYBase(newPos[1])
         if (self.model.typeOfLayout == "vertical"):
-            self.move(self.getStartXBase(), self.getStartYBase() + 20*self.layoutOfModel.getNumberOfAnElement(self))
+            self.move(self.getStartXBase(), self.getStartYBase() + 20*self.model.layoutOfModel.getNumberOfAnElement(self))
         elif (self.model.typeOfLayout == "horizontal"):
-                self.move(self.getStartXBase()+20*self.layoutOfModel.getNumberOfAnElement(self), self.getStartYBase())
+                self.move(self.getStartXBase()+20*self.model.layoutOfModel.getNumberOfAnElement(self), self.getStartYBase())
         else:
             pos = self.model.layoutOfModel.foundInLayout(self)
             self.move(self.getStartXBase()+20 *pos[0], self.getStartYBase()+20*pos[1])

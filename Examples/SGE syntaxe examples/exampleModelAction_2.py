@@ -24,7 +24,7 @@ GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
 
 myModel.timeManager.newModelPhase(  
-    [lambda: Cell.setRandomEntities("landUse","grass",(lambda x: x.value("landUse") == "forest")),
+    [lambda: Cell.setRandomEntities("landUse","grass",2,(lambda x: x.value("landUse") == "forest")),
     lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 

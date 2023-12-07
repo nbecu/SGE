@@ -23,27 +23,27 @@ theFirstLegend=myModel.newLegend()
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
-i1=DashBoard.addIndicator_Nb('cell','landUse',"forest","Taille de la foret",(Qt.blue))
-# i1.setUpdateAtEachRound(True)
+scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
+DashBoard.addIndicatorOnSimVariable(scoreB)
 DashBoard.showIndicators()
 
 aTextBox=myModel.newTextBox(title='La foret regresse petit à petit')
 
 
 #CREATIONS DE MODEL ACTIONS
-aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2), feedBacks=(lambda: i1.setResult(i1.result -1))) 
-# TODO Trouver un autre exemple car le modeleler n'a pas le droit d'intervenir sur le setResult d'un indicateur (c'est une méthdoe prviée)
+aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2), feedbacks=(lambda: scoreB.decValue(1)))
 
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","shrub",2,"landUse","shrub"))
 aFeedbackAction=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",5,"landUse","forest"))
-aFeedbackAction.addModelAction(lambda: aTextBox.addText("Replantation (+ 5 forets)",toTheLine=True)) #Probleme -> ca ne rafraichit pas le texte
-aFeedbackAction.addCondition(lambda: i1.result <15)                                     
+aFeedbackAction.addModelAction(lambda: aTextBox.addText("Replantation (+ 5 forets)",toTheLine=True)) # TODO : Probleme -> ca ne rafraichit pas le texte
+aFeedbackAction.addCondition(lambda: scoreB.value <15)                                     
 aModelAction2.addFeedback(aFeedbackAction) 
 
 
 # AJOUT DES MODEL ACTIONS DANS LES PHASE
-myModel.timeManager.newModelPhase([(lambda:i1.updateText()),aModelAction2])
+myModel.timeManager.newModelPhase(aModelAction1, 'Model action 1')
+myModel.timeManager.newModelPhase(aModelAction2, 'Model action 2')
 
 myModel.launch() 
 

@@ -4,16 +4,20 @@
 # Each feedback beeing a modelActtion, can have one or several actions and can have conditions
 # There are no feedbacksIfFalse for the moment (feedbacks that are executed if the condition of the main modelAction is not verified) 
 class SGModelAction():
-    def __init__(self,actions=[],conditions=[],feedbacks=[]):
+    def __init__(self,sgModel,actions=[],conditions=[],feedbacks=[]):
+        self.model = sgModel
         self.actions=self.testIfCallableAndPutInList(actions)
         self.conditions=self.testIfCallableAndPutInList(conditions)
-        if isinstance(feedbacks, list):
-            if any(not isinstance(item, SGModelAction) for item in feedbacks):
-                raise ValueError("A feedback should be a ModelAction or list of ModelActions")
-            self.feedbacks=feedbacks
-        elif isinstance(feedbacks, SGModelAction):
-            self.feedbacks=[feedbacks]
-        else : raise ValueError("A feedback should be a ModelAction or list of ModelActions")
+        
+        # if isinstance(feedbacks, list):
+        #     if any(not isinstance(item, SGModelAction) for item in feedbacks):
+        #         raise ValueError("A feedback should be a ModelAction or list of ModelActions")
+        #     self.feedbacks=feedbacks
+        # elif isinstance(feedbacks, SGModelAction):
+        #     self.feedbacks=[feedbacks]
+        # else : raise ValueError("A feedback should be a ModelAction or list of ModelActions")
+        # The lines above hace been replaced by the following method
+        self.feedbacks = self.testIfCallableOrIfModelActionAndPutInListOfModelActions(feedbacks)
     
 
     def testIfCallableAndPutInList(self,anObject):
@@ -25,6 +29,26 @@ class SGModelAction():
             return [anObject]
         else:
             raise ValueError("Syntax error of actions")
+
+    def testIfCallableOrIfModelActionAndPutInListOfModelActions(self,anObject):
+        if anObject is None:
+            return []
+        elif callable(anObject): 
+            return [self.model.newModelAction(anObject)]
+        elif isinstance(anObject, SGModelAction):
+            return [anObject]
+        elif isinstance(anObject, list):
+            newList=[]
+            for aItem in anObject:
+                if callable(aItem):
+                    newList.append(self.model.newModelAction(anObject))
+                elif isinstance(aItem, SGModelAction):
+                    newList.append(anObject)
+                else: ("should be a ModelAction or a lambda function")
+            return newList
+        else:
+            raise ValueError("should be a ModelAction, a lambda function or a list")
+
 
     def testConditions(self):
         res = True 
@@ -97,8 +121,8 @@ class SGModelAction():
     
 
 class SGModelAction_OnEntities(SGModelAction):
-    def __init__(self,actions=[],conditions=[],feedbacks=[], entities=None):
-        super().__init__(actions,conditions,feedbacks)
+    def __init__(self,sgModel, actions=[],conditions=[],feedbacks=[], entities=None):
+        super().__init__(sgModel,actions,conditions,feedbacks)
                 # super().__init__(parent)
 
         self.entitiesContainer=None

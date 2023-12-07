@@ -394,7 +394,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         # self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
-        # self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True
 
     
