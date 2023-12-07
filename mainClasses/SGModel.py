@@ -863,31 +863,6 @@ class SGModel(QMainWindow):
                         local_pos=otherElement.pos()
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)
 
-    def moveToCoords(self,gameSpaceName,x,y):
-        """
-        Permits to move a GameSpace at a specific coordinate based on the left upper corner
-
-        Args:
-            gameSpaceName (str) : name of the GameSpace you want to move
-            x (int) : x-axis corrdinate in pixels
-            y (int) : y-axis corrdinate in pixels
-        """
-        for name,element in self.gameSpaces.items():
-            if name==gameSpaceName:
-                theGameSpace=element
-                break
-        if theGameSpace is None:
-            raise ValueError("This name doesn't exist. Please check.")
-        if x < self.width() + theGameSpace.width() or x < 0:
-            if y < self.height() + theGameSpace.height() or y < 0:
-                theGameSpace.move(x,y)
-            else:
-                raise ValueError('The y value is too high or negative')
-        else:
-            raise ValueError('The x value is too high or negative')
-        
-        
-
     # ------
 # Pov
     def getSubmenuSymbology(self, submenuName):

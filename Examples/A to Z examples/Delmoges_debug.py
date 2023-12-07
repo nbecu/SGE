@@ -143,11 +143,23 @@ PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
-myModel.newLegend(showAgentsWithNoAtt=True)
-myModel.newTimeLabel("GameTime")
+Legend=myModel.newLegend(showAgentsWithNoAtt=True)
+TimeLabel=myModel.newTimeLabel("GameTime")
 
 userSelector=myModel.newUserSelector()
 tx_présence()
+
+# TEMPORARY LAYOUT SOLUTION
+# aGrid.moveToCoords(500,45) #! il faudrait pouvoir accéder à la grid (via newCellsOnGrid?)
+TimeLabel.moveToCoords(340,45)
+theTextBox.moveToCoords(20,45)
+Player1ControlPanel.moveToCoords(20,220)
+Player2ControlPanel.moveToCoords(150,220)
+userSelector.moveToCoords(20,330)
+Legend.moveToCoords(1030,70)
+DashBoard.moveToCoords(1225,45)
+DashBoard2.moveToCoords(1225,400)
+
 
 myModel.launch()
 sys.exit(monApp.exec_())
