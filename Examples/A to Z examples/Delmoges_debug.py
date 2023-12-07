@@ -36,6 +36,8 @@ Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1},"prix":3.2,"facteurTemps":6329})
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})
+    
+# Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
 
 EspècesHalieutiques=[Soles,Merlus]
 

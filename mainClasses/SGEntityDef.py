@@ -31,6 +31,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.IDincr = 0
         self.entities=[]
         self.initAttributes(entDefAttributesAndValues)
+        self.attributesToDisplayInContextualMenu=[]
 
     def nextId(self):
         self.IDincr +=1
@@ -397,6 +398,12 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True
 
+    # To handle the info to be displayed in a contextual menu on entitis
+    def setAttributeValueToDisplayInContextualMenu(self,aAttribut,aLabel=None):
+        aDict={}
+        aDict['att']=aAttribut
+        aDict['label']= (aLabel if aLabel is not None else aAttribut)
+        self.attributesToDisplayInContextualMenu.append(aDict)
     
 # ********************************************************    
 
