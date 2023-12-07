@@ -201,6 +201,8 @@ class SGModel(QMainWindow):
 
         self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
+        self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
+
     # Create all the action related to the menu
 
     def createAction(self):
