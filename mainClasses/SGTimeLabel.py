@@ -8,9 +8,9 @@ from mainClasses.SGGameSpace import SGGameSpace
 
 # Class who is responsible of the Legend creation
 class SGTimeLabel(SGGameSpace):
-    def __init__(self, parent, name, backgroundColor=Qt.darkGray, borderColor=Qt.black, textColor=Qt.red):
+    def __init__(self, parent, title, backgroundColor=Qt.darkGray, borderColor=Qt.black, textColor=Qt.red):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
-        self.id = name
+        self.id = title
         self.timeManager = parent.timeManager
         self.borderColor = borderColor
         self.textColor = textColor
@@ -31,7 +31,8 @@ class SGTimeLabel(SGGameSpace):
         self.label2 = QtWidgets.QLabel(self)
         self.label3 = QtWidgets.QLabel(self)
 
-        self.labelTitle.setText(self.id)
+        if self.id is not None:
+            self.labelTitle.setText(self.id)
         self.label1.setText('Round Number: Not started')
         self.label2.setText('Phase Number: Not started')
         currentPhase = self.timeManager.phases[int(

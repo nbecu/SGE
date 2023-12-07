@@ -14,7 +14,7 @@ class SGTimeManager():
 
     def __init__(self, parent):
         self.model = parent
-        self.currentRound = 1
+        self.currentRound = 0
         self.currentPhase = 1
         self.phases = []
         self.conditionOfEndGame = []
@@ -22,7 +22,9 @@ class SGTimeManager():
 
     # To increment the time of the game
     def nextPhase(self):
-        if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
+        if len(self.phases) != 0:
+#          Cette instructio a été commenté car il n'y a pas vraiment de raison e faire un test pour savoir si le current player est soit ml'un des joueurs soit l'admin
+#         if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
             end = self.checkEndGame()
             if not end:
                 if self.currentPhase+2 <= len(self.phases):
@@ -32,18 +34,11 @@ class SGTimeManager():
                             self.model.myTimeLabel.updateTimeLabel()
 
                 else:
-                    # We reset GM
-                    for gm in self.model.getGM():
-                        gm.reset()
+                    #reset GameActions count
+                    for action in self.model.getAllGameActions():
+                        action.reset()
                     self.currentPhase = 1
                 
-                #reset GameActions count
-                for user in self.model.users:
-                    if user != "Admin":
-                        player=self.model.getPlayerObject(user)
-
-                        for action in player.gameActions:
-                            action.reset()
 
                 thePhase = self.phases[self.currentPhase]
                 # check conditions for the phase
@@ -52,23 +47,27 @@ class SGTimeManager():
                     self.currentRound += 1
                     if self.model.myTimeLabel is not None:
                         self.model.myTimeLabel.updateTimeLabel()
-                    if self.model.myUserSelector is not None:
-                        self.model.myUserSelector.updateUI(QHBoxLayout())
+                    if self.model.userSelector is not None:
+                        self.model.userSelector.updateUI(QHBoxLayout())
 
                 # execute the actions of the phase
                 if doThePhase:
                     # We can execute the actions
+                    #TODO déplacer l'execution de la phase coté TimePhase
                     if len(thePhase.modelActions) != 0:
                         for aAction in thePhase.modelActions:
                             if callable(aAction):
                                 aAction()  # this command executes aAction
                             elif isinstance(aAction, SGModelAction):
                                 aAction.execute()
+                    #textbox update
+                    thePhase.notifyNewText()
                     #watchers update
-                    self.checkDashBoard()
+                    self.model.checkAndUpdateWatchers()
                     #mqtt update
-                    if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                        self.model.publishEntitiesState()
+        #The instructions below have been commented temporarily to test a new process for broker msg  
+                    # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
+                    #     self.model.publishEntitiesState()
 
 
                 else:
@@ -95,22 +94,6 @@ class SGTimeManager():
         if endGame:
             print("C'est fini !")
         return endGame
-    
-    def checkDashBoard(self):
-        for grid in self.model.getGrids():
-            for attribut in self.model.cellCollection[grid.id]["watchers"]:
-                for watcher in self.model.cellCollection[grid.id]["watchers"][attribut]:
-                    updatePermit=watcher.getUpdatePermission()
-                    if updatePermit:
-                        watcher.updateText()
-        for specie in self.model.agentSpecies.values():
-            for watchers in specie["watchers"].values():
-                for watcher in watchers:
-                    updatePermit=watcher.getUpdatePermission()
-                    if updatePermit:
-                        watcher.updateText()
-
-
 
     def getRoundNumber(self):
         return self.currentRound
@@ -141,12 +124,11 @@ class SGTimeManager():
         modelActions=[]
         if activePlayers == None:
             activePlayers = self.model.users
-        aPhase = SGTimePhase(name, activePlayers, modelActions)
+        aPhase = SGTimePhase(self, name, activePlayers, modelActions)
         self.phases = self.phases + [aPhase]
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
- # TO BE CONTINUED
     def newModelPhase(self, actions=[], condition=[], name=''):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
@@ -178,26 +160,9 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(modelActions=modelActions, name=name)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name)
         self.phases = self.phases + [aPhase]
         return aPhase
-
-    def newGamePhase_adv(self, name, activePlayer=None, modelActions=[]):
-        #! OBSOLETE
-        """
-        To add a Game Phase in a round.
-
-        args:
-            name (str): Name displayed on the TimeLabel
-            activePlayer (?): Player concerned about the phase (default:None)
-            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
-        """
-        aPhase = SGTimePhase(name, activePlayer, modelActions)
-        if activePlayer == None:
-            self.model.actualPlayer = activePlayer
-        self.phases.append(aPhase)
-        return aPhase
-
 
     # To verify a number of round
     def verifNumberOfRound(self, aNumber):

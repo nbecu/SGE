@@ -35,7 +35,7 @@ class SGGridLayout():
     #Calculate the space needed for a GameSpaces involving the others
     def calculateSize(self,aGameSpace):
         sizeX=20
-        sizeY=40
+        sizeY=30    #30 instead of 20 to leave space at top because of menuBar
         found= self.foundInLayout(aGameSpace)
         colonneTrouve=found[0]
         ligneTrouve=found[1]

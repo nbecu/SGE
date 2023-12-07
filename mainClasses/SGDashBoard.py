@@ -2,9 +2,11 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null, true
-
 from mainClasses.SGGameSpace import SGGameSpace
-from mainClasses.SGIndicators import SGIndicators
+from mainClasses.SGIndicator import SGIndicator
+from mainClasses.SGEntityDef import *
+from mainClasses.SGEntity import SGEntity
+from mainClasses.SGPlayer import SGPlayer
 
 
 # Class who is responsible of the Legend creation
@@ -19,7 +21,7 @@ class SGDashBoard(SGGameSpace):
         self.borderColor = borderColor
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
-        self.y = 0
+        self.posYOfItems = 0
         self.isDisplay = True
         self.displayRefresh = displayRefresh
         self.IDincr = 0
@@ -36,6 +38,8 @@ class SGDashBoard(SGGameSpace):
         title = QtWidgets.QLabel(self.id)
         font = QFont()
         font.setBold(True)
+        font.setUnderline(True)
+        font.setPixelSize(14)
         title.setFont(font)
         color = QColor(self.titleColor)
         color_string = f"color: {color.name()};"
@@ -77,13 +81,15 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, method, entity, color=Qt.black, attribute=None, value=None, logicOp= None, indicatorName=None, isDisplay=True):
+    def addIndicator(self, method, entityName, color=Qt.black, attribute=None, value=None, logicOp= None, indicatorName=None, isDisplay=True):
+        # TODO Changer l'ordre des varaibles --> entityName,method,attribute........ puis la suite
+        # changer le nom indicatorName, par title, ou text
         """
         Add an Indicator on the DashBoard.
 
         Args:
             method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
-            entity (str) : "cell" or "agent" or aAgentSpecies Name or None (only for score)
+            entityName (str) :  aEntityDef name, or aEntityDef, of a List of EntityDef or names, or None (only for score)
             color (Qt.color) : text color
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
@@ -92,52 +98,51 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        self.y = self.y+1
-        species=self.model.getAgentSpecies()
-        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
+        self.posYOfItems = self.posYOfItems+1
+        if isinstance(entityName,str) :
+            res = self.model.getEntityDef(entityName)
+            if res is None: raise ValueError('Wrong type')  
+            listOfEntDef = [self.model.getEntityDef(entityName)]
+        elif isinstance(entityName,SGEntityDef) :
+            listOfEntDef = [entityName]
+        elif entityName is None :
+            listOfEntDef = None
+        elif isinstance(entityName,list) and isinstance(entityName[0],str) :
+            listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
+        elif isinstance(entityName,list) and isinstance(entityName[0],SGEntityDef) :
+            listOfEntDef = entityName
+        elif issubclass(type(entityName),SGEntity) : # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
+            listOfEntDef = entityName
+        else:
+            raise ValueError('Wrong type')
+        
+        indicator = SGIndicator(self, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
-        if entity == 'cell':
-            self.setCellWatchers(attribute, indicator)
-        if entity == 'agents' or entity in [instance.name for instance in species]:
-            self.setAgentWatchers(indicator)
+        if method != "separator":
+            for entDef in listOfEntDef:
+                entDef.addWatcher(indicator)
         return indicator
     
 
-    def addIndicatorOnEntity(self, entityID, attribute, speciesName=None, aGrid=None, color=Qt.black, value=None, logicOp=None, indicatorName=None, isDisplay=True):
+    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, indicatorName=None, isDisplay=True):
         """
         Add an Indicator on a particular entity on the DashBoard only two methods available : display (default) & thresoldToLogicOp (if a value and a logicOp defined).
 
         Args:
-            entityID (str) : "cellX-Y" or "AgentID"
+            entity (SGEntity) : an entity (cell, or agent)
             attribute (str) : concerned attribute 
-            speciesName (str) : name of the AgentSpecies (only if your entity is an Agent, default : None)
-            aGrid (instance) : instance of the concerned grid (only if your entity is a Cell, default : None)
             color (Qt.color) : text color
-            value (str, optionnal) : thresold value (only if the indicator is in relation to a threshold, default :None )
             logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
+            thresold (str, optionnal) : only if method = thresoldToLogicOp, thresold value (default :None )
             indicatorName (str, optionnal) : name displayed on the dashboard
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
-        if "cell" in entityID:
-            if aGrid is not None:
-                entity = aGrid.getCell_withId(aGrid,entityID)
-                if entity is None:
-                    raise ValueError("Cell not found on"+indicatorName+" please check again")
-            else:
-                raise ValueError("You need to add a Grid.")
-        
-        species=self.model.getAgentSpecies()
-        if speciesName in [instance.name for instance in species]:
-            aSpecies = self.model.getAgentSpecie(speciesName)
-            entity = self.model.getAgent(aSpecies,entityID)
-            if entity is None:
-                raise ValueError("Agent not found on"+indicatorName+" please check again")
-        else:
-            raise ValueError("Entity or Agent Species not found, please check again "+indicatorName)
+        if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer)): raise ValueError ('Wrong entity format')
+        self.entity= entity
 
         if value is None:
             method = "display"
@@ -147,51 +152,29 @@ class SGDashBoard(SGGameSpace):
             else:
                 raise ValueError("You need to specify a logicOp")
         
-        self.y = self.y+1
-        
-        indicator = SGIndicators(self, self.y, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
+        self.posYOfItems = self.posYOfItems+1
+    
+        indicator = SGIndicator(self, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
-        if entity == 'cell':
-            self.setCellWatchers(attribute, indicator)
-        if entity == 'agents' or entity in [instance.name for instance in species]:
-            self.setAgentWatchers(indicator)
+        
+        entity.addWatcher(indicator)
+
         return indicator
 
     def addIndicatorOnSimVariable(self,aSimulationVariable):
-        self.y = self.y+1
-        indicator=SGIndicators(self,self.y,aSimulationVariable.name,"score",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
+        self.posYOfItems = self.posYOfItems+1
+        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
+
+        aSimulationVariable.addWatcher(indicator)
+    
         return indicator
-
-    def setCellWatchers(self, attribut, indicator):
-        grids = self.model.getGrids()
-        for grid in grids:
-            cellCollection = self.model.cellCollection[grid.id]
-            if attribut not in cellCollection["watchers"].keys():
-                cellCollection["watchers"][attribut] = []
-            cellCollection["watchers"][attribut].append(indicator)
-        
-    def setAgentWatchers(self,indicator):
-        if indicator.attribut is None:
-            aAtt = 'nb'
-        else:
-            aAtt = indicator.attribut
-        if indicator.entity == 'agents':
-            if 'agents' not in self.model.agentSpecies.keys():
-                self.model.agentSpecies['agents']={'watchers':{}}
-            watchersDict=self.model.agentSpecies['agents']['watchers']
-        else:
-             watchersDict=self.model.agentSpecies[indicator.entity]['watchers']
-
-        if aAtt not in watchersDict.keys():
-            watchersDict[aAtt]=[]
-        watchersDict[aAtt].append(indicator)
 
     def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
         """
@@ -232,8 +215,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'minAtt'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_Max(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -247,8 +229,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'maxAtt'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_EqualTo(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -262,8 +243,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbEqualTo'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_WithLess(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -277,8 +257,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithLess'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_WithMore(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -292,8 +271,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithMore'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
         return indicator
 
     def addIndicator_Nb(self, entity, attribut, value, indicatorName, color,isDisplay=True):
@@ -307,20 +285,22 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nb'
-        indicator = self.addIndicator(
-            method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName=indicatorName,isDisplay=isDisplay)
         return indicator
+    
+    def addSeparator(self):
+        separator=self.addIndicator("separator",None)
+        return separator
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):
         return 70+len(self.getLongest())*5+50
 
     def getSizeYGlobal(self):
-        somme = 100
+        somme = 150
         return somme+len(self.indicatorNames)*20
 
     def getLongest(self):
-        # print(self.indicatorNames)
         longestWord = ""
         for indicatorName in self.indicatorNames:
             if len(indicatorName) > len(longestWord):
@@ -328,14 +308,10 @@ class SGDashBoard(SGGameSpace):
         return longestWord
 
     def mouseMoveEvent(self, e):
-
         if e.buttons() != Qt.LeftButton:
             return
-
         mimeData = QMimeData()
-
         drag = QDrag(self)
         drag.setMimeData(mimeData)
         drag.setHotSpot(e.pos() - self.rect().topLeft())
-
         drag.exec_(Qt.MoveAction)

@@ -6,22 +6,22 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="add a TimeLabel")
 
-aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
-aGrid.setCells("landUse","grass")
-aGrid.setCells_withColumn("landUse","forest",1)
-aGrid.setCells_withColumn("landUse","forest",2)
-aGrid.setRandomCells("landUse","shrub",10)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
+Cell.setEntities("landUse","grass")
+Cell.setEntities_withColumn("landUse","forest",1)
+Cell.setEntities_withColumn("landUse","forest",2)
+Cell.setRandomEntities("landUse","shrub",10)
 
-myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",{"health":{"good","bad"},"hunger":{"good","bad"}})
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed,{"health":{"good","bad"},"hunger":{"good","bad"}}
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=myModel.newAgentAtCoords(aGrid,Sheeps,1,1,aDictofAttributs={"health":"good","hunger":"bad"})
-m2=myModel.newAgentAtCoords(aGrid,Sheeps,5,1)
+m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell,5,1)
 
-theFirstLegend=myModel.newLegendAdmin()
+theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1")
@@ -32,16 +32,16 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase([lambda: aGrid.setRandomCell("landUse","forest"),lambda: aGrid.setRandomCells("landUse","shrub",3)])
+myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
-aModelAction1=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",2,"landUse","forest"))
-aModelAction2=myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
-aModelAction3=myModel.newModelAction(lambda: aGrid.setRandomCells_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
+aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
+aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
+aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
 
-aModelAction4 =myModel.newModelAction(lambda: aGrid.setRandomCells("landUse","forest",2))
-aModelAction4.addCondition(lambda: myModel.getCurrentRound()==3) 
+aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
+aModelAction4.addCondition(lambda: myModel.round()==3) 
 
-aModelAction4.addFeedback(lambda : aGrid.setRandomCell('landUse','grass'))
+aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 myModel.timeManager.newModelPhase(aModelAction2)
 

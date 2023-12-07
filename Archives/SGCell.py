@@ -300,7 +300,7 @@ class SGCell(QtWidgets.QWidget):
                             #We now check the feedBack of the actions if it have some
                             """if theAction is not None:
                                 self.feedBack(theAction)"""
-                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictOfAttributs=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
+                            theSpecies=SGAgent(self.grid.model,name=Species,format=self.grid.model.agentSpecies[Species]['Shape'],defaultsize=self.grid.model.agentSpecies[Species]['DefaultSize'],dictAttributes=self.grid.model.agentSpecies[Species]['AttributList'],id=None,me='collec')
                            # theSpecie= self.model.agentSpecie(Species)
                             self.grid.model.placeAgent(self,theSpecies,aDictWithValue)
                             
@@ -370,12 +370,6 @@ class SGCell(QtWidgets.QWidget):
         if theKey in list(self.attributs.keys()):
             return aDictOfValue[theKey]==self.attributs[theKey]
         return False
-    
-    def testCondition(self,aCondition):
-        res = False 
-        if callable(aCondition):
-            res = aCondition(self)
-        return res
     
     #To change the value
     def changeValue(self,aDictOfValue):

@@ -1,7 +1,7 @@
 class SGGameActions():
-    def getActionPermission(aObject):
+    def getActionPermission(aObject): #   CETTE METHODE EEST A REPRENDRE. PAS BESOIN D EPASSER PAR LA.
     #Autorisation Game Action (Create Delete Update)
-        thePlayer=aObject.model.getPlayerObject(aObject.model.getCurrentPlayer())
+        thePlayer=aObject.model.getPlayerObject(aObject.model.currentPlayer)
         authorisation=False
         theAction = None
         if thePlayer == "Admin":
@@ -10,14 +10,15 @@ class SGGameActions():
         elif thePlayer is not None and thePlayer != "Admin":
             theAction=thePlayer.getGameActionOn(aObject)
             if theAction is not None:
-                authorisation=theAction.getAuthorize(aObject)
+                authorisation=theAction.checkAuhorization(aObject)
                 if authorisation : 
-                    theAction.use()
-                    theAction.getRemainActionNumber(thePlayer)
+                    theAction.incNbUsed()
+                    # theAction.getRemainActionNumber(thePlayer) #  ET Pas besoin de getRemainActionNumber
         return authorisation
 
+#  Ce serai bien de se passer de cette class GameActions
     def getMovePermission(aObject):
-        thePlayer=aObject.model.getPlayerObject(aObject.model.getCurrentPlayer())
+        thePlayer=aObject.model.getPlayerObject(aObject.model.currentPlayer)
         authorisation=False
         theAction = None
         if thePlayer == "Admin":
@@ -26,12 +27,13 @@ class SGGameActions():
         elif thePlayer is not None and thePlayer != "Admin":
             theAction=thePlayer.getMooveActionOn(aObject)  
             if theAction is not None:
-                authorisation=theAction.getAuthorize(aObject)
+                authorisation=theAction.checkAuhorization(aObject)
                 if authorisation :
-                    theAction.use()
+                    theAction.incNbUsed()
         return authorisation
     
     def sendMqttMessage(aObject):
+        #OBSOLETE. CAN Removee
         aObject.model.publishEntitiesState()
     
 

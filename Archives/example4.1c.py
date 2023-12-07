@@ -8,15 +8,15 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1000,700, windowTitle="Adding agents", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(10,10,"square",size=60, gap=2)
-aGrid.setCells("landUse","grass")
-aGrid.setCells_withColumn("landUse","forest",1)
-aGrid.setCells_withColumn("landUse","forest",2)
-aGrid.setRandomCells("landUse","shrub",10)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
+Cell.setEntities("landUse","grass")
+Cell.setEntities_withColumn("landUse","forest",1)
+Cell.setEntities_withColumn("landUse","forest",2)
+Cell.setRandomEntities("landUse","shrub",10)
 
 
-myModel.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+Cell.newPov("Cell -> Farmer","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+Cell.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 
 Moutons=myModel.newAgentSpecies("Moutons","circleAgent",{"health":{"good","bad"},"hunger":{"good","bad"}})
@@ -24,13 +24,13 @@ Moutons.newPov("Moutons -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Moutons.newPov("Moutons -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 m1=myModel.newAgent(aGrid,Moutons,3,7)
-m1.setValueAgent('health','bad')
-m1.setValueAgent('hunger','bad')
+m1.setValue('health','bad')
+m1.setValue('hunger','bad')
 
 Vaches=myModel.newAgentSpecies("Vaches","squareAgent",{"health":{"good","bad"}},18)
 Vaches.newPov("Vaches -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 
-theFirstLegend=myModel.newLegendAdmin()
+theFirstLegend=myModel.newLegend()
 
 GameRounds=myModel.newTimeLabel()
 myModel.timeManager.newGamePhase(

@@ -35,7 +35,7 @@ thePlayer=myModel.newPlayer("Gertrude")
 thePlayer.addGameAction(myModel.createCreateAction(anAgentLac,5,{"boat":["old"]} ))
 
 aGameAction = thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["deep sea"]}))
-aGameAction.addRestrictions(lambda aCell : aCell.isMineOrAdmin())
+aGameAction.addCondition(lambda aCell : aCell.isMineOrAdmin())
 aGameAction.addFeedback(lambda aCell: aCell.getProperty())
 thePlayer.addGameAction(myModel.createUpdateAction(theFirstGrid.getACell(),3,{"sea":["reasonable"]},[lambda aCell : aCell.isMine()]))
 thePlayer.addGameAction(myModel.createUpdateAction(anAgentLac,2,{"boat":["new"]},[lambda agent : agent.isMineOrAdmin()]))

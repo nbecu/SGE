@@ -1,52 +1,32 @@
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.SGAgent import SGAgent
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
-import re
+# import time
 
 
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,grid,rows,columns,shape,defaultsize,gap):
-        super().__init__(grid,shape,defaultsize,me='cell')
+    def __init__(self,classDef, x, y):
+        super().__init__(classDef.grid,classDef,classDef.defaultsize,classDef.defaultShapeColor,attributesAndValues=None)
         #Basic initialize
-        self.grid=grid
-        self.theCollection=self.grid.model.cellCollection
-        self.model=self.grid.model
-        self.me='cell'
-        self.x=columns
-        self.y=rows
-        self.name="cell"+str(columns)+'-'+str(rows)
-        self.gap=gap
+        self.grid=classDef.grid
+        self.x=x
+        self.y=y
+        self.gap=self.grid.gap
         #Save the basic value for the zoom ( temporary)
-        self.saveGap=gap
-        self.saveSize=defaultsize
+        self.saveGap=self.gap
+        self.saveSize=classDef.defaultsize
         #We place the default pos
         self.startXBase=self.grid.startXBase
         self.startYBase=self.grid.startYBase
-        self.isDisplay=True
-        #We init the dict of Attribute
-        self.dictOfAttributs={}
-        #We init the Collection for the future Agents
-        self.agents=[]
         #We allow the drops for the agents
         self.setAcceptDrops(True)
-        #We define an owner
-        self.owner="admin"
-        #We define variables to handle the history 
-        self.history={}
-        self.history["value"]=[]
-        self.borderColor=Qt.black
-        self.species="Cell"
-        self.color=Qt.white
+        self.agents=[]
         self.initUI()
-  
-    # to extract the format of the cell
-    def getShape(self):
-        return self.shape
+
     
     def initUI(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -59,23 +39,26 @@ class SGCell(SGEntity):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        # print(time.localtime())
         if self.isDisplay==True:
-            painter.setPen(QPen(self.getBorderColor(),self.getBorderWidth()))
-            self.startXBase=0
-            self.startYBase=0
-            self.startX=int(self.startXBase+self.gap*(self.x -1)+self.size*(self.x -1)+self.gap) 
-            self.startY=int(self.startYBase+self.gap*(self.y -1)+self.size*(self.y -1)+self.gap)
+            penColorAndWidth = self.getBorderColorAndWidth()
+            painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
+            self.startXBase=self.grid.frameMargin
+            self.startYBase=self.grid.frameMargin
+            # self.gap=1
+            self.startX=int(self.startXBase+(self.x -1)*(self.size+self.gap)+self.gap) 
+            self.startY=int(self.startYBase+(self.y -1)*(self.size+self.gap)+self.gap)
             if (self.shape=="hexagonal"):
                 self.startY=self.startY+self.size/4
             #Base of the gameBoard
             if(self.shape=="square"):
                 painter.drawRect(0,0,self.size,self.size)
                 self.setMinimumSize(self.size,self.size+1)
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                # self.setGeometry(0,0,self.size+1,self.size+1) #CELA PROVOQUE UNE Infinite Loop de paintEvent
                 self.move(self.startX,self.startY)
             elif(self.shape=="hexagonal"):
                 self.setMinimumSize(self.size,self.size)
-                self.setGeometry(0,0,self.size+1,self.size+1)
+                # self.setGeometry(0,0,self.size+1,self.size+1)
                 points = QPolygon([
                     QPoint(int(self.size/2), 0),
                     QPoint(self.size, int(self.size/4)),
@@ -115,156 +98,78 @@ class SGCell(SGEntity):
     # Convertit les coordonnées globales en coordonnées locales
         local_pos = self.mapFromGlobal(global_pos)
         return local_pos
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            #Something is selected
+            aLegendItem = self.model.getSelectedLegendItem()
+            if aLegendItem is None : return #Exit the method
+
+            # These next 7 lines need a bit of refactoring
+            if aLegendItem.legend.isAdminLegend():
+                authorisation= True
+            else :
+                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+                return
+
+            if not authorisation : return #Exit the method
         
-    #Function to handle the drag of widget
-    def dragEnterEvent(self, e):
-        e.accept()
+            #The delete Action
+            if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
+                if authorisation : 
+                    #We now check the feedBack of the actions if it have some
+                    """if theAction is not None:
+                        self.feedBack(theAction)"""
+                    if not self.isDeleted() :self.classDef.deleteEntity(self)
+
+            #The Replace cell and change value Action
+            elif aLegendItem.isSymbolOnCell():
+                if  authorisation :
+                    #We now check the feedBack of the actions if it have some
+                    if not aLegendItem.legend.isAdminLegend():
+                        self.owner=self.grid.model.currentPlayer #ce concept de Owner est à enlever
+                    if self.isDeleted() : self.classDef.reviveThisCell(self) 
+                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
+
+            #For agent creation on cell         
+            elif aLegendItem.isSymbolOnAgent() and self.isDisplay:
+                if  authorisation :
+                    aLegendItem.classDef
+                    #We now check the feedBack of the actions if it have some
+                    """if theAction is not None:
+                        self.feedBack(theAction)"""
+                    aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
+                    self.newAgentHere(aLegendItem.classDef,aDictWithValue)
         
     def dropEvent(self, e):
         e.accept()
-        oldAgent=e.source()
-        self.moveAgentByRecreating_it(oldAgent)
+        aAgent=e.source()
+        
+        aActiveLegend = self.model.getSelectedLegend() 
+        aLegendItem = self.model.getSelectedLegendItem()
+        if aActiveLegend.isAdminLegend(): # BUG in case there is no adminLegend and not player. Should use a similar test than in mousePressEvent() to correct the bug. Could also use  model.getUsers_withControlPanel()  to test if there is any cibtrolPanel or admiLegend defined
+            aAgent.moveTo(self)
+        elif aLegendItem is None : None #Exit the method
+        else :
+            aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
-        if self.model.mqttMajType == "Instantaneous":
-            SGGameActions.sendMqttMessage(self)
-
-
-    def moveAgentByRecreating_it(self,oldAgent):
-        theAgent=self.grid.model.copyOfAgentAtCoord(self,oldAgent)
-        self.updateIncomingAgent(theAgent)
-        theAgent.show()
-        oldAgent.deleteLater()
+                            
+    # To handle the drag of the grid
+    def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
+        if e.buttons() != Qt.LeftButton:
+            return
+                                            
+    # Function to handle the drag of widget
+    def dragEnterEvent(self, e):
+        # this is event is called during an agent drag 
+        e.accept()
 
              
     #To get the pov
     def getPov(self):
+        raise ValueError('a priori, cette méthode est obsolete')
         return self.grid.model.nameOfPov
        
-             
-    #To handle the selection of an element int the legend
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            #Something is selected
-            if self.grid.model.selected[0]!=None :
-                authorisation=SGGameActions.getActionPermission(self)
-         
-                #The delete Action
-                if self.grid.model.selected[2].split()[0]== "Delete" or self.grid.model.selected[2].split()[0]== "Remove" :
-                    if authorisation : 
-                        if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.dictOfAttributs])
-                        #We now check the feedBack of the actions if it have some
-                        """if theAction is not None:
-                            self.feedBack(theAction)"""
-                        if len(self.agents) !=0:
-                            for i in reversed(range(len(self.agents))):
-                                self.agents[i].deleteLater()
-                                del self.agents[i]
-                        self.grid.removeVisiblityCell(self.getId())
-                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,"deleted"])
-                        if self.grid.model.selected[4] == "delete" or self.grid.model.selected[4] == "playerDelete":
-                            updatePermit=True
-                            for item in self.grid.model.cellCollection[self.grid.id]['watchers']:
-                                for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][item]:
-                                    watcher.updateText()
-                        else:
-                            for watcher in self.grid.model.cellCollection[self.grid.id]['watchers'][self.grid.model.selected[4]]:
-                                updatePermit=watcher.getUpdatePermission()
-                                if updatePermit:
-                                    watcher.updateText()
-                        if self.model.mqttMajType == "Instantaneous":
-                            SGGameActions.sendMqttMessage(self)
-                        self.show()
-                        self.repaint()    
-
-                #The Replace cell and change value Action
-                elif self.grid.model.selected[1]== "square" or self.grid.model.selected[1]=="hexagonal":
-                    if  authorisation :
-                        #We now check the feedBack of the actions if it have some
-                        if len(self.history["value"])==0:
-                            self.history["value"].append([0,0,self.dictOfAttributs])
-                        """if theAction is not None:
-                            self.feedBack(theAction)"""
-                        if self.grid.model.selected[0].legend.id!="adminLegend":
-                             self.owner=self.grid.model.currentPlayer
-                        self.isDisplay=True
-                        value =self.grid.model.selected[3]
-                        #attribut=self.grid.model.selected[2]
-                        theKey=""
-                        if self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["ColorPOV"]):
-                            # pov
-                            for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
-                                if value in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov][anAttribute].keys()) :
-                                    theKey=anAttribute
-                                    break
-                            aDictWithValue={theKey:value}    
-                            for aVal in list(aDictWithValue.keys()) :
-                                if aVal in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()) :
-                                        for anAttribute in list(self.model.cellCollection[self.grid.id]["ColorPOV"][self.grid.model.nameOfPov].keys()):
-                                            self.dictOfAttributs.pop(anAttribute,None)
-
-                        elif self.grid.model.nameOfPov in list(self.model.cellCollection[self.grid.id]["BorderPOV"]):
-                            # borderPov
-                            for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                                if value in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov][anAttribute].keys()) :
-                                    theKey=anAttribute
-                                    break
-                            aDictWithValue={theKey:value}  
-                            for aVal in list(aDictWithValue.keys()) :  
-                                if aVal in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()) :
-                                    for anAttribute in list(self.model.cellCollection[self.grid.id]["BorderPOV"][self.grid.model.nameOfPov].keys()):
-                                            self.dictOfAttributs.pop(anAttribute,None)
-                        
-                        self.dictOfAttributs[list(aDictWithValue.keys())[0]]=aDictWithValue[list(aDictWithValue.keys())[0]]  
-                        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.dictOfAttributs])
-                        if self.grid.model.selected[4] in self.model.cellCollection[self.grid.id]["watchers"]:
-                            for watcher in self.model.cellCollection[self.grid.id]["watchers"][self.grid.model.selected[4]]:
-                                updatePermit=watcher.getUpdatePermission()
-                                if updatePermit:
-                                    watcher.updateText()
-                        if self.model.mqttMajType == "Instantaneous":
-                            SGGameActions.sendMqttMessage(self)
-                        self.update()
-                        
-
-                #For agent placement         
-                else :
-                    if  authorisation :
-                        aDictWithValue={self.grid.model.selected[4]:self.grid.model.selected[3]}
-                        if self.grid.model.selected[4] =="empty" or self.grid.model.selected[3]=='empty':
-                            Species=self.grid.model.selected[2]
-                        elif self.grid.model.selected[4] ==None or self.grid.model.selected[3]==None:
-                            Species=self.grid.model.selected[2]
-                        elif ":" in self.grid.model.selected[2] :
-                            selected=self.grid.model.selected[2]
-                            chain=selected.split(' : ')
-                            Species = chain[0]
-                        else:
-                            Species=re.search(r'\b(\w+)\s*:', self.grid.model.selected[5]).group(1)
-                        if self.isDisplay==True :
-                            #We now check the feedBack of the actions if it have some
-                            """if theAction is not None:
-                                self.feedBack(theAction)"""
-                            theSpecies = self.model.getAgentSpecie(Species)
-                            aAgent=self.newAgentHere(theSpecies,aDictWithValue)
-                            self.updateIncomingAgent(aAgent)
-                            for method in self.model.agentSpecies[Species]["watchers"]:
-                                for watcher in self.model.agentSpecies[Species]["watchers"][method]:
-                                    updatePermit=watcher.getUpdatePermission()
-                                    if updatePermit:
-                                        watcher.updateText()
-                            for method in self.model.agentSpecies['agents']["watchers"]:
-                                for watcher in self.model.agentSpecies['agents']["watchers"][method]:
-                                    updatePermit=watcher.getUpdatePermission()
-                                    if updatePermit:
-                                        watcher.updateText()
-                            if self.model.mqttMajType == "Instantaneous":
-                                SGGameActions.sendMqttMessage(self)
-                            self.update()
-                            self.grid.model.update()
-
-                            
-                                    
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction,theAgentForMoveGM=None):
         booleanForFeedback=True
@@ -281,23 +186,17 @@ class SGCell(SGEntity):
                 for aFeedback in  theAction.feedbackAgent :
                     aFeedback(theAgentForMoveGM)
             
-                            
-    #To handle the drag of the grid
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-                        
+                      
             
     #To handle the arrival of an agent on the cell (this is a private method)
     def updateIncomingAgent(self,anAgent):
-        anAgent.cell=self
         self.agents.append(anAgent)
     
     #To handle the departure of an agent of the cell (this is a private method)
     def updateDepartureAgent(self,anAgent):
         self.agents.remove(anAgent)
         anAgent.cell=None
-
+    
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
@@ -305,32 +204,22 @@ class SGCell(SGEntity):
         option1 = QAction(text, self)
         menu.addAction(option1)
 
-        # for aAgent in self.model.getAgents():
-        #     aAgent.cell.moveAgentByRecreating_it(aAgent)
-        self.model.updateAgentsAtMAJ()  
+        # self.model.updateAgentsAtMAJ()  
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 
-
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
-
-
     
     #To verify if the cell contain the value pas in parametre through a dictionnary
     def checkValue(self,aDictOfValue):
         """NOT TESTED"""
         theKey=list(aDictOfValue.keys())[0] 
-        if theKey in list(self.dictOfAttributs.keys()):
-            return aDictOfValue[theKey]==self.dictOfAttributs[theKey]
+        if theKey in list(self.dictAttributes.keys()):
+            return aDictOfValue[theKey]==self.dictAttributes[theKey]
         return False
-    
-    def testCondition(self,aCondition):
-        res = False 
-        if callable(aCondition):
-            res = aCondition(self)
-        return res
+
     
     #To change the value
     def changeValue(self,aDictOfValue):
@@ -345,10 +234,7 @@ class SGCell(SGEntity):
     def getAgents(self,specie=None):
         if specie != None:
             return self.getAgentsOfSpecie(specie)
-        listOfAgents=[]
-        for agent in self.agents:
-           listOfAgents.append(agent)
-        return  listOfAgents
+        return  self.agents[:]
     
     def nbAgents(self,specie=None):
         if specie != None:
@@ -358,11 +244,7 @@ class SGCell(SGEntity):
  
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
-        listOfAgents=[]
-        for agent in self.agents:
-            if agent.name ==nameOfSpecie:
-                listOfAgents.append(agent)
-        return  listOfAgents
+        return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):
@@ -372,10 +254,10 @@ class SGCell(SGEntity):
                 if i == self.x and j == self.y:
                     continue
                 if rule=="moore":
-                    c = self.grid.getCell(i, j)
+                    c = self.classDef.getCell(i, j)
                 elif rule=='neumann':
                     if (i == self.x or j == self.y) and (i != self.x or j != self.y):
-                        c = self.grid.getCell(i,j)
+                        c = self.classDef.getCell(i,j)
                     else:
                         c = None
                 else:
@@ -385,7 +267,16 @@ class SGCell(SGEntity):
                     neighbors.append(c)
         return neighbors
         
-        
+    #To get the neighbor cell at cardinal
+    def getNeighborN(self):
+        return self.classDef.getCell(self.x,self.y-1)
+    def getNeighborS(self):
+        return self.classDef.getCell(self.x,self.y+1)
+    def getNeighborE(self):
+        return self.classDef.getCell(self.x+1,self.y)
+    def getNeighborW(self):
+        return self.classDef.getCell(self.x-1,self.y)
+
         
     #Function to check the ownership  of the cell          
     def isMine(self):
@@ -425,26 +316,24 @@ class SGCell(SGEntity):
                             break
         return haveChange
     
-    #Delete All the Agent       
-    def deleteAllAgent(self):
-        """NOT TESTED"""
-        for i in reversed(range(len(self.collectionOfAgents.agents))):
-            self.collectionOfAgents.agents[i].deleteLater()
-            del self.collectionOfAgents.agents[i]
+    #Delete all agents on the cell
+    def deleteAllAgents(self):
+        for agt in self.agents[:]:
+            agt.classDef.deleteEntity(agt)
         self.update()
 
     #Create agents on the cell
-    def newAgentHere(self, aAgentSpecies,aDictofAttributs=None):
+    def newAgentHere(self, aAgentSpecies,adictAttributes=None):
         """
         Create a new Agent in the associated species.
 
         Args:
             aAgentSpecies (instance) : the species of your agent
-            aDictofAttributs to set the values
+            adictAttributes to set the values
 
         Return:
             a new agent"""
-        return self.model.newAgentAtCoords(self.grid, aAgentSpecies,self.x, self.y,aDictofAttributs)
+        return aAgentSpecies.newAgentOnCell(self,adictAttributes)
 
     #To perform action
     def doAction(self, aLambdaFunction):

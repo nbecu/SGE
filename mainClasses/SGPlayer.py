@@ -1,4 +1,5 @@
 from mainClasses.SGLegend import SGLegend
+from mainClasses.SGControlPanel import SGControlPanel
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
@@ -6,21 +7,83 @@ from mainClasses.gameAction.SGDelete import SGDelete
 from mainClasses.gameAction.SGUpdate import SGUpdate
 from mainClasses.gameAction.SGCreate import SGCreate
 from mainClasses.gameAction.SGMove import SGMove
+from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from mainClasses.AttributeAndValueFunctionalities import *
+
 
 import copy
 
 
 # Class that handle the player
-class SGPlayer():
-    def __init__(self, theModel, name, actions=[]):
+class SGPlayer(AttributeAndValueFunctionalities):
+    def __init__(self, theModel, name, actions=[],attributesAndValues=None):
         self.model = theModel
         self.name = name
         self.actions = actions
         self.gameActions = []
         self.remainActions = {}
         self.controlPanel= None
+        self.watchers={}
+        self.initAttributes(attributesAndValues)
 
-    def newControlPanel(self, Name=None, showAgentsWithNoAtt=False):
+    def newControlPanel(self, title=None, showAgentsWithNoAtt=False):
+        """
+        To create an Player Control Panel (only with the GameActions related elements)
+
+        Args:
+        Name (str): name of the Control Panel, displayed
+
+        """
+        if title==None: title = (self.name +' actions')
+        
+        self.controlPanel=SGControlPanel.forPlayer(self,title)
+        self.model.gameSpaces[title] = self.controlPanel
+        # Realocation of the position thanks to the layout
+        newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)
+        self.controlPanel.setStartXBase(newPos[0])
+        self.controlPanel.setStartYBase(newPos[1])
+        if (self.model.typeOfLayout == "vertical"):
+            self.controlPanel.move(self.controlPanel.startXBase, self.controlPanel.startYBase+20 *
+                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel))
+        elif (self.model.typeOfLayout == "horizontal"):
+            self.controlPanel.move(self.controlPanel.startXBase+20 *
+                         self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel), self.controlPanel.startYBase)
+        else:
+            pos = self.model.layoutOfModel.foundInLayout(self.controlPanel)
+            self.controlPanel.move(self.controlPanel.startXBase+20 *
+                         pos[0], self.controlPanel.startYBase+20*pos[1])
+        self.model.applyPersonalLayout()
+        return self.controlPanel
+
+    # To handle attributesAndValues
+    # setter
+    def setValue(self,aAttribut,aValue):
+        """
+        Sets the value of an attribut
+        Args:
+            aAttribut (str): Name of the attribute
+            aValue (str): Value to be set
+        """
+        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+        # self.saveHistoryValue()    
+        self.dictAttributes[aAttribut]=aValue
+        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        return True
+
+    def addWatcher(self,aIndicator):
+        if aIndicator.attribut is None:
+            aAtt = 'nb'
+        else: aAtt = aIndicator.attribut
+        if aAtt not in self.watchers.keys():
+            self.watchers[aAtt]=[]
+        self.watchers[aAtt].append(aIndicator)
+
+    def updateWatchersOnAttribute(self,aAtt):
+        for watcher in self.watchers.get(aAtt,[]):
+            watcher.checkAndUpdate()
+
+    def newControlPanelOLD(self, Name=None, showAgentsWithNoAtt=False):
+        #OBSOLETE
         """
         To create an Player Control Panel (only with the GameActions related elements)
 
@@ -41,7 +104,7 @@ class SGPlayer():
             elements[anElement.id]['agents'] = {}
         for grid in elements:
             elements[grid]['agents'].update(AgentPOVs)
-        agents = self.model.getAgents()
+        agents = self.model.getAllAgents()
         goodKeys = self.getAttributs()
         thePov = self.getPov()
         actions = self.gameActions
@@ -103,6 +166,8 @@ class SGPlayer():
         return attributs
 
     def getPov(self):
+        raise ValueError('a priori, cette méthode est obsolete')
+        # Pourquoi un player à une méthode getPov. C'est bizarre et peut etre Obsolete
         thePov = {}
         for action in self.gameActions:
             if (isinstance(action.anObject, SGCell) or action.anObject == SGCell) and isinstance(action, SGUpdate):  # ! cas des cellules
@@ -133,20 +198,15 @@ class SGPlayer():
         Args:
             aGameAction (instance) : myModel.createAction instance
         """
-        if isinstance(aGameAction, SGDelete):
-            self.gameActions.append(aGameAction)
-            aGameAction.getRemainActionNumber(self)
-        if isinstance(aGameAction, SGCreate):
-            self.gameActions.append(aGameAction)
-            aGameAction.getRemainActionNumber(self)
-        if isinstance(aGameAction, SGUpdate):
-            self.gameActions.append(aGameAction)
-            aGameAction.getRemainActionNumber(self)
-        if isinstance(aGameAction, SGMove):
+        if isinstance(aGameAction,SGAbstractAction):
+            # isinstance() checks that a gameAction is a instance of SGAbstractAction or of one of its subclasses (SGMove, SGUpdate...)
             self.gameActions.append(aGameAction)
         return aGameAction
 
     def getGameActionOn(self, anItem):
+        # Verifier si cettte méthode est encore utilisée ou pas
+        # Elle est peut etre Obsolete
+
         # On cell
         if isinstance(anItem, SGCell) or anItem == SGCell:
             for aGameAction in self.gameActions:
@@ -166,7 +226,7 @@ class SGPlayer():
                     elif isinstance(aGameAction, SGUpdate) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(aGameAction.dictNewValues.values()) and self.model.selected[4] in list(aGameAction.dictNewValues.keys()):
                         return aGameAction
                     # Delete of a Cell
-                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and aGameAction.anObject == SGCell: #and self.model.selected[3] in list(anItem.dictOfAttributs.values()):
+                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and aGameAction.anObject == SGCell: #and self.model.selected[3] in list(anItem.dictAttributes.values()):
                         return aGameAction
         elif isinstance(anItem, SGAgent):
             for aGameAction in self.gameActions:
@@ -192,9 +252,9 @@ class SGPlayer():
                 if isinstance(aGameAction, SGMove):
                     # Move an Angent
                     if aGameAction.dictAttributs is not None:
-                        for att in list(anItem.dictOfAttributs.keys()):
+                        for att in list(anItem.dictAttributes.keys()):
                             if att in list(aGameAction.dictAttributs.keys()):
-                                if (anItem.dictOfAttributs[att] in list(aGameAction.dictAttributs.values())[0]):
+                                if (anItem.dictAttributes[att] in list(aGameAction.dictAttributs.values())[0]):
                                     return aGameAction
                     else:
                         if anItem.species in list(self.model.agentSpecies.keys()):

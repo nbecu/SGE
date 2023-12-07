@@ -79,7 +79,7 @@ class SGControlPanel(SGGameSpace):
             self.actionItemsNames.append(actionItem.texte)
             self.actionItems.append(actionItem)
             actionItem.id=self.IDincr
-            self.IDincr=+1
+            self.IDincr+=1
 
     def updateActionItem(self,item):
         theIndex=None
