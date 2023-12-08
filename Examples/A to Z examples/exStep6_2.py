@@ -50,7 +50,7 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 score1= myModel.newSimVariable("Score",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1) 
-i2 = DashBoard.addIndicator("nbEqualTo", Cell, attribute='landUse',value='forest',color=Qt.black)
+i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
 DashBoard.showIndicators()
 # Here is the way to add feedback on score on ModelAction
 aModelAction4.addFeedback(lambda: score1.incValue(5))

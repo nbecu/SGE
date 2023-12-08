@@ -30,7 +30,7 @@ myModel.timeManager.newModelPhase(lambda: step2())
 scores = myModel.newDashBoard()
 scores.addIndicatorOnEntity(Pawn.getEntity(1),'age')
 scores.addIndicatorOnEntity(Pawn.getEntity(2),'age')
-scores.addIndicator('avgAtt',Pawn,attribute='age')
+scores.addIndicator(Pawn,'avgAtt',attribute='age')
 scores.showIndicators()
 
 myModel.launch() 

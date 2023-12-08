@@ -104,22 +104,14 @@ class SGAgent(SGEntity):
 
     # To show a menu
     def show_menu(self, point):
-        # Need to find a solution to get modeler's choice about attributes
         menu = QMenu(self)
-        # VOICI un ex. code qui marche pour gérer les modeler choice (j'ajoute  dans EntityDef un ex. de modeler que pourra utiliser le Modeler pour sépécifier ce qu'il veut
-        # self anItem in self.entDef.attributesToDisplayInContextualMenu:
-        #     aAtt = anItem['att']
-        #     aLabel = anItem['label']
-        #     aValue = self.value(aAtt)
-        #     text = aLabel  + ": "+str(aValue)
-        #     option = QAction(text, self)
-        #     menu.addAction(option)
-        text="Merlu pêché : "+str(self.value("Quantité_pêchée_Merlu")) #non definitive
-        option = QAction(text, self)
-        menu.addAction(option)
-        text="Sole pêché : "+str(self.value("Quantité_pêchée_Sole")) #non definitive
-        option = QAction(text, self)
-        menu.addAction(option)
+        for anItem in self.classDef.attributesToDisplayInContextualMenu:
+            aAtt = anItem['att']
+            aLabel = anItem['label']
+            aValue = self.value(aAtt)
+            text = aLabel  + ": "+str(aValue)
+            option = QAction(text, self)
+            menu.addAction(option)
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))

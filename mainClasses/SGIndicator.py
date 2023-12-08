@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribut,value,listOfEntDef,logicOp,color=Qt.blue,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,roundReset=False,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -27,12 +27,13 @@ class SGIndicator(QtWidgets.QWidget):
         if self.method == "simVar": self.simVar=listOfEntDef  
         self.result=float
         self.name=name
-        self.attribut=attribut
+        self.attribute=attribute
         self.posY = self.dashboard.posYOfItems
         self.dashboard.posYOfItems += 1
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
+        self.roundReset=roundReset
         self.initUI()
         
 
@@ -54,9 +55,9 @@ class SGIndicator(QtWidgets.QWidget):
             self.name = self.name + ' : '
             return 
         if self.method in ["nbWithLess","nbWithMore","nbEqualTo"]:
-            aName= 'nb '+self.attribut+ ' '+self.method[2:]+" "+self.value+" : "
-        elif self.attribut is not None:
-                aName = self.method+' '+self.attribut+" : "
+            aName= 'nb '+self.attribute+ ' '+self.method[2:]+" "+self.value+" : "
+        elif self.attribute is not None:
+                aName = self.method+' '+self.attribute+" : "
         elif self.method == 'nb':
             aName = self.method+' '+self.strOfEntitiesName()+' : '
         elif self.method == "separator":
@@ -109,9 +110,9 @@ class SGIndicator(QtWidgets.QWidget):
         counter=0
         
         if self.method =='nb':
-            if self.attribut is not None and self.value is not None:
+            if self.attribute is not None and self.value is not None:
                 listEntities = self.getListOfEntities()
-                filteredList=[entity for entity in listEntities if entity.value(self.attribut)==self.value]
+                filteredList=[entity for entity in listEntities if entity.value(self.attribute)==self.value]
                 return len(filteredList)
             else:
                 listEntities = self.getListOfEntities()
@@ -119,7 +120,7 @@ class SGIndicator(QtWidgets.QWidget):
         
         elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
             listEntities = self.getListOfEntities()
-            listOfValues = [aEnt.value(self.attribut) for aEnt in listEntities]
+            listOfValues = [aEnt.value(self.attribute) for aEnt in listEntities]
             if self.method == 'sumAtt': return sum(listOfValues)
             if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
             if self.method == 'minAtt': return min(listOfValues)
@@ -130,36 +131,31 @@ class SGIndicator(QtWidgets.QWidget):
 
         elif self.method=="simVar":
             return self.simVar.value
-
-        # elif self.method=="score":
-        #     # This is an Obsolete method. Should be removed
-        #     calcValue=self.value
-        #     return 0 if self.value is None else self.value
         
         elif self.method =="display":
-            return self.entity.value(self.attribut)
+            return self.entity.value(self.attribute)
         elif self.method=="separator":
             return "---------------"
         elif self.method=="thresoldToLogicOp":
             # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
             if self.logicOp =="greater":
-                if self.entity.value(self.attribut) > self.threshold:
+                if self.entity.value(self.attribute) > self.threshold:
                     calcValue="greater than"+str(self.threshold)
                     return calcValue
             if self.logicOp =="greater or equal":
-                if self.entity.value(self.attribut)>=self.threshold:
+                if self.entity.value(self.attribute)>=self.threshold:
                     calcValue="greater than or equal to"+str(self.threshold)
                     return calcValue
             if self.logicOp =="equal":
-                if self.entity.value(self.attribut)==self.threshold:
+                if self.entity.value(self.attribute)==self.threshold:
                     calcValue="equal to"+str(self.threshold)
                     return calcValue
             if self.logicOp =="less or equal":
-                if self.entity.value(self.attribut)<=self.threshold:
+                if self.entity.value(self.attribute)<=self.threshold:
                     calcValue="less than or equal to"+str(self.threshold)
                     return calcValue
             if self.logicOp =="less":
-                if self.entity.value(self.attribut)<self.threshold:
+                if self.entity.value(self.attribute)<self.threshold:
                     calcValue="less than"+str(self.threshold)
                     return calcValue
 

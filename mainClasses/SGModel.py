@@ -827,9 +827,13 @@ class SGModel(QMainWindow):
 
     # To get a gameSpace in particular
 
-    def getGameSpace(self, name):
+    def getGameSpaceByName(self, name):
         return self.gameSpaces[name]
 
+    def getGameSpaceByClass(self,aClass):
+        gameSpaces=[aGameSpace for aName,aGameSpace in self.gameSpaces.items() if isinstance(aGameSpace,aClass)]
+        return gameSpaces
+    
     # To apply the layout to all the current game spaces
     def applyPersonalLayout(self):
         self.layoutOfModel.ordered()

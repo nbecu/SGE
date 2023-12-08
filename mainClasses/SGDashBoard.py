@@ -81,20 +81,20 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, method, entityName, color=Qt.black, attribute=None, value=None, logicOp= None, indicatorName=None, isDisplay=True):
-        # TODO Changer l'ordre des varaibles --> entityName,method,attribute........ puis la suite
-        # changer le nom indicatorName, par title, ou text
+    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,roundReset=False,isDisplay=True):
+        
         """
         Add an Indicator on the DashBoard.
 
         Args:
-            method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
             entityName (str) :  aEntityDef name, or aEntityDef, of a List of EntityDef or names, or None (only for score)
-            color (Qt.color) : text color
+            method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
             attribute (str) : concerned attribute 
             value (str, optionnal) : concerned value
+            color (Qt.color) : text color
             logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
@@ -116,7 +116,7 @@ class SGDashBoard(SGGameSpace):
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicator(self, indicatorName, method, attribute, value, listOfEntDef, logicOp, color, isDisplay)
+        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,roundReset,isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -127,7 +127,7 @@ class SGDashBoard(SGGameSpace):
         return indicator
     
 
-    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, indicatorName=None, isDisplay=True):
+    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, roundReset=False,isDisplay=True):
         """
         Add an Indicator on a particular entity on the DashBoard only two methods available : display (default) & thresoldToLogicOp (if a value and a logicOp defined).
 
@@ -137,7 +137,8 @@ class SGDashBoard(SGGameSpace):
             color (Qt.color) : text color
             logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
             thresold (str, optionnal) : only if method = thresoldToLogicOp, thresold value (default :None )
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
@@ -154,7 +155,7 @@ class SGDashBoard(SGGameSpace):
         
         self.posYOfItems = self.posYOfItems+1
     
-        indicator = SGIndicator(self, indicatorName, method, attribute, value, entity, logicOp, color, isDisplay)
+        indicator = SGIndicator(self, title, method, attribute, value, entity, logicOp, color, roundReset,isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -164,9 +165,9 @@ class SGDashBoard(SGGameSpace):
 
         return indicator
 
-    def addIndicatorOnSimVariable(self,aSimulationVariable):
+    def addIndicatorOnSimVariable(self,aSimulationVariable,roundReset=False):
         self.posYOfItems = self.posYOfItems+1
-        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,aSimulationVariable.isDisplay)
+        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,roundReset,aSimulationVariable.color,False,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -176,120 +177,131 @@ class SGDashBoard(SGGameSpace):
     
         return indicator
 
-    def addIndicator_Sum(self, entity, attribut, value, indicatorName, color, isDisplay=True):
+    def addIndicator_Sum(self, entity, attribute,title, color, roundReset=False, isDisplay=True):
         """
         Add a sum indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            value (str, optionnal) : non required
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'sumAtt'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName, isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Avg(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_Avg(self, entity, attribute, title, color,roundReset=False,isDisplay=True):
         """
         Add a average indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            value (str, optionnal) : non required
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'avgAtt'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Min(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_Min(self, entity, attribute, title, color,roundReset=False,isDisplay=True):
         """
         Add a minimum indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            value (str, optionnal) : non required
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'minAtt'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Max(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_Max(self, entity, attribute,title, color,roundReset=False,isDisplay=True):
         """
         Add a maximum indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            value (str, optionnal) : non required
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'maxAtt'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_EqualTo(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_EqualTo(self, entity, attribute, value, title, color,roundReset=False,isDisplay=True):
         """
         Add a equal to indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
             value (str) : value to do the logical test
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbEqualTo'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_WithLess(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_WithLess(self, entity, attribute, value, title, color,roundReset=False,isDisplay=True):
         """
         Add a with less indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
             value (str) : value to do the logical test
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithLess'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_WithMore(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_WithMore(self, entity, attribute, value, title, color,roundReset=False,isDisplay=True):
         """
         Add a with more indicator
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
             value (str) : for certain methods, a value is required
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithMore'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName,isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Nb(self, entity, attribut, value, indicatorName, color,isDisplay=True):
+    def addIndicator_Nb(self, entity, attribute, title, color,roundReset=False,isDisplay=True):
         """
         Add a sum indicator
         Args :
             entity (str) : "cell" or "agent" or aAgentSpecies
             attribute (str) : concerned attribute 
-            value (str, optionnal) : non required
-            indicatorName (str, optionnal) : name displayed on the dashboard
+            title (str, optionnal) : name displayed on the dashboard
+            color (Qt.color) : text color
+            roundReset (bool) : if True, the displayed result will be set to sero at each new round
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nb'
-        indicator = self.addIndicator(method, entity, color, attribut, value, indicatorName=indicatorName,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,roundReset=roundReset,isDisplay=isDisplay)
         return indicator
     
     def addSeparator(self):
-        separator=self.addIndicator("separator",None)
+        separator=self.addIndicator(None,"separator")
         return separator
 
     # *Functions to have the global size of a gameSpace

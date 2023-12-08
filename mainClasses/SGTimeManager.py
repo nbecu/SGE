@@ -1,6 +1,7 @@
 from mainClasses.SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
 from mainClasses.SGEndGameCondition import SGEndGameCondition
+from mainClasses.SGDashBoard import SGDashBoard
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -45,6 +46,7 @@ class SGTimeManager():
                 doThePhase = True
                 if self.currentPhase == 1 and len(self.phases) > 1:
                     self.currentRound += 1
+                    #self.checkResetIndicators() # uncomment to use
                     if self.model.myTimeLabel is not None:
                         self.model.myTimeLabel.updateTimeLabel()
                     if self.model.userSelector is not None:
@@ -94,6 +96,28 @@ class SGTimeManager():
         if endGame:
             print("C'est fini !")
         return endGame
+
+    def checkResetIndicators(self):
+        # in progress
+        DashBoards=self.model.getGameSpaceByClass(SGDashBoard)
+        for aDashBoard in DashBoards:
+            for indicator in aDashBoard.indicators:
+                if indicator.roundReset:
+                    #instruction pour remettre à zéro
+                    #cas des indicateurs on entity:
+                    if indicator.listOfEntDef is not None:
+                        if len(indicator.listOfEntDef)>1:
+                            for entity in indicator.listOfEntDef:
+                                entity.setValue() #indicator.attribute,0) #! FAUX : need to find a way to put a default value
+                                # setResult?
+                        else:
+                            entity=indicator.listOfEntDef[0]
+                            entity.setValue()# indicator.attribute,0) #! FAUX : need to find a way to put a default value
+                            # setResult?
+                    # cas des sim variables
+                    if indicator.method=="simVar":
+                        indicator.simVar.setValue(0) #! non functionnal
+                        # setResult?
 
     def getRoundNumber(self):
         return self.currentRound

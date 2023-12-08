@@ -37,7 +37,8 @@ Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})
     
-# Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
+Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
+Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Sole",'Sole pêché')
 
 EspècesHalieutiques=[Soles,Merlus]
 
@@ -67,24 +68,24 @@ GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doiv
 
 
 DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
-DashBoard.addIndicator("sumAtt",Navire,attribute="PêcheCumMerlu",indicatorName="Merlu pêché (depuis an 0)")
-DashBoard.addIndicator("sumAtt",Navire,attribute="PêcheCumSole",indicatorName="Sole pêché (depuis an 0)")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumMerlu",title="Merlu pêché (depuis an 0)")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumSole",title="Sole pêché (depuis an 0)")
 DashBoard.addSeparator()
-DashBoard.addIndicator("sumAtt",Navire,attribute="Quantité_pêchée_Merlu",indicatorName="Merlu pêché (ce tour)")
-DashBoard.addIndicator("sumAtt",Navire,attribute="Quantité_pêchée_Sole",indicatorName="Sole pêché (ce tour)")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="Quantité_pêchée_Merlu",title="Merlu pêché (ce tour)")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="Quantité_pêchée_Sole",title="Sole pêché (ce tour)")
 revenuTour=myModel.newSimVariable("Revenus (k€)",0)
 benefice=myModel.newSimVariable("Bénéfice (k€)",0)
-indRevenu=DashBoard.addIndicatorOnSimVariable(revenuTour)
-indBenefice=DashBoard.addIndicatorOnSimVariable(benefice)
+indRevenu=DashBoard.addIndicatorOnSimVariable(revenuTour,True)
+indBenefice=DashBoard.addIndicatorOnSimVariable(benefice,True)
 
 DashBoard.showIndicators()
 
 DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
-indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",indicatorName="Stock de Merlus")
-indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",indicatorName="Stock de Soles")
+indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
+indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
 DashBoard2.addSeparator()
-indNbBonus=DashBoard2.addIndicator("nb",Navire,attribute="lastIncitationValue",value="bonus",indicatorName="Nb Bateau en zone bonus")
-indNbMalus=DashBoard2.addIndicator("nb",Navire,attribute="lastIncitationValue",value="malus",indicatorName="Nb Bateau en zone malus")
+indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",roundReset=True)
+indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",roundReset=True)
 DashBoard2.showIndicators()
 
 def tx_présence():

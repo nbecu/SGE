@@ -133,12 +133,12 @@ TextBox = myModel.newTextBox(
 # TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", Cell, attribute='biomass',color=Qt.black, indicatorName='Total biomass')
-i2 = DashBoard.addIndicator("avgAtt", Cell, attribute='biomass',color=Qt.black, indicatorName='Avg biomass')
-i3 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='harvest',color=Qt.black)
-i4 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='total harvest',color=Qt.black)
-i5 = DashBoard.addIndicator("nb", 'Bird',color=Qt.magenta)
-i6 = DashBoard.addIndicator("sumAtt", 'Bird', attribute='nb reproduction',color=Qt.magenta)
+i1 = DashBoard.addIndicator(Cell, "sumAtt", attribute='biomass',color=Qt.black, indicatorName='Total biomass')
+i2 = DashBoard.addIndicator(Cell, "avgAtt", attribute='biomass',color=Qt.black, indicatorName='Avg biomass')
+i3 = DashBoard.addIndicator('harvesters', "sumAtt", attribute='harvest',color=Qt.black)
+i4 = DashBoard.addIndicator('harvesters', "sumAtt", attribute='total harvest',color=Qt.black)
+i5 = DashBoard.addIndicator('Bird',"nb", color=Qt.magenta)
+i6 = DashBoard.addIndicator('Bird', "sumAtt", attribute='nb reproduction',color=Qt.magenta)
 
 DashBoard.showIndicators()
 

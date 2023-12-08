@@ -65,8 +65,8 @@ myModel.timeManager.newGamePhase('fin2',None,
 
 
 # To test later
-# [lambda: myModel.getGameSpace("basicGrid").makeEvolve(["Forest"])
-# [lambda: myModel.getGameSpace("basicGrid").makeDecrease(["sea"])])
+# [lambda: myModel.getGameSpaceByName("basicGrid").makeEvolve(["Forest"])
+# [lambda: myModel.getGameSpaceByName("basicGrid").makeDecrease(["sea"])])
 
 
 myModel.iAm("Admin")
