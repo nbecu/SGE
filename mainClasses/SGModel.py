@@ -669,7 +669,7 @@ class SGModel(QMainWindow):
         return aModelAction
 
     # To create a player
-    def newPlayer(self, name,attributesAndValues):
+    def newPlayer(self, name,attributesAndValues=None):
         """"
         Create a new player
 
