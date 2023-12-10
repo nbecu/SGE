@@ -84,8 +84,11 @@ DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
 indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
 indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
 DashBoard2.addSeparator()
+# les indicateurs du nb de bateaux en zones malus et bonus, ne doivent être actualisé qu'à la phase 'Résolution'
 indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",roundReset=True)
 indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",roundReset=True)
+# Ce serai bien d'ajouter également (ds le Dasborad2) le montant total de Malus prélevé à ce tour et le montant total de bonus versé
+# Pourquoi il faut ajouter cette instruction '.showIndicators()' à chaque fois ? Ca devrait etre fait automatiquement, non ?
 DashBoard2.showIndicators()
 
 def tx_présence():
@@ -113,6 +116,7 @@ def feedbackPêche():
     for navire in myModel.getAgentsOfSpecie("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
+        # Le revenu doit etre calculé qu'à la phase 'Résolution'
         revenusBateau=navire.value('Quantité_pêchée_Merlu')*Merlus.value("prix")+navire.value('Quantité_pêchée_Sole')*Soles.value("prix")
         sommeRevenus=sommeRevenus+revenusBateau
         if navire.value('lastIncitationValue')=="bonus":
@@ -153,7 +157,7 @@ userSelector=myModel.newUserSelector()
 tx_présence()
 
 # TEMPORARY LAYOUT SOLUTION
-# aGrid.moveToCoords(500,45) #! il faudrait pouvoir accéder à la grid (via newCellsOnGrid?)
+Cells.grid.moveToCoords(500,45) #! il faudrait pouvoir accéder à la grid (via newCellsOnGrid?) # Une CellDef connait sa grid via l'attribut 'grid'.  Du coup Cells.grid permet d'accéder à la grid
 TimeLabel.moveToCoords(340,45)
 theTextBox.moveToCoords(20,45)
 Player1ControlPanel.moveToCoords(20,220)
