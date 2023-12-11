@@ -80,14 +80,17 @@ indBenefice=DashBoard.addIndicatorOnSimVariable(benefice,True)
 
 DashBoard.showIndicators()
 
+revenuMalus=myModel.newSimVariable("Total malus prélevé (k€)",0)
+revenuBonus=myModel.newSimVariable("Total bonus versé (k€)",0)
 DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
 indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
 indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
-DashBoard2.addSeparator()
+sep2=DashBoard2.addSeparator()
 # les indicateurs du nb de bateaux en zones malus et bonus, ne doivent être actualisé qu'à la phase 'Résolution'
 indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",roundReset=True)
+indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus,True)
 indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",roundReset=True)
-# Ce serai bien d'ajouter également (ds le Dasborad2) le montant total de Malus prélevé à ce tour et le montant total de bonus versé
+indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus,True)
 # Pourquoi il faut ajouter cette instruction '.showIndicators()' à chaque fois ? Ca devrait etre fait automatiquement, non ?
 DashBoard2.showIndicators()
 
@@ -111,35 +114,42 @@ def pêche(cell):
 def feedbackPêche():
     sommePêcheMerlu=0
     sommePêcheSole=0
-    sommeBenef=0
-    sommeRevenus=0
+    
     for navire in myModel.getAgentsOfSpecie("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
-        # Le revenu doit etre calculé qu'à la phase 'Résolution'
-        revenusBateau=navire.value('Quantité_pêchée_Merlu')*Merlus.value("prix")+navire.value('Quantité_pêchée_Sole')*Soles.value("prix")
-        sommeRevenus=sommeRevenus+revenusBateau
-        if navire.value('lastIncitationValue')=="bonus":
-            benefBateau=revenusBateau+revenusBateau*0.1
-        if navire.value('lastIncitationValue')=="malus":
-            benefBateau=revenusBateau-revenusBateau*0.1
-        else:
-            benefBateau=revenusBateau
-        sommeBenef=sommeBenef+benefBateau
-        benefBateau=0
-
-    revenuTour.setValue(round(sommeRevenus,0))
-    benefice.setValue(round(sommeBenef,0))    
+            
     stockMerlu=round((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0],0)
     stockSole=round((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0],0)
     Soles.setValue("stock",stockSole)
     Merlus.setValue("stock",stockMerlu)
 
 def renouvellementStock_port():
+    sommeBenef=0
+    sommeRevenus=0
+    malus=0
+    bonus=0
     for navire in myModel.getAgentsOfSpecie("Navire"):
+        revenusBateau=navire.value('Quantité_pêchée_Merlu')*Merlus.value("prix")+navire.value('Quantité_pêchée_Sole')*Soles.value("prix")
+        sommeRevenus=sommeRevenus+revenusBateau
+        if navire.value('lastIncitationValue')=="bonus":
+            benefBateau=revenusBateau+revenusBateau*0.1
+            bonus=bonus+benefBateau
+        if navire.value('lastIncitationValue')=="malus":
+            benefBateau=revenusBateau-revenusBateau*0.1
+            malus=malus+benefBateau
+        else:
+            benefBateau=revenusBateau
+        sommeBenef=sommeBenef+benefBateau
+        benefBateau=0
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
         navire.moveAgent(method='cell',cellID=10)
+
+    revenuTour.setValue(round(sommeRevenus,0))
+    benefice.setValue(round(sommeBenef,0))
+    revenuMalus.setValue(round(malus,0))
+    revenuBonus.setValue(round(bonus,0))
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionFeedback=myModel.newModelAction(lambda: feedbackPêche())
@@ -157,7 +167,7 @@ userSelector=myModel.newUserSelector()
 tx_présence()
 
 # TEMPORARY LAYOUT SOLUTION
-Cells.grid.moveToCoords(500,45) #! il faudrait pouvoir accéder à la grid (via newCellsOnGrid?) # Une CellDef connait sa grid via l'attribut 'grid'.  Du coup Cells.grid permet d'accéder à la grid
+Cells.grid.moveToCoords(500,45)
 TimeLabel.moveToCoords(340,45)
 theTextBox.moveToCoords(20,45)
 Player1ControlPanel.moveToCoords(20,220)
