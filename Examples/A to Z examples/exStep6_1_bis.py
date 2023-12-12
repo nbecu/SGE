@@ -52,8 +52,6 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 i1 = DashBoard.addIndicator('Cell',"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
 # Be careful ! Your value needs to be integrers or float to be logical tested. Only number functions for string values.
-DashBoard.showIndicators()
-# TODO Why does the modeler need to specify to showIndicators ?
 
 myModel.launch() 
 

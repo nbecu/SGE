@@ -25,7 +25,6 @@ GameRounds=myModel.newTimeLabel('Rounds&Phases')
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
 scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
 DashBoard.addIndicatorOnSimVariable(scoreB)
-DashBoard.showIndicators()
 
 aTextBox=myModel.newTextBox(title='La foret regresse petit à petit')
 

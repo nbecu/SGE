@@ -78,8 +78,6 @@ benefice=myModel.newSimVariable("Bénéfice (k€)",0)
 indRevenu=DashBoard.addIndicatorOnSimVariable(revenuTour,True)
 indBenefice=DashBoard.addIndicatorOnSimVariable(benefice,True)
 
-DashBoard.showIndicators()
-
 revenuMalus=myModel.newSimVariable("Total malus prélevé (k€)",0)
 revenuBonus=myModel.newSimVariable("Total bonus versé (k€)",0)
 DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
@@ -91,8 +89,6 @@ indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",v
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus,True)
 indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",roundReset=True)
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus,True)
-# Pourquoi il faut ajouter cette instruction '.showIndicators()' à chaque fois ? Ca devrait etre fait automatiquement, non ?
-DashBoard2.showIndicators()
 
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]

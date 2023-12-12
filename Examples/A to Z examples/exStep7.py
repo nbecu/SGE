@@ -60,8 +60,6 @@ myModel.timeManager.newModelPhase(aModelAction4)
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')
 
-DashBoard.showIndicators()
-
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Score equal to 90")

@@ -25,8 +25,6 @@ GameRounds=myModel.newTimeLabel('Rounds&Phases')
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
 i1=DashBoard.addIndicator_Nb('cell','landUse',"forest","Taille de la foret",(Qt.blue))
 # i1.setUpdateAtEachRound(True)
-DashBoard.showIndicators()
-
 
 #CREATIONS DE MODEL ACTIONS
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2))

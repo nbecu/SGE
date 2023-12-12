@@ -175,7 +175,7 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-    
+        
     
     def updateFunction(self):
         #This method will need to be modified so that agent are placed at the right place right from the start
@@ -185,6 +185,10 @@ class SGModel(QMainWindow):
             aAgent.updateAgentByRecreating_it()
         # self.show()
 
+    def setDashboards(self):
+        dashboards=self.getGameSpaceByClass(SGDashBoard)
+        for aDashBoard in dashboards:
+            aDashBoard.showIndicators()
     
     # Create the menu of the menue
     def createMenu(self):
@@ -1116,6 +1120,7 @@ class SGModel(QMainWindow):
         """
         Launch the game.
         """
+        self.setDashboards()
         self.show()
         self.initAfterOpening()
 
@@ -1134,6 +1139,7 @@ class SGModel(QMainWindow):
         self.majTimer.start(100)
         self.initMQTT()
         self.mqttMajType=majType
+        self.setDashboards()
         self.show()
         self.initAfterOpening()
 

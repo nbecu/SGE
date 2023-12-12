@@ -85,7 +85,6 @@ i2 = DashBoard.addIndicator('Cell',"avgAtt",  attribute='Resource',color=Qt.blac
 i3 = DashBoard.addIndicator([Workers,Birds],"nb",color=Qt.black)
 i4 = DashBoard.addIndicator("Workers","nb",color=Qt.black)
 i5 = DashBoard.addIndicatorOnSimVariable(score1)
-DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(

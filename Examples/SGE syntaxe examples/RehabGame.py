@@ -140,7 +140,6 @@ i4 = DashBoard.addIndicator('harvesters', "sumAtt", attribute='total harvest',co
 i5 = DashBoard.addIndicator('Bird',"nb", color=Qt.magenta)
 i6 = DashBoard.addIndicator('Bird', "sumAtt", attribute='nb reproduction',color=Qt.magenta)
 
-DashBoard.showIndicators()
 
 # endGameRule = myModel.newEndGameRule(numberRequired=2)
 # endGameRule.addEndGameCondition_onIndicator(

@@ -131,7 +131,6 @@ TextBox = myModel.newTextBox(
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator('Cell',"sum",  attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator('Cell',"avg",  attribute='Resource',color=Qt.black)
-DashBoard.showIndicators()
 
 
 

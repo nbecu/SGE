@@ -25,7 +25,6 @@ GameRounds=myModel.newTimeLabel('Rounds&Phases')
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
 i1=DashBoard.addIndicator_Nb('cell','landUse',"forest","Taille de la foret",(Qt.blue))
 # i1.setUpdateAtEachRound(True)
-DashBoard.showIndicators()
 
 aTextBox=myModel.newTextBox(title='La foret regresse petit à petit')
 

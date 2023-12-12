@@ -9,7 +9,7 @@ class SGAbstractAction():
     def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
         self.id=self.nextId()
         self.__class__.instances.append(self)
-        print('new gameAction: '+str(self.id)) # To test
+        # print('new gameAction: '+str(self.id)) # To test
         self.targetEntDef=entDef
         self.model=self.targetEntDef.model 
         self.number=number

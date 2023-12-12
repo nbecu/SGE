@@ -25,7 +25,6 @@ GameRounds=myModel.newTimeLabel('Rounds&Phases')
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
 scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
 DashBoard.addIndicatorOnSimVariable(scoreB)
-DashBoard.showIndicators()
 
 #CREATIONS DE MODEL ACTIONS
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2), feedbacks=(lambda: scoreB.decValue(1))) 

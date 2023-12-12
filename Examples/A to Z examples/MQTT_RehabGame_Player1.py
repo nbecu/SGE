@@ -72,7 +72,6 @@ DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator('Cell',"sumAtt",  attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator('Cell',"avgAtt",  attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicatorOnSimVariable(globalScore)
-DashBoard.showIndicators()
 aModelAction4.addFeedback(lambda: globalScore.incValue(5))
 myModel.timeManager.newModelPhase(aModelAction4)
 
