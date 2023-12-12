@@ -102,7 +102,7 @@ class SGTimeManager():
         DashBoards=self.model.getGameSpaceByClass(SGDashBoard)
         for aDashBoard in DashBoards:
             for indicator in aDashBoard.indicators:
-                if indicator.roundReset:
+                if indicator.timeReset:
                     #instruction pour remettre à zéro
                     #cas des indicateurs on entity:
                     if indicator.listOfEntDef is not None:

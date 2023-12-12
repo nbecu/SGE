@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,roundReset=False,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,timeReset=False,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -33,7 +33,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
-        self.roundReset=roundReset
+        self.timeReset=timeReset
         self.initUI()
         
 
