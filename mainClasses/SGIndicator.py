@@ -94,9 +94,9 @@ class SGIndicator(QtWidgets.QWidget):
             self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
-        if self.timeReset is not None:
-            self.timeReset[0].watchers.append(self)
-            return False
+        # if self.timeReset is not None:
+        #     self.timeReset[0].watchers.append(self)
+        #     return False
         if self.dashboard.displayRefresh=='instantaneous':
             return True
         if self.dashboard.displayRefresh=='withButton':
