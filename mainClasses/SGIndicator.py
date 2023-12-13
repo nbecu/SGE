@@ -94,6 +94,9 @@ class SGIndicator(QtWidgets.QWidget):
             self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
+        if self.timeReset is not None:
+            self.timeReset[0].watchers.append(self)
+            return False
         if self.dashboard.displayRefresh=='instantaneous':
             return True
         if self.dashboard.displayRefresh=='withButton':
@@ -157,10 +160,7 @@ class SGIndicator(QtWidgets.QWidget):
             if self.logicOp =="less":
                 if self.entity.value(self.attribute)<self.threshold:
                     calcValue="less than"+str(self.threshold)
-                    return calcValue
-
-
-            
+                    return calcValue   
 
     def getMethods(self):
         print(self.methods)

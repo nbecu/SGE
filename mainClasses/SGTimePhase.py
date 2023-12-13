@@ -9,6 +9,7 @@ class SGTimePhase():
         self.name = name
         self.activePlayers = activePlayers
         self.observers = {}
+        self.watchers=[]
         if isinstance(modelActions, list):
             self.modelActions = modelActions
         else:
@@ -37,6 +38,19 @@ class SGTimePhase():
         else :
             self.modelActions.append( self.timeManager.model.newModelAction(aModelAction) )
 
+    def execPhase(self):
+        # We can execute the actions           
+        if len(self.modelActions) != 0:
+            for aAction in self.modelActions:
+                if callable(aAction):
+                    aAction()  # this command executes aAction
+                elif isinstance(aAction, SGModelAction):
+                    aAction.execute()
+        if len(self.watchers) !=0:
+            for aWatcher in self.watchers:
+                aWatcher.updateText()
+        #textbox update
+        self.notifyNewText()
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
