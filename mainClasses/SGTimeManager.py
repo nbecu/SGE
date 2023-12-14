@@ -24,8 +24,6 @@ class SGTimeManager():
     # To increment the time of the game
     def nextPhase(self):
         if len(self.phases) != 0:
-#          Cette instructio a été commenté car il n'y a pas vraiment de raison e faire un test pour savoir si le current player est soit ml'un des joueurs soit l'admin
-#         if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
             end = self.checkEndGame()
             if not end:
                 if self.currentPhase+2 <= len(self.phases):
@@ -46,7 +44,6 @@ class SGTimeManager():
                 doThePhase = True
                 if self.currentPhase == 1 and len(self.phases) > 1:
                     self.currentRound += 1
-                    #self.checkResetIndicators() # uncomment to use
                     if self.model.myTimeLabel is not None:
                         self.model.myTimeLabel.updateTimeLabel()
                     if self.model.userSelector is not None:
@@ -87,28 +84,6 @@ class SGTimeManager():
         if endGame:
             print("C'est fini !")
         return endGame
-
-    def checkResetIndicators(self):
-        # in progress
-        DashBoards=self.model.getGameSpaceByClass(SGDashBoard)
-        for aDashBoard in DashBoards:
-            for indicator in aDashBoard.indicators:
-                if indicator.timeReset:
-                    #instruction pour remettre à zéro
-                    #cas des indicateurs on entity:
-                    if indicator.listOfEntDef is not None:
-                        if len(indicator.listOfEntDef)>1:
-                            for entity in indicator.listOfEntDef:
-                                entity.setValue() #indicator.attribute,0) #! FAUX : need to find a way to put a default value
-                                # setResult?
-                        else:
-                            entity=indicator.listOfEntDef[0]
-                            entity.setValue()# indicator.attribute,0) #! FAUX : need to find a way to put a default value
-                            # setResult?
-                    # cas des sim variables
-                    if indicator.method=="simVar":
-                        indicator.simVar.setValue(0) #! non functionnal
-                        # setResult?
 
     def getRoundNumber(self):
         return self.currentRound

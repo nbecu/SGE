@@ -165,25 +165,6 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 attributs.append(key)
         return attributs
 
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        # Pourquoi un player à une méthode getPov. C'est bizarre et peut etre Obsolete
-        thePov = {}
-        for action in self.gameActions:
-            if (isinstance(action.anObject, SGCell) or action.anObject == SGCell) and isinstance(action, SGUpdate):  # ! cas des cellules
-                aPov = self.model.getPovWithAttribut(list(action.dictNewValues.keys())[0])
-                if aPov is not None:
-                    if aPov in thePov:
-                        thePov[aPov].append(action.dictNewValues)
-                    else:
-                        thePov[aPov] = [action.dictNewValues]
-                else:
-                    aPov = self.model.getBorderPovWithAttribut(list(action.dictNewValues.keys())[0])
-                    if aPov in thePov:
-                        thePov[aPov].append(action.dictNewValues)
-                    else:
-                        thePov[aPov] = [action.dictNewValues]
-        return thePov
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 

@@ -115,16 +115,6 @@ class SGAgent(SGEntity):
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
-
-    def getRandomXY(self):
-        # Is Obsolete
-        if self.me=='agent':
-            maxSize=self.cell.size
-            x = random.randint(1,maxSize-1)
-            return x
-        else:
-            x=0
-            return x
         
     def getRandomX(self):        
         maxSize=self.cell.size
@@ -191,7 +181,6 @@ class SGAgent(SGEntity):
     
         if e.buttons() != Qt.LeftButton:
             return
-        # authorisation = SGGameActions.getMovePermission(self)
         authorisation = True
         if authorisation:
             mimeData = QMimeData()

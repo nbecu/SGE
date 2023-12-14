@@ -55,20 +55,6 @@ class SGControlPanel(SGLegend):
             anItem.show()
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
-
-    def showLegendItem(self, typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors):
-        # OBSOLETE.   SHOULD REMOVE
-        item_key=aAttribut +' '+ str(aValue)
-        if item_key not in added_items and color not in added_colors and color != Qt.transparent:
-            self.y=self.y+1
-            anItem=SGLegendItem(self,self.model.getGameSpaceByName(aKeyOfGamespace).format,self.y,aAttribut+" "+str(aValue),color,aValue,aAttribut)
-            if typeOfPov == "BorderPOV" :
-                anItem.border = True
-            self.legendItems[aKeyOfGamespace].append(anItem)
-            anItem.show()
-            added_items.add(item_key)
-            added_colors.append(color)
-
     #Drawing the Legend
     def paintEvent(self,event):
         if self.checkDisplay():

@@ -45,7 +45,6 @@ class SGCell(SGEntity):
             painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
             self.startXBase=self.grid.frameMargin
             self.startYBase=self.grid.frameMargin
-            # self.gap=1
             self.startX=int(self.startXBase+(self.x -1)*(self.size+self.gap)+self.gap) 
             self.startY=int(self.startYBase+(self.y -1)*(self.size+self.gap)+self.gap)
             if (self.shape=="hexagonal"):
@@ -54,11 +53,9 @@ class SGCell(SGEntity):
             if(self.shape=="square"):
                 painter.drawRect(0,0,self.size,self.size)
                 self.setMinimumSize(self.size,self.size+1)
-                # self.setGeometry(0,0,self.size+1,self.size+1) #CELA PROVOQUE UNE Infinite Loop de paintEvent
                 self.move(self.startX,self.startY)
             elif(self.shape=="hexagonal"):
                 self.setMinimumSize(self.size,self.size)
-                # self.setGeometry(0,0,self.size+1,self.size+1)
                 points = QPolygon([
                     QPoint(int(self.size/2), 0),
                     QPoint(self.size, int(self.size/4)),

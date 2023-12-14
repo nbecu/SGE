@@ -78,11 +78,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDefaultColor= self.classDef.defaultBorderColor
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
-    
-    #To get the pov
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        return self.model.nameOfPov
 
     def getRandomXY(self):
         x = 0
