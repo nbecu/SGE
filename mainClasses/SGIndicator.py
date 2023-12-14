@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,timeReset=False,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,timeReset=None,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -94,9 +94,9 @@ class SGIndicator(QtWidgets.QWidget):
             self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
-        # if self.timeReset is not None:
-        #     self.timeReset[0].watchers.append(self)
-        #     return False
+        if self.timeReset is not None: #provoque un problème d'update : si à la première itération cela créé bien le watcher, si un setValue est appelé en deuxième itération -> return False
+            self.timeReset[0].watchers[self]=self.timeReset[1]
+            return False
         if self.dashboard.displayRefresh=='instantaneous':
             return True
         if self.dashboard.displayRefresh=='withButton':

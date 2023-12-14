@@ -9,7 +9,7 @@ class SGTimePhase():
         self.name = name
         self.activePlayers = activePlayers
         self.observers = {}
-        self.watchers=[]
+        self.watchers={}
         if isinstance(modelActions, list):
             self.modelActions = modelActions
         else:
@@ -46,9 +46,16 @@ class SGTimePhase():
                     aAction()  # this command executes aAction
                 elif isinstance(aAction, SGModelAction):
                     aAction.execute()
-        if len(self.watchers) !=0:
-            for aWatcher in self.watchers:
-                aWatcher.updateText()
+        if self.watchers is not None:
+            for aWatcher,aValue in self.watchers.items():
+                if aValue == None:
+                    aWatcher.updateText()
+                else:
+                    if aWatcher.method=="simVar":
+                        aWatcher.simVar.setValue(aValue) #problème à getPermissionUpdate
+                    else:
+                        aWatcher.entity.setValue(aWatcher.attribute,aValue) #problème à getPermissionUpdate
+                        aWatcher.updateText()
         #textbox update
         self.notifyNewText()
 
@@ -66,3 +73,4 @@ class SGModelPhase(SGTimePhase):
         self.feedbacksCondition = feedbacksCondition  # a priori obsolete
         self.name = name
         self.observers = {}
+        self.watchers={}

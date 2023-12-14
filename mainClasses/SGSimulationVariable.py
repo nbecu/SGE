@@ -25,7 +25,7 @@ class SGSimulationVariable():
         self.value=newValue
         for watcher in self.watchers:
             watcher.checkAndUpdate()
-
+    
     def incValue(self,aValue=1,max=None):
         """
         Increase the value with an additional value

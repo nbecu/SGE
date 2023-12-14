@@ -66,30 +66,6 @@ theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !",
 GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
-
-DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
-DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumMerlu",title="Merlu pêché (depuis an 0)")
-DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumSole",title="Sole pêché (depuis an 0)")
-DashBoard.addSeparator()
-DashBoard.addIndicator(Navire,"sumAtt",attribute="Quantité_pêchée_Merlu",title="Merlu pêché (ce tour)")
-DashBoard.addIndicator(Navire,"sumAtt",attribute="Quantité_pêchée_Sole",title="Sole pêché (ce tour)")
-revenuTour=myModel.newSimVariable("Revenus (k€)",0)
-benefice=myModel.newSimVariable("Bénéfice (k€)",0)
-indRevenu=DashBoard.addIndicatorOnSimVariable(revenuTour,True)
-indBenefice=DashBoard.addIndicatorOnSimVariable(benefice,True)
-
-revenuMalus=myModel.newSimVariable("Total malus prélevé (k€)",0)
-revenuBonus=myModel.newSimVariable("Total bonus versé (k€)",0)
-DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
-indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
-indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
-sep2=DashBoard2.addSeparator()
-# les indicateurs du nb de bateaux en zones malus et bonus, ne doivent être actualisé qu'à la phase 'Résolution'
-indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",timeReset=True)
-indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus,True)
-indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",timeReset=True)
-indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus,True)
-
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
@@ -155,6 +131,30 @@ PhasePêche=myModel.timeManager.newModelPhase([ModelActionPêche,ModelActionFeed
 PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
+
+DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumMerlu",title="Merlu pêché (depuis an 0)")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumSole",title="Sole pêché (depuis an 0)")
+DashBoard.addSeparator()
+DashBoard.addIndicator(Navire,"sumAtt",attribute="Quantité_pêchée_Merlu",title="Merlu pêché (ce tour)")
+DashBoard.addIndicator(Navire,"sumAtt",attribute="Quantité_pêchée_Sole",title="Sole pêché (ce tour)")
+revenuTour=myModel.newSimVariable("Revenus (k€)",0)
+benefice=myModel.newSimVariable("Bénéfice (k€)",0)
+indRevenu=DashBoard.addIndicatorOnSimVariable(revenuTour)
+indBenefice=DashBoard.addIndicatorOnSimVariable(benefice)
+
+revenuMalus=myModel.newSimVariable("Total malus prélevé (k€)",0)
+revenuBonus=myModel.newSimVariable("Total bonus versé (k€)",0)
+DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
+indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
+indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
+sep2=DashBoard2.addSeparator()
+# les indicateurs du nb de bateaux en zones malus et bonus, ne doivent être actualisé qu'à la phase 'Résolution'
+indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus")#,timeReset=[PhaseRésolution,None])
+indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus)
+indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus")#,timeReset=[PhaseRésolution,None])
+indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus)
+
 
 Legend=myModel.newLegend(showAgentsWithNoAtt=True)
 TimeLabel=myModel.newTimeLabel("GameTime")
