@@ -160,12 +160,6 @@ class SGCell(SGEntity):
     def dragEnterEvent(self, e):
         # this is event is called during an agent drag 
         e.accept()
-
-             
-    #To get the pov
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        return self.grid.model.nameOfPov
        
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction,theAgentForMoveGM=None):
@@ -207,25 +201,7 @@ class SGCell(SGEntity):
             menu.exec_(self.mapToGlobal(point))
 
 #-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use
-    
-    #To verify if the cell contain the value pas in parametre through a dictionnary
-    def checkValue(self,aDictOfValue):
-        """NOT TESTED"""
-        theKey=list(aDictOfValue.keys())[0] 
-        if theKey in list(self.dictAttributes.keys()):
-            return aDictOfValue[theKey]==self.dictAttributes[theKey]
-        return False
-
-    
-    #To change the value
-    def changeValue(self,aDictOfValue):
-        """NOT TESTED"""
-        if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.attributs])
-        self.grid.setForXandY(aDictOfValue,self.x+1,self.y+1)
-        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
-     
+#Definiton of the methods who the modeler will use  
     
     #To get all of a kind of agent on a cell 
     def getAgents(self,specie=None):

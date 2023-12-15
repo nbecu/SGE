@@ -51,9 +51,9 @@ class SGTextBox(SGGameSpace):
         font = QFont("Verdana", 12)
         self.textEdit.setFont(font)
 
-        """# Create a QPushButton to update the text
-        self.button = QtWidgets.QPushButton("Update Text")
-        self.button.clicked.connect(self.updateText)"""
+        # Create a QPushButton to update the text
+        # self.button = QtWidgets.QPushButton("Update Text")
+        # self.button.clicked.connect(self.updateText)
 
         # Create a QVBoxLayout to hold the QTextEdit and QPushButton
         layout = QtWidgets.QVBoxLayout()

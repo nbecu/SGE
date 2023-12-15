@@ -86,7 +86,6 @@ class SGModel(QMainWindow):
         self.cellOfGrids = {}
         # Definition of simulation variables
         self.simulationVariables = []
-        # self.IDincr = 0     TO BE REMOVED
         # We create the layout
         self.typeOfLayout = typeOfLayout
         if (typeOfLayout == "vertical"):
@@ -856,7 +855,6 @@ class SGModel(QMainWindow):
     
     def checkLayout(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
-            #print(f"{name} intersects or contains {otherName}.")
             return True
         return False
     
@@ -880,11 +878,6 @@ class SGModel(QMainWindow):
         # if any((match := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
         #     return match
         # else: return None
-
-        # if not any((matchitem := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
-        #     matchitem = None
-        # return matchitem
-
 
     def getOrCreateSubmenuSymbology(self, submenu_name):
         # renvoie le sous-menu (et création du sous-menu si il n'existe pas encore)
