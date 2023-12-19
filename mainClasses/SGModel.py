@@ -425,6 +425,22 @@ class SGModel(QMainWindow):
             grid = self.getGrids()[0]
         return self.getCellDef(grid).entities
     
+    def getAllCells(self):
+        # send back the cells of all the grids
+        aList= []
+        for entDef in self.cellOfGrids.values():
+            aList.extend(entDef.entities)
+        return aList
+
+    def getAllEntities(self):
+        # send back the cells of all the grids
+        aList= []
+        for entDef in self.cellOfGrids.values():
+            aList.extend(entDef.entities)
+        for entDef in self.getAgentSpeciesDict():
+            aList.extend(entDef.entities)
+        return aList
+    
     # To get all the povs of the collection
     def getCellPovs(self,grid):
         return {key: value for dict in (self.cellOfGrids[grid.id]['ColorPOV'],self.cellOfGrids[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
