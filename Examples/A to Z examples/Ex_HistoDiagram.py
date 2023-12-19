@@ -18,3 +18,6 @@ yLabel = "Fréquences"
 
 monApp = SGHistogramDiagram(arr_dataModel, arr_labels, title, xLabel, yLabel)
 monApp.display()
+
+# Très bien également cet exemple mais par contre faudrait trouvr le moyen pour que le Y-max ne soit pas actualisé tout le temps.
+# Par exemple il pourrait soit ettre fixé par une valeur donné par l'utilisateur, soit être fixé automatiquement  à 150% de la valeur maximum atteinte,, puis reactualisé que si cette valeur est dépassé
