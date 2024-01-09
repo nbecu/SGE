@@ -63,9 +63,6 @@ Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
 
 theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !","Comment jouer ?")
 
-GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
-GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
-
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
@@ -122,6 +119,16 @@ def renouvellementStock_port():
     benefice.setValue(round(sommeBenef,0))
     revenuMalus.setValue(round(malus,0))
     revenuBonus.setValue(round(bonus,0))
+
+def reset():
+    revenuBonus.setValue(0)
+    revenuMalus.setValue(0)
+    revenuTour.setValue(0)
+    benefice.setValue(0)
+
+# GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
+GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()))
+GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionFeedback=myModel.newModelAction(lambda: feedbackPêche())
