@@ -110,10 +110,37 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         for watcher in self.watchers.get(aAtt,[]):
             watcher.checkAndUpdate()
 
+    def obj_is_function(self, obj):
+        return callable(obj)
+
+    def getHistoryDataJSON(self):
+        history = self.history
+        return history
+    def setSGHistory(self, entDef, currentRound, currentPhase):
+        endDef = 'Agent' if entDef != 'Cell' else 'Cell'
+        tmpDict = {}
+        if self.classDef.attributesDefaultValues:
+            for key, value in self.classDef.attributesDefaultValues.items():
+                tmpDictValue = value if not self.obj_is_function(value) else None
+                tmpDict = {key : tmpDictValue}
+        value = [currentRound, currentPhase, tmpDict]
+        self.history = {
+            'id': self.id,
+            'entityDef': endDef,
+            'entityName': self.classDef.entityName,
+            'round': currentRound,
+            'phase': currentPhase,
+            'value': value
+        }
+
+        #self.historyValue.append(self.history)
+
     def saveHistoryValue(self):
-        if len(self.history["value"])==0:
+        self.setSGHistory(self.classDef.entityName, self.model.timeManager.currentRound,
+                          self.model.timeManager.currentPhase)
+        """if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
-        self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])
+        self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])"""
 
 
     def isDeleted(self):

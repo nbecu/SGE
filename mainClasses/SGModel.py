@@ -20,6 +20,7 @@ from mainClasses.SGEndGameRule import*
 from mainClasses.SGEntity import*
 from mainClasses.SGEntityDef import*
 from mainClasses.SGGrid import*
+from mainClasses.SGWindowChooseGraph import *
 from mainClasses.SGLegend import*
 from mainClasses.SGModelAction import*
 from mainClasses.SGPlayer import*
@@ -203,6 +204,10 @@ class SGModel(QMainWindow):
 
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
+        aAction = QAction(QIcon("./icon/graph.png"), " &openChooseGraph", self)
+        aAction.triggered.connect(self.openChooseGraph)
+        self.menuBar().addAction(aAction)
+
     # Create all the action related to the menu
 
     def createAction(self):
@@ -231,8 +236,15 @@ class SGModel(QMainWindow):
 
         self.changeThePov = QAction(" &default", self)
 
+
+
     # Create the function for the action of the menu
     # Loading a Save
+
+    def openChooseGraph(self):
+        """IN TEST"""
+        self.sgWindowChooseGraph = SGWindowChooseGraph(self)
+        self.sgWindowChooseGraph.show()
 
     def openFromSave(self):
         """To be implemented"""

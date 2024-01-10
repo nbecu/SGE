@@ -17,13 +17,20 @@ class SGTestGetData():
     def __init__(self, model):
         self.model = model
 
+
     def getAllDataSinceInitialization(self):
         dictOfData ={}
+        historyData = []
         for aEntity in self.model.getAllEntities():
+            h = aEntity.getHistoryDataJSON()
+            historyData.append(h)
             dictOfData[aEntity.getObjectIdentiferForJsonDumps] = aEntity.history["value"]
-                    # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
-        print(dictOfData)
-        return dictOfData
+            """print("id: {}, entityName: {}, entityDef: {}, value: {}".
+                  format(h['id'], h['entityName'], h['entityDef'], h['value']))"""
+
+            # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
+        print(historyData)
+        return historyData
         # self.modelgetAllAgents
         # self.model.getAllCells  --> These two lines are equivalent to self.modelgetAllEntities
 
