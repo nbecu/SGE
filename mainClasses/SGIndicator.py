@@ -34,6 +34,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.logicOp=logicOp
         self.isDisplay=isDisplay
         self.timeReset=timeReset
+        self.memory=[]
         self.initUI()
         
 
@@ -80,6 +81,12 @@ class SGIndicator(QtWidgets.QWidget):
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
     
+    def updateTextByValue(self,aValue):
+        self.result=aValue
+        newText=self.name + str(self.result)
+        self.label.setPlainText(newText)
+        self.dashboard.model.timeManager.updateEndGame()
+    
     def updateByMqtt(self,newValue):
         self.result=newValue
         newText= self.name + str(newValue)
@@ -94,9 +101,6 @@ class SGIndicator(QtWidgets.QWidget):
             self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
-        if self.timeReset is not None: #provoque un problème d'update : si à la première itération cela créé bien le watcher, si un setValue est appelé en deuxième itération -> return False
-            self.timeReset[0].watchers[self]=self.timeReset[1]
-            return False
         if self.dashboard.displayRefresh=='instantaneous':
             return True
         if self.dashboard.displayRefresh=='withButton':
