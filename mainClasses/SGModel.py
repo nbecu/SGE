@@ -86,7 +86,7 @@ class SGModel(QMainWindow):
         self.cellOfGrids = {}
         # Definition of simulation variables
         self.simulationVariables = []
-        # We create the layout
+        # definition of layouts and associated parameters
         self.typeOfLayout = typeOfLayout
         if (typeOfLayout == "vertical"):
             self.layoutOfModel = SGVerticalLayout()
@@ -94,6 +94,7 @@ class SGModel(QMainWindow):
             self.layoutOfModel = SGHorizontalLayout()
         else:
             self.layoutOfModel = SGGridLayout(x, y)
+        self.isMoveToCoordsUsed = False
         # To limit the number of zoom out of players
         self.numberOfZoom = 2
         # To keep in memory all the povs already displayed in the menu
@@ -174,7 +175,7 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-        QTimer.singleShot(100, self.moveWidgets)
+        if not self.isMoveToCoordsUsed : QTimer.singleShot(100, self.moveWidgets)
         
     
     def updateFunction(self):
@@ -855,7 +856,7 @@ class SGModel(QMainWindow):
                     self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
                 
     
-    def checkLayout(self,name,element,otherName,otherElement):
+    def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
             return True
         return False
@@ -863,10 +864,10 @@ class SGModel(QMainWindow):
     def moveWidgets(self):
         for name,element in self.gameSpaces.items():
             for otherName,otherElement in self.gameSpaces.items():
-                while self.checkLayout(name,element,otherName,otherElement):
+                while self.checkLayoutIntersection(name,element,otherName,otherElement):
                     if element.areaCalc() <= otherElement.areaCalc():
-                                local_pos=element.pos()
-                                element.move(local_pos.x()+10,local_pos.y()+10)
+                        local_pos=element.pos()
+                        element.move(local_pos.x()+10,local_pos.y()+10)
                     else:
                         local_pos=otherElement.pos()
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)

@@ -114,6 +114,7 @@ def renouvellementStock_port():
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
         navire.moveAgent(method='cell',cellID=10)
+
         
 
     revenuTour.setValue(round(sommeRevenus,0))
@@ -128,6 +129,9 @@ def reset():
     benefice.setValue(0)
     for navire in myModel.getAgentsOfSpecie("Navire"):
         navire.setValue("lastIncitationValue","neutre")
+
+    # eventuellement un jour ajouter la fonctionnalité pour le modeler 
+            #->  myModel.resetValueAtEachRound('revenusBonus',0)
 
 
 # GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])

@@ -69,3 +69,8 @@ class AttributeAndValueFunctionalities():
             result = aLambdaFunction(currentValue)
             self.setValue(aAttribut, result)
         else: raise ValueError ('calcValue works with a lambda function')
+
+
+    # eventuellement un jour ajouter la fonctionnalité pour le modeler 
+        # def resetValueAtEachRound(self,aAttribut,valueToBeSetAtEachRound):
+        #     self.setValue(aAttribut, result)

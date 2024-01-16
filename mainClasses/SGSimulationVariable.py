@@ -59,4 +59,6 @@ class SGSimulationVariable():
         self.watchers.append(aIndicator)
     
     
-    
+    # eventuellement un jour ajouter la fonctionnalité pour le modeler 
+        # def resetValueAtEachRound(self,aAttribut,valueToBeSetAtEachRound):
+        #     self.setValue(aAttribut, result)

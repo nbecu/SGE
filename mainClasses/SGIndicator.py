@@ -105,6 +105,21 @@ class SGIndicator(QtWidgets.QWidget):
             return True
         if self.dashboard.displayRefresh=='withButton':
             return True
+        if self.dashboard.displayRefresh=='atSpecifiedPhases':  # TODO redescnedre d'un niveau le la condition 'displayRefresh' -->  self.displayRefresh
+            # 'atSpecifiedPhases' a dict with type of conditions and specified value 
+                # phaseName   (str or list of str)
+                # phaseNumber (int or list of int)
+                # lambdaTestOnPhaseNumber (a lambda function with syntax [ phaseNumber : test with phaseNumber])
+                # roundNumber (int or list of int)
+                # lambdaTestOnRound   (a lambda function with syntax [ roundNumber : test with roundNumber]=
+
+                # Ex de la façon de coder le lambdaTestOnRound
+                #     for typeCondition,specifiedValue in atSpecifiedPhases.items()
+                #         if typeCondition == 'lambdaTestOnRound' :
+                #             testResult = specifiedValue(self.model.roundNumber)
+                #             return testResult
+
+            self.userSetttingsOnPhaseToUpdate
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
