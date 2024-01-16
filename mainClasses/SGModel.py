@@ -174,6 +174,7 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
+        QTimer.singleShot(100, self.moveWidgets)
         
     
     def updateFunction(self):
@@ -852,6 +853,7 @@ class SGModel(QMainWindow):
                     self.gameSpaces[anElement])
                 self.gameSpaces[anElement].move(
                     self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
+                
     
     def checkLayout(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
