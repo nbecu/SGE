@@ -67,17 +67,6 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     def updateWatchersOnPop(self):
         self.updateWatchersOnAttribute('nb')
     
-    def updateWatchersOnTime(self):
-        for watcher in self.watchers.get("nb",[]):
-            if watcher.timeReset[0] == self.model.timeManager.currentPhase.name:
-                if len(watcher.memory) == 0 :
-                    watcher.checkAndUpdate()
-                else:
-                    watcher.updateTextByValue(watcher.memory[0])
-            else:
-                watcher.memory.append(watcher.byMethod())
-        pass
-    
     def updateAllWatchers(self):
         for listOfWatchers in self.watchers.values():
             for watcher in listOfWatchers:

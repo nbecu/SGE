@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,timeReset=None,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instanteneous",isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -33,7 +33,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
-        self.timeReset=timeReset
+        self.displayRefresh=displayRefresh
         self.memory=[]
         self.initUI()
         
@@ -101,11 +101,11 @@ class SGIndicator(QtWidgets.QWidget):
             self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
-        if self.dashboard.displayRefresh=='instantaneous':
+        if self.displayRefresh=='instantaneous':
             return True
-        if self.dashboard.displayRefresh=='withButton':
+        if self.displayRefresh=='withButton':
             return True
-        if self.dashboard.displayRefresh=='atSpecifiedPhases':  # TODO redescnedre d'un niveau le la condition 'displayRefresh' -->  self.displayRefresh
+        if self.displayRefresh=='atSpecifiedPhases':  # TODO redescnedre d'un niveau le la condition 'displayRefresh' -->  self.displayRefresh
             # 'atSpecifiedPhases' a dict with type of conditions and specified value 
                 # phaseName   (str or list of str)
                 # phaseNumber (int or list of int)

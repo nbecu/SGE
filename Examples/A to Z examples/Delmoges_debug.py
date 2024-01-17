@@ -165,9 +165,9 @@ indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
 indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
 sep2=DashBoard2.addSeparator()
 # les indicateurs du nb de bateaux en zones malus et bonus, ne doivent être actualisé qu'à la phase 'Résolution'
-indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus")#,timeReset=[PhaseRésolution,None])
+indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus")
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus)
-indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus")#,timeReset=[PhaseRésolution,None])
+indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus")
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus)
 
 
