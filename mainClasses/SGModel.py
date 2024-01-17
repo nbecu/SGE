@@ -143,7 +143,7 @@ class SGModel(QMainWindow):
 
         self.nameOfPov = "default"
 
-        testMode=QAction(" &"+"Cursor Position", self)
+        testMode=QAction(" &"+"Cursor Position", self,checkable=True)
         self.settingsMenu.addAction(testMode)
         testMode.triggered.connect(lambda: self.showCursorCoords())
         self.label = QtWidgets.QLabel(self)
@@ -168,7 +168,7 @@ class SGModel(QMainWindow):
     def maj_coordonnees(self):
         pos_souris_globale = self.mapFromGlobal(QCursor.pos())
         coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
-        self.label.setText(f'Coordonnées Globales de la Souris : ({coord_x}, {coord_y})')
+        self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
     
     def initAfterOpening(self):
         QTimer.singleShot(100, self.updateFunction)
