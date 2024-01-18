@@ -17,7 +17,7 @@ class SGMove(SGAbstractAction):
         # The arg aDestinationEntity has a default value set to None, because the method is also defined at the superclass level and it takes only 2 arguments 
          #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
         aMovingEntity = aTargetEntity
-        if self.checkAuhorization(aMovingEntity):
+        if self.checkAuthorization(aMovingEntity):
             aOriginEntity = aMovingEntity.cell
             newCopyOfAgent = self.executeAction(aMovingEntity,aDestinationEntity)
             aMovingEntity = newCopyOfAgent

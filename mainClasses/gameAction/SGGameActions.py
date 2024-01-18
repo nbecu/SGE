@@ -10,7 +10,7 @@ class SGGameActions():
         elif thePlayer is not None and thePlayer != "Admin":
             theAction=thePlayer.getGameActionOn(aObject)
             if theAction is not None:
-                authorisation=theAction.checkAuhorization(aObject)
+                authorisation=theAction.checkAuthorization(aObject)
                 if authorisation : 
                     theAction.incNbUsed()
                     # theAction.getRemainActionNumber(thePlayer) #  ET Pas besoin de getRemainActionNumber
@@ -27,7 +27,7 @@ class SGGameActions():
         elif thePlayer is not None and thePlayer != "Admin":
             theAction=thePlayer.getMooveActionOn(aObject)  
             if theAction is not None:
-                authorisation=theAction.checkAuhorization(aObject)
+                authorisation=theAction.checkAuthorization(aObject)
                 if authorisation :
                     theAction.incNbUsed()
         return authorisation
