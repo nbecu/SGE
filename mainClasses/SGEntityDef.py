@@ -408,9 +408,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInentity="random"):
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random"):
         super().__init__(sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
-        self.locationInentity=locationInentity
+        self.locationInEntity=locationInEntity
 
 #Shape of agent availableble : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
 

@@ -509,7 +509,7 @@ class SGModel(QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black):
+    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random"):
         """
         Create a new specie of Agents.
 
@@ -518,12 +518,13 @@ class SGModel(QMainWindow):
             shape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
             dictAttributes (dict) : all the species attributs with all the values
             defaultSize (int) : the species shape size (Default=10)
+            locationInEntity (str, optionnal) : topRight, topLeft, center, bottomRight, bottomLeft, random 
         Return:
             a nested dict for the species
             a species
 
         """
-        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor)
+        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity)
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 

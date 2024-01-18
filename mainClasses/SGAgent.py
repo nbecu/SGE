@@ -20,8 +20,9 @@ class SGAgent(SGEntity):
             self.cell = cell
             self.cell.updateIncomingAgent(self)
         else: raise ValueError('This case is not handeled')
-        self.xPos=self.getRandomX()
-        self.yPos=self.getRandomY()
+        self.getPositionInEntity()
+        # self.xPos=self.getRandomX()
+        # self.yPos=self.getRandomY()
         self.initMenu()
         
 
@@ -128,7 +129,36 @@ class SGAgent(SGEntity):
         originPoint=self.cell.pos()
         y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
         return y
-
+    
+    def getPositionInEntity(self):
+        maxSize=self.cell.size
+        originPoint=self.cell.pos()
+        if self.classDef.locationInEntity=="random":
+            self.xPos=self.getRandomX()
+            self.yPos=self.getRandomY()
+            return
+        if self.classDef.locationInEntity=="topRight":
+            self.xPos=originPoint.x()+maxSize-10
+            self.yPos=originPoint.y()+5
+            return
+        if self.classDef.locationInEntity=="topLeft":
+            self.xPos=originPoint.x()+5
+            self.yPos=originPoint.y()+5
+            return
+        if self.classDef.locationInEntity=="bottomLeft":
+            self.xPos=originPoint.x()+5
+            self.yPos=originPoint.y()+maxSize-10
+            return
+        if self.classDef.locationInEntity=="bottomRight":
+            self.xPos=originPoint.x()+maxSize-10
+            self.yPos=originPoint.y()+maxSize-10
+            return
+        if self.classDef.locationInEntity=="center":
+            self.xPos=originPoint.x()+int(maxSize/2)
+            self.yPos=originPoint.y()+int(maxSize/2)
+            return
+        else:
+            raise ValueError("Error in entry for locationInEntity")
 
     def isDeleted(self):
         if not self.isDisplay:
