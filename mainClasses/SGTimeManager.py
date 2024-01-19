@@ -59,6 +59,8 @@ class SGTimeManager():
                     # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
                     #     self.model.publishEntitiesState()
 
+                    if isinstance(thePhase,SGModelPhase) and self.automatic==True:
+                        pass
 
                 else:
                     self.nextPhase()

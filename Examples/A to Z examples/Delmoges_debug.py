@@ -188,6 +188,6 @@ tx_présence()
 # DashBoard.moveToCoords(1225,45)
 # DashBoard2.moveToCoords(1225,400)
 
-
 myModel.launch()
+# myModel.launch_withMQTT("Instantaneous")
 sys.exit(monApp.exec_())

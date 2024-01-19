@@ -61,7 +61,7 @@ class SGTimePhase():
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], feedbacks=[], feedbacksCondition=[], name=''):
+    def __init__(self, timeManager, modelActions=[], feedbacks=[], feedbacksCondition=[], name='',automatic=False):
         self.timeManager = timeManager
         if isinstance(modelActions, SGModelAction):
             modelActions = [modelActions]
@@ -74,3 +74,4 @@ class SGModelPhase(SGTimePhase):
         self.name = name
         self.observers = {}
         self.watchers={}
+        self.automatic=automatic

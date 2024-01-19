@@ -73,7 +73,7 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",isDisplay=True):
         
         """
         Add an Indicator on the DashBoard.
@@ -119,7 +119,7 @@ class SGDashBoard(SGGameSpace):
         return indicator
     
 
-    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, displayRefresh="instanteneous",isDisplay=True):
+    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, displayRefresh="instantaneous",isDisplay=True):
         """
         Add an Indicator on a particular entity on the DashBoard only two methods available : display (default) & thresoldToLogicOp (if a value and a logicOp defined).
 
@@ -157,7 +157,7 @@ class SGDashBoard(SGGameSpace):
 
         return indicator
 
-    def addIndicatorOnSimVariable(self,aSimulationVariable,displayRefresh="instanteneous"):
+    def addIndicatorOnSimVariable(self,aSimulationVariable,displayRefresh="instantaneous"):
         self.posYOfItems = self.posYOfItems+1
         indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,None,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
@@ -169,7 +169,7 @@ class SGDashBoard(SGGameSpace):
     
         return indicator
 
-    def addIndicator_Sum(self, entity, attribute,title, color, displayRefresh="instanteneous", isDisplay=True):
+    def addIndicator_Sum(self, entity, attribute,title, color, displayRefresh="instantaneous", isDisplay=True):
         """
         Add a sum indicator
         Args :
@@ -184,7 +184,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Avg(self, entity, attribute, title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_Avg(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a average indicator
         Args :
@@ -199,7 +199,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Min(self, entity, attribute, title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_Min(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a minimum indicator
         Args :
@@ -214,7 +214,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Max(self, entity, attribute,title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_Max(self, entity, attribute,title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a maximum indicator
         Args :
@@ -229,7 +229,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_EqualTo(self, entity, attribute, value, title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_EqualTo(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a equal to indicator
         Args :
@@ -245,7 +245,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_WithLess(self, entity, attribute, value, title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_WithLess(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a with less indicator
         Args :
@@ -261,7 +261,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_WithMore(self, entity, attribute, value, title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_WithMore(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a with more indicator
         Args :
@@ -277,7 +277,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
         return indicator
 
-    def addIndicator_Nb(self, entity, attribute, title, color,displayRefresh="instanteneous",isDisplay=True):
+    def addIndicator_Nb(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
         """
         Add a sum indicator
         Args :
