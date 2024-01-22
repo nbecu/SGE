@@ -116,6 +116,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def getHistoryDataJSON(self):
         history = self.history
         return history
+    
     def setSGHistory(self, entDef, currentRound, currentPhase):
         endDef = 'Agent' if entDef != 'Cell' else 'Cell'
         tmpDict = {}
@@ -132,7 +133,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             'phase': currentPhase,
             'value': value
         }
-
         #self.historyValue.append(self.history)
 
     def saveHistoryValue(self):
@@ -148,20 +148,24 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
 
     #To handle the attributs and values
-    def setValue(self,aAttribut,aValue):
-        """
-        Sets the value of an attribut
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
-        """
-        # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
-        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.saveHistoryValue()    
-        self.dictAttributes[aAttribut]=aValue
+    # def setValue(self,aAttribut,valueToSet):
+    #     """
+    #     Sets the value of an attribut
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be set
+    #     """
+    #     if callable(valueToSet):
+    #         aValue = valueToSet()
+    #     else:
+    #         aValue = valueToSet
+    #     # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
+    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+    #     self.saveHistoryValue()    
+    #     self.dictAttributes[aAttribut]=aValue
 
-        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
-        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.updateMqtt()
-        self.update()
-        return True
+    #     self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
+    #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+    #     self.updateMqtt()
+    #     self.update()
+    #     return True

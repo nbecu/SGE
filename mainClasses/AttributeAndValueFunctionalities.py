@@ -11,19 +11,24 @@ class AttributeAndValueFunctionalities():
             else:
                 self.setValue(aAtt,valueToSet)
     
-    def setValue(self,aAttribut,aValue):
+    def setValue(self,aAttribut,valueToSet):
         """
         Sets the value of an attribut
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
 
         self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        self.update()
         return True
     
     def value(self,att):
@@ -34,13 +39,17 @@ class AttributeAndValueFunctionalities():
         """
         return self.dictAttributes.get(att,None)
     
-    def incValue(self,aAttribut,aValue=1,max=None):
+    def incValue(self,aAttribut,valueToSet=1,max=None):
         """
         Increase the value of an attribut with an additional value
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be added to the current value of the attribute
         """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
         self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
         # This method is equivalent to 
         # newValue = self.value(aAttribut)+aValue
