@@ -2,7 +2,7 @@
 from PyQt5.QtSvg import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar)
+from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar,QMessageBox)
 from PyQt5 import QtWidgets
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
@@ -281,6 +281,18 @@ class SGModel(QMainWindow):
 
     def nextTurn(self):
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setWindowTitle("SGE Time Manager Message")
+        msg_box.setText("Attention ! A Automatic Model Phase will be trigger.")
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.setDefaultButton(QMessageBox.Ok)
+
+        result = msg_box.exec_()
+
+        if result == QMessageBox.Ok:
+            print("Bouton OK a été cliqué.")
+
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
