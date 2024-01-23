@@ -35,8 +35,9 @@ Cells.newBorderPovColorAndWidth("Incitation","incitation", {"neutre": [Qt.black,
 Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0},"prix":14.6,"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1},"prix":3.2,"facteurTemps":6329})
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
-Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})
-    
+Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre","Invisibility":"True"})
+Navire.newPov("Set Invisible","Invisibility",{"True":Qt.transparent, "False":Qt.black})
+
 Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
 Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Sole",'Sole pêché')
 
@@ -134,8 +135,8 @@ def reset():
             #->  myModel.resetValueAtEachRound('revenusBonus',0)
 
 
-# GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
-GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()))
+GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
+# GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()))
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))

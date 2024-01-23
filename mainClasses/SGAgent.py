@@ -34,6 +34,9 @@ class SGAgent(SGEntity):
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
+        if self.color==19: #code for transparent
+            painter.end()
+            return
         if self.isDisplay==True:
             if(agentShape=="circleAgent"):
                 self.setGeometry(x,y,self.size+1,self.size+1)
@@ -87,6 +90,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
+            self.show()
             painter.end()
 
    #Funtion to handle the zoomIn
@@ -265,7 +269,7 @@ class SGAgent(SGEntity):
             for aWatcherOnThisAgent in watchers:
                 aWatcherOnThisAgent.entity=newAgent        
         newAgent.privateID = oldAgent.privateID # A priori, on peut retirer cet attribut
-        newAgent.isDisplay = True
+        newAgent.isDisplay = oldAgent.isDisplay
         newAgent.classDef.entities.remove(oldAgent)
         newAgent.classDef.entities.append(newAgent)
         newAgent.update()
