@@ -278,12 +278,12 @@ class SGCell(SGEntity):
         haveChange=False
         if not len(self.history["value"]) ==0:
             for anItem in self.history["value"].reverse():
-                if anItem.roundNumber> self.grid.model.timeManager.currentRound-numberOfRound:
+                if anItem.roundNumber> self.grid.model.timeManager.currentRoundNumber-numberOfRound:
                     if not anItem.thingsSave == self.attributs:
                         haveChange=True
                         break
-                elif anItem.roundNumber== self.grid.model.timeManager.currentRound-numberOfRound:
-                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhase:
+                elif anItem.roundNumber== self.grid.model.timeManager.currentRoundNumber-numberOfRound:
+                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhaseNumber:
                         if not anItem.thingsSave == self.attributs:
                             haveChange=True
                             break

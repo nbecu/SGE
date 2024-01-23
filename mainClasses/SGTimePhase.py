@@ -4,17 +4,19 @@ from mainClasses.SGModelAction import SGModelAction
 
 
 class SGTimePhase():
-    def __init__(self, timeManager, name, activePlayers, modelActions=[]):
+    def __init__(self, timeManager, name, activePlayers=[], modelActions=[]):
         self.timeManager = timeManager
         self.name = name
         self.activePlayers = activePlayers
         self.observers = {}
         self.watchers={}
-        if isinstance(modelActions, list):
+        if isinstance(modelActions, SGModelAction):
+            modelActions = [modelActions]
+        elif isinstance(modelActions, list):
             self.modelActions = modelActions
         else:
-            self.modelActions = [modelActions]
-            print(self.modelActions)
+            raise ValueError("Syntax error of actions")
+        self.autoForwardOn = False
 
 
 # -----------------------------------------------------------------------------------------
@@ -61,17 +63,16 @@ class SGTimePhase():
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], feedbacks=[], feedbacksCondition=[], name='',automatic=False):
-        self.timeManager = timeManager
-        if isinstance(modelActions, SGModelAction):
-            modelActions = [modelActions]
-        elif isinstance(modelActions, list):
-            self.modelActions = modelActions
-        else:
-            raise ValueError("Syntax error of actions")
-        self.feedbacks = feedbacks  # a priori obsolete
-        self.feedbacksCondition = feedbacksCondition  # a priori obsolete
-        self.name = name
-        self.observers = {}
-        self.watchers={}
-        self.automatic=automatic
+    def __init__(self, timeManager, modelActions=[], name='',autoForwardOn=False):
+        # self.timeManager = timeManager
+        # if isinstance(modelActions, SGModelAction):
+        #     modelActions = [modelActions]
+        # elif isinstance(modelActions, list):
+        #     self.modelActions = modelActions
+        # else:
+        #     raise ValueError("Syntax error of actions")
+        # self.name = name
+        # self.observers = {}
+        # self.watchers={}
+        super().__init__(timeManager, name, activePlayers=[], modelActions=modelActions)
+        self.autoForwardOn=autoForwardOn

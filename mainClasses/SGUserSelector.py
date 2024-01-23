@@ -27,7 +27,7 @@ class SGUserSelector(SGGameSpace):
             if user == self.model.currentPlayer:
                 checkbox.setChecked(True)
                 # self.previousChecked = checkbox
-            authorizedPlayers = self.getAuthorizePlayers()
+            authorizedPlayers = self.getAuthorizedPlayers()
             if user not in authorizedPlayers:
                 checkbox.setEnabled(False)
             checkbox.stateChanged.connect(self.checkboxChecked)
@@ -57,19 +57,33 @@ class SGUserSelector(SGGameSpace):
         self.model.setCurrentPlayer(selectedCheckboxText)
         self.model.update() # Pas sur qu'on ai besoin de ce update()
 
-    def getAuthorizePlayers(self):
-        phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
-        if phase.name != 'Initialisation':
-            players = phase.activePlayers
-            authorizedPlayers = []
-            for player in players:
-                if player == 'Admin':
-                    authorizedPlayers.append('Admin')
-                else:
-                    authorizedPlayers.append(player.name)
-            return authorizedPlayers
-        else:
+    def getAuthorizedPlayers(self):
+        if self.model.timeManager.isInitialization():
             return self.model.users
+        phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
+        players = phase.activePlayers
+        authorizedPlayers = []
+        for player in players:
+            if player == 'Admin':
+                authorizedPlayers.append('Admin')
+            else:
+                authorizedPlayers.append(player.name)
+        return authorizedPlayers
+    
+    # OBsolete : trying to change the initialization phase handling
+    # def getAuthorizedPlayers(self):
+    #     phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
+    #     if phase.name != 'Initialisation':
+    #         players = phase.activePlayers
+    #         authorizedPlayers = []
+    #         for player in players:
+    #             if player == 'Admin':
+    #                 authorizedPlayers.append('Admin')
+    #             else:
+    #                 authorizedPlayers.append(player.name)
+    #         return authorizedPlayers
+    #     else:
+    #         return self.model.users
 
     def mouseMoveEvent(self, e):
 

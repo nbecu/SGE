@@ -35,9 +35,9 @@ class SGTimeLabel(SGGameSpace):
             self.labelTitle.setText(self.id)
         self.label1.setText('Round Number: Not started')
         self.label2.setText('Phase Number: Not started')
-        currentPhase = self.timeManager.phases[int(
-            self.timeManager.currentPhase)-1]
-        self.label3.setText(currentPhase.name)
+        currentPhaseNumber = self.timeManager.phases[int(
+            self.timeManager.currentPhaseNumber)-1]
+        self.label3.setText('Game not yet started')
 
         color = QColor(self.textColor)
         color_string = f"color: {color.name()};"
@@ -119,12 +119,10 @@ class SGTimeLabel(SGGameSpace):
 
     def updateTimeLabel(self):
         self.label1.setText('Round Number : {}'.format(
-            self.timeManager.currentRound))
+            self.timeManager.currentRoundNumber))
         self.label2.setText('Phase Number : {}'.format(
-            self.timeManager.currentPhase))
-        currentPhase = self.timeManager.phases[int(
-            self.timeManager.currentPhase)]
-        self.label3.setText(currentPhase.name)
+            self.timeManager.currentPhaseNumber))
+        self.label3.setText(self.timeManager.getCurrentPhase().name)
 
         self.label1.setFixedHeight(
             self.label1.fontMetrics().boundingRect(self.label1.text()).height())

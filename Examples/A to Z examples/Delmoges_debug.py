@@ -61,7 +61,7 @@ Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
 
 
-theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !","Comment jouer ?")
+theTextBox=myModel.newTextBox("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?")
 
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
@@ -134,8 +134,9 @@ def reset():
             #->  myModel.resetValueAtEachRound('revenusBonus',0)
 
 
-# GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
-GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()))
+GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour')
+# GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
+GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))

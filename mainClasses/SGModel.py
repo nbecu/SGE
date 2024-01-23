@@ -281,22 +281,26 @@ class SGModel(QMainWindow):
 
     def nextTurn(self):
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
-        msg_box = QMessageBox(self)
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setWindowTitle("SGE Time Manager Message")
-        msg_box.setText("Attention ! A Automatic Model Phase will be trigger.")
-        msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.setDefaultButton(QMessageBox.Ok)
+        # msg_box = QMessageBox(self)
+        # msg_box.setIcon(QMessageBox.Information)
+        # msg_box.setWindowTitle("SGE Time Manager Message")
+        # msg_box.setText("Attention ! A Automatic Model Phase will be trigger.")
+        # msg_box.setStandardButtons(QMessageBox.Ok)
+        # msg_box.setDefaultButton(QMessageBox.Ok)
 
-        result = msg_box.exec_()
+        # result = msg_box.exec_()
 
-        if result == QMessageBox.Ok:
-            print("Bouton OK a été cliqué.")
+        # if result == QMessageBox.Ok:
+        #     print("Bouton OK a été cliqué.")
 
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
         # self.eventTime()
+
+    def recordAllData(self):
+        # To be implemented
+        return
 
     def closeEvent(self, event):
         self.haveToBeClose = True
@@ -506,7 +510,7 @@ class SGModel(QMainWindow):
     
     def newUserSelector(self):
         """
-        To create an User Selector in your game. Functions automatically with the players declared in your model. 
+        To create a User Selector in your game. Functions automatically with the players declared in your model. 
 
         """
         if len(self.getUsers_withControlPanel()) > 1 and len(self.players) > 0:
@@ -828,11 +832,11 @@ class SGModel(QMainWindow):
 
     def round(self):
         """Return the actual ingame round"""
-        return self.timeManager.currentRound
+        return self.timeManager.currentRoundNumber
 
     def getCurrentPhase(self):
         """Return the actual ingame phase"""
-        return self.timeManager.currentPhase
+        return self.timeManager.currentPhaseNumber
     
     def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):
         aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
@@ -1206,11 +1210,11 @@ class SGModel(QMainWindow):
             aAgtDef.IDincr=aIDincr
 
         # TIME MANAGEMENT
-        self.timeManager.currentPhase = msg_list[-4][0]
-        self.timeManager.currentRound = msg_list[-4][1]
+        self.timeManager.currentPhaseNumber = msg_list[-4][0]
+        self.timeManager.currentRoundNumber = msg_list[-4][1]
         if self.myTimeLabel is not None:
             self.myTimeLabel.updateTimeLabel()
-        if self.timeManager.currentPhase == 0:
+        if self.timeManager.currentPhaseNumber == 0:
             # We reset GM
             for gm in self.getAllGameActions():
                 gm.reset()
@@ -1485,9 +1489,9 @@ class SGModel(QMainWindow):
         message = message+"]"
         message = message+","
         message = message+"["
-        message = message+str(self.timeManager.currentPhase)
+        message = message+str(self.timeManager.currentPhaseNumber)
         message = message+","
-        message = message+str(self.timeManager.currentRound)
+        message = message+str(self.timeManager.currentRoundNumber)
         message = message+"]"
         message = message+","
         message = message+"["

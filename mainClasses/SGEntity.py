@@ -108,7 +108,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def saveHistoryValue(self):
         if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
-        self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])
+        self.history["value"].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,self.dictAttributes])
 
 
     def isDeleted(self):
