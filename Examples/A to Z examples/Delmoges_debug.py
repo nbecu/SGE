@@ -135,8 +135,10 @@ def reset():
             #->  myModel.resetValueAtEachRound('revenusBonus',0)
 
 
-GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour')
-# GamePhase=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
+#choisir la deuxième ligne pour passer en "autoForwardOn" (ancien 'automatic')
+PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour')
+# PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
+
 GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
@@ -149,7 +151,7 @@ PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
-PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()),automatic=True)
+# PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()),autoForwardOn=True)   ///  Commenté car ca été mit en début de tour / mais ca pourrait  aussi etre à la fin du tour comme proposé ici   / le nom de l'optikn s'appelle 'autoForwardOn' au liue de 'automatic'
 
 DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
 DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumMerlu",title="Merlu pêché (depuis an 0)")
