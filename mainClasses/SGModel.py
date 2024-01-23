@@ -281,17 +281,19 @@ class SGModel(QMainWindow):
 
     def nextTurn(self):
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
-        # msg_box = QMessageBox(self)
-        # msg_box.setIcon(QMessageBox.Information)
-        # msg_box.setWindowTitle("SGE Time Manager Message")
-        # msg_box.setText("Attention ! A Automatic Model Phase will be trigger.")
-        # msg_box.setStandardButtons(QMessageBox.Ok)
-        # msg_box.setDefaultButton(QMessageBox.Ok)
+        theNextPhase=self.timeManager.phases[self.timeManager.currentPhase+1]
+        if isinstance(theNextPhase,SGModelPhase) and theNextPhase.automatic==True:
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setWindowTitle("SGE Time Manager Message")
+            msg_box.setText("Attention ! A Automatic Model Phase will be trigger.")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.setDefaultButton(QMessageBox.Ok)
 
-        # result = msg_box.exec_()
+            result = msg_box.exec_()
 
-        # if result == QMessageBox.Ok:
-        #     print("Bouton OK a été cliqué.")
+            if result == QMessageBox.Ok:
+                print("Bouton OK a été cliqué.")
 
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:

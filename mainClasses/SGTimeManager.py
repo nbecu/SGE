@@ -60,7 +60,7 @@ class SGTimeManager():
                     #     self.model.publishEntitiesState()
 
                     if isinstance(thePhase,SGModelPhase) and self.phases[self.currentPhase].automatic==True:
-                        pass
+                        self.nextPhase()
 
                 else:
                     self.nextPhase()
@@ -104,13 +104,14 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newGamePhase(self, name, activePlayers):
+    def newGamePhase(self, name, activePlayers,automatic=False):
         """
         To add a Game Phase in a round.
 
         args:
             name (str): Name displayed on the TimeLabel
             activePlayers : List of plays concerned about the phase (default:all)
+            automatic (bool) : if True, this phase will be automatically executed (default:False)
         """
         #modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
         modelActions=[]
@@ -121,13 +122,14 @@ class SGTimeManager():
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
-    def newModelPhase(self, actions=[], condition=[], name=''):
+    def newModelPhase(self, actions=[], condition=[], name='',automatic=False):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
         args:
             actions (lambda function): Actions the model performs during the phase (add, delete, move...)
             condition (lambda function): Actions are performed only if the condition returns true  
             name (str): Name displayed on the TimeLabel
+            automatic (bool) : if True, this phase will be automatically executed (default:False)
         """
         modelActions = []
         if isinstance(actions, (SGModelAction,SGModelAction_OnEntities)):
@@ -152,7 +154,7 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(self,modelActions=modelActions, name=name)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,automatic=automatic)
         self.phases = self.phases + [aPhase]
         return aPhase
 

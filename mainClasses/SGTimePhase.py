@@ -4,7 +4,7 @@ from mainClasses.SGModelAction import SGModelAction
 
 
 class SGTimePhase():
-    def __init__(self, timeManager, name, activePlayers, modelActions=[]):
+    def __init__(self, timeManager, name, activePlayers, modelActions=[],automatic=False):
         self.timeManager = timeManager
         self.name = name
         self.activePlayers = activePlayers
