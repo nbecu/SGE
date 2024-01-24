@@ -11,6 +11,8 @@ from mainClasses.SGMultiGraphMixte import *
 from mainClasses.SGMultiGraphMultiWindow import SGMultiGraphMultiWindow
 
 from mainClasses.SGLinearDiagramTest import SGLinearDiagramTest
+from mainClasses.SGDiagramTest import SGDiagramTest
+
 
 
 class SGWindowChooseGraph(QWidget):
@@ -56,29 +58,22 @@ class SGWindowChooseGraph(QWidget):
         for aEntity in self.model.getAllEntities():
             h = aEntity.getHistoryDataJSON()
             historyData.append(h)
-        #print(historyData)
         return historyData
 
-    def action_one_graph(self, position):
-        # Exemple d'utilisation
+
+    def action_one_graph(self):
         data = self.getAllHistoryData()
         phases = set(entry['phase'] for entry in data)
-        cell_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Cell') for phase in
-                       phases]
-        agent_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Agent') for phase
-                        in phases]
+        rounds = set(entry['round'] for entry in data)
 
+        cell_data = [ sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry['entityDef'] == 'Cell')
+                     for r in rounds for p in phases]
+        agent_data = [ sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry['entityDef'] == 'Agent')
+            for r in rounds for p in phases]
+        xValue = [r * len(phases) + p for r in rounds for p in phases]
 
-        xValue = list(phases)
-        cell_data = list(cell_data_counts)
-        agent_data = list(agent_data_counts)
-        #cell_data = [10, 15, 20, 18, 25, 20 ,18, 30]
-        #agent_data = [25, 30, 35, 32, 33, 37 ,39, 40]
-
-
-        sg_diagram = SGLinearDiagramTest(xValue, cell_data, agent_data)
-        sg_diagram.plot_diagram()
-
+        sgDiagramTest = SGDiagramTest(xValue=xValue, cell_data=cell_data, agent_data=agent_data)
+        sgDiagramTest.show()
 
     def action_multi_graph(self, position):
         #print("multi graph position : ", position)

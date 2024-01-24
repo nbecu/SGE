@@ -4,6 +4,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar)
 from PyQt5 import QtWidgets
+
+from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
@@ -275,8 +277,12 @@ class SGModel(QMainWindow):
     def nextTurn(self):
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
         self.timeManager.nextPhase()
+        # Tester recupération et affichage de données dans le diagramme après avoir cliquer sur play
+        #sgTestGetData = SGTestGetData(self)
+        #sgTestGetData.view_diagram()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
+
         # self.eventTime()
 
     def closeEvent(self, event):
@@ -642,6 +648,7 @@ class SGModel(QMainWindow):
 
     # To create a modelAction
     def newModelAction(self, actions=[], conditions=[], feedbacks=[]):
+
         """
         To add a model action which can be executed during a modelPhase
         args:

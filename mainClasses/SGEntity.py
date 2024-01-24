@@ -133,15 +133,9 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             'value': value
         }
 
-        #self.historyValue.append(self.history)
-
     def saveHistoryValue(self):
         self.setSGHistory(self.classDef.entityName, self.model.timeManager.currentRound,
                           self.model.timeManager.currentPhase)
-        """if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
-        self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])"""
-
 
     def isDeleted(self):
         return not self.isDisplay
@@ -155,7 +149,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
-        # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
