@@ -69,34 +69,6 @@ class SGUserSelector(SGGameSpace):
             else:
                 authorizedPlayers.append(player.name)
         return authorizedPlayers
-    
-    # OBsolete : trying to change the initialization phase handling
-    # def getAuthorizedPlayers(self):
-    #     phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
-    #     if phase.name != 'Initialisation':
-    #         players = phase.activePlayers
-    #         authorizedPlayers = []
-    #         for player in players:
-    #             if player == 'Admin':
-    #                 authorizedPlayers.append('Admin')
-    #             else:
-    #                 authorizedPlayers.append(player.name)
-    #         return authorizedPlayers
-    #     else:
-    #         return self.model.users
-
-    def mouseMoveEvent(self, e):
-
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-        drag.exec_(Qt.MoveAction)
 
     # Funtion to have the global size of a gameSpace
     def getSizeXGlobal(self):

@@ -28,15 +28,14 @@ class SGAgent(SGEntity):
 
 
     def paintEvent(self,event):
+        # if self.color==19: #code for transparent # TODO trouver pourquoi le self.color ne se met pas à jour avec les POV
+        #     return
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
-        if self.color==19: #code for transparent
-            painter.end()
-            return
         if self.isDisplay==True:
             if(agentShape=="circleAgent"):
                 self.setGeometry(x,y,self.size+1,self.size+1)

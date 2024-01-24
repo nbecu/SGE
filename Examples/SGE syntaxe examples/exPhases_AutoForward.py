@@ -46,8 +46,8 @@ aModelAction4.addCondition(lambda: myModel.round()==3)
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 #Choose one or the other
-myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2')
-# myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',autoForwardOn=True)
+# myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2')
+myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',autoForwardOn=True)
 
 
 # To display a widget with the Time information you can add a TimeLabel

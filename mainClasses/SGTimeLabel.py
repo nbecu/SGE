@@ -14,7 +14,7 @@ class SGTimeLabel(SGGameSpace):
         self.timeManager = parent.timeManager
         self.borderColor = borderColor
         self.textColor = textColor
-        self.y = 0
+        self.y1 = 0
         self.labels = 0
         self.moveable = True
         self.displayPhaseNumber = False
@@ -147,18 +147,3 @@ class SGTimeLabel(SGGameSpace):
         self.label2.setVisible(self.displayPhaseNumber)
         self.label1.setVisible(self.displayRoundNumber)
         self.labelTitle.setVisible(self.displayTitle)
-
-    # To handle the drag of the widget
-
-    def mouseMoveEvent(self, e):
-
-        if self.moveable == False:
-            return
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.pos())
-        drag.exec_(Qt.MoveAction)

@@ -71,12 +71,44 @@ class SGControlPanel(SGLegend):
                 painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
                 painter.end()
-
+    
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return
+
+        # To get the clic position in GameSpace
+        def getPos(e):
+            clic = QMouseEvent.windowPos(e)
+            xclic = int(clic.x())
+            yclic = int(clic.y())
+            return xclic, yclic
+
+        # To get the coordinate of the grid upleft corner in GameSpace
+        def getCPos(self):
+            left = self.x()
+            up = self.y()
+            return left, up
+
+        # To convert the upleft corner to center coordinates
+        def toCenter(self):
+            xC = self.x()+int(self.width()/2)
+            yC = self.y()+int(self.height()/2)
+            return xC, yC
+
         mimeData = QMimeData()
         drag = QDrag(self)
         drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
+        drag.setHotSpot(e.pos() - self.pos())
+
+        xclic, yclic = getPos(e)
+        xC, yC = toCenter(self)
+
         drag.exec_(Qt.MoveAction)
+
+        leftf, upf = getCPos(self)
+        xCorr = xclic-xC
+        yCorr = yclic-yC
+        newX = leftf-xCorr
+        newY = upf-yCorr
+
+        self.move(newX, newY)

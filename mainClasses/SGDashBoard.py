@@ -310,12 +310,3 @@ class SGDashBoard(SGGameSpace):
             if len(indicatorName) > len(longestWord):
                 longestWord = indicatorName
         return longestWord
-
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-        drag.exec_(Qt.MoveAction)

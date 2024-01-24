@@ -17,7 +17,7 @@ class SGTextBox(SGGameSpace):
         self.borderColor = borderColor
         self.sizeX = sizeX
         self.sizeY = sizeY
-        self.y = 0
+        self.y1 = 0
         self.labels = 0
         self.moveable = True
         self.haveToBeClose = False
@@ -92,19 +92,6 @@ class SGTextBox(SGGameSpace):
             painter.drawRect(0, 0, self.sizeX, self.sizeY)
 
         painter.end()
-
-    def mouseMoveEvent(self, e):
-
-        if self.moveable == False:
-            return
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.pos())
-        drag.exec_(Qt.MoveAction)
 
     def show_menu(self, point):
         menu = QMenu(self)

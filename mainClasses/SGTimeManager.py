@@ -2,7 +2,7 @@ from mainClasses.SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
 from mainClasses.SGEndGameCondition import SGEndGameCondition
 from mainClasses.SGDashBoard import SGDashBoard
-from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout,QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGModelAction import SGModelAction
@@ -132,7 +132,17 @@ class SGTimeManager():
             #     self.model.publishEntitiesState()
 
         if self.getCurrentPhase().autoForwardOn :
-            self.nextPhase()
+            msg_box = QMessageBox(self.model)
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setWindowTitle("SGE Time Manager Message")
+            msg_box.setText("Attention ! A Automatic Model Phase ("+self.getCurrentPhase().name+") will be trigger.")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.setDefaultButton(QMessageBox.Ok)
+
+            result = msg_box.exec_()
+
+            if result == QMessageBox.Ok:
+                self.nextPhase()
 
             
 

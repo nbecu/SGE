@@ -75,8 +75,6 @@ class SGGameSpace(QtWidgets.QWidget):
 
     def mouseMoveEvent(self, e):
 
-        if self.moveable == False:
-            return
         if e.buttons() != Qt.LeftButton:
             return
 
@@ -88,18 +86,15 @@ class SGGameSpace(QtWidgets.QWidget):
             return xclic, yclic
 
         # To get the coordinate of the grid upleft corner in GameSpace
-        #! TO DO : sometimes self.y is not callable: check why
         def getCPos(self):
             left = self.x()
             up = self.y()
             return left, up
 
         # To convert the upleft corner to center coordinates
-        #! TO DO : this function is for SGGrid, need refractoring
-        def toCenter(self, left, up):
-            xC = int(left+(self.columns/2*self.size) +
-                     ((self.columns+1)/2*self.gap))
-            yC = int(up+(self.rows/2*self.size)+((self.rows+1)/2*self.gap))
+        def toCenter(self):
+            xC = self.x()+int(self.width()/2)
+            yC = self.y()+int(self.height()/2)
             return xC, yC
 
         mimeData = QMimeData()
@@ -109,7 +104,7 @@ class SGGameSpace(QtWidgets.QWidget):
 
         xclic, yclic = getPos(e)
         left, up = getCPos(self)
-        xC, yC = toCenter(self, left, up)
+        xC, yC = toCenter(self)
 
         drag.exec_(Qt.MoveAction)
 
