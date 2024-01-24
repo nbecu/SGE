@@ -21,7 +21,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.isDisplay=True
         #Define variables to handle the history 
         self.history={}
-        self.history["value"]=[]
+        self.history["value"]={}
         self.watchers={}
         #Set the attributes
         self.initAttributesAndValuesWith(attributesAndValues)
@@ -141,6 +141,13 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         """if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
         self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])"""
+
+    def saveValueInHistory(self,aAttribute,aValue):
+        #ToDo Tester laquelle de ces deux lignes est la plus rapide
+        # if aAttribute not in self.history["value"]:self.history["value"][aAttribute]=[]
+        self.history["value"].setdefault(aAttribute, []) 
+
+        self.history["value"][aAttribute].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
 
 
     def isDeleted(self):

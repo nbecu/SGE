@@ -30,6 +30,7 @@ from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
 from mainClasses.SGVoid import*
+from mainClasses.SGFormatDataHistory import*
 from email.policy import default
 from logging.config import listen
 import sys
@@ -121,6 +122,8 @@ class SGModel(QMainWindow):
         self.dictAgentsAtMAJ={}
         self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
+
+        self.dataRecorder=SGFormatDataHistory(self)
 
         self.initUI()
 
@@ -445,7 +448,7 @@ class SGModel(QMainWindow):
         return aList
 
     def getAllEntities(self):
-        # send back the cells of all the grids
+        # send back the cells of all the grids and the agents of all the species
         aList= []
         for entDef in self.cellOfGrids.values():
             aList.extend(entDef.entities)

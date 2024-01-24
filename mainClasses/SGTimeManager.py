@@ -15,7 +15,7 @@ class SGTimeManager():
     def __init__(self, parent):
         self.model = parent
         self.currentRound = 0
-        self.currentPhase = 1
+        self.currentPhase = 0
         self.phases = []
         self.conditionOfEndGame = []
         self.newGamePhase('Initialisation', None)
@@ -25,6 +25,9 @@ class SGTimeManager():
         if len(self.phases) != 0:
 #          Cette instructio a été commenté car il n'y a pas vraiment de raison e faire un test pour savoir si le current player est soit ml'un des joueurs soit l'admin
 #         if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
+            
+            self.model.dataRecorder.collectLastStepData()
+
             end = self.checkEndGame()
             if not end:
                 if self.currentPhase+2 <= len(self.phases):
@@ -72,6 +75,7 @@ class SGTimeManager():
 
                 else:
                     self.nextPhase()
+
 
     # To handle the victory Condition and the passment of turn
 

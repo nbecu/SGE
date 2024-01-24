@@ -59,9 +59,44 @@ class SGWindowChooseGraph(QWidget):
         #print(historyData)
         return historyData
 
+    def getAllHistoryData_new(self):
+        return self.model.dataRecorder.dictOfData
+    
     def action_one_graph(self, position):
         # Exemple d'utilisation
-        data = self.getAllHistoryData()
+        # data = self.getAllHistoryData()
+        data  = self.getAllHistoryData_new()
+        
+        
+        # data['Cell'][5]
+        # data['Consumer'][5]
+        #-->      Explications sur data. Le premier niveau de  clé est le nom de l'entité, le deuxième est l'id
+
+        #data['Consumer'][5]['energy']
+        #la troisième niveau de clés correspond à l'attribut
+        #Et la valeur est une liste qui contient l'historique des valeurs depuis le step 0 (initialisation), jusqu'au "dernier step -1"  
+            #  le dernier step (le step en cours) n'est pas dispo dans l'historique des data car ce step n'est pas encore terminé (il sera terminé que lorsqu'on passera au step suivant)
+            # un "step" correspond un clique sur bouton play.
+                 # Donc lorsque l'exemple comporte 3 phases par Round et que l'on a cliqué 8 fois, ca fait 
+                      # première valeur -> valeur à l'initialisation
+                      # deuxième valeur -> Round 1, phase 1
+                      # 3ème valeur -> Round 1, phase 2
+                      # 4ème  valeur -> Round 1, phase 3
+                      # 5ème  valeur -> Round 2, phase 1
+                      # 6ème valeur -> Round 2, phase 2
+                      # 7ème valeur -> Round 2, phase 3
+                      # 8ème valeur -> Round 3, phase 1
+                 # Si un aute exemple comporte 1 seul phase par Round  et que l'on a cliqué 8 fois, ca fait 
+                      # première valeur -> valeur à l'initialisation
+                      # deuxième valeur -> Round 1, phase 1
+                      # 3ème valeur -> Round 2, phase 1
+                      # 4ème  valeur -> Round 3, phase 1
+                      # 5ème  valeur -> Round 4, phase 1
+                      # 6ème valeur -> Round 5, phase 1
+                      # 7ème valeur -> Round 6, phase 1
+                      # 8ème valeur -> Round 7, phase 1
+        
+
         phases = set(entry['phase'] for entry in data)
         cell_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Cell') for phase in
                        phases]
