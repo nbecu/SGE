@@ -4,7 +4,6 @@ from PyQt5.QtCore import *
 from sqlalchemy import true
 from PyQt5.QtWidgets import QMenu, QAction
 import random
-from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGGameSpace import SGGameSpace
@@ -116,6 +115,12 @@ class SGAgent(SGEntity):
             text = aLabel  + ": "+str(aValue)
             option = QAction(text, self)
             menu.addAction(option)
+        
+        # if self.classDef.updateChoice:
+        player=self.model.currentPlayer
+        actions = player.getGameActionsOn(self)
+        for aAction in actions:
+            pass
         
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))

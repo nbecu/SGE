@@ -7,7 +7,6 @@ from PyQt5 import QtWidgets
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
-from mainClasses.gameAction.SGGameActions import* # This one might be obsolete
 from mainClasses.gameAction.SGMove import*
 from mainClasses.gameAction.SGDelete import*
 from mainClasses.gameAction.SGUpdate import*

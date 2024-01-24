@@ -2,7 +2,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
-from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.AttributeAndValueFunctionalities import *
 
 # Class who is in charged of entities : cells and agents

@@ -164,7 +164,14 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 key = ''.join(list(action.dictNewValues.keys()))
                 attributs.append(key)
         return attributs
-
+    
+    def getGameActionsOn(self, anEntityInstance):
+        actionsForMenu=[]
+        entityDef=anEntityInstance.classDef
+        for aGameAction in self.gameActions:
+            if isinstance(aGameAction,SGUpdate) and aGameAction.targetEntDef==entityDef:
+                actionsForMenu.append(aGameAction)
+        return actionsForMenu
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 
@@ -184,59 +191,4 @@ class SGPlayer(AttributeAndValueFunctionalities):
             self.gameActions.append(aGameAction)
         return aGameAction
 
-    def getGameActionOn(self, anItem):
-        # Verifier si cettte méthode est encore utilisée ou pas
-        # Elle est peut etre Obsolete
-
-        # On cell
-        if isinstance(anItem, SGCell) or anItem == SGCell:
-            for aGameAction in self.gameActions:
-                if not isinstance(aGameAction, SGMove):
-                    # Creation of Cell
-                    if isinstance(aGameAction, SGCreate) and (anItem.isDisplay == False) and self.model.selected[3] in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4] in list(aGameAction.dictAttributs.keys()):
-                        return aGameAction
-                    # Creation of an agent
-                    elif isinstance(aGameAction, SGCreate) and self.model.selected[1] not in ['square', 'hexagonal']:
-                        if aGameAction.dictAttributs is not None:
-                            if self.model.selected[3] in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4] in list(aGameAction.dictAttributs.keys()):
-                                return aGameAction
-                        else:
-                            if self.model.selected[2] in list(self.model.agentSpecies.keys()):
-                                return aGameAction
-                    # Update of a Cell
-                    elif isinstance(aGameAction, SGUpdate) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and self.model.selected[3] in list(aGameAction.dictNewValues.values()) and self.model.selected[4] in list(aGameAction.dictNewValues.keys()):
-                        return aGameAction
-                    # Delete of a Cell
-                    elif isinstance(aGameAction, SGDelete) and (anItem.isDisplay == True) and self.model.selected[1] in ['square', 'hexagonal'] and aGameAction.anObject == SGCell: #and self.model.selected[3] in list(anItem.dictAttributes.values()):
-                        return aGameAction
-        elif isinstance(anItem, SGAgent):
-            for aGameAction in self.gameActions:
-                if not isinstance(aGameAction, SGMove):
-                    # Update of an Angent
-                    if isinstance(aGameAction, SGUpdate) and self.model.selected[2].find("Delete ") == -1 and self.model.selected[1] not in ['square', 'hexagonal']:
-                        if self.model.selected[3] in list(aGameAction.dictAttributs.values())[0] and self.model.selected[4] in list(aGameAction.dictAttributs.keys()):
-                            return aGameAction
-                    # Delete of an Agent
-                    elif isinstance(aGameAction, SGDelete) and self.model.selected[1] not in ['square', 'hexagonal']:
-                        if aGameAction.dictAttValue is not None:
-                            if self.model.selected[3] in list(aGameAction.dictAttValue.values())[0] and self.model.selected[4] in list(aGameAction.dictAttValue.keys()):
-                                return aGameAction
-                        else:
-                            if self.model.selected[2].find("Delete ") != -1:
-                                # (self.model.selected[2] in list(self.model.agentSpecies.keys())): #Cas des agents sans POV
-                                if (self.model.selected[2].split()[1] in list(self.model.agentSpecies.keys())):
-                                    return aGameAction
-
-    def getMooveActionOn(self, anItem):
-        if isinstance(anItem, SGAgent):
-            for aGameAction in self.gameActions:
-                if isinstance(aGameAction, SGMove):
-                    # Move an Angent
-                    if aGameAction.dictAttributs is not None:
-                        for att in list(anItem.dictAttributes.keys()):
-                            if att in list(aGameAction.dictAttributs.keys()):
-                                if (anItem.dictAttributes[att] in list(aGameAction.dictAttributs.values())[0]):
-                                    return aGameAction
-                    else:
-                        if anItem.species in list(self.model.agentSpecies.keys()):
-                            return aGameAction
+    
