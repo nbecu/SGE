@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGGrid import SGGrid
@@ -20,6 +20,7 @@ class SGAgent(SGEntity):
             self.cell.updateIncomingAgent(self)
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
+        self.last_selected_option=None
         # self.xPos=self.getRandomX()
         # self.yPos=self.getRandomY()
         self.initMenu()
@@ -116,14 +117,31 @@ class SGAgent(SGEntity):
             option = QAction(text, self)
             menu.addAction(option)
         
-        # if self.classDef.updateChoice:
-        player=self.model.currentPlayer
-        actions = player.getGameActionsOn(self)
-        for aAction in actions:
-            pass
-        
+        gearAct=menu.addAction('Gear')
+        action = menu.exec_(self.mapToGlobal(point))
+
+        if action == gearAct:
+            self.showGearMenu()
+
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
+    
+
+    def showGearMenu(self):
+        # if self.classDef.updateChoice:
+        player=self.model.getPlayerObject(self.model.currentPlayer)
+        # if player != "Admin":
+        actions = player.getGameActionsOn(self)
+        actionsNames =[action.name for action in actions]
+        action, ok = QInputDialog.getItem(self, 'Sélectionnez une option', 'Options:', actionsNames, actionsNames.index(self.last_selected_option) if self.last_selected_option else 0, False)
+
+        if ok and action:
+            self.last_selected_option = action
+            self.showPopup(action)
+
+    def showPopup(self, selected_option):
+        QMessageBox.information(self, 'Option sélectionnée', f'Vous avez sélectionné : {selected_option}', QMessageBox.Ok)
+        
         
     def getRandomX(self):        
         maxSize=self.cell.size
