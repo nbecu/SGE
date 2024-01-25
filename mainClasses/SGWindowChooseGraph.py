@@ -98,6 +98,8 @@ class SGWindowChooseGraph(QWidget):
         
 
         phases = set(entry['phase'] for entry in data)
+        # Attenton : il ne faut pas fair e un set()) des phases.   La phase 1 du round 1 est différente de la phase 1 du round 2, etc... 
+
         cell_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Cell') for phase in
                        phases]
         agent_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Agent') for phase
