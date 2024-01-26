@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QVBoxLayout, QLabel 
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGGrid import SGGrid
@@ -109,6 +109,8 @@ class SGAgent(SGEntity):
     # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
+        options=[]
+
         for anItem in self.classDef.attributesToDisplayInContextualMenu:
             aAtt = anItem['att']
             aLabel = anItem['label']
@@ -117,31 +119,63 @@ class SGAgent(SGEntity):
             option = QAction(text, self)
             menu.addAction(option)
         
-        gearAct=menu.addAction('Gear')
-        action = menu.exec_(self.mapToGlobal(point))
+        if self.classDef.updateMenu:
+            if len(self.classDef.attributesToDisplayInUpdateMenu)==1:
+                anItem=self.classDef.attributesToDisplayInUpdateMenu[0]
+                aAtt = anItem['att']
+                aLabel = anItem['label']
+                aValue = self.value(aAtt)
+                text="Gear : "+aLabel + ": "+str(aValue)
+                gearAct = QAction(text, self)
+                gearAct.setCheckable(False)
+                menu.addAction(gearAct)
+                options.append(gearAct)
 
-        if action == gearAct:
-            self.showGearMenu()
+            if len(self.classDef.attributesToDisplayInUpdateMenu)>1:
+                gearMenu=menu.addMenu('Gear')
+                for anItem in self.classDef.attributesToDisplayInUpdateMenu:
+                    aAtt = anItem['att']
+                    aLabel = anItem['label']
+                    aValue = self.value(aAtt)
+                    text = aAtt+ " : "+str(aValue)
+                    option = QAction(text, self)
+                    option.setCheckable(False)
+                    gearMenu.addAction(option)
+                    options.append(option)
 
         if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
-    
+            action=menu.exec_(self.mapToGlobal(point))
+            if action in options:
+                self.showGearMenu(action.text()) 
 
-    def showGearMenu(self):
-        # if self.classDef.updateChoice:
+    def showGearMenu(self,aText):
+        # Get the actions from the player
         player=self.model.getPlayerObject(self.model.currentPlayer)
-        # if player != "Admin":
-        actions = player.getGameActionsOn(self)
+        # if player != "Admin": #TODO trouver un moyen de ne pas faire de bug en Admin Mode
+        actions = player.getGameActionsOn(self) #! Select a player not Admin
         actionsNames =[action.name for action in actions]
-        action, ok = QInputDialog.getItem(self, 'Sélectionnez une option', 'Options:', actionsNames, actionsNames.index(self.last_selected_option) if self.last_selected_option else 0, False)
+        # Filter the actions by the concerned attribute
+        displayedNames=[]
+        wordsInText=aText.split()
+        att=wordsInText[0]
+        for aName in actionsNames:
+            wordsInName=aName.split()
+            if att in wordsInName:
+                displayedNames.append(aName)
+        # The first value is the current value
+        current_value = self.value(att)
+        displayedValues=[aName.split()[-1] for aName in displayedNames]
+        default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
+        # Dialog box
+        action, ok = QInputDialog.getItem(self, 'Change Value','Select a NEW Value for '+att, displayedValues, default_index, False)
 
         if ok and action:
             self.last_selected_option = action
             self.showPopup(action)
+            # now execute Actions
 
     def showPopup(self, selected_option):
         QMessageBox.information(self, 'Option sélectionnée', f'Vous avez sélectionné : {selected_option}', QMessageBox.Ok)
-        
         
     def getRandomX(self):        
         maxSize=self.cell.size

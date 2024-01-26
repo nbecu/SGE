@@ -18,6 +18,10 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed,{"health":{"good","bad"},"hunger":{"good","bad"}}
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.setDefaultValues({"health":"good","hunger":"good"})
+Sheeps.setAttributesConcernedByUpdateMenu("health","Test on health")
+Sheeps.setAttributesConcernedByUpdateMenu("hunger","Test on hunger")
+# Sheeps.setAttributeValueToDisplayInContextualMenu("hunger","Test on Hunger")
 m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,2)
 
@@ -30,6 +34,10 @@ UpdateTest=myModel.newUpdateAction(Sheeps,'infinite',{"health":"good"})
 Player1.addGameAction(UpdateTest)
 UpdateTest2=myModel.newUpdateAction(Sheeps,'infinite',{"health":"bad"})
 Player1.addGameAction(UpdateTest2)
+UpdateTest3=myModel.newUpdateAction(Sheeps,'infinite',{"hunger":"good"})
+Player1.addGameAction(UpdateTest3)
+UpdateTest4=myModel.newUpdateAction(Sheeps,'infinite',{"hunger":"bad"})
+Player1.addGameAction(UpdateTest4)
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()

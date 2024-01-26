@@ -32,6 +32,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.entities=[]
         self.initAttributes(entDefAttributesAndValues)
         self.attributesToDisplayInContextualMenu=[]
+        self.updateMenu=False
+        self.attributesToDisplayInUpdateMenu=[]
 
     def nextId(self):
         self.IDincr +=1
@@ -404,6 +406,14 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         aDict['att']=aAttribut
         aDict['label']= (aLabel if aLabel is not None else aAttribut)
         self.attributesToDisplayInContextualMenu.append(aDict)
+    
+    # To handle the attrobutes concerned by the contextual update menu
+    def setAttributesConcernedByUpdateMenu(self,aAttribut,aLabel=None):
+        self.updateMenu=True
+        aDict={}
+        aDict['att']=aAttribut
+        aDict['label']= (aLabel if aLabel is not None else aAttribut)
+        self.attributesToDisplayInUpdateMenu.append(aDict)
     
 # ********************************************************    
 
