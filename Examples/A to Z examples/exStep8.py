@@ -16,7 +16,8 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("pov","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
+#Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
+Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
 
 def interpolate_color(value_min, value_max, color_min, color_max, a_value):
     # Assurez-vous que la valeur intermédiaire se trouve entre les valeurs min et max

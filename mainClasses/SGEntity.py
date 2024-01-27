@@ -21,7 +21,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.isDisplay=True
         #Define variables to handle the history 
         self.history={}
-        self.history["value"]=[]
+        self.history["value"]={}
         self.watchers={}
         #Set the attributes
         self.initAttributesAndValuesWith(attributesAndValues)
@@ -110,20 +110,23 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         for watcher in self.watchers.get(aAtt,[]):
             watcher.checkAndUpdate()
 
-    def obj_is_function(self, obj):
-        return callable(obj)
+    def getObjValue(self, obj):
+        return obj() if not callable(obj()) else None
 
     def getHistoryDataJSON(self):
         history = self.history
         return history
+    
     def setSGHistory(self, entDef, currentRound, currentPhase):
         endDef = 'Agent' if entDef != 'Cell' else 'Cell'
         tmpDict = {}
         if self.classDef.attributesDefaultValues:
+            #print("self.classDef.attributesDefaultValues : ", self.classDef.attributesDefaultValues.items())
             for key, value in self.classDef.attributesDefaultValues.items():
-                tmpDictValue = value if not self.obj_is_function(value) else None
+                tmpDictValue = self.getObjValue(value)
                 tmpDict = {key : tmpDictValue}
-        value = [currentRound, currentPhase, tmpDict]
+                #print("tmpDictValue : ", tmpDictValue)
+        value = {'value': [currentRound, currentPhase, tmpDict]}
         self.history = {
             'id': self.id,
             'entityDef': endDef,
@@ -132,16 +135,29 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             'phase': currentPhase,
             'value': value
         }
+        #print("history : ", self.history)
 
     def saveHistoryValue(self):
         self.setSGHistory(self.classDef.entityName, self.model.timeManager.currentRound,
                           self.model.timeManager.currentPhase)
+
+    def saveValueInHistory(self,aAttribute,aValue):
+        #ToDo Tester laquelle de ces deux lignes est la plus rapide
+        # if aAttribute not in self.history["value"]:self.history["value"][aAttribute]=[]
+
+        self.history["value"].setdefault(aAttribute, []) 
+
+        self.history["value"][aAttribute].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
+
+
+
 
     def isDeleted(self):
         return not self.isDisplay
 
 
     #To handle the attributs and values
+
     def setValue(self,aAttribut,aValue):
         """
         Sets the value of an attribut
@@ -153,8 +169,23 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
 
-        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
-        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.updateMqtt()
-        self.update()
-        return True
+    # def setValue(self,aAttribut,valueToSet):
+    #     """
+    #     Sets the value of an attribut
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be set
+    #     """
+    #     if callable(valueToSet):
+    #         aValue = valueToSet()
+    #     else:
+    #         aValue = valueToSet
+    #     # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
+    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+    #     self.saveHistoryValue()    
+    #     self.dictAttributes[aAttribut]=aValue
+    #     self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
+    #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+    #     self.updateMqtt()
+    #     self.update()
+    #     return True
