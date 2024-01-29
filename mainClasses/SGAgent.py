@@ -175,7 +175,7 @@ class SGAgent(SGEntity):
             # now execute Actions
             actionName="UpdateAction "+att+" "+action
             for anAction in actions:
-                if anAction==actionName:
+                if anAction.name==actionName:
                     anAction.perform_with(self)
 
     def showPopup(self, selected_option):
