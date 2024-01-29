@@ -173,6 +173,10 @@ class SGAgent(SGEntity):
             self.last_selected_option = action
             self.showPopup(action)
             # now execute Actions
+            actionName="UpdateAction "+att+" "+action
+            for anAction in actions:
+                if anAction==actionName:
+                    anAction.perform_with(self)
 
     def showPopup(self, selected_option):
         QMessageBox.information(self, 'Option sélectionnée', f'Vous avez sélectionné : {selected_option}', QMessageBox.Ok)
