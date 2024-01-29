@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="EndGame Conditions and Scores")
+myModel=SGModel(860,700, windowTitle="UpdateActions Menu")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
 Cell.setEntities("landUse","grass")
@@ -15,13 +15,12 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed,{"health":{"good","bad"},"hunger":{"good","bad"}}
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 Sheeps.setDefaultValues({"health":"good","hunger":"good"})
 Sheeps.setAttributesConcernedByUpdateMenu("health","Test on health")
 Sheeps.setAttributesConcernedByUpdateMenu("hunger","Test on hunger")
-# Sheeps.setAttributeValueToDisplayInContextualMenu("hunger","Test on Hunger")
 m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,2)
 
@@ -63,13 +62,10 @@ DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 score1= myModel.newSimVariable("Score",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1) 
 i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
-# Here is the way to add feedback on score on ModelAction
 aModelAction4.addFeedback(lambda: score1.incValue(5))
 myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
 
 
-# Here you can add a Widget to show the EndGame Conditions of your game
-# This game will be declared ended when the score declared in the DashBoard is equal to 90. 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(i1, "equal", 90, name="Score equal to 90")
 endGameRule.showEndGameConditions()

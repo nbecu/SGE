@@ -73,7 +73,7 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",atSpecifiedPhases=None,isDisplay=True):
         
         """
         Add an Indicator on the DashBoard.
@@ -86,7 +86,14 @@ class SGDashBoard(SGGameSpace):
             color (Qt.color) : text color
             logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
             title (str, optionnal) : name displayed on the dashboard
-            displayRefresh (str) :
+            displayRefresh (str) : instantaneous (default) or atSpecifiedPhases
+            atSpecifiedPhases (dict, only if displayRefresh=atSpecifiedPhase) : a type and a specifiedValue
+                'atSpecifiedPhases' a dict with type of conditions and specified value 
+                phaseName   (str or list of str)
+                phaseNumber (int or list of int)
+                lambdaTestOnPhaseNumber (a lambda function with syntax [ phaseNumber : test with phaseNumber])
+                roundNumber (int or list of int)
+                lambdaTestOnRound   (a lambda function with syntax [ roundNumber : test with roundNumber])
             isDisplay (bool) : display on the dashboard (default : True)
 
         """

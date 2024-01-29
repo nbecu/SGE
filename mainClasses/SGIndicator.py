@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",atSpecifiedPhases=None,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -34,6 +34,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.logicOp=logicOp
         self.isDisplay=isDisplay
         self.displayRefresh=displayRefresh
+        self.specificPhase=atSpecifiedPhases 
         self.memory=[]
         self.initUI()
         
@@ -103,15 +104,25 @@ class SGIndicator(QtWidgets.QWidget):
     def getUpdatePermission(self):
         if self.displayRefresh=='instantaneous':
             return True
-        if self.displayRefresh=='withButton':
-            return True
-        if self.displayRefresh=='atSpecifiedPhases':  # TODO redescnedre d'un niveau le la condition 'displayRefresh' -->  self.displayRefresh
-            # 'atSpecifiedPhases' a dict with type of conditions and specified value 
-                # phaseName   (str or list of str)
-                # phaseNumber (int or list of int)
-                # lambdaTestOnPhaseNumber (a lambda function with syntax [ phaseNumber : test with phaseNumber])
-                # roundNumber (int or list of int)
-                # lambdaTestOnRound   (a lambda function with syntax [ roundNumber : test with roundNumber]=
+        if self.displayRefresh=='atSpecifiedPhases':
+            for typeCondition,specifiedValue in self.specificPhase.items():
+                if typeCondition == 'phaseName' :
+                    testResult=self.updateOnPhaseName(self,specifiedValue)
+                    return testResult
+                if typeCondition == 'phaseNumber' :
+                    testResult=self.updateOnPhaseNumber(self,specifiedValue)
+                    return testResult
+                if typeCondition == 'roundNumber' :
+                    testResult=self.updateOnRoundNumber(self,specifiedValue)
+                    return testResult
+                if typeCondition == 'lambdaTestOnPhaseNumber' :
+                    testResult=self.lambdaTestOnPhaseNumber(self,specifiedValue)
+                    return testResult
+                if typeCondition == 'lambdaTestOnRound' :
+                    testResult=self.lambdaTestOnRound(self,specifiedValue)
+                    return testResult
+
+        # self.userSettingsOnPhaseToUpdate() #! check again 
 
                 # Ex de la façon de coder le lambdaTestOnRound
                 #     for typeCondition,specifiedValue in atSpecifiedPhases.items()
@@ -119,7 +130,41 @@ class SGIndicator(QtWidgets.QWidget):
                 #             testResult = specifiedValue(self.model.roundNumber)
                 #             return testResult
 
-            self.userSetttingsOnPhaseToUpdate
+    def updateOnPhaseName(self,specifiedValue):
+        currentPhase=self.dashboard.model.timeManager.getCurrentPhase()
+        if isinstance(specifiedValue,list):
+            if currentPhase.name in specifiedValue:
+                return True
+        if isinstance(specifiedValue,str):
+            if currentPhase.name == specifiedValue:
+                return True
+        return False
+
+    def updateOnPhaseNumber(self,specifiedValue):
+        currentPhaseNumber=self.dashboard.model.timeManager.currentPhaseNumber
+        if isinstance(specifiedValue,list):
+            if currentPhaseNumber in specifiedValue:
+                return True
+        if isinstance(specifiedValue,str):
+            if currentPhaseNumber == specifiedValue:
+                return True
+        return False
+
+    def updateOnRoundNumber(self,specifiedValue):
+        currentRoundNumber=self.dashboard.model.timeManager.currentRoundNumber
+        if isinstance(specifiedValue,list):
+            if currentRoundNumber in specifiedValue:
+                return True
+        if isinstance(specifiedValue,str):
+            if currentRoundNumber == specifiedValue:
+                return True
+        return False 
+    
+    def lambdaTestOnPhaseNumber(self,specifiedValue):
+        pass
+
+    def lambdaTestOnRound(self,specifiedValue):
+        pass
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
