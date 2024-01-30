@@ -161,10 +161,18 @@ class SGIndicator(QtWidgets.QWidget):
         return False 
     
     def lambdaTestOnPhaseNumber(self,specifiedValue):
-        pass
+        res = True 
+        currentPhaseNumber=self.dashboard.model.timeManager.currentPhaseNumber
+        for aCondition in specifiedValue:
+            res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentPhaseNumber))
+        return res
 
     def lambdaTestOnRound(self,specifiedValue):
-        pass
+        res = True 
+        currentRoundNumber=self.dashboard.model.timeManager.currentRoundNumber
+        for aCondition in specifiedValue:
+            res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentRoundNumber))
+        return res
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
