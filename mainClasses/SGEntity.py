@@ -95,7 +95,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         return dict
     
     def addWatcher(self,aIndicator):
-        aAtt = aIndicator.attribut
+        aAtt = aIndicator.attribute
         if aAtt not in self.watchers.keys():
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)

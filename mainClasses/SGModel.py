@@ -383,6 +383,15 @@ class SGModel(QMainWindow):
         e.accept()
 
     def dropEvent(self, e):
+        if isinstance(e.source(),SGEntity):
+            msg_box = QMessageBox(self)
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setWindowTitle("Warning Message")
+            msg_box.setText("A " + e.source().classDef.entityName +" cannot be moved here")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.setDefaultButton(QMessageBox.Ok)
+            msg_box.exec_()
+            return
         position = e.pos()
         position.setX(position.x()-int(e.source().getSizeXGlobal()/2))
         position.setY(position.y()-int(e.source().getSizeYGlobal()/2))
