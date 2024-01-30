@@ -107,19 +107,19 @@ class SGIndicator(QtWidgets.QWidget):
         if self.displayRefresh=='atSpecifiedPhases':
             for typeCondition,specifiedValue in self.specificPhase.items():
                 if typeCondition == 'phaseName' :
-                    testResult=self.updateOnPhaseName(self,specifiedValue)
+                    testResult=self.updateOnPhaseName(specifiedValue)
                     return testResult
                 if typeCondition == 'phaseNumber' :
-                    testResult=self.updateOnPhaseNumber(self,specifiedValue)
+                    testResult=self.updateOnPhaseNumber(specifiedValue)
                     return testResult
                 if typeCondition == 'roundNumber' :
-                    testResult=self.updateOnRoundNumber(self,specifiedValue)
+                    testResult=self.updateOnRoundNumber(specifiedValue)
                     return testResult
                 if typeCondition == 'lambdaTestOnPhaseNumber' :
-                    testResult=self.lambdaTestOnPhaseNumber(self,specifiedValue)
+                    testResult=self.lambdaTestOnPhaseNumber(specifiedValue)
                     return testResult
                 if typeCondition == 'lambdaTestOnRound' :
-                    testResult=self.lambdaTestOnRound(self,specifiedValue)
+                    testResult=self.lambdaTestOnRound(specifiedValue)
                     return testResult
 
         # self.userSettingsOnPhaseToUpdate() #! check again 

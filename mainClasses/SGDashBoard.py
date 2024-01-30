@@ -115,7 +115,7 @@ class SGDashBoard(SGGameSpace):
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,isDisplay)
+        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,atSpecifiedPhases,isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr

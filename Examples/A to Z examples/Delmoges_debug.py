@@ -170,10 +170,9 @@ DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
 indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
 indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
 sep2=DashBoard2.addSeparator()
-# les indicateurs du nb de bateaux en zones malus et bonus, ne doivent être actualisé qu'à la phase 'Résolution'
-indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus")
+indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",displayRefresh="atSpecifiedPhases",atSpecifiedPhases={"phaseNumber":4})
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus)
-indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus")
+indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",displayRefresh="atSpecifiedPhases",atSpecifiedPhases={"phaseNumber":4})
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus)
 
 
