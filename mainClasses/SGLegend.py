@@ -216,6 +216,8 @@ class SGLegend(SGGameSpace):
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         listOfLengths = [len(item.text) for item in self.legendItems ]
+        if len(listOfLengths)==0:
+            return 250
         lMax= sorted(listOfLengths,reverse=True)[0]
         if self.haveADeleteButton :
             if lMax > len("delete"):

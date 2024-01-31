@@ -166,7 +166,7 @@ class SGDashBoard(SGGameSpace):
 
     def addIndicatorOnSimVariable(self,aSimulationVariable,displayRefresh="instantaneous"):
         self.posYOfItems = self.posYOfItems+1
-        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,None,aSimulationVariable.isDisplay)
+        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,displayRefresh,None,aSimulationVariable.isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr

@@ -32,16 +32,10 @@ Cell.newBorderPovColorAndWidth("ProtectionLevel2", "ProtectionLevel", {"Reserve"
 # STEP3 Agents
 Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", defaultColor=Qt.black)
 Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yellow)
-# Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed,{"health":{"good","bad"},"hunger":{"good","bad"}}
-# Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-# Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-# Sheeps.setDefaultValue("hunger","bad")
 
 aSecondBird=Birds.newAgentAtCoords(Cell,4,5)
 aWorker=Birds.newAgentAtCoords(Cell,2,2)
-# aSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,3)
-# aSecondSheep=myModel.newAgentAtCoords(aGrid,Sheeps,1,5)
-# aThirdSheep=myModel.newAgentAtCoords(aGrid,Sheeps,3,5)
+
 
 
 
@@ -59,9 +53,7 @@ Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-# Player2.addGameAction(myModel.newCreateAction(Sheeps,4))
 Player2.addGameAction(myModel.newCreateAction(Birds,4))
-# Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
 Player2.addGameAction(myModel.newUpdateAction(
     "Cell", 3, {"ProtectionLevel": "Reserve"}))
 Player2.addGameAction(myModel.newUpdateAction(

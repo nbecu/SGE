@@ -15,7 +15,7 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("ICanSeeSchrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") #removed --> ,{"health":{"good","bad"},"hunger":{"good","bad"}}
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 
 Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})

@@ -85,14 +85,5 @@ endGameRule.showEndGameConditions()
 
 
 myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
-    ## ATTENTION : il y a un problème ds le fonctionnement en mqtt
-    # Premier problème : le nbUse des gameActions  n'est pas envoyé aux clients
-    #        du coup, si un client passe le tour (ce qui remet les nbUSe à zéro), les autres clients eux n'ont pas  leur nbUse remis à zero
-    # Deuxième problème : si plusieurs clients sont set sur le meme user, alors la maj ne se fait.
-    #      C'est un soucis car ca veut dire qu'il y a une confusion entre le user et le client
-    #           le client c'est l'instance du modèle qui est en train de tourner. 
-    #           le user c'est le role (ou plutôt le 'personnage joueur') qui est endossé par le client, et il est autorisé de pouvoir changer de role sur un meme client
-    #                              de meme il est possible que plusieurs client partagent le meme user (le meme 'personnage joueur')
-    #           du coup, le test qui empeche la maj de se faire sur l'instance du modèle qui vient de lancer une maj, ne doit pas etre un tst sur 'user' mais un test sur le client (sur l'instance du modèle)
 
 sys.exit(monApp.exec_())
