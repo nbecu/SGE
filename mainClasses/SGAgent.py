@@ -21,15 +21,14 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
         self.last_selected_option=None
-        # self.xPos=self.getRandomX()
-        # self.yPos=self.getRandomY()
+        self.shapeColor=shapeColor
         self.initMenu()
         
 
 
     def paintEvent(self,event):
-        # if self.color==19: #code for transparent # TODO trouver pourquoi le self.color ne se met pas à jour avec les POV
-        #     return
+        if self.shapeColor==19: #code for transparent # TODO trouver pourquoi le self.color ne se met pas à jour avec les POV
+            return
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))

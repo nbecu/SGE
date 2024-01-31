@@ -61,13 +61,13 @@ class SGUserSelector(SGGameSpace):
         if self.model.timeManager.isInitialization():
             return self.model.users
         phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
-        players = phase.activePlayers
-        authorizedPlayers = []
-        for player in players:
-            if player == 'Admin':
-                authorizedPlayers.append('Admin')
-            else:
-                authorizedPlayers.append(player.name)
+        authorizedPlayers = phase.authorizedPlayers
+        # authorizedPlayers = []
+        # for player in players:
+        #     if player == 'Admin':
+        #         authorizedPlayers.append('Admin')
+        #     else:
+        #         authorizedPlayers.append(player.name)
         return authorizedPlayers
 
     # Funtion to have the global size of a gameSpace

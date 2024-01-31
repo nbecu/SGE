@@ -44,15 +44,19 @@ class SGAbstractAction():
 
     #Function to test if the game action could be use
     def checkAuthorization(self,aTargetEntity):
+        res = True 
         if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
             # TODO add a facultative permission 
             return False
         if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
-            res = True
+            player=self.model.getPlayerObject(self.model.currentPlayer)
+            if player in self.model.timeManager.phases[self.model.getCurrentPhase()-1].authorizedPlayers:
+                res = True
+            else:
+                return False
             # TODO add a facultative restriction 
         if self.numberUsed >= self.number:
             return False
-        res = True 
         for aCondition in self.conditions:
             res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity))
         return res

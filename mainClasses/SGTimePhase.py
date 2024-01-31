@@ -4,10 +4,10 @@ from mainClasses.SGModelAction import SGModelAction
 
 
 class SGTimePhase():
-    def __init__(self, timeManager, name, activePlayers=[], modelActions=[]):
+    def __init__(self, timeManager, name, authorizedPlayers=[], modelActions=[]):
         self.timeManager = timeManager
         self.name = name
-        self.activePlayers = activePlayers
+        self.authorizedPlayers = authorizedPlayers
         self.observers = {}
         self.watchers={}
         if isinstance(modelActions, SGModelAction):
@@ -28,8 +28,8 @@ class SGTimePhase():
         for aTextBox, aText in self.observers.items():
             aTextBox.setNewText(aText)
 
-    def setActivePlayers(self, activePlayers):
-        self.activePlayers = activePlayers
+    def authorizePlayers(self, authorizedPlayers):
+        self.authorizedPlayers = authorizedPlayers
 
     def setNextStepAction(self, nextStepAction):
         self.nextStepAction = nextStepAction
@@ -64,15 +64,5 @@ class SGTimePhase():
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
     def __init__(self, timeManager, modelActions=[], name='',autoForwardOn=False):
-        # self.timeManager = timeManager
-        # if isinstance(modelActions, SGModelAction):
-        #     modelActions = [modelActions]
-        # elif isinstance(modelActions, list):
-        #     self.modelActions = modelActions
-        # else:
-        #     raise ValueError("Syntax error of actions")
-        # self.name = name
-        # self.observers = {}
-        # self.watchers={}
-        super().__init__(timeManager, name, activePlayers=[], modelActions=modelActions)
+        super().__init__(timeManager, name, authorizedPlayers=[], modelActions=modelActions)
         self.autoForwardOn=autoForwardOn
