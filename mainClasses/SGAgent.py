@@ -136,7 +136,7 @@ class SGAgent(SGEntity):
                     aAtt = anItem['att']
                     aLabel = anItem['label'] 
                     aValue = self.value(aAtt)
-                    text = aLabel+ ": "+str(aValue)
+                    text = aAtt+" " +aLabel+" : "+str(aValue)
                     option = QAction(text, self)
                     option.setCheckable(False) 
                     gearMenu.addAction(option)
