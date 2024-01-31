@@ -120,26 +120,26 @@ class SGAgent(SGEntity):
             menu.addAction(option)
         
         if self.classDef.updateMenu:
-            if len(self.classDef.attributesToDisplayInUpdateMenu)==1:
+            if len(self.classDef.attributesToDisplayInUpdateMenu)==1:  
                 anItem=self.classDef.attributesToDisplayInUpdateMenu[0]
                 aAtt = anItem['att']
                 aLabel = anItem['label']
                 aValue = self.value(aAtt)
-                text="Gear : "+aLabel + ": "+str(aValue)
+                text="Value - "+aLabel + ": "+str(aValue)
                 gearAct = QAction(text, self)
                 gearAct.setCheckable(False)
                 menu.addAction(gearAct)
                 options.append(gearAct)
 
             if len(self.classDef.attributesToDisplayInUpdateMenu)>1:
-                gearMenu=menu.addMenu('Gear')
+                gearMenu=menu.addMenu('Values')
                 for anItem in self.classDef.attributesToDisplayInUpdateMenu:
                     aAtt = anItem['att']
-                    aLabel = anItem['label']
+                    aLabel = anItem['label'] 
                     aValue = self.value(aAtt)
-                    text = aAtt+ " : "+str(aValue)
+                    text = aLabel+ ": "+str(aValue)
                     option = QAction(text, self)
-                    option.setCheckable(False)
+                    option.setCheckable(False) 
                     gearMenu.addAction(option)
                     options.append(option)
 
