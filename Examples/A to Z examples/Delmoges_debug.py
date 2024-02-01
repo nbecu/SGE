@@ -43,7 +43,7 @@ Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Sole",'Sol
 
 EspècesHalieutiques=[Soles,Merlus]
 
-Navire.newAgentsOnCell(5,Port)
+Navire.newAgentsOnCell(1,Port)
 
 Player1 = myModel.newPlayer("Pêcheur",attributesAndValues=None)
 Move1=myModel.newMoveAction(Navire, 'infinite')
@@ -131,13 +131,8 @@ def reset():
     for navire in myModel.getAgentsOfSpecie("Navire"):
         navire.setValue("lastIncitationValue","neutre")
 
-    # eventuellement un jour ajouter la fonctionnalité pour le modeler 
-            #->  myModel.resetValueAtEachRound('revenusBonus',0)
 
-
-#choisir la deuxième ligne pour passer en "autoForwardOn" (ancien 'automatic')
-PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour')
-# PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
+PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
 
 GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1,Player2])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
@@ -150,8 +145,6 @@ PhasePêche=myModel.timeManager.newModelPhase([ModelActionPêche,ModelActionFeed
 PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
 PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
-
-# PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()),autoForwardOn=True)   ///  Commenté car ca été mit en début de tour / mais ca pourrait  aussi etre à la fin du tour comme proposé ici   / le nom de l'optikn s'appelle 'autoForwardOn' au liue de 'automatic'
 
 DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
 DashBoard.addIndicator(Navire,"sumAtt",attribute="PêcheCumMerlu",title="Merlu pêché (depuis an 0)")
@@ -182,16 +175,16 @@ TimeLabel=myModel.newTimeLabel("GameTime")
 userSelector=myModel.newUserSelector()
 tx_présence()
 
-# TEMPORARY LAYOUT SOLUTION
-# Cells.grid.moveToCoords(500,45)
-# TimeLabel.moveToCoords(340,45)
-# theTextBox.moveToCoords(20,45)
-# Player1ControlPanel.moveToCoords(20,220)
-# Player2ControlPanel.moveToCoords(150,220)
-# userSelector.moveToCoords(20,330)
-# Legend.moveToCoords(1030,70)
-# DashBoard.moveToCoords(1225,45)
-# DashBoard2.moveToCoords(1225,400)
+# DELMOGES CUSTOM LAYOUT SOLUTION
+Cells.grid.moveToCoords(500,45)
+TimeLabel.moveToCoords(340,45)
+theTextBox.moveToCoords(20,45)
+Player1ControlPanel.moveToCoords(20,220)
+Player2ControlPanel.moveToCoords(150,220)
+userSelector.moveToCoords(20,330)
+Legend.moveToCoords(1030,70)
+DashBoard.moveToCoords(1225,45)
+DashBoard2.moveToCoords(1225,400)
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")

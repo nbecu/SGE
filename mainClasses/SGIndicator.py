@@ -145,7 +145,7 @@ class SGIndicator(QtWidgets.QWidget):
         if isinstance(specifiedValue,list):
             if currentPhaseNumber in specifiedValue:
                 return True
-        if isinstance(specifiedValue,str):
+        if isinstance(specifiedValue,int):
             if currentPhaseNumber == specifiedValue:
                 return True
         return False
@@ -155,7 +155,7 @@ class SGIndicator(QtWidgets.QWidget):
         if isinstance(specifiedValue,list):
             if currentRoundNumber in specifiedValue:
                 return True
-        if isinstance(specifiedValue,str):
+        if isinstance(specifiedValue,int):
             if currentRoundNumber == specifiedValue:
                 return True
         return False 

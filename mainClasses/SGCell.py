@@ -12,8 +12,8 @@ class SGCell(SGEntity):
         super().__init__(classDef.grid,classDef,classDef.defaultsize,classDef.defaultShapeColor,attributesAndValues=None)
         #Basic initialize
         self.grid=classDef.grid
-        self.x=x
-        self.y=y
+        self.xPos=x
+        self.yPos=y
         self.gap=self.grid.gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=self.gap
@@ -32,7 +32,7 @@ class SGCell(SGEntity):
         self.customContextMenuRequested.connect(self.show_menu)
         
     def getId(self):
-        return "cell"+str(self.x)+"-"+str(self.y)
+        return "cell"+str(self.xPos)+"-"+str(self.yPos)
     
     def paintEvent(self,event):
         painter = QPainter()
@@ -44,8 +44,8 @@ class SGCell(SGEntity):
             painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
             self.startXBase=self.grid.frameMargin
             self.startYBase=self.grid.frameMargin
-            self.startX=int(self.startXBase+(self.x -1)*(self.size+self.gap)+self.gap) 
-            self.startY=int(self.startYBase+(self.y -1)*(self.size+self.gap)+self.gap)
+            self.startX=int(self.startXBase+(self.xPos -1)*(self.size+self.gap)+self.gap) 
+            self.startY=int(self.startYBase+(self.yPos -1)*(self.size+self.gap)+self.gap)
             if (self.shape=="hexagonal"):
                 self.startY=self.startY+self.size/4
             #Base of the gameBoard
@@ -64,11 +64,11 @@ class SGCell(SGEntity):
                     QPoint(0, int(self.size/4))              
                 ])
                 painter.drawPolygon(points)
-                if(self.y%2!=0):
+                if(self.yPos%2!=0):
                     # y impaires /  sachant que la première valeur de y est 1
-                    self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                    self.move(self.startX , int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
                 else:
-                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
                         
         painter.end()
 
@@ -194,6 +194,12 @@ class SGCell(SGEntity):
         option1 = QAction(text, self)
         menu.addAction(option1)
 
+        x=self.x()
+        y=self.y()
+        text= "Coords : "+str(x)+","+str(y)
+        option2 = QAction(text, self)
+        menu.addAction(option2)
+
         # self.model.updateAgentsAtMAJ()  
         
         if self.rect().contains(point):
@@ -221,14 +227,14 @@ class SGCell(SGEntity):
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):
         neighbors = []
-        for i in range(self.x - 1, self.x + 2):
-            for j in range(self.y - 1, self.y + 2):
-                if i == self.x and j == self.y:
+        for i in range(self.xPos - 1, self.xPos + 2):
+            for j in range(self.yPos - 1, self.yPos + 2):
+                if i == self.xPos and j == self.yPos:
                     continue
                 if rule=="moore":
                     c = self.classDef.getCell(i, j)
                 elif rule=='neumann':
-                    if (i == self.x or j == self.y) and (i != self.x or j != self.y):
+                    if (i == self.xPos or j == self.yPos) and (i != self.xPos or j != self.yPos):
                         c = self.classDef.getCell(i,j)
                     else:
                         c = None
@@ -241,13 +247,13 @@ class SGCell(SGEntity):
         
     #To get the neighbor cell at cardinal
     def getNeighborN(self):
-        return self.classDef.getCell(self.x,self.y-1)
+        return self.classDef.getCell(self.xPos,self.yPos-1)
     def getNeighborS(self):
-        return self.classDef.getCell(self.x,self.y+1)
+        return self.classDef.getCell(self.xPos,self.yPos+1)
     def getNeighborE(self):
-        return self.classDef.getCell(self.x+1,self.y)
+        return self.classDef.getCell(self.xPos+1,self.yPos)
     def getNeighborW(self):
-        return self.classDef.getCell(self.x-1,self.y)
+        return self.classDef.getCell(self.xPos-1,self.yPosPos)
 
         
     #Function to check the ownership  of the cell          
