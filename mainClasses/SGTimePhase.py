@@ -1,10 +1,11 @@
 from mainClasses.SGModelAction import SGModelAction
+from PyQt5.QtWidgets import QHBoxLayout,QMessageBox
 
 # Class who define a gaming phase
 
 
 class SGTimePhase():
-    def __init__(self, timeManager, name, authorizedPlayers=[], modelActions=[]):
+    def __init__(self, timeManager, name, authorizedPlayers=[], modelActions=[],showMessageBoxAtStart=False):
         self.timeManager = timeManager
         self.name = name
         self.authorizedPlayers = authorizedPlayers
@@ -17,6 +18,7 @@ class SGTimePhase():
         else:
             raise ValueError("Syntax error of actions")
         self.autoForwardOn = False
+        self.showMessageBoxAtStart=showMessageBoxAtStart
 
 
 # -----------------------------------------------------------------------------------------
@@ -41,6 +43,20 @@ class SGTimePhase():
             self.modelActions.append( self.timeManager.model.newModelAction(aModelAction) )
 
     def execPhase(self):
+        #proceed with optional message box at the start of the phase
+        if self.showMessageBoxAtStart:
+            if isinstance(self.showMessageBoxAtStart,str):
+                aText = self.showMessageBoxAtStart
+            else:
+                aText = "The phase '"+self.name+"' starts"
+            msg_box = QMessageBox(self.timeManager.model)
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setWindowTitle("SGE Time Manager Message")
+            msg_box.setText(aText)
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.setDefaultButton(QMessageBox.Ok)
+            msg_box.exec_()
+        
         # We can execute the actions           
         if len(self.modelActions) != 0:
             for aAction in self.modelActions:
@@ -63,6 +79,7 @@ class SGTimePhase():
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], name='',autoForwardOn=False):
-        super().__init__(timeManager, name, authorizedPlayers=[], modelActions=modelActions)
+    def __init__(self, timeManager, modelActions=[], name='',autoForwardOn=False,messageAutoForward=True,showMessageBoxAtStart=False):
+        super().__init__(timeManager, name, authorizedPlayers=[], modelActions=modelActions,showMessageBoxAtStart=showMessageBoxAtStart)
         self.autoForwardOn=autoForwardOn
+        self.messageAutoForward=messageAutoForward

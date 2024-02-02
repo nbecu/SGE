@@ -84,7 +84,7 @@ class SGTimeManager():
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
 
-        elif (self.currentPhaseNumber + 1) > len(self.phases)   : #This case is when  there is no nextphase after the current one. Therefor it is a next round
+        elif self.isCurentPhase_Last()   : #This case is when  there is no nextphase after the current one. Therefor it is a next round
             self.currentRoundNumber += 1
             self.currentPhaseNumber = 1
             #reset GameActions count
@@ -132,23 +132,31 @@ class SGTimeManager():
             #     self.model.publishEntitiesState()
 
         if self.getCurrentPhase().autoForwardOn :
-            msg_box = QMessageBox(self.model)
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setWindowTitle("SGE Time Manager Message")
-            msg_box.setText("Attention ! A Automatic Model Phase ("+self.getCurrentPhase().name+") will be trigger.")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.setDefaultButton(QMessageBox.Ok)
+            if self.getCurrentPhase().messageAutoForward:
+                msg_box = QMessageBox(self.model)
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setWindowTitle("SGE Time Manager Message")
+                if isinstance(self.getCurrentPhase().messageAutoForward,str):
+                    aText = self.getCurrentPhase().messageAutoForward
+                else:
+                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isCurentPhase_Last() else ("the next phase: '"+self.getNextPhase().name+"'")) 
+                msg_box.setText(aText)
+                msg_box.setStandardButtons(QMessageBox.Ok)
+                msg_box.setDefaultButton(QMessageBox.Ok)
+                msg_box.exec_()
+                # result = msg_box.exec_()
+                # if result == QMessageBox.Ok:
+            self.nextPhase()
 
-            result = msg_box.exec_()
+    def isCurentPhase_Last(self):
+        return (self.currentPhaseNumber + 1) > len(self.phases) 
 
-            if result == QMessageBox.Ok:
-                self.nextPhase()
-
-            
 
     def getCurrentPhase(self):
         return self.phases[self.currentPhaseNumber-1]
                             
+    def getNextPhase(self):
+        return self.phases[self.currentPhaseNumber]
 
     def next(self):
         # condition Victoire
@@ -198,7 +206,7 @@ class SGTimeManager():
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
-    def newModelPhase(self, actions=[], condition=[], name='',autoForwardOn=False):
+    def newModelPhase(self, actions=[], condition=[], name='',autoForwardOn=False,messageAutoForward=True,showMessageBoxAtStart=False):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
         args:
@@ -230,7 +238,7 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,autoForwardOn=autoForwardOn)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,autoForwardOn=autoForwardOn,messageAutoForward=messageAutoForward,showMessageBoxAtStart=showMessageBoxAtStart)
         self.phases = self.phases + [aPhase]
         return aPhase
 
