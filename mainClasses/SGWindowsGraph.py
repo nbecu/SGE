@@ -5,12 +5,12 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QGridLay
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
-from mainClasses.SGDiagram import SGDiagram
+#from mainClasses.SGDiagram import SGDiagram
 from mainClasses.SGDiagramCircular import SGDiagramCircular
 from mainClasses.SGDiagramHistogram import SGDiagramHistogram
 from mainClasses.SGDiagramLinear import SGDiagramLinear
 from mainClasses.SGDiagramStackPlot import SGDiagramStackPlot
-from mainClasses.SGDiagramTestCirc import SGDiagramTestCirc
+#from mainClasses.SGDiagramTestCirc import SGDiagramTestCirc
 from mainClasses.SGLinearDiagram import SGLinearDiagram
 from mainClasses.SGMultiGraph import SGMultiGraph
 from mainClasses.SGMultiGraphMixte import *

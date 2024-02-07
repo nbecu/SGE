@@ -3,7 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
 
-from mainClasses.SGDiagram import SGDiagram
+#from mainClasses.SGDiagram import SGDiagram
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.AttributeAndValueFunctionalities import *
 
