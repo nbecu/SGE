@@ -1,7 +1,9 @@
-from PyQt5 import QtWidgets 
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
+
+from mainClasses.SGDiagram import SGDiagram
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.AttributeAndValueFunctionalities import *
 
@@ -127,15 +129,24 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                 tmpDict = {key : tmpDictValue}
                 #print("tmpDictValue : ", tmpDictValue)
         value = {'value': [currentRound, currentPhase, tmpDict]}
+        k = len(self.model.simulationVariables) - 1
+        simVariable = self.model.simulationVariables[k] if len(self.model.simulationVariables)>0 and isinstance(self.model.simulationVariables[k], dict)  else {}
+
         self.history = {
             'id': self.id,
+            'currentPlayer': self.model.currentPlayer,
             'entityDef': endDef,
             'entityName': self.classDef.entityName,
+            'simVariable': simVariable,
             'round': currentRound,
             'phase': currentPhase,
-            'value': value
+            'value': value,
+            'attribut': self.dictAttributes
         }
-        #print("history : ", self.history)
+
+        #print("self.cellOfGrids.keys() :: ", self.model.cellOfGrids.keys())
+
+
 
     def saveHistoryValue(self):
         self.setSGHistory(self.classDef.entityName, self.model.timeManager.currentRound,
@@ -154,8 +165,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     def isDeleted(self):
         return not self.isDisplay
-
-
     #To handle the attributs and values
 
     def setValue(self,aAttribut,aValue):
@@ -165,9 +174,13 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.saveHistoryValue()    
+        self.saveHistoryValue()
+
         self.dictAttributes[aAttribut]=aValue
+
+
 
     # def setValue(self,aAttribut,valueToSet):
     #     """
