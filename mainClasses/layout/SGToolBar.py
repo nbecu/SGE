@@ -11,9 +11,6 @@ class SGToolBar(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
         self.typeDiagram = typeDiagram
-        self.data_combobox = QComboBox(parent)
-        self.data_combobox.currentIndexChanged.connect(self.update_plot)
-
         self.data_1_combobox = QComboBox(parent)
         self.data_1_combobox.currentIndexChanged.connect(self.update_plot)
         self.addWidget(self.data_1_combobox)
@@ -24,7 +21,6 @@ class SGToolBar(NavigationToolbar):
         self.ax = parent.ax
         self.model = model
         self.title = 'SG Diagramme'
-        self.dict_keyfilter = {}
         self.list_options = []
         self.list_indicators = []
         self.combobox_1_data = {"SGEntities": "entityName", "SGEntityDef": "entityDef", "Player": "currentPlayer"}
@@ -84,16 +80,11 @@ class SGToolBar(NavigationToolbar):
         selected_indicators = [option for option, checkbox in self.checKbox_indicators.items() if checkbox.isChecked()]
         return selected_indicators
 
-    def set_data(self, dict_keyfilter):
-        self.dict_keyfilter = dict_keyfilter
-        self.update_combobox()
+    def set_data(self):
         self.set_combobox_1_items()
         self.set_combobox_2_items()
         self.set_checkbox_values()
 
-    def update_combobox(self):
-        self.data_combobox.clear()
-        self.data_combobox.addItems(list(self.dict_keyfilter))
 
     def update_plot(self):
         value_cmb_2 = self.get_combobox2_selected_key()
@@ -113,7 +104,6 @@ class SGToolBar(NavigationToolbar):
             elif self.typeDiagram == 'stackplot':
                 self.plot_data_typeDiagram_stackplot(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
                                                 isHidden=False)
-
 
     def getAllHistoryData(self):
         historyData = []

@@ -33,22 +33,7 @@ class SGDiagramLinear(QMainWindow):
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
 
-        #self.data = self.getAllHistoryData()
-        self.toolbar.set_data({'cell': 0, 'agent': 1})
+        self.toolbar.set_data()
         self.toolbar.update_plot()
-
-    def getAllHistoryData(self):
-        historyData = []
-        for aEntity in self.parent.getAllEntities():
-            h = aEntity.getHistoryDataJSON()
-            historyData.append(h)
-        return historyData
-
-
-    def update_data(self):
-        data = self.getAllHistoryData()
-        phases = set(entry['phase'] for entry in data)
-        rounds = set(entry['round'] for entry in data)
-        #self.xValue = [r * len(phases) + p for r in rounds for p in phases]
 
 
