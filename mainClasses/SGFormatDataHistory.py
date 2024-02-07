@@ -29,7 +29,7 @@ class SGFormatDataHistory():
             """print("id: {}, entityName: {}, entityDef: {}, value: {}".
                   format(h['id'], h['entityName'], h['entityDef'], h['value']))"""
             # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
-        print(historyData)
+        #print(historyData)
         return historyData
 
     def collectLastStepData(self):

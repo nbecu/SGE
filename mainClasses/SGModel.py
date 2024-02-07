@@ -5,7 +5,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar)
 from PyQt5 import QtWidgets
 
+from mainClasses.SGDiagramLinear import SGDiagramLinear
 from mainClasses.SGTestGetData import SGTestGetData
+from mainClasses.SGWindowsGraph import SGWindowsGraph
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
@@ -131,6 +133,8 @@ class SGModel(QMainWindow):
 
         self.initModelActions()
 
+
+
     def initModelActions(self):
         self.id_modelActions = 0
 
@@ -209,11 +213,39 @@ class SGModel(QMainWindow):
 
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
-        aAction = QAction(QIcon("./icon/graph.png"), " &openChooseGraph", self)
+        """aAction = QAction(QIcon("./icon/graph.png"), " &openChooseGraph", self)
         aAction.triggered.connect(self.openChooseGraph)
-        self.menuBar().addAction(aAction)
+        self.menuBar().addAction(aAction)"""
+
+        self.createGraphMenu()
+
 
     # Create all the action related to the menu
+
+    def createGraphMenu(self):
+        self.chooseGraph = self.menuBar().addMenu(QIcon("./icon/icon_dashboards.png"), "&openChooseGraph")
+        # Submenu linear
+        actionLinearDiagram = QAction(QIcon('./icon/icon_linear.png'), 'Diagramme Linéaire', self)
+        actionLinearDiagram.triggered.connect(self.openLinearDiagram)
+        self.chooseGraph.addAction(actionLinearDiagram)
+
+        actionHistogramDiagram = QAction(QIcon('./icon/icon_histogram.png'), 'Histogramme', self)
+        actionHistogramDiagram.triggered.connect(self.openHistoDiagram)
+        self.chooseGraph.addAction(actionHistogramDiagram)
+
+        actionCircularDiagram = QAction(QIcon('./icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
+        actionCircularDiagram.triggered.connect(self.openCircularDiagram)
+        self.chooseGraph.addAction(actionCircularDiagram)
+
+        actionStackPlotDiagram = QAction(QIcon('./icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
+        actionStackPlotDiagram.triggered.connect(self.openStackPlotDiagram)
+        self.chooseGraph.addAction(actionStackPlotDiagram)
+
+        actionOtherDiagram = QAction(QIcon('./icon/graph.png'), 'Autres Représentations', self)
+        actionOtherDiagram.triggered.connect(self.openOtherDiagram)
+        self.chooseGraph.addAction(actionOtherDiagram)
+
+
 
     def createAction(self):
         self.save = QAction(QIcon("./icon/save.png"), " &save", self)
@@ -246,10 +278,22 @@ class SGModel(QMainWindow):
     # Create the function for the action of the menu
     # Loading a Save
 
+    def openLinearDiagram(self):
+        SGWindowsGraph(self).action_one_graph()
+    def openHistoDiagram(self):
+        SGWindowsGraph(self).action_histogram_diagram()
+    def openStackPlotDiagram(self):
+        SGWindowsGraph(self).action_stackplot_diagram()
+
+    def openCircularDiagram(self):
+        SGWindowsGraph(self).action_circular_diagram()
+
+    def openOtherDiagram(self):
+        SGWindowChooseGraph(self).show()
+
     def openChooseGraph(self):
         """IN TEST"""
-        self.sgWindowChooseGraph = SGWindowChooseGraph(self)
-        self.sgWindowChooseGraph.show()
+        SGWindowChooseGraph(self).show()
 
     def openFromSave(self):
         """To be implemented"""
@@ -276,13 +320,15 @@ class SGModel(QMainWindow):
         return True
 
     # Trigger the next turn
-
     def nextTurn(self):
+        #print("test")
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
+        # connect(self.nextTurn)
         self.timeManager.nextPhase()
         # Tester recupération et affichage de données dans le diagramme après avoir cliquer sur play
-        #sgTestGetData = SGTestGetData(self)
-        #sgTestGetData.view_diagram()
+
+        #SGDiagram(self).update_data_signal.emit()
+
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
 
@@ -454,6 +500,7 @@ class SGModel(QMainWindow):
         return aList
 
     def getAllEntities(self):
+
         # send back the cells of all the grids and the agents of all the species
         aList= []
         for entDef in self.cellOfGrids.values():

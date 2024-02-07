@@ -16,7 +16,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         # super().__init__(entDefAttributesAndValues)
         self.model= sgModel
         self.entityName=entityName
-        # self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
+        self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
         self.attributesDefaultValues={}
         self.shape=shape
         self.defaultsize=defaultsize
@@ -391,8 +391,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        # self.saveHistoryValue()    
+        #self.saveHistoryValue()
+        #print("name self : ", self.entities)
         self.dictAttributes[aAttribut]=aValue
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True

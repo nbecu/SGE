@@ -19,6 +19,7 @@ class SGSimulationVariable():
         self.color=color
         self.isDisplay=isDisplay
         self.watchers=[]
+
         
 
     def setValue(self,newValue):
