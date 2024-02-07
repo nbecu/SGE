@@ -8,37 +8,29 @@ from PyQt5.QtCore import pyqtSignal
 
 
 class SGToolBar(NavigationToolbar):
-    def __init__(self, canvas, parent, model):
+    def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
-
+        self.typeDiagram = typeDiagram
         self.data_combobox = QComboBox(parent)
         self.data_combobox.currentIndexChanged.connect(self.update_plot)
-        #self.addWidget(self.data_combobox)
 
         self.data_1_combobox = QComboBox(parent)
         self.data_1_combobox.currentIndexChanged.connect(self.update_plot)
         self.addWidget(self.data_1_combobox)
-
         self.data_2_combobox = QComboBox(parent)
         self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
         self.addWidget(self.data_2_combobox)
-
         self.display_indicators_menu = QMenu("Indicators", self)
-
         self.ax = parent.ax
         self.model = model
-        self.title = 'SG Diagramme' #title
+        self.title = 'SG Diagramme'
         self.dict_keyfilter = {}
         self.list_options = []
         self.list_indicators = []
         self.combobox_1_data = {"SGEntities": "entityName", "SGEntityDef": "entityDef", "Player": "currentPlayer"}
-
         self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1', 'Autres': '2'}
-
         self.checKbox_indicators_data = ["type", "Attribut", "Mean", "Min", "Max", "St Dev"]
         self.checKbox_indicators = {}
-
-
 
         self.axhlines = []
         self.linestyles = ['-', '--', '-.', ':']
@@ -62,7 +54,8 @@ class SGToolBar(NavigationToolbar):
 
     def set_checkbox_values(self):
         self.checKbox_indicators = {}
-        #display_indicators = ["type", "Attribut", "Mean", "Min", "Max", "St Dev"]
+        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+            self.checKbox_indicators_data = ["type", "Attribut"]
         for option in self.checKbox_indicators_data:
             action = QAction(option, self, checkable=True)
             action.setChecked(True)
@@ -109,20 +102,18 @@ class SGToolBar(NavigationToolbar):
             data = self.getAllHistoryData()
             y_data = list(set(entry[value_cmb_1] for entry in data if entry[value_cmb_1] is not None))
             index = self.data_1_combobox.currentIndex()
-            self.plot_data(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2, isHidden=False)
+            if self.typeDiagram == 'plot':
+                self.plot_data_typeDiagram_plot(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2, isHidden=False)
+            elif self.typeDiagram == 'pie':
+                self.plot_data_typeDiagram_pie(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
+                                                isHidden=False)
+            elif self.typeDiagram == 'hist':
+                self.plot_data_typeDiagram_hist(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
+                                                isHidden=False)
+            elif self.typeDiagram == 'stackplot':
+                self.plot_data_typeDiagram_stackplot(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
+                                                isHidden=False)
 
-
-        """
-        if self.data_1_combobox.currentIndex() == key_cmb_1:
-            print("kValue : ", kValue)
-        index = self.data_1_combobox.currentIndex()
-        key = 'entityDef'
-        if index >= 0:
-            kValue = self.data_1_combobox.currentIndex()
-            #print("kValue : ", kValue)"""
-
-        #print("key : ", key )
-        #print("index : ", index)
 
     def getAllHistoryData(self):
         historyData = []
@@ -131,37 +122,7 @@ class SGToolBar(NavigationToolbar):
             historyData.append(h)
         return historyData
 
-    def getAllData(self):
-        data = self.getAllHistoryData()
-        phases = set(entry['phase'] for entry in data)
-        rounds = set(entry['round'] for entry in data)
-        self.cell_data = [
-            sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry['entityDef'] == 'Cell')
-            for r in rounds for p in phases]
-        self.agent_data = [
-            sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry['entityDef'] == 'Agent')
-            for r in rounds for p in phases]
-        self.xValue = [r * len(phases) + p for r in rounds for p in phases]
-        self.data = data
-
-
-    def display_line(self, isChecked, numberBtn):
-        self.hide_line(numberBtn, isChecked)
-
-    def hide_line(self, number, isChecked):
-        try:
-            if number >= 0 and number < len(self.ax.lines) and self.ax.lines[number] is not None:
-                if isChecked == 2:
-                    self.ax.lines[number].set_visible(True)
-                    print("DISPLAY numberBtn : {} , isChecked : {} , name : {}".format(number, isChecked,  self.ax.lines[number]._label))
-                else:
-                    self.ax.lines[number].set_visible(False)
-                    print("HIDE numberBtn : {} , isChecked : {}".format(number, isChecked))
-        except Exception as e:
-            print(f"ERROR {e}")
-
-    def plot_data(self, key, iist_y_data, index, option, isHidden):
-        #self.parent.ax = self.canvas.figure.axes[0]
+    def plot_data_typeDiagram_stackplot(self, key, iist_y_data, index, option, isHidden):
         self.ax.clear()
         value_checkbox_3 = self.get_checkbox_indicators_selected()
         data = self.getAllHistoryData()
@@ -175,17 +136,173 @@ class SGToolBar(NavigationToolbar):
             phases = set(entry['phase'] for entry in data)
             self.xValue = [r * len(phases) + p for r in rounds for p in phases]
 
-        print("option :: ", option)
-        print("rounds :: ", rounds)
-        print("phases :: ", list(phases))
+        list_data = []
+        list_labels = []
+        for pos, val in enumerate(iist_y_data):
+            y = [sum(1 for entry in data if
+                     entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
+                 for r in rounds for p in phases]
+            list_labels.append(str(val).capitalize())
+            list_data.append(y)
 
-        #for val in kValue:
+            for ind in value_checkbox_3:
+                if ind == 'type':
+                    typeDef = str(val).capitalize()
+                    if str(val).capitalize() != 'Cell':
+                        typeDef = 'Agent'
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(
+                                 val).capitalize())
+                         for r in rounds for p in phases]
+                    list_data.append(y)
+                    list_labels.append(f"Type : {str(typeDef).upper()}")
+                elif ind == 'Attribut':
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
+                         for r in rounds for p in phases]
+                    list_data.append(y)
+                    list_labels.append(f"Health: {str(val).upper()}")
+
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
+                         for r in rounds for p in phases]
+                    list_data.append(y)
+                    list_labels.append(f"LandUse: {str(val).upper()}")
+
+        self.ax.cla()
+        self.ax.stackplot(range(len(list_data[0])), *list_data, labels=list_labels)
+        self.ax.set_title('Stack Plot')
+
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+
+    def plot_data_typeDiagram_hist(self, key, iist_y_data, index, option, isHidden):
+        self.ax.clear()
+        value_checkbox_3 = self.get_checkbox_indicators_selected()
+        data = self.getAllHistoryData()
+        rounds = set(entry['round'] for entry in data)
+
+        if option == '1':
+            rounds = [max(list(set(entry['round'] for entry in data)))]
+            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
+            self.xValue = [p for r in rounds for p in phases]
+        else:
+            phases = set(entry['phase'] for entry in data)
+            self.xValue = [r * len(phases) + p for r in rounds for p in phases]
+
+        list_data = []
+        list_labels = []
+        for pos, val in enumerate(iist_y_data):
+            y = [sum(1 for entry in data if
+                     entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
+                 for r in rounds for p in phases]
+            list_labels.append(str(val).capitalize())
+            list_data.append(y)
+
+            for ind in value_checkbox_3:
+                if ind == 'type':
+                    typeDef = str(val).capitalize()
+                    if str(val).capitalize() != 'Cell':
+                        typeDef = 'Agent'
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(
+                                 val).capitalize())
+                         for r in rounds for p in phases]
+                    list_data.append(y)
+                    list_labels.append(f"Type : {str(typeDef).upper()}")
+                elif ind == 'Attribut':
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
+                         for r in rounds for p in phases]
+                    list_data.append(y)
+                    list_labels.append(f"Health: {str(val).upper()}")
+
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
+                         for r in rounds for p in phases]
+                    list_data.append(y)
+                    list_labels.append(f"LandUse: {str(val).upper()}")
+
+        self.ax.cla()
+        for i in range(len(list_data)):
+             print("data{} = {} , label = {} ".format(i, list_data[i], list_labels[i]))
+             self.ax.hist(list_data[i], bins=len(list_data), alpha=0.5, label=list_labels[i])
+
+        self.ax.set_title('Histogram')
+
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+    def plot_data_typeDiagram_pie(self, key, iist_y_data, index, option, isHidden):
+        self.ax.clear()
+        value_checkbox_3 = self.get_checkbox_indicators_selected()
+        data = self.getAllHistoryData()
+        rounds = set(entry['round'] for entry in data)
+
+        if option == '1':
+            rounds = [max(list(set(entry['round'] for entry in data)))]
+            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
+        else:
+            phases = set(entry['phase'] for entry in data)
+
+        list_data = []
+        list_labels = []
+        for pos, val in enumerate(iist_y_data):
+            y = [sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
+                for r in rounds for p in phases]
+            list_labels.append(str(val).capitalize())
+            list_data.append(sum(y))
+
+            for ind in value_checkbox_3:
+                if ind == 'type':
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(val).capitalize())
+                         for r in rounds for p in phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Type : {str(val).upper()}")
+                elif ind == 'Attribut':
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
+                             for r in rounds for p in phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Health: {str(val).upper()}")
+
+                    y = [sum(1 for entry in data if
+                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
+                         for r in rounds for p in phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"LandUse: {str(val).upper()}")
+
+        self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+        self.ax.axis('equal')
+
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+
+    def plot_data_typeDiagram_plot(self, key, iist_y_data, index, option, isHidden):
+        self.ax.clear()
+        value_checkbox_3 = self.get_checkbox_indicators_selected()
+        data = self.getAllHistoryData()
+        rounds = set(entry['round'] for entry in data)
+
+        if option == '1':
+            rounds = [max(list(set(entry['round'] for entry in data)))]
+            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
+            self.xValue = [p for r in rounds for p in phases]
+        else:
+            phases = set(entry['phase'] for entry in data)
+            self.xValue = [r * len(phases) + p for r in rounds for p in phases]
+
         for pos, val in enumerate(iist_y_data):
             y = [sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
                 for r in rounds for p in phases]
             self.ax.plot(self.xValue, y, label= str(val).upper(), linestyle=self.linestyles[pos % len(self.linestyles)],
                     color=self.colors[pos % len(self.colors)])
-
             for ind in value_checkbox_3:
                 if ind == 'type':
                     y = [sum(1 for entry in data if
@@ -196,11 +313,11 @@ class SGToolBar(NavigationToolbar):
                     y = [sum(1 for entry in data if
                              entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
                              for r in rounds for p in phases]
-                    self.ax.plot(y, linestyle='--', color='green', label=f"Attribut-health : {str(val).upper()}")
+                    self.ax.plot(y, linestyle='--', color='black', label=f"Attribut-health : {str(val).upper()}")
                     y = [sum(1 for entry in data if
                              entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
                          for r in rounds for p in phases]
-                    self.ax.plot(y, linestyle='--', color='gray', label=f"Attribut-landUse: {str(val).upper()}")
+                    self.ax.plot(y, linestyle='--', color='blue', label=f"Attribut-landUse: {str(val).upper()}")
                 elif ind == 'St Dev':
                     self.ax.axhline(0, linestyle='dotted', color='pink', label=f"St Dev : {str(val).upper()}")
                 elif ind == 'Max':
@@ -208,26 +325,12 @@ class SGToolBar(NavigationToolbar):
                 elif ind == 'Min':
                     self.ax.axhline(0, linestyle='--', color='blue', label=f"Min : {str(val).upper()}")
 
-
         for i in range(0, max(self.xValue) + 1, 7):
             round_lab = f"Round {int((i + 1) / 7)}"
             self.ax.axvline(x=i, color='r', linestyle=':')
             self.ax.text(i, 1, round_lab, color='r', ha='right', va='top', rotation=90,
                          transform=self.ax.get_xaxis_transform())
 
-
         self.ax.legend()
         self.ax.set_title(self.title)
-
-        # Add axhline for this data
-        """self.ax.axhline(y=np.random.uniform(-1, 1), color=self.colors[index % len(self.colors)],
-                   linestyle=self.linestyles[index % len(self.linestyles)])"""
-
-        """print("len xValue : ", len(self.xValue))
-        print("len y : ", len(y))
-        print("key : ", key )
-        print("kValue : ", str(kValue).capitalize())
-        print("index : ", index)"""
-
         self.canvas.draw()
-
