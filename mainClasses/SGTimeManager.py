@@ -22,11 +22,12 @@ class SGTimeManager():
 
     # To increment the time of the game
     def nextPhase(self):
+        self.model.dataRecorder.collectCurrentStepData()
+
         if len(self.phases) != 0:
 #          Cette instructio a été commenté car il n'y a pas vraiment de raison e faire un test pour savoir si le current player est soit ml'un des joueurs soit l'admin
 #         if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
             
-            self.model.dataRecorder.collectCurrentStepData()
 
             end = self.checkEndGame()
             if not end:

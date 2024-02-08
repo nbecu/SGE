@@ -89,8 +89,8 @@ aModelAction4.addCondition(lambda: Cell.nb_withValue("landUse","forest")> 10)
 aModelAction4.addFeedback(lambda: score1.incValue(3))
 myModel.timeManager.newModelPhase(aModelAction4)
 
-dataTest = SGTestGetData(myModel)
-myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
+# dataTest = SGTestGetData(myModel)
+# myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
 
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')

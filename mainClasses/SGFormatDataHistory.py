@@ -52,8 +52,8 @@ class SGFormatDataHistory():
             """
             for aAttribute, historyList in aEntity.history["value"].items():
                 self.dictOfData[entName][entId].setdefault(aAttribute,[])
-                #h = historyList[-1] #  format (h['round'], h['phase'], h['value']))
-                h = historyList
+                h = historyList[-1] #  format (h['round'], h['phase'], h['value']))
+                # h = historyList
                 #print("h : ", historyList)
                 if (h[0] !=  currentRound) or ((h[0] ==  currentRound) and (h[1] !=  currentPhase)):
                     valueToRecordAtThisStep = self.dictOfData[entName][entId][aAttribute][-1]
@@ -64,7 +64,7 @@ class SGFormatDataHistory():
 
 
                 self.dictOfData[entName][entId][aAttribute].append(valueToRecordAtThisStep)
-        #print(self.dictOfData)
+        print(self.dictOfData)
 
     """
     def collectLastStepData(self):

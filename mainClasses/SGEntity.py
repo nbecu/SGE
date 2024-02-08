@@ -167,18 +167,18 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         return not self.isDisplay
     #To handle the attributs and values
 
-    def setValue(self,aAttribut,aValue):
-        """
-        Sets the value of an attribut
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
-        """
+    # def setValue(self,aAttribut,aValue):
+    #     """
+    #     Sets the value of an attribut
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be set
+    #     """
 
-        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.saveHistoryValue()
+    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+    #     self.saveHistoryValue()
 
-        self.dictAttributes[aAttribut]=aValue
+    #     self.dictAttributes[aAttribut]=aValue
 
 
 
