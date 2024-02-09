@@ -12,7 +12,7 @@ class SGAgent(QtWidgets.QWidget):
     instances=[]
     
 #FORMAT of agent avalaible : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
-    def __init__(self,parent,name,format,defaultsize,dictOfAttributs,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
+    def __init__(self,parent,name,format,defaultsize,dictAttributes,id,me,uniqueColor=Qt.white,methodOfPlacement="random"):
         super().__init__(parent)
         #Basic initialize
         self.me=me
@@ -28,7 +28,7 @@ class SGAgent(QtWidgets.QWidget):
         self.startXBase=0
         self.startYBase=0
         #We init the dict of Attribute
-        self.dictOfAttributs=dictOfAttributs
+        self.dictAttributes=dictAttributes
         #For the placement of the agents
         self.methodOfPlacement=methodOfPlacement
         self.x=0
@@ -311,33 +311,33 @@ class SGAgent(QtWidgets.QWidget):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    #To set up a POV
-    def newPov(self,nameofPOV,concernedAtt,dictOfColor):
-        """
-        Declare a new Point of View for the Species.
+    #To set up a POV   OBSOLETE
+    # def newPov(self,nameofPOV,concernedAtt,dictOfColor):
+    #     """
+    #     Declare a new Point of View for the Species.
 
-        Args:
-            self (Species object): aSpecies
-            nameOfPov (str): name of POV, will appear in the interface
-            concernedAtt (str): name of the attribut concerned by the declaration
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+    #     Args:
+    #         self (Species object): aSpecies
+    #         nameOfPov (str): name of POV, will appear in the interface
+    #         concernedAtt (str): name of the attribut concerned by the declaration
+    #         DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
             
-        """
-        if self.model.agentSpecies[str(self.name)]['me']=='collec':
-            self.model.agentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
-            self.addPovinMenuBar(nameofPOV)
-        else:
-            print("Warning, a POV can be only define on a Species")
+    #     """
+    #     if self.model.agentSpecies[str(self.name)]['me']=='collec':
+    #         self.model.agentSpecies[str(self.name)]["POV"][str(nameofPOV)]={str(concernedAtt):dictOfColor}
+    #         self.addPovinMenuBar(nameofPOV)
+    #     else:
+    #         print("Warning, a POV can be only define on a Species")
 
     def addPovinMenuBar(self,nameOfPov):
         if nameOfPov not in self.model.listOfPovsForMenu :
             self.model.listOfPovsForMenu.append(nameOfPov)
             anAction=QAction(" &"+nameOfPov, self)
             self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
+            anAction.triggered.connect(lambda: self.model.displayPov(nameOfPov))
         
 
-    def setValueAgent(self,attribut,value):
+    def setValue(self,attribut,value):
         """
         Update a Agent attribut value
 

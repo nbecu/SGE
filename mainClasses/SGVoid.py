@@ -30,5 +30,5 @@ class SGVoid(SGGameSpace):
         return True
 
     # To choose the inital pov
-    def setInitialPov(self, nameOfPov):
+    def displayPov(self, nameOfPov):
         return True

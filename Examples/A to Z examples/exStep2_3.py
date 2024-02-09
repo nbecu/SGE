@@ -8,15 +8,15 @@ myModel=SGModel(600,400, windowTitle="A board with hexagonal cells")
 
 # You can change the specifications of the grid cells 
 # For example you can change the shape of the cells
-aGrid=myModel.newGrid(10,10,"hexagonal",size=30)
+Cell=myModel.newCellsOnGrid(10,10,"hexagonal",size=30)
 
-aGrid.setCells("landUse","grass")
-aGrid.setCells_withColumn("landUse","forest",1)
-aGrid.setCells_withColumn("landUse","forest",2)
-aGrid.setRandomCells("landUse","shrub",10)
+Cell.setEntities("landUse","grass")
+Cell.setEntities_withColumn("landUse","forest",1)
+Cell.setEntities_withColumn("landUse","forest",2)
+Cell.setRandomEntities("landUse","shrub",10)
 
-myModel.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
-myModel.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
+Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
+Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 myModel.launch() 
 

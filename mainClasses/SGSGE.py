@@ -6,3 +6,4 @@ from mainClasses.SGCell import SGCell
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import random

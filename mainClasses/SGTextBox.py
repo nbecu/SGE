@@ -17,7 +17,7 @@ class SGTextBox(SGGameSpace):
         self.borderColor = borderColor
         self.sizeX = sizeX
         self.sizeY = sizeY
-        self.y = 0
+        self.y1 = 0
         self.labels = 0
         self.moveable = True
         self.haveToBeClose = False
@@ -37,7 +37,8 @@ class SGTextBox(SGGameSpace):
 
         # Create a title
         self.labelTitle = QtWidgets.QLabel(self.title)
-        font = QFont("Verdana", 12)
+        font = QFont()
+        font.setPixelSize(14)
         font.setBold(True)
         self.labelTitle.setFont(font)
 
@@ -48,12 +49,12 @@ class SGTextBox(SGGameSpace):
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textEdit.setStyleSheet(
             "border: none;background-color: lightgray;")
-        font = QFont("Verdana", 12)
-        self.textEdit.setFont(font)
+        # font = QFont("Verdana", 12)
+        # self.textEdit.setFont(font)
 
-        """# Create a QPushButton to update the text
-        self.button = QtWidgets.QPushButton("Update Text")
-        self.button.clicked.connect(self.updateText)"""
+        # Create a QPushButton to update the text
+        # self.button = QtWidgets.QPushButton("Update Text")
+        # self.button.clicked.connect(self.updateText)
 
         # Create a QVBoxLayout to hold the QTextEdit and QPushButton
         layout = QtWidgets.QVBoxLayout()
@@ -71,7 +72,7 @@ class SGTextBox(SGGameSpace):
     # Function to have the global size of a gameSpace
 
     def getSizeXGlobal(self):
-        return 300
+        return 150
 
     def getSizeYGlobal(self):
         return 150
@@ -92,19 +93,6 @@ class SGTextBox(SGGameSpace):
             painter.drawRect(0, 0, self.sizeX, self.sizeY)
 
         painter.end()
-
-    def mouseMoveEvent(self, e):
-
-        if self.moveable == False:
-            return
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.pos())
-        drag.exec_(Qt.MoveAction)
 
     def show_menu(self, point):
         menu = QMenu(self)

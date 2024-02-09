@@ -7,16 +7,16 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"About agents (2)")
 
-theFirstGrid=myModel.newGrid(10,10,"hexagonal",Qt.gray, name="basicGrid")
+theFirstGrid=myModel.newCellsOnGrid(10,10,"hexagonal",color=Qt.gray, name="basicGrid")
 myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
-myModel.setInitialPov("Forester")
+myModel.displayPov("Forester")
 
-theFirstGrid.setRandomCells("Forest","Niv1",30)
-theFirstGrid.setRandomCells("Forest","Niv2",4)
+theFirstGrid.setRandomEntities("Forest","Niv1",30)
+theFirstGrid.setRandomEntities("Forest","Niv2",4)
 
 anAgentLac=myModel.newAgent("lac","circleAgent",[theFirstGrid])
 #myModel.setUpEntityValueAndPov("Forester",{"boat":{"new":Qt.blue,"old":Qt.cyan}},"lac","boat","old",[theFirstGrid])
-theFirstLegend=myModel.newLegendAdmin()
+theFirstLegend=myModel.newLegend()
 
 # Agents can be also placed by a player
 # After calling your player and set time à 0

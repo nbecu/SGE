@@ -1,47 +1,54 @@
-# TO BE CONTINUED
-# #Class who manage a action to be executed by the model.
-# It can handle more than one action, as well as a trigger condition, feedback actions and condition for feedbacks 
+# A ModelAction manages an action to be executed by the model.
+# It can handle more than one action, as well as a trigger condition.
+# Feedbacks are modelActions that are executed after the actions (in case the actions have been executed)
+# Each feedback beeing a modelActtion, can have one or several actions and can have conditions
+# There are no feedbacksIfFalse for the moment (feedbacks that are executed if the condition of the main modelAction is not verified) 
 class SGModelAction():
-    def __init__(self,actions=[],conditions=[],feedbacks=[]):
-        self.actions=[]
-        self.conditions=[]
-        self.feedbacks=[]
-        if isinstance(actions, list):
-            self.actions=actions
-        elif callable(actions): 
-            self.actions= [actions]
-        else:
-            raise ValueError("Syntax error of actions")
-        if isinstance(conditions, list):
-            self.conditions=conditions
-        elif callable(conditions): 
-            self.conditions= [conditions]
-        # if len(conditions) !=0:
-        #     self.conditions = conditions # to be corrected
-        #     breakpoint
-        # self.testIfCallableAndPutInList(conditions)
-        self.feedbacks=feedbacks
+    def __init__(self,sgModel,actions=[],conditions=[],feedbacks=[]):
+        self.model = sgModel
+        self.actions=self.testIfCallableAndPutInList(actions)
+        self.conditions=self.testIfCallableAndPutInList(conditions)
         
-        
-    #Function to test if the game action could be use
-    def getAuthorize(self,anObject):
-        """NOT TESTED"""
-        returnValue=True
-        #We check each condition 
-        for aCond in self.restrictions:
-            returnValue=returnValue and aCond(anObject)
-        if self.numberUsed+1>self.number:
-            returnValue=False
-        return returnValue
+        # if isinstance(feedbacks, list):
+        #     if any(not isinstance(item, SGModelAction) for item in feedbacks):
+        #         raise ValueError("A feedback should be a ModelAction or list of ModelActions")
+        #     self.feedbacks=feedbacks
+        # elif isinstance(feedbacks, SGModelAction):
+        #     self.feedbacks=[feedbacks]
+        # else : raise ValueError("A feedback should be a ModelAction or list of ModelActions")
+        # The lines above hace been replaced by the following method
+        self.feedbacks = self.testIfCallableOrIfModelActionAndPutInListOfModelActions(feedbacks)
+    
 
     def testIfCallableAndPutInList(self,anObject):
-        if isinstance(anObject, list):
-            aList=anObject
+        if anObject is None:
+            return []
+        elif isinstance(anObject, list):
+            return anObject
         elif callable(anObject): 
-            aList = [anObject]
+            return [anObject]
         else:
             raise ValueError("Syntax error of actions")
-        return aList
+
+    def testIfCallableOrIfModelActionAndPutInListOfModelActions(self,anObject):
+        if anObject is None:
+            return []
+        elif callable(anObject): 
+            return [self.model.newModelAction(anObject)]
+        elif isinstance(anObject, SGModelAction):
+            return [anObject]
+        elif isinstance(anObject, list):
+            newList=[]
+            for aItem in anObject:
+                if callable(aItem):
+                    newList.append(self.model.newModelAction(anObject))
+                elif isinstance(aItem, SGModelAction):
+                    newList.append(anObject)
+                else: ("should be a ModelAction or a lambda function")
+            return newList
+        else:
+            raise ValueError("should be a ModelAction, a lambda function or a list")
+
 
     def testConditions(self):
         res = True 
@@ -105,8 +112,8 @@ class SGModelAction():
     # def addConditionOfFeedBack(self,aCondition):
     #     self.conditionOfFeedBack.append(aCondition)
         
-    def setRandomCells(self, att, value,nb):
-        self.actions = self.actions + [lambda : self.model.grid.setRandomCells(att, value,nb)]
+    def setRandomEntities(self, att, value,nb):
+        self.actions = self.actions + [lambda : self.model.grid.setRandomEntities(att, value,nb)]
         return self
 
   
@@ -114,8 +121,8 @@ class SGModelAction():
     
 
 class SGModelAction_OnEntities(SGModelAction):
-    def __init__(self,actions=[],conditions=[],feedbacks=[], entities=None):
-        super().__init__(actions,conditions,feedbacks)
+    def __init__(self,sgModel, actions=[],conditions=[],feedbacks=[], entities=None):
+        super().__init__(sgModel,actions,conditions,feedbacks)
                 # super().__init__(parent)
 
         self.entitiesContainer=None

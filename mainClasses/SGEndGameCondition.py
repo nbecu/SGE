@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import null
-import numpy as np
+# import numpy as np
 
-from mainClasses.SGIndicators import SGIndicators
+from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
@@ -59,7 +59,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
 
     def byCalcType(self):
         if self.calcType == 'onIndicator':
-            if isinstance(self.entity, SGIndicators):
+            if isinstance(self.entity, SGIndicator):
                 valueToCheck = self.entity.result
                 if self.logicalTests(valueToCheck, self.method, self.objective):
                     self.checkStatus = True
@@ -69,7 +69,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
                 return
         if self.calcType == 'onEntity':
             if isinstance(self.entity, SGCell):
-                valueToCheck = self.entity.dictOfAttributs[self.attribut]
+                valueToCheck = self.entity.dictAttributes[self.attribut]
                 if type(valueToCheck) == str:
                     valueToCheck = int(valueToCheck)
                 if self.logicalTests(valueToCheck, self.method, self.objective):
@@ -78,7 +78,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
             if isinstance(self.entity, SGAgent):
                 print("To be implemented...")
         if self.calcType == "onGameRound":
-            valueToCheck = self.endGameRule.model.timeManager.getRoundNumber()
+            valueToCheck = self.endGameRule.model.timeManager.currentRoundNumber
             if self.logicalTests(valueToCheck, self.method, self.objective):
                 self.checkStatus = True
                 return
