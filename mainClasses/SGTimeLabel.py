@@ -33,6 +33,10 @@ class SGTimeLabel(SGGameSpace):
 
         if self.id is not None:
             self.labelTitle.setText(self.id)
+            font = QFont()
+            font.setBold(True)
+            font.setPixelSize(14)
+            self.labelTitle.setFont(font)
         self.label1.setText('Round Number: Not started')
         self.label2.setText('Phase Number: Not started')
         currentPhaseNumber = self.timeManager.phases[int(
@@ -74,11 +78,8 @@ class SGTimeLabel(SGGameSpace):
 
         # Ajouter les widgets au layout avec un espace de 10 pixels entre eux
         layout.addWidget(self.labelTitle)
-        layout.addSpacing(10000)
         layout.addWidget(self.label1)
-        layout.addSpacing(10000)
         layout.addWidget(self.label2)
-        layout.addSpacing(10000)
         layout.addWidget(self.label3)
 
         # Définir le layout pour le widget

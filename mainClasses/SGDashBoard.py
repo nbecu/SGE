@@ -37,7 +37,6 @@ class SGDashBoard(SGGameSpace):
         title = QtWidgets.QLabel(self.id)
         font = QFont()
         font.setBold(True)
-        font.setUnderline(True)
         font.setPixelSize(14)
         title.setFont(font)
         color = QColor(self.titleColor)
@@ -73,7 +72,7 @@ class SGDashBoard(SGGameSpace):
         else:
             return False
 
-    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",atSpecifiedPhases=None,isDisplay=True):
+    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
         
         """
         Add an Indicator on the DashBoard.
@@ -86,14 +85,14 @@ class SGDashBoard(SGGameSpace):
             color (Qt.color) : text color
             logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
             title (str, optionnal) : name displayed on the dashboard
-            displayRefresh (str) : instantaneous (default) or atSpecifiedPhases
-            atSpecifiedPhases (dict, only if displayRefresh=atSpecifiedPhase) : a type and a specifiedValue
-                'atSpecifiedPhases' a dict with type of conditions and specified value 
+            displayRefresh (str) : instantaneous (default) or onTimeConditions
+            onTimeConditions (dict, only if displayRefresh=atSpecifiedPhase) : a type and a specifiedValue
+                'onTimeConditions' a dict with type of conditions and specified value 
                 phaseName   (str or list of str)
                 phaseNumber (int or list of int)
                 lambdaTestOnPhaseNumber (a lambda function with syntax [ phaseNumber : test with phaseNumber])
                 roundNumber (int or list of int)
-                lambdaTestOnRound   (a lambda function with syntax [ roundNumber : test with roundNumber])
+                lambdaTestOnRoundNumber   (a lambda function with syntax [ roundNumber : test with roundNumber])
             isDisplay (bool) : display on the dashboard (default : True)
 
         """
@@ -115,7 +114,7 @@ class SGDashBoard(SGGameSpace):
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,atSpecifiedPhases,isDisplay)
+        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay)
         self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
@@ -305,11 +304,11 @@ class SGDashBoard(SGGameSpace):
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):
-        return 70+len(self.getLongest())*5+70
+        return 70+len(self.getLongest())*5
 
     def getSizeYGlobal(self):
         somme = 150
-        return somme+len(self.indicatorNames)*20
+        return somme+len(self.indicatorNames)*5
 
     def getLongest(self):
         longestWord = ""

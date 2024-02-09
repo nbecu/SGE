@@ -37,7 +37,8 @@ class SGTextBox(SGGameSpace):
 
         # Create a title
         self.labelTitle = QtWidgets.QLabel(self.title)
-        font = QFont("Verdana", 12)
+        font = QFont()
+        font.setPixelSize(14)
         font.setBold(True)
         self.labelTitle.setFont(font)
 
@@ -48,8 +49,8 @@ class SGTextBox(SGGameSpace):
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textEdit.setStyleSheet(
             "border: none;background-color: lightgray;")
-        font = QFont("Verdana", 12)
-        self.textEdit.setFont(font)
+        # font = QFont("Verdana", 12)
+        # self.textEdit.setFont(font)
 
         # Create a QPushButton to update the text
         # self.button = QtWidgets.QPushButton("Update Text")
@@ -71,7 +72,7 @@ class SGTextBox(SGGameSpace):
     # Function to have the global size of a gameSpace
 
     def getSizeXGlobal(self):
-        return 300
+        return 150
 
     def getSizeYGlobal(self):
         return 150

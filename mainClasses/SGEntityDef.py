@@ -118,9 +118,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         # self.model.addPovinMenuBar(nameofPOV)
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
         if len(self.povShapeColor)==1:
-            self.setInitialPov(nameOfPov)
+            self.displayPov(nameOfPov)
 
-    def setInitialPov(self,nameOfPov):
+    def displayPov(self,nameOfPov):
         self.model.checkSymbologyinMenuBar(self,nameOfPov)
 
     def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):

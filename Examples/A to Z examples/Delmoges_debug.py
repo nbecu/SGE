@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid")
+myModel=SGModel(1100,550, windowTitle="Delmoges_FR", typeOfLayout ="grid")
 
 Cells=myModel.newCellsOnGrid(10,10,"square",size=40,gap=1)
 Cells.setEntities("type","mer")
@@ -134,7 +134,7 @@ def reset():
 
 PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
 
-GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",[Player1,Player2])
+GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
@@ -143,7 +143,7 @@ ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port(
 
 PhasePêche=myModel.timeManager.newModelPhase([ModelActionPêche,ModelActionFeedback], name="Pêche")
 PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
-PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement des stocks et retour au port")
+PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement stocks")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
 DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
@@ -163,28 +163,28 @@ DashBoard2=myModel.newDashBoard("DashBoard Gestionnaire")
 indMerlu=DashBoard2.addIndicatorOnEntity(Merlus,"stock",title="Stock de Merlus")
 indSole=DashBoard2.addIndicatorOnEntity(Soles,"stock",title="Stock de Soles")
 sep2=DashBoard2.addSeparator()
-indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",displayRefresh="atSpecifiedPhases",atSpecifiedPhases={"phaseNumber":4})
+indNbBonus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="bonus",title="Nb Bateau en zone bonus",displayRefresh="onTimeConditions",onTimeConditions={"phaseNumber":[4,1]})
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuBonus)
-indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",displayRefresh="atSpecifiedPhases",atSpecifiedPhases={"phaseNumber":4})
+indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",value="malus",title="Nb Bateau en zone malus",displayRefresh="onTimeConditions",onTimeConditions={"phaseNumber":[4,1]})
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus)
 
 
 Legend=myModel.newLegend(showAgentsWithNoAtt=True)
-TimeLabel=myModel.newTimeLabel("GameTime")
+TimeLabel=myModel.newTimeLabel("Time")
 
 userSelector=myModel.newUserSelector()
 tx_présence()
 
 # DELMOGES CUSTOM LAYOUT SOLUTION
-Cells.grid.moveToCoords(500,45)
-TimeLabel.moveToCoords(340,45)
+Cells.grid.moveToCoords(250,100)
+TimeLabel.moveToCoords(700,45)
 theTextBox.moveToCoords(20,45)
 Player1ControlPanel.moveToCoords(20,220)
-Player2ControlPanel.moveToCoords(150,220)
-userSelector.moveToCoords(20,330)
-Legend.moveToCoords(1030,70)
-DashBoard.moveToCoords(1225,45)
-DashBoard2.moveToCoords(1225,400)
+Player2ControlPanel.moveToCoords(700,220)
+userSelector.moveToCoords(280,35)
+Legend.moveToCoords(970,120)
+DashBoard.moveToCoords(20,330)
+DashBoard2.moveToCoords(700,330)
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")

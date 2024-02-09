@@ -189,21 +189,22 @@ class SGCell(SGEntity):
     
     # To show a menu
     def show_menu(self, point):
-        menu = QMenu(self)
-        text= "Agent count on this cell : "+str(len(self.agents))
-        option1 = QAction(text, self)
-        menu.addAction(option1)
+        pass
+    #     menu = QMenu(self)
+    #     text= "Agent count on this cell : "+str(len(self.agents))
+    #     option1 = QAction(text, self)
+    #     menu.addAction(option1)
 
-        x=self.x()
-        y=self.y()
-        text= "Coords : "+str(x)+","+str(y)
-        option2 = QAction(text, self)
-        menu.addAction(option2)
+    #     x=self.x()
+    #     y=self.y()
+    #     text= "Coords : "+str(x)+","+str(y)
+    #     option2 = QAction(text, self)
+    #     menu.addAction(option2)
 
-        # self.model.updateAgentsAtMAJ()  
+    #     # self.model.updateAgentsAtMAJ()  
         
-        if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
+    #     if self.rect().contains(point):
+    #         menu.exec_(self.mapToGlobal(point))
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use  

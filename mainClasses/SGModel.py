@@ -1074,7 +1074,7 @@ class SGModel(QMainWindow):
         return SGDelete(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback)
 
     def newMoveAction(self, anObjectType, aNumber, listOfConditions=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
-        #! TO DO : rajouter la possibilité de mettre une condition sur l'entité de destination 
+        #TODO : rajouter la possibilité de mettre une condition sur l'entité de destination 
         """
         Add a MoveAction to the game.
 

@@ -215,17 +215,14 @@ class SGLegend(SGGameSpace):
 
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        listOfLengths = [len(item.text) for item in self.legendItems ]
+        listOfLengths = [len(item.text) for item in self.legendItems]
+        listOfLengths.append(len(self.id))
+        if self.haveADeleteButton :
+            listOfLengths.append(len('delete'))
         if len(listOfLengths)==0:
             return 250
         lMax= sorted(listOfLengths,reverse=True)[0]
-        if self.haveADeleteButton :
-            if lMax > len("delete"):
-                return lMax*5+50
-            else:
-                return len("delete")*5+50
-        else :
-            return lMax*10+60
+        return lMax*12+10
     
     def getLongest(self): #A priori Obsolete
         longestWord=""

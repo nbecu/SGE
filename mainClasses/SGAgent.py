@@ -301,7 +301,7 @@ class SGAgent(SGEntity):
             self.model.listOfPovsForMenu.append(nameOfPov)
             anAction=QAction(" &"+nameOfPov, self)
             self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
+            anAction.triggered.connect(lambda: self.model.displayPov(nameOfPov))
 
 
             

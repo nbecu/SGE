@@ -49,7 +49,8 @@ class SGTimeManager():
         if self.model.myTimeLabel is not None:
             self.model.myTimeLabel.updateTimeLabel()
         if self.model.userSelector is not None:
-            self.model.userSelector.updateUI(QHBoxLayout())
+            # self.model.userSelector.updateUI(QHBoxLayout())
+            self.model.userSelector.updateOnNewPhase()
 
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()

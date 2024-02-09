@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",atSpecifiedPhases=None,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -34,7 +34,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.logicOp=logicOp
         self.isDisplay=isDisplay
         self.displayRefresh=displayRefresh
-        self.specificPhase=atSpecifiedPhases 
+        self.timeConditions=onTimeConditions 
         self.memory=[]
         self.initUI()
         
@@ -104,29 +104,27 @@ class SGIndicator(QtWidgets.QWidget):
     def getUpdatePermission(self):
         if self.displayRefresh=='instantaneous':
             return True
-        if self.displayRefresh=='atSpecifiedPhases':
-            for typeCondition,specifiedValue in self.specificPhase.items():
+        if self.displayRefresh=='onTimeConditions':
+            testResult=True
+            for typeCondition,specifiedValue in self.timeConditions.items():
                 if typeCondition == 'phaseName' :
-                    testResult=self.updateOnPhaseName(specifiedValue)
-                    return testResult
+                    aTest=self.updateOnPhaseName(specifiedValue) 
                 if typeCondition == 'phaseNumber' :
-                    testResult=self.updateOnPhaseNumber(specifiedValue)
-                    return testResult
+                    aTest=self.updateOnPhaseNumber(specifiedValue)
                 if typeCondition == 'roundNumber' :
-                    testResult=self.updateOnRoundNumber(specifiedValue)
-                    return testResult
+                    aTest=self.updateOnRoundNumber(specifiedValue)
                 if typeCondition == 'lambdaTestOnPhaseNumber' :
-                    testResult=self.lambdaTestOnPhaseNumber(specifiedValue)
-                    return testResult
-                if typeCondition == 'lambdaTestOnRound' :
-                    testResult=self.lambdaTestOnRound(specifiedValue)
-                    return testResult
+                    aTest=self.lambdaTestOnPhaseNumber(specifiedValue)
+                if typeCondition == 'lambdaTestOnRoundNumber' :
+                    aTest=self.lambdaTestOnRoundNumber(specifiedValue)
+                testResult = testResult and aTest
+            return testResult
 
         # self.userSettingsOnPhaseToUpdate() #! check again 
 
-                # Ex de la façon de coder le lambdaTestOnRound
-                #     for typeCondition,specifiedValue in atSpecifiedPhases.items()
-                #         if typeCondition == 'lambdaTestOnRound' :
+                # Ex de la façon de coder le lambdaTestOnRoundNumber
+                #     for typeCondition,specifiedValue in onTimeConditions.items()
+                #         if typeCondition == 'lambdaTestOnRoundNumber' :
                 #             testResult = specifiedValue(self.model.roundNumber)
                 #             return testResult
 
@@ -167,7 +165,7 @@ class SGIndicator(QtWidgets.QWidget):
             res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentPhaseNumber))
         return res
 
-    def lambdaTestOnRound(self,specifiedValue):
+    def lambdaTestOnRoundNumber(self,specifiedValue):
         res = True 
         currentRoundNumber=self.dashboard.model.timeManager.currentRoundNumber
         for aCondition in specifiedValue:

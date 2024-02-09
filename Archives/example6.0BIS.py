@@ -9,7 +9,7 @@ myModel=SGModel(1080,960,"About agents (2)")
 
 theFirstGrid=myModel.newCellsOnGrid(10,10,"hexagonal",color=Qt.gray, name="basicGrid")
 myModel.setUpEntityValueAndPov("Forester",{"Forest":{"Niv1":Qt.yellow,"Niv2":Qt.red,"Niv3":Qt.green},"sea":{"deep sea":Qt.blue,"reasonable":Qt.cyan}},[theFirstGrid],"sea","reasonable")
-myModel.setInitialPov("Forester")
+myModel.displayPov("Forester")
 
 theFirstGrid.setRandomEntities("Forest","Niv1",30)
 theFirstGrid.setRandomEntities("Forest","Niv2",4)

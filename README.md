@@ -41,9 +41,12 @@ SQLAlchemy        2.0.3
 ```
 
 ## Future plan
-- [ ] SGEntity class to replace SGCell and SGAgent
-- [x] Score and EndGame Rule refresh at each round
-- [ ] Find a permanent repair for Agent drag and drop
+- [ ] add a method "displayBorderPov" (similar to SGEntity>displayPov)
+- [ ] correct the zoom
+- [ ] unify font style sheets over all gameSpaces
+- [ ] add a modeler style sheet config methods for gameSpaces who don't have yet
+- [ ] main window auto resize
+- [ ] refractoring auto resize of text spacings in gameSpaces (using geometry)
 
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)

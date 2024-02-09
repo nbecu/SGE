@@ -45,7 +45,7 @@ class SGGameSpace(QtWidgets.QWidget):
         pass
     
     #To choose the inital pov when the game start
-    def setInitialPov(self,nameOfPov):
+    def displayPov(self,nameOfPov):
         pass
     
     

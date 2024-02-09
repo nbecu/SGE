@@ -142,8 +142,9 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setFont(aFont)
                 painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             elif self.type =="Title1":
-                aFont=QFont("Verdana",10)
-                aFont.setUnderline(True)
+                aFont = QFont()
+                aFont.setBold(True)
+                aFont.setPixelSize(14)
                 painter.setFont(aFont)
                 painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             elif self.type =="Title2":

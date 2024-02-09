@@ -17,6 +17,9 @@ class SGUserSelector(SGGameSpace):
         layout = QHBoxLayout()
         self.checkboxes = []
         title = QLabel("User Selector")
+        font = QFont()
+        font.setBold(True)
+        title.setFont(font)
         layout.addWidget(title)
         self.updateUI(layout)
         self.setLayout(layout)
@@ -24,20 +27,28 @@ class SGUserSelector(SGGameSpace):
     def updateUI(self, layout):
         for user in self.users:
             checkbox = QCheckBox(user, self)
-            if user == self.model.currentPlayer:
-                checkbox.setChecked(True)
-                # self.previousChecked = checkbox
-            authorizedPlayers = self.getAuthorizedPlayers()
-            if user not in authorizedPlayers:
-                checkbox.setEnabled(False)
             checkbox.stateChanged.connect(self.checkboxChecked)
-            for aCheckbox in self.checkboxes:
-                if checkbox.text() == aCheckbox.text():
-                    return
             self.checkboxes.append(checkbox)
             layout.addWidget(checkbox)
             layout.addSpacing(5)
+        for checkbox in self.checkboxes:
+                if checkbox.text() !="Admin":
+                    checkbox.setEnabled(False)
+                    checkbox.setChecked(False)
     
+    def updateOnNewPhase(self):
+        players=self.getAuthorizedPlayers()
+        alreadyChecked=False
+        for checkbox in self.checkboxes:
+            if checkbox.text() not in [aPlayer.name for aPlayer in players]:
+                checkbox.setEnabled(False)
+                checkbox.setChecked(False)
+            else:
+                checkbox.setEnabled(True)
+                if not alreadyChecked:
+                    checkbox.setChecked(True)
+                    alreadyChecked=True
+            
     def setCheckboxesWithSelection(self, aUserName):
         for checkbox in self.checkboxes:
             checkbox.setChecked(checkbox.text() == aUserName)
@@ -72,7 +83,7 @@ class SGUserSelector(SGGameSpace):
 
     # Funtion to have the global size of a gameSpace
     def getSizeXGlobal(self):
-        return 300
+        return 350
 
     def getSizeYGlobal(self):
         somme = 50
@@ -84,7 +95,7 @@ class SGUserSelector(SGGameSpace):
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         # Draw the corner of the US
-        self.setMinimumSize(self.getSizeXGlobal()+10, self.getSizeYGlobal()+10)
+        self.setMinimumSize(self.getSizeXGlobal()+15, self.getSizeYGlobal()+10)
         painter.drawRect(0, 0, self.getSizeXGlobal(), self.getSizeYGlobal())
 
         painter.end()
