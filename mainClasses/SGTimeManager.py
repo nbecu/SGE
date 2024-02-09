@@ -19,56 +19,7 @@ class SGTimeManager():
         self.currentPhaseNumber = 0
         self.phases = []
         self.conditionOfEndGame = []
-        # self.newGamePhase('Initialisation', None)
-
-    # # To increment the time of the game
-    # def nextPhase(self):
-    #     if len(self.phases) != 0:
-    #         end = self.checkEndGame()
-    #         if not end:
-    #             if self.currentPhaseNumber+2 <= len(self.phases):
-    #                 if len(self.phases) != 1:
-    #                     self.currentPhaseNumber = self.currentPhaseNumber + 1
-    #                     if self.model.myTimeLabel is not None:
-    #                         self.model.myTimeLabel.updateTimeLabel()
-
-    #             else:
-    #                 #reset GameActions count
-    #                 for action in self.model.getAllGameActions():
-    #                     action.reset()
-    #                 self.currentPhaseNumber = 1
-                
-
-    #             thePhase = self.phases[self.currentPhaseNumber]
-    #             # check conditions for the phase
-    #             doThePhase = True
-    #             if self.currentPhaseNumber == 1 and len(self.phases) > 1:
-    #                 self.currentRoundNumber += 1
-    #                 if self.model.myTimeLabel is not None:
-    #                     self.model.myTimeLabel.updateTimeLabel()
-    #                 if self.model.userSelector is not None:
-    #                     self.model.userSelector.updateUI(QHBoxLayout())
-
-    #             # execute the actions of the phase
-    #             if doThePhase:
-    #                 thePhase.execPhase()
-    #                 #watchers update
-    #                 self.model.checkAndUpdateWatchers()
-    #                 #mqtt update
-    #     #The instructions below have been commented temporarily to test a new process for broker msg  
-    #                 # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-    #                 #     self.model.publishEntitiesState()
-
-    #                 if isinstance(thePhase,SGModelPhase) and self.phases[self.currentPhaseNumber].autoForwardOn==True:
-    #                     pass
-
-    #             else:
-    #                 self.nextPhase()
-
-    # # To handle the victory Condition and the passment of turn
-
-
-# trying to refactor the nextPhase() method !
+        
     # To increment the time of the game
     def nextPhase(self):
         if len(self.phases) == 0:
@@ -84,7 +35,7 @@ class SGTimeManager():
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
 
-        elif self.isCurentPhase_Last()   : #This case is when  there is no nextphase after the current one. Therefor it is a next round
+        elif self.isCurrentPhase_Last()   : #This case is when  there is no nextphase after the current one. Therefor it is a next round
             self.currentRoundNumber += 1
             self.currentPhaseNumber = 1
             #reset GameActions count
@@ -93,34 +44,12 @@ class SGTimeManager():
 
         else : #This case is to advance to the next phase wthin the same round
             self.currentPhaseNumber += 1
-
-        # if self.currentPhaseNumber+2 <= len(self.phases):
-        #     if len(self.phases) != 1:
-        #         self.currentPhaseNumber = self.currentPhaseNumber + 1
-        #         if self.model.myTimeLabel is not None:
-        #             self.model.myTimeLabel.updateTimeLabel()
-
-        # else:
-        #     #reset GameActions count
-        #     for action in self.model.getAllGameActions():
-        #         action.reset()
-        #     self.currentPhaseNumber = 1
         
         # Process the widgets for this next phase/round
         if self.model.myTimeLabel is not None:
             self.model.myTimeLabel.updateTimeLabel()
         if self.model.userSelector is not None:
             self.model.userSelector.updateUI(QHBoxLayout())
-
-        # thePhase = self.phases[self.currentPhaseNumber]
-        # # check conditions for the phase
-        # doThePhase = True
-        # if self.currentPhaseNumber == 1 and len(self.phases) > 1:
-        #     self.currentRoundNumber += 1
-        #     if self.model.myTimeLabel is not None:
-        #         self.model.myTimeLabel.updateTimeLabel()
-        #     if self.model.userSelector is not None:
-        #         self.model.userSelector.updateUI(QHBoxLayout())
 
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()
@@ -139,7 +68,7 @@ class SGTimeManager():
                 if isinstance(self.getCurrentPhase().messageAutoForward,str):
                     aText = self.getCurrentPhase().messageAutoForward
                 else:
-                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isCurentPhase_Last() else ("the next phase: '"+self.getNextPhase().name+"'")) 
+                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isCurrentPhase_Last() else ("the next phase: '"+self.getNextPhase().name+"'")) 
                 msg_box.setText(aText)
                 msg_box.setStandardButtons(QMessageBox.Ok)
                 msg_box.setDefaultButton(QMessageBox.Ok)
@@ -148,7 +77,7 @@ class SGTimeManager():
                 # if result == QMessageBox.Ok:
             self.nextPhase()
 
-    def isCurentPhase_Last(self):
+    def isCurrentPhase_Last(self):
         return (self.currentPhaseNumber + 1) > len(self.phases) 
 
 

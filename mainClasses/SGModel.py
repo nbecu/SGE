@@ -217,7 +217,7 @@ class SGModel(QMainWindow):
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
-        self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
+        # self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
