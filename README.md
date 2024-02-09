@@ -43,10 +43,12 @@ SQLAlchemy        2.0.3
 ## Future plan
 - [ ] add a method "displayBorderPov" (similar to SGEntity>displayPov)
 - [ ] correct the zoom
-- [ ] unify font style sheets over all gameSpaces
+- [ ] unify font style sheets for SGEndGameRule
 - [ ] add a modeler style sheet config methods for gameSpaces who don't have yet
 - [ ] main window auto resize
 - [ ] refractoring auto resize of text spacings in gameSpaces (using geometry)
+- [ ] new gameAction : activate
+- [ ] rename Update gameAction to Modify
 
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)

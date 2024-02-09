@@ -150,7 +150,8 @@ class SGAgent(SGEntity):
     def showGearMenu(self,aText):
         # Get the actions from the player
         player=self.model.getPlayerObject(self.model.currentPlayer)
-        # if player != "Admin": #TODO trouver un moyen de ne pas faire de bug en Admin Mode
+        if player == "Admin":
+            return #TODO trouver un moyen de ne pas faire de bug en Admin Mode
         actions = player.getGameActionsOn(self) #! Select a player not Admin
         actionsNames =[action.name for action in actions]
         # Filter the actions by the concerned attribute
