@@ -25,14 +25,15 @@ class SGFormatDataHistory():
         for aEntity in self.model.getAllEntities():
             h = aEntity.getHistoryDataJSON()
             historyData.append(h)
-            dictOfData[aEntity.getObjectIdentiferForJsonDumps] = aEntity.history["value"]
+            #dictOfData[aEntity.getObjectIdentiferForJsonDumps] = aEntity.history["value"]
             """print("id: {}, entityName: {}, entityDef: {}, value: {}".
                   format(h['id'], h['entityName'], h['entityDef'], h['value']))"""
             # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
-        #print(historyData)
+        #print("historyData : ", len(historyData))
         return historyData
 
     def collectCurrentStepData(self):
+        #self.getAllDataSinceInitialization()
         """
         Collect data from the current step, just before the simulation moves on to the next step
         'Moving to the next step' means either 'Moving to the next phase of the round', or (if its the last phase of the round), 'Moving to the next round'
@@ -44,13 +45,16 @@ class SGFormatDataHistory():
             entId = aEntity.id
             self.dictOfData.setdefault(entName,{})
             self.dictOfData[entName].setdefault(entId,{})
+            history = aEntity.getHistoryDataJSON()
+            #print("len list_history : ", len(aEntity.list_history))
+
 
             """
             aEntity.history["value"] contains a list of the history of attribute value updates.
             Depending on the progress of the simulation, the last update of an attribute may have been made during the current step, or at a previous step in time.
             The instructions below check when the last update was made, in order to either collect the data from aEntity.history["value"], or to use the last data saved in self.dictOfData.
             """
-            for aAttribute, historyList in aEntity.history["value"].items():
+            """for aAttribute, historyList in aEntity.history["value"].items():
                 self.dictOfData[entName][entId].setdefault(aAttribute,[])
                 h = historyList[-1] #  format (h['round'], h['phase'], h['value']))
                 # h = historyList
@@ -61,10 +65,8 @@ class SGFormatDataHistory():
                 else:
                     valueToRecordAtThisStep = h[2]
                     #print("h 2 : ", h[2])
-
-
-                self.dictOfData[entName][entId][aAttribute].append(valueToRecordAtThisStep)
-        print(self.dictOfData)
+                self.dictOfData[entName][entId][aAttribute].append(valueToRecordAtThisStep)"""
+        #print(self.dictOfData)
 
     """
     def collectLastStepData(self):
