@@ -31,3 +31,8 @@ class SGDiagramCircular(QMainWindow):
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
         self.toolbar.update_plot()
+
+       # self.update_data_signal.connect(self.toolbar.update_plot)
+
+        #self.model.data_changed.connect(self.update_plot)
+

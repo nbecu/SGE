@@ -25,7 +25,7 @@ class AttributeAndValueFunctionalities():
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         # self.saveHistoryValue()
         # print("1- self.dictAttributes[aAttribut]==aValue : ", self.dictAttributes[aAttribut] == aValue)
-        # self.saveValueInHistory(aAttribut,aValue)    
+        #self.saveValueInHistory(aAttribut,aValue)
         self.dictAttributes[aAttribut]=aValue
         self.saveValueInHistory(aAttribut,aValue)
 

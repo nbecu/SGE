@@ -120,9 +120,10 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def getHistoryDataJSON(self):
         k = len(self.model.simulationVariables) - 1
         simvariable_dict = {}
-        if self.model.simulationVariables[k] and self.model.simulationVariables[k].name:
-            simvariable_dict = {'name': self.model.simulationVariables[k].name,
-                                'value': self.model.simulationVariables[k].value}
+        if len(self.model.simulationVariables)>0 and self.model.simulationVariables[k] and self.model.simulationVariables[k].name:
+            simvariable_dict = { self.model.simulationVariables[k].name: self.model.simulationVariables[k].value}
+            """simvariable_dict = {'name': self.model.simulationVariables[k].name,
+                                self.model.simulationVariables[k].name: self.model.simulationVariables[k].value}"""
         self.history = {
             'id': self.id,
             'currentPlayer': self.model.currentPlayer,

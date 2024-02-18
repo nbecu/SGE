@@ -1,9 +1,11 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, QPushButton, \
+    QCheckBox
 from PyQt5.QtCore import pyqtSignal
 
 
@@ -11,35 +13,325 @@ class SGToolBar(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
         self.typeDiagram = typeDiagram
-        self.data_1_combobox = QComboBox(parent)
-        self.data_1_combobox.currentIndexChanged.connect(self.update_plot)
-        self.addWidget(self.data_1_combobox)
+        button = QPushButton("Actualiser", self)
+        button.setIcon(QIcon("./icon/actualiser.png"))
+        button.clicked.connect(self.update_plot)
+        self.addWidget(button)
+
+        self.option_affichage_data = {"entityName": "Entités", "simVariable": "Simulation variables", "currentPlayer": "Players"}
+
         self.data_2_combobox = QComboBox(parent)
         self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
         self.addWidget(self.data_2_combobox)
-        self.display_indicators_menu = QMenu("Indicators", self)
         self.ax = parent.ax
         self.model = model
         self.title = 'SG Diagramme'
-        self.list_options = []
-        self.list_indicators = []
-        self.combobox_1_data = {"SGEntities": "entityName", "SGEntityDef": "entityDef", "Player": "currentPlayer"}
         self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1', 'Autres': '2'}
+
+        self.display_indicators_menu = QMenu("Indicators", self)
         self.checKbox_indicators_data = ["type", "Attribut", "Mean", "Min", "Max", "St Dev"]
         self.checKbox_indicators = {}
-
-        self.axhlines = []
-        self.linestyles = ['-', '--', '-.', ':']
-        self.colors = ['gray', 'g', 'b']
+        self.rounds = []
+        self.phases = []
+        #self.linestyles = ['-', '--', '-.', ':', 'dotted', 'dashdot']
+        self.linestyles = ['-', '--', '-.', ':', 'dashed', 'dashdot', 'dotted']
+        self.colors = ['gray', 'green', 'blue', 'red', 'black', 'orange', 'purple', 'pink', 'cyan', 'magenta']
         self.xValue = []
+        self.display_menu = QMenu("Affichage", self)
+        self.dictMenuData = {'entities': {}, 'simvariables': {}, 'players': {}}
+        self.checkbox_display_menu_data = {}
+        #self.checkbox_main_menu_data = {}
+        #self._navigation_toolbar = self.parent().addToolBar('Navigation')
+
+        #self.createDisplayMenu()
+        self.data = self.getAllData()
+        self.regenerate_menu(self.data)
+
+    def regenerate_menu(self, data):
+        attrib_data = ['populations'] if self.typeDiagram in ['pie', 'hist', 'stackplot'] else ['populations', 'mean', 'min', 'max', 'stdev']
+        players_list = {player['currentPlayer'] for player in data if
+                        'currentPlayer' in player and not isinstance(player['currentPlayer'], dict)}
+        entities_list = {entry['entityName'] for entry in data if
+                         'entityName' in entry and not isinstance(entry['entityName'], dict)}
+        simVariables_list = {attribut for entry in data for attribut in entry.get('simVariable', {})}
+
+        for player in players_list:
+            self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
+
+        for key in simVariables_list:
+            list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
+            self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data
+
+        for entity_name in entities_list:
+            attrib_dict = {}
+            for attribut_key in {attribut for entry in data for attribut in entry.get('attribut', {}) if
+                                 entry.get('entityName') == entity_name}:
+                attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for option_key
+                                             in attrib_data}
+            self.dictMenuData['entities'][entity_name] = attrib_dict
+
+        entitiesMenu = QMenu('Entités', self)
+        simulationMenu = QMenu('Simulation variables', self)
+        playersMenu = QMenu('Players', self)
+
+        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+            self.display_menu.addMenu(entitiesMenu)
+            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'])
+        else:
+            # Ajout des sous-menus au menu principal
+            self.display_menu.addMenu(entitiesMenu)
+            self.display_menu.addMenu(simulationMenu)
+            self.display_menu.addMenu(playersMenu)
+
+            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'])
+            self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'])
+            self.addSubMenus(playersMenu, self.dictMenuData['players'])
+        self.addAction(self.display_menu.menuAction())
+
+    def addSubMenus(self, parentMenu, subMenuData):
+        for key, value in subMenuData.items():
+            if isinstance(value, dict):
+                submenu = QMenu(key, self)
+                parentMenu.addMenu(submenu)
+                self.addSubMenus(submenu, value)
+            else:
+                action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), self, checkable=True)
+                action.setChecked(True)
+                action.setProperty("key", key)
+                action.triggered.connect(self.update_plot)
+                if key not in self.checkbox_display_menu_data:
+                    self.checkbox_display_menu_data[key] = action
+                """if parentMainMenu_title:
+                    self.checkbox_display_menu_data[parentMainMenu_title][key] = action
+                else:
+                    self.checkbox_display_menu_data[key] = action"""
+                parentMenu.addAction(action)
 
 
-    def set_combobox_1_items(self):
-        self.data_1_combobox.clear()
-        for display_text in self.combobox_1_data:
-            self.data_1_combobox.addItem(display_text)
-        for index, (display_text, key) in enumerate(self.combobox_1_data.items()):
-            self.data_1_combobox.setItemData(index, key)
+    def get_checkbox_display_menu_selected(self):
+        #print("\n self.checkbox_display_menu_data.items() : ", self.checkbox_display_menu_data.keys())
+        selected_option = [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
+        return selected_option
+
+
+    ########
+    """def update_plot(self):
+        self.update_plot_test()
+        self.update_data()
+        value_cmb_2 = self.get_combobox2_selected_key()
+        value_cmb_1 = self.get_combobox1_selected_key()
+        if value_cmb_1 is not None and value_cmb_2 is not None:
+            index = self.data_1_combobox.currentIndex()
+            if self.typeDiagram == 'plot':
+                self.plot_data_typeDiagram_plot(key=value_cmb_1, index=index, option=value_cmb_2, isHidden=False)
+            elif self.typeDiagram == 'pie':
+                self.plot_data_typeDiagram_pie(key=value_cmb_1, index=index, option=value_cmb_2, isHidden=False)
+            elif self.typeDiagram == 'hist':
+                self.plot_data_typeDiagram_hist(key=value_cmb_1, index=index, option=value_cmb_2, isHidden=False)
+            elif self.typeDiagram == 'stackplot':
+                self.plot_data_typeDiagram_stackplot(key=value_cmb_1, index=index, option=value_cmb_2,
+                                                isHidden=False)"""
+
+    ########
+    def update_plot(self):
+        self.update_data()
+        selected_option_list = self.get_checkbox_display_menu_selected()
+        #print("selected_option_list : ", selected_option_list)
+        if self.typeDiagram == 'plot':
+            self.plot_linear_typeDiagram(self.data, selected_option_list)
+        elif self.typeDiagram == 'pie':
+            self.plot_pie_typeDiagram(self.data, selected_option_list)
+        elif self.typeDiagram == 'hist':
+            self.plot_hist_typeDiagram(self.data, selected_option_list)
+        elif self.typeDiagram == 'stackplot':
+            self.plot_stackplot_typeDiagram(self.data, selected_option_list)
+
+    def plot_stackplot_typeDiagram(self, data, selected_option_list):
+        self.ax.clear()
+        list_data = []
+        list_labels = []
+        for options in selected_option_list:
+            if "-:" in options:
+                list_option = options.split("-:")
+                if list_option[0] == 'entity' and list_option[-1] == 'populations':
+                    y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
+                             and entry['phase'] == p and entry['entityName'] == list_option[1] and \
+                             'attribut' in entry and list_option[2] in entry['attribut'].keys())
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(' - '.join(list_option[1:]).upper() )
+                """elif list_option[0] == 'simVariable':
+                    y = [sum(1 for entry in data if entry['round'] == r \
+                             and entry['phase'] == p and 'simVariable' in entry and
+                             entry['simVariable'] == list_option[-1])
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Simulation Variable : {str(list_option[-1]).upper()}")
+                elif list_option[0] == 'currentPlayer':
+                    y = [sum(1 for entry in data if entry['round'] == r \
+                             and entry['phase'] == p and 'currentPlayer' in entry and
+                             entry['currentPlayer'] == list_option[-1])
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Player : {str(list_option[-1]).upper()}")"""
+        #self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+
+        self.ax.cla()
+        self.ax.stackplot(range(len(list_data)), *list_data, labels=list_labels)
+        #self.ax.stackplot(self.xValue, range(len(list_data)), *list_data, labels=list_labels)
+        self.ax.set_title('Stack Plot')
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+    def plot_hist_typeDiagram(self, data, selected_option_list):
+        self.ax.clear()
+        list_data = []
+        list_labels = []
+        for options in selected_option_list:
+            if "-:" in options:
+                list_option = options.split("-:")
+                if list_option[0] == 'entity' and list_option[-1] == 'populations':
+                    y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
+                             and entry['phase'] == p and entry['entityName'] == list_option[1] and \
+                             'attribut' in entry and list_option[2] in entry['attribut'].keys())
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(' - '.join(list_option[1:]).upper() )
+                """elif list_option[0] == 'simVariable':
+                    y = [sum(1 for entry in data if entry['round'] == r \
+                             and entry['phase'] == p and 'simVariable' in entry and
+                             entry['simVariable'] == list_option[-1])
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Simulation Variable : {str(list_option[-1]).upper()}")
+                elif list_option[0] == 'currentPlayer':
+                    y = [sum(1 for entry in data if entry['round'] == r \
+                             and entry['phase'] == p and 'currentPlayer' in entry and
+                             entry['currentPlayer'] == list_option[-1])
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Player : {str(list_option[-1]).upper()}")"""
+        #self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+
+        self.ax.cla()
+        for i in range(len(list_data)):
+             self.ax.hist(list_data[i], bins=len(list_data), alpha=0.5, label=list_labels[i])
+             print("i : {} , list_data[i] : {} ".format(i, list_data[i]))
+             print("list_labels[i] : ", list_labels[i])
+
+        #self.ax.axis('equal')
+
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+    def plot_pie_typeDiagram(self, data, selected_option_list):
+        self.ax.clear()
+        list_data = []
+        list_labels = []
+        for options in selected_option_list:
+            if "-:" in options:
+                list_option = options.split("-:")
+                if list_option[0] == 'entity' and list_option[-1] == 'populations':
+                    y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
+                             and entry['phase'] == p and entry['entityName'] == list_option[1] and \
+                             'attribut' in entry and list_option[2] in entry['attribut'].keys())
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(' - '.join(list_option[1:]).upper() )
+                """elif list_option[0] == 'simVariable':
+                    y = [sum(1 for entry in data if entry['round'] == r \
+                             and entry['phase'] == p and 'simVariable' in entry and
+                             entry['simVariable'] == list_option[-1])
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Simulation Variable : {str(list_option[-1]).upper()}")
+                elif list_option[0] == 'currentPlayer':
+                    y = [sum(1 for entry in data if entry['round'] == r \
+                             and entry['phase'] == p and 'currentPlayer' in entry and
+                             entry['currentPlayer'] == list_option[-1])
+                         for r in self.rounds for p in self.phases]
+                    list_data.append(sum(y))
+                    list_labels.append(f"Player : {str(list_option[-1]).upper()}")"""
+        self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+        self.ax.axis('equal')
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+    def plot_linear_typeDiagram(self, data, selected_option_list):
+        self.ax.clear()
+        pos = 0
+        for options in selected_option_list:
+            if "-:" in options:
+                list_option = options.split("-:")
+                variable = list_option[0]
+                if variable == 'entity':
+                    #print("list_option : ", list_option)
+                    self.plot_linear_typeDiagram_for_entities(data, list_option, pos)
+                elif variable == 'simVariable':
+                    self.plot_linear_typeDiagram_for_simVariable(data, list_option, pos)
+                elif variable == 'currentPlayer':
+                    self.plot_linear_typeDiagram_for_players(data, list_option, pos)
+            pos += 1
+
+    def plot_linear_typeDiagram_for_entities(self, data, list_option, pos):
+        # entities[0] = entity; entities[1] = entityName ; entities[2] = attribut
+        if list_option[:1] == ['entity']:
+            entities = list_option
+            label = f"{entities[-1].upper()} ({entities[1].upper()} - {entities[2].upper()})"
+            y = [sum(1 for entry in data if len(entities) > 2 and entry['round'] == r \
+                     and entry['phase'] == p and entry['entityName'] == entities[1] and \
+                     'attribut' in entry and entities[2] in entry['attribut'].keys())
+                 for r in self.rounds for p in self.phases]
+            linestyle = self.linestyles[pos % len(self.linestyles)]
+            color = self.colors[pos % len(self.colors)]
+            if list_option[-1] == 'populations':
+                self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
+            else:
+                statistics = {'mean': np.mean(y), 'max': np.max(y), 'min': np.min(y), 'stdev': np.std(y)}
+                linestyle_map = {'mean': ':', 'max': 'dotted', 'min': 'dashdot', 'stdev': '--'}
+                color_map = {'mean': 'blue', 'max': 'green', 'min': 'black', 'stdev': 'red'}
+                line_style = linestyle_map.get(str(list_option[-1]).lower(), ':')
+                line_color = color_map.get(str(list_option[-1]).lower(), 'blue')
+                self.ax.axhline(statistics.get(str(list_option[-1]).lower(), np.mean(y)), linestyle=line_style,
+                                color=line_color, label=label)
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+
+    def plot_linear_typeDiagram_for_simVariable(self, data, list_option, pos):
+        if list_option[:1] == ['simVariable']:
+            entities = list_option
+            label = f"Simulation Variable : {entities[-1].upper()}"
+            y = [sum(1 for entry in data if entry['round'] == r \
+                     and entry['phase'] == p and 'simVariable' in entry and
+                     entry['simVariable'] == list_option[-1])
+                 for r in self.rounds for p in self.phases]
+            linestyle = self.linestyles[pos % len(self.linestyles)]
+            color = self.colors[pos % len(self.colors)]
+            self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
+    def plot_linear_typeDiagram_for_players(self, data, list_option, pos):
+        if list_option[:1] == ['currentPlayer']:
+            entities = list_option
+            label = f"Player : {entities[-1].upper()}"
+            y = [sum(1 for entry in data if entry['round'] == r \
+                     and entry['phase'] == p and 'currentPlayer' in entry and
+                     entry['currentPlayer'] == list_option[-1])
+                 for r in self.rounds for p in self.phases]
+            linestyle = self.linestyles[pos % len(self.linestyles)]
+            color = self.colors[pos % len(self.colors)]
+            self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
+        self.ax.legend()
+        self.ax.set_title(self.title)
+        self.canvas.draw()
+
 
     def set_combobox_2_items(self):
         self.data_2_combobox.clear()
@@ -61,14 +353,6 @@ class SGToolBar(NavigationToolbar):
         self.addAction(self.display_indicators_menu.menuAction())
         self.addSeparator()
 
-
-    def get_combobox1_selected_key(self):
-        selected_text = self.data_1_combobox.currentText()
-        for key, value in self.combobox_1_data.items():
-            if key == selected_text:
-                return value
-        return None
-
     def get_combobox2_selected_key(self):
         selected_text = self.data_2_combobox.currentText()
         for key, value in self.combobox_2_data.items():
@@ -81,29 +365,10 @@ class SGToolBar(NavigationToolbar):
         return selected_indicators
 
     def set_data(self):
-        self.set_combobox_1_items()
+        self.update_data()
         self.set_combobox_2_items()
-        self.set_checkbox_values()
+        #self.set_checkbox_values()
 
-
-    def update_plot(self):
-        value_cmb_2 = self.get_combobox2_selected_key()
-        value_cmb_1 = self.get_combobox1_selected_key()
-        if value_cmb_1 is not None and value_cmb_2 is not None:
-            data = self.getAllHistoryData()
-            y_data = list(set(entry[value_cmb_1] for entry in data if entry[value_cmb_1] is not None))
-            index = self.data_1_combobox.currentIndex()
-            if self.typeDiagram == 'plot':
-                self.plot_data_typeDiagram_plot(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2, isHidden=False)
-            elif self.typeDiagram == 'pie':
-                self.plot_data_typeDiagram_pie(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
-                                                isHidden=False)
-            elif self.typeDiagram == 'hist':
-                self.plot_data_typeDiagram_hist(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
-                                                isHidden=False)
-            elif self.typeDiagram == 'stackplot':
-                self.plot_data_typeDiagram_stackplot(key=value_cmb_1, iist_y_data=y_data, index=index, option=value_cmb_2,
-                                                isHidden=False)
 
     def getAllHistoryData(self):
         historyData = []
@@ -112,215 +377,25 @@ class SGToolBar(NavigationToolbar):
             historyData.append(h)
         return historyData
 
-    def plot_data_typeDiagram_stackplot(self, key, iist_y_data, index, option, isHidden):
-        self.ax.clear()
-        value_checkbox_3 = self.get_checkbox_indicators_selected()
-        data = self.getAllHistoryData()
-        rounds = set(entry['round'] for entry in data)
+    def getAllData(self):
+        value_cmb_2 = self.get_combobox2_selected_key()
+        return self.getAllHistoryData() if value_cmb_2 == 1 else self.model.listData
 
+    def update_data(self):
+        self.data = self.getAllData()
+        self.setXValueData(self.data)
+
+    def setXValueData(self, data):
+        option = self.get_combobox2_selected_key()
+        rounds = {entry['round'] for entry in data}
+        phases = {entry['phase'] for entry in data}
         if option == '1':
-            rounds = [max(list(set(entry['round'] for entry in data)))]
-            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
-            self.xValue = [p for r in rounds for p in phases]
+            max_round = max(rounds)
+            self.rounds = [max_round]
+            self.phases = {entry['phase'] for entry in data if  entry['phase'] == max_round}
+            self.xValue = self.rounds if len(self.phases) <= 2 else [phase for phase in self.phases]
         else:
-            phases = set(entry['phase'] for entry in data)
-            self.xValue = [r * len(phases) + p for r in rounds for p in phases]
-
-        list_data = []
-        list_labels = []
-        for pos, val in enumerate(iist_y_data):
-            y = [sum(1 for entry in data if
-                     entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
-                 for r in rounds for p in phases]
-            list_labels.append(str(val).capitalize())
-            list_data.append(y)
-
-            for ind in value_checkbox_3:
-                if ind == 'type':
-                    typeDef = str(val).capitalize()
-                    if str(val).capitalize() != 'Cell':
-                        typeDef = 'Agent'
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(
-                                 val).capitalize())
-                         for r in rounds for p in phases]
-                    list_data.append(y)
-                    list_labels.append(f"Type : {str(typeDef).upper()}")
-                elif ind == 'Attribut':
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
-                         for r in rounds for p in phases]
-                    list_data.append(y)
-                    list_labels.append(f"Health: {str(val).upper()}")
-
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
-                         for r in rounds for p in phases]
-                    list_data.append(y)
-                    list_labels.append(f"LandUse: {str(val).upper()}")
-
-        self.ax.cla()
-        self.ax.stackplot(range(len(list_data[0])), *list_data, labels=list_labels)
-        self.ax.set_title('Stack Plot')
-
-        self.ax.legend()
-        self.ax.set_title(self.title)
-        self.canvas.draw()
-
-
-    def plot_data_typeDiagram_hist(self, key, iist_y_data, index, option, isHidden):
-        self.ax.clear()
-        value_checkbox_3 = self.get_checkbox_indicators_selected()
-        data = self.getAllHistoryData()
-        rounds = set(entry['round'] for entry in data)
-
-        if option == '1':
-            rounds = [max(list(set(entry['round'] for entry in data)))]
-            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
-            self.xValue = [p for r in rounds for p in phases]
-        else:
-            phases = set(entry['phase'] for entry in data)
-            self.xValue = [r * len(phases) + p for r in rounds for p in phases]
-
-        list_data = []
-        list_labels = []
-        for pos, val in enumerate(iist_y_data):
-            y = [sum(1 for entry in data if
-                     entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
-                 for r in rounds for p in phases]
-            list_labels.append(str(val).capitalize())
-            list_data.append(y)
-
-            for ind in value_checkbox_3:
-                if ind == 'type':
-                    typeDef = str(val).capitalize()
-                    if str(val).capitalize() != 'Cell':
-                        typeDef = 'Agent'
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(
-                                 val).capitalize())
-                         for r in rounds for p in phases]
-                    list_data.append(y)
-                    list_labels.append(f"Type : {str(typeDef).upper()}")
-                elif ind == 'Attribut':
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
-                         for r in rounds for p in phases]
-                    list_data.append(y)
-                    list_labels.append(f"Health: {str(val).upper()}")
-
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
-                         for r in rounds for p in phases]
-                    list_data.append(y)
-                    list_labels.append(f"LandUse: {str(val).upper()}")
-
-        self.ax.cla()
-        for i in range(len(list_data)):
-             print("data{} = {} , label = {} ".format(i, list_data[i], list_labels[i]))
-             self.ax.hist(list_data[i], bins=len(list_data), alpha=0.5, label=list_labels[i])
-
-        self.ax.set_title('Histogram')
-
-        self.ax.legend()
-        self.ax.set_title(self.title)
-        self.canvas.draw()
-
-    def plot_data_typeDiagram_pie(self, key, iist_y_data, index, option, isHidden):
-        self.ax.clear()
-        value_checkbox_3 = self.get_checkbox_indicators_selected()
-        data = self.getAllHistoryData()
-        rounds = set(entry['round'] for entry in data)
-
-        if option == '1':
-            rounds = [max(list(set(entry['round'] for entry in data)))]
-            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
-        else:
-            phases = set(entry['phase'] for entry in data)
-
-        list_data = []
-        list_labels = []
-        for pos, val in enumerate(iist_y_data):
-            y = [sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
-                for r in rounds for p in phases]
-            list_labels.append(str(val).capitalize())
-            list_data.append(sum(y))
-
-            for ind in value_checkbox_3:
-                if ind == 'type':
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(val).capitalize())
-                         for r in rounds for p in phases]
-                    list_data.append(sum(y))
-                    list_labels.append(f"Type : {str(val).upper()}")
-                elif ind == 'Attribut':
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
-                             for r in rounds for p in phases]
-                    list_data.append(sum(y))
-                    list_labels.append(f"Health: {str(val).upper()}")
-
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
-                         for r in rounds for p in phases]
-                    list_data.append(sum(y))
-                    list_labels.append(f"LandUse: {str(val).upper()}")
-
-        self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
-        self.ax.axis('equal')
-
-        self.ax.legend()
-        self.ax.set_title(self.title)
-        self.canvas.draw()
-
-
-    def plot_data_typeDiagram_plot(self, key, iist_y_data, index, option, isHidden):
-        self.ax.clear()
-        value_checkbox_3 = self.get_checkbox_indicators_selected()
-        data = self.getAllHistoryData()
-        rounds = set(entry['round'] for entry in data)
-
-        if option == '1':
-            rounds = [max(list(set(entry['round'] for entry in data)))]
-            phases = set(entry['phase'] for entry in data if entry['round'] == rounds[0])
-            self.xValue = [p for r in rounds for p in phases]
-        else:
-            phases = set(entry['phase'] for entry in data)
-            self.xValue = [r * len(phases) + p for r in rounds for p in phases]
-
-        for pos, val in enumerate(iist_y_data):
-            y = [sum(1 for entry in data if entry['round'] == r and entry['phase'] == p and entry[key] == str(val).capitalize())
-                for r in rounds for p in phases]
-            self.ax.plot(self.xValue, y, label= str(val).upper(), linestyle=self.linestyles[pos % len(self.linestyles)],
-                    color=self.colors[pos % len(self.colors)])
-            for ind in value_checkbox_3:
-                if ind == 'type':
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and entry['entityDef'] == str(val).capitalize())
-                         for r in rounds for p in phases]
-                    self.ax.plot(y, linestyle='--', color='orange', label=f"Type : {str(val).upper()}")
-                elif ind == 'Attribut':
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'health' in entry['attribut'])
-                             for r in rounds for p in phases]
-                    self.ax.plot(y, linestyle='--', color='black', label=f"Attribut-health : {str(val).upper()}")
-                    y = [sum(1 for entry in data if
-                             entry['round'] == r and entry['phase'] == p and 'landUse' in entry['attribut'] is not None)
-                         for r in rounds for p in phases]
-                    self.ax.plot(y, linestyle='--', color='blue', label=f"Attribut-landUse: {str(val).upper()}")
-                elif ind == 'St Dev':
-                    self.ax.axhline(0, linestyle='dotted', color='pink', label=f"St Dev : {str(val).upper()}")
-                elif ind == 'Max':
-                    self.ax.axhline(0, linestyle='dashdot', color='green', label=f"Max : {str(val).upper()}")
-                elif ind == 'Min':
-                    self.ax.axhline(0, linestyle='--', color='blue', label=f"Min : {str(val).upper()}")
-
-        for i in range(0, max(self.xValue) + 1, 7):
-            round_lab = f"Round {int((i + 1) / 7)}"
-            self.ax.axvline(x=i, color='r', linestyle=':')
-            self.ax.text(i, 1, round_lab, color='r', ha='right', va='top', rotation=90,
-                         transform=self.ax.get_xaxis_transform())
-
-        self.ax.legend()
-        self.ax.set_title(self.title)
-        self.canvas.draw()
+            self.rounds = rounds
+            self.phases = phases
+            self.xValue = list(rounds) if len(phases) <= 2 else [r * len(phases) + phase for r in rounds for
+                                                                 phase in phases]

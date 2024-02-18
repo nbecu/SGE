@@ -5,9 +5,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar)
 from PyQt5 import QtWidgets
 
+from mainClasses.SGDiagramCircular import SGDiagramCircular
 from mainClasses.SGDiagramLinear import SGDiagramLinear
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGWindowsGraph import SGWindowsGraph
+from mainClasses.layout.SGToolBar import SGToolBar
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
@@ -132,6 +134,7 @@ class SGModel(QMainWindow):
         self.initUI()
 
         self.initModelActions()
+        self.listData = []
 
 
 
@@ -319,15 +322,29 @@ class SGModel(QMainWindow):
         """To be implemented"""
         return True
 
+    def setAllDataSinceInit(self):
+        print("Test")
+        for aEntity in self.getAllEntities():
+            h = aEntity.getHistoryDataJSON()
+            self.listData.append(h)
+
+    def getAllDataSinceInit(self):
+        rounds = set([entry['round'] for entry in self.listData])
+        print("rounds :: ", rounds)
+
     # Trigger the next turn
     def nextTurn(self):
         #print("test")
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
         # connect(self.nextTurn)
         self.timeManager.nextPhase()
+        self.setAllDataSinceInit()
         # Tester recupération et affichage de données dans le diagramme après avoir cliquer sur play
 
         #SGDiagram(self).update_data_signal.emit()
+        #SGDiagramCircular(self).update_data_signal.emit()
+        #self.getAllDataSinceInit()
+
 
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
@@ -500,7 +517,6 @@ class SGModel(QMainWindow):
         return aList
 
     def getAllEntities(self):
-
         # send back the cells of all the grids and the agents of all the species
         aList= []
         for entDef in self.cellOfGrids.values():
