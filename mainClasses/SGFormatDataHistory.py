@@ -46,6 +46,7 @@ class SGFormatDataHistory():
             self.dictOfData.setdefault(entName,{})
             self.dictOfData[entName].setdefault(entId,{})
             history = aEntity.getHistoryDataJSON()
+            #print("history : ", history)
             #print("len list_history : ", len(aEntity.list_history))
 
 
