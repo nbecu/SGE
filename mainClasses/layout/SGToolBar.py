@@ -29,7 +29,7 @@ class SGToolBar(NavigationToolbar):
         self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1', 'Autres': '2'}
 
         self.display_indicators_menu = QMenu("Indicators", self)
-        self.checKbox_indicators_data = ["type", "Attribut", "Mean", "Min", "Max", "St Dev"]
+        self.checKbox_indicators_data = ["type", "Attribut", "Max", "Mean", "Min", "St Dev"]
         self.checKbox_indicators = {}
         self.rounds = []
         self.phases = []
@@ -48,52 +48,69 @@ class SGToolBar(NavigationToolbar):
         self.regenerate_menu(self.data)
 
     def regenerate_menu(self, data):
-        attrib_data = ['populations'] if self.typeDiagram in ['pie', 'hist', 'stackplot'] else ['populations', 'mean', 'min', 'max', 'stdev']
-        players_list = {player['currentPlayer'] for player in data if
-                        'currentPlayer' in player and not isinstance(player['currentPlayer'], dict)}
-        entities_list = {entry['entityName'] for entry in data if
-                         'entityName' in entry and not isinstance(entry['entityName'], dict)}
-        simVariables_list = {attribut for entry in data for attribut in entry.get('simVariable', {})}
-
-        for player in players_list:
-            self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
-
-        for key in simVariables_list:
-            list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
-            self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data
-
-        for entity_name in entities_list:
-            attrib_dict = {}
-            for attribut_key in {attribut for entry in data for attribut in entry.get('attribut', {}) if
-                                 entry.get('entityName') == entity_name}:
-                attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for option_key
-                                             in attrib_data}
-            self.dictMenuData['entities'][entity_name] = attrib_dict
-
         entitiesMenu = QMenu('Entités', self)
-        simulationMenu = QMenu('Simulation variables', self)
         playersMenu = QMenu('Players', self)
+        simulationMenu = QMenu('Simulation variables', self)
+        if self.typeDiagram == 'plot':
+            entities_list = {entry['entityName'] for entry in data if
+                             'entityName' in entry and not isinstance(entry['entityName'], dict)}
 
-        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+            attrib_data = ['max', 'mean', 'min', 'stdev']
+            players_list = {player['currentPlayer'] for player in data if
+                            'currentPlayer' in player and not isinstance(player['currentPlayer'], dict)}
+            simVariables_list = {attribut for entry in data for attribut in entry.get('simVariable', {})}
+            for player in players_list:
+                self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
+
+            for key in simVariables_list:
+                list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
+                self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data
+            for entity_name in sorted(entities_list):
+                attrib_dict = {}
+                attrib_dict[f"entity-:{entity_name}-:populations"] = None
+                for attribut_key in {attribut for entry in data for attribut in entry.get('attribut', {}) if
+                                     entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], (int, float))}:
+                    attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for option_key in attrib_data}
+                self.dictMenuData['entities'][entity_name] = attrib_dict
             self.display_menu.addMenu(entitiesMenu)
-            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'])
-        else:
-            # Ajout des sous-menus au menu principal
-            self.display_menu.addMenu(entitiesMenu)
-            self.display_menu.addMenu(simulationMenu)
             self.display_menu.addMenu(playersMenu)
-
+            self.display_menu.addMenu(simulationMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'])
             self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'])
             self.addSubMenus(playersMenu, self.dictMenuData['players'])
+        else:
+            attrib_data = []
+            entities_list = {entry['entityName'] for entry in data if 'entityName' in entry and isinstance(entry['attribut'], dict)
+                             and entry['attribut'].keys() and not isinstance(entry['entityName'], dict)}
+
+            for entity_name in sorted(entities_list):
+                attrib_dict = {}
+                #attrib_dict[f"entity-:{entity_name}-:populations"] = None
+                for attribut_key in {attribut for entry in data for attribut in entry.get('attribut', {}) if
+                                     entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], str)}:
+                    list_val = []
+                    attrib_tmp_dict = {}
+                    for sub_attribut_val in {entry['attribut'][attribut] for entry in data for attribut in entry.get('attribut', {}) if
+                                         entry.get('entityName') == entity_name and isinstance(
+                                             entry['attribut'][attribut], str)}:
+                        list_val.append(sub_attribut_val)
+                        attrib_tmp_dict[sub_attribut_val] = {f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"}
+                    attrib_dict[attribut_key] = attrib_tmp_dict
+                self.dictMenuData['entities'][entity_name] = attrib_dict
+            self.display_menu.addMenu(entitiesMenu)
+            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'])
         self.addAction(self.display_menu.menuAction())
+
+
 
     def addSubMenus(self, parentMenu, subMenuData):
         for key, value in subMenuData.items():
             if isinstance(value, dict):
                 submenu = QMenu(key, self)
                 parentMenu.addMenu(submenu)
+
                 self.addSubMenus(submenu, value)
+
             else:
                 action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), self, checkable=True)
                 action.setChecked(True)
@@ -136,7 +153,7 @@ class SGToolBar(NavigationToolbar):
     def update_plot(self):
         self.update_data()
         selected_option_list = self.get_checkbox_display_menu_selected()
-        #print("selected_option_list : ", selected_option_list)
+        print("selected_option_list : ", selected_option_list)
         if self.typeDiagram == 'plot':
             self.plot_linear_typeDiagram(self.data, selected_option_list)
         elif self.typeDiagram == 'pie':
@@ -228,17 +245,46 @@ class SGToolBar(NavigationToolbar):
 
     def plot_pie_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
+        i=0
         list_data = []
         list_labels = []
         for options in selected_option_list:
             if "-:" in options:
                 list_option = options.split("-:")
+
+                """
+                 for attribut_key in {attribut for entry in data for attribut in entry.get('attribut', {}) if
+                                     entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], (int, float))}:
+                    attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for option_key in attrib_data}
+                """
+
                 if list_option[0] == 'entity' and list_option[-1] == 'populations':
-                    y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
+                    """y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
                              and entry['phase'] == p and entry['entityName'] == list_option[1] and \
                              'attribut' in entry and list_option[2] in entry['attribut'].keys())
-                         for r in self.rounds for p in self.phases]
-                    list_data.append(sum(y))
+                         for r in self.rounds for p in self.phases]"""
+
+                    """for r in self.rounds:
+                        for p in self.phases:
+                            for entry in data:
+                                #print("entry :: ", entry['attribut'])
+                                i += 1
+                                if i==4:
+                                    break
+                                if len(list_option) > 2 and entry['round'] == r \
+                                                 and entry['phase'] == p and entry['entityName'] == list_option[1] and \
+                                                 'attribut' in entry and list_option[2] in entry['attribut'].keys() :
+                                    print("entry attr :: ", entry['attribut'][list_option[2]])"""
+
+
+
+
+                    """y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
+                             and entry['phase'] == p and entry['entityName'] == list_option[1] and \
+                             'attribut' in entry and list_option[2] in entry['attribut'].keys())
+                         for r in self.rounds for p in self.phases]"""
+
+                    #list_data.append(sum(y))
                     list_labels.append(' - '.join(list_option[1:]).upper() )
                 """elif list_option[0] == 'simVariable':
                     y = [sum(1 for entry in data if entry['round'] == r \
@@ -254,11 +300,12 @@ class SGToolBar(NavigationToolbar):
                          for r in self.rounds for p in self.phases]
                     list_data.append(sum(y))
                     list_labels.append(f"Player : {str(list_option[-1]).upper()}")"""
-        self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+        #print("list_data :: ", list_data)
+        """self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
         self.ax.axis('equal')
         self.ax.legend()
         self.ax.set_title(self.title)
-        self.canvas.draw()
+        self.canvas.draw()"""
 
     def plot_linear_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
@@ -278,6 +325,7 @@ class SGToolBar(NavigationToolbar):
 
     def plot_linear_typeDiagram_for_entities(self, data, list_option, pos):
         # entities[0] = entity; entities[1] = entityName ; entities[2] = attribut
+        #print("list_option :: ", list_option)
         if list_option[:1] == ['entity']:
             entities = list_option
             label = f"{entities[-1].upper()} ({entities[1].upper()} - {entities[2].upper()})"
@@ -290,9 +338,9 @@ class SGToolBar(NavigationToolbar):
             if list_option[-1] == 'populations':
                 self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
             else:
-                statistics = {'mean': np.mean(y), 'max': np.max(y), 'min': np.min(y), 'stdev': np.std(y)}
-                linestyle_map = {'mean': ':', 'max': 'dotted', 'min': 'dashdot', 'stdev': '--'}
-                color_map = {'mean': 'blue', 'max': 'green', 'min': 'black', 'stdev': 'red'}
+                statistics = {'max': np.max(y), 'mean': np.mean(y), 'min': np.min(y), 'stdev': np.std(y)}
+                linestyle_map = {'max': 'dotted', 'mean': ':', 'min': 'dashdot', 'stdev': '--'}
+                color_map = {'max': 'green', 'mean': 'blue', 'min': 'black', 'stdev': 'red'}
                 line_style = linestyle_map.get(str(list_option[-1]).lower(), ':')
                 line_color = color_map.get(str(list_option[-1]).lower(), 'blue')
                 self.ax.axhline(statistics.get(str(list_option[-1]).lower(), np.mean(y)), linestyle=line_style,
