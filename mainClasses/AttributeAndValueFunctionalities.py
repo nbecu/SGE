@@ -23,15 +23,10 @@ class AttributeAndValueFunctionalities():
         else:
             aValue = valueToSet
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        # self.saveHistoryValue()
-        # print("1- self.dictAttributes[aAttribut]==aValue : ", self.dictAttributes[aAttribut] == aValue)
-        #self.saveValueInHistory(aAttribut,aValue)
         self.dictAttributes[aAttribut]=aValue
         self.saveValueInHistory(aAttribut,aValue)
 
-        # print("2- self.dictAttributes[aAttribut]==aValue : ", self.dictAttributes[aAttribut]==aValue)
-
-        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
+        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         self.update()
         return True
