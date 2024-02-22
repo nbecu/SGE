@@ -88,3 +88,33 @@ class AttributeAndValueFunctionalities():
             result = aLambdaFunction(currentValue)
             self.setValue(aAttribut, result)
         else: raise ValueError ('calcValue works with a lambda function')
+
+    def saveValueInHistory(self,aAttribute,aValue):
+        self.history["value"][aAttribute].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
+
+    def getAttributeValue_atRoundAndPhase(self,aAttribute,aRound,aPhase):
+        ## A PRIORI OBSOLETE
+        aData = self.history["value"][aAttribute][-1]
+        if (aData[0] !=  aRound) or ((aData[0] ==  aRound) and (aData[1] !=  aPhase)):
+            aData = next((ele for ele in self.history["value"][aAttribute][::-1]  if (ele[0] == aRound and ele[1] == aPhase)), False)
+            return aData
+        else:
+            return aData
+        
+    def getDictOfAttributes_atRoundAndPhase(self,aRound,aPhase):
+        ## A PRIORI OBSOLETE
+        aDict ={}
+        nbPhases = len(self.model.timeManager.phases) -1 #ToDo : le +1  devra etre enlevé lorsqu'aon fera le merge avec la branche "version 5""
+        #ToDo : A remplacer par un timeCalendar géré au niveau du timeManager
+        if aPhase != 1:
+            previousRound = aRound
+            previousPhase = aPhase - 1
+        else:
+            previousRound = aRound - 1
+            previousPhase = nbPhases
+        for aAtt, listOfData in self.history["value"].items():
+            aData = listOfData[-1]
+            if (aData[0] !=  aRound) or ((aData[0] ==  aRound) and (aData[1] !=  aPhase)):
+                aData = next((ele for ele in listOfData[::-1]  if (ele[0] == previousRound and ele[1] == previousPhase)), False)
+            aDict[aAtt]=aData
+        return aDict

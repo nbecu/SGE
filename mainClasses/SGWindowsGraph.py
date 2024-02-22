@@ -28,18 +28,18 @@ class SGWindowsGraph(QWidget):
         self.model = model
 
 
-    def getAllHistoryData(self):
-        historyData = []
-        for aEntity in self.model.getAllEntities():
-            h = aEntity.getHistoryDataJSON()
-            historyData.append(h)
-        return historyData
+    # def getAllHistoryData(self):
+    #     historyData = []
+    #     for aEntity in self.model.getAllEntities():
+    #         h = aEntity.getHistoryDataJSON()
+    #         historyData.append(h)
+    #     return historyData
 
     def getAllHistoryData_new(self):
         return self.model.dataRecorder.dictOfData
 
     def action_one_graph(self):
-        data = self.getAllHistoryData()
+        # data = self.getAllHistoryData()
         sgDiagramLinear = SGDiagramLinear(self.model)
         sgDiagramLinear.show()
     def action_one_graph_test(self):

@@ -44,7 +44,8 @@ class SGToolBar(NavigationToolbar):
         #self._navigation_toolbar = self.parent().addToolBar('Navigation')
 
         #self.createDisplayMenu()
-        self.data = self.getAllData()
+        # self.data = self.getAllData()
+        self.data = self.model.dataRecorder.listOfData_ofEntities
         self.regenerate_menu(self.data)
 
     def regenerate_menu(self, data):
@@ -374,15 +375,28 @@ class SGToolBar(NavigationToolbar):
         historyData = []
         for aEntity in self.model.getAllEntities():
             h = aEntity.getHistoryDataJSON()
-            historyData.append(h)
+            historyData.append(h)   
         return historyData
+    
+    #  format de entity.getHistoryDataJSON()) de entity 
+    #  {
+    #         'id': self.id,
+    #         'currentPlayer': self.model.currentPlayer,
+    #         'entityDef': self.classDef.entityName if self.classDef.entityName == 'Cell' else 'Agent',
+    #         'entityName': self.classDef.entityName,
+    #         'simVariable': simvariable_dict,
+    #         'round': self.model.timeManager.currentRound,
+    #         'phase': self.model.timeManager.currentPhase,
+    #         'attribut': self.dictAttributes
+    #     }
 
-    def getAllData(self):
-        value_cmb_2 = self.get_combobox2_selected_key()
-        return self.getAllHistoryData() if value_cmb_2 == 1 else self.model.listData
+    # def getAllData(self):
+    #     value_cmb_2 = self.get_combobox2_selected_key()
+    #     return self.getAllHistoryData() if value_cmb_2 == 1 else self.model.listData
 
     def update_data(self):
-        self.data = self.getAllData()
+        # self.data = self.getAllData()
+        self.data = self.model.dataRecorder.listOfData_ofEntities
         self.setXValueData(self.data)
 
     def setXValueData(self, data):

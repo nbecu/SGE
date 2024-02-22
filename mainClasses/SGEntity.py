@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from collections import defaultdict
 import random
 
 #from mainClasses.SGDiagram import SGDiagram
@@ -23,8 +24,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.isDisplay=True
         #Define variables to handle the history 
         self.history={}
-        self.history["value"]={}
-        self.list_history = []
+        self.history["value"]=defaultdict(list)
+        # self.list_history = []
         self.watchers={}
         #Set the attributes
         self.initAttributesAndValuesWith(attributesAndValues)
@@ -42,7 +43,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                 self.setValue(aAtt,valueToSet())
             else:
                 self.setValue(aAtt,valueToSet)
-            self.setListHistory()
+            # self.setListHistory()
 
     def getRandomAttributValue(self,aAgentSpecies,aAtt):
         if aAgentSpecies.dictAttributes is not None:
@@ -117,95 +118,95 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def getObjValue(self, obj):
         return obj() if not callable(obj()) else None
 
-    def getHistoryDataJSON(self):
-        k = len(self.model.simulationVariables) - 1
-        simvariable_dict = {}
-        if len(self.model.simulationVariables)>0 and self.model.simulationVariables[k] and self.model.simulationVariables[k].name:
-            simvariable_dict = { self.model.simulationVariables[k].name: self.model.simulationVariables[k].value}
-            """simvariable_dict = {'name': self.model.simulationVariables[k].name,
-                                self.model.simulationVariables[k].name: self.model.simulationVariables[k].value}"""
-        self.history = {
-            'id': self.id,
-            'currentPlayer': self.model.currentPlayer,
-            'entityDef': self.classDef.entityName if self.classDef.entityName == 'Cell' else 'Agent',
-            'entityName': self.classDef.entityName,
-            'simVariable': simvariable_dict,
-            'round': self.model.timeManager.currentRound,
-            'phase': self.model.timeManager.currentPhase,
-            'attribut': self.dictAttributes
-        }
-        history = self.history
-        return history
+    # def getHistoryDataJSON(self):
+    #     k = len(self.model.simulationVariables) - 1
+    #     simvariable_dict = {}
+    #     if len(self.model.simulationVariables)>0 and self.model.simulationVariables[k] and self.model.simulationVariables[k].name:
+    #         simvariable_dict = { self.model.simulationVariables[k].name: self.model.simulationVariables[k].value}
+    #         """simvariable_dict = {'name': self.model.simulationVariables[k].name,
+    #                             self.model.simulationVariables[k].name: self.model.simulationVariables[k].value}"""
+    #     self.history = {
+    #         'id': self.id,
+    #         'currentPlayer': self.model.currentPlayer,
+    #         'entityDef': self.classDef.entityName if self.classDef.entityName == 'Cell' else 'Agent',
+    #         'entityName': self.classDef.entityName,
+    #         'simVariable': simvariable_dict,
+    #         'round': self.model.timeManager.currentRound,
+    #         'phase': self.model.timeManager.currentPhase,
+    #         'attribut': self.dictAttributes
+    #     }
+    #     history = self.history
+    #     return history
     
-    def setSGHistory(self, entDef, currentRound, currentPhase):
-        endDef = 'Agent' if entDef != 'Cell' else 'Cell'
-        tmpDict = {}
-        if self.classDef.attributesDefaultValues:
-            #print("self.classDef.attributesDefaultValues : ", self.classDef.attributesDefaultValues.items())
-            for key, value in self.classDef.attributesDefaultValues.items():
-                tmpDictValue = self.getObjValue(value)
-                tmpDict = {key : tmpDictValue}
-                #print("tmpDictValue : ", tmpDictValue)
-        value = {'value': [currentRound, currentPhase, tmpDict]}
-        k = len(self.model.simulationVariables) - 1
-        simVariable = self.model.simulationVariables[k] if len(self.model.simulationVariables)>0 and isinstance(self.model.simulationVariables[k], dict)  else {}
+    # def setSGHistory(self, entDef, currentRound, currentPhase):
+    #     endDef = 'Agent' if entDef != 'Cell' else 'Cell'
+    #     tmpDict = {}
+    #     if self.classDef.attributesDefaultValues:
+    #         #print("self.classDef.attributesDefaultValues : ", self.classDef.attributesDefaultValues.items())
+    #         for key, value in self.classDef.attributesDefaultValues.items():
+    #             tmpDictValue = self.getObjValue(value)
+    #             tmpDict = {key : tmpDictValue}
+    #             #print("tmpDictValue : ", tmpDictValue)
+    #     value = {'value': [currentRound, currentPhase, tmpDict]}
+    #     k = len(self.model.simulationVariables) - 1
+    #     simVariable = self.model.simulationVariables[k] if len(self.model.simulationVariables)>0 and isinstance(self.model.simulationVariables[k], dict)  else {}
 
-        self.history = {
-            'id': self.id,
-            'currentPlayer': self.model.currentPlayer,
-            'entityDef': endDef,
-            'entityName': self.classDef.entityName,
-            'simVariable': simVariable,
-            'round': currentRound,
-            'phase': currentPhase,
-            'value': value,
-            'attribut': self.dictAttributes
-        }
+    #     self.history = {
+    #         'id': self.id,
+    #         'currentPlayer': self.model.currentPlayer,
+    #         'entityDef': endDef,
+    #         'entityName': self.classDef.entityName,
+    #         'simVariable': simVariable,
+    #         'round': currentRound,
+    #         'phase': currentPhase,
+    #         'value': value,
+    #         'attribut': self.dictAttributes
+    #     }
 
         #print("self.cellOfGrids.keys() :: ", self.model.cellOfGrids.keys())
 
-    def setHistoryFormat(self, aAttribute, aValue, dict_value):
-        k = len(self.model.simulationVariables) - 1
-        simvariable_dict = {}
-        if self.model.simulationVariables[k] and self.model.simulationVariables[k].name:
-            simvariable_dict = {'name': self.model.simulationVariables[k].name, 'value': self.model.simulationVariables[k].value}
-        self.history = {
-            'id': self.id,
-            'currentPlayer': self.model.currentPlayer,
-            'entityDef': self.classDef.entityName if self.classDef.entityName == 'Cell' else 'Agent',
-            'entityName': self.classDef.entityName,
-            'simVariable': simvariable_dict,
-            'round': self.model.timeManager.currentRound,
-            'phase': self.model.timeManager.currentPhase,
-             aAttribute: aValue,
-            'attribut': aAttribute,
-            'dict_attribut': self.dictAttributes,
-            'value': dict_value
-        }
+    # def setHistoryFormat(self, aAttribute, aValue, dict_value):
+    #     k = len(self.model.simulationVariables) - 1
+    #     simvariable_dict = {}
+    #     if self.model.simulationVariables[k] and self.model.simulationVariables[k].name:
+    #         simvariable_dict = {'name': self.model.simulationVariables[k].name, 'value': self.model.simulationVariables[k].value}
+    #     self.history = {
+    #         'id': self.id,
+    #         'currentPlayer': self.model.currentPlayer,
+    #         'entityDef': self.classDef.entityName if self.classDef.entityName == 'Cell' else 'Agent',
+    #         'entityName': self.classDef.entityName,
+    #         'simVariable': simvariable_dict,
+    #         'round': self.model.timeManager.currentRound,
+    #         'phase': self.model.timeManager.currentPhase,
+    #          aAttribute: aValue,
+    #         'attribut': aAttribute,
+    #         'dict_attribut': self.dictAttributes,
+    #         'value': dict_value
+    #     }
 
 
 
-    def saveHistoryValue(self):
-        self.setSGHistory(self.classDef.entityName, self.model.timeManager.currentRound,
-                          self.model.timeManager.currentPhase)
+    # def saveHistoryValue(self):
+    #     self.setSGHistory(self.classDef.entityName, self.model.timeManager.currentRound,
+    #                       self.model.timeManager.currentPhase)
 
-    def setListHistory(self):
-        for aEntity in self.model.getAllEntities():
-            h = aEntity.getHistoryDataJSON()
-            self.list_history.append(h)
+    # def setListHistory(self):
+    #     for aEntity in self.model.getAllEntities():
+    #         h = aEntity.getHistoryDataJSON()
+    #         self.list_history.append(h)
 
-    def getListHistory(self):
-        return self.list_history
+    # def getListHistory(self):
+    #     return self.list_history
 
-    def saveValueInHistory(self,aAttribute,aValue):
-        #ToDo Tester laquelle de ces deux lignes est la plus rapide
-        # if aAttribute not in self.history["value"]:self.history["value"][aAttribute]=[]
-        dict_value = {aAttribute: [self.model.timeManager.currentRound, self.model.timeManager.currentPhase, aValue]}
-        #print("history :: ", self.history)
+    # def saveValueInHistory(self,aAttribute,aValue):
+    #     #ToDo Tester laquelle de ces deux lignes est la plus rapide
+    #     # if aAttribute not in self.history["value"]:self.history["value"][aAttribute]=[]
+    #     dict_value = {aAttribute: [self.model.timeManager.currentRound, self.model.timeManager.currentPhase, aValue]}
+    #     #print("history :: ", self.history)
 
-        if aValue and 'id' in self.history:
-            #print("history :: ", self.history)
-            self.setHistoryFormat(aAttribute, aValue, dict_value)
+    #     if aValue and 'id' in self.history:
+    #         #print("history :: ", self.history)
+    #         self.setHistoryFormat(aAttribute, aValue, dict_value)
 
 
 
