@@ -45,19 +45,21 @@ class SGToolBar(NavigationToolbar):
 
         #self.createDisplayMenu()
         # self.data = self.getAllData()
+        self.firstEntity=""
+        self.firstAttribut=""
+        self.list_attribut_display = []
         self.data = self.model.dataRecorder.listOfData_ofEntities
         self.regenerate_menu(self.data)
 
     def regenerate_menu(self, data):
-        firstEntity=""
-        firstAttribut=""
         entitiesMenu = QMenu('Entités', self)
         playersMenu = QMenu('Players', self)
         simulationMenu = QMenu('Simulation variables', self)
         if self.typeDiagram == 'plot':
             entities_list = {entry['entityName'] for entry in data if
                              'entityName' in entry and not isinstance(entry['entityName'], dict)}
-            firstEntity = sorted(entities_list)[0]
+            if not self.firstEntity:
+                self.firstEntity = sorted(entities_list)[0]
             attrib_data = ['max', 'mean', 'min', 'stdev']
             players_list = {player['currentPlayer'] for player in data if
                             'currentPlayer' in player and not isinstance(player['currentPlayer'], dict)}
@@ -73,28 +75,32 @@ class SGToolBar(NavigationToolbar):
                 attrib_dict[f"entity-:{entity_name}-:populations"] = None
                 list_attribut_key = {attribut for entry in data for attribut in entry.get('attribut', {}) if
                                      entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], (int, float))}
-                #firstAttribut = sorted(list_attribut_key)[0]
+                if not self.firstAttribut:
+                    self.firstAttribut = sorted(list_attribut_key)[0]
                 for attribut_key in sorted(list_attribut_key):
                     attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for option_key in attrib_data}
                 self.dictMenuData['entities'][entity_name] = attrib_dict
             self.display_menu.addMenu(entitiesMenu)
             self.display_menu.addMenu(playersMenu)
             self.display_menu.addMenu(simulationMenu)
-            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], firstEntity, firstAttribut)
+            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
             #self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'])
             #self.addSubMenus(playersMenu, self.dictMenuData['players'])
         else:
             attrib_data = []
             entities_list = {entry['entityName'] for entry in data if 'entityName' in entry and isinstance(entry['attribut'], dict)
                              and entry['attribut'].keys() and not isinstance(entry['entityName'], dict)}
-            firstEntity = sorted(entities_list)[0]
+            if not self.firstEntity:
+                self.firstEntity = sorted(entities_list)[0]
 
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 #attrib_dict[f"entity-:{entity_name}-:populations"] = None
                 list_attribut_key = {attribut for entry in data for attribut in entry.get('attribut', {}) if
                                      entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], str)}
-                firstAttribut = sorted(list_attribut_key)[0]
+
+                if not self.firstAttribut:
+                    self.firstAttribut = sorted(list_attribut_key)[0]
                 for attribut_key in list_attribut_key:
                     list_val = []
                     attrib_tmp_dict = {}
@@ -110,7 +116,7 @@ class SGToolBar(NavigationToolbar):
             #        firstEntity=""
             #   firstAttribut=""
             self.display_menu.addMenu(entitiesMenu)
-            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], firstEntity, firstAttribut)
+            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
         self.addAction(self.display_menu.menuAction())
 
 
@@ -123,8 +129,6 @@ class SGToolBar(NavigationToolbar):
                 self.addSubMenus(submenu, value, firstEntity, firstAttribut)
             else:
                 action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), self, checkable=True)
-                print("firstEntity : ", firstEntity)
-                print("key : ", key)
                 if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
                     action.setChecked(True)
                 action.setProperty("key", key)
@@ -256,19 +260,30 @@ class SGToolBar(NavigationToolbar):
         self.ax.clear()
         list_data = []
         list_labels = []
-        print("selected_option_list :: ", selected_option_list)
         for options in selected_option_list:
             if "-:" in options:
                 list_option = options.split("-:")
-                y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
-                                    and entry['phase'] == p and entry['entityName'] == list_option[1] and \
-                                    'attribut' in entry and list_option[2] in entry['attribut'].keys() and \
-                                isinstance(entry['attribut'][list_option[2]], str) )
-                                     for r in self.rounds for p in self.phases]
-                list_data.append(sum(y))
-                list_labels.append(f"{str(list_option[1]).upper()} - {str(list_option[-1]).upper()}")
-                print("y :: ", y)
-                self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+                if list_option[-1] not in self.list_attribut_display:
+                    self.list_attribut_display.append(list_option[-1])
+
+        #self.list_attribut_display =
+        print("list_attribut_display :: ", self.list_attribut_display)
+        print("selected_option_list :: ", selected_option_list[-1])
+        for attr in self.list_attribut_display:
+            for options in selected_option_list:
+                if "-:" in options:
+                    list_option = options.split("-:")
+                    if attr == list_option[-1]:
+                        y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
+                                 and entry['phase'] == p and entry['entityName'] == list_option[1] and \
+                                 'attribut' in entry and list_option[2] in entry['attribut'].keys() and \
+                                 isinstance(entry['attribut'][list_option[2]], str))
+                             for r in self.rounds for p in self.phases]
+                        list_data.append(sum(y))
+                        list_labels.append(f"{str(list_option[1]).upper()} - {str(list_option[-1]).upper()}")
+                        print("y :: ", y)
+                        self.ax.pie(list_data, labels=list_labels, autopct='%1.1f%%', startangle=90)
+                        break
         self.ax.axis('equal')
         self.ax.legend()
         self.ax.set_title(self.title)
