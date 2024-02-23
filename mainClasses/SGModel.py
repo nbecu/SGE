@@ -36,7 +36,7 @@ from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
 from mainClasses.SGVoid import*
-from mainClasses.SGFormatDataHistory import*
+from mainClasses.SGDataRecorder import*
 from email.policy import default
 from logging.config import listen
 import sys
@@ -129,12 +129,12 @@ class SGModel(QMainWindow):
         self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
 
-        self.dataRecorder=SGFormatDataHistory(self)
+        self.dataRecorder=SGDataRecorder(self)
 
         self.initUI()
 
         self.initModelActions()
-        self.listData = []
+        # self.listData = []
 
 
 
@@ -322,11 +322,11 @@ class SGModel(QMainWindow):
         """To be implemented"""
         return True
 
-    def setAllDataSinceInit(self):
-        print("Test")
-        for aEntity in self.getAllEntities():
-            h = aEntity.getHistoryDataJSON()
-            self.listData.append(h)
+    # def setAllDataSinceInit(self):
+    #     print("Test")
+    #     for aEntity in self.getAllEntities():
+    #         h = aEntity.getHistoryDataJSON()
+    #         self.listData.append(h)
 
     def getAllDataSinceInit(self):
         rounds = set([entry['round'] for entry in self.listData])
@@ -338,7 +338,7 @@ class SGModel(QMainWindow):
         # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
         # connect(self.nextTurn)
         self.timeManager.nextPhase()
-        self.setAllDataSinceInit()
+        # self.setAllDataSinceInit()
         # Tester recupération et affichage de données dans le diagramme après avoir cliquer sur play
 
         #SGDiagram(self).update_data_signal.emit()
