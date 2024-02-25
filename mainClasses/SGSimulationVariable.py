@@ -19,13 +19,19 @@ class SGSimulationVariable():
         self.color=color
         self.isDisplay=isDisplay
         self.watchers=[]
+        self.history=[]
 
         
 
     def setValue(self,newValue):
         self.value=newValue
+        self.saveValueInHistory(newValue)     
         for watcher in self.watchers:
             watcher.checkAndUpdate()
+
+    def saveValueInHistory(self,aValue):
+        self.history.append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
+
 
     def incValue(self,aValue=1,max=None):
         """
@@ -58,6 +64,35 @@ class SGSimulationVariable():
     
     def addWatcher(self,aIndicator):
         self.watchers.append(aIndicator)
-    
-    
+
+
+    def getListOfStepsData(self):
+        if self.history==[]: return []
+        aList=[]
+        tmpDict={}
+        nbPhases = len(self.model.timeManager.phases) -1
+        for aData in self.history:
+            tmpDict[json.dumps([aData[0],aData[1]])]=aData[2]
+        def keyfunction(dumped_item):
+            item = json.loads(dumped_item)
+            return item[0],item[1]
+        sortedKeys = sorted(list(tmpDict.keys()),key=keyfunction)
+        startTime=[json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
+        endTime=[json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+        aDate = startTime
+        endTime_reached=False
+        while not endTime_reached:
+            if aDate==endTime: endTime_reached=True
+            aStepData = {
+                'simVarName': self.name,
+                'round': aDate[0],
+                'phase': aDate[1]
+                }
+            aVal=tmpDict.get(json.dumps([aDate[0],aDate[1]]), 'no key recorded')
+            if aVal == 'no key recorded': aVal =  aList[-1]['value']
+            aStepData['value']=aVal
+            aList.append(aStepData)
+            if aDate[1]==nbPhases or aDate[0]==0 : aDate=[aDate[0]+1,1]
+            else: aDate=[aDate[0],aDate[1]+1]
+        return aList
     

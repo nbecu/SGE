@@ -5,6 +5,9 @@ from mainClasses.SGCell import SGCell
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
+import numpy as np
+from collections import Counter
+
 
 import random
 
@@ -31,6 +34,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.IDincr = 0
         self.entities=[]
         self.initAttributes(entDefAttributesAndValues)
+        self.listOfStepStats=[]
 
     def nextId(self):
         self.IDincr +=1
@@ -155,6 +159,53 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for aKey, aListOfColorAndWidth in dictOfColorAndWidth.items():
             reformatedDict[aKey] = {'color':aListOfColorAndWidth[0],'width':aListOfColorAndWidth[1]}
         return reformatedDict
+    
+
+    def calculateAndRecordCurrentStepStats(self):
+        currentRound =self.model.timeManager.currentRound
+        currentPhase = self.model.timeManager.currentPhase
+
+        listQuantiAttributes = []
+        listQualiAttributes = []
+        for aAtt,aVal in self.entities[0].dictAttributes.items():  
+            if type(aVal) in [int,float]:
+                listQuantiAttributes.append(aAtt)
+            elif type(aVal) == str:
+                listQualiAttributes.append(aAtt)
+            else:
+                raise TypeError("Only int float and str are allowed")
+
+        quantiAttributesStats ={}
+        for aAtt in listQuantiAttributes:
+            listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
+            quantiAttributesStats[aAtt] = {
+                'sum': np.sum(listOfValues),
+                'mean': np.mean(listOfValues),
+                'min': np.min(listOfValues),
+                'max': np.max(listOfValues),
+                'stdev': np.std(listOfValues),
+                'histo':np.histogram(listOfValues, bins='auto')
+                }
+        qualiAttributesStats ={}
+        for aAtt in listQualiAttributes:
+            listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
+            qualiAttributesStats[aAtt]=Counter(listOfValues)
+            type(dict(Counter(listOfValues)))
+
+        aData = {
+                'entityType': self.entityType(),
+                'entityName': self.entityName,
+                'round': currentRound,
+                'phase': currentPhase,
+                'population': len(self.entities),
+                'entDefAttibutes': dict(filter(lambda i: type(i[1]) in[int,float],self.dictAttributes.items())),
+                'quantiAttributes': quantiAttributesStats,
+                'qualiAttributes': qualiAttributesStats
+                    }    
+        self.listOfStepStats.append(aData)
+
+
+
 # ********************************************************    
 
 # to get the entity matching a Id or at a specified coordinates

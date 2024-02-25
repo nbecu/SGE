@@ -1,3 +1,4 @@
+import json
 #A class to be inherited, that handlse the attributs and values
 
 class AttributeAndValueFunctionalities():
@@ -113,3 +114,56 @@ class AttributeAndValueFunctionalities():
                 aData = next((ele for ele in listOfData[::-1]  if (ele[0] == previousRound and ele[1] == previousPhase)), False)
             aDict[aAtt]=aData
         return aDict
+    
+    def getListOfUntagedStepsData(self,startStep=None,endStep=None):
+        if self.history["value"]=={}: return []
+        aList=[]
+        tmpDict={}
+        nbPhases = len(self.model.timeManager.phases) -1
+
+        # create a dict (tmpDict) of attribute values with keys as dates of the value updates of each attribute
+        for aAtt, listOfData in self.history["value"].items():
+            for aData in listOfData:
+                tmpDict[json.dumps([aData[0],aData[1],aAtt])]=aData[2]
+
+        # sort the keys of tmpDict that represent dates (or steps) in chronological order
+        def keyfunction(dumped_item):
+            item = json.loads(dumped_item)
+            return item[0],item[1]
+        sortedKeys = sorted(list(tmpDict.keys()),key=keyfunction)
+
+        startDate = startStep or [json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
+        endDate = endStep or [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+        #equivalent to
+        # startTime = startStep if startStep is not None else [json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
+        # endTime = endStep if endStep is not None else [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+        # --> because if startStep is None or empty the 'or' will return the right hand value
+        
+        #In case no value exists in tmpDict at the startDate for a given attribute, adds a value that is equal to the previous known value of the attribute
+        for aAtt in self.history["value"].keys():
+            aVal=tmpDict.get(json.dumps([startDate[0],startDate[1],aAtt]), 'no key recorded')
+            if aVal == 'no key recorded':
+                datesForAtt = filter(lambda x: json.loads(x)[2]== aAtt,sortedKeys)
+                datesForAtt.append(json.dumps(startDate))
+                newSortedDatesForAtt = sorted(datesForAtt,key=keyfunction)
+                previousDateWithValueForAtt = newSortedDatesForAtt[(newSortedDatesForAtt.index(json.dumps(startDate))) -1]
+                tmpDict[json.dumps([startDate[0],startDate[1],aAtt])]=tmpDict[previousDateWithValueForAtt]
+
+        #Loop over all the dates in between startDate and endDate and fill a list of stepData with the values of each attribute
+        aDate = startDate
+        endTime_reached=False
+        while not endTime_reached:
+            if aDate==endDate: endTime_reached=True
+            aStepData = {
+                'round': aDate[0],
+                'phase': aDate[1],
+                'dictAttributes': {}
+                }
+            for aAtt in self.history["value"].keys():
+                aVal=tmpDict.get(json.dumps([aDate[0],aDate[1],aAtt]), 'no key recorded')
+                if aVal == 'no key recorded': aVal =  aList[-1]['dictAttributes'][aAtt]
+                aStepData['dictAttributes'][aAtt]=aVal
+            aList.append(aStepData)
+            if aDate[1]==nbPhases or aDate[0]==0 : aDate=[aDate[0]+1,1]
+            else: aDate=[aDate[0],aDate[1]+1]
+        return aList

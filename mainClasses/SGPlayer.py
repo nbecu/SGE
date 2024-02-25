@@ -2,6 +2,7 @@ from mainClasses.SGLegend import SGLegend
 from mainClasses.SGControlPanel import SGControlPanel
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+from collections import defaultdict
 
 from mainClasses.gameAction.SGDelete import SGDelete
 from mainClasses.gameAction.SGUpdate import SGUpdate
@@ -24,6 +25,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.remainActions = {}
         self.controlPanel= None
         self.watchers={}
+        #Define variables to handle the history 
+        self.history={}
+        self.history["value"]=defaultdict(list)
         self.initAttributes(attributesAndValues)
 
     def newControlPanel(self, title=None, showAgentsWithNoAtt=False):
@@ -65,10 +69,15 @@ class SGPlayer(AttributeAndValueFunctionalities):
             aValue (str): Value to be set
         """
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        # self.saveHistoryValue()    
+        self.saveValueInHistory(aAttribut,aValue)
         self.dictAttributes[aAttribut]=aValue
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True
+
+    def getListOfStepsData(self,startStep=None,endStep=None):
+        aList=self.getListOfUntagedStepsData(startStep,endStep)
+        return [{**{'playerName': self.name}, **aStepData} for aStepData in aList]
+
 
     def addWatcher(self,aIndicator):
         if aIndicator.attribut is None:

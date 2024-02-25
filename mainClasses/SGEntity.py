@@ -209,7 +209,11 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     #         self.setHistoryFormat(aAttribute, aValue, dict_value)
 
 
+    def getListOfStepsData(self,startStep=None,endStep=None):
+        aList=self.getListOfUntagedStepsData(startStep,endStep)
+        return [{**{'entityType': self.classDef.entityType(),'entityName': self.classDef.entityName,'id': self.id},**aStepData} for aStepData in aList]
 
+    
     def isDeleted(self):
         return not self.isDisplay
     #To handle the attributs and values

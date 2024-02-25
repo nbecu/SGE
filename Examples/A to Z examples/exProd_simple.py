@@ -10,7 +10,7 @@ myModel=SGModel(860,700, windowTitle="Simplistic Production")
 
 
 ## Define Production Units
-ProductionUnits=myModel.newCellsOnGrid(10,10,"square",size=45, gap=2, name="Production Unit")
+ProductionUnits=myModel.newCellsOnGrid(1,2,"square",size=45, gap=2, name="Production Unit")
 ProductionUnits.setEntities("energy",lambda: random.randint(2,4)*10)
 
     # Define pov 

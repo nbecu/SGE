@@ -48,8 +48,17 @@ class SGToolBar(NavigationToolbar):
         self.firstEntity=""
         self.firstAttribut=""
         self.list_attribut_display = []
-        self.data = self.model.dataRecorder.listOfData_ofEntities
-        self.regenerate_menu(self.data)
+        self.dataEntities = self.model.dataRecorder.getStats_ofEntities() #ATTENTION --> lire les commentaires en dessous
+                #ATTENTION : getStats_ofEntities() recupère les données des entitées avec toutes les Stats déjà calculé
+                #ATTENTION : Il n'y a pas besoin de  recalculer les Stats !!!
+                #ATTENTION : Les Stats déjà calculé sont population, mean, min, max, std, (voir suite des stats calculés ci-dessous)
+                #ATTENTION(suite des Stats déjà calculés) : sum (nouvelle stat pour les DiagramLinear), histogram (pour l'affichage des DiagramHistogram)
+                #ATTENTION(suite des Stats déjà calculés) : + les 'counter' des attributs de type str (qualiAttributes), (pour l'affichage des DiagramCircular et DiagramStackPlot)
+                #ATTENTION(explication des 'counter'): un 'counter' donne le nombre d'occurences de chaque catégorie, pour l'affichage des DiagramCircular et DiagramStackPlot
+                
+        self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
+        self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
+        self.regenerate_menu(self.dataEntities)
 
     def regenerate_menu(self, data):
         entitiesMenu = QMenu('Entités', self)
@@ -72,9 +81,10 @@ class SGToolBar(NavigationToolbar):
                 self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
-                attrib_dict[f"entity-:{entity_name}-:populations"] = None
-                list_attribut_key = {attribut for entry in data for attribut in entry.get('attribut', {}) if
-                                     entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], (int, float))}
+                attrib_dict[f"entity-:{entity_name}-:population"] = None
+                list_attribut_key = {attribut for entry in data for attribut in entry.get('quantiAttributes', {})}
+                        #  if entry.get('entityName') == entity_name and isinstance(entry['quantiAttributes'][attribut], (int, float))}
+                        # ---> Pas besoin, car j'ai séparé les attributes dans deux keys -> quantiAttributes  pour les (int, float) et qualiAttributes  pour les str
                 if not self.firstAttribut:
                     self.firstAttribut = sorted(list_attribut_key)[0]
                 for attribut_key in sorted(list_attribut_key):
@@ -88,25 +98,25 @@ class SGToolBar(NavigationToolbar):
             #self.addSubMenus(playersMenu, self.dictMenuData['players'])
         else:
             attrib_data = []
-            entities_list = {entry['entityName'] for entry in data if 'entityName' in entry and isinstance(entry['attribut'], dict)
-                             and entry['attribut'].keys() and not isinstance(entry['entityName'], dict)}
+            entities_list = {entry['entityName'] for entry in data if 'entityName' in entry and isinstance(entry['quantiAttributes'], dict)
+                             and entry['quantiAttributes'].keys() and not isinstance(entry['entityName'], dict)}
             if not self.firstEntity:
                 self.firstEntity = sorted(entities_list)[0]
 
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
-                #attrib_dict[f"entity-:{entity_name}-:populations"] = None
-                list_attribut_key = {attribut for entry in data for attribut in entry.get('attribut', {}) if
-                                     entry.get('entityName') == entity_name and isinstance(entry['attribut'][attribut], str)}
+                #attrib_dict[f"entity-:{entity_name}-:population"] = None
+                list_attribut_key = {attribut for entry in data for attribut in entry.get('quantiAttributes', {}) if
+                                     entry.get('entityName') == entity_name and isinstance(entry['quantiAttributes'][attribut], str)}
 
                 if not self.firstAttribut:
                     self.firstAttribut = sorted(list_attribut_key)[0]
                 for attribut_key in list_attribut_key:
                     list_val = []
                     attrib_tmp_dict = {}
-                    for sub_attribut_val in {entry['attribut'][attribut] for entry in data for attribut in entry.get('attribut', {}) if
+                    for sub_attribut_val in {entry['quantiAttributes'][attribut] for entry in data for attribut in entry.get('quantiAttributes', {}) if
                                          entry.get('entityName') == entity_name and isinstance(
-                                             entry['attribut'][attribut], str)}:
+                                             entry['quantiAttributes'][attribut], str)}:
                         list_val.append(sub_attribut_val)
                         attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
                         #attrib_tmp_dict[sub_attribut_val] = {f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}" : None}
@@ -168,7 +178,7 @@ class SGToolBar(NavigationToolbar):
         selected_option_list = self.get_checkbox_display_menu_selected()
         #print("selected_option_list : ", selected_option_list)
         if self.typeDiagram == 'plot':
-            self.plot_linear_typeDiagram(self.data, selected_option_list)
+            self.plot_linear_typeDiagram(self.dataEntities, selected_option_list)
         elif self.typeDiagram == 'pie':
             self.plot_pie_typeDiagram(self.data, selected_option_list)
         elif self.typeDiagram == 'hist':
@@ -183,10 +193,10 @@ class SGToolBar(NavigationToolbar):
         for options in selected_option_list:
             if "-:" in options:
                 list_option = options.split("-:")
-                if list_option[0] == 'entity' and list_option[-1] == 'populations':
+                if list_option[0] == 'entity' and list_option[-1] == 'population':
                     y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
                              and entry['phase'] == p and entry['entityName'] == list_option[1] and \
-                             'attribut' in entry and list_option[2] in entry['attribut'].keys())
+                             'qualiAttributes' in entry and list_option[2] in entry['qualiAttributes'].keys())
                          for r in self.rounds for p in self.phases]
                     list_data.append(sum(y))
                     list_labels.append(' - '.join(list_option[1:]).upper() )
@@ -221,10 +231,10 @@ class SGToolBar(NavigationToolbar):
         for options in selected_option_list:
             if "-:" in options:
                 list_option = options.split("-:")
-                if list_option[0] == 'entity' and list_option[-1] == 'populations':
+                if list_option[0] == 'entity' and list_option[-1] == 'population':
                     y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
                              and entry['phase'] == p and entry['entityName'] == list_option[1] and \
-                             'attribut' in entry and list_option[2] in entry['attribut'].keys())
+                             'quantiAttributes' in entry and list_option[2] in entry['quantiAttributes'].keys())
                          for r in self.rounds for p in self.phases]
                     list_data.append(sum(y))
                     list_labels.append(' - '.join(list_option[1:]).upper() )
@@ -276,8 +286,8 @@ class SGToolBar(NavigationToolbar):
                     if attr == list_option[-1]:
                         y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
                                  and entry['phase'] == p and entry['entityName'] == list_option[1] and \
-                                 'attribut' in entry and list_option[2] in entry['attribut'].keys() and \
-                                 isinstance(entry['attribut'][list_option[2]], str))
+                                 'qualiAttributes' in entry and list_option[2] in entry['qualiAttributes'].keys() and \
+                                 isinstance(entry['qualiAttributes'][list_option[2]], str))
                              for r in self.rounds for p in self.phases]
                         list_data.append(sum(y))
                         list_labels.append(f"{str(list_option[1]).upper()} - {str(list_option[-1]).upper()}")
@@ -315,17 +325,17 @@ class SGToolBar(NavigationToolbar):
 
             """y = [sum(1 for entry in data if len(list_option) > 2 and entry['round'] == r \
                      and entry['phase'] == p and entry['entityName'] == list_option[1] and \
-                     'attribut' in entry and list_option[2] in entry['attribut'].keys() and \
-                     isinstance(entry['attribut'][list_option[2]], str))
+                     'quantiAttributes' in entry and list_option[2] in entry['quantiAttributes'].keys() and \
+                     isinstance(entry['quantiAttributes'][list_option[2]], str))
                  for r in self.rounds for p in self.phases]"""
 
             y = [sum(1 for entry in data if len(entities) > 2 and entry['round'] == r \
                      and entry['phase'] == p and entry['entityName'] == entities[1] and \
-                     'attribut' in entry and entities[2] in entry['attribut'].keys())
+                     'quantiAttributes' in entry and entities[2] in entry['quantiAttributes'].keys())
                  for r in self.rounds for p in self.phases]
             linestyle = self.linestyles[pos % len(self.linestyles)]
             color = self.colors[pos % len(self.colors)]
-            if list_option[-1] == 'populations':
+            if list_option[-1] == 'population':
                 print("xvalue : ", self.xValue)
                 print("y : ", y)
                 #self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
@@ -426,17 +436,25 @@ class SGToolBar(NavigationToolbar):
     #         'simVariable': simvariable_dict,
     #         'round': self.model.timeManager.currentRound,
     #         'phase': self.model.timeManager.currentPhase,
-    #         'attribut': self.dictAttributes
+    #         'quantiAttributes': self.dictAttributes
     #     }
 
     # def getAllData(self):
     #     value_cmb_2 = self.get_combobox2_selected_key()
     #     return self.getAllHistoryData() if value_cmb_2 == 1 else self.model.listData
 
+
+
     def update_data(self):
         # self.data = self.getAllData()
-        self.data = self.model.dataRecorder.listOfData_ofEntities
-        self.setXValueData(self.data)
+        # self.data = self.model.dataRecorder.listOfData_ofEntities
+        # self.data = self.model.dataRecorder.getStepsData_ofEntities()
+        self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
+        self.dataSimVars = self.model.dataRecorder.getStepsData_ofSimVariables()
+        self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
+        self.regenerate_menu(self.dataEntities)
+
+        self.setXValueData(self.dataEntities)
 
     def setXValueData(self, data):
         option = self.get_combobox2_selected_key()
