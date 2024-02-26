@@ -23,7 +23,6 @@ myModel.timeManager.newModelPhase([a1,a2])
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnSimVariable(score1)
 dashboard.addIndicatorOnSimVariable(score2)
-dashboard.showIndicators()
 
 myModel.newTimeLabel()
 myModel.launch() 

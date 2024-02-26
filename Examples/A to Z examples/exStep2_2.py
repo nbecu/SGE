@@ -16,8 +16,8 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-#You can change the initial pov displayed with the instruction setInitialPov()
-Cell.setInitialPov("ICantSeeShrub")
+#You can change the initial pov displayed with the instruction displayPov()
+Cell.displayPov("ICantSeeShrub")
 #If you don't set the initial pov, the first one which has been declared will be the initial one
 #You can change POV by using the eye of the Model toolbar
 

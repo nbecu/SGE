@@ -12,7 +12,7 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribut,value,listOfEntDef,logicOp,color=Qt.blue,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
         super().__init__(parent)
         #Basic initialize
         self.dashboard=parent
@@ -27,12 +27,15 @@ class SGIndicator(QtWidgets.QWidget):
         if self.method == "simVar": self.simVar=listOfEntDef  
         self.result=float
         self.name=name
-        self.attribut=attribut
+        self.attribute=attribute
         self.posY = self.dashboard.posYOfItems
         self.dashboard.posYOfItems += 1
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
+        self.displayRefresh=displayRefresh
+        self.timeConditions=onTimeConditions 
+        self.memory=[]
         self.initUI()
         
 
@@ -54,9 +57,9 @@ class SGIndicator(QtWidgets.QWidget):
             self.name = self.name + ' : '
             return 
         if self.method in ["nbWithLess","nbWithMore","nbEqualTo"]:
-            aName= 'nb '+self.attribut+ ' '+self.method[2:]+" "+self.value+" : "
-        elif self.attribut is not None:
-                aName = self.method+' '+self.attribut+" : "
+            aName= 'nb '+self.attribute+ ' '+self.method[2:]+" "+self.value+" : "
+        elif self.attribute is not None:
+                aName = self.method+' '+self.attribute+" : "
         elif self.method == 'nb':
             aName = self.method+' '+self.strOfEntitiesName()+' : '
         elif self.method == "separator":
@@ -79,6 +82,12 @@ class SGIndicator(QtWidgets.QWidget):
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
     
+    def updateTextByValue(self,aValue):
+        self.result=aValue
+        newText=self.name + str(self.result)
+        self.label.setPlainText(newText)
+        self.dashboard.model.timeManager.updateEndGame()
+    
     def updateByMqtt(self,newValue):
         self.result=newValue
         newText= self.name + str(newValue)
@@ -93,10 +102,75 @@ class SGIndicator(QtWidgets.QWidget):
             self.listOfEntDef.value=aValue
     
     def getUpdatePermission(self):
-        if self.dashboard.displayRefresh=='instantaneous':
+        if self.displayRefresh=='instantaneous':
             return True
-        if self.dashboard.displayRefresh=='withButton':
-            return True
+        if self.displayRefresh=='onTimeConditions':
+            testResult=True
+            for typeCondition,specifiedValue in self.timeConditions.items():
+                if typeCondition == 'phaseName' :
+                    aTest=self.updateOnPhaseName(specifiedValue) 
+                if typeCondition == 'phaseNumber' :
+                    aTest=self.updateOnPhaseNumber(specifiedValue)
+                if typeCondition == 'roundNumber' :
+                    aTest=self.updateOnRoundNumber(specifiedValue)
+                if typeCondition == 'lambdaTestOnPhaseNumber' :
+                    aTest=self.lambdaTestOnPhaseNumber(specifiedValue)
+                if typeCondition == 'lambdaTestOnRoundNumber' :
+                    aTest=self.lambdaTestOnRoundNumber(specifiedValue)
+                testResult = testResult and aTest
+            return testResult
+
+        # self.userSettingsOnPhaseToUpdate() #! check again 
+
+                # Ex de la façon de coder le lambdaTestOnRoundNumber
+                #     for typeCondition,specifiedValue in onTimeConditions.items()
+                #         if typeCondition == 'lambdaTestOnRoundNumber' :
+                #             testResult = specifiedValue(self.model.roundNumber)
+                #             return testResult
+
+    def updateOnPhaseName(self,specifiedValue):
+        currentPhase=self.dashboard.model.timeManager.getCurrentPhase()
+        if isinstance(specifiedValue,list):
+            if currentPhase.name in specifiedValue:
+                return True
+        if isinstance(specifiedValue,str):
+            if currentPhase.name == specifiedValue:
+                return True
+        return False
+
+    def updateOnPhaseNumber(self,specifiedValue):
+        currentPhaseNumber=self.dashboard.model.timeManager.currentPhaseNumber
+        if isinstance(specifiedValue,list):
+            if currentPhaseNumber in specifiedValue:
+                return True
+        if isinstance(specifiedValue,int):
+            if currentPhaseNumber == specifiedValue:
+                return True
+        return False
+
+    def updateOnRoundNumber(self,specifiedValue):
+        currentRoundNumber=self.dashboard.model.timeManager.currentRoundNumber
+        if isinstance(specifiedValue,list):
+            if currentRoundNumber in specifiedValue:
+                return True
+        if isinstance(specifiedValue,int):
+            if currentRoundNumber == specifiedValue:
+                return True
+        return False 
+    
+    def lambdaTestOnPhaseNumber(self,specifiedValue):
+        res = True 
+        currentPhaseNumber=self.dashboard.model.timeManager.currentPhaseNumber
+        for aCondition in specifiedValue:
+            res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentPhaseNumber))
+        return res
+
+    def lambdaTestOnRoundNumber(self,specifiedValue):
+        res = True 
+        currentRoundNumber=self.dashboard.model.timeManager.currentRoundNumber
+        for aCondition in specifiedValue:
+            res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentRoundNumber))
+        return res
 
     def getSizeXGlobal(self):
         return 150+len(self.name)*5
@@ -109,9 +183,9 @@ class SGIndicator(QtWidgets.QWidget):
         counter=0
         
         if self.method =='nb':
-            if self.attribut is not None and self.value is not None:
+            if self.attribute is not None and self.value is not None:
                 listEntities = self.getListOfEntities()
-                filteredList=[entity for entity in listEntities if entity.value(self.attribut)==self.value]
+                filteredList=[entity for entity in listEntities if entity.value(self.attribute)==self.value]
                 return len(filteredList)
             else:
                 listEntities = self.getListOfEntities()
@@ -119,7 +193,7 @@ class SGIndicator(QtWidgets.QWidget):
         
         elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
             listEntities = self.getListOfEntities()
-            listOfValues = [aEnt.value(self.attribut) for aEnt in listEntities]
+            listOfValues = [aEnt.value(self.attribute) for aEnt in listEntities]
             if self.method == 'sumAtt': return sum(listOfValues)
             if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
             if self.method == 'minAtt': return min(listOfValues)
@@ -130,41 +204,33 @@ class SGIndicator(QtWidgets.QWidget):
 
         elif self.method=="simVar":
             return self.simVar.value
-
-        # elif self.method=="score":
-        #     # This is an Obsolete method. Should be removed
-        #     calcValue=self.value
-        #     return 0 if self.value is None else self.value
         
         elif self.method =="display":
-            return self.entity.value(self.attribut)
+            return self.entity.value(self.attribute)
         elif self.method=="separator":
             return "---------------"
         elif self.method=="thresoldToLogicOp":
             # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
             if self.logicOp =="greater":
-                if self.entity.value(self.attribut) > self.threshold:
+                if self.entity.value(self.attribute) > self.threshold:
                     calcValue="greater than"+str(self.threshold)
                     return calcValue
             if self.logicOp =="greater or equal":
-                if self.entity.value(self.attribut)>=self.threshold:
+                if self.entity.value(self.attribute)>=self.threshold:
                     calcValue="greater than or equal to"+str(self.threshold)
                     return calcValue
             if self.logicOp =="equal":
-                if self.entity.value(self.attribut)==self.threshold:
+                if self.entity.value(self.attribute)==self.threshold:
                     calcValue="equal to"+str(self.threshold)
                     return calcValue
             if self.logicOp =="less or equal":
-                if self.entity.value(self.attribut)<=self.threshold:
+                if self.entity.value(self.attribute)<=self.threshold:
                     calcValue="less than or equal to"+str(self.threshold)
                     return calcValue
             if self.logicOp =="less":
-                if self.entity.value(self.attribut)<self.threshold:
+                if self.entity.value(self.attribute)<self.threshold:
                     calcValue="less than"+str(self.threshold)
-                    return calcValue
-
-
-            
+                    return calcValue   
 
     def getMethods(self):
         print(self.methods)

@@ -78,7 +78,7 @@ class SGEndGameCondition(QtWidgets.QWidget):
             if isinstance(self.entity, SGAgent):
                 print("To be implemented...")
         if self.calcType == "onGameRound":
-            valueToCheck = self.endGameRule.model.timeManager.getRoundNumber()
+            valueToCheck = self.endGameRule.model.timeManager.currentRoundNumber
             if self.logicalTests(valueToCheck, self.method, self.objective):
                 self.checkStatus = True
                 return

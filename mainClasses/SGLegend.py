@@ -146,7 +146,7 @@ class SGLegend(SGGameSpace):
                         if entity == 'cells':
                             added_items = set()
                             added_colors = []
-                            grid=self.model.getGameSpace(aKeyOfGamespace)
+                            grid=self.model.getGameSpaceByName(aKeyOfGamespace)
                             for aPov in self.elementsPov[aKeyOfGamespace]['cells'].keys():
                                 if aPov in self.model.cellCollection[grid.id]["ColorPOV"].keys():
                                     currentPov=aPov
@@ -204,7 +204,7 @@ class SGLegend(SGGameSpace):
         item_key=aAttribut +' '+ str(aValue)
         if item_key not in added_items and color not in added_colors and color != Qt.transparent:
             self.y=self.y+1
-            anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+str(aValue),color,aValue,aAttribut)
+            anItem=SGLegendItem(self,self.model.getGameSpaceByName(aKeyOfGamespace).format,self.y,aAttribut+" "+str(aValue),color,aValue,aAttribut)
             if typeOfPov == "BorderPOV" :
                 anItem.border = True
             self.legendItems[aKeyOfGamespace].append(anItem)
@@ -215,15 +215,14 @@ class SGLegend(SGGameSpace):
 
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
-        listOfLengths = [len(item.text) for item in self.legendItems ]
-        lMax= sorted(listOfLengths,reverse=True)[0]
+        listOfLengths = [len(item.text) for item in self.legendItems]
+        listOfLengths.append(len(self.id))
         if self.haveADeleteButton :
-            if lMax > len("delete"):
-                return lMax*5+50
-            else:
-                return len("delete")*5+50
-        else :
-            return lMax*10+60
+            listOfLengths.append(len('delete'))
+        if len(listOfLengths)==0:
+            return 250
+        lMax= sorted(listOfLengths,reverse=True)[0]
+        return lMax*12+10
     
     def getLongest(self): #A priori Obsolete
         longestWord=""
@@ -243,23 +242,7 @@ class SGLegend(SGGameSpace):
     
     def zoomOut(self):
         """IN PROGRESS"""
-        return True
-    
-    #To handle the drag of the Legend
-    def mouseMoveEvent(self, e):
-    
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-        drag.exec_(Qt.MoveAction)
-    
-    
+        return True 
         
     #Drawing the Legend
     def paintEvent(self,event):

@@ -2,9 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QVBoxLayout, QLabel 
 import random
-from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGGrid import SGGrid
 from mainClasses.SGGameSpace import SGGameSpace
@@ -20,13 +19,16 @@ class SGAgent(SGEntity):
             self.cell = cell
             self.cell.updateIncomingAgent(self)
         else: raise ValueError('This case is not handeled')
-        self.xPos=self.getRandomX()
-        self.yPos=self.getRandomY()
+        self.getPositionInEntity()
+        self.last_selected_option=None
+        self.shapeColor=shapeColor
         self.initMenu()
         
 
 
     def paintEvent(self,event):
+        if self.shapeColor==19: #code for transparent # TODO trouver pourquoi le self.color ne se met pas à jour avec les POV
+            return
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -86,6 +88,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
+            self.show()
             painter.end()
 
    #Funtion to handle the zoomIn
@@ -104,27 +107,79 @@ class SGAgent(SGEntity):
 
     # To show a menu
     def show_menu(self, point):
-        # Need to find a solution to get modeler's choice about attributes
         menu = QMenu(self)
-        text="Merlu pêché : "+str(self.value("Quantité_pêchée_Merlu")) #non definitive
-        option = QAction(text, self)
-        menu.addAction(option)
-        text="Sole pêché : "+str(self.value("Quantité_pêchée_Sole")) #non definitive
-        option = QAction(text, self)
-        menu.addAction(option)
-        
-        if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
+        options=[]
 
-    def getRandomXY(self):
-        # Is Obsolete
-        if self.me=='agent':
-            maxSize=self.cell.size
-            x = random.randint(1,maxSize-1)
-            return x
-        else:
-            x=0
-            return x
+        for anItem in self.classDef.attributesToDisplayInContextualMenu:
+            aAtt = anItem['att']
+            aLabel = anItem['label']
+            aValue = self.value(aAtt)
+            text = aLabel  + ": "+str(aValue)
+            option = QAction(text, self)
+            menu.addAction(option)
+        
+        if self.classDef.updateMenu:
+            if len(self.classDef.attributesToDisplayInUpdateMenu)==1:  
+                anItem=self.classDef.attributesToDisplayInUpdateMenu[0]
+                aAtt = anItem['att']
+                aLabel = anItem['label']
+                aValue = self.value(aAtt)
+                text="Value - "+aLabel + ": "+str(aValue)
+                gearAct = QAction(text, self)
+                gearAct.setCheckable(False)
+                menu.addAction(gearAct)
+                options.append(gearAct)
+
+            if len(self.classDef.attributesToDisplayInUpdateMenu)>1:
+                gearMenu=menu.addMenu('Values')
+                for anItem in self.classDef.attributesToDisplayInUpdateMenu:
+                    aAtt = anItem['att']
+                    aLabel = anItem['label'] 
+                    aValue = self.value(aAtt)
+                    text = aAtt+" " +aLabel+" : "+str(aValue)
+                    option = QAction(text, self)
+                    option.setCheckable(False) 
+                    gearMenu.addAction(option)
+                    options.append(option)
+
+        if self.rect().contains(point):
+            action=menu.exec_(self.mapToGlobal(point))
+            if action in options:
+                self.showGearMenu(action.text()) 
+
+    def showGearMenu(self,aText):
+        # Get the actions from the player
+        player=self.model.getPlayerObject(self.model.currentPlayer)
+        if player == "Admin":
+            return #TODO trouver un moyen de ne pas faire de bug en Admin Mode
+        actions = player.getGameActionsOn(self) #! Select a player not Admin
+        actionsNames =[action.name for action in actions]
+        # Filter the actions by the concerned attribute
+        displayedNames=[]
+        wordsInText=aText.split()
+        att=wordsInText[0]
+        for aName in actionsNames:
+            wordsInName=aName.split()
+            if att in wordsInName:
+                displayedNames.append(aName)
+        # The first value is the current value
+        current_value = self.value(att)
+        displayedValues=[aName.split()[-1] for aName in displayedNames]
+        default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
+        # Dialog box
+        action, ok = QInputDialog.getItem(self, 'Change Value','Select a NEW Value for '+att, displayedValues, default_index, False)
+
+        if ok and action:
+            self.last_selected_option = action
+            self.showPopup(action)
+            # now execute Actions
+            actionName="UpdateAction "+att+" "+action
+            for anAction in actions:
+                if anAction.name==actionName:
+                    anAction.perform_with(self)
+
+    def showPopup(self, selected_option):
+        QMessageBox.information(self, 'Option sélectionnée', f'Vous avez sélectionné : {selected_option}', QMessageBox.Ok)
         
     def getRandomX(self):        
         maxSize=self.cell.size
@@ -138,7 +193,36 @@ class SGAgent(SGEntity):
         originPoint=self.cell.pos()
         y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
         return y
-
+    
+    def getPositionInEntity(self):
+        maxSize=self.cell.size
+        originPoint=self.cell.pos()
+        if self.classDef.locationInEntity=="random":
+            self.xPos=self.getRandomX()
+            self.yPos=self.getRandomY()
+            return
+        if self.classDef.locationInEntity=="topRight":
+            self.xPos=originPoint.x()+maxSize-10
+            self.yPos=originPoint.y()+5
+            return
+        if self.classDef.locationInEntity=="topLeft":
+            self.xPos=originPoint.x()+5
+            self.yPos=originPoint.y()+5
+            return
+        if self.classDef.locationInEntity=="bottomLeft":
+            self.xPos=originPoint.x()+5
+            self.yPos=originPoint.y()+maxSize-10
+            return
+        if self.classDef.locationInEntity=="bottomRight":
+            self.xPos=originPoint.x()+maxSize-10
+            self.yPos=originPoint.y()+maxSize-10
+            return
+        if self.classDef.locationInEntity=="center":
+            self.xPos=originPoint.x()+int(maxSize/2)
+            self.yPos=originPoint.y()+int(maxSize/2)
+            return
+        else:
+            raise ValueError("Error in entry for locationInEntity")
 
     def isDeleted(self):
         if not self.isDisplay:
@@ -191,7 +275,6 @@ class SGAgent(SGEntity):
     
         if e.buttons() != Qt.LeftButton:
             return
-        # authorisation = SGGameActions.getMovePermission(self)
         authorisation = True
         if authorisation:
             mimeData = QMimeData()
@@ -219,7 +302,7 @@ class SGAgent(SGEntity):
             self.model.listOfPovsForMenu.append(nameOfPov)
             anAction=QAction(" &"+nameOfPov, self)
             self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
+            anAction.triggered.connect(lambda: self.model.displayPov(nameOfPov))
 
 
             
@@ -246,7 +329,7 @@ class SGAgent(SGEntity):
             for aWatcherOnThisAgent in watchers:
                 aWatcherOnThisAgent.entity=newAgent        
         newAgent.privateID = oldAgent.privateID # A priori, on peut retirer cet attribut
-        newAgent.isDisplay = True
+        newAgent.isDisplay = oldAgent.isDisplay
         newAgent.classDef.entities.remove(oldAgent)
         newAgent.classDef.entities.append(newAgent)
         newAgent.update()

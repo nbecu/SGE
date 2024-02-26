@@ -2,7 +2,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
-from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.AttributeAndValueFunctionalities import *
 
 # Class who is in charged of entities : cells and agents
@@ -78,11 +77,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDefaultColor= self.classDef.defaultBorderColor
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
-    
-    #To get the pov
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        return self.model.nameOfPov
 
     def getRandomXY(self):
         x = 0
@@ -101,7 +95,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         return dict
     
     def addWatcher(self,aIndicator):
-        aAtt = aIndicator.attribut
+        aAtt = aIndicator.attribute
         if aAtt not in self.watchers.keys():
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)
@@ -113,7 +107,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def saveHistoryValue(self):
         if len(self.history["value"])==0:
             self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
-        self.history["value"].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,self.dictAttributes])
+        self.history["value"].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,self.dictAttributes])
 
 
     def isDeleted(self):

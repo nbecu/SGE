@@ -24,7 +24,6 @@ aPhase.addModelAction(resetScoreAction)
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnEntity(player_Clara,'foo')
 dashboard.addIndicatorOnEntity(player_Clara,'Clara''s score')
-dashboard.showIndicators()
 
 myModel.launch() 
 sys.exit(monApp.exec_())

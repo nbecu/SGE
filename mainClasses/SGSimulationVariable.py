@@ -25,7 +25,7 @@ class SGSimulationVariable():
         self.value=newValue
         for watcher in self.watchers:
             watcher.checkAndUpdate()
-
+    
     def incValue(self,aValue=1,max=None):
         """
         Increase the value with an additional value
@@ -59,4 +59,6 @@ class SGSimulationVariable():
         self.watchers.append(aIndicator)
     
     
-    
+    # eventuellement un jour ajouter la fonctionnalité pour le modeler 
+        # def resetValueAtEachRound(self,aAttribut,valueToBeSetAtEachRound):
+        #     self.setValue(aAttribut, result)

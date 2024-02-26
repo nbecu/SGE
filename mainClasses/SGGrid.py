@@ -75,9 +75,15 @@ class SGGrid(SGGameSpace):
         self.gap = round(self.gap-(self.zoom*1))
         for cell in self.getCells():
             cell.zoomOut()
-        for agent in cell.getAgents():
-            agent.zoomOut(self.zoom)
+            newX=cell.x()
+            newY=cell.y()
+            for agent in cell.getAgents():
+                agent.zoomOut(self.zoom)
         self.update()
+        for cell in self.getCells():
+            for agent in cell.getAgents(): 
+                agent.moveAgent("cell",cellID=agent.cell.id)               
+        
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):
@@ -176,7 +182,7 @@ class SGGrid(SGGameSpace):
         args:
             columnNumber (int): column number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.x== columnNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.xPos== columnNumber]
         
 
   # Return the cells at a specified row
@@ -186,7 +192,7 @@ class SGGrid(SGGameSpace):
         args:
             rowNumber (int): row number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.y== rowNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.yPos== rowNumber]
 
 
 
@@ -320,8 +326,8 @@ class SGGrid(SGGameSpace):
     # To return all agent of a type in neighborhood
     def getNeighborAgentThroughCell(self, aCell, agentName, typeNeighbor="moore", rangeNeighbor=1):
         """NON FUNCTIONNAL"""
-        x = aCell.x
-        y = aCell.y
+        x = aCell.xPos
+        y = aCell.yPos
         result = []
         for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
             for agent in cell.getAgentsOfType(agentName):#non existent function
@@ -336,8 +342,8 @@ class SGGrid(SGGameSpace):
     # To return all agent in neighborhood through a cell
     def getNeighborAllAgentThroughCell(self, aCell, typeNeighbor="moore", rangeNeighbor=1):
         """NON FUNCTIONNAL"""
-        x = aCell.x
-        y = aCell.y
+        x = aCell.xPos
+        y = aCell.yPos
         result = []
         for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
             for agentName in list(self.collectionOfAcceptAgent.keys()):

@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
 # import time
 
@@ -13,8 +12,8 @@ class SGCell(SGEntity):
         super().__init__(classDef.grid,classDef,classDef.defaultsize,classDef.defaultShapeColor,attributesAndValues=None)
         #Basic initialize
         self.grid=classDef.grid
-        self.x=x
-        self.y=y
+        self.xPos=x
+        self.yPos=y
         self.gap=self.grid.gap
         #Save the basic value for the zoom ( temporary)
         self.saveGap=self.gap
@@ -33,7 +32,7 @@ class SGCell(SGEntity):
         self.customContextMenuRequested.connect(self.show_menu)
         
     def getId(self):
-        return "cell"+str(self.x)+"-"+str(self.y)
+        return "cell"+str(self.xPos)+"-"+str(self.yPos)
     
     def paintEvent(self,event):
         painter = QPainter()
@@ -45,20 +44,17 @@ class SGCell(SGEntity):
             painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
             self.startXBase=self.grid.frameMargin
             self.startYBase=self.grid.frameMargin
-            # self.gap=1
-            self.startX=int(self.startXBase+(self.x -1)*(self.size+self.gap)+self.gap) 
-            self.startY=int(self.startYBase+(self.y -1)*(self.size+self.gap)+self.gap)
+            self.startX=int(self.startXBase+(self.xPos -1)*(self.size+self.gap)+self.gap) 
+            self.startY=int(self.startYBase+(self.yPos -1)*(self.size+self.gap)+self.gap)
             if (self.shape=="hexagonal"):
                 self.startY=self.startY+self.size/4
             #Base of the gameBoard
             if(self.shape=="square"):
                 painter.drawRect(0,0,self.size,self.size)
                 self.setMinimumSize(self.size,self.size+1)
-                # self.setGeometry(0,0,self.size+1,self.size+1) #CELA PROVOQUE UNE Infinite Loop de paintEvent
                 self.move(self.startX,self.startY)
             elif(self.shape=="hexagonal"):
                 self.setMinimumSize(self.size,self.size)
-                # self.setGeometry(0,0,self.size+1,self.size+1)
                 points = QPolygon([
                     QPoint(int(self.size/2), 0),
                     QPoint(self.size, int(self.size/4)),
@@ -68,11 +64,11 @@ class SGCell(SGEntity):
                     QPoint(0, int(self.size/4))              
                 ])
                 painter.drawPolygon(points)
-                if(self.y%2!=0):
+                if(self.yPos%2!=0):
                     # y impaires /  sachant que la première valeur de y est 1
-                    self.move(self.startX , int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                    self.move(self.startX , int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
                 else:
-                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.y +(self.gap/10+self.size/4)*self.y))
+                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
                         
         painter.end()
 
@@ -163,12 +159,6 @@ class SGCell(SGEntity):
     def dragEnterEvent(self, e):
         # this is event is called during an agent drag 
         e.accept()
-
-             
-    #To get the pov
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        return self.grid.model.nameOfPov
        
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction,theAgentForMoveGM=None):
@@ -199,36 +189,25 @@ class SGCell(SGEntity):
     
     # To show a menu
     def show_menu(self, point):
-        menu = QMenu(self)
-        text= "Agent count on this cell : "+str(len(self.agents))
-        option1 = QAction(text, self)
-        menu.addAction(option1)
+        pass
+    #     menu = QMenu(self)
+    #     text= "Agent count on this cell : "+str(len(self.agents))
+    #     option1 = QAction(text, self)
+    #     menu.addAction(option1)
 
-        # self.model.updateAgentsAtMAJ()  
+    #     x=self.x()
+    #     y=self.y()
+    #     text= "Coords : "+str(x)+","+str(y)
+    #     option2 = QAction(text, self)
+    #     menu.addAction(option2)
+
+    #     # self.model.updateAgentsAtMAJ()  
         
-        if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
+    #     if self.rect().contains(point):
+    #         menu.exec_(self.mapToGlobal(point))
 
 #-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use
-    
-    #To verify if the cell contain the value pas in parametre through a dictionnary
-    def checkValue(self,aDictOfValue):
-        """NOT TESTED"""
-        theKey=list(aDictOfValue.keys())[0] 
-        if theKey in list(self.dictAttributes.keys()):
-            return aDictOfValue[theKey]==self.dictAttributes[theKey]
-        return False
-
-    
-    #To change the value
-    def changeValue(self,aDictOfValue):
-        """NOT TESTED"""
-        if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.attributs])
-        self.grid.setForXandY(aDictOfValue,self.x+1,self.y+1)
-        self.history["value"].append([self.grid.model.timeManager.currentRound,self.grid.model.timeManager.currentPhase,self.attributs])
-     
+#Definiton of the methods who the modeler will use  
     
     #To get all of a kind of agent on a cell 
     def getAgents(self,specie=None):
@@ -249,14 +228,14 @@ class SGCell(SGEntity):
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):
         neighbors = []
-        for i in range(self.x - 1, self.x + 2):
-            for j in range(self.y - 1, self.y + 2):
-                if i == self.x and j == self.y:
+        for i in range(self.xPos - 1, self.xPos + 2):
+            for j in range(self.yPos - 1, self.yPos + 2):
+                if i == self.xPos and j == self.yPos:
                     continue
                 if rule=="moore":
                     c = self.classDef.getCell(i, j)
                 elif rule=='neumann':
-                    if (i == self.x or j == self.y) and (i != self.x or j != self.y):
+                    if (i == self.xPos or j == self.yPos) and (i != self.xPos or j != self.yPos):
                         c = self.classDef.getCell(i,j)
                     else:
                         c = None
@@ -269,13 +248,13 @@ class SGCell(SGEntity):
         
     #To get the neighbor cell at cardinal
     def getNeighborN(self):
-        return self.classDef.getCell(self.x,self.y-1)
+        return self.classDef.getCell(self.xPos,self.yPos-1)
     def getNeighborS(self):
-        return self.classDef.getCell(self.x,self.y+1)
+        return self.classDef.getCell(self.xPos,self.yPos+1)
     def getNeighborE(self):
-        return self.classDef.getCell(self.x+1,self.y)
+        return self.classDef.getCell(self.xPos+1,self.yPos)
     def getNeighborW(self):
-        return self.classDef.getCell(self.x-1,self.y)
+        return self.classDef.getCell(self.xPos-1,self.yPosPos)
 
         
     #Function to check the ownership  of the cell          
@@ -305,12 +284,12 @@ class SGCell(SGEntity):
         haveChange=False
         if not len(self.history["value"]) ==0:
             for anItem in self.history["value"].reverse():
-                if anItem.roundNumber> self.grid.model.timeManager.currentRound-numberOfRound:
+                if anItem.roundNumber> self.grid.model.timeManager.currentRoundNumber-numberOfRound:
                     if not anItem.thingsSave == self.attributs:
                         haveChange=True
                         break
-                elif anItem.roundNumber== self.grid.model.timeManager.currentRound-numberOfRound:
-                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhase:
+                elif anItem.roundNumber== self.grid.model.timeManager.currentRoundNumber-numberOfRound:
+                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhaseNumber:
                         if not anItem.thingsSave == self.attributs:
                             haveChange=True
                             break

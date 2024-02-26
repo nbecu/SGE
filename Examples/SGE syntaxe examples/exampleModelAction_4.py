@@ -30,7 +30,6 @@ scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
 DashBoard.addIndicator_Nb('Cell','landUse',"forest","Taille de la foret",(Qt.blue))
 DashBoard.addIndicatorOnSimVariable(scoreB)
 
-DashBoard.showIndicators()
 
 
 #CREATIONS DE MODEL ACTIONS

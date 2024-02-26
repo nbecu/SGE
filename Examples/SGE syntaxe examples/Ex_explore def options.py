@@ -129,9 +129,8 @@ TextBox = myModel.newTextBox(
     title='Info', textToWrite="Welcome to ReHab game !")
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sum", 'Cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avg", 'Cell', attribute='Resource',color=Qt.black)
-DashBoard.showIndicators()
+i1 = DashBoard.addIndicator('Cell',"sum",  attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator('Cell',"avg",  attribute='Resource',color=Qt.black)
 
 
 
