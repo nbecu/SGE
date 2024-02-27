@@ -1,19 +1,8 @@
-from typing import Hashable
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
 
-from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGLegend import SGLegend
 from mainClasses.SGLegendItem import SGLegendItem
-from mainClasses.SGCell import SGCell
-from mainClasses.SGGrid import SGGrid
-from mainClasses.SGAgent import SGAgent
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGUpdate import SGUpdate
-from mainClasses.gameAction.SGCreate import SGCreate
-from mainClasses.gameAction.SGMove import SGMove
 
 
 #Class who is responsible of the creation of a ControlPanel
@@ -58,19 +47,18 @@ class SGControlPanel(SGLegend):
     #Drawing the Legend
     def paintEvent(self,event):
         if self.checkDisplay():
-            # if len(self.elementsPov)!=0:
-                painter = QPainter() 
-                painter.begin(self)
-                if self.isActive:
-                    painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
-                else:
-                    painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
-                painter.setPen(QPen(self.borderColor,1))
-                #Draw the corner of the Legend
-                self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-                painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+            painter = QPainter() 
+            painter.begin(self)
+            if self.isActive:
+                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            else:
+                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
+            painter.setPen(QPen(self.borderColor,1))
+            #Draw the corner of the Legend
+            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
-                painter.end()
+            painter.end()
     
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:

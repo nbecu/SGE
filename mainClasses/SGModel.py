@@ -2,7 +2,7 @@
 from PyQt5.QtSvg import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMenuBar,QToolBar,QMessageBox)
+from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMessageBox)
 from PyQt5 import QtWidgets
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
@@ -28,17 +28,13 @@ from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
 from mainClasses.SGVoid import*
-from email.policy import default
-from logging.config import listen
 import sys
-import copy
 from pathlib import Path
 from pyrsistent import s
 from win32api import GetSystemMetrics
 from paho.mqtt import client as mqtt_client
 import threading
 import queue
-import random
 import uuid
 import re
 import json
@@ -79,7 +75,7 @@ class SGModel(QMainWindow):
         # Definition of variable
         # Definition for all gameSpaces
         self.gameSpaces = {}
-        self.TextBoxes = []   # Why textBoxes are not in gameSpaces ?
+        self.TextBoxes = []
         # Definition of the AgentDef and CellDef
         self.agentSpecies = {}
         self.cellOfGrids = {}
@@ -178,12 +174,10 @@ class SGModel(QMainWindow):
         
     
     def updateFunction(self):
-        #This method will need to be modified so that agent are placed at the right place right from the start
         aList = self.getAllAgents()
         if not aList : return False
         for aAgent in aList:
             aAgent.updateAgentByRecreating_it()
-        # self.show()
 
     def setDashboards(self):
         dashboards=self.getGameSpaceByClass(SGDashBoard)
@@ -213,11 +207,8 @@ class SGModel(QMainWindow):
         self.menuBar().addSeparator()
 
         self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
-        # dictionnaire pour stocker les actions du sous-menu Symbology
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
-
-        # self.povMenu = self.menuBar().addMenu(QIcon("./icon/pov.png"), "&pov")
 
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
@@ -249,57 +240,23 @@ class SGModel(QMainWindow):
 
         self.changeThePov = QAction(" &default", self)
 
+    # Zoom
+    
+    def zoomPlusModel(self):
+        pass
+
+    def zoomLessModel(self):
+        pass
+
+    def zoomFitModel(self):
+        pass
+
     # Create the function for the action of the menu
-    # Loading a Save
-
-    def openFromSave(self):
-        """To be implemented"""
-        return True
-
-    # Save the game in a file
-    def saveTheGame(self):
-        """To be implemented"""
-        return True
-
-    # Inspect All of the variables of the game
-    def inspectAll(self):
-        """To be implemented"""
-        return True
-
-    # Make the game go to precedent state
-    def backwardAction(self):
-        """To be implemented"""
-        return True
-
-    # Make the game go to next step
-    def forwardAction(self):
-        """To be implemented"""
-        return True
-
     # Trigger the next turn
-
     def nextTurn(self):
-        # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
-        # msg_box = QMessageBox(self)
-        # msg_box.setIcon(QMessageBox.Information)
-        # msg_box.setWindowTitle("SGE Time Manager Message")
-        # msg_box.setText("Attention ! A Automatic Model Phase will be trigger.")
-        # msg_box.setStandardButtons(QMessageBox.Ok)
-        # msg_box.setDefaultButton(QMessageBox.Ok)
-
-        # result = msg_box.exec_()
-
-        # if result == QMessageBox.Ok:
-        #     print("Bouton OK a été cliqué.")
-
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
-        # self.eventTime()
-
-    def recordAllData(self):
-        # To be implemented
-        return
 
     def closeEvent(self, event):
         self.haveToBeClose = True
@@ -308,77 +265,8 @@ class SGModel(QMainWindow):
             self.client.disconnect()
         self.close()
 
-    # Trigger the zoom in
-
-    def zoomPlusModel(self):
-        """NOT TESTED"""
-        self.setNumberOfZoom(self.numberOfZoom+1)
-        for aGameSpaceName in self.gameSpaces:
-            self.gameSpaces[aGameSpaceName].zoomIn()
-        self.update()
-
-    # Trigger the zoom out
-
-    def zoomLessModel(self):
-        """NOT TESTED"""
-        if self.numberOfZoom != 0:
-            for aGameSpaceName in self.gameSpaces:
-                self.gameSpaces[aGameSpaceName].zoomOut()
-            self.setNumberOfZoom(self.numberOfZoom-1)
-        self.update()
-
-    # Trigger the basic zoom
-
-    def zoomFitModel(self):
-        """NOT TESTED"""
-        # if the window to display is to big we zoom out and reapply the layout
-        if self.layoutOfModel.getMax()[0] > self.width() or self.layoutOfModel.getMax()[1] > self.height():
-            while (self.layoutOfModel.getMax()[0] > self.width() or self.layoutOfModel.getMax()[1] > self.height()):
-                self.zoomLessModel()
-                self.applyPersonalLayout()
-        else:
-            # if the window to display is to small we zoom in and out when we over do it once and then reapply the layout
-            while (self.layoutOfModel.getMax()[0] < (self.width()) or self.layoutOfModel.getMax()[1] < self.height()):
-                self.zoomPlusModel()
-                self.applyPersonalLayout()
-                if self.layoutOfModel.getMax()[0] > (self.width()) and self.layoutOfModel.getMax()[1] > self.height():
-                    self.zoomLessModel()
-                    self.zoomLessModel()
-                    self.applyPersonalLayout()
-                    break
-        self.update()
-
-    # Extract the current gameboard into png
-
-    def extractPngFromWidget(self):
-        """NOT TESTED"""
-        # To be reworked
-        self.window.grab().save("image.png")
-
-    # Extract the current gameboard into svg
-    def extractSvgFromWidget(self):
-        """NOT TESTED"""
-        generator = QSvgGenerator()
-        generator.setFileName("image.svg")
-        painter = QPainter(generator)
-        self.window.render(painter)
-        painter.end()
-
-    # Extract the current gameboard into html
-    def extractHtmlFromWidget(self):
-        """To be implemented"""
-        return True
-
-    # Event
-    # wheel event we zoom in or out
-    def wheelEvent(self, event):
-        if (event.angleDelta().y() == 120):
-            self.zoomPlusModel()
-        else:
-            self.zoomLessModel()
 
     # Function to handle the drag of widget
-
     def dragEnterEvent(self, e):
         e.accept()
 
@@ -475,8 +363,6 @@ class SGModel(QMainWindow):
     # To get a cell in particular
     def getCell(self, aGrid, aId):
         result = list(filter(lambda cell: cell.id == aId, self.getCells(aGrid)))
-        # This is an equivalent Expression
-        # result = [cell for cell in self.getCells(aGrid) if cell.id == aId]
         if len(result)!=1: raise ValueError("No cell with such Id!")
         return result[0]
 
@@ -495,8 +381,6 @@ class SGModel(QMainWindow):
 
     # To create a Legend
     def newLegend(self, name='Legend', showAgentsWithNoAtt=False):
-        #It is supposed to a legend for a given Grid
-        # for the moment we assume that its a legend for the main (first) grid
         """
         To create an Admin Legend (with all the cell and agent values)
 
@@ -505,11 +389,8 @@ class SGModel(QMainWindow):
         showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
 
         """
-        #For the active symbology to be the first one for each Entity
-        # self.checkFirstSymbologyOfEntitiesInMenu()
-        
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).init2(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
@@ -602,20 +483,6 @@ class SGModel(QMainWindow):
         for aAgentDef in self.getAgentSpeciesDict():
             aAgentDef.deleteAllEntities()
 
-    def getAgentSpeciesOLD(self):
-        # ATTENTION
-        # Il y a un soucis dans la façon dont les infos sur les species sont stockés, car il y a une partie qui sont dans les clés du dico self.agentSpecies[NomDeLaSpecie] et une autre partie qui est dans l'instance d'Agent (dont me='collec' et species= 'NomDeLaSpecie') qui est stockée dans self.agentSpecies[NomDeLaSpecie]['defSpecies']
-        # Il faut que toutes les infos soient rassemblées au meme endroit.
-        # Le plus propre serait de créer une Class SGEntityDef  qui portera toutes les infos de la specie  
-        # (peut être qu'il faudra faire un SGCellDef et un SGAgentDef)
-        #       voici les info pour un SGAgentDef (name, watchers, colorPov, borderPov, attributList , size, defaultSize, defaultColor, shape,  format, instancesDeCetteSpecie, methodOfPlacement)
-        #       voici les info pour un SGCellDef (grid, watchers, colorPov, borderPov)  -->    apparameent ca ne stock pas les autres infos comme ( attributList , size, defaultSize, defaultColor, shape,  format)  Ces infos st peut etre ds la grid
-        species=[]
-        for instance in SGAgent.instances:
-            if instance.me == 'collec':
-                species.append(instance)
-        return species
-
     def updateIDincr(self, newValue):
         self.IDincr = newValue
         return self.IDincr
@@ -633,7 +500,6 @@ class SGModel(QMainWindow):
         aAgent.id = anAgentID
         aAgtDef.entities.append(aAgent)
         aAgent.show()
-            # si ca ne s'affiche pas correctement, penser à essayer avec update()
         return aAgent
 
 
@@ -899,15 +765,12 @@ class SGModel(QMainWindow):
     # ------
 # Pov
     def getSubmenuSymbology(self, submenuName):
-        # renvoie le sous-menu 
+        # return the submenu 
         return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == submenuName), None)
-        # Above code is equivalent to the following
-        # if any((match := item).title() == entityName for item in self.submenuSymbology_actions.keys()):
-        #     return match
-        # else: return None
+
 
     def getOrCreateSubmenuSymbology(self, submenu_name):
-        # renvoie le sous-menu (et création du sous-menu si il n'existe pas encore)
+        # return the submenu (or create it if it doesn't exist yet)
         submenu = self.getSubmenuSymbology(submenu_name)
         if submenu is not None:
             return submenu
@@ -921,25 +784,15 @@ class SGModel(QMainWindow):
         if self.symbologyMenu is None: return False
         submenu_name= aClassDef.entityName
         if isBorder: submenu_name = submenu_name + self.keyword_borderSubmenu
-        # récupérer le sous-menu (avec création du sous-menu si il n'existe pas encore)
+        # get the submenu (or create it if it doesn't exist yet)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
-        # Créez un élément de menu avec une case à cocher
+        # create an element with checkbox
         item = QAction(nameOfSymbology, self, checkable=True)
         item.triggered.connect(self.menu_item_triggered)
-        # Ajouter le sous-menu au menu principal
+        # add the submenu to the menu
         submenu.addAction(item)
-        # Ajouter les actions de sous-menu au dictionnaire pour accès facile
+        # add actions to the submenu
         self.symbologiesInSubmenus[submenu].append(item)
-
-    def setCheckedSymbologyinMenuBar(self, aClassDef,nameOfSymbology,checkValue=True):
-        #This method is not used. Could be discard
-        symbologies = self.getSymbologiesOfSubmenu(aClassDef.entityName)
-        if any((match := item).text() == nameOfSymbology for item in symbologies):
-            match.setChecked(checkValue)
-        # Above code is identical to
-        # for aSymbology in symbologies:
-        #     if aSymbology.text() == nameOfSymbology:
-        #         aSymbology.setChecked(True)
 
     def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
         if self.symbologyMenu is None: return False
@@ -950,23 +803,18 @@ class SGModel(QMainWindow):
             else: aSymbology.setChecked(False)
 
     def menu_item_triggered(self):
-        # Obtener l'objet QAction qui a été déclenché
+        # get the triggered QAction object
         selectedSymbology = self.sender()
-        # Parcourer le dictionnaire pour décocher les autres éléments du même sous-menu
+        # browse the dict to uncheck other symbologies
         for symbologies in self.symbologiesInSubmenus.values():
             if selectedSymbology in symbologies:
                 [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
-                # Above code is identical to      
-                # for aSymbology in symbologies :
-                #     if aSymbology is not selectedSymbology:
-                #         aSymbology.setChecked(False)
-                # break
         for aLegend in self.getAdminLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
-        self.update() #rafraichi l'ensemble de l'affichage de l'interface'
+        self.update() #update all the interface display
 
     def getSymbologiesOfSubmenu(self, submenuName):
-        # return the  symbologies of a entity present in tyhe menuBar
+        # return the  symbologies of a entity present in the menuBar
         submenu = self.getSubmenuSymbology(submenuName)
         return self.symbologiesInSubmenus.get(submenu) 
     
@@ -980,7 +828,7 @@ class SGModel(QMainWindow):
 
     def getAllCheckedSymbologies(self, grid=None):
         # return the active symbology of each type of entity
-        #It is supposed to be for a given Grid
+        # It is supposed to be for a given Grid
         # for the moment we assume that its for the main (first) grid
         if grid is None: grid = self.getGrids()[0]
         cellDef = self.getCellDef(grid)
@@ -1074,7 +922,6 @@ class SGModel(QMainWindow):
         return SGDelete(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback)
 
     def newMoveAction(self, anObjectType, aNumber, listOfConditions=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
-        #TODO : rajouter la possibilité de mettre une condition sur l'entité de destination 
         """
         Add a MoveAction to the game.
 
@@ -1173,12 +1020,6 @@ class SGModel(QMainWindow):
     # Function that process the message
     def handleMessageMainThread(self,msg_list):
         processedMajs=set()
-        if msg_list[0][0] not in processedMajs:
-            print("Update processing...")
-        else:
-            # Ce n'arrive jamais car la Maj n'est jamais ajouté à la list processedMajs
-            # Du coup, il faut supprimer cette vérification qui ne sert rien
-            return print("Maj already processed !")
         # CELL MANAGEMENT
         gridNumber=0
         for aGrid in self.getGrids():
@@ -1208,10 +1049,6 @@ class SGModel(QMainWindow):
             self.dictAgentsAtMAJ[j]=[theGrid,aAgtDef,agentX,agentY,dictAttributes,id]
         
         # AGENT SPECIES MEMORY ID
-        # speciesMemoryIdDict=msg_list[-5][0]
-        # for aSpeciesName, speciesMemoryID in dict(speciesMemoryIdDict).items():
-        #     theSpecies=self.getAgentsOfSpecie(aSpeciesName)
-        #     theSpecies.memoryID=speciesMemoryID
         agentDef_IDincr=msg_list[-5][0]
         for entityName, aIDincr in dict(agentDef_IDincr).items():
             aAgtDef=self.getEntityDef(entityName)
@@ -1381,12 +1218,6 @@ class SGModel(QMainWindow):
              'listOfArgs':listOfArgs
              })
 
-        
-    #Method to process the incoming of a "execute_method" message
-    # cette méthode est une généralisation de process game_action et process nextTurn.
-    # Pour l'instant cette méthode n'est pas utilisé mais elle permet de pouvoir demander l'execution coté client, de n'importe quelle méthode executé coté server
-    # pour cela il suffit de mettre coté server un code du type :
-    # self.model.buildExeMsgAndPublishToBroker('execute_method',dictAvec_class_name_id_method, *args (les arguments les uns apres les autres) )
     def processBrokerMsg_executeMethod(self, unserializedMsg):
         msg = unserializedMsg
         objectAndMethod = msg['objectAndMethod']
@@ -1399,8 +1230,8 @@ class SGModel(QMainWindow):
         aIdentificationDict['id']=idOfObjectToExe 
         aSGObject = self.getSGObject_withIdentfier(aIdentificationDict)
         
-        methodToExe = getattr(aSGObject,methodNameToExe) # ce code récupère la méthode a exécuter et la met dans la variable  'methodToExe'. Cette variable 'methodToExe' peut à présent etre utilisé comme si il s'agissait de la méthode à exécuter
-        #récuprération des arguments de la méthode à exécuter
+        methodToExe = getattr(aSGObject,methodNameToExe) # this code retrieves the method to be executed and places it in the 'methodToExe' variable. This 'methodToExe' variable can now be used as if it were the method to be executed.
+        #retrieve the arguments of the method to be executed
         listOfArgs=[]
         for aArgSpec in msg['listOfArgs']:
             if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
@@ -1409,37 +1240,23 @@ class SGModel(QMainWindow):
                 aArg= aArgSpec
             listOfArgs.append(aArg)
 
-        #execution de la méthode avec ces arguments
+        #method execution with these arguments
         methodToExe(*listOfArgs)
 
-        # le code ci-dessous peut etre utilsié pour différer l'execution de la méthode au thread en dehors du thread de lecture mqtt
+        # the code below can be used to defer execution of the method to a thread outside the mqtt read thread.
         # self.actionsFromBrokerToBeExecuted.append({
         #     'action_type':'execute_method',
-        #     'boundMethod':methodToExe,     # une bound method   est une méthod déjà associé à l'objet qui va l'executer
+        #     'boundMethod':methodToExe,     # a bound method is a method already associated with the object that will execute it
         #      'listOfArgs':listOfArgs
         #      })
-
-
-    # publish on mqtt broker the state of all entities of the world
-    def publishEntitiesState(self):
-        #JUst to test another mqqt method, I skip this instruction temporarily
-        return
-        if hasattr(self, 'client'):
-            self.client.publish('Gamestates', self.submitMessage())
-
 
     # Send a message
     def submitMessage(self):
         print(self.currentPlayer+" send a message")
-            # Il faudra changer le format du message
-            #   Utiliser un dict plutôt qu'une list
-            #   Et utiliser les key pour identifier les différents types d'info, plutôt que de se baser sur les index de la list comme c'est le cas actuellement dans la méthode handleMessageMainThread (qu'il faudra aussi refaire)
-            #  ex. du format {'msg identifers':[clientId,majID,currentPlayer], 'cells':[.....], 'agents':[.....], 'time manager':[.....], 'simulation variables':[.....], 'players':[.....], 'gameActions':[.....], 'chat box':[.....]}    
+            
 
         # First infos : identifiers of the message [clientId,majID,currentPlayer]
         message = "[['"+self.clientId+"',"
-        majID = self.getMajID() #getMajID et majID est a priori plus utilisé. A priori, à retirer
-        message += str(majID)+",'"
         message += self.currentPlayer+"'],"
 
         # Next infos : Cells of the different grids
@@ -1456,7 +1273,7 @@ class SGModel(QMainWindow):
         message = message+str(listCellsByGrid)+","
         for aNumberOfCells in listCellsByGrid:
             for i in range(aNumberOfCells):
-                message = message+"[" # A refactorer !!!!   Utiliser +=  et rassembler les lignes en trop
+                message = message+"["
                 message = message+str(allCells[i].isDisplay)
                 message = message+","
                 message = message+str(allCells[i].dictAttributes)
@@ -1485,14 +1302,11 @@ class SGModel(QMainWindow):
             message = message+"]"
             message = message+","
 
-        # for aSpecies in theSpecies:
-        #     speciesMemoryIdDict[aSpecies.name]=aSpecies.memoryID
         agentDef_IDincr={}
         for aAgtDef in self.getAgentSpeciesDict():
             agentDef_IDincr[aAgtDef.entityName]=aAgtDef.IDincr
 
         message = message+"["
-        # message = message+str(speciesMemoryIdDict)
         message = message+str(agentDef_IDincr)
         message = message+"]"
         message = message+","
@@ -1516,20 +1330,10 @@ class SGModel(QMainWindow):
         message = message+str(self.listOfSubChannel) # Cette info est déjà présente dans le message topic. A retirer
         message = message+"]"
         print(message)
-        self.listOfMajs.append(str(majID)+"-"+self.currentPlayer)
         return message
-
-    def getMajID(self):
-        majID = len(self.listOfMajs)
-        return majID
     
     def onMAJTimer(self):
         self.executeGameActionsAfterBrokerMsg()
-#The instructions below have been commented temporarily to test a new process for broker msg 
-        # self.updateAgentsAtMAJ()
-        # self.updateScoreAtMAJ()
-        # self.checkAndUpdateWatchers()
-        # self.timeManager.checkEndGame()
         
     def updateAgentsAtMAJ(self):
         for j in self.dictAgentsAtMAJ.keys():

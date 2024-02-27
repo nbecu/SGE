@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import true
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGEntityDef import *

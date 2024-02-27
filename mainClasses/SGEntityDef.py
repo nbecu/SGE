@@ -1,8 +1,6 @@
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
-from mainClasses.SGGrid import SGGrid
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 
@@ -13,10 +11,8 @@ import random
 # entityDef and AgentDef also hold the list of entities of the simulation 
 class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues, defaultShapeColor):
-        # super().__init__(entDefAttributesAndValues)
         self.model= sgModel
         self.entityName=entityName
-        # self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
         self.attributesDefaultValues={}
         self.shape=shape
         self.defaultsize=defaultsize
@@ -25,8 +21,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.defaultBorderWidth=1
         self.povShapeColor={}
         self.povBorderColorAndWidth={}
-        self.shapeColorClassif={} # Classif devra remplacer les Pov à terme
-        self.borderColorClassif={}# Classif devra remplacer les Pov à terme
+        self.shapeColorClassif={} # Classif will replace pov
+        self.borderColorClassif={}# Classif will replace pov
         self.watchers={}
         self.IDincr = 0
         self.entities=[]
@@ -43,9 +39,6 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         if isinstance(self,SGCellDef): return 'Cell'
         elif isinstance(self,SGAgentDef): return 'Agent'
         else: raise ValueError('Wrong or new entity type')
-
-    #a mettre coté instance
-        # isDisplay
 
     ###Definition of the developer methods
     def addWatcher(self,aIndicator):
@@ -115,7 +108,6 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             
         """
         self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
-        # self.model.addPovinMenuBar(nameofPOV)
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
         if len(self.povShapeColor)==1:
             self.displayPov(nameOfPov)
@@ -471,7 +463,6 @@ class SGAgentDef(SGEntityDef):
         aCellDef = self.model.getCellDef(cellDef_or_grid)
         locationCell=aCellDef.getRandomEntity(condition=condition)
         return self.newAgentOnCell(locationCell, attributesAndValues)
-        # return self.newAgentAtCoords(cellDef_or_grid, None, None, attributesAndValues)
 
     def newAgentsAtRandom(self, aNumber, cellDef_or_grid, attributesAndValues=None,condition=None):
         """
@@ -536,7 +527,6 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         aAgent.updateMqtt()
-        # aAgent.update()
 
 
 class SGCellDef(SGEntityDef):

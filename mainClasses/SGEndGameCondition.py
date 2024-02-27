@@ -1,9 +1,6 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null
-# import numpy as np
 
 from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGAgent import SGAgent

@@ -89,6 +89,19 @@ TextBox = myModel.newTextBox(
     title='Your game is starting...', textToWrite="Welcome !")
 
 myModel.setCurrentPlayer("Player 1")
+
+
+Cell.grid.moveToCoords(250,100)
+GameRounds.moveToCoords(700,45)
+TextBox.moveToCoords(20,45)
+Player1ControlPanel.moveToCoords(20,220)
+Player2ControlPanel.moveToCoords(700,220)
+userSelector.moveToCoords(280,35)
+globalLegend.moveToCoords(970,120)
+DashBoard.moveToCoords(20,330)
+
+
+
 myModel.launch()
 
 

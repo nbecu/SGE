@@ -64,9 +64,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     def getColor(self):
         if self.isDisplay==False: return Qt.transparent
-        # replace the search of model name of pov by getCheckedSymbologyNameOfEntity (which look for the symbolgy which is checked for this item in the menu)
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
-        aPovDef = self.classDef.povShapeColor.get(aChoosenPov) #self.model.nameOfPov
+        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
         aDefaultColor= self.classDef.defaultShapeColor
         return self.readColorFromPovDef(aPovDef,aDefaultColor)
 
@@ -106,7 +105,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     def saveHistoryValue(self):
         if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
+            self.history["value"].append([0,0,self.dictAttributes]) #corresponds to à round 0 phase 0
         self.history["value"].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,self.dictAttributes])
 
 
@@ -122,7 +121,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
-        # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue

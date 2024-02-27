@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QCheckBox, QHBoxLayout, QLabel
 from mainClasses.SGGameSpace import SGGameSpace
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import true
 
 
 class SGUserSelector(SGGameSpace):
@@ -56,7 +56,7 @@ class SGUserSelector(SGGameSpace):
 
     def checkboxChecked(self, state):
         sender = self.sender()
-        if state == 2: #C'est quoi le state ?
+        if state == 2:
             for checkbox in self.checkboxes:
                 if checkbox is not sender:
                     checkbox.setChecked(False)
@@ -66,19 +66,13 @@ class SGUserSelector(SGGameSpace):
         selectedCheckboxText = sender.text() if sender.isChecked() else None
 
         self.model.setCurrentPlayer(selectedCheckboxText)
-        self.model.update() # Pas sur qu'on ai besoin de ce update()
+        self.model.update()
 
     def getAuthorizedPlayers(self):
         if self.model.timeManager.isInitialization():
             return self.model.users
         phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
         authorizedPlayers = phase.authorizedPlayers
-        # authorizedPlayers = []
-        # for player in players:
-        #     if player == 'Admin':
-        #         authorizedPlayers.append('Admin')
-        #     else:
-        #         authorizedPlayers.append(player.name)
         return authorizedPlayers
 
     # Funtion to have the global size of a gameSpace

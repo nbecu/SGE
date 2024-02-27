@@ -1,8 +1,6 @@
 from mainClasses.SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
-from mainClasses.SGEndGameCondition import SGEndGameCondition
-from mainClasses.SGDashBoard import SGDashBoard
-from PyQt5.QtWidgets import QHBoxLayout,QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGModelAction import SGModelAction
@@ -29,8 +27,6 @@ class SGTimeManager():
         if end :
             return
 
-        self.model.recordAllData()
-
         if self.currentRoundNumber ==0: #This case is to quit the Initialization phase at the begining of the game
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
@@ -56,10 +52,6 @@ class SGTimeManager():
         self.getCurrentPhase().execPhase()
         #watchers update
         self.model.checkAndUpdateWatchers()
-            #mqtt update
-#The instructions below have been commented temporarily to test a new process for broker msg  
-            # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-            #     self.model.publishEntitiesState()
 
         if self.getCurrentPhase().autoForwardOn :
             if self.getCurrentPhase().messageAutoForward:
@@ -74,8 +66,6 @@ class SGTimeManager():
                 msg_box.setStandardButtons(QMessageBox.Ok)
                 msg_box.setDefaultButton(QMessageBox.Ok)
                 msg_box.exec_()
-                # result = msg_box.exec_()
-                # if result == QMessageBox.Ok:
             self.nextPhase()
 
     def isCurrentPhase_Last(self):
