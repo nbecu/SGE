@@ -261,62 +261,67 @@ class SGToolBar(NavigationToolbar):
     def plot_linear_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
         pos = 0
-        for options in selected_option_list:
-            if "-:" in options:
-                list_option = options.split("-:")
-                variable = list_option[0]
-                if variable == 'entity':
-                    #print("list_option : ", list_option)
-                    self.plot_linear_typeDiagram_for_entities(data, list_option, pos)
-                elif variable == 'simVariable':
-                    self.plot_linear_typeDiagram_for_simVariable(data, list_option, pos)
-                elif variable == 'currentPlayer':
-                    self.plot_linear_typeDiagram_for_players(data, list_option, pos)
-            pos += 1
+        #for options in selected_option_list:
+        if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
+            #list_option = options.split("-:")
+            #variable = list_option[0]
+            #if variable == 'entity':
+                #print("list_option : ", list_option)
+            self.plot_linear_typeDiagram_for_entities(data, selected_option_list, pos)
+            """elif variable == 'simVariable':
+                self.plot_linear_typeDiagram_for_simVariable(data, list_option, pos)
+            elif variable == 'currentPlayer':
+                self.plot_linear_typeDiagram_for_players(data, list_option, pos)"""
+        pos += 1
 
-    def plot_linear_typeDiagram_for_entities(self, data, list_option, pos):
+    def plot_linear_typeDiagram_for_entities(self, data, selected_option_list, pos):
         self.ax.clear()
-        entityName = list_option[1]
-        attribut_key = list_option[2]
-        label_pop = f"Populations : {entityName}"
-        data_populations = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
-        for r in self.rounds:
-            y = [sum(entry['population'] for entry in data if entry['round'] == r
-                     and entry['entityName'] == entityName)]
-            data_populations.append(y)
-            if list_option[-1] in self.indicators:
-                if list_option[-1] == 'min':
-                    min_y = [sum(entry['quantiAttributes'][attribut_key]['min'] for entry in data if entry['round'] == r
-                             and entry['entityName'] == entityName)]
-                    data_min.append(min_y)
-                elif list_option[-1] == 'mean':
-                    mean_y = [sum(entry['quantiAttributes'][attribut_key]['mean'] for entry in data if entry['round'] == r
-                             and entry['entityName'] == entityName)]
-                    data_mean.append(mean_y)
-                elif list_option[-1] == 'max':
-                    max_y = [sum(entry['quantiAttributes'][attribut_key]['max'] for entry in data if entry['round'] == r
-                             and entry['entityName'] == entityName)]
-                    data_max.append(max_y)
-                elif list_option[-1] == 'stdev':
-                    stdev_y = [sum(entry['quantiAttributes'][attribut_key]['stdev'] for entry in data if entry['round'] == r
-                                 and entry['entityName'] == entityName)]
-                    data_stdev.append(stdev_y)
+        if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
+            for option in selected_option_list:
+                list_option = option.split("-:")
+                if len(list_option)>0:
+                    entityName = list_option[1]
+                    label_pop = f"Populations : {entityName}"
+                    data_populations = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
+                    for r in self.rounds:
+                        if list_option[-1] == 'population':
+                            y = [sum(entry['population'] for entry in data if entry['round'] == r
+                                     and entry['entityName'] == entityName)]
+                            data_populations.append(y)
+                        else:
+                            if list_option[-1] in self.indicators:
+                                attribut_key = list_option[2]
+                                if list_option[-1] == 'min':
+                                    min_y = [sum(entry['quantiAttributes'][attribut_key]['min'] for entry in data if entry['round'] == r
+                                             and entry['entityName'] == entityName)]
+                                    data_min.append(min_y)
+                                elif list_option[-1] == 'mean':
+                                    mean_y = [sum(entry['quantiAttributes'][attribut_key]['mean'] for entry in data if entry['round'] == r
+                                             and entry['entityName'] == entityName)]
+                                    data_mean.append(mean_y)
+                                elif list_option[-1] == 'max':
+                                    max_y = [sum(entry['quantiAttributes'][attribut_key]['max'] for entry in data if entry['round'] == r
+                                             and entry['entityName'] == entityName)]
+                                    data_max.append(max_y)
+                                elif list_option[-1] == 'stdev':
+                                    stdev_y = [sum(entry['quantiAttributes'][attribut_key]['stdev'] for entry in data if entry['round'] == r
+                                                 and entry['entityName'] == entityName)]
+                                    data_stdev.append(stdev_y)
+                    if len(data_populations)>0:
+                        self.ax.plot(self.xValue, data_populations, label=label_pop, linestyle='solid', color='green')
 
-        self.ax.plot(self.xValue, data_populations, label=label_pop, linestyle='solid', color='green')
-
-        if list_option[-1] in self.indicators:
-            if len(data_mean)>0:
-                self.ax.plot(self.xValue, data_mean, label=f"Moyenne - {attribut_key} - {entityName}", linestyle='dashdot', color='red')
-            if len(data_min) > 0:
-                self.ax.plot(self.xValue, data_min, label=f"Min - {attribut_key} - {entityName}", linestyle='dotted', color='blue')
-            if len(data_max) > 0:
-                self.ax.plot(self.xValue, data_max, label=f"Max - {attribut_key} - {entityName}", linestyle=':', color='black')
-            if len(data_stdev) > 0:
-                self.ax.plot(self.xValue, data_stdev, label=f"St Dev - {attribut_key} - {entityName}", linestyle='--', color='orange')
-
-        self.ax.legend()
-        self.ax.set_title(self.title)
-        self.canvas.draw()
+                    if list_option[-1] in self.indicators:
+                        if len(data_mean)>0:
+                            self.ax.plot(self.xValue, data_mean, label=f"Moyenne - {attribut_key} - {entityName}", linestyle='dashdot', color='red')
+                        if len(data_min) > 0:
+                            self.ax.plot(self.xValue, data_min, label=f"Min - {attribut_key} - {entityName}", linestyle='dotted', color='blue')
+                        if len(data_max) > 0:
+                            self.ax.plot(self.xValue, data_max, label=f"Max - {attribut_key} - {entityName}", linestyle=':', color='black')
+                        if len(data_stdev) > 0:
+                            self.ax.plot(self.xValue, data_stdev, label=f"St Dev - {attribut_key} - {entityName}", linestyle='--', color='orange')
+            self.ax.legend()
+            self.ax.set_title(self.title)
+            self.canvas.draw()
 
 
 
