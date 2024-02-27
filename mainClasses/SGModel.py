@@ -52,6 +52,7 @@ import uuid
 import re
 import json
 
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 
@@ -290,6 +291,9 @@ class SGModel(QMainWindow):
 
     def openCircularDiagram(self):
         SGWindowsGraph(self).action_circular_diagram()
+        #sgDiagramCircular = SGDiagramCircular(self)
+        #sgDiagramCircular.show()
+        #SGWindowsGraph(self).action_circular_diagram()
 
     def openOtherDiagram(self):
         SGWindowChooseGraph(self).show()
