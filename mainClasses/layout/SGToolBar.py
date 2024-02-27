@@ -7,6 +7,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, QPushButton, \
     QCheckBox
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt
 
 
 class SGToolBar(NavigationToolbar):
@@ -17,22 +18,27 @@ class SGToolBar(NavigationToolbar):
         button.setIcon(QIcon("./icon/actualiser.png"))
         button.clicked.connect(self.update_plot)
         self.addWidget(button)
+        self.addSeparator()
 
         self.indicators = ['max','mean', 'min', 'stdev']
 
         self.option_affichage_data = {"entityName": "Entités", "simVariable": "Simulation variables", "currentPlayer": "Players"}
 
-        self.data_2_combobox = QComboBox(parent)
-        self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
-        self.addWidget(self.data_2_combobox)
         self.ax = parent.ax
         self.model = model
         self.title = 'SG Diagramme'
-        self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1', 'Autres': '2'}
+        self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1'}
+        if self.typeDiagram in ['pie', 'hist']:
+            self.combobox_2_data = {'Dernieres Tours': '1'}
+
+        self.data_2_combobox = QComboBox(parent)
+        self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
+        self.addWidget(self.data_2_combobox)
 
         self.display_indicators_menu = QMenu("Indicators", self)
         self.checKbox_indicators_data = ["type", "Attribut", "Max", "Mean", "Min", "St Dev"]
         self.checKbox_indicators = {}
+
         self.rounds = []
         self.phases = []
         #self.linestyles = ['-', '--', '-.', ':', 'dotted', 'dashdot']
@@ -42,11 +48,8 @@ class SGToolBar(NavigationToolbar):
         self.display_menu = QMenu("Affichage", self)
         self.dictMenuData = {'entities': {}, 'simvariables': {}, 'players': {}}
         self.checkbox_display_menu_data = {}
-        #self.checkbox_main_menu_data = {}
-        #self._navigation_toolbar = self.parent().addToolBar('Navigation')
+        self.previous_selected_checkboxes = []
 
-        #self.createDisplayMenu()
-        # self.data = self.getAllData()
         self.firstEntity=""
         self.firstAttribut=""
         self.list_attribut_display = []
@@ -61,6 +64,8 @@ class SGToolBar(NavigationToolbar):
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         self.regenerate_menu(self.dataEntities)
+
+
 
     def regenerate_menu(self, data):
         entitiesMenu = QMenu('Entités', self)
@@ -127,14 +132,8 @@ class SGToolBar(NavigationToolbar):
 
                             attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
 
-                        #attrib_tmp_dict[sub_attribut_val] = {f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}" : None}
                         attrib_dict[attribut_key] = attrib_tmp_dict
-                    #print("attrib_dict :: ", attrib_dict)
-
                 self.dictMenuData['entities'][entity_name] = attrib_dict
-
-            #        firstEntity=""
-            #   firstAttribut=""
             self.display_menu.addMenu(entitiesMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
         self.addAction(self.display_menu.menuAction())
@@ -148,26 +147,39 @@ class SGToolBar(NavigationToolbar):
                 parentMenu.addMenu(submenu)
                 self.addSubMenus(submenu, value, firstEntity, firstAttribut)
             else:
-                action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), self, checkable=True)
-                if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
-                    action.setChecked(True)
-                action.setProperty("key", key)
-                action.triggered.connect(self.update_plot)
-                if key not in self.checkbox_display_menu_data:
-                    self.checkbox_display_menu_data[key] = action
+                action = self.set_checkbox_action(key, parentMenu, firstEntity, firstAttribut)
+                self.checkbox_display_menu_data[key] = action
                 parentMenu.addAction(action)
+
+    def set_checkbox_action(self, key, parentMenu, firstEntity, firstAttribut):
+        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
+                         checkable=True)
+        if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
+            action.setChecked(True)
+            if self.typeDiagram in ['pie']:
+                self.previous_selected_checkboxes = []
+                self.previous_selected_checkboxes.append(key)
+        action.setProperty("key", key)
+        action.triggered.connect(self.update_plot)
+        parentMenu.addAction(action)
+        return action
 
 
     def get_checkbox_display_menu_selected(self):
-        print("\n self.checkbox_display_menu_data.items() : ", self.checkbox_display_menu_data.keys())
-        selected_option = [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
+        if self.typeDiagram in ['pie']:
+            for option, checkbox in self.checkbox_display_menu_data.items():
+                if option in self.previous_selected_checkboxes:
+                    checkbox.setChecked(False)
+                else:
+                    checkbox.setChecked(True)
+        selected_option = [option for option, checkbox in self.checkbox_display_menu_data.items() if
+                           checkbox.isChecked()]
         return selected_option
 
 
     def update_plot(self):
         self.update_data()
         selected_option_list = self.get_checkbox_display_menu_selected()
-        #print("dataEntities : ", self.dataEntities)
         if self.typeDiagram == 'plot':
             self.plot_linear_typeDiagram(self.dataEntities, selected_option_list)
         elif self.typeDiagram == 'pie':
@@ -176,9 +188,11 @@ class SGToolBar(NavigationToolbar):
             self.plot_hist_typeDiagram(self.dataEntities, selected_option_list)
         elif self.typeDiagram == 'stackplot':
             self.plot_stackplot_typeDiagram(self.dataEntities, selected_option_list)
+        # for pie diagram
+        self.previous_selected_checkboxes = list(set(
+                    option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
 
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
-        print("selected_option_list : ", selected_option_list)
         list_data = []
         formatted_data = {}
         self.ax.clear()
@@ -227,18 +241,21 @@ class SGToolBar(NavigationToolbar):
                       for entry in data if entry['entityName']==entity_name  and 'quantiAttributes' in entry \
                            and attribut_value in entry['quantiAttributes'] and 'histo' in \
                             entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds)}
+                print("histo_y :: ", histo_y)
                 list_data.append(histo_y)
 
         for h in list_data:
             h_abcis = list(h.values())[0][1][:-1]
             h_height = list(h.values())[0][0]
             label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys()))>0 else ''
+            print("h_abcis : ", h_abcis)
+            print("h_height : ", h_height)
             self.ax.bar(h_abcis, h_height, width=5, label=label)
 
         self.ax.legend()
         self.ax.set_title(self.title)
         self.ax.set_xlabel('Valeurs')
-        self.ax.set_ylabel('Fréauences')
+        self.ax.set_ylabel('Fréquences')
 
     def plot_pie_typeDiagram(self, data, selected_option_list):
         if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
@@ -252,10 +269,11 @@ class SGToolBar(NavigationToolbar):
 
             labels = list(data_pie.keys())
             values = list(data_pie.values())
+            title = f"{self.title} : Répartition des {entityName} par {attribut_value} (%)"
             self.ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
             self.ax.axis('equal')
             self.ax.legend()
-            self.ax.set_title(self.title)
+            self.ax.set_title(title)
             self.canvas.draw()
 
 
@@ -263,17 +281,19 @@ class SGToolBar(NavigationToolbar):
         self.ax.clear()
         pos = 0
         if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
-            self.plot_linear_typeDiagram_for_entities(data, selected_option_list, pos)
+            self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
             """elif variable == 'simVariable':
                 self.plot_linear_typeDiagram_for_simVariable(data, list_option, pos)
             elif variable == 'currentPlayer':
                 self.plot_linear_typeDiagram_for_players(data, list_option, pos)"""
         #pos += 1
 
-    def plot_linear_typeDiagram_for_entities(self, data, selected_option_list, pos):
+    def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
+        pos=0
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
             for option in selected_option_list:
+                pos += 1
                 list_option = option.split("-:")
                 if len(list_option)>0:
                     entityName = list_option[1]
@@ -304,17 +324,20 @@ class SGToolBar(NavigationToolbar):
                                                  and entry['entityName'] == entityName)]
                                     data_stdev.append(stdev_y)
                     if len(data_populations)>0:
-                        self.ax.plot(self.xValue, data_populations, label=label_pop, linestyle='solid', color='green')
+                        color = self.colors[pos % len(self.colors)]
+                        self.ax.plot(self.xValue, data_populations, label=label_pop, linestyle='solid', color=color)
 
                     if list_option[-1] in self.indicators:
+                        pos_ind = pos + self.indicators.index(list_option[-1])
+                        color = self.colors[pos_ind % len(self.colors)]
                         if len(data_mean)>0:
-                            self.ax.plot(self.xValue, data_mean, label=f"Moyenne - {attribut_key} - {entityName}", linestyle='dashdot', color='red')
+                            self.ax.plot(self.xValue, data_mean, label=f"Moyenne - {attribut_key} - {entityName}", linestyle='dashdot', color=color)
                         if len(data_min) > 0:
-                            self.ax.plot(self.xValue, data_min, label=f"Min - {attribut_key} - {entityName}", linestyle='dotted', color='blue')
+                            self.ax.plot(self.xValue, data_min, label=f"Min - {attribut_key} - {entityName}", linestyle='dotted', color=color)
                         if len(data_max) > 0:
-                            self.ax.plot(self.xValue, data_max, label=f"Max - {attribut_key} - {entityName}", linestyle=':', color='black')
+                            self.ax.plot(self.xValue, data_max, label=f"Max - {attribut_key} - {entityName}", linestyle=':', color=color)
                         if len(data_stdev) > 0:
-                            self.ax.plot(self.xValue, data_stdev, label=f"St Dev - {attribut_key} - {entityName}", linestyle='--', color='orange')
+                            self.ax.plot(self.xValue, data_stdev, label=f"St Dev - {attribut_key} - {entityName}", linestyle='--', color=color)
             self.ax.legend()
             self.ax.set_title(self.title)
             self.canvas.draw()
@@ -353,13 +376,14 @@ class SGToolBar(NavigationToolbar):
 
 
     def set_combobox_2_items(self):
+        #if self.typeDiagram not in ['pie', 'hist']:
         self.data_2_combobox.clear()
         for display_text in self.combobox_2_data:
             self.data_2_combobox.addItem(display_text)
         for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
             self.data_2_combobox.setItemData(index, key)
 
-    def set_checkbox_values(self):
+    """def set_checkbox_values(self):
         self.checKbox_indicators = {}
         if self.typeDiagram in ['pie', 'hist', 'stackplot']:
             self.checKbox_indicators_data = ["type", "Attribut"]
@@ -370,18 +394,19 @@ class SGToolBar(NavigationToolbar):
             self.display_indicators_menu.addAction(action)
             self.checKbox_indicators[option] = action
         self.addAction(self.display_indicators_menu.menuAction())
-        self.addSeparator()
+        self.addSeparator()"""
 
     def get_combobox2_selected_key(self):
-        selected_text = self.data_2_combobox.currentText()
-        for key, value in self.combobox_2_data.items():
-            if key == selected_text:
-                return value
+        if self.data_2_combobox:
+            selected_text = self.data_2_combobox.currentText()
+            for key, value in self.combobox_2_data.items():
+                if key == selected_text:
+                    return value
         return None
 
-    def get_checkbox_indicators_selected(self):
+    """def get_checkbox_indicators_selected(self):
         selected_indicators = [option for option, checkbox in self.checKbox_indicators.items() if checkbox.isChecked()]
-        return selected_indicators
+        return selected_indicators"""
 
     def set_data(self):
         self.update_data()
@@ -422,16 +447,23 @@ class SGToolBar(NavigationToolbar):
         self.dataSimVars = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         #self.regenerate_menu(self.dataEntities)
-
+        # if option == '1':
+        # self.phases = {entry['phase'] for entry in data if  entry['phase'] == max_round}
         self.setXValueData(self.dataEntities)
 
     def setXValueData(self, data):
         option = self.get_combobox2_selected_key()
         rounds = {entry['round'] for entry in data}
         phases = {entry['phase'] for entry in data}
+        #self.dataEntities = list_data
         if option == '1':
             max_round = max(rounds)
             self.rounds = [max_round]
+            #list_data = [entry for entry in data if entry['round'] == max(rounds) and entry['phase']>3]
+            #self.dataEntities = list_data
+            #print("list_data : ", list_data)
+            #print("################################################################")
+            #print("data : ", data)
             self.phases = {entry['phase'] for entry in data if  entry['phase'] == max_round}
             self.xValue = self.rounds if len(self.phases) <= 2 else [phase for phase in self.phases]
         else:
