@@ -112,13 +112,12 @@ class SGToolBar(NavigationToolbar):
                 list_attribut_key = {attribut for entry in data for attribut in entry.get(parentAttributKey, {}) if
                                      entry.get('entityName') == entity_name and isinstance(entry[parentAttributKey][attribut], dict)}
 
-
                 if not self.firstAttribut:
                     self.firstAttribut = sorted(list_attribut_key)[0] if len(list_attribut_key)>0 else ""
                 for attribut_key in list_attribut_key:
                     list_val = []
                     attrib_tmp_dict = {}
-                    if self.typeDiagram in ['hist', 'pie']:
+                    if self.typeDiagram in ['hist', 'pie', 'stackplot']:
                         attrib_dict[f"entity-:{entity_name}-:{attribut_key}"] = None
                     else:
                         for sub_attribut_val in {entry['quantiAttributes'][attribut] for entry in data for attribut in entry.get('quantiAttributes', {}) if
@@ -127,9 +126,10 @@ class SGToolBar(NavigationToolbar):
                             list_val.append(sub_attribut_val)
 
                             attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
+
                         #attrib_tmp_dict[sub_attribut_val] = {f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}" : None}
                         attrib_dict[attribut_key] = attrib_tmp_dict
-                    print("attrib_dictc :: ", attrib_dict)
+                    #print("attrib_dict :: ", attrib_dict)
 
                 self.dictMenuData['entities'][entity_name] = attrib_dict
 
@@ -178,33 +178,42 @@ class SGToolBar(NavigationToolbar):
             self.plot_stackplot_typeDiagram(self.dataEntities, selected_option_list)
 
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
-        #print("data : ", data)
+        print("selected_option_list : ", selected_option_list)
         list_data = []
         formatted_data = {}
-        list_labels = []
         self.ax.clear()
-        # TEST
-        entityName = 'Cell'
-        attribut_value = 'production system'
+        for option in selected_option_list:
+            if "-:" in option:
+                list_opt = option.split("-:")
+                entityName = list_opt[1]
+                attribut_value = list_opt[-1]
+                for r in self.rounds:
+                    data_stackplot = next((entry['qualiAttributes'][attribut_value] for entry in data
+                                           if entry['round'] == r and
+                                           entry['entityName'] == entityName and attribut_value in entry[
+                                               'qualiAttributes']), None)
+                    list_data.append(data_stackplot)
 
-        for r in self.rounds:
-            data_stackplot = next((entry['qualiAttributes'][attribut_value] for entry in data
-                             if entry['round'] == r and
-                             entry['entityName'] == entityName and attribut_value in entry['qualiAttributes']), None)
-            list_data.append(data_stackplot)
-            #print(f"round : {r} {data_stackplot} : ", data_stackplot)
-
-        for i, counts in enumerate(list_data):
+        #ordonner par attribut
+        list_data_sorted = sorted(list_data, key=lambda x: sorted(x.keys()))
+        for i, counts in enumerate(list_data_sorted):
             for key, value in counts.items():
                 if key not in formatted_data:
                     formatted_data[key] = []
                 formatted_data[key].append(value)
 
+        lengths = {key: len(value) for key, value in formatted_data.items()}
+        max_length = max(lengths.values())
+        for key, length in lengths.items():
+            if length < max_length:
+                difference = max_length - length
+                formatted_data[key] = [0] * difference + formatted_data[key]
         self.ax.stackplot(self.xValue, list(formatted_data.values()), labels=list(formatted_data.keys()))
         self.ax.legend()
+        self.ax.set_xlabel("Rounds")
+        self.ax.set_ylabel("Valeurs")
         self.ax.set_title(self.title)
         self.canvas.draw()
-
 
     def plot_hist_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
