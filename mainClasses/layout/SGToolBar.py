@@ -208,31 +208,23 @@ class SGToolBar(NavigationToolbar):
 
     def plot_hist_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
-        print("selected_option_list : ", selected_option_list)
-        entityName = 'Cell'
-        #attribut_value = 'energy'
-        """
-        
-        entity_data = {}
-        for entry in data:
-            entity_name = entry['entityName']
-            if entity_name not in entity_data:
-                entity_data[entity_name] = []
-            entity_data[entity_name].append(entry)
-        """
-        list_entities = []
-        # if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
+        list_data = []
         for option in selected_option_list:
             if "-:" in option:
                 list_opt = option.split("-:")
-                print("list_opt : ", list_opt)
                 entity_name = list_opt[1]
                 attribut_value = list_opt[-1]
-                for entry in data:
-                    if 'quantiAttributes' in entry and attribut_value in entry['quantiAttributes'] and 'histo' in \
-                            entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds):
-                        histo_values = entry['quantiAttributes'][attribut_value]['histo']
-                        self.ax.bar(histo_values[1][:-1], histo_values[0], width=5, label=f"{entity_name} - {attribut_value}")
+                histo_y = {f"{entity_name}-{attribut_value}" : entry['quantiAttributes'][attribut_value]['histo']
+                      for entry in data if entry['entityName']==entity_name  and 'quantiAttributes' in entry \
+                           and attribut_value in entry['quantiAttributes'] and 'histo' in \
+                            entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds)}
+                list_data.append(histo_y)
+
+        for h in list_data:
+            h_abcis = list(h.values())[0][1][:-1]
+            h_height = list(h.values())[0][0]
+            label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys()))>0 else ''
+            self.ax.bar(h_abcis, h_height, width=5, label=label)
 
         self.ax.legend()
         self.ax.set_title(self.title)
@@ -261,18 +253,13 @@ class SGToolBar(NavigationToolbar):
     def plot_linear_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
         pos = 0
-        #for options in selected_option_list:
         if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
-            #list_option = options.split("-:")
-            #variable = list_option[0]
-            #if variable == 'entity':
-                #print("list_option : ", list_option)
             self.plot_linear_typeDiagram_for_entities(data, selected_option_list, pos)
             """elif variable == 'simVariable':
                 self.plot_linear_typeDiagram_for_simVariable(data, list_option, pos)
             elif variable == 'currentPlayer':
                 self.plot_linear_typeDiagram_for_players(data, list_option, pos)"""
-        pos += 1
+        #pos += 1
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list, pos):
         self.ax.clear()
