@@ -195,12 +195,17 @@ class SGToolBar(NavigationToolbar):
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
         list_data = []
         formatted_data = {}
+        entity_name_list = []
+        list_attribut_key = []
+        attribut_value = ""
         self.ax.clear()
         for option in selected_option_list:
             if "-:" in option:
                 list_opt = option.split("-:")
                 entityName = list_opt[1]
+                entity_name_list.append(entityName)
                 attribut_value = list_opt[-1]
+                list_attribut_key.append(attribut_value)
                 for r in self.rounds:
                     data_stackplot = next((entry['qualiAttributes'][attribut_value] for entry in data
                                            if entry['round'] == r and
@@ -226,16 +231,21 @@ class SGToolBar(NavigationToolbar):
         self.ax.legend()
         self.ax.set_xlabel("Rounds")
         self.ax.set_ylabel("Valeurs")
+        attribut_name_list = list(set(list_attribut_key))
+        self.title = "Variation des {} des {}".format(", ".join(attribut_name_list), " et ".join(list(set(entity_name_list))))
         self.ax.set_title(self.title)
         self.canvas.draw()
 
     def plot_hist_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
         list_data = []
+        entity_name_list = []
+        attribut_value=""
         for option in selected_option_list:
             if "-:" in option:
                 list_opt = option.split("-:")
                 entity_name = list_opt[1]
+                entity_name_list.append(entity_name)
                 attribut_value = list_opt[-1]
                 histo_y = {f"{entity_name}-{attribut_value}" : entry['quantiAttributes'][attribut_value]['histo']
                       for entry in data if entry['entityName']==entity_name  and 'quantiAttributes' in entry \
@@ -251,8 +261,8 @@ class SGToolBar(NavigationToolbar):
             print("h_abcis : ", h_abcis)
             print("h_height : ", h_height)
             self.ax.bar(h_abcis, h_height, width=5, label=label)
-
         self.ax.legend()
+        self.title = "Analyse de la fréquence des {} des {}".format(self.title, attribut_value, " et ".join(entity_name_list))
         self.ax.set_title(self.title)
         self.ax.set_xlabel('Valeurs')
         self.ax.set_ylabel('Fréquences')
@@ -269,11 +279,11 @@ class SGToolBar(NavigationToolbar):
 
             labels = list(data_pie.keys())
             values = list(data_pie.values())
-            title = f"{self.title} : Répartition des {entityName} par {attribut_value} (%)"
+            self.title = f"Répartition des {entityName} par {attribut_value} en (%)"
             self.ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
             self.ax.axis('equal')
             self.ax.legend()
-            self.ax.set_title(title)
+            self.ax.set_title(self.title)
             self.canvas.draw()
 
 
@@ -291,12 +301,15 @@ class SGToolBar(NavigationToolbar):
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
         pos=0
+        list_entity_name = []
+        list_attribut_key = []
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
             for option in selected_option_list:
                 pos += 1
                 list_option = option.split("-:")
                 if len(list_option)>0:
                     entityName = list_option[1]
+                    list_entity_name.append(entityName)
                     label_pop = f"Populations : {entityName}"
                     data_populations = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
                     for r in self.rounds:
@@ -307,6 +320,7 @@ class SGToolBar(NavigationToolbar):
                         else:
                             if list_option[-1] in self.indicators:
                                 attribut_key = list_option[2]
+                                list_attribut_key.append(attribut_key)
                                 if list_option[-1] == 'min':
                                     min_y = [sum(entry['quantiAttributes'][attribut_key]['min'] for entry in data if entry['round'] == r
                                              and entry['entityName'] == entityName)]
@@ -339,6 +353,9 @@ class SGToolBar(NavigationToolbar):
                         if len(data_stdev) > 0:
                             self.ax.plot(self.xValue, data_stdev, label=f"St Dev - {attribut_key} - {entityName}", linestyle='--', color=color)
             self.ax.legend()
+            entity_name_list = list(set(list_entity_name))
+            attribut_name_list = list(set(list_attribut_key))
+            self.title = "Evolution des populations {} et des indicateurs des {}".format(" et ".join(entity_name_list), ", ".join(attribut_name_list) )
             self.ax.set_title(self.title)
             self.canvas.draw()
 

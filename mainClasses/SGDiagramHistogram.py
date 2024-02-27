@@ -15,7 +15,7 @@ class SGDiagramHistogram(QMainWindow):
         super(SGDiagramHistogram, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowTitle("Diagramme Circulaire")
+        self.setWindowTitle("Histogramme")
         self.setGeometry(100, 100, 800, 600)
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
