@@ -66,8 +66,6 @@ class SGToolBar(NavigationToolbar):
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         self.regenerate_menu(self.dataEntities)
 
-
-
     def regenerate_menu(self, data):
         entitiesMenu = QMenu('Entités', self)
         playersMenu = QMenu('Players', self)
@@ -78,15 +76,17 @@ class SGToolBar(NavigationToolbar):
             if not self.firstEntity:
                 self.firstEntity = sorted(entities_list)[0]
             attrib_data = ['max', 'mean', 'min', 'stdev']
+
+            ###
             players_list = {player['currentPlayer'] for player in data if
                             'currentPlayer' in player and not isinstance(player['currentPlayer'], dict)}
-            simVariables_list = {attribut for entry in data for attribut in entry.get('simVariable', {})}
             for player in players_list:
                 self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
-
-            for key in simVariables_list:
+            """for key in simVariables_list:
                 list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
-                self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data
+                self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data"""
+            ###
+
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 attrib_dict[f"entity-:{entity_name}-:population"] = None
@@ -102,7 +102,15 @@ class SGToolBar(NavigationToolbar):
             self.display_menu.addMenu(playersMenu)
             self.display_menu.addMenu(simulationMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
-            #self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'])
+
+            simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
+            for simVar in simVariables_list:
+                self.dictMenuData['simvariables'][f"simvariables-:{simVar}"] = None
+            self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'], self.firstEntity, self.firstAttribut)
+
+            #simVariables_list = {entry['simVarName'] for entry in self.dataSimVars}
+
+
             #self.addSubMenus(playersMenu, self.dictMenuData['players'])
         else:
             attrib_data = []
@@ -132,7 +140,6 @@ class SGToolBar(NavigationToolbar):
                             list_val.append(sub_attribut_val)
 
                             attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
-
                         attrib_dict[attribut_key] = attrib_tmp_dict
                 self.dictMenuData['entities'][entity_name] = attrib_dict
             self.display_menu.addMenu(entitiesMenu)
@@ -254,18 +261,18 @@ class SGToolBar(NavigationToolbar):
                       for entry in data if entry['entityName']==entity_name  and 'quantiAttributes' in entry \
                            and attribut_value in entry['quantiAttributes'] and 'histo' in \
                             entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds)}
-                print("histo_y :: ", histo_y)
+                #print("histo_y :: ", histo_y)
                 list_data.append(histo_y)
 
         for h in list_data:
             h_abcis = list(h.values())[0][1][:-1]
             h_height = list(h.values())[0][0]
             label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys()))>0 else ''
-            print("h_abcis : ", h_abcis)
-            print("h_height : ", h_height)
+            #print("h_abcis : ", h_abcis)
+            #print("h_height : ", h_height)
             self.ax.bar(h_abcis, h_height, width=5, label=label)
         self.ax.legend()
-        print("title", self.title)
+        #print("title", self.title)
         self.title = "Analyse de la fréquence des {} des {}".format(attribut_value, " et ".join(entity_name_list))
         self.ax.set_title(self.title)
         self.ax.set_xlabel('Valeurs')
@@ -295,16 +302,34 @@ class SGToolBar(NavigationToolbar):
     def plot_linear_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
         pos = 0
+        has_simvariables = any(item.startswith('simvariables-:') for item in selected_option_list)
+
         if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
             self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
-            """elif variable == 'simVariable':
-                self.plot_linear_typeDiagram_for_simVariable(data, list_option, pos)
+        if has_simvariables:
+            self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
+        """
+            elif variable == 'simVariable':
+                self.plot_linear_typeDiagram_for_simVariable(data, selected_option_list, pos)
             elif variable == 'currentPlayer':
-                self.plot_linear_typeDiagram_for_players(data, list_option, pos)"""
+                self.plot_linear_typeDiagram_for_players(data, selected_option_list, pos)"""
         #pos += 1
+
+    def plot_linear_typeDiagram_for_simVariable(self, dataSimVariables, selected_option_list, pos):
+        list_simVariables = [item.split("-:")[1] for item in selected_option_list if item.startswith('simvariables-:') and item.split("-:") and len(item.split("-:"))>0]
+        if list_simVariables:
+            for simVarName in list_simVariables:
+                y = [entry['value'] for entry in dataSimVariables if entry['simVarName'] == simVarName]
+                color = self.colors[pos % len(self.colors)]
+                self.ax.plot(self.xValue, y, label=f"Simulations Variable : {simVarName}", linestyle='solid', color=color)
+            self.ax.legend()
+            title = "{} et des Simulations Variables".format(self.title)
+            self.ax.set_title(title)
+            self.canvas.draw()
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
+        #print("data : ", data)
         pos=0
         list_entity_name = []
         list_attribut_key = []
@@ -363,23 +388,6 @@ class SGToolBar(NavigationToolbar):
             self.title = "Evolution des populations {} et des indicateurs des {}".format(" et ".join(entity_name_list), ", ".join(attribut_name_list) )
             self.ax.set_title(self.title)
             self.canvas.draw()
-
-
-
-    def plot_linear_typeDiagram_for_simVariable(self, data, list_option, pos):
-        if list_option[:1] == ['simVariable']:
-            entities = list_option
-            label = f"Simulation Variable : {entities[-1].upper()}"
-            y = [sum(1 for entry in data if entry['round'] == r \
-                     and entry['phase'] == p and 'simVariable' in entry and
-                     entry['simVariable'] == list_option[-1])
-                 for r in self.rounds for p in self.phases]
-            linestyle = self.linestyles[pos % len(self.linestyles)]
-            color = self.colors[pos % len(self.colors)]
-            self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
-        self.ax.legend()
-        self.ax.set_title(self.title)
-        self.canvas.draw()
 
     def plot_linear_typeDiagram_for_players(self, data, list_option, pos):
         if list_option[:1] == ['currentPlayer']:
@@ -474,7 +482,7 @@ class SGToolBar(NavigationToolbar):
         # self.data = self.model.dataRecorder.listOfData_ofEntities
         # self.data = self.model.dataRecorder.getStepsData_ofEntities()
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
-        self.dataSimVars = self.model.dataRecorder.getStepsData_ofSimVariables()
+        self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         #self.regenerate_menu(self.dataEntities)
         # if option == '1':
@@ -494,8 +502,10 @@ class SGToolBar(NavigationToolbar):
             #print("list_data : ", list_data)
             #print("################################################################")
             #print("data : ", data)
-            self.phases = {entry['phase'] for entry in data if  entry['phase'] == max_round}
+            self.phases = {entry['phase'] for entry in data if  entry['round'] == max_round}
             self.xValue = self.rounds if len(self.phases) <= 2 else [phase for phase in self.phases]
+
+            #print("self.phases :: ", self.phases)
         else:
             self.rounds = rounds
             self.phases = phases
