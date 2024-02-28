@@ -6,7 +6,7 @@ from mainClasses.AttributeAndValueFunctionalities import *
 
 # Class who is in charged of entities : cells and agents
 class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
-    def __init__(self,parent,classDef,size,shapeColor,attributesAndValues):
+    def __init__(self,parent,classDef,size,attributesAndValues):
         super().__init__(parent)
         self.classDef=classDef
         self.id=self.classDef.nextId()
@@ -14,8 +14,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.model=self.classDef.model
         self.shape= self.classDef.shape
         self.size=size
-        self.color=shapeColor # Faudra peut etre envisagée de retirer cet attribut. Car la couleur est gérée par la classDef
-                               # A moins qu'on l'utilse pour faire flasher l'entité, masi dans ce cas il vaudrait mieux défini un attribut flashColor
         self.borderColor=self.classDef.defaultBorderColor
         self.isDisplay=True
         #Define variables to handle the history 

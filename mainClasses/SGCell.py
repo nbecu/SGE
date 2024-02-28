@@ -5,7 +5,7 @@ from mainClasses.SGEntity import SGEntity
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
     def __init__(self,classDef, x, y):
-        super().__init__(classDef.grid,classDef,classDef.defaultsize,classDef.defaultShapeColor,attributesAndValues=None)
+        super().__init__(classDef.grid,classDef,classDef.defaultsize,attributesAndValues=None)
         #Basic initialize
         self.grid=classDef.grid
         self.xPos=x

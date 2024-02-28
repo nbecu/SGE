@@ -8,7 +8,7 @@ from mainClasses.SGEntity import SGEntity
 class SGAgent(SGEntity):
     def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
         aGrid = cell.grid
-        super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
+        super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
         if cell is not None:
             self.cell = cell
@@ -16,14 +16,11 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
         self.last_selected_option=None
-        self.shapeColor=shapeColor
         self.initMenu()
         
 
 
     def paintEvent(self,event):
-        if self.shapeColor==19:
-            return
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -300,7 +297,7 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history
