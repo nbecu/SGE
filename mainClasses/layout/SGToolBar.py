@@ -16,7 +16,8 @@ class SGToolBar(NavigationToolbar):
         self.typeDiagram = typeDiagram
         button = QPushButton("Actualiser", self)
         button.setIcon(QIcon("./icon/actualiser.png"))
-        button.clicked.connect(self.update_plot)
+        button.clicked.connect(self.refresh_data)
+        self.is_refresh = False
         self.addWidget(button)
         self.addSeparator()
 
@@ -166,7 +167,7 @@ class SGToolBar(NavigationToolbar):
 
 
     def get_checkbox_display_menu_selected(self):
-        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+        if not self.is_refresh and self.typeDiagram in ['pie', 'hist', 'stackplot']:
             for option, checkbox in self.checkbox_display_menu_data.items():
                 if option in self.previous_selected_checkboxes:
                     checkbox.setChecked(False)
@@ -189,8 +190,10 @@ class SGToolBar(NavigationToolbar):
         elif self.typeDiagram == 'stackplot':
             self.plot_stackplot_typeDiagram(self.dataEntities, selected_option_list)
         # for pie diagram
-        self.previous_selected_checkboxes = list(set(
+        if not self.is_refresh:
+            self.previous_selected_checkboxes = list(set(
                     option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
+        self.is_refresh = False
 
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
         list_data = []
@@ -457,6 +460,14 @@ class SGToolBar(NavigationToolbar):
     #     return self.getAllHistoryData() if value_cmb_2 == 1 else self.model.listData
 
 
+
+    def refresh_data(self):
+        self.is_refresh = True
+        selected_option = self.get_checkbox_display_menu_selected()
+        print("previous_selected_checkboxes :: ", self.previous_selected_checkboxes)
+        print("selected_option :: ", selected_option)
+        #self.previous_selected_checkboxes = []
+        self.update_plot()
 
     def update_data(self):
         # self.data = self.getAllData()
