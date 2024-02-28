@@ -156,7 +156,7 @@ class SGToolBar(NavigationToolbar):
                          checkable=True)
         if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
             action.setChecked(True)
-            if self.typeDiagram in ['pie']:
+            if self.typeDiagram in ['pie', 'hist', 'stackplot']:
                 self.previous_selected_checkboxes = []
                 self.previous_selected_checkboxes.append(key)
         action.setProperty("key", key)
@@ -166,7 +166,7 @@ class SGToolBar(NavigationToolbar):
 
 
     def get_checkbox_display_menu_selected(self):
-        if self.typeDiagram in ['pie']:
+        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
             for option, checkbox in self.checkbox_display_menu_data.items():
                 if option in self.previous_selected_checkboxes:
                     checkbox.setChecked(False)
@@ -262,10 +262,12 @@ class SGToolBar(NavigationToolbar):
             print("h_height : ", h_height)
             self.ax.bar(h_abcis, h_height, width=5, label=label)
         self.ax.legend()
-        self.title = "Analyse de la fréquence des {} des {}".format(self.title, attribut_value, " et ".join(entity_name_list))
+        print("title", self.title)
+        self.title = "Analyse de la fréquence des {} des {}".format(attribut_value, " et ".join(entity_name_list))
         self.ax.set_title(self.title)
         self.ax.set_xlabel('Valeurs')
         self.ax.set_ylabel('Fréquences')
+        self.canvas.draw()
 
     def plot_pie_typeDiagram(self, data, selected_option_list):
         if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
