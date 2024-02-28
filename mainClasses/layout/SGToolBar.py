@@ -22,6 +22,7 @@ class SGToolBar(NavigationToolbar):
         self.addSeparator()
 
         self.indicators = ['max','mean', 'min', 'stdev']
+        self.indicators_item = {'max': 'Max', 'mean': 'Moyenne', 'min': 'Min', 'stdev': 'St Dev'}
 
         self.option_affichage_data = {"entityName": "Entités", "simVariable": "Simulation variables", "currentPlayer": "Players"}
 
@@ -42,8 +43,10 @@ class SGToolBar(NavigationToolbar):
 
         self.rounds = []
         self.phases = []
-        #self.linestyles = ['-', '--', '-.', ':', 'dotted', 'dashdot']
-        self.linestyles = ['-', '--', '-.', ':', 'dashed', 'dashdot', 'dotted']
+
+        #self.linestyles = ['-', '--', '-.', ':', 'dashed', 'dashdot', 'dotted']
+        self.linestyle_items = {'stdev':'--', 'max': 'dashed', 'min':'dashdot', 'mean':'dotted'}
+
         self.colors = ['gray', 'green', 'blue', 'red', 'black', 'orange', 'purple', 'pink', 'cyan', 'magenta']
         self.xValue = []
         self.display_menu = QMenu("Affichage", self)
@@ -320,8 +323,7 @@ class SGToolBar(NavigationToolbar):
         if list_simVariables:
             for simVarName in list_simVariables:
                 y = [entry['value'] for entry in dataSimVariables if entry['simVarName'] == simVarName]
-                color = self.colors[pos % len(self.colors)]
-                self.ax.plot(self.xValue, y, label=f"Simulations Variable : {simVarName}", linestyle='solid', color=color)
+                self.plot_data_switch_xvalue(self.xValue, y, f"Simulations Variable : {simVarName}", 'solid', pos)
             self.ax.legend()
             title = "{} et des Simulations Variables".format(self.title)
             self.ax.set_title(title)
@@ -329,7 +331,6 @@ class SGToolBar(NavigationToolbar):
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
-        #print("data : ", data)
         pos=0
         list_entity_name = []
         list_attribut_key = []
@@ -341,53 +342,41 @@ class SGToolBar(NavigationToolbar):
                     entityName = list_option[1]
                     list_entity_name.append(entityName)
                     label_pop = f"Populations : {entityName}"
-                    data_populations = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
+                    key = list_option[-1] if list_option[-1] else None
+                    data_populations = []; data_indicators = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
                     for r in self.rounds:
-                        if list_option[-1] == 'population':
+                        if key == 'population':
                             y = [sum(entry['population'] for entry in data if entry['round'] == r
                                      and entry['entityName'] == entityName)]
                             data_populations.append(y)
                         else:
-                            if list_option[-1] in self.indicators:
+                            if key and key in self.indicators_item:
                                 attribut_key = list_option[2]
                                 list_attribut_key.append(attribut_key)
-                                if list_option[-1] == 'min':
-                                    min_y = [sum(entry['quantiAttributes'][attribut_key]['min'] for entry in data if entry['round'] == r
-                                             and entry['entityName'] == entityName)]
-                                    data_min.append(min_y)
-                                elif list_option[-1] == 'mean':
-                                    mean_y = [sum(entry['quantiAttributes'][attribut_key]['mean'] for entry in data if entry['round'] == r
-                                             and entry['entityName'] == entityName)]
-                                    data_mean.append(mean_y)
-                                elif list_option[-1] == 'max':
-                                    max_y = [sum(entry['quantiAttributes'][attribut_key]['max'] for entry in data if entry['round'] == r
-                                             and entry['entityName'] == entityName)]
-                                    data_max.append(max_y)
-                                elif list_option[-1] == 'stdev':
-                                    stdev_y = [sum(entry['quantiAttributes'][attribut_key]['stdev'] for entry in data if entry['round'] == r
-                                                 and entry['entityName'] == entityName)]
-                                    data_stdev.append(stdev_y)
+                                y_indicators = [sum(entry['quantiAttributes'][attribut_key][key] for entry in data if
+                                             entry['round'] == r and entry['entityName'] == entityName and
+                                             list_option[-1] in entry['quantiAttributes'][attribut_key])]
+                                data_indicators.append(y_indicators)
                     if len(data_populations)>0:
-                        color = self.colors[pos % len(self.colors)]
-                        self.ax.plot(self.xValue, data_populations, label=label_pop, linestyle='solid', color=color)
-
-                    if list_option[-1] in self.indicators:
-                        pos_ind = pos + self.indicators.index(list_option[-1])
-                        color = self.colors[pos_ind % len(self.colors)]
-                        if len(data_mean)>0:
-                            self.ax.plot(self.xValue, data_mean, label=f"Moyenne - {attribut_key} - {entityName}", linestyle='dashdot', color=color)
-                        if len(data_min) > 0:
-                            self.ax.plot(self.xValue, data_min, label=f"Min - {attribut_key} - {entityName}", linestyle='dotted', color=color)
-                        if len(data_max) > 0:
-                            self.ax.plot(self.xValue, data_max, label=f"Max - {attribut_key} - {entityName}", linestyle=':', color=color)
-                        if len(data_stdev) > 0:
-                            self.ax.plot(self.xValue, data_stdev, label=f"St Dev - {attribut_key} - {entityName}", linestyle='--', color=color)
+                        self.plot_data_switch_xvalue(self.xValue, data_populations, label_pop,'solid', pos)
+                    if key and key in self.indicators_item:
+                        label_ind = f"{self.indicators_item[key]} - {attribut_key} - {entityName}"
+                        linestyle_ind = self.linestyle_items[key] if key and key in self.linestyle_items else None
+                        self.plot_data_switch_xvalue(self.xValue, data_indicators, label_ind, linestyle_ind, pos)
             self.ax.legend()
             entity_name_list = list(set(list_entity_name))
             attribut_name_list = list(set(list_attribut_key))
             self.title = "Evolution des populations {} et des indicateurs des {}".format(" et ".join(entity_name_list), ", ".join(attribut_name_list) )
             self.ax.set_title(self.title)
             self.canvas.draw()
+
+    def plot_data_switch_xvalue(self, xValue, data, label, linestyle, pos):
+        color = self.colors[pos % len(self.colors)]
+        if len(xValue) == 1:
+            self.ax.plot(xValue * len(data), data, label=label, color=color, marker='o', linestyle='None')
+        else:
+            self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
+
 
     def plot_linear_typeDiagram_for_players(self, data, list_option, pos):
         if list_option[:1] == ['currentPlayer']:
@@ -397,7 +386,6 @@ class SGToolBar(NavigationToolbar):
                      and entry['phase'] == p and 'currentPlayer' in entry and
                      entry['currentPlayer'] == list_option[-1])
                  for r in self.rounds for p in self.phases]
-            linestyle = self.linestyles[pos % len(self.linestyles)]
             color = self.colors[pos % len(self.colors)]
             self.ax.plot(self.xValue, y, label=label, linestyle='solid', color=color)
         self.ax.legend()
@@ -502,9 +490,9 @@ class SGToolBar(NavigationToolbar):
             #print("list_data : ", list_data)
             #print("################################################################")
             #print("data : ", data)
-            self.phases = {entry['phase'] for entry in data if  entry['round'] == max_round}
+            self.phases = {entry['phase'] for entry in data if entry['round'] == max_round}
             self.xValue = self.rounds if len(self.phases) <= 2 else [phase for phase in self.phases]
-
+            #self.xValue = [p for _ in rounds for p in phases]
             #print("self.phases :: ", self.phases)
         else:
             self.rounds = rounds
