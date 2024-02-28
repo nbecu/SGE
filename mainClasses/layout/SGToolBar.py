@@ -90,7 +90,7 @@ class SGToolBar(NavigationToolbar):
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 attrib_dict[f"entity-:{entity_name}-:population"] = None
-                list_attribut_key = {attribut for entry in data for attribut in entry.get('quantiAttributes', {})}
+                list_attribut_key = {attribut for entry in data for attribut in entry.get('quantiAttributes', {}) if entry['entityName']==entity_name}
                         #  if entry.get('entityName') == entity_name and isinstance(entry['quantiAttributes'][attribut], (int, float))}
                         # ---> Pas besoin, car j'ai séparé les attributes dans deux keys -> quantiAttributes  pour les (int, float) et qualiAttributes  pour les str
                 if not self.firstAttribut:
