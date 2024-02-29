@@ -18,14 +18,14 @@ Cell.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"fores
 
 theFirstLegend=myModel.newLegend()
 
-GameRounds=myModel.newTimeLabel('Rounds&Phases')
+
 
 myModel.timeManager.newModelPhase(
     [
     lambda: Cell.setRandomEntities("landUse","forest"),
     lambda: Cell.setRandomEntities("landUse","shrub",3)]
     )
-
+GameRounds=myModel.newTimeLabel('Rounds&Phases')
 myModel.launch() 
 
 sys.exit(monApp.exec_())

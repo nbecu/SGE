@@ -69,9 +69,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
         return True
 
     def addWatcher(self,aIndicator):
-        if aIndicator.attribut is None:
+        if aIndicator.attribute is None:
             aAtt = 'nb'
-        else: aAtt = aIndicator.attribut
+        else: aAtt = aIndicator.attribute
         if aAtt not in self.watchers.keys():
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)

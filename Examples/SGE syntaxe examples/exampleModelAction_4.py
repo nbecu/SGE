@@ -23,22 +23,21 @@ theFirstLegend=myModel.newLegend()
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
 DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
-# TODO il me semble que le "'withButton'" de newDasBoard est Obsolete
 
 scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
-# scoreB.setResetAtEachRound(True) TODO Yet to be implemented
+
 DashBoard.addIndicator_Nb('Cell','landUse',"forest","Taille de la foret",(Qt.blue))
 DashBoard.addIndicatorOnSimVariable(scoreB)
 
 
 
-#CREATIONS DE MODEL ACTIONS
+#MODEL ACTIONS CREATION
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2))
-    #POSSIBILITE d'AJOUTER UN FEEDBACK  A l'ACTION
+
+#POSSIBILITY TO ADD A GENERAL CONDITION TO THE ACTION
 aModelAction4.addFeedback(lambda: scoreB.incValue(5)) 
 
-
-# AJOUT DES MODEL ACTIONS DANS LES PHASE
+# ADDING MODEL ACTIONS TO THE PHASES
 myModel.timeManager.newModelPhase(aModelAction4)
 
 

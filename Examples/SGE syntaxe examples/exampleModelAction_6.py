@@ -29,7 +29,7 @@ DashBoard.addIndicatorOnSimVariable(scoreB)
 aTextBox=myModel.newTextBox(title='La foret regresse petit à petit')
 
 
-#CREATIONS DE MODEL ACTIONS
+#MODEL ACTIONS CREATION
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","shrub",2), feedbacks=(lambda: scoreB.decValue(1)))
 
 
@@ -40,7 +40,7 @@ aFeedbackAction.addCondition(lambda: scoreB.value <15)
 aModelAction2.addFeedback(aFeedbackAction) 
 
 
-# AJOUT DES MODEL ACTIONS DANS LES PHASE
+# ADDING MODEL ACTIONS TO THE PHASES
 myModel.timeManager.newModelPhase(aModelAction1, 'Model action 1')
 myModel.timeManager.newModelPhase(aModelAction2, 'Model action 2')
 

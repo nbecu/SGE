@@ -876,44 +876,44 @@ class SGModel(QMainWindow):
     # -----------------------------------------------------------
     # Game mechanics function
 
-    def newCreateAction(self, anObjectType, aNumber, aDictOfAcceptedValue=None, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
+    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Create GameAction to the game.
 
         Args:
         - anObjectType : a AgentSpecies or the keyword "Cell"
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+        - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGCreate(aClassDef, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
+        return SGCreate(aClassDef,  dictAttributes, aNumber,listOfRestriction, feedback, conditionOfFeedback)
 
-    def newUpdateAction(self, anObjectType, aNumber, aDictOfAcceptedValue={}, listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
+    def newUpdateAction(self, anObjectType, dictAttributes={}, aNumber='infinite',listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Update GameAction to the game.
 
         Args:
         - anObjectType : a AgentSpecies or the keyword "Cell"
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+        - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGUpdate(aClassDef, aNumber, aDictOfAcceptedValue, listOfRestriction, feedback, conditionOfFeedback)
+        return SGUpdate(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback)
 
-    def newDeleteAction(self, anObjectType, aNumber, listOfConditions=[], feedback=[], conditionOfFeedback=[]):
+    def newDeleteAction(self, anObjectType, aNumber='infinite', listOfConditions=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Delete GameAction to the game.
 
         Args:
         - anObjectType : a AgentSpecies
         - a Number (int) : number of utilisation, could use "infinite"
-        - aDictOfAcceptedValue (dict) : attribute with value concerned, could be None
+        - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
         aClassDef = self.getEntityDef(anObjectType)
@@ -921,7 +921,7 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGDelete(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback)
 
-    def newMoveAction(self, anObjectType, aNumber, listOfConditions=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
+    def newMoveAction(self, anObjectType, aNumber='infinite', listOfConditions=[], feedback=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
         """
         Add a MoveAction to the game.
 

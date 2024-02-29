@@ -43,21 +43,21 @@ aWorker=Birds.newAgentAtCoords(Cell,2,2)
 globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
-createA1=myModel.newCreateAction(Workers, 20)
+createA1=myModel.newCreateAction(Workers, aNumber=20)
 Player1.addGameAction(createA1)
 Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
 Player1.addGameAction(myModel.newDeleteAction('Cell', "infinite"))
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
+Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newCreateAction(Birds,4))
+Player2.addGameAction(myModel.newCreateAction(Birds,aNumber=4))
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", 3, {"ProtectionLevel": "Reserve"}))
+    "Cell", {"ProtectionLevel": "Reserve"}, 3))
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", "infinite", {"ProtectionLevel": "Free"}))
+    "Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()

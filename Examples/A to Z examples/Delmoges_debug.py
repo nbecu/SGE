@@ -34,9 +34,8 @@ Cells.newBorderPovColorAndWidth("Incitation","incitation", {"neutre": [Qt.black,
 
 Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0},"prix":14.6,"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
 Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1},"prix":3.2,"facteurTemps":6329})
-Navire=myModel.newAgentSpecies("Navire","arrowAgent1")#,defaultColor=Qt.transparent) #TODO Trouver pourquoi il n'y a pas l'update de agent.color
+Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":{2.75E-5},"txCapture_Merlu":{3.76E-5},"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})#,"Invisibility":"True"})
-#Navire.newPov("Set Invisible","Invisibility",{"True":Qt.transparent, "False":Qt.black})
 
 Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
 Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Sole",'Sole pêché')
@@ -49,14 +48,14 @@ Player1 = myModel.newPlayer("Pêcheur",attributesAndValues=None)
 Move1=myModel.newMoveAction(Navire, 'infinite')
 Move1.addFeedback(lambda navire: navire.setValue("lastIncitationValue",navire.cell.value("incitation")))
 Player1.addGameAction(Move1)
-Create1=myModel.newCreateAction(Navire,10)
+Create1=myModel.newCreateAction(Navire,aNumber=10)
 Create1.addCondition(lambda TargetCell: TargetCell.value("type")=="port")
 Player1.addGameAction(Create1)
 Player1ControlPanel = Player1.newControlPanel("Actions Pêcheur")
 
 Player2= myModel.newPlayer("Gestionnaire",attributesAndValues=None)
-Update1=myModel.newUpdateAction("Cell","infinite",{"incitation":"bonus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
-Update2=myModel.newUpdateAction("Cell","infinite",{"incitation":"malus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
+Update1=myModel.newUpdateAction("Cell",{"incitation":"bonus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
+Update2=myModel.newUpdateAction("Cell",{"incitation":"malus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
 Player2.addGameAction(Update1)
 Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
