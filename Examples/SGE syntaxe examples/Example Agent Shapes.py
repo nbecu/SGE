@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 monApp=QtWidgets.QApplication([])
-#Example of  form Avalaible for agent
+#Example of forms available for agent
 
 myModel=SGModel(1080,960,"Agent examples")
 

@@ -1151,7 +1151,7 @@ class SGModel(QMainWindow):
         self.client.subscribe("nextTurn")
         self.client.subscribe("execute_method")
         self.client.on_message = on_message
-        self.listOfSubChannel.append("Gamestates") #Je ne pense pas que ce soit utile
+        self.listOfSubChannel.append("Gamestates")
         
     def buildNextTurnMsgAndPublishToBroker(self):
         msgTopic = 'nextTurn'
@@ -1324,10 +1324,10 @@ class SGModel(QMainWindow):
         message = message+"]"
         message = message+","
         message = message+"["
-        message = message+"'"+str(self.currentPlayer)+"'" # Cette info est déjà présente tout au début du message (dans la première lis). A retirer
+        message = message+"'"+str(self.currentPlayer)+"'" # To be deleted
         message = message+"]"
         message = message+","
-        message = message+str(self.listOfSubChannel) # Cette info est déjà présente dans le message topic. A retirer
+        message = message+str(self.listOfSubChannel) # To be deleted
         message = message+"]"
         print(message)
         return message

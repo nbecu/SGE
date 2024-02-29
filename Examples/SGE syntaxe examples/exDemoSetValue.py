@@ -22,7 +22,7 @@ m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,1)
 
 phase1 = myModel.timeManager.newModelPhase()
-phase1.addModelAction([lambda: Cell.setRandomEntities("landUse","shrub",3),lambda: Cell.setRandomEntities("landUse","forest")])
+phase1.addAction([lambda: Cell.setRandomEntities("landUse","shrub",3),lambda: Cell.setRandomEntities("landUse","forest")])
 
 
 myModel.newTimeLabel()

@@ -36,7 +36,7 @@ class SGTimePhase():
     def setNextStepAction(self, nextStepAction):
         self.nextStepAction = nextStepAction
 
-    def addModelAction(self, aModelAction):
+    def addAction(self, aModelAction):
         if isinstance(aModelAction,SGModelAction):
             self.modelActions.append(aModelAction)
         else :
