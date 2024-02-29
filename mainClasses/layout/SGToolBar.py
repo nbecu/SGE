@@ -344,39 +344,30 @@ class SGToolBar(NavigationToolbar):
                     label_pop = f"Populations : {entityName}"
                     key = list_option[-1] if list_option[-1] else None
                     data_populations = []; data_indicators = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
-                    for r in self.rounds:
+                    # for r in self.rounds:
+                    #     if key == 'population':
+                    #         y = [sum(entry['population'] for entry in data if entry['round'] == r
+                    #                  and entry['entityName'] == entityName)]
+                    #         data_populations.append(y)
+                    #     else:
+                    #         if key and key in self.indicators_item:
+                    #             attribut_key = list_option[2]
+                    #             list_attribut_key.append(attribut_key)
+                    #             y_indicators = [sum(entry['quantiAttributes'][attribut_key][key] for entry in data if
+                    #                          entry['round'] == r and entry['entityName'] == entityName and
+                    #                          list_option[-1] in entry['quantiAttributes'][attribut_key])]
+                    #             data_indicators.append(y_indicators)
+                    for r in range(self.nbRoundsWithLastPhase+1):
+                        phaseIndex = self.nbPhases if r !=0 else 0 
+                        aEntry = [entry for entry in data if entry['entityName'] == entityName and entry['round'] == r and entry['phase'] == phaseIndex][-1]                 
                         if key == 'population':
-                            # y = [sum(entry['population'] for entry in data if entry['round'] == r
-                            #          and entry['entityName'] == entityName)]
-                            y = [entry['population'] for entry in data if entry['round'] == r and entry['phase'] == self.nbPhases
-                                     and entry['entityName'] == entityName]
+                            y = aEntry['population']
                             data_populations.append(y)
                         else:
                             if key and key in self.indicators_item:
                                 attribut_key = list_option[2]
                                 list_attribut_key.append(attribut_key)
-                                # y_indicators = [sum(entry['quantiAttributes'][attribut_key][key] for entry in data if
-                                #              entry['round'] == r and entry['entityName'] == entityName and
-                                #              list_option[-1] in entry['quantiAttributes'][attribut_key])]
-                                y_indicators = [entry['quantiAttributes'][attribut_key][key] for entry in data if
-                                             entry['round'] == r and entry['phase'] == self.nbPhases and entry['entityName'] == entityName and
-                                             list_option[-1] in entry['quantiAttributes'][attribut_key]]
-                                data_indicators.append(y_indicators)
-
-                    dataAtZero = [entry for entry in data if entry['entityName'] == entityName and entry['round'] == 0 and entry['phase'] == 0][-1]
-                    data_populations = [dataAtZero]['population']
-                    for r in range(1,self.nbRoundsWithLastPhase):
-                        if key == 'population':
-                            y = [entry['population'] for entry in data if entry['round'] == r and entry['phase'] == self.nbPhases
-                                     and entry['entityName'] == entityName][-1]
-                            data_populations.append(y)
-                        else:
-                            if key and key in self.indicators_item:
-                                attribut_key = list_option[2]
-                                list_attribut_key.append(attribut_key)
-                                y_indicators = [entry['quantiAttributes'][attribut_key][key] for entry in data if
-                                             entry['round'] == r and entry['phase'] == self.nbPhases and entry['entityName'] == entityName and
-                                             list_option[-1] in entry['quantiAttributes'][attribut_key]]
+                                y_indicators = aEntry['quantiAttributes'][attribut_key][key] 
                                 data_indicators.append(y_indicators)
 
                     if len(data_populations)>0:
@@ -503,7 +494,7 @@ class SGToolBar(NavigationToolbar):
         option = self.get_combobox2_selected_key()
         rounds = {entry['round'] for entry in data}
         self.nbRounds = max({entry['round'] for entry in data})
-        self.nbPhases = self.model.dataRecorder.nbPhases
+        self.nbPhases = len(self.model.timeManager.phases) -1 #be careful. should be changed wjhen merged with main branch
         self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
         phases = {entry['phase'] for entry in data}
@@ -520,6 +511,24 @@ class SGToolBar(NavigationToolbar):
             self.xValue = self.rounds if len(self.phases) <= 2 else [phase for phase in self.phases]
             #self.xValue = [p for _ in rounds for p in phases]
             #print("self.phases :: ", self.phases)
+        if option == 'by steps':
+            self.rounds = rounds
+            self.phases = phases
+
+            if self.phaseOfLastRound == self.nbPhases:
+                self.nbRoundsWithLastPhase = self.nbRounds
+            else:
+                self.nbRoundsWithLastPhase = self.nbRounds -1
+            aStep = 0
+            self.xValue =[aStep]     
+            for aR in range(self.nbRoundsWithLastPhase):
+                for aP in range(self.nbPhases):
+                    aStep += 1
+                    self.xValue.append(aStep)
+            if self.phaseOfLastRound != self.nbPhases:
+                for aP in range(self.phaseOfLastRound):
+                    aStep += 1
+                    self.xValue.append(aStep)
         else:
             self.rounds = rounds
             self.phases = phases
@@ -531,3 +540,5 @@ class SGToolBar(NavigationToolbar):
             else:
                 self.nbRoundsWithLastPhase = self.nbRounds -1
                 self.xValue = list(rounds)[:-1]
+
+
