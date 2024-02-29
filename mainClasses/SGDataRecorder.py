@@ -18,6 +18,7 @@ class SGDataRecorder():
         self.stepsData_ofEntities = []
         self.stepsData_ofSimVariables = []
         self.stepsData_ofPlayers = []
+        self.nbPhases = len(self.model.timeManager.phases) -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
         
     # def collectStepData(self): #OBSOLETE METHOD -> Can be removed
     #     currentRound =self.model.timeManager.currentRound
