@@ -5,31 +5,56 @@ from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, QPushButton, \
-    QCheckBox
+    QCheckBox, QSpinBox, QLabel, QSlider, QLineEdit
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
+import re
 
 
 class SGToolBar(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
+
         self.typeDiagram = typeDiagram
         button = QPushButton("Actualiser", self)
         button.setIcon(QIcon("./icon/actualiser.png"))
         button.clicked.connect(self.refresh_data)
-        self.is_refresh = False
+        #layout_per_round = QVBoxLayout()
         self.addWidget(button)
-        self.addSeparator()
+    
 
+        if self.typeDiagram in ['plot']:
+            self.addSeparator()
+            self.start_label = QLabel('Tour Min:')
+            self.start_cmb_round = QComboBox(parent)
+            self.start_cmb_round.activated.connect(self.onCmbRoundActivated)
+            self.addWidget(self.start_label)
+            self.addWidget(self.start_cmb_round)
+            self.end_label = QLabel('Tour Max:')
+            self.end_cmb_round = QComboBox(parent)
+            self.end_cmb_round.activated.connect(self.onCmbRoundActivated)
+            self.addWidget(self.end_label)
+            self.addWidget(self.end_cmb_round)
+            self.combobox_per_rounds_data = {}
+            self.add_button = QPushButton('Afficher')
+            self.add_button.clicked.connect(self.update_plot)
+            self.addWidget(self.add_button)
+            self.addSeparator()
+        self.start_cmb_round.setEnabled(False)
+        self.end_cmb_round.setEnabled(False)
+        self.add_button.setEnabled(False)
+
+
+        self.roundMin = 0
+        self.roundMax = 0
+        self.is_refresh = False
         self.indicators = ['max','mean', 'min', 'stdev']
         self.indicators_item = {'max': 'Max', 'mean': 'Moyenne', 'min': 'Min', 'stdev': 'St Dev'}
-
         self.option_affichage_data = {"entityName": "Entités", "simVariable": "Simulation variables", "currentPlayer": "Players"}
-
         self.ax = parent.ax
         self.model = model
         self.title = 'SG Diagramme'
-        self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1'}
+        self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1', 'Autres': '2'}
         if self.typeDiagram in ['pie', 'hist']:
             self.combobox_2_data = {'Dernieres Tours': '1'}
 
@@ -68,6 +93,8 @@ class SGToolBar(NavigationToolbar):
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         self.regenerate_menu(self.dataEntities)
+
+
 
     def regenerate_menu(self, data):
         entitiesMenu = QMenu('Entités', self)
@@ -187,9 +214,25 @@ class SGToolBar(NavigationToolbar):
                            checkbox.isChecked()]
         return selected_option
 
+    def onCmbRoundActivated(self):
+        print("test")
+        try:
+            if self.start_cmb_round and self.end_cmb_round and self.start_cmb_round.currentText() and self.end_cmb_round.currentText():
+                min_round_selected = int(re.search(r'\d+', self.start_cmb_round.currentText()).group())
+                max_round_selected = int(re.search(r'\d+', self.end_cmb_round.currentText()).group())
+                if min_round_selected < max_round_selected:
+                    self.roundMax = max_round_selected
+                    self.roundMin = min_round_selected
+        except ValueError:
+            print("Erreur de conversion")
+        except Exception as e:
+            print("Erreur survenue :", e)
+
+
 
     def update_plot(self):
         self.update_data()
+
         selected_option_list = self.get_checkbox_display_menu_selected()
         if self.typeDiagram == 'plot':
             self.plot_linear_typeDiagram(self.dataEntities, selected_option_list)
@@ -450,7 +493,6 @@ class SGToolBar(NavigationToolbar):
         self.ax.set_title(self.title)
         self.canvas.draw()
 
-
     def set_combobox_2_items(self):
         #if self.typeDiagram not in ['pie', 'hist']:
         self.data_2_combobox.clear()
@@ -458,6 +500,22 @@ class SGToolBar(NavigationToolbar):
             self.data_2_combobox.addItem(display_text)
         for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
             self.data_2_combobox.setItemData(index, key)
+
+    def load_cmb_per_rounds_data(self):
+        self.start_cmb_round.setEnabled(True)
+        self.end_cmb_round.setEnabled(True)
+        self.add_button.setEnabled(True)
+        if self.typeDiagram in ['plot']:
+            self.combobox_per_rounds_data = {'Round ' + str(i): i for i in range(0, self.nbRounds + 1)}
+            #selected_text = self.data_2_combobox.currentText()
+            self.start_cmb_round.clear()
+            self.end_cmb_round.clear()
+            for display_text in self.combobox_per_rounds_data:
+                self.start_cmb_round.addItem(display_text)
+                self.end_cmb_round.addItem(display_text)
+            for index, (display_text, key) in enumerate(self.combobox_per_rounds_data.items()):
+                self.end_cmb_round.setItemData(index, key)
+                self.start_cmb_round.setItemData(index, key)
 
     """def set_checkbox_values(self):
         self.checKbox_indicators = {}
@@ -518,9 +576,6 @@ class SGToolBar(NavigationToolbar):
     def refresh_data(self):
         self.is_refresh = True
         selected_option = self.get_checkbox_display_menu_selected()
-        print("previous_selected_checkboxes :: ", self.previous_selected_checkboxes)
-        print("selected_option :: ", selected_option)
-        #self.previous_selected_checkboxes = []
         self.update_plot()
 
     def update_data(self):
@@ -535,21 +590,38 @@ class SGToolBar(NavigationToolbar):
         # self.phases = {entry['phase'] for entry in data if  entry['phase'] == max_round}
         self.setXValueData(self.dataEntities)
 
+
+
     def setXValueData(self, data):
         option = self.get_combobox2_selected_key()
-
         # Option d'affichage par tour ou par Steps !!!!
         # self.optionRoundorSteps = 'by steps' 
         self.optionRoundorSteps = 'by rounds' 
 
-    
         rounds = {entry['round'] for entry in data}
+        phases = {entry['phase'] for entry in data}
         self.nbRounds = max({entry['round'] for entry in data})
         self.nbPhases = len(self.model.timeManager.phases) -1 #be careful. should be changed wjhen merged with main branch
         self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
-        phases = {entry['phase'] for entry in data}
-        #self.dataEntities = list_data
+        if option == '2':
+            self.load_cmb_per_rounds_data()
+            if self.roundMax!=0:
+                self.nbRounds = self.roundMax - self.roundMin
+                self.nbRoundsWithLastPhase = self.roundMax - self.roundMin
+                rounds = {entry['round'] for entry in data if entry['round']>= self.roundMin and entry['round']<=self.roundMax}
+                aStep = self.roundMin
+                self.xValue = []
+                for aR in range(self.roundMin, self.roundMax):
+                    for aP in range(self.nbPhases):
+                        aStep += 1
+                        self.xValue.append(aStep)
+                if self.phaseOfLastRound != self.nbPhases:
+                    for aP in range(self.phaseOfLastRound):
+                        aStep += 1
+                        self.xValue.append(aStep)
+                self.start_cmb_round.setCurrentText(f"Round {self.roundMin}")
+                self.end_cmb_round.setCurrentText(f"Round {self.roundMax}")
         if option == '1':
             max_round = max(rounds)
             self.rounds = [max_round]
@@ -588,5 +660,3 @@ class SGToolBar(NavigationToolbar):
                 for aP in range(self.phaseOfLastRound):
                     aStep += 1
                     self.xValue.append(aStep)
-
-
