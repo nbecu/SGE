@@ -40,9 +40,9 @@ class SGToolBar(NavigationToolbar):
             self.add_button.clicked.connect(self.update_plot)
             self.addWidget(self.add_button)
             self.addSeparator()
-        self.start_cmb_round.setEnabled(False)
-        self.end_cmb_round.setEnabled(False)
-        self.add_button.setEnabled(False)
+            self.start_cmb_round.setEnabled(False)
+            self.end_cmb_round.setEnabled(False)
+            self.add_button.setEnabled(False)
 
 
         self.roundMin = 0
@@ -595,8 +595,8 @@ class SGToolBar(NavigationToolbar):
     def setXValueData(self, data):
         option = self.get_combobox2_selected_key()
         # Option d'affichage par tour ou par Steps !!!!
-        # self.optionRoundorSteps = 'by steps' 
-        self.optionRoundorSteps = 'by rounds' 
+        self.optionRoundorSteps = 'by steps'
+        #self.optionRoundorSteps = 'by rounds'
 
         rounds = {entry['round'] for entry in data}
         phases = {entry['phase'] for entry in data}
