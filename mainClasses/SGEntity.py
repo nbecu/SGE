@@ -81,10 +81,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         x = random.randint(1,maxSize-1)
         return x
 
-    def updateMqtt(self):
-        if self.model.mqttMajType == "Instantaneous":
-            self.model.publishEntitiesState()
-
     def getObjectIdentiferForJsonDumps(self):
         dict ={}
         dict['entityName']=self.classDef.entityName
@@ -125,6 +121,5 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
         self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.updateMqtt()
         self.update()
         return True

@@ -240,7 +240,6 @@ class SGAgent(SGEntity):
             if aLegendItem.type == 'delete' :
                 if authorisation : 
                     self.classDef.deleteEntity(self)
-                    self.updateMqtt() # Check if we need to updateMqtt here
 
             #The  change value on agent
             elif aLegendItem.isSymbolOnAgent() :
@@ -326,7 +325,6 @@ class SGAgent(SGEntity):
             self.cell.updateDepartureAgent(self)
             theAgent= self.copyOfAgentAtCoord(aDestinationCell)
             self.deleteLater()
-        self.updateMqtt()
         return theAgent
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):

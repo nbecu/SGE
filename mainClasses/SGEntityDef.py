@@ -429,7 +429,6 @@ class SGAgentDef(SGEntityDef):
         self.entities.append(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aAgent.updateMqtt()
         aAgent.show()
         return aAgent
 
@@ -526,7 +525,6 @@ class SGAgentDef(SGEntityDef):
         self.entities.remove(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aAgent.updateMqtt()
 
 
 class SGCellDef(SGEntityDef):
@@ -597,7 +595,6 @@ class SGCellDef(SGEntityDef):
         self.entities.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aCell.updateMqtt()
         aCell.update()
 
     def reviveThisCell(self, aCell):
@@ -606,6 +603,5 @@ class SGCellDef(SGEntityDef):
         self.deletedCells.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aCell.updateMqtt()
         aCell.update()
         
