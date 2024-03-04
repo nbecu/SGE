@@ -53,6 +53,16 @@ SQLAlchemy        2.0.3
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)
 
+## syntax code of modeler side methods
+- new     create a new entity (ex. newAgentAtCoords(), newAgentSpecies), or create a new game element (ex. newGamePhase())
+- get    collect entities, objects or instances
+- nb     to obtain the number of entities, objects or instances
+- set    to set a value        (ex. setEntities_withColumn(), setDefaultValues())
+- is     to do a test (returns True or false)   (ex. isDeleted())
+- delete	to delete entities from the simulation (ex. deleteAllAgents())
+
+- do_     perform an action on an entity
+
 ## Context
 SGE is developped under the supervision of [LIENSs](https://lienss.univ-larochelle.fr/) Laboratory (La Rochelle University, France) within different research projects. 
 SGE answer to an academic need in serious game to have simplier ways to create serious games.

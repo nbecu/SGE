@@ -146,7 +146,7 @@ class SGGrid(SGGameSpace):
 # Definiton of the methods who the modeler will use
 
     # Return all the cells
-    def getCells(self):
+    def getCells(self):  #--> To be DELETED?
         return self.model.getCells(self)
 
     # Return the cell
@@ -160,7 +160,7 @@ class SGGrid(SGGameSpace):
     def getCell_withCoords(self,x,y):
         return self.getCell_withId(self.cellIdFromCoords(x,y))
 
-    def getFirstCell(self):
+    def getFirstCell(self):  #--> To be DELETED?
         return self.getCell_withId("cell1-1")
 
 
@@ -183,7 +183,7 @@ class SGGrid(SGGameSpace):
         """
         return [ cell for cell in self.model.getCells(self) if cell.yPos== rowNumber]
 
-    def cellsDo(self, aLambdaFunction):
+    def cellsDo(self, aLambdaFunction):  #--> To be DELETED?
         for aCell in self.getCells():
             aCell.doAction(aLambdaFunction)
 

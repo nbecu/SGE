@@ -406,10 +406,10 @@ class SGAgent(SGEntity):
         speciesNeighbors=self.sortBySpecies(aSpecies,neighbors)
         return speciesNeighbors
     
-    def getNeighborAgentsNumber(self,rule='moore'):
+    def getNeighborAgentsNumber(self,rule='moore'):  #--> To be RENAMED?   nb_  
         return len(self.getNeighborAgents(rule))
-    
-    def getNeighborAgentsBySpeciesNumber(self,aSpecies,rule='moore'):
+
+    def getNeighborAgentsBySpeciesNumber(self,aSpecies,rule='moore'): #--> To be RENAMED? nb_
         return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
 
     def getNeighborsN(self):

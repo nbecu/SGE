@@ -109,10 +109,10 @@ class SGModel(QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
-        self.mqtt=False
+        self.mqtt=False #--> TO BE DELETED?
         self.mqttMajType=None
 
-        self.dictAgentsAtMAJ={}
+        self.dictAgentsAtMAJ={} #--> TO BE DELETED?
         self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
 
@@ -184,7 +184,7 @@ class SGModel(QMainWindow):
         for aDashBoard in dashboards:
             aDashBoard.showIndicators()
     
-    # Create the menu of the menue
+    # Create the menu of the menu
     def createMenu(self):
         aAction = QAction(QIcon("./icon/play.png"), " &play", self)
         aAction.triggered.connect(self.nextTurn)
@@ -214,7 +214,7 @@ class SGModel(QMainWindow):
 
     # Create all the action related to the menu
 
-    def createAction(self):
+    def createAction(self): #--> To be DELETED?
         self.save = QAction(QIcon("./icon/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
@@ -577,7 +577,7 @@ class SGModel(QMainWindow):
         self.users.append(player.name)
         return player
 
-    def getPlayerObject(self, playerName):
+    def getPlayerObject(self, playerName): # TO BE RENAMED?
         if playerName == "Admin":
             return playerName
         else:
@@ -847,20 +847,20 @@ class SGModel(QMainWindow):
             aListOfSubmenuItems[0].setChecked(True)
 
     # To get the list of Agent POV
-    def getAgentPOVs(self):
+    def getAgentPOVs(self): #--> To be DELETED?
         list_POV = {}
         for specieName, agentDef in self.agentSpecies.items():
             list_POV[specieName]= agentDef.povShapeColor
         return list_POV
 
-    def getPovWithAttribut(self, attribut):
+    def getPovWithAttribut(self, attribut):  #--> To be DELETED?
         for aGrid in self.getGrids():
             for aPov in self.cellOfGrids[aGrid.id]["ColorPOV"]:
                 for anAttribut in self.cellOfGrids[aGrid.id]["ColorPOV"][aPov].keys():
                     if attribut == anAttribut:
                         return aPov
 
-    def getBorderPovWithAttribut(self, attribut):
+    def getBorderPovWithAttribut(self, attribut):  #--> To be DELETED?
         for aGrid in self.getGrids():
             for aBorderPov in self.cellOfGrids[aGrid.id]["BorderPOV"]:
                 for anAttribut in self.cellOfGrids[aGrid.id]["BorderPOV"][aBorderPov].keys():
@@ -1018,7 +1018,7 @@ class SGModel(QMainWindow):
         return aList
 
     # Function that process the message
-    def handleMessageMainThread(self,msg_list):
+    def handleMessageMainThread(self,msg_list): # --> TO BE DELETED?
         processedMajs=set()
         # CELL MANAGEMENT
         gridNumber=0
@@ -1137,21 +1137,21 @@ class SGModel(QMainWindow):
                         self.processBrokerMsg_nextTrun(unserializedMsg)
                 return
             msg_list = eval(msg_decoded)
-            if msg_list[0][0] != self.clientId: #This test should be unnecessary now
+            if msg_list[0][0] != self.clientId: #This test should be unnecessary now --> TO BE DELETED?
                 self.deleteAllAgents()
                 self.handleMessageMainThread(msg_list)
             else:
                 print("Own update, no action required.")   
 
         self.connect_mqtt()
-        self.mqtt=True
+        self.mqtt=True #--> TO BE DELETED?
 
-        self.client.subscribe("Gamestates")
+        self.client.subscribe("Gamestates") #--> TO BE DELETED?
         self.client.subscribe("gameAction_performed")
         self.client.subscribe("nextTurn")
         self.client.subscribe("execute_method")
         self.client.on_message = on_message
-        self.listOfSubChannel.append("Gamestates")
+        self.listOfSubChannel.append("Gamestates") #--> TO BE DELETED?
         
     def buildNextTurnMsgAndPublishToBroker(self):
         msgTopic = 'nextTurn'
@@ -1251,7 +1251,7 @@ class SGModel(QMainWindow):
         #      })
 
     # Send a message
-    def submitMessage(self):
+    def submitMessage(self):   #--> TO BE DELETED?
         print(self.currentPlayer+" send a message")
             
 
@@ -1335,7 +1335,7 @@ class SGModel(QMainWindow):
     def onMAJTimer(self):
         self.executeGameActionsAfterBrokerMsg()
         
-    def updateAgentsAtMAJ(self):
+    def updateAgentsAtMAJ(self):  #--> TO BE DELETED?
         for j in self.dictAgentsAtMAJ.keys():
             newAgent=self.newAgent_ADMINONLY(self.dictAgentsAtMAJ[j][0],self.dictAgentsAtMAJ[j][1],self.dictAgentsAtMAJ[j][2],self.dictAgentsAtMAJ[j][3],self.dictAgentsAtMAJ[j][4],self.dictAgentsAtMAJ[j][5])
             newAgent.cell.updateIncomingAgent(newAgent)
@@ -1355,7 +1355,7 @@ class SGModel(QMainWindow):
         self.actionsFromBrokerToBeExecuted=[]
     
 
-    def updateScoreAtMAJ(self):
+    def updateScoreAtMAJ(self):  #--> TO BE DELETED?
         for aGameSpace in self.gameSpaces:
             if isinstance(aGameSpace,SGDashBoard):
                 for aIndicator in aGameSpace.indicators:

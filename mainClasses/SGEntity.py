@@ -108,7 +108,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
 
     #To handle the attributs and values
-    def setValue(self,aAttribut,aValue):
+    def setValue(self,aAttribut,aValue): #--> TO BE DELETED?
         """
         Sets the value of an attribut
         Args:

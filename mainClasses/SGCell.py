@@ -188,7 +188,7 @@ class SGCell(SGEntity):
             return self.getAgentsOfSpecie(specie)
         return  self.agents[:]
     
-    def nbAgents(self,specie=None):
+    def nbAgents(self,specie=None):  #--> To be RENAMED? numberOf
         if specie != None:
             listAgts = self.getAgentsOfSpecie(specie)
         else: listAgts = self.getAgents()
