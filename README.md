@@ -12,8 +12,7 @@ SGE is unique from other pre-existent simulation tools: it implements the notion
 
 SGE is like a puzzle, all the pieces are already here, you just need to give it order and custom to create your ideas.
 
-(need to add screenshots)
-
+![image](https://github.com/nbecu/SGE/assets/119414220/888f6d78-5434-4b70-8969-0b1e971a4b8e)
 
 ## Folder hierarchy
 - Examples
