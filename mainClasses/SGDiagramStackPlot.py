@@ -6,7 +6,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget
 from PyQt5.QtCore import pyqtSignal
 
-from mainClasses.layout.SGToolBar import SGToolBar
+from mainClasses.SGDiagramController import SGDiagramController
 
 
 class SGDiagramStackPlot(QMainWindow):
@@ -23,7 +23,7 @@ class SGDiagramStackPlot(QMainWindow):
         self.layout = QVBoxLayout(self.central_widget)
         self.figure, self.ax = plt.subplots()
         self.canvas = FigureCanvas(self.figure)
-        self.toolbar = SGToolBar(self.canvas, self, parent, 'stackplot')
+        self.toolbar = SGDiagramController(self.canvas, self, parent, 'stackplot')
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()

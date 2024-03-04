@@ -9,7 +9,7 @@ from mainClasses.SGDiagramCircular import SGDiagramCircular
 from mainClasses.SGDiagramLinear import SGDiagramLinear
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGWindowsGraph import SGWindowsGraph
-from mainClasses.layout.SGToolBar import SGToolBar
+from mainClasses.SGDiagramController import SGDiagramController
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
@@ -26,7 +26,6 @@ from mainClasses.SGEndGameRule import*
 from mainClasses.SGEntity import*
 from mainClasses.SGEntityDef import*
 from mainClasses.SGGrid import*
-from mainClasses.SGWindowChooseGraph import *
 from mainClasses.SGLegend import*
 from mainClasses.SGModelAction import*
 from mainClasses.SGPlayer import*
@@ -217,10 +216,6 @@ class SGModel(QMainWindow):
 
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
-        """aAction = QAction(QIcon("./icon/graph.png"), " &openChooseGraph", self)
-        aAction.triggered.connect(self.openChooseGraph)
-        self.menuBar().addAction(aAction)"""
-
         self.createGraphMenu()
 
 
@@ -296,11 +291,7 @@ class SGModel(QMainWindow):
         #SGWindowsGraph(self).action_circular_diagram()
 
     def openOtherDiagram(self):
-        SGWindowChooseGraph(self).show()
-
-    def openChooseGraph(self):
-        """IN TEST"""
-        SGWindowChooseGraph(self).show()
+        print("WITH CSV OPTION")
 
     def openFromSave(self):
         """To be implemented"""

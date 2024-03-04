@@ -11,55 +11,11 @@ from mainClasses.SGPlayer import*
 from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTimeManager import*
 
-from mainClasses.SGDiagramTest import *
-
-
 
 class SGTestGetData():
     def __init__(self, model):
         self.model = model
 
-    def view_diagram(self):
-        print("test")
-        self.view_diagram_test()
-
-    def view_diagram_test(self):
-        data = self.getAllDataSinceInitialization()
-        # list_phasePERround = []
-        phases = set(entry['phase'] for entry in data)
-        rounds = set(entry['round'] for entry in data)
-        cell_data_test = []
-        agent_data_test = []
-        xValue = []
-        for round_value in list(rounds):
-            for phase_value in phases:
-                xValue.append(round_value * len(phases) + phase_value)
-                # print("round : {} , phase_value : {} : ".format(round_value, phase_value))
-            cell_data_counts2 = [sum(1 for entry in data if
-                                     entry['round'] == round_value and entry['phase'] == phase and entry[
-                                         'entityDef'] == 'Cell') for phase in phases]
-            cell_data_test = cell_data_test + cell_data_counts2
-
-            agent_data_count2 = [sum(1 for entry in data if
-                                     entry['round'] == round_value and entry['phase'] == phase and entry[
-                                         'entityDef'] == 'Agent') for phase in phases]
-            agent_data_test = agent_data_test + agent_data_count2
-
-        cell_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Cell') for
-                            phase in
-                            phases]
-        agent_data_counts = [sum(1 for entry in data if entry['phase'] == phase and entry['entityDef'] == 'Agent') for
-                             phase
-                             in phases]
-
-        # xValue = list(phases)
-        # xValue = np.arange(1, 121)
-        cell_data = list(cell_data_counts)
-        agent_data = list(agent_data_counts)
-        sgdiagramtest = SGDiagramTest(xValue=xValue, cell_data=cell_data_test, agent_data=agent_data_test)
-        sgdiagramtest.update_data()
-        #sgdiagramtest.update()
-        #window.show()
 
     def getAllDataSinceInitialization(self):
         dictOfData ={}

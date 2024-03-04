@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt
 import re
 
 
-class SGToolBar(NavigationToolbar):
+class SGDiagramController(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
 
@@ -23,7 +23,7 @@ class SGToolBar(NavigationToolbar):
         self.addWidget(button)
     
 
-        if self.typeDiagram in ['plot']:
+        if self.typeDiagram in ['plot', 'stackplot']:
             self.addSeparator()
             self.start_label = QLabel('Tour Min:')
             self.start_cmb_round = QComboBox(parent)
@@ -43,6 +43,11 @@ class SGToolBar(NavigationToolbar):
             self.start_cmb_round.setEnabled(False)
             self.end_cmb_round.setEnabled(False)
             self.add_button.setEnabled(False)
+            self.combobox_2_data = {'Tous les tours': '0', 'Intervalle de tours': '2',
+                                    'Tous les phases': '3'}
+            self.data_2_combobox = QComboBox(parent)
+            self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
+            self.addWidget(self.data_2_combobox)
 
 
         self.roundMin = 0
@@ -54,13 +59,7 @@ class SGToolBar(NavigationToolbar):
         self.ax = parent.ax
         self.model = model
         self.title = 'SG Diagramme'
-        self.combobox_2_data = {'Tous les tours': '0', 'Dernieres Tours': '1', 'Autres': '2'}
-        if self.typeDiagram in ['pie', 'hist']:
-            self.combobox_2_data = {'Dernieres Tours': '1'}
 
-        self.data_2_combobox = QComboBox(parent)
-        self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
-        self.addWidget(self.data_2_combobox)
 
         self.display_indicators_menu = QMenu("Indicators", self)
         self.checKbox_indicators_data = ["type", "Attribut", "Max", "Mean", "Min", "St Dev"]
@@ -143,7 +142,6 @@ class SGToolBar(NavigationToolbar):
 
             #self.addSubMenus(playersMenu, self.dictMenuData['players'])
         else:
-            attrib_data = []
             entities_list = {entry['entityName'] for entry in data if 'entityName' in entry and isinstance(entry['quantiAttributes'], dict)
                              and entry['quantiAttributes'].keys() and not isinstance(entry['entityName'], dict)}
             if not self.firstEntity:
@@ -151,7 +149,6 @@ class SGToolBar(NavigationToolbar):
 
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
-                #attrib_dict[f"entity-:{entity_name}-:population"] = None
                 parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['plot', 'hist'] else 'qualiAttributes'
                 list_attribut_key = {attribut for entry in data for attribut in entry.get(parentAttributKey, {}) if
                                      entry.get('entityName') == entity_name and isinstance(entry[parentAttributKey][attribut], dict)}
@@ -190,32 +187,38 @@ class SGToolBar(NavigationToolbar):
                 parentMenu.addAction(action)
 
     def set_checkbox_action(self, key, parentMenu, firstEntity, firstAttribut):
+        self.previous_selected_checkboxes = []
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
                          checkable=True)
-        if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
+        if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
             action.setChecked(True)
             if self.typeDiagram in ['pie', 'hist', 'stackplot']:
-                self.previous_selected_checkboxes = []
                 self.previous_selected_checkboxes.append(key)
         action.setProperty("key", key)
-        action.triggered.connect(self.update_plot)
+        action.triggered.connect(self.update_plot_from_checked_action)
         parentMenu.addAction(action)
         return action
 
-
-    def get_checkbox_display_menu_selected(self):
-        if not self.is_refresh and self.typeDiagram in ['pie', 'hist', 'stackplot']:
+    # update plot after checked option
+    def update_plot_from_checked_action(self):
+        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+            selected_option = self.on_toggle_checked_option()
             for option, checkbox in self.checkbox_display_menu_data.items():
-                if option in self.previous_selected_checkboxes:
-                    checkbox.setChecked(False)
-                else:
-                    checkbox.setChecked(True)
-        selected_option = [option for option, checkbox in self.checkbox_display_menu_data.items() if
-                           checkbox.isChecked()]
-        return selected_option
+                checkbox.setChecked(option in selected_option)
+            self.checkbox_display_menu_data.update()
+        self.update_plot()
+
+    # toggle value between previous and current option selected
+    def on_toggle_checked_option(self):
+        for option, checkbox in self.checkbox_display_menu_data.items():
+           checkbox.setChecked(option not in self.previous_selected_checkboxes)
+        return [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
+
+    # get checkbox selected
+    def get_checkbox_display_menu_selected(self):
+        return [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
 
     def onCmbRoundActivated(self):
-        print("test")
         try:
             if self.start_cmb_round and self.end_cmb_round and self.start_cmb_round.currentText() and self.end_cmb_round.currentText():
                 min_round_selected = int(re.search(r'\d+', self.start_cmb_round.currentText()).group())
@@ -228,11 +231,8 @@ class SGToolBar(NavigationToolbar):
         except Exception as e:
             print("Erreur survenue :", e)
 
-
-
     def update_plot(self):
         self.update_data()
-
         selected_option_list = self.get_checkbox_display_menu_selected()
         if self.typeDiagram == 'plot':
             self.plot_linear_typeDiagram(self.dataEntities, selected_option_list)
@@ -243,10 +243,8 @@ class SGToolBar(NavigationToolbar):
         elif self.typeDiagram == 'stackplot':
             self.plot_stackplot_typeDiagram(self.dataEntities, selected_option_list)
         # for pie diagram
-        if not self.is_refresh:
-            self.previous_selected_checkboxes = list(set(
-                    option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
-        self.is_refresh = False
+        self.previous_selected_checkboxes = list(set(
+            option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
 
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
         list_data = []
@@ -276,14 +274,15 @@ class SGToolBar(NavigationToolbar):
                 if key not in formatted_data:
                     formatted_data[key] = []
                 formatted_data[key].append(value)
-
         lengths = {key: len(value) for key, value in formatted_data.items()}
-        max_length = max(lengths.values())
-        for key, length in lengths.items():
-            if length < max_length:
-                difference = max_length - length
-                formatted_data[key] = [0] * difference + formatted_data[key]
-        self.ax.stackplot(self.xValue, list(formatted_data.values()), labels=list(formatted_data.keys()))
+        if lengths and len(lengths.values())>0:
+            max_length = max(lengths.values())
+            for key, length in lengths.items():
+                if length < max_length:
+                    difference = max_length - length
+                    formatted_data[key] = [0] * difference + formatted_data[key]
+            self.ax.stackplot(self.xValue, list(formatted_data.values()), labels=list(formatted_data.keys()))
+
         self.ax.legend()
         self.ax.set_xlabel("Rounds")
         self.ax.set_ylabel("Valeurs")
@@ -307,18 +306,14 @@ class SGToolBar(NavigationToolbar):
                       for entry in data if entry['entityName']==entity_name  and 'quantiAttributes' in entry \
                            and attribut_value in entry['quantiAttributes'] and 'histo' in \
                             entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds)}
-                #print("histo_y :: ", histo_y)
                 list_data.append(histo_y)
 
         for h in list_data:
             h_abcis = list(h.values())[0][1][:-1]
             h_height = list(h.values())[0][0]
             label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys()))>0 else ''
-            #print("h_abcis : ", h_abcis)
-            #print("h_height : ", h_height)
             self.ax.bar(h_abcis, h_height, width=5, label=label)
         self.ax.legend()
-        #print("title", self.title)
         self.title = "Analyse de la fréquence des {} des {}".format(attribut_value, " et ".join(entity_name_list))
         self.ax.set_title(self.title)
         self.ax.set_xlabel('Valeurs')
@@ -349,17 +344,10 @@ class SGToolBar(NavigationToolbar):
         self.ax.clear()
         pos = 0
         has_simvariables = any(item.startswith('simvariables-:') for item in selected_option_list)
-
         if len(selected_option_list)>0 and "-:" in selected_option_list[0]:
             self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
         if has_simvariables:
             self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
-        """
-            elif variable == 'simVariable':
-                self.plot_linear_typeDiagram_for_simVariable(data, selected_option_list, pos)
-            elif variable == 'currentPlayer':
-                self.plot_linear_typeDiagram_for_players(data, selected_option_list, pos)"""
-        #pos += 1
 
     def plot_linear_typeDiagram_for_simVariable(self, dataSimVariables, selected_option_list, pos):
         list_simVariables = [item.split("-:")[1] for item in selected_option_list if item.startswith('simvariables-:') and item.split("-:") and len(item.split("-:"))>0]
@@ -374,6 +362,9 @@ class SGToolBar(NavigationToolbar):
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
+
+        option = self.get_combobox2_selected_key()
+        # Option d'affichage par tour ou par Steps !!!!
         pos=0
         list_entity_name = []
         list_attribut_key = []
@@ -386,23 +377,7 @@ class SGToolBar(NavigationToolbar):
                     list_entity_name.append(entityName)
                     label_pop = f"Populations : {entityName}"
                     key = list_option[-1] if list_option[-1] else None
-                    data_populations = []; data_indicators = []; data_min=[]; data_max=[]; data_mean=[]; data_stdev=[] ; data_sum=[]
-                    # for r in self.rounds:
-                    #     if key == 'population':
-                    #         y = [sum(entry['population'] for entry in data if entry['round'] == r
-                    #                  and entry['entityName'] == entityName)]
-                    #         data_populations.append(y)
-                    #     else:
-                    #         if key and key in self.indicators_item:
-                    #             attribut_key = list_option[2]
-                    #             list_attribut_key.append(attribut_key)
-                                    
-                    #             y_indicators = [sum(entry['quantiAttributes'][attribut_key][key] for entry in data if
-                                #   ATTENTION : -->il ne faut pas faire la sum des valeurs phases
-
-                    #                          entry['round'] == r and entry['entityName'] == entityName and
-                    #                          list_option[-1] in entry['quantiAttributes'][attribut_key])]
-                    #             data_indicators.append(y_indicators)
+                    data_populations = []; data_indicators = [];
 
                     if self.optionRoundorSteps == 'by rounds' or (self.optionRoundorSteps == 'by steps' and self.nbPhases == 1):
                         for r in range(self.nbRoundsWithLastPhase+1):
@@ -420,7 +395,7 @@ class SGToolBar(NavigationToolbar):
 
                     else: #Case --> 'by steps'
                         #1/ get the first step (round 0, phase 0)
-                        aEntry = [entry for entry in data if entry['entityName'] == entityName and entry['round'] == 0 and entry['phase'] == 0][-1]                 
+                        aEntry = [entry for entry in data if entry['entityName'] == entityName and entry['round'] == 0 and entry['phase'] == 0][-1]
                         if key == 'population':
                             y = aEntry['population']
                             data_populations.append(y)
@@ -428,12 +403,12 @@ class SGToolBar(NavigationToolbar):
                             if key and key in self.indicators_item:
                                 attribut_key = list_option[2]
                                 list_attribut_key.append(attribut_key)
-                                y_indicators = aEntry['quantiAttributes'][attribut_key][key] 
+                                y_indicators = aEntry['quantiAttributes'][attribut_key][key]
                                 data_indicators.append(y_indicators)
                         #2/ get all the phases from all the rounds that have been completed
                         for aR in range(self.nbRoundsWithLastPhase):
                             for aP in range(self.nbPhases):
-                                aEntry = [entry for entry in data if entry['entityName'] == entityName and entry['round'] == (aR+1) and entry['phase'] == (aP+1)][-1]                 
+                                aEntry = [entry for entry in data if entry['entityName'] == entityName and entry['round'] == (aR+1) and entry['phase'] == (aP+1)][-1]
                                 if key == 'population':
                                     y = aEntry['population']
                                     data_populations.append(y)
@@ -441,7 +416,7 @@ class SGToolBar(NavigationToolbar):
                                     if key and key in self.indicators_item:
                                         attribut_key = list_option[2]
                                         list_attribut_key.append(attribut_key)
-                                        y_indicators = aEntry['quantiAttributes'][attribut_key][key] 
+                                        y_indicators = aEntry['quantiAttributes'][attribut_key][key]
                                         data_indicators.append(y_indicators)
                         #3/ in case the last round has not been completed, get the phases from this last round
                         if self.phaseOfLastRound != self.nbPhases:
@@ -454,7 +429,7 @@ class SGToolBar(NavigationToolbar):
                                     if key and key in self.indicators_item:
                                         attribut_key = list_option[2]
                                         list_attribut_key.append(attribut_key)
-                                        y_indicators = aEntry['quantiAttributes'][attribut_key][key] 
+                                        y_indicators = aEntry['quantiAttributes'][attribut_key][key]
                                         data_indicators.append(y_indicators)
 
                     if len(data_populations)>0:
@@ -477,7 +452,14 @@ class SGToolBar(NavigationToolbar):
             self.ax.plot(xValue * len(data), data, label=label, color=color, marker='o', linestyle='None')
         else:
             self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
-
+            if self.nbPhases>2:
+                round_lab=1
+                for rnd in range(len(xValue)):
+                    if xValue[rnd] % self.nbPhases == 0:
+                        self.ax.axvline(rnd, color='r', ls=':')
+                        self.ax.text(rnd, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
+                                     transform=self.ax.get_xaxis_transform())
+                        round_lab +=1
 
     def plot_linear_typeDiagram_for_players(self, data, list_option, pos):
         if list_option[:1] == ['currentPlayer']:
@@ -495,17 +477,18 @@ class SGToolBar(NavigationToolbar):
 
     def set_combobox_2_items(self):
         #if self.typeDiagram not in ['pie', 'hist']:
-        self.data_2_combobox.clear()
-        for display_text in self.combobox_2_data:
-            self.data_2_combobox.addItem(display_text)
-        for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
-            self.data_2_combobox.setItemData(index, key)
+        if self.typeDiagram in ['plot', 'stackplot']:
+            self.data_2_combobox.clear()
+            for display_text in self.combobox_2_data:
+                self.data_2_combobox.addItem(display_text)
+            for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
+                self.data_2_combobox.setItemData(index, key)
 
     def load_cmb_per_rounds_data(self):
         self.start_cmb_round.setEnabled(True)
         self.end_cmb_round.setEnabled(True)
         self.add_button.setEnabled(True)
-        if self.typeDiagram in ['plot']:
+        if self.typeDiagram in ['plot', 'stackplot']:
             self.combobox_per_rounds_data = {'Round ' + str(i): i for i in range(0, self.nbRounds + 1)}
             #selected_text = self.data_2_combobox.currentText()
             self.start_cmb_round.clear()
@@ -517,34 +500,18 @@ class SGToolBar(NavigationToolbar):
                 self.end_cmb_round.setItemData(index, key)
                 self.start_cmb_round.setItemData(index, key)
 
-    """def set_checkbox_values(self):
-        self.checKbox_indicators = {}
-        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
-            self.checKbox_indicators_data = ["type", "Attribut"]
-        for option in self.checKbox_indicators_data:
-            action = QAction(option, self, checkable=True)
-            action.setChecked(True)
-            action.triggered.connect(self.update_plot)
-            self.display_indicators_menu.addAction(action)
-            self.checKbox_indicators[option] = action
-        self.addAction(self.display_indicators_menu.menuAction())
-        self.addSeparator()"""
-
     def get_combobox2_selected_key(self):
-        if self.data_2_combobox:
+        if self.typeDiagram in ['plot', 'stackplot'] and self.data_2_combobox:
             selected_text = self.data_2_combobox.currentText()
             for key, value in self.combobox_2_data.items():
                 if key == selected_text:
                     return value
         return None
 
-    """def get_checkbox_indicators_selected(self):
-        selected_indicators = [option for option, checkbox in self.checKbox_indicators.items() if checkbox.isChecked()]
-        return selected_indicators"""
-
     def set_data(self):
         self.update_data()
         self.set_combobox_2_items()
+        self.update_plot()
         #self.set_checkbox_values()
 
 
@@ -575,7 +542,6 @@ class SGToolBar(NavigationToolbar):
 
     def refresh_data(self):
         self.is_refresh = True
-        selected_option = self.get_checkbox_display_menu_selected()
         self.update_plot()
 
     def update_data(self):
@@ -595,68 +561,41 @@ class SGToolBar(NavigationToolbar):
     def setXValueData(self, data):
         option = self.get_combobox2_selected_key()
         # Option d'affichage par tour ou par Steps !!!!
-        self.optionRoundorSteps = 'by steps'
-        #self.optionRoundorSteps = 'by rounds'
-
-        rounds = {entry['round'] for entry in data}
-        phases = {entry['phase'] for entry in data}
-        self.nbRounds = max({entry['round'] for entry in data})
+        #self.optionRoundorSteps = 'by steps'
+        self.optionRoundorSteps = 'by rounds'
+        self.xValue = []
+        self.rounds = {entry['round'] for entry in data}
+        self.phases = {entry['phase'] for entry in data}
+        self.nbRounds = max(self.rounds)
         self.nbPhases = len(self.model.timeManager.phases) -1 #be careful. should be changed wjhen merged with main branch
         self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
+        if option == '0':
+            self.xValue.extend(range(1, self.nbRounds * self.nbPhases + 1))
         if option == '2':
             self.load_cmb_per_rounds_data()
-            if self.roundMax!=0:
+            if self.roundMax != 0:
                 self.nbRounds = self.roundMax - self.roundMin
                 self.nbRoundsWithLastPhase = self.roundMax - self.roundMin
-                rounds = {entry['round'] for entry in data if entry['round']>= self.roundMin and entry['round']<=self.roundMax}
                 aStep = self.roundMin
-                self.xValue = []
-                for aR in range(self.roundMin, self.roundMax):
-                    for aP in range(self.nbPhases):
-                        aStep += 1
-                        self.xValue.append(aStep)
-                if self.phaseOfLastRound != self.nbPhases:
-                    for aP in range(self.phaseOfLastRound):
-                        aStep += 1
-                        self.xValue.append(aStep)
                 self.start_cmb_round.setCurrentText(f"Round {self.roundMin}")
                 self.end_cmb_round.setCurrentText(f"Round {self.roundMax}")
-        if option == '1':
-            max_round = max(rounds)
-            self.rounds = [max_round]
-            #list_data = [entry for entry in data if entry['round'] == max(rounds) and entry['phase']>3]
-            #self.dataEntities = list_data
-            #print("list_data : ", list_data)
-            #print("################################################################")
-            #print("data : ", data)
-            self.phases = {entry['phase'] for entry in data if entry['round'] == max_round}
-            self.xValue = self.rounds if len(self.phases) <= 2 else [phase for phase in self.phases]
-            #self.xValue = [p for _ in rounds for p in phases]
-            #print("self.phases :: ", self.phases)
+                self.rounds = {entry['round'] for entry in data if
+                               entry['round'] >= self.roundMin and entry['round'] <= self.roundMax}
+                for aR in range(self.roundMin, self.roundMax):
+                    self.xValue.extend(range(aStep := aR * self.nbPhases + self.roundMin, aStep + self.nbPhases))
+                if self.phaseOfLastRound != self.nbPhases:
+                    self.xValue.extend(range(aStep + 1, aStep + self.phaseOfLastRound + 1))
+
         if self.optionRoundorSteps == 'by rounds' or (self.optionRoundorSteps == 'by steps' and self.nbPhases == 1):
-            if self.phaseOfLastRound == self.nbPhases:
-                self.xValue = list(rounds)
-                self.nbRoundsWithLastPhase = self.nbRounds
-            else:
-                self.nbRoundsWithLastPhase = self.nbRounds -1
-                self.xValue = list(rounds)[:-1]
+            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
 
-        else:  # case where         self.optionRoundorSteps == 'by steps' and self.nbPhases > 1:
-            self.rounds = rounds
-            self.phases = phases
-
-            if self.phaseOfLastRound == self.nbPhases:
-                self.nbRoundsWithLastPhase = self.nbRounds
-            else:
-                self.nbRoundsWithLastPhase = self.nbRounds -1
-            aStep = 0
-            self.xValue =[aStep]     
-            for aR in range(self.nbRoundsWithLastPhase):
-                for aP in range(self.nbPhases):
-                    aStep += 1
-                    self.xValue.append(aStep)
+        if option == '3':
+            # case where         self.optionRoundorSteps == 'by steps' and self.nbPhases > 1:
+            self.optionRoundorSteps = 'by steps'
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
+            self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
             if self.phaseOfLastRound != self.nbPhases:
-                for aP in range(self.phaseOfLastRound):
-                    aStep += 1
-                    self.xValue.append(aStep)
+                self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
+

@@ -10,14 +10,7 @@ from mainClasses.SGDiagramCircular import SGDiagramCircular
 from mainClasses.SGDiagramHistogram import SGDiagramHistogram
 from mainClasses.SGDiagramLinear import SGDiagramLinear
 from mainClasses.SGDiagramStackPlot import SGDiagramStackPlot
-#from mainClasses.SGDiagramTestCirc import SGDiagramTestCirc
-from mainClasses.SGLinearDiagram import SGLinearDiagram
-from mainClasses.SGMultiGraph import SGMultiGraph
-from mainClasses.SGMultiGraphMixte import *
 from mainClasses.SGMultiGraphMultiWindow import SGMultiGraphMultiWindow
-
-from mainClasses.SGLinearDiagramTest import SGLinearDiagramTest
-from mainClasses.SGDiagramTest import SGDiagramTest
 
 
 
@@ -98,15 +91,3 @@ class SGWindowsGraph(QWidget):
     def action_histogram_diagram(self):
         sgDiagramHistogram = SGDiagramHistogram(self.model)
         sgDiagramHistogram.show()
-
-    def action_multi_graph_in_multi_window(self, position):
-        print("multi graph in multi window")
-        #app = SGMultiGraphMultiWindow()
-        SGMultiGraphMultiWindow()
-
-    def action_mixte_in_multi_graph_in_multi_window(self, position):
-        print("mixte in multi graph in multi window")
-        #app = QApplication(sys.argv)
-        #app = SGMultiGraphMixte()
-        SGMultiGraphMixte()
-
