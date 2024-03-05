@@ -188,7 +188,7 @@ class SGCell(SGEntity):
             return self.getAgentsOfSpecie(specie)
         return  self.agents[:]
     
-    def nbAgents(self,specie=None):  #--> To be RENAMED? numberOf
+    def nbAgents(self,specie=None): 
         if specie != None:
             listAgts = self.getAgentsOfSpecie(specie)
         else: listAgts = self.getAgents()
@@ -247,7 +247,3 @@ class SGCell(SGEntity):
         Return:
             a new agent"""
         return aAgentSpecies.newAgentOnCell(self,adictAttributes)
-
-    #To perform action
-    def doAction(self, aLambdaFunction):
-        aLambdaFunction(self)

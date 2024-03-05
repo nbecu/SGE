@@ -32,7 +32,10 @@ Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 Workers = myModel.newAgentSpecies(
-    "Workers", "triangleAgent1", {'harvest':{0}})
+    "Workers", "triangleAgent1", {'harvest':{0},'total harvest':{0}})
+
+Workers.setDefaultValue('harvest',0)
+Workers.setDefaultValue('total harvest',0)
 
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2",defaultColor=Qt.yellow)

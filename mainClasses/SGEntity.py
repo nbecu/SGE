@@ -105,9 +105,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     def isDeleted(self):
         return not self.isDisplay
-
-
-    #To handle the attributs and values
+    
     def setValue(self,aAttribut,aValue): #--> TO BE DELETED?
         """
         Sets the value of an attribut
@@ -121,5 +119,9 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
         self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.update()
+        self.update() #! Instruction required for mqtt
         return True
+    
+    #To perform action
+    def doAction(self, aLambdaFunction):
+        aLambdaFunction(self)

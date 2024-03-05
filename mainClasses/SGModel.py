@@ -109,10 +109,8 @@ class SGModel(QMainWindow):
         self.processedMAJ = set()
         self.timer = QTimer()
         self.haveToBeClose = False
-        self.mqtt=False #--> TO BE DELETED?
         self.mqttMajType=None
 
-        self.dictAgentsAtMAJ={} #--> TO BE DELETED?
         self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
 
@@ -213,32 +211,6 @@ class SGModel(QMainWindow):
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
     # Create all the action related to the menu
-
-    def createAction(self): #--> To be DELETED?
-        self.save = QAction(QIcon("./icon/save.png"), " &save", self)
-        self.save.setShortcut("Ctrl+s")
-        self.save.triggered.connect(self.saveTheGame)
-
-        self.backward = QAction(
-            QIcon("./icon/backwardArrow.png"), " &backward", self)
-        self.backward.triggered.connect(self.backwardAction)
-
-        self.forward = QAction(
-            QIcon("./icon/forwardArrow.png"), " &forward", self)
-        self.forward.triggered.connect(self.forwardAction)
-
-        self.inspect = QAction(
-            QIcon("./icon/inspect.png"), " &inspectAll", self)
-        self.inspect.triggered.connect(self.inspectAll)
-
-        self.extractPng = QAction(" &ToPNG", self)
-        self.extractPng.triggered.connect(self.extractPngFromWidget)
-        self.extractSvg = QAction(" &ToSVG", self)
-        self.extractSvg.triggered.connect(self.extractSvgFromWidget)
-        self.extractHtml = QAction(" &ToHtml", self)
-        self.extractHtml.triggered.connect(self.extractHtmlFromWidget)
-
-        self.changeThePov = QAction(" &default", self)
 
     # Zoom
     
@@ -473,7 +445,7 @@ class SGModel(QMainWindow):
         return targetEntity 
 
     #This method is used by updateServer to retrieve any type of SG object (eg. GameAction or Entity) 
-    def getSGObject_withIdentfier(self, aIdentificationDict):
+    def getSGObject_withIdentifier(self, aIdentificationDict):
         className = aIdentificationDict['entityName']
         aId = aIdentificationDict['id']
         return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
@@ -577,7 +549,7 @@ class SGModel(QMainWindow):
         self.users.append(player.name)
         return player
 
-    def getPlayerObject(self, playerName): # TO BE RENAMED?
+    def getPlayer(self, playerName):
         if playerName == "Admin":
             return playerName
         else:
@@ -846,27 +818,6 @@ class SGModel(QMainWindow):
         for aListOfSubmenuItems in self.symbologiesInSubmenus.values():
             aListOfSubmenuItems[0].setChecked(True)
 
-    # To get the list of Agent POV
-    def getAgentPOVs(self): #--> To be DELETED?
-        list_POV = {}
-        for specieName, agentDef in self.agentSpecies.items():
-            list_POV[specieName]= agentDef.povShapeColor
-        return list_POV
-
-    def getPovWithAttribut(self, attribut):  #--> To be DELETED?
-        for aGrid in self.getGrids():
-            for aPov in self.cellOfGrids[aGrid.id]["ColorPOV"]:
-                for anAttribut in self.cellOfGrids[aGrid.id]["ColorPOV"][aPov].keys():
-                    if attribut == anAttribut:
-                        return aPov
-
-    def getBorderPovWithAttribut(self, attribut):  #--> To be DELETED?
-        for aGrid in self.getGrids():
-            for aBorderPov in self.cellOfGrids[aGrid.id]["BorderPOV"]:
-                for anAttribut in self.cellOfGrids[aGrid.id]["BorderPOV"][aBorderPov].keys():
-                    if attribut == anAttribut:
-                        return aBorderPov
-
     # -----------------------------------------------------------
     # TimeManager functions
 
@@ -1017,59 +968,6 @@ class SGModel(QMainWindow):
             aList.extend(player.gameActions)
         return aList
 
-    # Function that process the message
-    def handleMessageMainThread(self,msg_list): # --> TO BE DELETED?
-        processedMajs=set()
-        # CELL MANAGEMENT
-        gridNumber=0
-        for aGrid in self.getGrids():
-            cellCount=int(msg_list[1][gridNumber])
-            allCells = []
-            for aCell in list(self.getCells(aGrid)):
-                allCells.append(aCell)
-            for i in range(len(msg_list[2:cellCount+1])):
-                allCells[i].isDisplay = msg_list[2+i][0]
-                allCells[i].dictAttributes = msg_list[2+i][1]
-                allCells[i].owner = msg_list[2+i][2]
-            gridNumber+=1
-
-        # AGENT MANAGEMENT
-        nbToStart=sum(msg_list[1])
-        for j in range(len(msg_list[nbToStart+2:-5])):
-            entityName=msg_list[nbToStart+2+j][0]
-            id=msg_list[nbToStart+2+j][1]
-            dictAttributes=msg_list[nbToStart+2+j][2]
-            owner=msg_list[nbToStart+2+j][3]
-            agentX=msg_list[nbToStart+2+j][4]
-            agentY=msg_list[nbToStart+2+j][5]
-            grid=msg_list[nbToStart+2+j][6]
-            theGrid=self.getGrid_withID(grid)
-            aAgtDef=self.getEntityDef(entityName)
-
-            self.dictAgentsAtMAJ[j]=[theGrid,aAgtDef,agentX,agentY,dictAttributes,id]
-        
-        # AGENT SPECIES MEMORY ID
-        agentDef_IDincr=msg_list[-5][0]
-        for entityName, aIDincr in dict(agentDef_IDincr).items():
-            aAgtDef=self.getEntityDef(entityName)
-            aAgtDef.IDincr=aIDincr
-
-        # TIME MANAGEMENT
-        self.timeManager.currentPhaseNumber = msg_list[-4][0]
-        self.timeManager.currentRoundNumber = msg_list[-4][1]
-        if self.myTimeLabel is not None:
-            self.myTimeLabel.updateTimeLabel()
-        if self.timeManager.currentPhaseNumber == 0:
-            # We reset GM
-            for gm in self.getAllGameActions():
-                gm.reset()
-
-        # SIMULATION VARIABLES
-        self.simulationVariablesAtMAJ=msg_list[-3]
-
-        self.update()
-        print("Update processed !")
-
     def getAgentIDFromMessage(self,message,nbCells):
         """
         Get the Agent ID list from an update message
@@ -1136,22 +1034,14 @@ class SGModel(QMainWindow):
                     elif msg.topic == 'nextTurn':
                         self.processBrokerMsg_nextTrun(unserializedMsg)
                 return
-            msg_list = eval(msg_decoded)
-            if msg_list[0][0] != self.clientId: #This test should be unnecessary now --> TO BE DELETED?
-                self.deleteAllAgents()
-                self.handleMessageMainThread(msg_list)
-            else:
-                print("Own update, no action required.")   
+            msg_list = eval(msg_decoded)   
 
         self.connect_mqtt()
-        self.mqtt=True #--> TO BE DELETED?
 
-        self.client.subscribe("Gamestates") #--> TO BE DELETED?
         self.client.subscribe("gameAction_performed")
         self.client.subscribe("nextTurn")
         self.client.subscribe("execute_method")
         self.client.on_message = on_message
-        self.listOfSubChannel.append("Gamestates") #--> TO BE DELETED?
         
     def buildNextTurnMsgAndPublishToBroker(self):
         msgTopic = 'nextTurn'
@@ -1228,14 +1118,14 @@ class SGModel(QMainWindow):
         aIdentificationDict={}
         aIdentificationDict['entityName']=classOfObjectToExe
         aIdentificationDict['id']=idOfObjectToExe 
-        aSGObject = self.getSGObject_withIdentfier(aIdentificationDict)
+        aSGObject = self.getSGObject_withIdentifier(aIdentificationDict)
         
         methodToExe = getattr(aSGObject,methodNameToExe) # this code retrieves the method to be executed and places it in the 'methodToExe' variable. This 'methodToExe' variable can now be used as if it were the method to be executed.
         #retrieve the arguments of the method to be executed
         listOfArgs=[]
         for aArgSpec in msg['listOfArgs']:
             if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
-                aArg=self.getSGObject_withIdentfier(aArgSpec[1])
+                aArg=self.getSGObject_withIdentifier(aArgSpec[1])
             else:
                 aArg= aArgSpec
             listOfArgs.append(aArg)
@@ -1249,97 +1139,9 @@ class SGModel(QMainWindow):
         #     'boundMethod':methodToExe,     # a bound method is a method already associated with the object that will execute it
         #      'listOfArgs':listOfArgs
         #      })
-
-    # Send a message
-    def submitMessage(self):   #--> TO BE DELETED?
-        print(self.currentPlayer+" send a message")
-            
-
-        # First infos : identifiers of the message [clientId,majID,currentPlayer]
-        message = "[['"+self.clientId+"',"
-        message += self.currentPlayer+"'],"
-
-        # Next infos : Cells of the different grids
-        allCells = []
-        listCellsByGrid=[]
-        theAgents = self.getAllAgents()
-        
-        # speciesMemoryIdDict={}
-        
-        for aGrid in self.getGrids():
-            for aCell in list(self.getCells(aGrid)):
-                allCells.append(aCell)
-            listCellsByGrid.append(len(allCells))
-        message = message+str(listCellsByGrid)+","
-        for aNumberOfCells in listCellsByGrid:
-            for i in range(aNumberOfCells):
-                message = message+"["
-                message = message+str(allCells[i].isDisplay)
-                message = message+","
-                message = message+str(allCells[i].dictAttributes)
-                message = message+","
-                message = message+"'"+str(allCells[i].owner)+"'"
-                message = message+"]"
-                if i != aNumberOfCells:
-                    message = message+","
-
-        # Next : Agents
-        for aAgent in theAgents:
-            message = message+"["
-            message = message+"'"+str(aAgent.classDef.entityName)+"'"
-            message = message+","
-            message = message+"'"+str(aAgent.id)+"'"
-            message = message+","
-            message = message+str(aAgent.dictAttributes)
-            message = message+","
-            message = message+"'"+str(aAgent.owner)+"'"
-            message = message+","
-            message = message+"'"+str(aAgent.cell.xPos)+"'"
-            message = message+","
-            message = message+"'"+str(aAgent.cell.yPos)+"'"
-            message = message+","
-            message = message+"'"+str(aAgent.cell.grid.id)+"'"
-            message = message+"]"
-            message = message+","
-
-        agentDef_IDincr={}
-        for aAgtDef in self.getAgentSpeciesDict():
-            agentDef_IDincr[aAgtDef.entityName]=aAgtDef.IDincr
-
-        message = message+"["
-        message = message+str(agentDef_IDincr)
-        message = message+"]"
-        message = message+","
-        message = message+"["
-        message = message+str(self.timeManager.currentPhaseNumber)
-        message = message+","
-        message = message+str(self.timeManager.currentRoundNumber)
-        message = message+"]"
-        message = message+","
-        message = message+"["
-        for k in range(len(self.simulationVariables)):
-            message = message+str({self.simulationVariables[k].name:self.simulationVariables[k].value})
-            if k != len(self.simulationVariables):
-                message = message+","
-        message = message+"]"
-        message = message+","
-        message = message+"["
-        message = message+"'"+str(self.currentPlayer)+"'" # To be deleted
-        message = message+"]"
-        message = message+","
-        message = message+str(self.listOfSubChannel) # To be deleted
-        message = message+"]"
-        print(message)
-        return message
     
     def onMAJTimer(self):
         self.executeGameActionsAfterBrokerMsg()
-        
-    def updateAgentsAtMAJ(self):  #--> TO BE DELETED?
-        for j in self.dictAgentsAtMAJ.keys():
-            newAgent=self.newAgent_ADMINONLY(self.dictAgentsAtMAJ[j][0],self.dictAgentsAtMAJ[j][1],self.dictAgentsAtMAJ[j][2],self.dictAgentsAtMAJ[j][3],self.dictAgentsAtMAJ[j][4],self.dictAgentsAtMAJ[j][5])
-            newAgent.cell.updateIncomingAgent(newAgent)
-        self.dictAgentsAtMAJ={}
     
     def executeGameActionsAfterBrokerMsg(self):
         for item in self.actionsFromBrokerToBeExecuted:
@@ -1353,15 +1155,4 @@ class SGModel(QMainWindow):
             else: raise ValueError('No other possible choices')
 
         self.actionsFromBrokerToBeExecuted=[]
-    
-
-    def updateScoreAtMAJ(self):  #--> TO BE DELETED?
-        for aGameSpace in self.gameSpaces:
-            if isinstance(aGameSpace,SGDashBoard):
-                for aIndicator in aGameSpace.indicators:
-                    if isinstance(aIndicator.entity,SGSimulationVariable):
-                        for aDictOfSimVar in self.simulationVariablesAtMAJ:
-                            if aIndicator.entity.name == aDictOfSimVar.keys():
-                                aIndicator.updateByMqtt(aDictOfSimVar.values())
-        self.simulationVariablesAtMAJ=[]
 

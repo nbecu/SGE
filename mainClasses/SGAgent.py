@@ -141,7 +141,7 @@ class SGAgent(SGEntity):
 
     def showGearMenu(self,aText):
         # Get the actions from the player
-        player=self.model.getPlayerObject(self.model.currentPlayer)
+        player=self.model.getPlayer(self.model.currentPlayer)
         if player == "Admin":
             return
         actions = player.getGameActionsOn(self)
@@ -377,7 +377,7 @@ class SGAgent(SGEntity):
     def getPrivateId(self):
         return self.privateID 
     
-    def getNeighborAgents(self,rule='moore'):
+    def getNeighborAgents(self,rule='moore',aSpecies=None):
         neighbors=[]
         if rule=="moore":
             neighborCells=self.cell.getNeighborCells()
@@ -386,11 +386,10 @@ class SGAgent(SGEntity):
         else:
             print('Error in rule specification')
         
-        for aCell in neighborCells:
-            if len(aCell.agents) !=0:
-                for aAgent in aCell.agents:
-                    aAgent.append(neighbors)
+        neighbors=[aCell.agents for aCell in neighborCells]
         
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,neighbors)
         return neighbors
     
     def sortBySpecies(self,aSpecies,agents):
@@ -401,48 +400,35 @@ class SGAgent(SGEntity):
                     aAgent.append(sortedAgents)
         return sortedAgents
     
-    def getNeighborAgentsBySpecies(self,aSpecies,rule='moore'):
-        neighbors=self.getNeighborAgents(rule)
-        speciesNeighbors=self.sortBySpecies(aSpecies,neighbors)
-        return speciesNeighbors
-    
-    def getNeighborAgentsNumber(self,rule='moore'):  #--> To be RENAMED?   nb_  
+    def nbNeighborAgents(self,rule='moore',aSpecies=None):  
+        if aSpecies:
+            return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
         return len(self.getNeighborAgents(rule))
 
-    def getNeighborAgentsBySpeciesNumber(self,aSpecies,rule='moore'): #--> To be RENAMED? nb_
-        return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
-
-    def getNeighborsN(self):
+    def getNeighborsN(self,aSpecies=None):
         theCell=self.cell.getNeighborN()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
         return theCell.agents
     
-    def getNeighborsNBySpecies(self,aSpecies):
-        speciesNeighbors=self.sortBySpecies(aSpecies,self.getNeighborsN)
-        return speciesNeighbors
-    
-    def getNeighborsS(self):
+    def getNeighborsS(self,aSpecies=None):
         theCell=self.cell.getNeighborS()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
         return theCell.agents
     
-    def getNeighborsSBySpecies(self,aSpecies):
-        speciesNeighbors=self.sortBySpecies(aSpecies,self.getNeighborsS)
-        return speciesNeighbors
-    
-    def getNeighborsE(self):
+    def getNeighborsE(self,aSpecies=None):
         theCell=self.cell.getNeighborE()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
         return theCell.agents
     
-    def getNeighborsEBySpecies(self,aSpecies):
-        speciesNeighbors=self.sortBySpecies(aSpecies,self.getNeighborsE)
-        return speciesNeighbors
-    
-    def getNeighborsW(self):
+    def getNeighborsW(self,aSpecies=None):
         theCell=self.cell.getNeighborW()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
         return theCell.agents
-    
-    def getNeighborsWBySpecies(self,aSpecies):
-        speciesNeighbors=self.sortBySpecies(aSpecies,self.getNeighborsW)
-        return speciesNeighbors
+
     
 
     
