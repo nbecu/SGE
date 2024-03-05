@@ -6,7 +6,7 @@ from mainClasses.AttributeAndValueFunctionalities import *
 
 # Class who is in charged of entities : cells and agents
 class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
-    def __init__(self,parent,classDef,size,shapeColor,attributesAndValues):
+    def __init__(self,parent,classDef,size,attributesAndValues):
         super().__init__(parent)
         self.classDef=classDef
         self.id=self.classDef.nextId()
@@ -14,8 +14,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.model=self.classDef.model
         self.shape= self.classDef.shape
         self.size=size
-        self.color=shapeColor # Faudra peut etre envisagée de retirer cet attribut. Car la couleur est gérée par la classDef
-                               # A moins qu'on l'utilse pour faire flasher l'entité, masi dans ce cas il vaudrait mieux défini un attribut flashColor
         self.borderColor=self.classDef.defaultBorderColor
         self.isDisplay=True
         #Define variables to handle the history 
@@ -64,9 +62,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     def getColor(self):
         if self.isDisplay==False: return Qt.transparent
-        # replace the search of model name of pov by getCheckedSymbologyNameOfEntity (which look for the symbolgy which is checked for this item in the menu)
         aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
-        aPovDef = self.classDef.povShapeColor.get(aChoosenPov) #self.model.nameOfPov
+        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
         aDefaultColor= self.classDef.defaultShapeColor
         return self.readColorFromPovDef(aPovDef,aDefaultColor)
 
@@ -83,10 +80,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         maxSize=self.cell.size
         x = random.randint(1,maxSize-1)
         return x
-
-    def updateMqtt(self):
-        if self.model.mqttMajType == "Instantaneous":
-            self.model.publishEntitiesState()
 
     def getObjectIdentiferForJsonDumps(self):
         dict ={}
@@ -106,29 +99,29 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     def saveHistoryValue(self):
         if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.dictAttributes]) #correspond à round 0 phase 0
+            self.history["value"].append([0,0,self.dictAttributes]) #corresponds to à round 0 phase 0
         self.history["value"].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,self.dictAttributes])
 
 
     def isDeleted(self):
         return not self.isDisplay
-
-
-    #To handle the attributs and values
-    def setValue(self,aAttribut,aValue):
+    
+    def setValue(self,aAttribut,aValue): #--> TO BE DELETED?
         """
         Sets the value of an attribut
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
-        # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
 
         self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.updateMqtt()
-        self.update()
+        self.update() #! Instruction required for mqtt
         return True
+    
+    #To perform action
+    def doAction(self, aLambdaFunction):
+        aLambdaFunction(self)

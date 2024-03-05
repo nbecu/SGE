@@ -1,21 +1,17 @@
-from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
-# import time
-
-
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
     def __init__(self,classDef, x, y):
-        super().__init__(classDef.grid,classDef,classDef.defaultsize,classDef.defaultShapeColor,attributesAndValues=None)
+        super().__init__(classDef.grid,classDef,classDef.defaultsize,attributesAndValues=None)
         #Basic initialize
         self.grid=classDef.grid
         self.xPos=x
         self.yPos=y
         self.gap=self.grid.gap
-        #Save the basic value for the zoom ( temporary)
+        #Save the basic value for the zoom (temporary)
         self.saveGap=self.gap
         self.saveSize=classDef.defaultsize
         #We place the default pos
@@ -38,7 +34,6 @@ class SGCell(SGEntity):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        # print(time.localtime())
         if self.isDisplay==True:
             penColorAndWidth = self.getBorderColorAndWidth()
             painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
@@ -65,7 +60,6 @@ class SGCell(SGEntity):
                 ])
                 painter.drawPolygon(points)
                 if(self.yPos%2!=0):
-                    # y impaires /  sachant que la première valeur de y est 1
                     self.move(self.startX , int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
                 else:
                     self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
@@ -91,7 +85,7 @@ class SGCell(SGEntity):
         self.update()
 
     def convert_coordinates(self, global_pos: QPoint) -> QPoint:
-    # Convertit les coordonnées globales en coordonnées locales
+    # Convert global coordinates to local coordinates
         local_pos = self.mapFromGlobal(global_pos)
         return local_pos
 
@@ -101,17 +95,16 @@ class SGCell(SGEntity):
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
 
-            # These next 7 lines need a bit of refactoring
             if aLegendItem.legend.isAdminLegend():
                 authorisation= True
             else :
-                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+                aLegendItem.gameAction.perform_with(self) #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
                 return
 
             if not authorisation : return #Exit the method
         
             #The delete Action
-            if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
+            if aLegendItem.type == 'delete' :
                 if authorisation : 
                     #We now check the feedBack of the actions if it have some
                     """if theAction is not None:
@@ -122,8 +115,6 @@ class SGCell(SGEntity):
             elif aLegendItem.isSymbolOnCell():
                 if  authorisation :
                     #We now check the feedBack of the actions if it have some
-                    if not aLegendItem.legend.isAdminLegend():
-                        self.owner=self.grid.model.currentPlayer #ce concept de Owner est à enlever
                     if self.isDeleted() : self.classDef.reviveThisCell(self) 
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
 
@@ -131,9 +122,6 @@ class SGCell(SGEntity):
             elif aLegendItem.isSymbolOnAgent() and self.isDisplay:
                 if  authorisation :
                     aLegendItem.classDef
-                    #We now check the feedBack of the actions if it have some
-                    """if theAction is not None:
-                        self.feedBack(theAction)"""
                     aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
                     self.newAgentHere(aLegendItem.classDef,aDictWithValue)
         
@@ -143,11 +131,11 @@ class SGCell(SGEntity):
         
         aActiveLegend = self.model.getSelectedLegend() 
         aLegendItem = self.model.getSelectedLegendItem()
-        if aActiveLegend.isAdminLegend(): # BUG in case there is no adminLegend and not player. Should use a similar test than in mousePressEvent() to correct the bug. Could also use  model.getUsers_withControlPanel()  to test if there is any cibtrolPanel or admiLegend defined
+        if aActiveLegend.isAdminLegend(): 
             aAgent.moveTo(self)
         elif aLegendItem is None : None #Exit the method
         else :
-            aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+            aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
                             
     # To handle the drag of the grid
@@ -190,21 +178,6 @@ class SGCell(SGEntity):
     # To show a menu
     def show_menu(self, point):
         pass
-    #     menu = QMenu(self)
-    #     text= "Agent count on this cell : "+str(len(self.agents))
-    #     option1 = QAction(text, self)
-    #     menu.addAction(option1)
-
-    #     x=self.x()
-    #     y=self.y()
-    #     text= "Coords : "+str(x)+","+str(y)
-    #     option2 = QAction(text, self)
-    #     menu.addAction(option2)
-
-    #     # self.model.updateAgentsAtMAJ()  
-        
-    #     if self.rect().contains(point):
-    #         menu.exec_(self.mapToGlobal(point))
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use  
@@ -215,7 +188,7 @@ class SGCell(SGEntity):
             return self.getAgentsOfSpecie(specie)
         return  self.agents[:]
     
-    def nbAgents(self,specie=None):
+    def nbAgents(self,specie=None): 
         if specie != None:
             listAgts = self.getAgentsOfSpecie(specie)
         else: listAgts = self.getAgents()
@@ -254,47 +227,8 @@ class SGCell(SGEntity):
     def getNeighborE(self):
         return self.classDef.getCell(self.xPos+1,self.yPos)
     def getNeighborW(self):
-        return self.classDef.getCell(self.xPos-1,self.yPosPos)
-
-        
-    #Function to check the ownership  of the cell          
-    def isMine(self):
-        """NOT TESTED"""
-        return self.owner==self.grid.model.currentPlayer
-    
-    #Function to check the ownership  of the cell          
-    def isMineOrAdmin(self):
-        """NOT TESTED"""
-        return self.owner==self.grid.model.currentPlayer or self.owner=="admin"
-    
-    #Function to change the ownership         
-    def makeOwner(self,newOwner):
-        """NOT TESTED"""
-        self.owner=newOwner
-        
-    #Function get the ownership        
-    def getProperty(self):
-        """NOT TESTED"""
-        self.owner=self.grid.model.currentPlayer
-        
-        
-    #Function get if the cell have change the value in       
-    def haveChangeValue(self,numberOfRound=1):
-        """NOT TESTED"""
-        haveChange=False
-        if not len(self.history["value"]) ==0:
-            for anItem in self.history["value"].reverse():
-                if anItem.roundNumber> self.grid.model.timeManager.currentRoundNumber-numberOfRound:
-                    if not anItem.thingsSave == self.attributs:
-                        haveChange=True
-                        break
-                elif anItem.roundNumber== self.grid.model.timeManager.currentRoundNumber-numberOfRound:
-                    if anItem.phaseNumber<=self.grid.model.timeManager.currentPhaseNumber:
-                        if not anItem.thingsSave == self.attributs:
-                            haveChange=True
-                            break
-        return haveChange
-    
+        return self.classDef.getCell(self.xPos-1,self.yPosPos)        
+            
     #Delete all agents on the cell
     def deleteAllAgents(self):
         for agt in self.agents[:]:
@@ -313,9 +247,3 @@ class SGCell(SGEntity):
         Return:
             a new agent"""
         return aAgentSpecies.newAgentOnCell(self,adictAttributes)
-
-    #To perform action
-    def doAction(self, aLambdaFunction):
-        aLambdaFunction(self)
-
-    

@@ -10,8 +10,7 @@ random.seed(13)
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
-Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
-                        name='grid1')  # ,posXY=[20,90]
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,name='grid1')
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setRandomEntities("Resource", 3, 7)
@@ -32,22 +31,15 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newCreateAction(Workers, 20))
-    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
-Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
-    # Pourquoi une deleteAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
-    # "infinite" doit etre la valeur par défaut de aNumber
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
-    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
-    #le paramètre aNumber doit être placé après dictAttributes
+Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
+Player1.addGameAction(myModel.newDeleteAction(Workers))
+Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 5))
-    # Pourquoi une moveAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
-    # Y'a un truc qui cloche entre feedback et feedbackAgent. Si l'actuel feeback concerne la cellule (a priori la cellule de destination), alors il faut inverser les noms des attributs : feedbackAgent doit etre feedback et et l'actuel feedback doit etre feedbackOnDestinationCell.     Si possible, il faudrait intégrer aussi un feedbackOnOriginCell
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newUpdateAction("Cell", 3, {"ProtectionLevel": "Reserve"}))
-Player2.addGameAction(myModel.newUpdateAction("Cell", "infinite", {"ProtectionLevel": "Free"}))
+Player2.addGameAction(myModel.newUpdateAction("Cell", {"ProtectionLevel": "Reserve"}, 3))
+Player2.addGameAction(myModel.newUpdateAction("Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])

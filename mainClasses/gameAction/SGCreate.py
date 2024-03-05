@@ -1,13 +1,10 @@
-from email import feedparser
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGCell import SGCell
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,entDef,number,dictAttributs,conditions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[]):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack)
         self.dictAttributs=dictAttributs
         self.name="Create "+str(self.targetEntDef.entityName)

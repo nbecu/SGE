@@ -1,7 +1,5 @@
-from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null
 
 #Class that manage the vertical layout
 class SGVerticalLayout():
@@ -30,7 +28,7 @@ class SGVerticalLayout():
     
     #Calculate the space needed for a GameSpaces involving the others
     def calculateSize(self,aGameSpace):
-        size=30     #30 instead of 20 to leave space at top because of menuBar
+        size=30
         for i in range(self.count):
             if self.GameSpaces[i].id == aGameSpace.id:
                 break;

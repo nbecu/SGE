@@ -5,7 +5,6 @@ from mainClasses.SGCell import SGCell
 
 from mainClasses.gameAction.SGDelete import SGDelete
 from mainClasses.gameAction.SGUpdate import SGUpdate
-from mainClasses.gameAction.SGCreate import SGCreate
 from mainClasses.gameAction.SGMove import SGMove
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 from mainClasses.AttributeAndValueFunctionalities import *
@@ -64,16 +63,15 @@ class SGPlayer(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
-        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        # self.saveHistoryValue()    
+        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value  
         self.dictAttributes[aAttribut]=aValue
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True
 
     def addWatcher(self,aIndicator):
-        if aIndicator.attribut is None:
+        if aIndicator.attribute is None:
             aAtt = 'nb'
-        else: aAtt = aIndicator.attribut
+        else: aAtt = aIndicator.attribute
         if aAtt not in self.watchers.keys():
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)
@@ -82,82 +80,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
         for watcher in self.watchers.get(aAtt,[]):
             watcher.checkAndUpdate()
 
-    def newControlPanelOLD(self, Name=None, showAgentsWithNoAtt=False):
-        #OBSOLETE
-        """
-        To create an Player Control Panel (only with the GameActions related elements)
-
-        Args:
-        Name (str): name of the Control Panel, displayed
-
-        """
-        #define defaultName if none defined
-        if Name==None:
-             Name= (self.name +' actions')
-        # Creation
-        # We harvest all the case value
-        elements = {}
-        AgentPOVs = self.model.getAgentPOVs()
-        for anElement in self.model.getGrids():
-            elements[anElement.id] = {}
-            elements[anElement.id]['cells'] = anElement.getValuesForLegend()
-            elements[anElement.id]['agents'] = {}
-        for grid in elements:
-            elements[grid]['agents'].update(AgentPOVs)
-        agents = self.model.getAllAgents()
-        goodKeys = self.getAttributs()
-        thePov = self.getPov()
-        actions = self.gameActions
-        deleteButtons = []
-        for aAction in actions:
-            if isinstance(aAction, SGDelete):
-                deleteButtons.append(str(aAction.name))
-        playerElements = {}
-        newDict = {}
-        for grid_key, grid_value in elements.items():
-            playerElements[grid_key] = {'cells': {}, 'agents': {}}
-            for cell_key, cell_value in grid_value['cells'].items():
-                for aPov, aDict in thePov.items():
-                    for dictElement in aDict:
-                        for testAtt, testVal in dictElement.items():
-                            if cell_key in goodKeys or cell_key == aPov:  # ! watch out any bug here
-                                if aPov in playerElements[grid_key]['cells']:
-                                    if testAtt in playerElements[grid_key]['cells'][aPov]:
-                                        lastValue = playerElements[grid_key]['cells'][aPov][testAtt]
-                                        playerElements[grid_key]['cells'][aPov][testAtt] = {
-                                            lastValue: 0, testVal: 0}
-                                else:
-                                    playerElements[grid_key]['cells'][aPov] = {
-                                        testAtt: testVal}
-            for agent_key, agent_value in grid_value['agents'].items():
-                if agent_key in goodKeys:
-                    playerElements[grid_key]['agents'][agent_key] = agent_value
-        playerElements["deleteButtons"] = deleteButtons
-        aLegend = SGLegend(self.model, Name, playerElements, #Un controlPanel ne doit pas etre une instance de Legend, Il faut faire une classe fille de Legend, spécifique pour ControlPanel
-                           self.name, agents, showAgentsWithNoAtt, legendType="player")
-        self.model.gameSpaces[Name] = aLegend
-        self.controlPanel=aLegend
-        # Realocation of the position thanks to the layout
-        newPos = self.model.layoutOfModel.addGameSpace(aLegend)
-        aLegend.setStartXBase(newPos[0])
-        aLegend.setStartYBase(newPos[1])
-        if (self.model.typeOfLayout == "vertical"):
-            aLegend.move(aLegend.startXBase, aLegend.startYBase+20 *
-                         self.model.layoutOfModel.getNumberOfAnElement(aLegend))
-        elif (self.model.typeOfLayout == "horizontal"):
-            aLegend.move(aLegend.startXBase+20 *
-                         self.model.layoutOfModel.getNumberOfAnElement(aLegend), aLegend.startYBase)
-        else:
-            pos = self.model.layoutOfModel.foundInLayout(aLegend)
-            aLegend.move(aLegend.startXBase+20 *
-                         pos[0], aLegend.startYBase+20*pos[1])
-        self.model.applyPersonalLayout()
-        return aLegend
-
     def getAttributs(self):
         attributs = []
         for action in self.gameActions:
-            # and not isinstance (action,SGDelete) #! cas des agents sans attributs
             if isinstance(action.anObject, SGAgent) and not isinstance(action, SGMove):
                 attributs.append(action.anObject.name)
             if (isinstance(action.anObject, SGCell) or action.anObject == SGCell) and isinstance(action, SGUpdate):  # ! cas des cellules
@@ -187,7 +112,6 @@ class SGPlayer(AttributeAndValueFunctionalities):
             aGameAction (instance) : myModel.createAction instance
         """
         if isinstance(aGameAction,SGAbstractAction):
-            # isinstance() checks that a gameAction is a instance of SGAbstractAction or of one of its subclasses (SGMove, SGUpdate...)
             self.gameActions.append(aGameAction)
         return aGameAction
 

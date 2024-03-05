@@ -29,12 +29,6 @@ class SGTextBox(SGGameSpace):
         self.initUI()
 
     def initUI(self):
-        # * Refresh par timer:
-        """self.timer = QTimer()
-        self.timer.timeout.connect(self.updateLabel)
-        self.timer.start(1000)
-        self.show()"""
-
         # Create a title
         self.labelTitle = QtWidgets.QLabel(self.title)
         font = QFont()
@@ -49,18 +43,11 @@ class SGTextBox(SGGameSpace):
         self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.textEdit.setStyleSheet(
             "border: none;background-color: lightgray;")
-        # font = QFont("Verdana", 12)
-        # self.textEdit.setFont(font)
-
-        # Create a QPushButton to update the text
-        # self.button = QtWidgets.QPushButton("Update Text")
-        # self.button.clicked.connect(self.updateText)
 
         # Create a QVBoxLayout to hold the QTextEdit and QPushButton
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.labelTitle)
         layout.addWidget(self.textEdit)
-        # layout.addWidget(self.button)
 
         # Set the QVBoxLayout as the main layout for the widget
         self.setLayout(layout)
@@ -72,7 +59,7 @@ class SGTextBox(SGGameSpace):
     # Function to have the global size of a gameSpace
 
     def getSizeXGlobal(self):
-        return 150
+        return 160
 
     def getSizeYGlobal(self):
         return 150

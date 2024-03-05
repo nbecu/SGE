@@ -51,7 +51,7 @@ class SGAbstractAction():
             # TODO add a facultative permission 
             return False
         if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
-            player=self.model.getPlayerObject(self.model.currentPlayer)
+            player=self.model.getPlayer(self.model.currentPlayer)
             if player in self.model.timeManager.phases[self.model.getCurrentPhase()-1].authorizedPlayers:
                 res = True
             else:

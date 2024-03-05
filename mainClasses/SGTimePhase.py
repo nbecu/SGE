@@ -1,5 +1,5 @@
 from mainClasses.SGModelAction import SGModelAction
-from PyQt5.QtWidgets import QHBoxLayout,QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 
 # Class who define a gaming phase
 
@@ -36,7 +36,7 @@ class SGTimePhase():
     def setNextStepAction(self, nextStepAction):
         self.nextStepAction = nextStepAction
 
-    def addModelAction(self, aModelAction):
+    def addAction(self, aModelAction):
         if isinstance(aModelAction,SGModelAction):
             self.modelActions.append(aModelAction)
         else :
@@ -70,9 +70,9 @@ class SGTimePhase():
                     aWatcher.updateText()
                 else:
                     if aWatcher.method=="simVar":
-                        aWatcher.simVar.setValue(aValue) #problème à getPermissionUpdate
+                        aWatcher.simVar.setValue(aValue)
                     else:
-                        aWatcher.entity.setValue(aWatcher.attribute,aValue) #problème à getPermissionUpdate
+                        aWatcher.entity.setValue(aWatcher.attribute,aValue)
                         aWatcher.updateText()
         #textbox update
         self.notifyNewText()

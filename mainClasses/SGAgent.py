@@ -1,19 +1,14 @@
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import true
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QVBoxLayout, QLabel 
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox
 import random
 from mainClasses.SGEntity import SGEntity
-from mainClasses.SGGrid import SGGrid
-from mainClasses.SGGameSpace import SGGameSpace
-
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
     def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
         aGrid = cell.grid
-        super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
+        super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
         if cell is not None:
             self.cell = cell
@@ -21,14 +16,11 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
         self.last_selected_option=None
-        self.shapeColor=shapeColor
         self.initMenu()
         
 
 
     def paintEvent(self,event):
-        if self.shapeColor==19: #code for transparent # TODO trouver pourquoi le self.color ne se met pas à jour avec les POV
-            return
         painter = QPainter() 
         painter.begin(self)
         painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
@@ -149,10 +141,10 @@ class SGAgent(SGEntity):
 
     def showGearMenu(self,aText):
         # Get the actions from the player
-        player=self.model.getPlayerObject(self.model.currentPlayer)
+        player=self.model.getPlayer(self.model.currentPlayer)
         if player == "Admin":
-            return #TODO trouver un moyen de ne pas faire de bug en Admin Mode
-        actions = player.getGameActionsOn(self) #! Select a player not Admin
+            return
+        actions = player.getGameActionsOn(self)
         actionsNames =[action.name for action in actions]
         # Filter the actions by the concerned attribute
         displayedNames=[]
@@ -179,7 +171,7 @@ class SGAgent(SGEntity):
                     anAction.perform_with(self)
 
     def showPopup(self, selected_option):
-        QMessageBox.information(self, 'Option sélectionnée', f'Vous avez sélectionné : {selected_option}', QMessageBox.Ok)
+        QMessageBox.information(self, 'Option selected', f'You chose : {selected_option}', QMessageBox.Ok)
         
     def getRandomX(self):        
         maxSize=self.cell.size
@@ -226,43 +218,28 @@ class SGAgent(SGEntity):
 
     def isDeleted(self):
         if not self.isDisplay:
-            raise ValueError ('An agent which is not displayed is not necessalry deleted.  it''s strange that this method is called') 
+            raise ValueError ('An agent which is not displayed is not necessary deleted.') 
         return not self.isDisplay
-
-    #To get the pov
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        return self.model.nameOfPov
     
-    # To get the pov via grid
-    def getPov2(self):
-        return self.cell.grid.getCurrentPOV()
-
-
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             #Something is selected
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
 
-            # These next 7 lines need a bit of refactoring
             if aLegendItem.legend.isAdminLegend():
                 authorisation= True
             else :
                 from mainClasses.gameAction.SGMove import SGMove
                 if isinstance(aLegendItem.gameAction,SGMove): return
-                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
                 return
             if not authorisation : return #Exit the method
 
             #The delete Action
-            if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
+            if aLegendItem.type == 'delete' :
                 if authorisation : 
-                    #We now check the feedBack of the actions if it have some
-                    """if theAction is not None:
-                        self.feedBack(theAction)"""
                     self.classDef.deleteEntity(self)
-                    self.updateMqtt() # Check if we need to updateMqtt here
 
             #The  change value on agent
             elif aLegendItem.isSymbolOnAgent() :
@@ -316,10 +293,10 @@ class SGAgent(SGEntity):
         self.copyOfAgentAtCoord(aDestinationCell)
         self.deleteLater()
 
-    # To copy an Agent to make a move // THIS METHOD SHOULD BE MOVED TO AgentDef
+    # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history
@@ -328,7 +305,7 @@ class SGAgent(SGEntity):
         for watchers in list(oldAgent.watchers.values()):
             for aWatcherOnThisAgent in watchers:
                 aWatcherOnThisAgent.entity=newAgent        
-        newAgent.privateID = oldAgent.privateID # A priori, on peut retirer cet attribut
+        newAgent.privateID = oldAgent.privateID
         newAgent.isDisplay = oldAgent.isDisplay
         newAgent.classDef.entities.remove(oldAgent)
         newAgent.classDef.entities.append(newAgent)
@@ -348,7 +325,6 @@ class SGAgent(SGEntity):
             self.cell.updateDepartureAgent(self)
             theAgent= self.copyOfAgentAtCoord(aDestinationCell)
             self.deleteLater()
-        self.updateMqtt()
         return theAgent
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
@@ -394,25 +370,70 @@ class SGAgent(SGEntity):
             else:
                 theAgent = self.moveTo(newCell)
         pass
-                
-    #Function to check the ownership  of the agent          
-    def isMine(self):
-        return self.owner==self.model.currentPlayer
-    
+                    
     def getId(self):
         return self.id
     
     def getPrivateId(self):
         return self.privateID 
     
-    #Function to check the ownership  of the agent          
-    def isMineOrAdmin(self):
-        return self.owner==self.model.currentPlayer or self.owner=="admin"
-    
-    #Function to change the ownership         
-    def makeOwner(self,newOwner):
-        self.owner=newOwner
+    def getNeighborAgents(self,rule='moore',aSpecies=None):
+        neighbors=[]
+        if rule=="moore":
+            neighborCells=self.cell.getNeighborCells()
+        elif rule=='neumann':
+            neighborCells=self.cell.getNeighborCells(rule='neumann')
+        else:
+            print('Error in rule specification')
         
-    #Function get the ownership        
-    def getProperty(self):
-        self.owner=self.model.currentPlayer
+        neighbors=[aCell.agents for aCell in neighborCells]
+        
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,neighbors)
+        return neighbors
+    
+    def sortBySpecies(self,aSpecies,agents):
+        sortedAgents=[]
+        if len(agents)!=0:
+            for aAgent in agents:
+                if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
+                    aAgent.append(sortedAgents)
+        return sortedAgents
+    
+    def nbNeighborAgents(self,rule='moore',aSpecies=None):  
+        if aSpecies:
+            return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
+        return len(self.getNeighborAgents(rule))
+
+    def getNeighborsN(self,aSpecies=None):
+        theCell=self.cell.getNeighborN()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsS(self,aSpecies=None):
+        theCell=self.cell.getNeighborS()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsE(self,aSpecies=None):
+        theCell=self.cell.getNeighborE()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsW(self,aSpecies=None):
+        theCell=self.cell.getNeighborW()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+
+    
+
+    
+    
+                
+
+        
+

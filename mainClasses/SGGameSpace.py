@@ -16,20 +16,8 @@ class SGGameSpace(QtWidgets.QWidget):
         self.isDraggable = isDraggable
         self.backgroudColor = backgroudColor
         self.forceDisplay = forceDisplay
-    
-    def copyOf__init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroudColor=Qt.gray,forceDisplay=False,moveable=True):
-        super().__init__(parent)
-        self.model=parent
-        self.posXInLayout=posXInLayout
-        self.posYInLayout=posYInLayout
-        self.startXBase=startXBase
-        self.startYBase=startYBase
-        self.isDraggable = isDraggable
-        self.backgroudColor = backgroudColor
-        self.forceDisplay = forceDisplay
-        self.moveable=moveable   
         
-         
+               
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         pass

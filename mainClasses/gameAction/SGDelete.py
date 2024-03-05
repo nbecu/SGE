@@ -1,5 +1,3 @@
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGCell import SGCell
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 

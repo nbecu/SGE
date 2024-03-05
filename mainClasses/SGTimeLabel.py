@@ -39,8 +39,7 @@ class SGTimeLabel(SGGameSpace):
             self.labelTitle.setFont(font)
         self.label1.setText('Round Number: Not started')
         self.label2.setText('Phase Number: Not started')
-        currentPhaseNumber = self.timeManager.phases[int(
-            self.timeManager.currentPhaseNumber)-1]
+        currentPhaseNumber = self.timeManager.phases[int(self.timeManager.currentPhaseNumber)-1]
         self.label3.setText('Game not yet started')
 
         color = QColor(self.textColor)

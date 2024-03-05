@@ -1,11 +1,7 @@
 from PyQt5 import QtWidgets 
-from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null
-# import numpy as np
-from mainClasses.SGCell import SGCell
-from mainClasses.SGAgent import SGAgent
+
 from mainClasses.SGSimulationVariable import SGSimulationVariable
 
 
@@ -94,7 +90,7 @@ class SGIndicator(QtWidgets.QWidget):
         self.label.setPlainText(newText)
         self.dashboard.model.timeManager.updateEndGame()
 
-    def setResult(self, aValue): #this is a private method
+    def setResult(self, aValue):
         """Function to configure a score in an Indicator"""
         self.result=aValue
         self.label.setPlainText(self.name + str(self.result))
@@ -119,14 +115,6 @@ class SGIndicator(QtWidgets.QWidget):
                     aTest=self.lambdaTestOnRoundNumber(specifiedValue)
                 testResult = testResult and aTest
             return testResult
-
-        # self.userSettingsOnPhaseToUpdate() #! check again 
-
-                # Ex de la façon de coder le lambdaTestOnRoundNumber
-                #     for typeCondition,specifiedValue in onTimeConditions.items()
-                #         if typeCondition == 'lambdaTestOnRoundNumber' :
-                #             testResult = specifiedValue(self.model.roundNumber)
-                #             return testResult
 
     def updateOnPhaseName(self,specifiedValue):
         currentPhase=self.dashboard.model.timeManager.getCurrentPhase()
@@ -210,7 +198,6 @@ class SGIndicator(QtWidgets.QWidget):
         elif self.method=="separator":
             return "---------------"
         elif self.method=="thresoldToLogicOp":
-            # les indicator greater, greater or equal ect.. doivent etre codés comme les autres method
             if self.logicOp =="greater":
                 if self.entity.value(self.attribute) > self.threshold:
                     calcValue="greater than"+str(self.threshold)

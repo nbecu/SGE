@@ -1,10 +1,5 @@
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null
-# import numpy as np
-from mainClasses.SGCell import SGCell
-from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 
 
@@ -57,8 +52,4 @@ class SGSimulationVariable():
     
     def addWatcher(self,aIndicator):
         self.watchers.append(aIndicator)
-    
-    
-    # eventuellement un jour ajouter la fonctionnalité pour le modeler 
-        # def resetValueAtEachRound(self,aAttribut,valueToBeSetAtEachRound):
-        #     self.setValue(aAttribut, result)
+        

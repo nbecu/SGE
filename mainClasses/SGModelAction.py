@@ -8,15 +8,6 @@ class SGModelAction():
         self.model = sgModel
         self.actions=self.testIfCallableAndPutInList(actions)
         self.conditions=self.testIfCallableAndPutInList(conditions)
-        
-        # if isinstance(feedbacks, list):
-        #     if any(not isinstance(item, SGModelAction) for item in feedbacks):
-        #         raise ValueError("A feedback should be a ModelAction or list of ModelActions")
-        #     self.feedbacks=feedbacks
-        # elif isinstance(feedbacks, SGModelAction):
-        #     self.feedbacks=[feedbacks]
-        # else : raise ValueError("A feedback should be a ModelAction or list of ModelActions")
-        # The lines above hace been replaced by the following method
         self.feedbacks = self.testIfCallableOrIfModelActionAndPutInListOfModelActions(feedbacks)
     
 
@@ -109,9 +100,6 @@ class SGModelAction():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
         
-    # def addConditionOfFeedBack(self,aCondition):
-    #     self.conditionOfFeedBack.append(aCondition)
-        
     def setRandomEntities(self, att, value,nb):
         self.actions = self.actions + [lambda : self.model.grid.setRandomEntities(att, value,nb)]
         return self
@@ -123,7 +111,6 @@ class SGModelAction():
 class SGModelAction_OnEntities(SGModelAction):
     def __init__(self,sgModel, actions=[],conditions=[],feedbacks=[], entities=None):
         super().__init__(sgModel,actions,conditions,feedbacks)
-                # super().__init__(parent)
 
         self.entitiesContainer=None
         self.setEntities(entities)
@@ -146,15 +133,9 @@ class SGModelAction_OnEntities(SGModelAction):
     def execute(self):
         for aEntity in self.getEntities():
             if self.testConditions(aEntity):
-                # allActionsDone = True
                 for aAction in self.actions:
                     if callable(aAction):
-                        test = aAction(aEntity)  #this command executes aAction
-                        # if test == False:
-                            # allActionsDone = False
-                    # else:
-                    #     raise ValueError("Syntax error of actions")
-        # if allActionsDone:
+                        aAction(aEntity)  #this command executes aAction
         for aFeedbackAction in self.feedbacks:
             aFeedbackAction.execute()
 

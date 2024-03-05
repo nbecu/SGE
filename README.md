@@ -41,6 +41,7 @@ SQLAlchemy        2.0.3
 
 ## Future plan
 - [ ] add a method "displayBorderPov" (similar to SGEntity>displayPov)
+_ [ ] create a POV system to manage groups of symbologies
 - [ ] correct the zoom
 - [ ] unify font style sheets for SGEndGameRule
 - [ ] add a modeler style sheet config methods for gameSpaces who don't have yet
@@ -48,9 +49,21 @@ SQLAlchemy        2.0.3
 - [ ] refractoring auto resize of text spacings in gameSpaces (using geometry)
 - [ ] new gameAction : activate
 - [ ] rename Update gameAction to Modify
+- [ ] unify definition of setValue for the different classes
+- [ ] create a recuperation system for simulation status with updateAtMaj functions
 
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)
+
+## syntax code of modeler side methods
+- new     create a new entity (ex. newAgentAtCoords(), newAgentSpecies), or create a new game element (ex. newGamePhase())
+- get    collect entities, objects or instances
+- nb     to obtain the number of entities, objects or instances
+- set    to set a value        (ex. setEntities_withColumn(), setDefaultValues())
+- is     to do a test (returns True or false)   (ex. isDeleted())
+- delete	to delete entities from the simulation (ex. deleteAllAgents())
+
+- do_     perform an action on an entity
 
 ## Context
 SGE is developped under the supervision of [LIENSs](https://lienss.univ-larochelle.fr/) Laboratory (La Rochelle University, France) within different research projects. 

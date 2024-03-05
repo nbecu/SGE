@@ -22,20 +22,19 @@ theFirstLegend=myModel.newLegend()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
-#CREATIONS DE MODEL ACTIONS
-    #TROIS ECRITURES POSSIBLES
+#MODEL ACTIONS CREATION
+    #THREE POSSIBLE WRITINGS
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
 aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
 
-    #POSSIBILITE d'AJOUTER UNE CONDITION GENERALE A l'ACTION
+    #POSSIBILITY TO ADD A GENERAL CONDITION TO THE ACTION
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: myModel.round()==3) 
 
 aModelAction5 =myModel.newModelAction((lambda: Cell.setRandomEntities("landUse","forest",2)), conditions= (lambda: myModel.round()==3) )
- #cette instruction ne marche pas car y'a ne embrouille dans conditions qui est appliqué sur toutes les modelActions  
 
-# AJOUT DES MODEL ACTIONS DANS LES PHASE
+# ADDING MODEL ACTIONS TO THE PHASES
 myModel.timeManager.newModelPhase(aModelAction2)
 
 

@@ -19,11 +19,11 @@ player_Clara.setValue('Clara''s score',0)
 aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara''s score',3)))
 
 resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara''s score',0)),(lambda: myModel.round()%4==0))
-aPhase.addModelAction(resetScoreAction)
+aPhase.addAction(resetScoreAction)
 
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnEntity(player_Clara,'foo')
-dashboard.addIndicatorOnEntity(player_Clara,'Clara''s score')
+dashboard.addIndicatorOnEntity(player_Clara,"Clara's score")
 
 myModel.launch() 
 sys.exit(monApp.exec_())

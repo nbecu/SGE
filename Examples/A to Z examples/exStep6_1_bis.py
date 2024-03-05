@@ -25,7 +25,7 @@ theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newUpdateAction('Cell',3,{"landUse":"grass"}))
+Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
@@ -33,7 +33,7 @@ userSelector=myModel.newUserSelector()
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1])
 p2 = myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
-p2.addModelAction(lambda : Sheeps.moveRandomly())
+p2.addAction(lambda : Sheeps.moveRandomly())
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))

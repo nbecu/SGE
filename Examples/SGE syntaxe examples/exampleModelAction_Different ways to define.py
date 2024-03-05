@@ -15,7 +15,7 @@ Cell.newPov("mainPov","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.
 
 
 phase1 = myModel.timeManager.newModelPhase()
-phase1.addModelAction([lambda: Cell.setRandomEntities("landUse","shrub",3),lambda: Cell.setRandomEntities("landUse","forest")])
+phase1.addAction([lambda: Cell.setRandomEntities("landUse","shrub",3),lambda: Cell.setRandomEntities("landUse","forest")])
 
 myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
