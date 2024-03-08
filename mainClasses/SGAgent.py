@@ -15,6 +15,7 @@ class SGAgent(SGEntity):
     def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
+        self.history["location"]=[]
         self.cell=None
         if cell is not None:
             self.cell = cell
@@ -236,8 +237,8 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move // THIS METHOD SHOULD BE MOVED TO AgentDef
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
         self.classDef.IDincr -=1
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history
         newAgent.watchers = oldAgent.watchers

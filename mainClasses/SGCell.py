@@ -3,7 +3,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
-# import time
 
 
    
@@ -25,6 +24,8 @@ class SGCell(SGEntity):
         #We allow the drops for the agents
         self.setAcceptDrops(True)
         self.agents=[]
+        self.history["occupant"]=[]
+
         self.initUI()
 
     
@@ -189,13 +190,38 @@ class SGCell(SGEntity):
                       
             
     #To handle the arrival of an agent on the cell (this is a private method)
-    def updateIncomingAgent(self,anAgent):
+    def updateIncomingAgent(self,anAgent): ## To be renamed updateArrivingAgent
         self.agents.append(anAgent)
+        self.history['occupant'].append({
+            'round':self.model.timeManager.currentRound,
+            'phase':self.model.timeManager.currentPhase,
+            'event':'arrival',
+            'entityType': anAgent.classDef.entityType(),
+            'entityName': anAgent.classDef.entityName,
+            'id': anAgent.id
+            })
+        anAgent.history['location'].append({
+            'round':self.model.timeManager.currentRound,
+            'phase':self.model.timeManager.currentPhase,
+            'entityType': self.classDef.entityType(),
+            'entityName': self.classDef.entityName,
+            'id': self.id
+            })
+
     
     #To handle the departure of an agent of the cell (this is a private method)
-    def updateDepartureAgent(self,anAgent):
+    def updateDepartureAgent(self,anAgent):  ## To be renamed updateDepartingAgent
         self.agents.remove(anAgent)
         anAgent.cell=None
+        self.history['occupant'].append({
+            'round':self.model.timeManager.currentRound,
+            'phase':self.model.timeManager.currentPhase,
+            'event':'departure',
+            'entityType': anAgent.classDef.entityType(),
+            'entityName': anAgent.classDef.entityName,
+            'id': anAgent.id
+            })
+
     
     # To show a menu
     def show_menu(self, point):
@@ -204,8 +230,12 @@ class SGCell(SGEntity):
         option1 = QAction(text, self)
         menu.addAction(option1)
 
-        # self.model.updateAgentsAtMAJ()  
-        
+        target = self.getLastAgentArrived()
+        if target:
+            text= "Last agent arrived  : "+str(target.privateID)
+            option2 = QAction(text, self)
+            menu.addAction(option2)
+      
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
 
@@ -245,6 +275,19 @@ class SGCell(SGEntity):
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
+    
+    def getLastAgentArrived(self):
+        if not self.agents: return None
+        #mehod 1
+        # aItem = next((item for item in reversed(self.history['occupant'])  if (item['event'] == 'arrival') and [x for x in self.agents if (x.classDef.entityName == item['entityName'] and x.id == item['id']) ] ) ,None)
+        #Method 2 , plus elegante
+        def dateArrival(ele):
+            return ele.history['location'][-1]['round'],ele.history['location'][-1]['phase']
+        aItem = sorted(self.agents,key=dateArrival)[-1]
+        return aItem
+
+
+
     
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):

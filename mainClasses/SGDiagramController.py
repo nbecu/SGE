@@ -266,22 +266,27 @@ class SGDiagramController(NavigationToolbar):
                                            entry['entityName'] == entityName and attribut_value in entry[
                                                'qualiAttributes']), None)
                     list_data.append(data_stackplot)
-
+        
         #ordonner par attribut
-        list_data_sorted = sorted(list_data, key=lambda x: sorted(x.keys()))
-        for i, counts in enumerate(list_data_sorted):
-            for key, value in counts.items():
-                if key not in formatted_data:
-                    formatted_data[key] = []
-                formatted_data[key].append(value)
-        lengths = {key: len(value) for key, value in formatted_data.items()}
-        if lengths and len(lengths.values())>0:
-            max_length = max(lengths.values())
-            for key, length in lengths.items():
-                if length < max_length:
-                    difference = max_length - length
-                    formatted_data[key] = [0] * difference + formatted_data[key]
-            self.ax.stackplot(self.xValue, list(formatted_data.values()), labels=list(formatted_data.keys()))
+        labels = sorted(list(set(np.concatenate([list(aData.keys()) for aData in list_data]))))
+        values = []
+        for aLabel in labels:
+            values.append([aData.get(aLabel,0) for aData in list_data])           
+        self.ax.stackplot(self.xValue, values , labels=labels)
+        # list_data_sorted = sorted(list_data, key=lambda x: sorted(x.keys()))
+        # for i, counts in enumerate(list_data_sorted):
+        #     for key, value in counts.items():
+        #         if key not in formatted_data:
+        #             formatted_data[key] = []
+        #         formatted_data[key].append(value)
+        # lengths = {key: len(value) for key, value in formatted_data.items()}
+        # if lengths and len(lengths.values())>0:
+        #     max_length = max(lengths.values())
+        #     for key, length in lengths.items():
+        #         if length < max_length:
+        #             difference = max_length - length
+        #             formatted_data[key] = [0] * difference + formatted_data[key]
+        #     self.ax.stackplot(self.xValue, list(formatted_data.values()), labels=list(formatted_data.keys()))
 
         self.ax.legend()
         self.ax.set_xlabel("Rounds")
@@ -307,9 +312,12 @@ class SGDiagramController(NavigationToolbar):
                            and attribut_value in entry['quantiAttributes'] and 'histo' in \
                             entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds)}
                 list_data.append(histo_y)
+# list(list_data[0].values())[0][1]
+# list(list_data[0].keys())[0][1]
 
         for h in list_data:
-            h_abcis = list(h.values())[0][1][:-1]
+            # h_abcis = list(h.values())[0][1][:-1]
+            h_abcis = np.average([list(h.values())[0][1][1:],list(h.values())[0][1][:-1]], axis=0)
             h_height = list(h.values())[0][0]
             label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys()))>0 else ''
             self.ax.bar(h_abcis, h_height, width=5, label=label)
