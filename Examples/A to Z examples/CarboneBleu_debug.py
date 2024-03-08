@@ -7,32 +7,90 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(860,700, windowTitle="CarboneBleu")
 
 Cell=myModel.newCellsOnGrid(15,18,"square",size=45, gap=2)
-Cell.setEntities("type","neutre")
-Cell.setEntities("zones","A")
-Cell.setEntities_withRow("zones", "C", 12)
-Cell.setEntities_withRow("zones", "C", 13)
-Cell.setEntities_withRow("zones", "C", 14)
-Cell.setEntities_withRow("zones", "C", 15)
-Cell.setEntities_withRow("zones", "C", 16)
-Cell.setEntities_withRow("zones", "C", 18)
-Cell.setEntities_withRow("zones", "C", 17)
+
+
+# ZONE EQUIPE A
+Cell.setEntities("zones","Joueur A")
+# ZONE EQUIPE C
+for i in range(12,19,1):
+    Cell.setEntities_withRow("zones", "Joueur C", i)
+# ZONE EQUIPE B
 zoneBCells=[cell for cell in Cell.entities if cell.xPos >7 and cell.yPos <12]
 for aCell in zoneBCells:
-    aCell.setValue("zones","B")
+    aCell.setValue("zones","Joueur B")
 
-Cell.newPov("Type de terrain","type",{"ZH":Qt.green,"Aménité":Qt.magenta,"neutre":Qt.darkGray})
-Cell.newBorderPovColorAndWidth("Zones Joueurs","zones", {"A": [Qt.yellow,1], "B": [Qt.blue,1], "C": [Qt.red,1]})
+def defAménité(coords):
+    if len(coords)>5:
+        random_cells=random.sample(coords,2)
+        for element in random_cells:
+            aCell=Cell.getCell(element[0],element[1])
+            neighbors=aCell.getNeighborCells(rule="neumann")
+            for aNeighborCell in neighbors:
+                if aNeighborCell.value("type")!="ZH":
+                    aNeighborCell.setValue('type',"Aménité")
+                    aNeighborCell.setValue('typeZH',"Aménité")
+                    break
+    else:
+        random_cells=random.choice(coords)
+        aCell=Cell.getCell(random_cells[0],random_cells[1])
+        neighbors=aCell.getNeighborCells()
+        for aNeighborCell in neighbors:
+            if aNeighborCell.value("type")!="ZH":
+                aNeighborCell.setValue('type',"Aménité")
+                aNeighborCell.setValue('typeZH',"Aménité")
+                break
+    
+    
+# ZONES HUMIDES
+Cell.setEntities("type","neutre")
+Cell.setEntities('typeZH','neutre')
 
-Occupation=myModel.newAgentSpecies("Occupation","triangleAgent1")
+# Zone H 1
+coords=[[3,2],[2,3],[3,3],[4,3],[3,4]]
+for element in coords:
+    Cell.setCell(element[0],element[1],"type","ZH")
+    Cell.setCell(element[0],element[1],"typeZH","alpha")
+defAménité(coords)
+
+# Zone H 2
+coords=[[12,6],[10,7],[11,7],[12,7],[13,7],[12,8],[13,8]]
+for element in coords:
+    Cell.setCell(element[0],element[1],"type","ZH")
+    Cell.setCell(element[0],element[1],"typeZH","alpha")
+defAménité(coords)
+
+# Zone H 3
+coords=[[6,10],[7,11],[8,11],[7,12],[8,12],[9,12],[8,13]]
+for element in coords:
+    Cell.setCell(element[0],element[1],"type","ZH")
+    Cell.setCell(element[0],element[1],"typeZH","beta")
+defAménité(coords)
+
+
+# Zone H 4
+coords=[[12,16],[13,16],[9,17],[10,17],[11,17],[12,17],[10,18],[11,18]]
+for element in coords:
+    Cell.setCell(element[0],element[1],"type","ZH")
+    Cell.setCell(element[0],element[1],"typeZH","gamma")
+defAménité(coords)
+
+
+Cell.newPov("Type de terrain","type",{"ZH":Qt.green,"Aménité":Qt.magenta,"neutre":Qt.gray})
+Cell.newPov("Type de zone humide","typeZH",{"alpha":Qt.darkGreen,"beta":Qt.darkBlue,"gamma":Qt.darkCyan,"neutre":Qt.gray,"Aménité":Qt.magenta})
+Cell.newBorderPovColorAndWidth("Zones Joueurs","zones", {"Joueur A": [Qt.yellow,1], "Joueur B": [Qt.blue,1], "Joueur C": [Qt.red,1]})
+
+Occupation=myModel.newAgentSpecies("Occupation du Joueur 1","triangleAgent2")
+Occupation2=myModel.newAgentSpecies("Occupation du Joueur 2","arrowAgent1",defaultColor=Qt.yellow)
+Occupation3=myModel.newAgentSpecies("Occupation du Joueur 3","ellipseAgent2",defaultColor=Qt.red)
 
 theFirstLegend=myModel.newLegend()
 
-# Player1=myModel.newPlayer("Player 1")
+Player1=myModel.newPlayer("Joueur A")
 # Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
 
-# Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1Legend=Player1.newControlPanel("Actions du Joueur A",showAgentsWithNoAtt=True)
 
-# userSelector=myModel.newUserSelector()
+userSelector=myModel.newUserSelector()
 
 
 # myModel.timeManager.newGamePhase('Phase 1', [Player1])
