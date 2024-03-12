@@ -6,7 +6,27 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="CarboneBleu")
 
+"""NOMENCLATURE
+Cells :
+- txFlux : taux du flux sédimentaire / flux de carbone
+- qtSed : quantité de sédiments dans une cellule
+- txSeqC : taux de séquestration du carbone
+- qtSeqC : quantité de carbone séquestré
+=> calcul pour une ZH complète = somme des paramètres de ses cellules
+- nbPlaces : nombre de places d'une aménité
+
+- typeZH : neutre pour les cases nonZH puis 3 types de ZH : alpha / beta / gamma (marais, slikke...)
+- Mode de Gestion : mode1 / mode2 / mode3
+
+Joueurs:
+- A / B / C
+- Update actions sur le mode de gestion
+- Create action sur leur agent d'Occoupation (Occoupation/Occoupation2/Occoupation3)
+- Delete action sur leur agent d'Occoupation
+"""
+
 Cell=myModel.newCellsOnGrid(15,18,"square",size=45, gap=0)
+Cell.setDefaultValues({'txFlux':0,'qtSed':0,"txSeqC":0,'qtSeqC':0,"nbPlaces":0})
 
 ModeGestion=myModel.newAgentSpecies("Mode de Gestion","circleAgent",{"Mode de Gestion":{"mode1","mode2","mode3"}},defaultSize=8,locationInEntity="topLeft")
 ModeGestion.newPov("Mode de gestion de la ZH","Mode de Gestion",{'mode1':Qt.blue,'mode2':Qt.white,'mode3':Qt.green})
@@ -23,6 +43,7 @@ for aCell in zoneBCells:
     aCell.setValue("zones","Joueur B")
 
 def defAménité(coords):
+    """Cette fonction place automatiquement les aménités autour des ZH."""
     if len(coords)>5:
         random_cells=random.sample(coords,2)
         for element in random_cells:
@@ -46,7 +67,7 @@ def defAménité(coords):
 Cell.setEntities('typeZH','neutre')
 
 # Zone H 1
-coords=[[3,2],[2,3],[3,3],[4,3],[3,4]]
+coords=[[3,2],[2,3],[3,3],[4,3],[3,4]] #Coordonnées des cellules choisies pour être ZH
 for element in coords:
     Cell.setCell(element[0],element[1],"typeZH","alpha")
 defAménité(coords)
@@ -80,6 +101,7 @@ Cell.newBorderPovColorAndWidth("Zones Joueurs","zones", {"Joueur A": [Qt.yellow,
 Occupation=myModel.newAgentSpecies("Occupation du Joueur 1","triangleAgent2")
 Occupation2=myModel.newAgentSpecies("Occupation du Joueur 2","arrowAgent1",defaultColor=Qt.yellow)
 Occupation3=myModel.newAgentSpecies("Occupation du Joueur 3","ellipseAgent2",defaultColor=Qt.red)
+nbMaxOccupation=5
 
 
 theFirstLegend=myModel.newLegend()
@@ -88,18 +110,28 @@ Player1=myModel.newPlayer("Joueur A")
 Player1.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode1"}))
 Player1.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode2"}))
 Player1.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode3"}))
+#TODO Il faut améliorer la portée de la update action pour udpate l'attribut "Mode de Gestion" de toutes les cellules de la ZH en même temps
+Player1.addGameAction(myModel.newCreateAction(Occupation,listOfRestriction=[lambda: myModel.getAgentsOfSpecie(Occupation)<nbMaxOccupation,]))
+#TODO Il faut modifier les Create et Update actions pour ajouter les mêmes fonctionnalités que la Move Action : des conditions sur la celulle cible
+#TODO Create Action : revoir la condition sur l'agent (si elle est nécessaire)
+Player1.addGameAction(myModel.newDeleteAction(Occupation))
+#TODO sur le principe de EntityDef.setAttributesConcernedByUpdateMenu il faut ajouter la Delete Action dans le menu contextuel
 Player1Legend=Player1.newControlPanel("Actions du Joueur A",showAgentsWithNoAtt=True)
 
 Player2=myModel.newPlayer("Joueur B")
 Player2.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode1"}))
 Player2.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode2"}))
 Player2.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode3"}))
+Player2.addGameAction(myModel.newCreateAction(Occupation2,listOfRestriction=[lambda: myModel.getAgentsOfSpecie(Occupation2)<nbMaxOccupation]))
+Player2.addGameAction(myModel.newDeleteAction(Occupation2))
 Player2Legend=Player2.newControlPanel("Actions du Joueur B",showAgentsWithNoAtt=True)
 
 Player3=myModel.newPlayer("Joueur C")
 Player3.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode1"}))
 Player3.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode2"}))
 Player3.addGameAction(myModel.newUpdateAction(ModeGestion,{"Mode de Gestion":"mode3"}))
+Player3.addGameAction(myModel.newCreateAction(Occupation3,listOfRestriction=[lambda: myModel.getAgentsOfSpecie(Occupation3)<nbMaxOccupation]))
+Player3.addGameAction(myModel.newDeleteAction(Occupation3))
 Player3Legend=Player3.newControlPanel("Actions du Joueur C",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
@@ -109,12 +141,15 @@ PhaseGestion=myModel.timeManager.newGamePhase('Phase Mode Gestion', [Player1,Pla
 PhaseGestion.setTextBoxText(theTextBox,"Vous pouvez modifier les modes des gestion des zones humides")
 
 def transfert():
+    #TODO
     pass
 
 def séquestrer():
+    #TODO
     pass
 
 def impactAménité():
+    #TODO
     pass
 
 modelActions1=myModel.newModelAction([transfert(),séquestrer(),impactAménité()])
@@ -125,9 +160,11 @@ PhaseScoring=myModel.timeManager.newGamePhase('Phase Scoring', [Player1,Player2,
 PhaseScoring.setTextBoxText(theTextBox,"Vous pouvez placer vos Occupations dans les aménités de la carte")
 
 def résolution():
+    #TODO
     pass
 
 def init():
+    #TODO
     pass
 modelActions2=myModel.newModelAction([résolution(),init()])
 LastPhase=myModel.timeManager.newModelPhase(modelActions2,autoForwardOn=True)
@@ -137,24 +174,11 @@ LastPhase.setTextBoxText(theTextBox,"Fin du tour... Calculs en cours...")
 GameRounds = myModel.newTimeLabel("Temps", Qt.white, Qt.black, Qt.black)
 
 # DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-
-# score1= myModel.newSimVariable("Global Score:",0)
-# i1 = DashBoard.addIndicatorOnSimVariable(score1)
-
-# aModelAction4.addFeedback(lambda: score1.incValue(3))
-# myModel.timeManager.newModelPhase(aModelAction4)
-
-# DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
-# DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')
+#TODO
 
 # endGameRule = myModel.newEndGameRule(numberRequired=1)
-# endGameRule.addEndGameCondition_onIndicator(
-#     i1, "equal", 90, name="Score equal to 90")
-# endGameRule.showEndGameConditions()
+#TODO
 
-
-
-# myModel.setCurrentPlayer("Player1")
 myModel.launch()
 
 
