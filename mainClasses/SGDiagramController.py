@@ -467,7 +467,6 @@ class SGDiagramController(NavigationToolbar):
                 round_lab = 1
                 for rnd, x_val in enumerate(xValue):
                     if x_val % self.nbPhases == 0 and x_val > 1:
-                        print("xValue : ", xValue)
                         self.ax.axvline(rnd, color='r', ls=':')
                         self.ax.text(rnd, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
                                      transform=self.ax.get_xaxis_transform())
