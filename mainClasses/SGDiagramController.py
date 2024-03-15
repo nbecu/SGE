@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, QPushButton, \
+from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, QPushButton, \
     QCheckBox, QSpinBox, QLabel, QSlider, QLineEdit
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
@@ -14,7 +14,7 @@ import re
 class SGDiagramController(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
-
+        self.parent = parent
         self.typeDiagram = typeDiagram
         button = QPushButton("Actualiser", self)
         button.setIcon(QIcon("./icon/actualiser.png"))
@@ -75,6 +75,7 @@ class SGDiagramController(NavigationToolbar):
         self.dictMenuData = {'entities': {}, 'simvariables': {}, 'players': {}}
         self.checkbox_display_menu_data = {}
         self.previous_selected_checkboxes = []
+        self.parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['plot', 'hist'] else 'qualiAttributes'
 
         self.firstEntity = ""
         self.firstAttribut = ""
@@ -90,6 +91,15 @@ class SGDiagramController(NavigationToolbar):
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         self.regenerate_menu(self.dataEntities)
+
+    # message d'erreur si aucune données a affiché
+    def showErrorMessage(self, titre, message):
+        error_dialog = QMessageBox()
+        error_dialog.setIcon(QMessageBox.Warning)
+        error_dialog.setWindowTitle(titre)
+        error_dialog.setText(message)
+        error_dialog.setStandardButtons(QMessageBox.Ok)
+        error_dialog.exec_()
 
     def regenerate_menu(self, data):
         entitiesMenu = QMenu('Entités', self)
@@ -115,7 +125,7 @@ class SGDiagramController(NavigationToolbar):
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 attrib_dict[f"entity-:{entity_name}-:population"] = None
-                list_attribut_key = {attribut for entry in data for attribut in entry.get('quantiAttributes', {}) if
+                list_attribut_key = {attribut for entry in data for attribut in entry.get(self.parentAttributKey, {}) if
                                      entry['entityName'] == entity_name}
                 #  if entry.get('entityName') == entity_name and isinstance(entry['quantiAttributes'][attribut], (int, float))}
                 # ---> Pas besoin, car j'ai séparé les attributes dans deux keys -> quantiAttributes  pour les (int, float) et qualiAttributes  pour les str
@@ -134,23 +144,20 @@ class SGDiagramController(NavigationToolbar):
             for simVar in simVariables_list:
                 self.dictMenuData['simvariables'][f"simvariables-:{simVar}"] = None
             self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'], self.firstEntity, self.firstAttribut)
-
             # simVariables_list = {entry['simVarName'] for entry in self.dataSimVars}
-
             # self.addSubMenus(playersMenu, self.dictMenuData['players'])
         else:
             entities_list = {entry['entityName'] for entry in data if
-                             'entityName' in entry and isinstance(entry['quantiAttributes'], dict)
-                             and entry['quantiAttributes'].keys() and not isinstance(entry['entityName'], dict)}
+                             'entityName' in entry and isinstance(entry[self.parentAttributKey], dict)
+                             and entry[self.parentAttributKey].keys() and not isinstance(entry['entityName'], dict)}
             if not self.firstEntity:
-                self.firstEntity = sorted(entities_list)[0]
+                self.firstEntity = sorted(entities_list)[0] if len(entities_list)>0 else ''
 
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
-                parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['plot', 'hist'] else 'qualiAttributes'
-                list_attribut_key = {attribut for entry in data for attribut in entry.get(parentAttributKey, {}) if
+                list_attribut_key = {attribut for entry in data for attribut in entry.get(self.parentAttributKey, {}) if
                                      entry.get('entityName') == entity_name and isinstance(
-                                         entry[parentAttributKey][attribut], dict)}
+                                         entry[self.parentAttributKey][attribut], dict)}
 
                 if not self.firstAttribut:
                     self.firstAttribut = sorted(list_attribut_key)[0] if len(list_attribut_key) > 0 else ""
@@ -160,10 +167,10 @@ class SGDiagramController(NavigationToolbar):
                     if self.typeDiagram in ['hist', 'pie', 'stackplot']:
                         attrib_dict[f"entity-:{entity_name}-:{attribut_key}"] = None
                     else:
-                        for sub_attribut_val in {entry['quantiAttributes'][attribut] for entry in data for attribut in
-                                                 entry.get('quantiAttributes', {}) if
+                        for sub_attribut_val in {entry[self.parentAttributKey][attribut] for entry in data for attribut in
+                                                 entry.get(self.parentAttributKey, {}) if
                                                  entry.get('entityName') == entity_name and isinstance(
-                                                     entry['quantiAttributes'][attribut], str)}:
+                                                     entry[self.parentAttributKey][attribut], str)}:
                             list_val.append(sub_attribut_val)
 
                             attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
@@ -247,6 +254,9 @@ class SGDiagramController(NavigationToolbar):
         self.previous_selected_checkboxes = list(set(
             option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
 
+
+    ##############################################################################
+
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
         list_data = []
         formatted_data = {}
@@ -254,6 +264,10 @@ class SGDiagramController(NavigationToolbar):
         list_attribut_key = []
         attribut_value = ""
         self.ax.clear()
+
+        data_y = []
+        optionXScale = self.get_combobox2_selected_key()
+
         for option in selected_option_list:
             if "-:" in option:
                 list_opt = option.split("-:")
@@ -261,29 +275,78 @@ class SGDiagramController(NavigationToolbar):
                 entity_name_list.append(entityName)
                 attribut_value = list_opt[-1]
                 list_attribut_key.append(attribut_value)
-                for r in self.rounds:
-                    data_stackplot = next((entry['qualiAttributes'][attribut_value] for entry in data
-                                           if entry['round'] == r and
-                                           entry['entityName'] == entityName and attribut_value in entry[
-                                               'qualiAttributes']), None)
-                    list_data.append(data_stackplot)
 
-        # ordonner par attribut
+                # data_y = [entry['value'] for entry in dataSimVariables if entry['simVarName'] == simVarName]
+                if optionXScale != '3' or (optionXScale == '3' and self.nbPhases == 1):
+                    if self.nbRounds == 0:
+                        nbRounds = self.nbRounds
+                        self.xValue = [0,1]
+                    else:
+                        nbRounds = self.nbRoundsWithLastPhase
+                    for r in range(nbRounds + 1):
+                        phaseIndex = self.nbPhases if r != 0 else 0
+                        aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if entry['entityName'] == entityName
+                                  and attribut_value in entry[self.parentAttributKey] and
+                                  entry['round'] == r and entry['phase'] == phaseIndex][-1]
+                        list_data.append(aEntry)
 
-        labels = sorted(list(set(np.concatenate([list(aData.keys()) for aData in list_data]))))
-        values = []
-        for aLabel in labels:
-            values.append([aData.get(aLabel, 0) for aData in list_data])
-        self.ax.stackplot(self.xValue, values, labels=labels)
+                else:  # Case --> 'by steps'
+                    # 1/ get the first step (round 0, phase 0)
+                    aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if
+                              entry['entityName'] == entityName
+                              and attribut_value in entry[self.parentAttributKey] and
+                              entry['round'] == 0 and entry['phase'] == 0][-1]
+                    list_data.append(aEntry)
+                    # 2/ get all the phases from all the rounds that have been completed
+                    for aR in range(self.nbRoundsWithLastPhase):
+                        for aP in range(self.nbPhases):
+                            aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if
+                                      entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]
+                                      and entry['round'] == (aR + 1) and entry['phase'] == (aP + 1)][-1]
+                            list_data.append(aEntry)
 
-        self.ax.legend()
-        self.ax.set_xlabel("Rounds")
-        self.ax.set_ylabel("Valeurs")
-        attribut_name_list = list(set(list_attribut_key))
-        self.title = "Variation des {} des {}".format(", ".join(attribut_name_list),
-                                                      " et ".join(list(set(entity_name_list))))
-        self.ax.set_title(self.title)
-        self.canvas.draw()
+                    # 3/ in case the last round has not been completed, get the phases from this last round
+                    if self.phaseOfLastRound != self.nbPhases:
+                        for aP in range(self.phaseOfLastRound):
+                            aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data
+                                      if len(data)>0 and self.parentAttributKey in entry and
+                                      entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]
+                                      and entry['round'] == self.nbRounds and entry['phase'] == (aP + 1)][-1]
+                            list_data.append(aEntry)
+
+        if len(list_data)>0:
+            labels = sorted(list(set(np.concatenate([list(aData.keys()) for aData in list_data]))))
+            values = []
+            for aLabel in labels:
+                values.append([aData.get(aLabel, 0) for aData in list_data])
+            self.plot_stack_plot_data_switch_xvalue(self.xValue, values, labels)
+            self.ax.legend()
+            title = "{} et des Simulations Variables".format(self.title)
+            self.ax.set_title(title)
+            self.canvas.draw()
+        else:
+            titre = "Impossible d'afficher les données"
+            message = "Aucune données à afficher. veuillez continuer le jeu "
+            self.showErrorMessage(titre, message)
+            #QApplication.quit()
+
+
+
+    def plot_stack_plot_data_switch_xvalue(self, xValue, data, label):
+        if len(xValue) == 1:
+            self.ax.stackplot(xValue * len(data), data, labels=label)
+        else:
+            self.ax.stackplot(xValue, data, labels=label)
+            option = self.get_combobox2_selected_key()
+            if self.nbPhases > 2 and option == '3':
+                # Display red doted vertical lines to shaw the rounds
+                round_lab = 1
+                for x_val in xValue:
+                    if (x_val -1) % self.nbPhases == 0 and x_val != 1:
+                        self.ax.axvline(x_val, color='r', ls=':')
+                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
+                                     transform=self.ax.get_xaxis_transform())
+                        round_lab += 1
 
     def plot_hist_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
@@ -297,10 +360,10 @@ class SGDiagramController(NavigationToolbar):
                 entity_name = list_opt[1]
                 entity_name_list.append(entity_name)
                 attribut_value = list_opt[-1]
-                histo_y = {f"{entity_name}-{attribut_value}": entry['quantiAttributes'][attribut_value]['histo']
-                           for entry in data if entry['entityName'] == entity_name and 'quantiAttributes' in entry
-                           and attribut_value in entry['quantiAttributes'] and 'histo' in
-                           entry['quantiAttributes'][attribut_value] and entry['round'] == max(self.rounds)}
+                histo_y = {f"{entity_name}-{attribut_value}": entry[self.parentAttributKey][attribut_value]['histo']
+                           for entry in data if entry['entityName'] == entity_name and self.parentAttributKey in entry
+                           and attribut_value in entry[self.parentAttributKey] and 'histo' in
+                           entry[self.parentAttributKey][attribut_value] and entry['round'] == max(self.rounds)}
                 list_data.append(histo_y)
 
         for h in list_data:
@@ -325,9 +388,9 @@ class SGDiagramController(NavigationToolbar):
             entityName = list_option[1]
             attribut_value = list_option[2]
             self.ax.clear()
-            data_pie = next((entry['qualiAttributes'][attribut_value] for entry in data
+            data_pie = next((entry[self.parentAttributKey][attribut_value] for entry in data
                              if entry['round'] == max(self.rounds) and
-                             entry['entityName'] == entityName and attribut_value in entry['qualiAttributes']), None)
+                             entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]), None)
 
             labels = list(data_pie.keys())
             values = list(data_pie.values())
@@ -348,21 +411,57 @@ class SGDiagramController(NavigationToolbar):
             self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
 
     def plot_linear_typeDiagram_for_simVariable(self, dataSimVariables, selected_option_list, pos):
+        data_y = []
+        optionXScale = self.get_combobox2_selected_key()
         list_simVariables = [item.split("-:")[1] for item in selected_option_list if
                              item.startswith('simvariables-:') and item.split("-:") and len(item.split("-:")) > 0]
         if list_simVariables:
             for simVarName in list_simVariables:
-                y = [entry['value'] for entry in dataSimVariables if entry['simVarName'] == simVarName]
-                self.plot_data_switch_xvalue(self.xValue, y, f"Simulations Variable : {simVarName}", 'solid', pos)
-            self.ax.legend()
-            title = "{} et des Simulations Variables".format(self.title)
-            self.ax.set_title(title)
-            self.canvas.draw()
+                label = f"Simulations Variable : {simVarName}"
+                # data_y = [entry['value'] for entry in dataSimVariables if entry['simVarName'] == simVarName]
+                if optionXScale != '3' or (optionXScale == '3' and self.nbPhases == 1):
+                    for r in range(self.nbRoundsWithLastPhase + 1):
+                        phaseIndex = self.nbPhases if r != 0 else 0
+                        aEntry = [entry['value'] for entry in dataSimVariables if 'value' in entry and
+                                  entry['simVarName'] == simVarName and entry['round'] == r and entry[
+                                      'phase'] == phaseIndex][-1]
+                        data_y.append(aEntry)
+
+                else:  # Case --> 'by steps'
+                    # 1/ get the first step (round 0, phase 0)
+                    aEntry = [entry['value'] for entry in dataSimVariables if 'value' in entry and
+                              entry['simVarName'] == simVarName and entry['round'] == 0 and entry['phase'] == 0][-1]
+                    data_y.append(aEntry)
+                    # 2/ get all the phases from all the rounds that have been completed
+                    for aR in range(self.nbRoundsWithLastPhase):
+                        for aP in range(self.nbPhases):
+                            aEntry = [entry['value'] for entry in dataSimVariables if 'value' in entry and
+                                      entry['simVarName'] == simVarName and entry['round'] == (aR + 1) and entry[
+                                          'phase'] == (aP + 1)][-1]
+                            data_y.append(aEntry)
+
+                    # 3/ in case the last round has not been completed, get the phases from this last round
+                    if self.phaseOfLastRound != self.nbPhases:
+                        if len(dataSimVariables) == 1:
+                            self.xValue = [0,1]
+                            aEntry = [entry['value'] for entry in dataSimVariables if 'value' in entry and
+                                      entry['simVarName'] == simVarName and entry['round'] == 0 and entry['phase'] == 0][-1]
+                            data_y.append(aEntry)
+                        else:
+                            for aP in range(self.phaseOfLastRound):
+                                aEntry = [entry['value'] for entry in dataSimVariables
+                                          if len(dataSimVariables)>0 and 'value' in entry and
+                                          entry['simVarName'] == simVarName and entry['round'] == self.nbRounds and
+                                          entry['phase'] == (aP + 1)] #[-1]
+                                data_y.append(aEntry)
+                self.plot_data_switch_xvalue(self.xValue, data_y, label, 'solid', pos)
+        self.ax.legend()
+        title = "{} et des Simulations Variables".format(self.title)
+        self.ax.set_title(title)
+        self.canvas.draw()
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
-
-        option = self.get_combobox2_selected_key()
         # Option d'affichage par tour ou par Steps !!!!
         pos = 0
         list_entity_name = []
@@ -371,7 +470,7 @@ class SGDiagramController(NavigationToolbar):
             for option in selected_option_list:
                 pos += 1
                 list_option = option.split("-:")
-                if len(list_option) > 0:
+                if len(list_option) > 0 and 'simvariables' not in list_option:
                     entityName = list_option[1]
                     list_entity_name.append(entityName)
                     label_pop = f"Populations : {entityName}"
@@ -393,7 +492,7 @@ class SGDiagramController(NavigationToolbar):
                                 if key and key in self.indicators_item:
                                     attribut_key = list_option[2]
                                     list_attribut_key.append(attribut_key)
-                                    y_indicators = aEntry['quantiAttributes'][attribut_key][key]
+                                    y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
                                     data_indicators.append(y_indicators)
 
                     else:  # Case --> 'by steps'
@@ -407,7 +506,7 @@ class SGDiagramController(NavigationToolbar):
                             if key and key in self.indicators_item:
                                 attribut_key = list_option[2]
                                 list_attribut_key.append(attribut_key)
-                                y_indicators = aEntry['quantiAttributes'][attribut_key][key]
+                                y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
                                 data_indicators.append(y_indicators)
                         # 2/ get all the phases from all the rounds that have been completed
                         for aR in range(self.nbRoundsWithLastPhase):
@@ -422,7 +521,7 @@ class SGDiagramController(NavigationToolbar):
                                     if key and key in self.indicators_item:
                                         attribut_key = list_option[2]
                                         list_attribut_key.append(attribut_key)
-                                        y_indicators = aEntry['quantiAttributes'][attribut_key][key]
+                                        y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
                                         data_indicators.append(y_indicators)
                         # 3/ in case the last round has not been completed, get the phases from this last round
                         if self.phaseOfLastRound != self.nbPhases:
@@ -437,13 +536,13 @@ class SGDiagramController(NavigationToolbar):
                                     if key and key in self.indicators_item:
                                         attribut_key = list_option[2]
                                         list_attribut_key.append(attribut_key)
-                                        y_indicators = aEntry['quantiAttributes'][attribut_key][key]
+                                        y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
                                         data_indicators.append(y_indicators)
 
                     if len(data_populations) > 0:
                         self.plot_data_switch_xvalue(self.xValue, data_populations, label_pop, 'solid', pos)
-                    if key and key in self.indicators_item:
-                        label_ind = f"{self.indicators_item[key]} - {attribut_key} - {entityName}"
+                    if key and key in self.indicators_item and len(list_option)>2:
+                        label_ind = f"{self.indicators_item[key]} - {list_option[2]} - {entityName}"
                         linestyle_ind = self.linestyle_items[key] if key and key in self.linestyle_items else None
                         self.plot_data_switch_xvalue(self.xValue, data_indicators, label_ind, linestyle_ind, pos)
 
@@ -460,13 +559,16 @@ class SGDiagramController(NavigationToolbar):
         if len(xValue) == 1:
             self.ax.plot(xValue * len(data), data, label=label, color=color, marker='o', linestyle='None')
         else:
+            data = [0 if isinstance(item, list) and len(item) == 0 else item for item in data]
+            if len(xValue) > len(data):
+                data.extend([0] * (len(xValue) - len(data)))
             self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
             option = self.get_combobox2_selected_key()
             if self.nbPhases > 2 and option == '3':
                 # Display red doted vertical lines to shaw the rounds
                 round_lab = 1
                 for x_val in xValue:
-                    if (x_val -1) % self.nbPhases == 0 :
+                    if (x_val -1) % self.nbPhases == 0 and x_val != 1:
                         self.ax.axvline(x_val, color='r', ls=':')
                         self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
                                      transform=self.ax.get_xaxis_transform())
@@ -490,10 +592,24 @@ class SGDiagramController(NavigationToolbar):
         # if self.typeDiagram not in ['pie', 'hist']:
         if self.typeDiagram in ['plot', 'stackplot']:
             self.data_2_combobox.clear()
+            if self.nbRounds == 1:
+                sorted_combobox_data = dict(sorted(self.combobox_2_data.items(), key=lambda item: item[1], reverse=True))
+                self.combobox_2_data = sorted_combobox_data
             for display_text in self.combobox_2_data:
                 self.data_2_combobox.addItem(display_text)
             for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
                 self.data_2_combobox.setItemData(index, key)
+        """
+        if self.nbRounds == 1:
+            self.data_2_combobox.setCurrentText("Tous les phases")
+            return '3'
+        """
+        """if self.typeDiagram in ['plot', 'stackplot']:
+            self.data_2_combobox.clear()
+            for display_text in self.combobox_2_data:
+                self.data_2_combobox.addItem(display_text)
+            for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
+                self.data_2_combobox.setItemData(index, key)"""
 
     def load_cmb_per_rounds_data(self):
         self.start_cmb_round.setEnabled(True)
@@ -523,7 +639,6 @@ class SGDiagramController(NavigationToolbar):
         self.update_data()
         self.set_combobox_2_items()
         self.update_plot()
-        # self.set_checkbox_values()
 
     def getAllHistoryData(self):
         historyData = []

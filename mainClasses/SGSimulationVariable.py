@@ -14,12 +14,13 @@ class SGSimulationVariable():
     def __init__(self,parent,initValue,name,color,isDisplay=True):
         #Basic initialize
         self.model=parent
-        self.value=initValue
+        #self.value=initValue
         self.name=name
         self.color=color
         self.isDisplay=isDisplay
         self.watchers=[]
         self.history=[]
+        self.setValue(initValue)
 
         
 
@@ -31,7 +32,6 @@ class SGSimulationVariable():
 
     def saveValueInHistory(self,aValue):
         self.history.append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
-
 
     def incValue(self,aValue=1,max=None):
         """

@@ -14,10 +14,8 @@ class SGDiagramStackPlot(QMainWindow):
     def __init__(self, parent=None):
         super(SGDiagramStackPlot, self).__init__(parent)
         self.parent = parent
-
         self.setWindowTitle("Diagramme Stack Plot")
         self.setGeometry(100, 100, 800, 600)
-
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
@@ -27,7 +25,6 @@ class SGDiagramStackPlot(QMainWindow):
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
-        self.toolbar.update_plot()
 
 
 

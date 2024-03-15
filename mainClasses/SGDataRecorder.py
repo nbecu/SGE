@@ -61,8 +61,8 @@ class SGDataRecorder():
 
     def getStepsData_ofSimVariables(self):
         aList=[]
-        for aSimVar in self.model.simulationVariables:  
-              aList.extend(aSimVar.getListOfStepsData())
+        for aSimVar in self.model.simulationVariables:
+            aList.extend(aSimVar.getListOfStepsData())
         return aList
     
     def getStepsData_ofPlayers(self):

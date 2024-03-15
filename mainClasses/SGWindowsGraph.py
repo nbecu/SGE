@@ -1,7 +1,7 @@
 import sys
 
 import numpy as np
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QGridLayout
+from PyQt5.QtWidgets import QApplication, QMessageBox, QLabel, QWidget, QVBoxLayout, QGridLayout
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
@@ -31,10 +31,22 @@ class SGWindowsGraph(QWidget):
     def getAllHistoryData_new(self):
         return self.model.dataRecorder.dictOfData
 
+    def showErrorMessage(self):
+        error_dialog = QMessageBox()
+        error_dialog.setIcon(QMessageBox.Warning)
+        error_dialog.setWindowTitle("Impossible d'afficher la fenetre")
+        error_dialog.setText("Merci de débuter en jouant deux tours ou deux phases avant de sélectionner le type de diagramme.\n\n"
+                             "Exemple : Cliquer sur le bouton play (>) au moins deux fois")
+        error_dialog.setStandardButtons(QMessageBox.Ok)
+        error_dialog.exec_()
+
     def action_one_graph(self):
-        # data = self.getAllHistoryData()
-        sgDiagramLinear = SGDiagramLinear(self.model)
-        sgDiagramLinear.show()
+        if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
+            sgDiagramLinear = SGDiagramLinear(self.model)
+            sgDiagramLinear.show()
+        else:
+            self.showErrorMessage()
+
     def action_one_graph_test(self):
         # Exemple d'utilisation
         # data = self.getAllHistoryData()
@@ -81,13 +93,25 @@ class SGWindowsGraph(QWidget):
 
     def action_circular_diagram(self):
         #data = self.getAllHistoryData()
-        sgDiagramCircular = SGDiagramCircular(self.model)
-        sgDiagramCircular.show()
+        if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
+            sgDiagramCircular = SGDiagramCircular(self.model)
+            sgDiagramCircular.show()
+        else:
+            self.showErrorMessage()
+
 
     def action_stackplot_diagram(self):
-        sgDiagramStackPlot = SGDiagramStackPlot(self.model)
-        sgDiagramStackPlot.show()
+        if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
+            sgDiagramStackPlot = SGDiagramStackPlot(self.model)
+            sgDiagramStackPlot.show()
+        else:
+            self.showErrorMessage()
+
 
     def action_histogram_diagram(self):
-        sgDiagramHistogram = SGDiagramHistogram(self.model)
-        sgDiagramHistogram.show()
+        if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
+            sgDiagramHistogram = SGDiagramHistogram(self.model)
+            sgDiagramHistogram.show()
+        else:
+            self.showErrorMessage()
+
