@@ -309,15 +309,14 @@ class SGDiagramController(NavigationToolbar):
             label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys())) > 0 else ''
             bins = [val - (h_abcis[1] - h_abcis[0]) / 2 for val in h_abcis] + [
                 h_abcis[-1] + (h_abcis[1] - h_abcis[0]) / 2]
-            customXValue = [(h_abcis[i] + h_abcis[i + 1]) / 2 for i in range(len(h_abcis) - 1)]
             self.ax.hist(h_abcis, weights=h_height, bins=bins, label=label, edgecolor='black')
-            self.ax.set_xticks(customXValue)
+            self.ax.set_xticks(list(h.values())[0][1])
 
         self.ax.legend()
         self.title = "Analyse de la fréquence des {} des {}".format(attribut_value, " et ".join(entity_name_list))
         self.ax.set_title(self.title)
-        self.ax.set_xlabel('Valeurs')
-        self.ax.set_ylabel('Fréquences')
+        self.ax.set_xlabel(attribut_value)
+        self.ax.set_ylabel('Nombre d''occurences')
         self.canvas.draw()
 
     def plot_pie_typeDiagram(self, data, selected_option_list):
@@ -379,9 +378,9 @@ class SGDiagramController(NavigationToolbar):
                     key = list_option[-1] if list_option[-1] else None
                     data_populations = [];
                     data_indicators = [];
+                    optionXScale = self.get_combobox2_selected_key()
 
-                    if self.optionRoundorSteps == 'by rounds' or (
-                            self.optionRoundorSteps == 'by steps' and self.nbPhases == 1):
+                    if optionXScale != '3' or (optionXScale == '3' and self.nbPhases == 1):
                         for r in range(self.nbRoundsWithLastPhase + 1):
                             phaseIndex = self.nbPhases if r != 0 else 0
                             aEntry = [entry for entry in data if
@@ -464,11 +463,12 @@ class SGDiagramController(NavigationToolbar):
             self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
             option = self.get_combobox2_selected_key()
             if self.nbPhases > 2 and option == '3':
+                # Display red doted vertical lines to shaw the rounds
                 round_lab = 1
-                for rnd, x_val in enumerate(xValue):
-                    if x_val % self.nbPhases == 0 and x_val > 1:
-                        self.ax.axvline(rnd, color='r', ls=':')
-                        self.ax.text(rnd, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
+                for x_val in xValue:
+                    if (x_val -1) % self.nbPhases == 0 :
+                        self.ax.axvline(x_val, color='r', ls=':')
+                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
                                      transform=self.ax.get_xaxis_transform())
                         round_lab += 1
 
@@ -565,10 +565,7 @@ class SGDiagramController(NavigationToolbar):
         self.setXValueData(self.dataEntities)
 
     def setXValueData(self, data):
-        option = self.get_combobox2_selected_key()
-        # Option d'affichage par tour ou par Steps !!!!
-        # self.optionRoundorSteps = 'by steps'
-        self.optionRoundorSteps = 'by rounds'
+        optionXScale = self.get_combobox2_selected_key()
         self.xValue = []
         self.rounds = {entry['round'] for entry in data}
         self.phases = {entry['phase'] for entry in data}
@@ -577,9 +574,7 @@ class SGDiagramController(NavigationToolbar):
             self.model.timeManager.phases) - 1  # be careful. should be changed wjhen merged with main branch
         self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
-        if option == '0':
-            self.xValue.extend(range(1, self.nbRounds * self.nbPhases + 1))
-        if option == '2':
+        if optionXScale == '2':
             self.load_cmb_per_rounds_data()
             if self.roundMax != 0:
                 self.nbRounds = self.roundMax - self.roundMin
@@ -594,15 +589,13 @@ class SGDiagramController(NavigationToolbar):
                 if self.phaseOfLastRound != self.nbPhases:
                     self.xValue.extend(range(aStep + 1, aStep + self.phaseOfLastRound + 1))
 
-        if self.optionRoundorSteps == 'by rounds' or (self.optionRoundorSteps == 'by steps' and self.nbPhases == 1):
-            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
-
-        if option == '3':
-            # case where         self.optionRoundorSteps == 'by steps' and self.nbPhases > 1:
-            self.optionRoundorSteps = 'by steps'
+        if optionXScale == '3':
             self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
             self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
             if self.phaseOfLastRound != self.nbPhases:
                 self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
+
+        if optionXScale != '3' or (optionXScale == '3' and self.nbPhases == 1):
+            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
 
