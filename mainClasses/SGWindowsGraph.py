@@ -35,6 +35,8 @@ class SGWindowsGraph(QWidget):
         # data = self.getAllHistoryData()
         sgDiagramLinear = SGDiagramLinear(self.model)
         sgDiagramLinear.show()
+        return sgDiagramLinear
+    
     def action_one_graph_test(self):
         # Exemple d'utilisation
         # data = self.getAllHistoryData()
@@ -83,11 +85,14 @@ class SGWindowsGraph(QWidget):
         #data = self.getAllHistoryData()
         sgDiagramCircular = SGDiagramCircular(self.model)
         sgDiagramCircular.show()
+        return sgDiagramCircular
 
     def action_stackplot_diagram(self):
         sgDiagramStackPlot = SGDiagramStackPlot(self.model)
         sgDiagramStackPlot.show()
+        return sgDiagramStackPlot
 
     def action_histogram_diagram(self):
         sgDiagramHistogram = SGDiagramHistogram(self.model)
         sgDiagramHistogram.show()
+        return sgDiagramHistogram

@@ -72,6 +72,8 @@ class SGTimeManager():
         #The instructions below have been commented temporarily to test a new process for broker msg  
                     # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
                     #     self.model.publishEntitiesState()
+                    for aGraph in self.model.openedGraphs:
+                        aGraph.toolbar.refresh_data()
 
 
                 else:

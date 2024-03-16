@@ -43,7 +43,7 @@ class SGDiagramController(NavigationToolbar):
             self.end_cmb_round.setEnabled(False)
             self.add_button.setEnabled(False)
             self.combobox_2_data = {'Tous les tours': '0', 'Intervalle de tours': '2',
-                                    'Tous les phases': '3'}
+                                    'Tous les phases': '3','Que phase 2': 'specified phase'}
             self.data_2_combobox = QComboBox(parent)
             self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
             self.addWidget(self.data_2_combobox)
@@ -79,14 +79,7 @@ class SGDiagramController(NavigationToolbar):
         self.firstEntity = ""
         self.firstAttribut = ""
         self.list_attribut_display = []
-        self.dataEntities = self.model.dataRecorder.getStats_ofEntities()  # ATTENTION --> lire les commentaires en dessous
-        # ATTENTION : getStats_ofEntities() recupère les données des entitées avec toutes les Stats déjà calculé
-        # ATTENTION : Il n'y a pas besoin de  recalculer les Stats !!!
-        # ATTENTION : Les Stats déjà calculé sont population, mean, min, max, std, (voir suite des stats calculés ci-dessous)
-        # ATTENTION(suite des Stats déjà calculés) : sum (nouvelle stat pour les DiagramLinear), histogram (pour l'affichage des DiagramHistogram)
-        # ATTENTION(suite des Stats déjà calculés) : + les 'counter' des attributs de type str (qualiAttributes), (pour l'affichage des DiagramCircular et DiagramStackPlot)
-        # ATTENTION(explication des 'counter'): un 'counter' donne le nombre d'occurences de chaque catégorie, pour l'affichage des DiagramCircular et DiagramStackPlot
-
+        self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
         self.regenerate_menu(self.dataEntities)
@@ -115,10 +108,13 @@ class SGDiagramController(NavigationToolbar):
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 attrib_dict[f"entity-:{entity_name}-:population"] = None
+                
+                list_entDef_attribut_key = {x for entry in data for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
+                for entDef_attribut_key in sorted(list_entDef_attribut_key):
+                    attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None               
+                                              
                 list_attribut_key = {attribut for entry in data for attribut in entry.get('quantiAttributes', {}) if
                                      entry['entityName'] == entity_name}
-                #  if entry.get('entityName') == entity_name and isinstance(entry['quantiAttributes'][attribut], (int, float))}
-                # ---> Pas besoin, car j'ai séparé les attributes dans deux keys -> quantiAttributes  pour les (int, float) et qualiAttributes  pour les str
                 if not self.firstAttribut:
                     self.firstAttribut = ""  # sorted(list_attribut_key)[0]
                 for attribut_key in sorted(list_attribut_key):
@@ -361,11 +357,12 @@ class SGDiagramController(NavigationToolbar):
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         self.ax.clear()
-
-        option = self.get_combobox2_selected_key()
+        optionXScale = self.get_combobox2_selected_key()
         # Option d'affichage par tour ou par Steps !!!!
+        phaseToDisplay = 2 if optionXScale =='specified phase' else self.nbPhases
         pos = 0
         list_entity_name = []
+        list_entDef_key = []
         list_attribut_key = []
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
             for option in selected_option_list:
@@ -377,25 +374,30 @@ class SGDiagramController(NavigationToolbar):
                     label_pop = f"Populations : {entityName}"
                     key = list_option[-1] if list_option[-1] else None
                     data_populations = [];
+                    entDef_indicators = [];
                     data_indicators = [];
-                    optionXScale = self.get_combobox2_selected_key()
 
-                    if optionXScale != '3' or (optionXScale == '3' and self.nbPhases == 1):
+                    if optionXScale in ('0','2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale =='specified phase':
                         for r in range(self.nbRoundsWithLastPhase + 1):
-                            phaseIndex = self.nbPhases if r != 0 else 0
+                            phaseIndex = phaseToDisplay if r != 0 else 0
                             aEntry = [entry for entry in data if
-                                      entry['entityName'] == entityName and entry['round'] == r and entry[
-                                          'phase'] == phaseIndex][-1]
+                                      entry['entityName'] == entityName
+                                      and entry['round'] == r
+                                      and entry['phase'] == phaseIndex][-1]
                             if key == 'population':
                                 y = aEntry['population']
                                 data_populations.append(y)
+                            elif key in aEntry['entDefAttributes']:
+                                attribut_key = list_option[2]
+                                list_entDef_key.append(attribut_key)
+                                y_indicators = aEntry['entDefAttributes'][attribut_key]
+                                entDef_indicators.append(y_indicators)
                             else:
                                 if key and key in self.indicators_item:
                                     attribut_key = list_option[2]
                                     list_attribut_key.append(attribut_key)
                                     y_indicators = aEntry['quantiAttributes'][attribut_key][key]
                                     data_indicators.append(y_indicators)
-
                     else:  # Case --> 'by steps'
                         # 1/ get the first step (round 0, phase 0)
                         aEntry = [entry for entry in data if
@@ -442,6 +444,8 @@ class SGDiagramController(NavigationToolbar):
 
                     if len(data_populations) > 0:
                         self.plot_data_switch_xvalue(self.xValue, data_populations, label_pop, 'solid', pos)
+                    if len(entDef_indicators) > 0:
+                        self.plot_data_switch_xvalue(self.xValue, entDef_indicators, list_entDef_key, 'solid', pos)
                     if key and key in self.indicators_item:
                         label_ind = f"{self.indicators_item[key]} - {attribut_key} - {entityName}"
                         linestyle_ind = self.linestyle_items[key] if key and key in self.linestyle_items else None
@@ -595,7 +599,7 @@ class SGDiagramController(NavigationToolbar):
             if self.phaseOfLastRound != self.nbPhases:
                 self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
 
-        if optionXScale != '3' or (optionXScale == '3' and self.nbPhases == 1):
+        if optionXScale in ('0','2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale=='specified phase':
             self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
             self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
 

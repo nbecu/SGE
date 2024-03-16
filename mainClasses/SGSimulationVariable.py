@@ -14,13 +14,15 @@ class SGSimulationVariable():
     def __init__(self,parent,initValue,name,color,isDisplay=True):
         #Basic initialize
         self.model=parent
-        self.value=initValue
         self.name=name
         self.color=color
         self.isDisplay=isDisplay
         self.watchers=[]
         self.history=[]
-
+        if callable(initValue):
+            self.setValue(initValue())
+        else:
+            self.setValue(initValue)
         
 
     def setValue(self,newValue):
