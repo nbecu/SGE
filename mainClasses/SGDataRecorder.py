@@ -20,20 +20,6 @@ class SGDataRecorder():
         self.stepsData_ofPlayers = []
         self.nbPhases = len(self.model.timeManager.phases) -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
         
-    # def collectStepData(self): #OBSOLETE METHOD -> Can be removed
-    #     currentRound =self.model.timeManager.currentRound
-    #     currentPhase = self.model.timeManager.currentPhase
-    #     for aEntity in self.model.getAllEntities():
-    #         aData = {
-    #             'entityType': aEntity.classDef.entityType(),
-    #             'entityName': aEntity.classDef.entityName,
-    #             'id': aEntity.id,
-    #             'round': currentRound,
-    #             'phase': currentPhase,
-    #             'attribut': aEntity.dictAttributes
-    #                 }    
-    #         self.listOfData_ofEntities.append(aData)
-
 
     def calculateStepStats(self):
         for aEntDef in self.model.getEntitiesDef():  

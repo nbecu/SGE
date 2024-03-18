@@ -337,12 +337,6 @@ class SGModel(QMainWindow):
 
     # Trigger the next turn
     def nextTurn(self):
-        #print("test")
-        # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
-        # connect(self.nextTurn)
-
-    # Trigger the next turn
-    def nextTurn(self):
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()

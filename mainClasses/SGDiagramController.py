@@ -647,36 +647,14 @@ class SGDiagramController(NavigationToolbar):
             historyData.append(h)
         return historyData
 
-    #  format de entity.getHistoryDataJSON()) de entity
-    #  {
-    #         'id': self.id,
-    #         'currentPlayer': self.model.currentPlayer,
-    #         'entityDef': self.classDef.entityName if self.classDef.entityName == 'Cell' else 'Agent',
-    #         'entityName': self.classDef.entityName,
-    #         'simVariable': simvariable_dict,
-    #         'round': self.model.timeManager.currentRound,
-    #         'phase': self.model.timeManager.currentPhase,
-    #         'quantiAttributes': self.dictAttributes
-    #     }
-
-    # def getAllData(self):
-    #     value_cmb_2 = self.get_combobox2_selected_key()
-    #     return self.getAllHistoryData() if value_cmb_2 == 1 else self.model.listData
-
     def refresh_data(self):
         self.is_refresh = True
         self.update_plot()
 
     def update_data(self):
-        # self.data = self.getAllData()
-        # self.data = self.model.dataRecorder.listOfData_ofEntities
-        # self.data = self.model.dataRecorder.getStepsData_ofEntities()
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        # self.regenerate_menu(self.dataEntities)
-        # if option == '1':
-        # self.phases = {entry['phase'] for entry in data if  entry['phase'] == max_round}
         self.setXValueData(self.dataEntities)
 
     def setXValueData(self, data):

@@ -158,8 +158,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     
 
     def calculateAndRecordCurrentStepStats(self):
-        currentRound =self.model.timeManager.currentRound
-        currentPhase = self.model.timeManager.currentPhase
+        currentRound =self.model.timeManager.currentRoundNumber
+        currentPhase = self.model.timeManager.currentPhaseNumber
 
         listQuantiAttributes = []
         listQualiAttributes = []
@@ -579,7 +579,6 @@ class SGAgentDef(SGEntityDef):
         self.entities.remove(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aAgent.updateMqtt()
         #aAgent.update()
 
 

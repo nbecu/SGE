@@ -103,7 +103,7 @@ def renouvellementStock_port(total_pêcheMerlu,total_pêcheSole):
     Merlus.setValue("stock",((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0]))
     print("STOCK MERLU :")
     print(Merlus.value("stock"))
-    print(myModel.timeManager.currentRound)
+    print(myModel.timeManager.currentRoundNumber)
     total_pêcheMerlu=total_pêcheMerlu+sommePêcheMerlu
     total_pêcheSole=total_pêcheSole+sommePêcheSole
     # indTotMerlu.setResult(total_pêcheMerlu)

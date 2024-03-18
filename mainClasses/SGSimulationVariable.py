@@ -26,7 +26,7 @@ class SGSimulationVariable():
             watcher.checkAndUpdate()
 
     def saveValueInHistory(self,aValue):
-        self.history.append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
+        self.history.append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])
 
     def incValue(self,aValue=1,max=None):
         """

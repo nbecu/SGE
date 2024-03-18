@@ -122,11 +122,10 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             aValue = valueToSet
         # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
+        self.saveValueInHistory(aAttribut,aValue)
         self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.updateMqtt()
         self.update()
         return True
 

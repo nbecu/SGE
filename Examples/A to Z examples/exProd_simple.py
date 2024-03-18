@@ -53,7 +53,9 @@ myModel.timeManager.newModelPhase([modelAction1])
 # myModel.newLegend()
 # myModel.newTimeLabel("Time", Qt.white, Qt.black, Qt.black)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-DashBoard.addIndicator("avgAtt", 'Cell', attribute='energy',color=Qt.black)
+DashBoard.addIndicator("avgAtt", 'cell', attribute='energy',color=Qt.black)
+
+
 
 DashBoard.showIndicators()
 

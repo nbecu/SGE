@@ -86,7 +86,7 @@ class AttributeAndValueFunctionalities():
         else: raise ValueError ('calcValue works with a lambda function')
 
     def saveValueInHistory(self,aAttribute,aValue):
-        self.history["value"][aAttribute].append([self.model.timeManager.currentRound,self.model.timeManager.currentPhase,aValue])
+        self.history["value"][aAttribute].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])
   
     def getDictOfAttributes_atRoundAndPhase(self,aRound,aPhase):
         ## Should use the DataRecorder method

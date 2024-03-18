@@ -38,8 +38,8 @@ class SGFormatDataHistory():
         Collect data from the current step, just before the simulation moves on to the next step
         'Moving to the next step' means either 'Moving to the next phase of the round', or (if its the last phase of the round), 'Moving to the next round'
         """
-        currentRound =self.model.timeManager.currentRound
-        currentPhase = self.model.timeManager.currentPhase
+        currentRound =self.model.timeManager.currentRoundNumber
+        currentPhase = self.model.timeManager.currentPhaseNumber
         for aEntity in self.model.getAllEntities():
             entName = aEntity.classDef.entityName
             entId = aEntity.id

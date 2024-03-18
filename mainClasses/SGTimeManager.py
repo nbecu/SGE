@@ -20,22 +20,6 @@ class SGTimeManager():
         
     # To increment the time of the game
     def nextPhase(self):
-
-        self.model.dataRecorder.calculateStepStats()
-
-        if len(self.phases) != 0:
-#          Cette instruction a été commenté car il n'y a pas vraiment de raison e faire un test pour savoir si le current player est soit ml'un des joueurs soit l'admin
-#         if len(self.phases) != 0 and ((self.model.currentPlayer is not None and self.model.currentPlayer in self.model.users) or self.model.currentPlayer == "Admin"):
-            
-
-            end = self.checkEndGame()
-            if not end:
-                if self.currentPhase+2 <= len(self.phases):
-                    if len(self.phases) != 1:
-                        self.currentPhase = self.currentPhase + 1
-                        if self.model.myTimeLabel is not None:
-                            self.model.myTimeLabel.updateTimeLabel()
-
         if len(self.phases) == 0:
             print('warning : should we handle the case when there is no phases defined ?')
             return
