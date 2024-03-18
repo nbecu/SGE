@@ -3,8 +3,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from collections import defaultdict
 import random
-
-#from mainClasses.SGDiagram import SGDiagram
 from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.AttributeAndValueFunctionalities import *
 
