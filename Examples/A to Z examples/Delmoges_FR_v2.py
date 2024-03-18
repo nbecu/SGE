@@ -7,21 +7,21 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1700,800, windowTitle="Delmoges_FR", typeOfLayout ="grid")
 
-aGrid=myModel.newGrid(10,10,"square",size=60,gap=1)
-aGrid.setCells("type","mer")
-aGrid.setCells("sédim","sable")
-aGrid.setCells_withColumn("type","grandFond",1)
-aGrid.setCells_withColumn("type","côte",10)
-aGrid.setCells_withColumn("sédim","côte",10)
-aGrid.setCells_withColumn("sédim","vase",1)
-aGrid.setCell(3,4,"sédim","rocher")
-aGrid.setCell(10,1,"type",'port')
-aGrid.setCells("stockCellMerlu",0)
-aGrid.setCells("stockCellSole",0)
-aGrid.setCells("txPrésenceMerlu",0)
-aGrid.setCells("txPrésenceSole",0)
-aGrid.setCells("quantitéPêchéeMerlu",0)
-aGrid.setCells("quantitéPêchéeSole",0)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=60,gap=1)
+Cell.setEntities("type","mer")
+Cell.setEntities("sédim","sable")
+Cell.setEntities_withColumn("type","grandFond",1)
+Cell.setEntities_withColumn("type","côte",10)
+Cell.setEntities_withColumn("sédim","côte",10)
+Cell.setEntities_withColumn("sédim","vase",1)
+Cell.setEntities(3,4,"sédim","rocher")
+Cell.setEntities(10,1,"type",'port')
+Cell.setEntities("stockCellMerlu",0)
+Cell.setEntities("stockCellSole",0)
+Cell.setEntities("txPrésenceMerlu",0)
+Cell.setEntities("txPrésenceSole",0)
+Cell.setEntities("quantitéPêchéeMerlu",0)
+Cell.setEntities("quantitéPêchéeSole",0)
 total_pêcheMerlu=0
 total_pêcheSole=0
 
@@ -34,11 +34,11 @@ Navire=myModel.newAgentSpecies("Navire","arrowAgent1",{"txCapture_Sole":{2.75E-5
 
 EspècesHalieutiques=[Soles,Merlus]
 
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
-myModel.newAgentAtCoords(aGrid,Navire,10,1)
+myModel.newAgentAtCoords(Cell,Navire,10,1)
+myModel.newAgentAtCoords(Cell,Navire,10,1)
+myModel.newAgentAtCoords(Cell,Navire,10,1)
+myModel.newAgentAtCoords(Cell,Navire,10,1)
+myModel.newAgentAtCoords(Cell,Navire,10,1)
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 
@@ -66,7 +66,7 @@ DashBoard.showIndicators()
 
 
 def tx_présence():
-    CellsMer=[cell for cell in myModel.getCells(aGrid) if (cell.value('type') in ['mer', 'grandFond'])]
+    CellsMer=[cell for cell in myModel.getCells(Cell) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
     nbNavires=len(myModel.getAgents("Navire"))
     for Species in EspècesHalieutiques:

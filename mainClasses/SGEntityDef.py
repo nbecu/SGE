@@ -157,36 +157,35 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         return reformatedDict
     
 
-    def calculateAndRecordCurrentStepStats(self):
+    def calculateAndRecordCurrentStepStats(self):        
         currentRound =self.model.timeManager.currentRoundNumber
         currentPhase = self.model.timeManager.currentPhaseNumber
-
-        listQuantiAttributes = []
-        listQualiAttributes = []
-        for aAtt,aVal in self.entities[0].dictAttributes.items():  
-            if type(aVal) in [int,float]:
-                listQuantiAttributes.append(aAtt)
-            elif type(aVal) == str:
-                listQualiAttributes.append(aAtt)
-            else:
-                raise TypeError("Only int float and str are allowed")
-
         quantiAttributesStats ={}
-        for aAtt in listQuantiAttributes:
-            listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
-            quantiAttributesStats[aAtt] = {
-                'sum': np.sum(listOfValues),
-                'mean': np.mean(listOfValues),
-                'min': np.min(listOfValues),
-                'max': np.max(listOfValues),
-                'stdev': np.std(listOfValues),
-                'histo':np.histogram(listOfValues, bins='auto')
-                }
         qualiAttributesStats ={}
-        for aAtt in listQualiAttributes:
-            listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
-            qualiAttributesStats[aAtt]=Counter(listOfValues)
-            type(dict(Counter(listOfValues)))
+        if self.entities: 
+            listQuantiAttributes = []
+            listQualiAttributes = []
+            for aAtt,aVal in self.entities[0].dictAttributes.items():  
+                if type(aVal) in [int,float]:
+                    listQuantiAttributes.append(aAtt)
+                elif type(aVal) == str:
+                    listQualiAttributes.append(aAtt)
+                else:
+                    raise TypeError("Only int float and str are allowed")
+            for aAtt in listQuantiAttributes:
+                listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
+                quantiAttributesStats[aAtt] = {
+                    'sum': np.sum(listOfValues),
+                    'mean': np.mean(listOfValues),
+                    'min': np.min(listOfValues),
+                    'max': np.max(listOfValues),
+                    'stdev': np.std(listOfValues),
+                    'histo':np.histogram(listOfValues, bins='auto')
+                    }
+            for aAtt in listQualiAttributes:
+                listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
+                qualiAttributesStats[aAtt]=Counter(listOfValues)
+                type(dict(Counter(listOfValues)))
 
         aData = {
                 'entityType': self.entityType(),
@@ -194,7 +193,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
                 'round': currentRound,
                 'phase': currentPhase,
                 'population': len(self.entities),
-                'entDefAttibutes': dict(filter(lambda i: type(i[1]) in[int,float],self.dictAttributes.items())),
+                'entDefAttributes': dict(filter(lambda i: type(i[1]) in[int,float],self.dictAttributes.items())),
                 'quantiAttributes': quantiAttributesStats,
                 'qualiAttributes': qualiAttributesStats
                     }    
