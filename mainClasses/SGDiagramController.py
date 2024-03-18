@@ -664,7 +664,7 @@ class SGDiagramController(NavigationToolbar):
         self.phases = {entry['phase'] for entry in data}
         self.nbRounds = max(self.rounds)
         self.nbPhases = len(
-            self.model.timeManager.phases) - 1  # be careful. should be changed wjhen merged with main branch
+            self.model.timeManager.phases) #- 1  # be careful. should be changed wjhen merged with main branch
         self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
         if optionXScale == '2':
