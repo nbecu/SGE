@@ -12,7 +12,7 @@ myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
-                        name='grid1')  # ,posXY=[20,90]
+                        name='grid1')
 Cell.setEntities("biomass", 1)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setEntities("noHarvestPeriod", 0)
@@ -38,22 +38,18 @@ harvesters = myModel.newAgentSpecies(
     "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}})
 harvesters.setDefaultValue('harvest',0)
 harvesters.setDefaultValue('total harvest',0)
-# aHarvester = myModel.newAgentAtCoords(Cell,harvesters,5,2)
+
 Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, defaultColor=Qt.yellow)
-# Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:QColor.fromRgb(170,205,50),2:Qt.green})
-# Bird.newPov("Bird -> repro","nb reproduction",{0:Qt.yellow,1:Qt.black,2:Qt.green})
+
 Bird.setDefaultValue('nb reproduction',0)
 
 Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
 
 
-# globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Clans = myModel.newPlayer("Clan")
 Clans.addGameAction(myModel.newCreateAction(harvesters, 20))
-# Clans.addGameAction(myModel.newDeleteAction(harvesters, "infinite"))
-# Clans.addGameAction(myModel.newUpdateAction('Cell', 3, {"biomass": 3}))
-# Clans.addGameAction(myModel.newMoveAction(harvesters, 1))
+
 Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
 
 Parc = myModel.newPlayer("Parc")
@@ -67,10 +63,9 @@ Player2ControlPanel = Parc.newControlPanel()
 
 
 firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')
-firstPhase.addModelAction(lambda: harvesters.setEntities('harvest',0))
-#faut changer le nom addModelAction() par addAction()
+firstPhase.addAction(lambda: harvesters.setEntities('harvest',0))
 settleAction= myModel.newModelAction_onCells(lambda cell: cell.newAgentHere(Bird),(lambda cell: cell.value('biomass')>=2))
-firstPhase.addModelAction(settleAction)
+firstPhase.addAction(settleAction)
 
 myModel.timeManager.newGamePhase('Parc actions', [Parc])
 myModel.timeManager.newGamePhase('Clans actions', [Clans])
@@ -123,31 +118,20 @@ def renewBiomass(cell):
 
 
 GameRounds = myModel.newTimeLabel(None, Qt.white, Qt.black, Qt.red)
-# myModel.setCurrentPlayer('Player 1')
+
 
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
     title='Info', textToWrite="Welcome to ReHab game !")
 
-# TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
-
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", Cell, attribute='biomass',color=Qt.black, indicatorName='Total biomass')
-i2 = DashBoard.addIndicator("avgAtt", Cell, attribute='biomass',color=Qt.black, indicatorName='Avg biomass')
-i3 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='harvest',color=Qt.black)
-i4 = DashBoard.addIndicator("sumAtt", 'harvesters', attribute='total harvest',color=Qt.black)
-i5 = DashBoard.addIndicator("nb", 'Bird',color=Qt.magenta)
-i6 = DashBoard.addIndicator("sumAtt", 'Bird', attribute='nb reproduction',color=Qt.magenta)
-
-DashBoard.showIndicators()
-
-# endGameRule = myModel.newEndGameRule(numberRequired=2)
-# endGameRule.addEndGameCondition_onIndicator(
-#     i1, "equal", 90, name="biomass equal to 90")
-# endGameRule.addEndGameCondition_onEntity(
-#     "cell1-2", 'biomass', "greater", 2, name="Cell 1-2 biomass is greater than 2",Cell=Cell)
-# endGameRule.showEndGameConditions()
+i1 = DashBoard.addIndicator(Cell, "sumAtt", attribute='biomass',color=Qt.black, title='Total biomass')
+i2 = DashBoard.addIndicator(Cell, "avgAtt", attribute='biomass',color=Qt.black, title='Avg biomass')
+i3 = DashBoard.addIndicator('harvesters', "sumAtt", attribute='harvest',color=Qt.black)
+i4 = DashBoard.addIndicator('harvesters', "sumAtt", attribute='total harvest',color=Qt.black)
+i5 = DashBoard.addIndicator('Bird',"nb", color=Qt.magenta)
+i6 = DashBoard.addIndicator('Bird', "sumAtt", attribute='nb reproduction',color=Qt.magenta)
 
 
 myModel.launch()

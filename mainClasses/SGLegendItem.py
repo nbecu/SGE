@@ -1,12 +1,9 @@
 from PyQt5 import QtWidgets 
-from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null
 
 
-   
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
     def __init__(self,parent,type,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None):
@@ -42,19 +39,12 @@ class SGLegendItem(QtWidgets.QWidget):
     def show_menu(self, point):
         if self.gameAction is None: return
         menu = QMenu(self)
-        # number=self.updateRemainNumber()
         number=self.gameAction.getNbRemainingActions()
         text= "Actions remaining : "+str(number)
         option1 = QAction(text, self)
         menu.addAction(option1)
         if self.rect().contains(point) and number is not None:
             menu.exec_(self.mapToGlobal(point))
-        
-    
-    def updateRemainNumber(self): # A priori OBSOLETE
-        thePlayer=self.legend.model.getPlayerObject(self.legend.playerName)
-        self.crossAction(thePlayer)
-        return self.remainNumber
 
     def isSelectable(self):
         #Title1 and Title2 items are not selectable
@@ -76,7 +66,6 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setPen(QPen(Qt.red,2));
             if self.isBorderItem:
                 painter.setPen(QPen(self.borderColorAndWidth['color'],self.borderColorAndWidth['width']))
-                # painter.setBrush(QBrush(self.color, Qt.SolidPattern))
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.shape=="square") :   
@@ -142,8 +131,9 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setFont(aFont)
                 painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             elif self.type =="Title1":
-                aFont=QFont("Verdana",10)
-                aFont.setUnderline(True)
+                aFont = QFont()
+                aFont.setBold(True)
+                aFont.setPixelSize(14)
                 painter.setFont(aFont)
                 painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             elif self.type =="Title2":
@@ -200,16 +190,6 @@ class SGLegendItem(QtWidgets.QWidget):
     #To test is it from the admin Legend
     def isFromAdmin(self):
         return self.legend.id=="adminLegend"
-    
-    def crossAction(self,thePlayer): # A priori OBSOLETE
-        if thePlayer!="Admin":
-            self.clickable=True
-            for actionText in thePlayer.remainActions.keys():
-                if actionText.find(self.text)!=-1:
-                    self.remainNumber=thePlayer.remainActions[actionText]
-                    break
-        else:
-            self.clickable=False
 
 
 

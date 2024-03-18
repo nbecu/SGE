@@ -22,12 +22,12 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10),"hunger":(lambda: random.randint(0,10)*10)})
 
 def interpolate_color(value_min, value_max, color_min, color_max, a_value):
-    # Assurez-vous que la valeur intermédiaire se trouve entre les valeurs min et max
+    # Ensure that the intermediate value lies between the min and max values
     a_value = max(min(a_value, value_max), value_min)
-    # convertir les color_min et color_max en  un format rgb 
+    # convert color_min and color_max to rgb format
     color_min_rgb = QColor(color_min).getRgb()
     color_max_rgb = QColor(color_max).getRgb()
-    # Interpoler les composantes RGB
+    # Interpolate RGB components
     proportion = (a_value - value_min) / (value_max - value_min)
     aList=[]
     for i in range(0,3):

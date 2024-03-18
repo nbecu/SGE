@@ -1,21 +1,14 @@
-import random
-from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGModel import *
-from PyQt5.QtWidgets import QAction
-import copy
 
 # Class who is responsible of the grid creation
-
-
 class SGGrid(SGGameSpace):
     def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True):
         super().__init__(parent, 0, 60, 0, 0)
         # Basic initialize
         self.zoom = 1
-        # self.parent=parent
         self.model = parent
         self.id = name
         self.columns = columns
@@ -35,7 +28,6 @@ class SGGrid(SGGameSpace):
 
         self.startXBase = 0
         self.startYBase = 0
-        # random.seed(self.model.randomSeed)
 
         if aColor != "None":
             self.setColor(aColor)
@@ -43,7 +35,6 @@ class SGGrid(SGGameSpace):
     # Drawing the game board with the cell
     def paintEvent(self, event): 
         self.countPaintEvent += 1
-        # print("Grid paintEvent called: " +str(self.countPaintEvent))
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
@@ -75,9 +66,15 @@ class SGGrid(SGGameSpace):
         self.gap = round(self.gap-(self.zoom*1))
         for cell in self.getCells():
             cell.zoomOut()
-        for agent in cell.getAgents():
-            agent.zoomOut(self.zoom)
+            newX=cell.x()
+            newY=cell.y()
+            for agent in cell.getAgents():
+                agent.zoomOut(self.zoom)
         self.update()
+        for cell in self.getCells():
+            for agent in cell.getAgents(): 
+                agent.moveAgent("cell",cellID=agent.cell.id)               
+        
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):
@@ -142,7 +139,6 @@ class SGGrid(SGGameSpace):
             return int((self.rows+1)*(self.size/3)*2) + self.gap*2
 
     # To get all the values possible for Legend
-
     def getValuesForLegend(self):
         return self.model.getCellPovs(self)
 
@@ -164,11 +160,6 @@ class SGGrid(SGGameSpace):
     def getCell_withCoords(self,x,y):
         return self.getCell_withId(self.cellIdFromCoords(x,y))
 
-
-    def getFirstCell(self):
-        return self.getCell_withId("cell1-1")
-
-
    # Return the cells at a specified column
     def getCells_withColumn(self, columnNumber):
         """
@@ -176,7 +167,7 @@ class SGGrid(SGGameSpace):
         args:
             columnNumber (int): column number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.x== columnNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.xPos== columnNumber]
         
 
   # Return the cells at a specified row
@@ -186,173 +177,6 @@ class SGGrid(SGGameSpace):
         args:
             rowNumber (int): row number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.y== rowNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.yPos== rowNumber]
 
-
-
-    # To define a value for all Agents
-    def setValueForAgents(self, typeOfAgent, aDictWithValue):
-        """NON FUNCTIONNAL"""
-        for aCell in self.getCells():
-            for anAgent in aCell.getAgentsOfType(typeOfAgent): #non existent function
-                for aVal in list(aDictWithValue.keys()):
-                    if aVal in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()):
-                        for anAttribute in list(anAgent.theCollection.povs[self.model.nameOfPov].keys()):
-                            anAgent.attributs.pop(anAttribute, None)
-                anAgent.attributs[list(aDictWithValue.keys())[
-                    0]] = aDictWithValue[list(aDictWithValue.keys())[0]]
-
-    # To define a value for the model of an Agent
-    def setValueForModelAgents(self, typeOfAgent, aDictWithValue):
-        """OBSOLETE?"""
-        anAgent = self.collectionOfAcceptAgent[typeOfAgent]
-        # On cherche la pov et on suppr les valeur deja existante de la pov
-        for aPov in list(anAgent.theCollection.povs.keys()):
-            if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
-                for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
-                    anAgent.attributs.pop(anAttribut, None)
-        anAgent.attributs[list(aDictWithValue.keys())[
-            0]] = aDictWithValue[list(aDictWithValue.keys())[0]]
-
-    # To define a value for all Agents of a cell
-    def setValueAgentsOnCell(self, typeOfAgent, aDictWithValue, aCellId):
-        """OBSOLETE?"""
-        aCell = self.getCell_withId(aCellId)
-        for anAgent in aCell.collectionOfAgents.agents:
-            if anAgent.format == typeOfAgent:
-                # On cherche la pov et on suppr les valeur deja existante de la pov
-                for aPov in list(anAgent.theCollection.povs.keys()):
-                    if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
-                        for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
-                            anAgent.attributs.pop(anAttribut, None)
-                anAgent.attributs[list(aDictWithValue.keys())[
-                    0]] = aDictWithValue[list(aDictWithValue.keys())[0]]
-
-    # To change the value of an unique agent on a cell
-    def setForAnAgentOfCell(self, typeOfAgent, aDictWithValue, aCellId):
-        """OBSOLETE?"""
-        aCell = self.getCell_withId(aCellId)
-        for anAgent in aCell.collectionOfAgents.agents:
-            if anAgent.name == typeOfAgent:
-                # On cherche la pov et on suppr les valeur deja existante de la pov
-                for aPov in list(anAgent.theCollection.povs.keys()):
-
-                    if list(aDictWithValue.keys())[0] in list(anAgent.theCollection.povs[aPov].keys()):
-                        for anAttribut in list(anAgent.theCollection.povs[aPov].keys()):
-                            if anAttribut == list(aDictWithValue.keys())[0]:
-                                if anAgent.attributs[anAttribut] == list(aDictWithValue.values())[0]:
-                                    continue
-                                else:
-                                    anAgent.attributs.pop(anAttribut, None)
-                                    anAgent.attributs[list(aDictWithValue.keys())[
-                                        0]] = aDictWithValue[list(aDictWithValue.keys())[0]]
-                                    return True
-                            else:
-                                anAgent.attributs.pop(anAttribut, None)
-                                anAgent.attributs[list(aDictWithValue.keys())[
-                                    0]] = aDictWithValue[list(aDictWithValue.keys())[0]]
-                                return True
-        return False
-
-    # To grow all attributs of cells of one type
-    def makeEvolve(self, listOfAttributsToMakeEvolve):
-        """OBSOLETE?"""
-        for aCell in self.getCells():
-            for anAttribut in listOfAttributsToMakeEvolve:
-                if anAttribut in list(aCell.attributs.keys()):
-                    for aPov in aCell.theCollection.povs:
-                        found = list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(
-                            aCell.attributs[anAttribut])
-                        if found != -1 and found+1 != len(aCell.theCollection.povs[aPov][anAttribut]):
-                            if len(self.history["value"]) == 0:
-                                self.history["value"].append(
-                                    [0, 0, self.attributs])
-                            aCell.attributs[anAttribut] = list(
-                                aCell.theCollection.povs[aPov][anAttribut].keys())[found+1]
-                            # self.history["value"].append([self.parent.parent.parent.timeManager.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
-
-    # To decrease all attributs of cells of one type
-    def makeDecrease(self, listOfAttributsToMakeDecrease):
-        """OBSOLETE?"""
-        for aCell in self.getCells():
-            for anAttribut in listOfAttributsToMakeDecrease:
-                if anAttribut in list(aCell.attributs.keys()):
-                    for aPov in aCell.theCollection.povs:
-                        found = list(aCell.theCollection.povs[aPov][anAttribut].keys()).index(
-                            aCell.attributs[anAttribut])
-                        if found != -1 and found != 0:
-                            if len(self.history["value"]) == 0:
-                                self.history["value"].append(
-                                    [0, 0, self.attributs])
-                            aCell.attributs[anAttribut] = list(
-                                aCell.theCollection.povs[aPov][anAttribut].keys())[found-1]
-                            # self.history["value"].append([self.parent.parent.parent.timeManger.actualRound,self.parent.parent.parent.actualPhase,self.attributs])
-
-
-    # To return all agent of a type in neighborhood
-    def getNeighborAgent(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NON FUNCTIONNAL"""
-        x = x-1
-        y = y-1
-        result = []
-        for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
-            for agent in cell.getAgentsOfType(agentName):#non existent function
-                result.append(agent)
-        return result
-
-    # To return if a type of agent is in neighborhood
-    def haveAgentInNeighborhood(self, x, y, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NON FUNCTIONNAL"""
-        return len(self.getNeighborAgent(x, y, agentName, typeNeighbor, rangeNeighbor)) >= 1
-
-    # To return all agent in neighborhood
-    def getNeighborAllAgent(self, x, y, typeNeighbor="moore", rangeNeighbor=1):
-        """NON FUNCTIONNAL"""
-        x = x-1
-        y = y-1
-        result = []
-        for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
-            for agentName in list(self.collectionOfAcceptAgent.keys()):
-                for agent in cell.getAgentsOfType(agentName):#non existent function
-                    result.append(agent)
-        return result
-
-    # To return all agent of a type in neighborhood
-    def getNeighborAgentThroughCell(self, aCell, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NON FUNCTIONNAL"""
-        x = aCell.x
-        y = aCell.y
-        result = []
-        for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
-            for agent in cell.getAgentsOfType(agentName):#non existent function
-                result.append(agent)
-        return result
-
-    # To return if a type of agent is in neighborhood through a cell
-    def haveAgentInNeighborhoodThroughCell(self, aCell, agentName, typeNeighbor="moore", rangeNeighbor=1):
-        """NON FUNCTIONNAL"""
-        return len(self.getNeighborAgentThroughCell(aCell, agentName, typeNeighbor, rangeNeighbor)) >= 1
-
-    # To return all agent in neighborhood through a cell
-    def getNeighborAllAgentThroughCell(self, aCell, typeNeighbor="moore", rangeNeighbor=1):
-        """NON FUNCTIONNAL"""
-        x = aCell.x
-        y = aCell.y
-        result = []
-        for cell in self.getCell_withId("cell"+str(x)+"-"+str(y)).getNeighborCell(typeNeighbor, rangeNeighbor):
-            for agentName in list(self.collectionOfAcceptAgent.keys()):
-                for agent in cell.getAgentsOfType(agentName):#non existent function
-                    result.append(agent)
-        return result
-
-    # To check if the grid have agent
-    def haveAgents(self):
-        """OBSOLETE?"""
-        for cell in self.getCells():
-            if len(cell.collectionOfAgents.agents) != 0:
-                return True
-        return False
-
-    def cellsDo(self, aLambdaFunction):
-        for aCell in self.getCells():
-            aCell.doAction(aLambdaFunction)
+    

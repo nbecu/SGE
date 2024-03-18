@@ -10,8 +10,7 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
-Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
-                        name='grid1')  # ,posXY=[20,90]
+Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,name='grid1')
 Cell.setEntities("Resource", 1)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setCell(3,1,"Resource", 2)
@@ -33,8 +32,11 @@ Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
 Workers = myModel.newAgentSpecies(
-    "Workers", "triangleAgent1", {'harvest':{0}})
-# Workers.setDefaultValue('harvest',0)
+    "Workers", "triangleAgent1", {'harvest':{0},'total harvest':{0}})
+
+Workers.setDefaultValue('harvest',0)
+Workers.setDefaultValue('total harvest',0)
+
 Birds = myModel.newAgentSpecies(
     "Birds", "triangleAgent2",defaultColor=Qt.yellow)
 
@@ -42,25 +44,22 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 
 
 Player1 = myModel.newPlayer("Harvesters")
-Player1.addGameAction(myModel.newCreateAction(Workers, 20))
-Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
+Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
+Player1.addGameAction(myModel.newDeleteAction(Workers))
+Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Parc")
 
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", "infinite", {"ProtectionLevel": "Reserve"}
+    "Cell", {"ProtectionLevel": "Reserve"}
     ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", "infinite", {"ProtectionLevel": "Free"}))
+    "Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel()
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
-# harvestWhenOneHarvester=myModel.newModelAction(lambda: harvest(myModel.getCells()))
-# harvestWhenOneHarvester=myModel.newModelAction_onCells(lambda cell: cell.getAgents()[0].incValue('harvest',min(2,cell.value('Resource'))), lambda cell: cell.nbAgents()==1   )
-# harvestWhenOneHarvester=myModel.newModelAction_onCells(lambda cell: harvest2(cell))
 harvestWhenOneHarvester=myModel.newModelAction(lambda: harvest3())
 myModel.timeManager.newModelPhase(harvestWhenOneHarvester)
 
@@ -84,8 +83,6 @@ def harvest(cells):
             cell.getAgents()[0].incValue('harvest',aQt)
             cell.decValue('Resource',aQt)
     return 1    
-
-# myModel.timeManager.newModelPhase(lambda: harvest())
 
 myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: harvest2(cell)))
 
@@ -115,11 +112,6 @@ def harvest2(cell):
             aAgt.setValue('harvest',1)
             cell.decValue('Resource',1)
 
-# myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
-# aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") != 1 and x.value("Resource") != 0  )))
-# myModel.timeManager.newModelPhase(aModelAction2)
-# aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
-# aModelAction4.addCondition(lambda: myModel.getCurrentRound()==2) 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
 
@@ -129,9 +121,8 @@ TextBox = myModel.newTextBox(
     title='Info', textToWrite="Welcome to ReHab game !")
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sum", 'Cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avg", 'Cell', attribute='Resource',color=Qt.black)
-DashBoard.showIndicators()
+i1 = DashBoard.addIndicator('Cell',"sum",  attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator('Cell',"avg",  attribute='Resource',color=Qt.black)
 
 
 

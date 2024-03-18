@@ -150,3 +150,4 @@ class AttributeAndValueFunctionalities():
             if aDate[1]==nbPhases or aDate[0]==0 : aDate=[aDate[0]+1,1]
             else: aDate=[aDate[0],aDate[1]+1]
         return aList
+

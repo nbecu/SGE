@@ -10,8 +10,7 @@ random.seed(13)
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 2", typeOfLayout="grid")
 
-Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
-                        name='grid1')  # ,posXY=[20,90]
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,name='grid1')
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setRandomEntities("Resource", 3, 7)
@@ -32,15 +31,15 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newCreateAction(Workers, 20))
-Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
+Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
+Player1.addGameAction(myModel.newDeleteAction(Workers))
+Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 5))
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newUpdateAction("Cell", 3, {"ProtectionLevel": "Reserve"}))
-Player2.addGameAction(myModel.newUpdateAction("Cell", "infinite", {"ProtectionLevel": "Free"}))
+Player2.addGameAction(myModel.newUpdateAction("Cell", {"ProtectionLevel": "Reserve"}, 3))
+Player2.addGameAction(myModel.newUpdateAction("Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
@@ -62,10 +61,9 @@ TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 globalScore=myModel.newSimVariable("Global Score",0)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator('Cell',"sumAtt",  attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator('Cell',"avgAtt",  attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicatorOnSimVariable(globalScore)
-DashBoard.showIndicators()
 aModelAction4.addFeedback(lambda: globalScore.incValue(5))
 myModel.timeManager.newModelPhase(aModelAction4)
 

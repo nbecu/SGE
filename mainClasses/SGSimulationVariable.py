@@ -1,10 +1,5 @@
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null
-# import numpy as np
-from mainClasses.SGCell import SGCell
-from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 
 
@@ -61,10 +56,8 @@ class SGSimulationVariable():
             self.setValue(result)
         else: raise ValueError ('calcValue works with a lambda function')
 
-    
     def addWatcher(self,aIndicator):
         self.watchers.append(aIndicator)
-
 
     def getListOfStepsData(self):
         if self.history==[]: return []

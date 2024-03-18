@@ -16,19 +16,8 @@ class SGGameSpace(QtWidgets.QWidget):
         self.isDraggable = isDraggable
         self.backgroudColor = backgroudColor
         self.forceDisplay = forceDisplay
-    
-    def copyOf__init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroudColor=Qt.gray,forceDisplay=False):
-        super().__init__(parent)
-        self.model=parent
-        self.posXInLayout=posXInLayout
-        self.posYInLayout=posYInLayout
-        self.startXBase=startXBase
-        self.startYBase=startYBase
-        self.isDraggable = isDraggable
-        self.backgroudColor = backgroudColor
-        self.forceDisplay = forceDisplay   
         
-         
+               
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
         pass
@@ -44,7 +33,7 @@ class SGGameSpace(QtWidgets.QWidget):
         pass
     
     #To choose the inital pov when the game start
-    def setInitialPov(self,nameOfPov):
+    def displayPov(self,nameOfPov):
         pass
     
     
@@ -71,13 +60,50 @@ class SGGameSpace(QtWidgets.QWidget):
         newPos = self.model.layoutOfModel.addGameSpace(self)
         self.setStartXBase(newPos[0])
         self.setStartYBase(newPos[1])
-        if (self.model.typeOfLayout == "vertical"):
-            self.move(self.getStartXBase(), self.getStartYBase() + 20*self.model.layoutOfModel.getNumberOfAnElement(self))
-        elif (self.model.typeOfLayout == "horizontal"):
-                self.move(self.getStartXBase()+20*self.model.layoutOfModel.getNumberOfAnElement(self), self.getStartYBase())
-        else:
-            pos = self.model.layoutOfModel.foundInLayout(self)
-            self.move(self.getStartXBase()+20 *pos[0], self.getStartYBase()+20*pos[1])
+
+    def mouseMoveEvent(self, e):
+
+        if e.buttons() != Qt.LeftButton:
+            return
+
+        # To get the clic position in GameSpace
+        def getPos(e):
+            clic = QMouseEvent.windowPos(e)
+            xclic = int(clic.x())
+            yclic = int(clic.y())
+            return xclic, yclic
+
+        # To get the coordinate of the grid upleft corner in GameSpace
+        def getCPos(self):
+            left = self.x()
+            up = self.y()
+            return left, up
+
+        # To convert the upleft corner to center coordinates
+        def toCenter(self):
+            xC = self.x()+int(self.width()/2)
+            yC = self.y()+int(self.height()/2)
+            return xC, yC
+
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.pos())
+
+        xclic, yclic = getPos(e)
+        left, up = getCPos(self)
+        xC, yC = toCenter(self)
+
+        drag.exec_(Qt.MoveAction)
+
+        leftf, upf = getCPos(self)
+        xCorr = xclic-xC
+        yCorr = yclic-yC
+
+        newX = leftf-xCorr
+        newY = upf-yCorr
+
+        self.move(newX, newY)
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
@@ -97,5 +123,23 @@ class SGGameSpace(QtWidgets.QWidget):
         y=y-1
         self.posXInLayout=x
         self.posYInLayout=y
+
+    #Function to move a GameSpace in the model window
+    def moveToCoords(self,x,y):
+        """
+        Permits to move a GameSpace at a specific coordinate based on the left upper corner
+
+        Args:
+            x (int) : x-axis corrdinate in pixels
+            y (int) : y-axis corrdinate in pixels
+        """
+        if x < self.model.width() + self.width() or x < 0:
+            if y < self.model.height() + self.height() or y < 0:
+                self.move(x,y)
+                self.model.isMoveToCoordsUsed = True
+            else:
+                raise ValueError('The y value is too high or negative')
+        else:
+            raise ValueError('The x value is too high or negative')
         
     

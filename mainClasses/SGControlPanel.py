@@ -1,19 +1,8 @@
-from typing import Hashable
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
 
-from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGLegend import SGLegend
 from mainClasses.SGLegendItem import SGLegendItem
-from mainClasses.SGCell import SGCell
-from mainClasses.SGGrid import SGGrid
-from mainClasses.SGAgent import SGAgent
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGUpdate import SGUpdate
-from mainClasses.gameAction.SGCreate import SGCreate
-from mainClasses.gameAction.SGMove import SGMove
 
 
 #Class who is responsible of the creation of a ControlPanel
@@ -55,42 +44,59 @@ class SGControlPanel(SGLegend):
             anItem.show()
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
-
-    def showLegendItem(self, typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors):
-        # OBSOLETE.   SHOULD REMOVE
-        item_key=aAttribut +' '+ str(aValue)
-        if item_key not in added_items and color not in added_colors and color != Qt.transparent:
-            self.y=self.y+1
-            anItem=SGLegendItem(self,self.model.getGameSpace(aKeyOfGamespace).format,self.y,aAttribut+" "+str(aValue),color,aValue,aAttribut)
-            if typeOfPov == "BorderPOV" :
-                anItem.border = True
-            self.legendItems[aKeyOfGamespace].append(anItem)
-            anItem.show()
-            added_items.add(item_key)
-            added_colors.append(color)
-
     #Drawing the Legend
     def paintEvent(self,event):
         if self.checkDisplay():
-            # if len(self.elementsPov)!=0:
-                painter = QPainter() 
-                painter.begin(self)
-                if self.isActive:
-                    painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
-                else:
-                    painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
-                painter.setPen(QPen(self.borderColor,1))
-                #Draw the corner of the Legend
-                self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-                painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+            painter = QPainter() 
+            painter.begin(self)
+            if self.isActive:
+                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            else:
+                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
+            painter.setPen(QPen(self.borderColor,1))
+            #Draw the corner of the Legend
+            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
-                painter.end()
-
+            painter.end()
+    
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return
+
+        # To get the clic position in GameSpace
+        def getPos(e):
+            clic = QMouseEvent.windowPos(e)
+            xclic = int(clic.x())
+            yclic = int(clic.y())
+            return xclic, yclic
+
+        # To get the coordinate of the grid upleft corner in GameSpace
+        def getCPos(self):
+            left = self.x()
+            up = self.y()
+            return left, up
+
+        # To convert the upleft corner to center coordinates
+        def toCenter(self):
+            xC = self.x()+int(self.width()/2)
+            yC = self.y()+int(self.height()/2)
+            return xC, yC
+
         mimeData = QMimeData()
         drag = QDrag(self)
         drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
+        drag.setHotSpot(e.pos() - self.pos())
+
+        xclic, yclic = getPos(e)
+        xC, yC = toCenter(self)
+
         drag.exec_(Qt.MoveAction)
+
+        leftf, upf = getCPos(self)
+        xCorr = xclic-xC
+        yCorr = yclic-yC
+        newX = leftf-xCorr
+        newY = upf-yCorr
+
+        self.move(newX, newY)

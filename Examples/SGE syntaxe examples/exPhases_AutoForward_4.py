@@ -4,9 +4,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Create your ModelActions")
+myModel=SGModel(860,700, windowTitle="add a TimeLabel")
 
-Cell=myModel.newCellsOnGrid(10,10,"square",size=50, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -28,28 +28,36 @@ Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
-userSelector=myModel.newUserSelector()
 
+p1=myModel.timeManager.newGamePhase('Game Phase 1', [Player1])
+p1.showMessageBoxAtStart="New round. You can play!"
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+p2= myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')
+# comment or not
+p2.autoForwardOn=True 
+p2.messageAutoForward=False
+p2.showMessageBoxAtStart=True
 
-# You also can, with the same scheme as GamePhase, first create ModelActions and place them after on a ModelPhase
-# MODEL ACTIONS CREATION
-    # 3 POSSIBLE WAYS
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
 aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "shrub") ))
 
-    # You also can add a general condition to your action
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: myModel.round()==3) 
 
-    # You can add a general feedback :
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
-# Don't forget to add your Actions to a ModelPhase!
-myModel.timeManager.newModelPhase(aModelAction2)
+#Choose one or the other
+# myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2')
+myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',
+                                  autoForwardOn=True,
+                                  messageAutoForward=False,
+                                  showMessageBoxAtStart="The forest will now grow"
+)
+
+
+GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
+userSelector=myModel.newUserSelector()
 
 
 myModel.launch() 

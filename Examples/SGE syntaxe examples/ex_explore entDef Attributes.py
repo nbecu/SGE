@@ -22,7 +22,6 @@ myModel.timeManager.newModelPhase((lambda: Pawn.decValue('foo',1)))
 
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnEntity(Pawn,'foo')
-dashboard.showIndicators()
 
 myModel.launch() 
 sys.exit(monApp.exec_())

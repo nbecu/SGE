@@ -10,8 +10,7 @@ random.seed(13)
 myModel = SGModel(
     900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
-Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
-                        name='grid1')  # ,posXY=[20,90]
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,name='grid1')
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setRandomEntities("Resource", 3, 7)
@@ -32,22 +31,15 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newCreateAction(Workers, 20))
-    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
-Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
-    # Pourquoi une deleteAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
-    # "infinite" doit etre la valeur par défaut de aNumber
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
-    # le paramètre aDictOfAcceptedValue est mal nommé. Il faudrait l'appeler dictAttributes
-    #le paramètre aNumber doit être placé après dictAttributes
+Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
+Player1.addGameAction(myModel.newDeleteAction(Workers))
+Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 5))
-    # Pourquoi une moveAction peut accepter aDictOfAcceptedValue ? (je crois que ce paramètre ne serta à rien)
-    # Y'a un truc qui cloche entre feedback et feedbackAgent. Si l'actuel feeback concerne la cellule (a priori la cellule de destination), alors il faut inverser les noms des attributs : feedbackAgent doit etre feedback et et l'actuel feedback doit etre feedbackOnDestinationCell.     Si possible, il faudrait intégrer aussi un feedbackOnOriginCell
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newUpdateAction("Cell", 3, {"ProtectionLevel": "Reserve"}))
-Player2.addGameAction(myModel.newUpdateAction("Cell", "infinite", {"ProtectionLevel": "Free"}))
+Player2.addGameAction(myModel.newUpdateAction("Cell", {"ProtectionLevel": "Reserve"}, 3))
+Player2.addGameAction(myModel.newUpdateAction("Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
@@ -69,10 +61,9 @@ TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
 
 globalScore=myModel.newSimVariable("Global Score",0)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator("sumAtt", 'Cell', attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", 'Cell', attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator('Cell',"sumAtt",  attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator('Cell',"avgAtt",  attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicatorOnSimVariable(globalScore)
-DashBoard.showIndicators()
 aModelAction4.addFeedback(lambda: globalScore.incValue(5))
 myModel.timeManager.newModelPhase(aModelAction4)
 
@@ -86,14 +77,5 @@ endGameRule.showEndGameConditions()
 
 
 myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
-    ## ATTENTION : il y a un problème ds le fonctionnement en mqtt
-    # Premier problème : le nbUse des gameActions  n'est pas envoyé aux clients
-    #        du coup, si un client passe le tour (ce qui remet les nbUSe à zéro), les autres clients eux n'ont pas  leur nbUse remis à zero
-    # Deuxième problème : si plusieurs clients sont set sur le meme user, alors la maj ne se fait.
-    #      C'est un soucis car ca veut dire qu'il y a une confusion entre le user et le client
-    #           le client c'est l'instance du modèle qui est en train de tourner. 
-    #           le user c'est le role (ou plutôt le 'personnage joueur') qui est endossé par le client, et il est autorisé de pouvoir changer de role sur un meme client
-    #                              de meme il est possible que plusieurs client partagent le meme user (le meme 'personnage joueur')
-    #           du coup, le test qui empeche la maj de se faire sur l'instance du modèle qui vient de lancer une maj, ne doit pas etre un tst sur 'user' mais un test sur le client (sur l'instance du modèle)
 
 sys.exit(monApp.exec_())

@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import true
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGEndGameCondition import SGEndGameCondition
@@ -133,16 +133,3 @@ class SGEndGameRule(SGGameSpace):
 
     def getSizeYGlobal(self):
         return 150
-
-    def mouseMoveEvent(self, e):
-
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-        drag.exec_(Qt.MoveAction)

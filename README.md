@@ -12,8 +12,7 @@ SGE is unique from other pre-existent simulation tools: it implements the notion
 
 SGE is like a puzzle, all the pieces are already here, you just need to give it order and custom to create your ideas.
 
-(need to add screenshots)
-
+![image](https://github.com/nbecu/SGE/assets/119414220/888f6d78-5434-4b70-8969-0b1e971a4b8e)
 
 ## Folder hierarchy
 - Examples
@@ -43,14 +42,30 @@ matplotlib
 ```
 
 ## Future plan
-- [x] SGEntity class to replace SGCell and SGAgent
-- [x] Score and EndGame Rule refresh at each round
-- [x] Find a permanent repair for Agent drag and drop
-- [ ] Classification for entities
-- [ ] Debug Init phase
+- [ ] add a method "displayBorderPov" (similar to SGEntity>displayPov)
+_ [ ] create a POV system to manage groups of symbologies
+- [ ] correct the zoom
+- [ ] unify font style sheets for SGEndGameRule
+- [ ] add a modeler style sheet config methods for gameSpaces who don't have yet
+- [ ] main window auto resize
+- [ ] refractoring auto resize of text spacings in gameSpaces (using geometry)
+- [ ] new gameAction : activate
+- [ ] rename Update gameAction to Modify
+- [ ] unify definition of setValue for the different classes
+- [ ] create a recuperation system for simulation status with updateAtMaj functions
 
 ## mqtt version
 SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)
+
+## syntax code of modeler side methods
+- new     create a new entity (ex. newAgentAtCoords(), newAgentSpecies), or create a new game element (ex. newGamePhase())
+- get    collect entities, objects or instances
+- nb     to obtain the number of entities, objects or instances
+- set    to set a value        (ex. setEntities_withColumn(), setDefaultValues())
+- is     to do a test (returns True or false)   (ex. isDeleted())
+- delete	to delete entities from the simulation (ex. deleteAllAgents())
+
+- do_     perform an action on an entity
 
 ## Context
 SGE is developped under the supervision of [LIENSs](https://lienss.univ-larochelle.fr/) Laboratory (La Rochelle University, France) within different research projects. 

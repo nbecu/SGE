@@ -1,27 +1,21 @@
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import true
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox
 import random
-from mainClasses.gameAction.SGGameActions import SGGameActions
 from mainClasses.SGEntity import SGEntity
-from mainClasses.SGGrid import SGGrid
-from mainClasses.SGGameSpace import SGGameSpace
-
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
     def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
         aGrid = cell.grid
-        super().__init__(aGrid,classDef, size,shapeColor,attributesAndValues)
+        super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
         if cell is not None:
             self.cell = cell
             self.cell.updateIncomingAgent(self)
         else: raise ValueError('This case is not handeled')
-        self.xPos=self.getRandomX()
-        self.yPos=self.getRandomY()
+        self.getPositionInEntity()
+        self.last_selected_option=None
         self.initMenu()
         
 
@@ -86,6 +80,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
+            self.show()
             painter.end()
 
    #Funtion to handle the zoomIn
@@ -104,27 +99,79 @@ class SGAgent(SGEntity):
 
     # To show a menu
     def show_menu(self, point):
-        # Need to find a solution to get modeler's choice about attributes
         menu = QMenu(self)
-        text="Merlu pêché : "+str(self.value("Quantité_pêchée_Merlu")) #non definitive
-        option = QAction(text, self)
-        menu.addAction(option)
-        text="Sole pêché : "+str(self.value("Quantité_pêchée_Sole")) #non definitive
-        option = QAction(text, self)
-        menu.addAction(option)
-        
-        if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
+        options=[]
 
-    def getRandomXY(self):
-        # Is Obsolete
-        if self.me=='agent':
-            maxSize=self.cell.size
-            x = random.randint(1,maxSize-1)
-            return x
-        else:
-            x=0
-            return x
+        for anItem in self.classDef.attributesToDisplayInContextualMenu:
+            aAtt = anItem['att']
+            aLabel = anItem['label']
+            aValue = self.value(aAtt)
+            text = aLabel  + ": "+str(aValue)
+            option = QAction(text, self)
+            menu.addAction(option)
+        
+        if self.classDef.updateMenu:
+            if len(self.classDef.attributesToDisplayInUpdateMenu)==1:  
+                anItem=self.classDef.attributesToDisplayInUpdateMenu[0]
+                aAtt = anItem['att']
+                aLabel = anItem['label']
+                aValue = self.value(aAtt)
+                text="Value - "+aLabel + ": "+str(aValue)
+                gearAct = QAction(text, self)
+                gearAct.setCheckable(False)
+                menu.addAction(gearAct)
+                options.append(gearAct)
+
+            if len(self.classDef.attributesToDisplayInUpdateMenu)>1:
+                gearMenu=menu.addMenu('Values')
+                for anItem in self.classDef.attributesToDisplayInUpdateMenu:
+                    aAtt = anItem['att']
+                    aLabel = anItem['label'] 
+                    aValue = self.value(aAtt)
+                    text = aAtt+" " +aLabel+" : "+str(aValue)
+                    option = QAction(text, self)
+                    option.setCheckable(False) 
+                    gearMenu.addAction(option)
+                    options.append(option)
+
+        if self.rect().contains(point):
+            action=menu.exec_(self.mapToGlobal(point))
+            if action in options:
+                self.showGearMenu(action.text()) 
+
+    def showGearMenu(self,aText):
+        # Get the actions from the player
+        player=self.model.getPlayer(self.model.currentPlayer)
+        if player == "Admin":
+            return
+        actions = player.getGameActionsOn(self)
+        actionsNames =[action.name for action in actions]
+        # Filter the actions by the concerned attribute
+        displayedNames=[]
+        wordsInText=aText.split()
+        att=wordsInText[0]
+        for aName in actionsNames:
+            wordsInName=aName.split()
+            if att in wordsInName:
+                displayedNames.append(aName)
+        # The first value is the current value
+        current_value = self.value(att)
+        displayedValues=[aName.split()[-1] for aName in displayedNames]
+        default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
+        # Dialog box
+        action, ok = QInputDialog.getItem(self, 'Change Value','Select a NEW Value for '+att, displayedValues, default_index, False)
+
+        if ok and action:
+            self.last_selected_option = action
+            self.showPopup(action)
+            # now execute Actions
+            actionName="UpdateAction "+att+" "+action
+            for anAction in actions:
+                if anAction.name==actionName:
+                    anAction.perform_with(self)
+
+    def showPopup(self, selected_option):
+        QMessageBox.information(self, 'Option selected', f'You chose : {selected_option}', QMessageBox.Ok)
         
     def getRandomX(self):        
         maxSize=self.cell.size
@@ -138,47 +185,61 @@ class SGAgent(SGEntity):
         originPoint=self.cell.pos()
         y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
         return y
-
+    
+    def getPositionInEntity(self):
+        maxSize=self.cell.size
+        originPoint=self.cell.pos()
+        if self.classDef.locationInEntity=="random":
+            self.xPos=self.getRandomX()
+            self.yPos=self.getRandomY()
+            return
+        if self.classDef.locationInEntity=="topRight":
+            self.xPos=originPoint.x()+maxSize-10
+            self.yPos=originPoint.y()+5
+            return
+        if self.classDef.locationInEntity=="topLeft":
+            self.xPos=originPoint.x()+5
+            self.yPos=originPoint.y()+5
+            return
+        if self.classDef.locationInEntity=="bottomLeft":
+            self.xPos=originPoint.x()+5
+            self.yPos=originPoint.y()+maxSize-10
+            return
+        if self.classDef.locationInEntity=="bottomRight":
+            self.xPos=originPoint.x()+maxSize-10
+            self.yPos=originPoint.y()+maxSize-10
+            return
+        if self.classDef.locationInEntity=="center":
+            self.xPos=originPoint.x()+int(maxSize/2)
+            self.yPos=originPoint.y()+int(maxSize/2)
+            return
+        else:
+            raise ValueError("Error in entry for locationInEntity")
 
     def isDeleted(self):
         if not self.isDisplay:
-            raise ValueError ('An agent which is not displayed is not necessalry deleted.  it''s strange that this method is called') 
+            raise ValueError ('An agent which is not displayed is not necessary deleted.') 
         return not self.isDisplay
-
-    #To get the pov
-    def getPov(self):
-        raise ValueError('a priori, cette méthode est obsolete')
-        return self.model.nameOfPov
     
-    # To get the pov via grid
-    def getPov2(self):
-        return self.cell.grid.getCurrentPOV()
-
-
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             #Something is selected
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
 
-            # These next 7 lines need a bit of refactoring
             if aLegendItem.legend.isAdminLegend():
                 authorisation= True
             else :
                 from mainClasses.gameAction.SGMove import SGMove
                 if isinstance(aLegendItem.gameAction,SGMove): return
-                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameteHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
                 return
             if not authorisation : return #Exit the method
 
             #The delete Action
-            if aLegendItem.type == 'delete' : #or self.grid.model.selected[2].split()[0]== "Remove" :
+            if aLegendItem.type == 'delete' :
                 if authorisation : 
-                    #We now check the feedBack of the actions if it have some
-                    """if theAction is not None:
-                        self.feedBack(theAction)"""
                     self.classDef.deleteEntity(self)
-                    self.updateMqtt() # Check if we need to updateMqtt here
 
             #The  change value on agent
             elif aLegendItem.isSymbolOnAgent() :
@@ -191,7 +252,6 @@ class SGAgent(SGEntity):
     
         if e.buttons() != Qt.LeftButton:
             return
-        # authorisation = SGGameActions.getMovePermission(self)
         authorisation = True
         if authorisation:
             mimeData = QMimeData()
@@ -219,7 +279,7 @@ class SGAgent(SGEntity):
             self.model.listOfPovsForMenu.append(nameOfPov)
             anAction=QAction(" &"+nameOfPov, self)
             self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.setInitialPov(nameOfPov))
+            anAction.triggered.connect(lambda: self.model.displayPov(nameOfPov))
 
 
             
@@ -233,10 +293,10 @@ class SGAgent(SGEntity):
         self.copyOfAgentAtCoord(aDestinationCell)
         self.deleteLater()
 
-    # To copy an Agent to make a move // THIS METHOD SHOULD BE MOVED TO AgentDef
+    # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.color,oldAgent.classDef)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history
@@ -245,8 +305,8 @@ class SGAgent(SGEntity):
         for watchers in list(oldAgent.watchers.values()):
             for aWatcherOnThisAgent in watchers:
                 aWatcherOnThisAgent.entity=newAgent        
-        newAgent.privateID = oldAgent.privateID # A priori, on peut retirer cet attribut
-        newAgent.isDisplay = True
+        newAgent.privateID = oldAgent.privateID
+        newAgent.isDisplay = oldAgent.isDisplay
         newAgent.classDef.entities.remove(oldAgent)
         newAgent.classDef.entities.append(newAgent)
         newAgent.update()
@@ -265,7 +325,6 @@ class SGAgent(SGEntity):
             self.cell.updateDepartureAgent(self)
             theAgent= self.copyOfAgentAtCoord(aDestinationCell)
             self.deleteLater()
-        self.updateMqtt()
         return theAgent
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
@@ -311,25 +370,70 @@ class SGAgent(SGEntity):
             else:
                 theAgent = self.moveTo(newCell)
         pass
-                
-    #Function to check the ownership  of the agent          
-    def isMine(self):
-        return self.owner==self.model.currentPlayer
-    
+                    
     def getId(self):
         return self.id
     
     def getPrivateId(self):
         return self.privateID 
     
-    #Function to check the ownership  of the agent          
-    def isMineOrAdmin(self):
-        return self.owner==self.model.currentPlayer or self.owner=="admin"
-    
-    #Function to change the ownership         
-    def makeOwner(self,newOwner):
-        self.owner=newOwner
+    def getNeighborAgents(self,rule='moore',aSpecies=None):
+        neighbors=[]
+        if rule=="moore":
+            neighborCells=self.cell.getNeighborCells()
+        elif rule=='neumann':
+            neighborCells=self.cell.getNeighborCells(rule='neumann')
+        else:
+            print('Error in rule specification')
         
-    #Function get the ownership        
-    def getProperty(self):
-        self.owner=self.model.currentPlayer
+        neighbors=[aCell.agents for aCell in neighborCells]
+        
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,neighbors)
+        return neighbors
+    
+    def sortBySpecies(self,aSpecies,agents):
+        sortedAgents=[]
+        if len(agents)!=0:
+            for aAgent in agents:
+                if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
+                    aAgent.append(sortedAgents)
+        return sortedAgents
+    
+    def nbNeighborAgents(self,rule='moore',aSpecies=None):  
+        if aSpecies:
+            return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
+        return len(self.getNeighborAgents(rule))
+
+    def getNeighborsN(self,aSpecies=None):
+        theCell=self.cell.getNeighborN()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsS(self,aSpecies=None):
+        theCell=self.cell.getNeighborS()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsE(self,aSpecies=None):
+        theCell=self.cell.getNeighborE()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsW(self,aSpecies=None):
+        theCell=self.cell.getNeighborW()
+        if aSpecies:
+            return self.sortBySpecies(aSpecies,theCell.agents)
+        return theCell.agents
+
+    
+
+    
+    
+                
+
+        
+

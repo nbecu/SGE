@@ -1,15 +1,13 @@
-from mainClasses.SGAgent import SGAgent
-from mainClasses.SGCell import SGCell
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of Update
 class SGUpdate(SGAbstractAction):
-    def __init__(self,entDef,number,dictNewValues,conditions=[],feedBack=[],conditionOfFeedBack=[]):
+    def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[]):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack)
         self.dictNewValues=dictNewValues
-        self.att = list(self.dictNewValues.keys())[0]  # Récupère la clé du dictionnaire
-        self.value = self.dictNewValues[self.att]  # Récupère la valeur correspondante
+        self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
+        self.value = self.dictNewValues[self.att]  # Get associate value
         result = self.att + " " + str(self.value)
         self.name="UpdateAction "+result   
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
@@ -17,8 +15,6 @@ class SGUpdate(SGAbstractAction):
    
 
     def executeAction(self, aTargetEntity):
-        # This should not be allowed. A condition has been added at the initilization of the UpdateAction to prevent this
-        # if aTargetEntity.isDeleted(): aTargetEntity.classDef.reviveThisCell(aTargetEntity) 
         aTargetEntity.setValue(self.att,self.value)
         return aTargetEntity
 

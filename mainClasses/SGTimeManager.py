@@ -1,7 +1,6 @@
 from mainClasses.SGTimePhase import SGTimePhase
 from mainClasses.SGTimePhase import SGModelPhase
-from mainClasses.SGEndGameCondition import SGEndGameCondition
-from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGModelAction import SGModelAction
@@ -11,17 +10,17 @@ from mainClasses.SGModelAction import SGModelAction_OnEntities
 
 
 class SGTimeManager():
-
+  
     def __init__(self, parent):
         self.model = parent
-        self.currentRound = 0
-        self.currentPhase = 0
+        self.currentRoundNumber = 0
+        self.currentPhaseNumber = 0
         self.phases = []
         self.conditionOfEndGame = []
-        self.newGamePhase('Initialisation', None)
-
+        
     # To increment the time of the game
     def nextPhase(self):
+
         self.model.dataRecorder.calculateStepStats()
 
         if len(self.phases) != 0:
@@ -37,48 +36,64 @@ class SGTimeManager():
                         if self.model.myTimeLabel is not None:
                             self.model.myTimeLabel.updateTimeLabel()
 
+        if len(self.phases) == 0:
+            print('warning : should we handle the case when there is no phases defined ?')
+            return
+        self.model.dataRecorder.calculateStepStats()
+        
+        end = self.checkEndGame()
+        if end :
+            return
+
+        if self.currentRoundNumber ==0: #This case is to quit the Initialization phase at the begining of the game
+            self.currentRoundNumber = 1
+            self.currentPhaseNumber = 1
+
+        elif self.isCurrentPhase_Last()   : #This case is when  there is no nextphase after the current one. Therefor it is a next round
+            self.currentRoundNumber += 1
+            self.currentPhaseNumber = 1
+            #reset GameActions count
+            for action in self.model.getAllGameActions():
+                action.reset()
+
+        else : #This case is to advance to the next phase wthin the same round
+            self.currentPhaseNumber += 1
+        
+        # Process the widgets for this next phase/round
+        if self.model.myTimeLabel is not None:
+            self.model.myTimeLabel.updateTimeLabel()
+        if self.model.userSelector is not None:
+            # self.model.userSelector.updateUI(QHBoxLayout())
+            self.model.userSelector.updateOnNewPhase()
+
+        # execute the actions of the phase
+        self.getCurrentPhase().execPhase()
+        #watchers update
+        self.model.checkAndUpdateWatchers()
+
+        if self.getCurrentPhase().autoForwardOn :
+            if self.getCurrentPhase().messageAutoForward:
+                msg_box = QMessageBox(self.model)
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setWindowTitle("SGE Time Manager Message")
+                if isinstance(self.getCurrentPhase().messageAutoForward,str):
+                    aText = self.getCurrentPhase().messageAutoForward
                 else:
-                    #reset GameActions count
-                    for action in self.model.getAllGameActions():
-                        action.reset()
-                    self.currentPhase = 1
-                
+                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isCurrentPhase_Last() else ("the next phase: '"+self.getNextPhase().name+"'")) 
+                msg_box.setText(aText)
+                msg_box.setStandardButtons(QMessageBox.Ok)
+                msg_box.setDefaultButton(QMessageBox.Ok)
+                msg_box.exec_()
+            self.nextPhase()
 
-                thePhase = self.phases[self.currentPhase]
-                # check conditions for the phase
-                doThePhase = True
-                if self.currentPhase == 1 and len(self.phases) > 1:
-                    self.currentRound += 1
-                    if self.model.myTimeLabel is not None:
-                        self.model.myTimeLabel.updateTimeLabel()
-                    if self.model.userSelector is not None:
-                        self.model.userSelector.updateUI(QHBoxLayout())
+    def isCurrentPhase_Last(self):
+        return (self.currentPhaseNumber + 1) > len(self.phases) 
 
-                # execute the actions of the phase
-                if doThePhase:
-                    # We can execute the actions
-                    #TODO déplacer l'execution de la phase coté TimePhase
-                    if len(thePhase.modelActions) != 0:
-                        for aAction in thePhase.modelActions:
-                            if callable(aAction):
-                                aAction()  # this command executes aAction
-                            elif isinstance(aAction, SGModelAction):
-                                aAction.execute()
-                    #textbox update
-                    thePhase.notifyNewText()
-                    #watchers update
-                    self.model.checkAndUpdateWatchers()
-                    #mqtt update
-        #The instructions below have been commented temporarily to test a new process for broker msg  
-                    # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                    #     self.model.publishEntitiesState()
-
-
-                else:
-                    self.nextPhase()
-
-
-    # To handle the victory Condition and the passment of turn
+    def getCurrentPhase(self):
+        return self.phases[self.currentPhaseNumber-1]
+                            
+    def getNextPhase(self):
+        return self.phases[self.currentPhaseNumber]
 
     def next(self):
         # condition Victoire
@@ -99,12 +114,6 @@ class SGTimeManager():
         if endGame:
             print("C'est fini !")
         return endGame
-
-    def getRoundNumber(self):
-        return self.currentRound
-
-    def getPhaseNumber(self):
-        return self.currentPhase
     
     #Update
     def updateEndGame(self):
@@ -134,13 +143,14 @@ class SGTimeManager():
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
-    def newModelPhase(self, actions=[], condition=[], name=''):
+    def newModelPhase(self, actions=[], condition=[], name='',autoForwardOn=False,messageAutoForward=True,showMessageBoxAtStart=False):
         """
         To add a round phase during which the model will execute some actions (add, delete, move...)
         args:
             actions (lambda function): Actions the model performs during the phase (add, delete, move...)
             condition (lambda function): Actions are performed only if the condition returns true  
             name (str): Name displayed on the TimeLabel
+            autoForwardOn (bool) : if True, this phase will be automatically executed (default:False)
         """
         modelActions = []
         if isinstance(actions, (SGModelAction,SGModelAction_OnEntities)):
@@ -165,18 +175,22 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(self,modelActions=modelActions, name=name)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,autoForwardOn=autoForwardOn,messageAutoForward=messageAutoForward,showMessageBoxAtStart=showMessageBoxAtStart)
         self.phases = self.phases + [aPhase]
         return aPhase
 
     # To verify a number of round
     def verifNumberOfRound(self, aNumber):
-        return self.currentRound == aNumber
+        return self.currentRoundNumber == aNumber
 
     # To verify if the number of round is peer
     def isPeer(self):
-        return self.currentRound % 2 == 0
+        return  (self.currentRoundNumber != 0) and (self.currentRoundNumber % 2 == 0)
 
     # To verify if the number of round is odd
     def isOdd(self):
-        return self.currentRound % 2 == 1
+        return self.currentRoundNumber % 2 == 1
+
+    # To verify if its the initialization period (round 0)
+    def isInitialization(self):
+        return self.currentRoundNumber  == 0

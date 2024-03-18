@@ -1,5 +1,6 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
+from mainClasses.SGTimePhase import SGTimePhase,SGModelPhase
 import copy
 
 #Class who manage the game mechanics of Update
@@ -9,7 +10,7 @@ class SGAbstractAction():
     def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[]):
         self.id=self.nextId()
         self.__class__.instances.append(self)
-        print('new gameAction: '+str(self.id)) # To test
+        # print('new gameAction: '+str(self.id)) # To test
         self.targetEntDef=entDef
         self.model=self.targetEntDef.model 
         self.number=number
@@ -29,7 +30,7 @@ class SGAbstractAction():
 
 
     def perform_with(self,aTargetEntity,serverUpdate=True): #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
-        if self.checkAuhorization(aTargetEntity):
+        if self.checkAuthorization(aTargetEntity):
             resAction = self.executeAction(aTargetEntity)
             if self.feedbacks:
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
@@ -42,10 +43,22 @@ class SGAbstractAction():
             return False
 
     #Function to test if the game action could be use
-    def checkAuhorization(self,aTargetEntity):
+    def checkAuthorization(self,aTargetEntity):
+        res = True
+        if len(self.model.timeManager.phases)==0:
+            return True
+        if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
+            # TODO add a facultative permission 
+            return False
+        if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
+            player=self.model.getPlayer(self.model.currentPlayer)
+            if player in self.model.timeManager.phases[self.model.getCurrentPhase()-1].authorizedPlayers:
+                res = True
+            else:
+                return False
+            # TODO add a facultative restriction 
         if self.numberUsed >= self.number:
             return False
-        res = True 
         for aCondition in self.conditions:
             res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity))
         return res

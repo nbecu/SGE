@@ -14,8 +14,7 @@ myModel = SGModel(
 
 
 # STEP2 Grid and Cells
-Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,
-                        name='grid1')  # ,posXY=[20,90]
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,name='grid1')
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setRandomEntities("Resource", 3, 7)
@@ -49,22 +48,22 @@ aThirdSheep=Sheeps.newAgentAtCoords(Cell,3,5)
 globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 
 Player1 = myModel.newPlayer("Player 1")
-createA1=myModel.newCreateAction(Workers, 20)
+createA1=myModel.newCreateAction(Workers, aNumber=20)
 Player1.addGameAction(createA1)
 Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
 Player1.addGameAction(myModel.newDeleteAction('Cell', "infinite"))
-Player1.addGameAction(myModel.newUpdateAction('Cell', 3, {"Resource": 3}))
+Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newCreateAction(Birds,4))
-Player2.addGameAction(myModel.newCreateAction(Sheeps,4,{"health":"good"}))
+Player2.addGameAction(myModel.newCreateAction(Birds,aNumber=4))
+Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", 3, {"ProtectionLevel": "Reserve"}))
+    "Cell", {"ProtectionLevel": "Reserve"}, 3))
 Player2.addGameAction(myModel.newUpdateAction(
-    "Cell", "infinite", {"ProtectionLevel": "Free"}))
+    "Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
@@ -79,12 +78,11 @@ myModel.setCurrentPlayer('Player 1')
 # STEP6 DashBoard and EndGameRule
 score1= myModel.newSimVariable("Global Score",0)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-i1 = DashBoard.addIndicator("sumAtt", Cell, attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator("avgAtt", Cell, attribute='Resource',color=Qt.black)
-i3 = DashBoard.addIndicator("nb",[Workers,Birds,Sheeps],color=Qt.black)
-i4 = DashBoard.addIndicator("nb",Workers,color=Qt.black)
+i1 = DashBoard.addIndicator(Cell,"sumAtt", attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator(Cell,"avgAtt", attribute='Resource',color=Qt.black)
+i3 = DashBoard.addIndicator([Workers,Birds,Sheeps],"nb",color=Qt.black)
+i4 = DashBoard.addIndicator(Workers,"nb",color=Qt.black)
 i5 = DashBoard.addIndicatorOnSimVariable(score1)
-DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(

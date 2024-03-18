@@ -1,8 +1,6 @@
-from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
-from mainClasses.SGGrid import SGGrid
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 import numpy as np
@@ -16,7 +14,6 @@ import random
 # entityDef and AgentDef also hold the list of entities of the simulation 
 class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues, defaultShapeColor):
-        # super().__init__(entDefAttributesAndValues)
         self.model= sgModel
         self.entityName=entityName
         self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
@@ -28,13 +25,16 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.defaultBorderWidth=1
         self.povShapeColor={}
         self.povBorderColorAndWidth={}
-        self.shapeColorClassif={} # Classif devra remplacer les Pov à terme
-        self.borderColorClassif={}# Classif devra remplacer les Pov à terme
+        self.shapeColorClassif={} # Classif will replace pov
+        self.borderColorClassif={}# Classif will replace pov
         self.watchers={}
         self.IDincr = 0
         self.entities=[]
         self.initAttributes(entDefAttributesAndValues)
         self.listOfStepStats=[]
+        self.attributesToDisplayInContextualMenu=[]
+        self.updateMenu=False
+        self.attributesToDisplayInUpdateMenu=[]
 
     def nextId(self):
         self.IDincr +=1
@@ -45,14 +45,11 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         elif isinstance(self,SGAgentDef): return 'Agent'
         else: raise ValueError('Wrong or new entity type')
 
-    #a mettre coté instance
-        # isDisplay
-
     ###Definition of the developer methods
     def addWatcher(self,aIndicator):
-        if aIndicator.attribut is None:
+        if aIndicator.attribute is None:
             aAtt = 'nb'
-        else: aAtt = aIndicator.attribut
+        else: aAtt = aIndicator.attribute
         if aAtt not in self.watchers.keys():
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)
@@ -116,12 +113,11 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             
         """
         self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
-        # self.model.addPovinMenuBar(nameofPOV)
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
         if len(self.povShapeColor)==1:
-            self.setInitialPov(nameOfPov)
+            self.displayPov(nameOfPov)
 
-    def setInitialPov(self,nameOfPov):
+    def displayPov(self,nameOfPov):
         self.model.checkSymbologyinMenuBar(self,nameOfPov)
 
     def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
@@ -450,13 +446,27 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True
 
+    # To handle the info to be displayed in a contextual menu on entitis
+    def setAttributeValueToDisplayInContextualMenu(self,aAttribut,aLabel=None):
+        aDict={}
+        aDict['att']=aAttribut
+        aDict['label']= (aLabel if aLabel is not None else aAttribut)
+        self.attributesToDisplayInContextualMenu.append(aDict)
+    
+    # To handle the attrobutes concerned by the contextual update menu
+    def setAttributesConcernedByUpdateMenu(self,aAttribut,aLabel=None):
+        self.updateMenu=True
+        aDict={}
+        aDict['att']=aAttribut
+        aDict['label']= (aLabel if aLabel is not None else aAttribut)
+        self.attributesToDisplayInUpdateMenu.append(aDict)
     
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInentity="random"):
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random"):
         super().__init__(sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
-        self.locationInentity=locationInentity
+        self.locationInEntity=locationInEntity
 
 #Shape of agent availableble : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
 
@@ -473,7 +483,6 @@ class SGAgentDef(SGEntityDef):
         self.entities.append(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aAgent.updateMqtt()
         aAgent.show()
         return aAgent
 
@@ -507,7 +516,6 @@ class SGAgentDef(SGEntityDef):
         aCellDef = self.model.getCellDef(cellDef_or_grid)
         locationCell=aCellDef.getRandomEntity(condition=condition)
         return self.newAgentOnCell(locationCell, attributesAndValues)
-        # return self.newAgentAtCoords(cellDef_or_grid, None, None, attributesAndValues)
 
     def newAgentsAtRandom(self, aNumber, cellDef_or_grid, attributesAndValues=None,condition=None):
         """
@@ -572,7 +580,7 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         aAgent.updateMqtt()
-        aAgent.update()
+        #aAgent.update()
 
 
 class SGCellDef(SGEntityDef):
@@ -643,7 +651,6 @@ class SGCellDef(SGEntityDef):
         self.entities.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aCell.updateMqtt()
         aCell.update()
 
     def reviveThisCell(self, aCell):
@@ -652,6 +659,5 @@ class SGCellDef(SGEntityDef):
         self.deletedCells.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aCell.updateMqtt()
         aCell.update()
         
