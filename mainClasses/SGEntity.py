@@ -41,7 +41,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                 self.setValue(aAtt,valueToSet())
             else:
                 self.setValue(aAtt,valueToSet)
-            # self.setListHistory()
 
     def getRandomAttributValue(self,aAgentSpecies,aAtt):
         if aAgentSpecies.dictAttributes is not None:
