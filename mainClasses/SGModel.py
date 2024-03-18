@@ -604,6 +604,9 @@ class SGModel(QMainWindow):
         return aAgentSpecies
 
     def getDefaultAgentRandomValue(self, begin, end):
+        #Cette methode etait utiliser dans exstep8 pour l'utiliser comme suit :
+            #Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
+            #Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
         return random.randint(begin, end)
 
     def getAgentSpeciesName(self):
