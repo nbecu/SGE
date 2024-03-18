@@ -1,6 +1,7 @@
-from PyQt5 import QtWidgets 
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from collections import defaultdict
 import random
 from mainClasses.AttributeAndValueFunctionalities import *
 
@@ -18,7 +19,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.isDisplay=True
         #Define variables to handle the history 
         self.history={}
-        self.history["value"]=[]
+        self.history["value"]=defaultdict(list)
+        # self.list_history = []
         self.watchers={}
         #Set the attributes
         self.initAttributesAndValuesWith(attributesAndValues)
@@ -97,31 +99,37 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         for watcher in self.watchers.get(aAtt,[]):
             watcher.checkAndUpdate()
 
-    def saveHistoryValue(self):
-        if len(self.history["value"])==0:
-            self.history["value"].append([0,0,self.dictAttributes]) #corresponds to à round 0 phase 0
-        self.history["value"].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,self.dictAttributes])
+    def getListOfStepsData(self,startStep=None,endStep=None):
+        aList=self.getListOfUntagedStepsData(startStep,endStep)
+        return [{**{'entityType': self.classDef.entityType(),'entityName': self.classDef.entityName,'id': self.id},**aStepData} for aStepData in aList]
 
-
+    
     def isDeleted(self):
         return not self.isDisplay
-    
-    def setValue(self,aAttribut,aValue): #--> TO BE DELETED?
+
+    #To handle the attributs and values
+    # Should check how to manage this method with the one of the superclass AttributeAndValueFunctinalities
+    def setValue(self,aAttribut,valueToSet):
         """
         Sets the value of an attribut
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
+        # if self.model.round()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.saveHistoryValue()    
         self.dictAttributes[aAttribut]=aValue
-
         self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.update() #! Instruction required for mqtt
+        self.updateMqtt()
+        self.update()
         return True
-    
-    #To perform action
+
+    #To perform action --> Check if this method is used or not
     def doAction(self, aLambdaFunction):
         aLambdaFunction(self)

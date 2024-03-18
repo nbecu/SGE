@@ -4,6 +4,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMessageBox)
 from PyQt5 import QtWidgets
+
+from mainClasses.SGDiagramCircular import SGDiagramCircular
+from mainClasses.SGDiagramLinear import SGDiagramLinear
+from mainClasses.SGTestGetData import SGTestGetData
+from mainClasses.SGWindowsGraph import SGWindowsGraph
+from mainClasses.SGDiagramController import SGDiagramController
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
@@ -28,6 +34,9 @@ from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
 from mainClasses.SGVoid import*
+from mainClasses.SGDataRecorder import*
+from email.policy import default
+from logging.config import listen
 import sys
 from pathlib import Path
 from pyrsistent import s
@@ -38,6 +47,7 @@ import queue
 import uuid
 import re
 import json
+
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -114,9 +124,14 @@ class SGModel(QMainWindow):
         self.actionsFromBrokerToBeExecuted=[]
         self.simulationVariablesAtMAJ=[] 
 
+        self.dataRecorder=SGDataRecorder(self)
+
         self.initUI()
 
         self.initModelActions()
+        # self.listData = []
+
+
 
     def initModelActions(self):
         self.id_modelActions = 0
@@ -210,7 +225,51 @@ class SGModel(QMainWindow):
 
         self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
 
+        self.createGraphMenu()
+
+
     # Create all the action related to the menu
+
+    def createGraphMenu(self):
+        self.chooseGraph = self.menuBar().addMenu(QIcon("./icon/icon_dashboards.png"), "&openChooseGraph")
+        # Submenu linear
+        actionLinearDiagram = QAction(QIcon('./icon/icon_linear.png'), 'Diagramme Linéaire', self)
+        actionLinearDiagram.triggered.connect(self.openLinearDiagram)
+        self.chooseGraph.addAction(actionLinearDiagram)
+
+        actionHistogramDiagram = QAction(QIcon('./icon/icon_histogram.png'), 'Histogramme', self)
+        actionHistogramDiagram.triggered.connect(self.openHistoDiagram)
+        self.chooseGraph.addAction(actionHistogramDiagram)
+
+        actionCircularDiagram = QAction(QIcon('./icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
+        actionCircularDiagram.triggered.connect(self.openCircularDiagram)
+        self.chooseGraph.addAction(actionCircularDiagram)
+
+        actionStackPlotDiagram = QAction(QIcon('./icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
+        actionStackPlotDiagram.triggered.connect(self.openStackPlotDiagram)
+        self.chooseGraph.addAction(actionStackPlotDiagram)
+
+        actionOtherDiagram = QAction(QIcon('./icon/graph.png'), 'Autres Représentations', self)
+        actionOtherDiagram.triggered.connect(self.openOtherDiagram)
+        self.chooseGraph.addAction(actionOtherDiagram)
+
+
+    def createAction(self):
+        self.save = QAction(QIcon("./icon/save.png"), " &save", self)
+        self.save.setShortcut("Ctrl+s")
+        self.save.triggered.connect(self.saveTheGame)
+
+        self.backward = QAction(
+            QIcon("./icon/backwardArrow.png"), " &backward", self)
+        self.backward.triggered.connect(self.backwardAction)
+
+        self.forward = QAction(
+            QIcon("./icon/forwardArrow.png"), " &forward", self)
+        self.forward.triggered.connect(self.forwardAction)
+
+        self.inspect = QAction(
+            QIcon("./icon/inspect.png"), " &inspectAll", self)
+        self.inspect.triggered.connect(self.inspectAll)
 
     # Zoom
     
@@ -223,12 +282,71 @@ class SGModel(QMainWindow):
     def zoomFitModel(self):
         pass
 
-    # Create the function for the action of the menu
+
+    # open diagram windows
+    def openLinearDiagram(self):
+        SGWindowsGraph(self).action_one_graph()
+    def openHistoDiagram(self):
+        SGWindowsGraph(self).action_histogram_diagram()
+    def openStackPlotDiagram(self):
+        SGWindowsGraph(self).action_stackplot_diagram()
+
+    def openCircularDiagram(self):
+        SGWindowsGraph(self).action_circular_diagram()
+        #sgDiagramCircular = SGDiagramCircular(self)
+        #sgDiagramCircular.show()
+        #SGWindowsGraph(self).action_circular_diagram()
+
+    def openOtherDiagram(self):
+        print("WITH CSV OPTION")
+
+        
+    # Loading a Save
+    def openFromSave(self):
+        """To be implemented"""
+        return True
+    # Save the game in a file
+    def saveTheGame(self):
+        """To be implemented"""
+        return True
+
+    # Inspect All of the variables of the game
+    def inspectAll(self):
+        """To be implemented"""
+        return True
+
+    # Make the game go to precedent state
+    def backwardAction(self):
+        """To be implemented"""
+        return True
+
+    # Make the game go to next step
+    def forwardAction(self):
+        """To be implemented"""
+        return True
+
+    # def setAllDataSinceInit(self):
+    #     print("Test")
+    #     for aEntity in self.getAllEntities():
+    #         h = aEntity.getHistoryDataJSON()
+    #         self.listData.append(h)
+
+    def getAllDataSinceInit(self):
+        rounds = set([entry['round'] for entry in self.listData])
+        print("rounds :: ", rounds)
+
+    # Trigger the next turn
+    def nextTurn(self):
+        #print("test")
+        # Eventually we can add here some conditions to allow to execute nextTurn (ex. be an Admin)
+        # connect(self.nextTurn)
+
     # Trigger the next turn
     def nextTurn(self):
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.buildNextTurnMsgAndPublishToBroker()
+
 
     def closeEvent(self, event):
         self.haveToBeClose = True
@@ -328,6 +446,22 @@ class SGModel(QMainWindow):
             grid = self.getGrids()[0]
         return self.getCellDef(grid).entities
     
+    def getAllCells(self):
+        # send back the cells of all the grids
+        aList= []
+        for entDef in self.cellOfGrids.values():
+            aList.extend(entDef.entities)
+        return aList
+
+    def getAllEntities(self):
+        # send back the cells of all the grids and the agents of all the species
+        aList= []
+        for entDef in self.cellOfGrids.values():
+            aList.extend(entDef.entities)
+        for entDef in self.getAgentSpeciesDict():
+            aList.extend(entDef.entities)
+        return aList
+    
     # To get all the povs of the collection
     def getCellPovs(self,grid):
         return {key: value for dict in (self.cellOfGrids[grid.id]['ColorPOV'],self.cellOfGrids[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
@@ -404,6 +538,12 @@ class SGModel(QMainWindow):
         aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity)
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
+
+    def getDefaultAgentRandomValue(self, begin, end):
+        #Cette methode etait utiliser dans exstep8 pour l'utiliser comme suit :
+            #Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
+            #Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
+        return random.randint(begin, end)
 
     def getAgentSpeciesName(self):
         # send back a list of the names of all the species
@@ -496,6 +636,7 @@ class SGModel(QMainWindow):
 
     # To create a modelAction
     def newModelAction(self, actions=[], conditions=[], feedbacks=[]):
+
         """
         To add a model action which can be executed during a modelPhase
         args:

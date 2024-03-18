@@ -3,6 +3,9 @@ from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
+import numpy as np
+from collections import Counter
+
 
 import random
 
@@ -13,6 +16,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues, defaultShapeColor):
         self.model= sgModel
         self.entityName=entityName
+        self.dictAttributes= entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
         self.attributesDefaultValues={}
         self.shape=shape
         self.defaultsize=defaultsize
@@ -27,6 +31,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.IDincr = 0
         self.entities=[]
         self.initAttributes(entDefAttributesAndValues)
+        self.listOfStepStats=[]
         self.attributesToDisplayInContextualMenu=[]
         self.updateMenu=False
         self.attributesToDisplayInUpdateMenu=[]
@@ -150,6 +155,53 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for aKey, aListOfColorAndWidth in dictOfColorAndWidth.items():
             reformatedDict[aKey] = {'color':aListOfColorAndWidth[0],'width':aListOfColorAndWidth[1]}
         return reformatedDict
+    
+
+    def calculateAndRecordCurrentStepStats(self):
+        currentRound =self.model.timeManager.currentRound
+        currentPhase = self.model.timeManager.currentPhase
+
+        listQuantiAttributes = []
+        listQualiAttributes = []
+        for aAtt,aVal in self.entities[0].dictAttributes.items():  
+            if type(aVal) in [int,float]:
+                listQuantiAttributes.append(aAtt)
+            elif type(aVal) == str:
+                listQualiAttributes.append(aAtt)
+            else:
+                raise TypeError("Only int float and str are allowed")
+
+        quantiAttributesStats ={}
+        for aAtt in listQuantiAttributes:
+            listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
+            quantiAttributesStats[aAtt] = {
+                'sum': np.sum(listOfValues),
+                'mean': np.mean(listOfValues),
+                'min': np.min(listOfValues),
+                'max': np.max(listOfValues),
+                'stdev': np.std(listOfValues),
+                'histo':np.histogram(listOfValues, bins='auto')
+                }
+        qualiAttributesStats ={}
+        for aAtt in listQualiAttributes:
+            listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
+            qualiAttributesStats[aAtt]=Counter(listOfValues)
+            type(dict(Counter(listOfValues)))
+
+        aData = {
+                'entityType': self.entityType(),
+                'entityName': self.entityName,
+                'round': currentRound,
+                'phase': currentPhase,
+                'population': len(self.entities),
+                'entDefAttibutes': dict(filter(lambda i: type(i[1]) in[int,float],self.dictAttributes.items())),
+                'quantiAttributes': quantiAttributesStats,
+                'qualiAttributes': qualiAttributesStats
+                    }    
+        self.listOfStepStats.append(aData)
+
+
+
 # ********************************************************    
 
 # to get the entity matching a Id or at a specified coordinates
@@ -386,8 +438,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        # self.saveHistoryValue()    
+        #self.saveHistoryValue()
+        #print("name self : ", self.entities)
         self.dictAttributes[aAttribut]=aValue
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         return True
@@ -525,6 +579,8 @@ class SGAgentDef(SGEntityDef):
         self.entities.remove(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
+        aAgent.updateMqtt()
+        #aAgent.update()
 
 
 class SGCellDef(SGEntityDef):
