@@ -32,8 +32,8 @@ Cells.newPov("Cell Type","type",{"côte":Qt.green,"mer":Qt.cyan,"grandFond":Qt.b
 Cells.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher":Qt.red,"côte":Qt.darkGray})
 Cells.newBorderPovColorAndWidth("Incitation","incitation", {"neutre": [Qt.black,1], "bonus": [Qt.green,4], "malus": [Qt.red,4]})
 
-Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":{1.0003},"sable":{1},"vase":{0.75},"rocher":{0},"prix":14.6,"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
-Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":{1.0219},"sable":{1},"vase":{1},"rocher":{1},"prix":3.2,"facteurTemps":6329})
+Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":1.0003,"sable":1,"vase":0.75,"rocher":0,"prix":14.6,"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
+Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":1.0219,"sable":1,"vase":1,"rocher":1,"prix":3.2,"facteurTemps":6329})
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":2.75E-5,"txCapture_Merlu":3.76E-5,"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})#,"Invisibility":"True"})
 
@@ -54,8 +54,8 @@ Player1.addGameAction(Create1)
 Player1ControlPanel = Player1.newControlPanel("Actions Pêcheur")
 
 Player2= myModel.newPlayer("Gestionnaire",attributesAndValues=None)
-Update1=myModel.newUpdateAction("Cell",{"incitation":"bonus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
-Update2=myModel.newUpdateAction("Cell",{"incitation":"malus"},[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
+Update1=myModel.newUpdateAction("Cell",{"incitation":"bonus"},listOfRestriction=[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
+Update2=myModel.newUpdateAction("Cell",{"incitation":"malus"},listOfRestriction=[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
 Player2.addGameAction(Update1)
 Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
@@ -69,13 +69,13 @@ def tx_présence():
     nbNavireEquivalentEffortRefZone=len(myModel.getAgentsOfSpecie("Navire"))
     for Species in EspècesHalieutiques:
         for cell in CellsMer:
-            cell.setValue("txPrésence"+Species.entityName,list(Species.value(cell.value("sédim")))[0]/(nbCellsMer*nbNavireEquivalentEffortRefZone))
+            cell.setValue("txPrésence"+Species.entityName,Species.value(cell.value("sédim"))/(nbCellsMer*nbNavireEquivalentEffortRefZone))
 
 def pêche(cell):
     if len(cell.agents)!=0:
         for navire in cell.agents:
-            navire.setValue('Quantité_pêchée_Merlu',round(cell.value("txPrésenceMerlu")*Merlus.value("stock")*list(navire.value("txCapture_Merlu"))[0]*Merlus.value("facteurTemps")*navire.value("facteurEffortMerlu"),0))
-            navire.setValue('Quantité_pêchée_Sole',round(cell.value("txPrésenceSole")*Soles.value("stock")*list(navire.value("txCapture_Sole"))[0]*Soles.value("facteurTemps")*navire.value("facteurEffortSole"),0))
+            navire.setValue('Quantité_pêchée_Merlu',round(cell.value("txPrésenceMerlu")*Merlus.value("stock")*navire.value("txCapture_Merlu")*Merlus.value("facteurTemps")*navire.value("facteurEffortMerlu"),0))
+            navire.setValue('Quantité_pêchée_Sole',round(cell.value("txPrésenceSole")*Soles.value("stock")*navire.value("txCapture_Sole")*Soles.value("facteurTemps")*navire.value("facteurEffortSole"),0))
             navire.setValue("PêcheCumMerlu",navire.value("PêcheCumMerlu")+navire.value('Quantité_pêchée_Merlu'))
             navire.setValue("PêcheCumSole",navire.value("PêcheCumSole")+navire.value('Quantité_pêchée_Sole'))
             
@@ -88,8 +88,8 @@ def feedbackPêche():
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
             
-    stockMerlu=round((Merlus.value("stock")-sommePêcheMerlu)*list(Merlus.value("txrenouv"))[0],0)
-    stockSole=round((Soles.value("stock")-sommePêcheSole)*list(Soles.value("txrenouv"))[0],0)
+    stockMerlu=round((Merlus.value("stock")-sommePêcheMerlu)*Merlus.value("txrenouv"),0)
+    stockSole=round((Soles.value("stock")-sommePêcheSole)*Soles.value("txrenouv"),0)
     Soles.setValue("stock",stockSole)
     Merlus.setValue("stock",stockMerlu)
 
