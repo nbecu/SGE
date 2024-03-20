@@ -375,8 +375,10 @@ class SGDiagramController(NavigationToolbar):
                 values.append([aData.get(aLabel, 0) for aData in list_data])
             self.plot_stack_plot_data_switch_xvalue(self.xValue, values, labels)
             self.ax.legend()
-            title = "{} et des Simulations Variables".format(self.title)
-            self.ax.set_title(title)
+            print("labels : ", labels)
+            #title = "{} et des Simulations Variables".format(self.title)
+            self.title = "Analyse comparative des composantes de la {} ".format(attribut_value.capitalize())
+            self.ax.set_title(self.title)
             self.canvas.draw()
         else:
             titre = "Impossible d'afficher les données"
