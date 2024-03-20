@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, QPushButton, \
-    QCheckBox, QSpinBox, QLabel, QSlider, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, \
+    QPushButton, \
+    QCheckBox, QSpinBox, QLabel, QSlider, QLineEdit, QActionGroup
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
 import re
@@ -77,6 +78,7 @@ class SGDiagramController(NavigationToolbar):
         self.previous_selected_checkboxes = []
         self.parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['plot', 'hist'] else 'qualiAttributes'
 
+        self.groupAction = QActionGroup(self)
         self.firstEntity = ""
         self.firstAttribut = ""
         self.list_attribut_display = []
@@ -130,7 +132,7 @@ class SGDiagramController(NavigationToolbar):
                 #  if entry.get('entityName') == entity_name and isinstance(entry['quantiAttributes'][attribut], (int, float))}
                 # ---> Pas besoin, car j'ai séparé les attributes dans deux keys -> quantiAttributes  pour les (int, float) et qualiAttributes  pour les str
                 if not self.firstAttribut:
-                    self.firstAttribut = ""  # sorted(list_attribut_key)[0]
+                    self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
                 for attribut_key in sorted(list_attribut_key):
                     attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
                                                  option_key in attrib_data}
@@ -161,6 +163,7 @@ class SGDiagramController(NavigationToolbar):
 
                 if not self.firstAttribut:
                     self.firstAttribut = sorted(list_attribut_key)[0] if len(list_attribut_key) > 0 else ""
+
                 for attribut_key in list_attribut_key:
                     list_val = []
                     attrib_tmp_dict = {}
@@ -187,17 +190,65 @@ class SGDiagramController(NavigationToolbar):
                 parentMenu.addMenu(submenu)
                 self.addSubMenus(submenu, value, firstEntity, firstAttribut)
             else:
-                action = self.set_checkbox_action(key, parentMenu, firstEntity, firstAttribut)
+                if self.typeDiagram in ['pie', 'stackplot']:
+                    action = self.createRadioButtonAction(key, parentMenu)
+                    if key == f"entity-:{firstEntity}-:{firstAttribut}":
+                        action.setChecked(True)
+                else:
+                    action = self.set_checkbox_action(key, parentMenu, firstEntity, firstAttribut)
+                    if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
+                        action.setChecked(True)
+                        self.previous_selected_checkboxes.append(key)
                 self.checkbox_display_menu_data[key] = action
                 parentMenu.addAction(action)
+
+    # set checkbox for diagram ( plot and hist )
+    def set_checkbox_action(self, key, parentMenu, firstEntity, firstAttribut):
+        self.previous_selected_checkboxes = []
+        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
+                         checkable=True)
+
+        if key == f"entity-:{firstEntity}-:{firstAttribut}":
+            action.setChecked(True)
+
+        #else:
+        #    if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
+        #        action.setChecked(True)
+        #        self.previous_selected_checkboxes.append(key)
+        action.setProperty("key", key)
+        action.triggered.connect(self.update_plot_from_checked_action)
+        parentMenu.addAction(action)
+        return action
+
+    # for typediagram : (pie, stackplot, hist)
+    def createRadioButtonAction(self, key, parentMenu):
+        #action = QAction(key, self)
+        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize())
+        action.setCheckable(True)
+        parentMenu.addAction(action)
+        self.groupAction.addAction(action)
+        #print("key : ", key)
+        #, firstEntity, firstAttribut
+        action.triggered.connect(lambda: self.onActionTriggered(action))
+        return action
+
+    def onActionTriggered(self, action):
+        # Désélectionner toutes les autres actions du même groupe
+        for otherAction in self.groupAction.actions():
+            if otherAction != action:
+                otherAction.setChecked(False)
+        self.update_plot()
+            #print(f"otherAction : {otherAction.isChecked()} - text : {otherAction.text()}")
 
     def set_checkbox_action(self, key, parentMenu, firstEntity, firstAttribut):
         self.previous_selected_checkboxes = []
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
                          checkable=True)
+
         if self.typeDiagram not in ['pie', 'hist', 'stackplot']:
             if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
-                action.setChecked(True)
+                #action.setChecked(True)
+                action.setCheckable(True)
         else:
             if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
                 action.setChecked(True)
@@ -207,8 +258,10 @@ class SGDiagramController(NavigationToolbar):
         parentMenu.addAction(action)
         return action
 
+
     # update plot after checked option
-    def update_plot_from_checked_action(self):
+    def update_plot_from_checked_action(self, state):
+        #print("state : ", state)
         if self.typeDiagram in ['pie', 'hist', 'stackplot']:
             selected_option = self.on_toggle_checked_option()
             for option, checkbox in self.checkbox_display_menu_data.items():
@@ -220,6 +273,7 @@ class SGDiagramController(NavigationToolbar):
     def on_toggle_checked_option(self):
         for option, checkbox in self.checkbox_display_menu_data.items():
             checkbox.setChecked(option not in self.previous_selected_checkboxes)
+        self.groupAction.setExclusive(True)
         return [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
 
     # get checkbox selected
