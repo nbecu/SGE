@@ -23,24 +23,21 @@ class SGTimeManager():
         if len(self.phases) == 0:
             print('warning : should we handle the case when there is no phases defined ?')
             return
-        self.model.dataRecorder.calculateStepStats()
         
-        end = self.checkEndGame()
-        if end :
-            return
+        self.model.dataRecorder.calculateStepStats()
+        isEndGame = self.checkEndGame()
+        if isEndGame : return
 
-        if self.currentRoundNumber ==0: #This case is to quit the Initialization phase at the begining of the game
+        if self.currentRoundNumber ==0:     #This case is to quit the Initialization phase at the begining of the game
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
-
-        elif self.isCurrentPhase_Last()   : #This case is when  there is no nextphase after the current one. Therefor it is a next round
+        elif self.isCurrentPhase_Last():    #This case is when  there is no nextphase after the current one. Therefor it is a next round
             self.currentRoundNumber += 1
             self.currentPhaseNumber = 1
             #reset GameActions count
             for action in self.model.getAllGameActions():
                 action.reset()
-
-        else : #This case is to advance to the next phase wthin the same round
+        else :                              #This case is to advance to the next phase wthin the same round
             self.currentPhaseNumber += 1
         
         # Process the widgets for this next phase/round
@@ -54,9 +51,13 @@ class SGTimeManager():
         self.getCurrentPhase().execPhase()
         #watchers update
         self.model.checkAndUpdateWatchers()
+        #opened graph windows update
+        for aGraph in self.model.openedGraphs:
+            aGraph.toolbar.refresh_data()
 
-        if self.getCurrentPhase().autoForwardOn :
+        if self.getCurrentPhase().autoForwardOn:
             if self.getCurrentPhase().messageAutoForward:
+                # a encapsuler ds une méthode
                 msg_box = QMessageBox(self.model)
                 msg_box.setIcon(QMessageBox.Information)
                 msg_box.setWindowTitle("SGE Time Manager Message")
@@ -69,6 +70,48 @@ class SGTimeManager():
                 msg_box.setDefaultButton(QMessageBox.Ok)
                 msg_box.exec_()
             self.nextPhase()
+
+
+    """                    #reset GameActions count
+                    for action in self.model.getAllGameActions():
+                        action.reset()
+                    self.currentPhase = 1
+                
+
+                thePhase = self.phases[self.currentPhase]
+                # check conditions for the phase
+                doThePhase = True
+                if self.currentPhase == 1 and len(self.phases) > 1:
+                    self.currentRound += 1
+                    if self.model.myTimeLabel is not None:
+                        self.model.myTimeLabel.updateTimeLabel()
+                    if self.model.userSelector is not None:
+                        self.model.userSelector.updateUI(QHBoxLayout())
+
+                # execute the actions of the phase
+                if doThePhase:
+                    # We can execute the actions
+                    #TODO déplacer l'execution de la phase coté TimePhase
+                    if len(thePhase.modelActions) != 0:
+                        for aAction in thePhase.modelActions:
+                            if callable(aAction):
+                                aAction()  # this command executes aAction
+                            elif isinstance(aAction, SGModelAction):
+                                aAction.execute()
+                    #textbox update
+                    thePhase.notifyNewText()
+                    #watchers update
+                    self.model.checkAndUpdateWatchers()
+                    #mqtt update
+        #The instructions below have been commented temporarily to test a new process for broker msg  
+                    # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
+                    #     self.model.publishEntitiesState()
+                    for aGraph in self.model.openedGraphs:
+                        aGraph.toolbar.refresh_data()
+
+
+                else:
+                    self.nextPhase()"""
 
     def isCurrentPhase_Last(self):
         return (self.currentPhaseNumber + 1) > len(self.phases) 

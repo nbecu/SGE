@@ -51,3 +51,8 @@ class SGDiagramLinear(QMainWindow):
             # Vous pouvez ajouter ici le code pour stocker cet intervalle dans une liste ou un autre conteneur.
         except ValueError:
             print("Veuillez entrer des nombres valides pour le début et la fin de l'intervalle.")
+
+    def closeEvent(self, *args, **kwargs):
+        self.parent.openedGraphs.remove(self)
+        super(QMainWindow, self).closeEvent(*args, **kwargs)
+        

@@ -44,8 +44,10 @@ class SGWindowsGraph(QWidget):
         if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
             sgDiagramLinear = SGDiagramLinear(self.model)
             sgDiagramLinear.show()
+            return sgDiagramLinear
         else:
             self.showErrorMessage()
+            return None
 
     def action_one_graph_test(self):
         # Exemple d'utilisation
@@ -96,22 +98,28 @@ class SGWindowsGraph(QWidget):
         if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
             sgDiagramCircular = SGDiagramCircular(self.model)
             sgDiagramCircular.show()
+            return sgDiagramCircular
         else:
             self.showErrorMessage()
+            return None
 
 
     def action_stackplot_diagram(self):
         if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
             sgDiagramStackPlot = SGDiagramStackPlot(self.model)
             sgDiagramStackPlot.show()
+            return sgDiagramStackPlot
         else:
             self.showErrorMessage()
+            return None
 
 
     def action_histogram_diagram(self):
         if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
             sgDiagramHistogram = SGDiagramHistogram(self.model)
             sgDiagramHistogram.show()
+            return sgDiagramHistogram
         else:
             self.showErrorMessage()
+            return None
 

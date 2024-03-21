@@ -85,7 +85,9 @@ class SGModel(QMainWindow):
         # Definition of variable
         # Definition for all gameSpaces
         self.gameSpaces = {}
-        self.TextBoxes = []
+        self.TextBoxes = []   # Why textBoxes are not in gameSpaces ?
+        # list of graphs
+        self.openedGraphs = []
         # Definition of the AgentDef and CellDef
         self.agentSpecies = {}
         self.cellOfGrids = {}
@@ -285,14 +287,20 @@ class SGModel(QMainWindow):
 
     # open diagram windows
     def openLinearDiagram(self):
-        SGWindowsGraph(self).action_one_graph()
+        aGraph = SGWindowsGraph(self).action_one_graph()
+        self.openedGraphs.append(aGraph)
+
     def openHistoDiagram(self):
-        SGWindowsGraph(self).action_histogram_diagram()
+        aGraph = SGWindowsGraph(self).action_histogram_diagram()
+        self.openedGraphs.append(aGraph)
+
     def openStackPlotDiagram(self):
-        SGWindowsGraph(self).action_stackplot_diagram()
+        aGraph = SGWindowsGraph(self).action_stackplot_diagram()
+        self.openedGraphs.append(aGraph)
 
     def openCircularDiagram(self):
-        SGWindowsGraph(self).action_circular_diagram()
+        aGraph = SGWindowsGraph(self).action_circular_diagram()
+        self.openedGraphs.append(aGraph)
         #sgDiagramCircular = SGDiagramCircular(self)
         #sgDiagramCircular.show()
         #SGWindowsGraph(self).action_circular_diagram()
