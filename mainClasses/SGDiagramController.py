@@ -141,6 +141,12 @@ class SGDiagramController(NavigationToolbar):
                 self.dictMenuData['simvariables'][f"simvariables-:{simVar}"] = None
             self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'], self.firstEntity, self.firstAttribut)
             # simVariables_list = {entry['simVarName'] for entry in self.dataSimVars}
+
+
+            playersAttributes_list = list(set(entry['???'] for entry in self.dataPlayers))
+            # for attribut_key in sorted(list_attribut_key):
+            #         attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
+            #                                      option_key in attrib_data}
             # self.addSubMenus(playersMenu, self.dictMenuData['players'])
         else:
             entities_list = {entry['entityName'] for entry in data if
@@ -628,7 +634,7 @@ class SGDiagramController(NavigationToolbar):
                 # Display red doted vertical lines to shaw the rounds
                 round_lab = 1
                 for x_val in xValue:
-                    if (x_val -1) % self.nbPhases == 0 and x_val != 1:
+                    if (x_val -1) % self.nbPhases == 0 :
                         self.ax.axvline(x_val, color='r', ls=':')
                         self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
                                      transform=self.ax.get_xaxis_transform())
