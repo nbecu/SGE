@@ -39,6 +39,7 @@ PyQt5-sip         12.11.1
 SQLAlchemy        2.0.3
 pyrsistent
 matplotlib
+pywin32
 ```
 
 ## Future plan
