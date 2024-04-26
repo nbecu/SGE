@@ -123,29 +123,15 @@ class SGDiagramController(NavigationToolbar):
             for simVar in simVariables_list:
                 self.dictMenuData['simvariables'][f"simvariables-:{simVar}"] = None
             self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'], self.firstEntity, self.firstAttribut)
-            # simVariables_list = {entry['simVarName'] for entry in self.dataSimVars}
 
-
-            playersAttributes_list = list(set(entry['???'] for entry in self.dataPlayers))
-            # for attribut_key in sorted(list_attribut_key):
-            #         attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
-            #                                      option_key in attrib_data}
-            # self.addSubMenus(playersMenu, self.dictMenuData['players'])
-            for entity_name in sorted(self.dataPlayers):
+            players_list = {entry['playerName'] for entry in  self.dataPlayers if 'playerName' in entry and not isinstance(entry['playerName'], dict)}
+            for player_name in sorted(players_list):
                 attrib_dict = {}
-                attrib_dict[f"entity-:{entity_name}-:population"] = None
-                list_entDef_attribut_key = {x for entry in data for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
-                for entDef_attribut_key in sorted(list_entDef_attribut_key):
-                    attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None                                              
-                list_attribut_key = {attribut for entry in data for attribut in entry.get(self.parentAttributKey, {}) if
-                                     entry['entityName'] == entity_name}
-                if not self.firstAttribut:
-                    self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
-                for attribut_key in sorted(list_attribut_key):
-                    attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
-                                                 option_key in attrib_data}
-                self.dictMenuData['entities'][entity_name] = attrib_dict
-
+                list_player_attribut_key = {x for entry in self.dataPlayers for x in entry.get('dictAttributes', {}) if entry['playerName'] == player_name}
+                for player_attribut_key in sorted(list_player_attribut_key):
+                    attrib_dict[f"player-:{player_name}-:{player_attribut_key}"] = None                                              
+                self.dictMenuData['players'][player_name] = attrib_dict
+            self.addSubMenus(playersMenu, self.dictMenuData['players'], self.firstEntity, self.firstAttribut)
 
         else:
             entities_list = {entry['entityName'] for entry in data if
@@ -487,15 +473,72 @@ class SGDiagramController(NavigationToolbar):
             self.ax.set_title(self.title)
             self.canvas.draw()
 
-    def plot_linear_typeDiagram(self, data, selected_option_list):
+    def plot_linear_typeDiagram_OLDDDDDDDD(self, data, selected_option_list):
         self.ax.clear()
         pos = 0
-        has_simvariables = any(item.startswith('simvariables-:') for item in selected_option_list)
-        if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
+        if any(item.startswith('entity-:') for item in selected_option_list):
             self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
-        if has_simvariables:
+
+        if any(item.startswith('simvariables-:') for item in selected_option_list):
             self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
 
+        if any(item.startswith('player-:') for item in selected_option_list):
+            self.plot_linear_typeDiagram_for_players(self.dataPlayers, selected_option_list, pos)
+
+
+    def plot_linear_typeDiagram(self, data, selected_option_list):
+        self.ax.clear()
+        optionXScale = self.get_combobox2_selected_key()
+        pos = 0
+
+        for option in selected_option_list:
+            pos += 1
+            list_option = option.split("-:")
+            entity_type = list_option[1] if len(list_option) > 1 and 'entity' in list_option else None
+            key = list_option[-1] if list_option[-1] else None
+
+            if optionXScale in ('0', '2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale == 'specified phase':
+                self.process_data(data, [option],  pos, entity_type, key)
+            else:  # Case --> 'by steps'
+                self.process_data(data, [option],  pos, entity_type, key)
+
+        self.ax.legend()
+        title_entities = ", ".join(set([option.split("-:")[1] for option in selected_option_list if 'entity' in option]))
+        title = f"Evolution des populations {title_entities}"
+        self.ax.set_title(title)
+        self.canvas.draw()
+
+
+    def process_data(self, data, selected_option_list, pos, entity_type=None, key=None):
+        data_y = []
+        for option in selected_option_list:
+            entity_condition = 'entity' in option.split("-:")
+            if entity_type and entity_condition and entity_type not in option:
+                continue
+
+            label = f"Simulations Variable : {entity_type}" if entity_type else f"Populations : {entity_type}"
+
+            for r in range(self.nbRoundsWithLastPhase + 1):
+                phaseIndex = self.nbPhases if r != 0 else 0
+                condition = {'round': r, 'phase': phaseIndex}
+                if entity_type:
+                    condition['entityName'] = entity_type
+
+                if key:
+                    condition['key'] = key
+
+                entries = [entry for entry in data if all(entry.get(k) == v for k, v in condition.items())]
+                ####  >>> NON , ca marche pas . cette méthoe généré par chatGPT ne donne rien
+                if entries:
+                    data_y.append(entries[-1]['population'] if key == 'population' else entries[-1]['value'])
+                    
+        if data_y:
+            self.plot_data_switch_xvalue(self.xValue, data_y, label, 'solid', pos)
+
+
+
+
+########""
     def plot_linear_typeDiagram_for_simVariable(self, dataSimVariables, selected_option_list, pos):
         data_y = []
         optionXScale = self.get_combobox2_selected_key()
@@ -547,7 +590,7 @@ class SGDiagramController(NavigationToolbar):
         self.canvas.draw()
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
-        self.ax.clear()
+        # self.ax.clear()
         optionXScale = self.get_combobox2_selected_key()
         # Option d'affichage par tour ou par Steps !!!!
         phaseToDisplay = 2 if optionXScale =='specified phase' else self.nbPhases
@@ -556,10 +599,12 @@ class SGDiagramController(NavigationToolbar):
         list_entDef_key = []
         list_attribut_key = []
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
+        # if any(item.startswith('entity-:') for item in selected_option_list):
             for option in selected_option_list:
                 pos += 1
                 list_option = option.split("-:")
-                if len(list_option) > 0 and 'simvariables' not in list_option:
+                # if len(list_option) > 0 and 'simvariables' not in list_option:
+                if len(list_option) > 0 and 'entity'  in list_option:
                     entityName = list_option[1]
                     list_entity_name.append(entityName)
                     label_pop = f"Populations : {entityName}"
