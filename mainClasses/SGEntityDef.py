@@ -158,8 +158,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     
 
     def calculateAndRecordCurrentStepStats(self):        
-        currentRound =self.model.timeManager.currentRoundNumber
-        currentPhase = self.model.timeManager.currentPhaseNumber
+        currentRound =self.model.roundNumber()
+        currentPhase = self.model.phaseNumber()
         quantiAttributesStats ={}
         qualiAttributesStats ={}
         if self.entities: 

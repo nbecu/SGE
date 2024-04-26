@@ -819,12 +819,12 @@ class SGModel(QMainWindow):
 
         return aEndGameRule
 
-    def round(self):
-        """Return the actual ingame round"""
+    def roundNumber(self):
+        """Return the current ingame round number"""
         return self.timeManager.currentRoundNumber
 
-    def getCurrentPhase(self):
-        """Return the actual ingame phase"""
+    def phaseNumber(self):
+        """Return the current ingame phase number"""
         return self.timeManager.currentPhaseNumber
     
     def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):

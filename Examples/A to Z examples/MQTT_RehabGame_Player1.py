@@ -47,7 +47,7 @@ myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") not in [0,1] )))
 myModel.timeManager.newModelPhase(aModelAction2)
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
-aModelAction4.addCondition(lambda: myModel.round()==2)
+aModelAction4.addCondition(lambda: myModel.roundNumber()==2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)
 myModel.setCurrentPlayer('Player 1')

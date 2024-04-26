@@ -43,7 +43,7 @@ aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot
 
     # You also can add a general condition to your action
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
-aModelAction4.addCondition(lambda: myModel.round()==3) 
+aModelAction4.addCondition(lambda: myModel.roundNumber()==3) 
 
     # You can add a general feedback :
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))

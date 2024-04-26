@@ -116,12 +116,14 @@ class AttributeAndValueFunctionalities():
         sortedKeys = sorted(list(tmpDict.keys()),key=keyfunction)
 
         startDate = startStep or [json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
-        endDate = endStep or [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+
+        # endDate = endStep or [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
         #equivalent to
         # startTime = startStep if startStep is not None else [json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
         # endTime = endStep if endStep is not None else [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
         # --> because if startStep is None or empty the 'or' will return the right hand value
-        
+        endDate = [self.model.roundNumber(),self.model.phaseNumber()]
+
         #In case no value exists in tmpDict at the startDate for a given attribute, adds a value that is equal to the previous known value of the attribute
         for aAtt in self.history["value"].keys():
             aVal=tmpDict.get(json.dumps([startDate[0],startDate[1],aAtt]), 'no key recorded')

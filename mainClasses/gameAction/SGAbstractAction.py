@@ -47,12 +47,12 @@ class SGAbstractAction():
         res = True
         if len(self.model.timeManager.phases)==0:
             return True
-        if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
+        if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
             # TODO add a facultative permission 
             return False
-        if isinstance(self.model.timeManager.phases[self.model.getCurrentPhase()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
+        if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
             player=self.model.getPlayer(self.model.currentPlayer)
-            if player in self.model.timeManager.phases[self.model.getCurrentPhase()-1].authorizedPlayers:
+            if player in self.model.timeManager.phases[self.model.phaseNumber()-1].authorizedPlayers:
                 res = True
             else:
                 return False

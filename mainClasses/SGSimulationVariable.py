@@ -72,7 +72,8 @@ class SGSimulationVariable():
             return item[0],item[1]
         sortedKeys = sorted(list(tmpDict.keys()),key=keyfunction)
         startTime=[json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
-        endTime=[json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+        # endTime=[json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+        endTime=[self.model.roundNumber(),self.model.phaseNumber()]
         aDate = startTime
         endTime_reached=False
         while not endTime_reached:

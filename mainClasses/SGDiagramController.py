@@ -17,43 +17,14 @@ class SGDiagramController(NavigationToolbar):
         super().__init__(canvas, parent)
         self.parent = parent
         self.typeDiagram = typeDiagram
-        button = QPushButton("Actualiser", self)
-        button.setIcon(QIcon("./icon/actualiser.png"))
-        button.clicked.connect(self.refresh_data)
         # layout_per_round = QVBoxLayout()
-        self.addWidget(button)
 
-        if self.typeDiagram in ['plot', 'stackplot']:
-            self.addSeparator()
-            self.start_label = QLabel('Tour Min:')
-            self.start_cmb_round = QComboBox(parent)
-            self.start_cmb_round.activated.connect(self.onCmbRoundActivated)
-            self.addWidget(self.start_label)
-            self.addWidget(self.start_cmb_round)
-            self.end_label = QLabel('Tour Max:')
-            self.end_cmb_round = QComboBox(parent)
-            self.end_cmb_round.activated.connect(self.onCmbRoundActivated)
-            self.addWidget(self.end_label)
-            self.addWidget(self.end_cmb_round)
-            self.combobox_per_rounds_data = {}
-            self.add_button = QPushButton('Afficher')
-            self.add_button.clicked.connect(self.update_plot)
-            self.addWidget(self.add_button)
-            self.addSeparator()
-            self.start_cmb_round.setEnabled(False)
-            self.end_cmb_round.setEnabled(False)
-            self.add_button.setEnabled(False)
-            self.combobox_2_data = {'Tous les tours': '0', 'Intervalle de tours': '2',
-                                    'Tous les phases': '3','Que phase 2': 'specified phase'}
-            self.data_2_combobox = QComboBox(parent)
-            self.data_2_combobox.currentIndexChanged.connect(self.update_plot)
-            self.addWidget(self.data_2_combobox)
 
         self.roundMin = 0
         self.roundMax = 0
         self.is_refresh = False
-        self.indicators = ['max', 'mean', 'min', 'stdev']
-        self.indicators_item = {'max': 'Max', 'mean': 'Moyenne', 'min': 'Min', 'stdev': 'St Dev'}
+        self.indicators = ['max', 'mean', 'min', 'stdev','sum']
+        self.indicators_item = {'max': 'Max', 'mean': 'Moyenne', 'min': 'Min', 'stdev': 'St Dev', 'sum':'Sum'}
         self.option_affichage_data = {"entityName": "Entités", "simVariable": "Simulation variables",
                                       "currentPlayer": "Players"}
         self.ax = parent.ax
@@ -68,11 +39,13 @@ class SGDiagramController(NavigationToolbar):
         self.phases = []
 
         # self.linestyles = ['-', '--', '-.', ':', 'dashed', 'dashdot', 'dotted']
-        self.linestyle_items = {'stdev': '--', 'max': 'dashed', 'min': 'dashdot', 'mean': 'dotted'}
+        self.linestyle_items = {'mean': 'solid', 'max': 'dashed', 'min': 'dashed','stdev': 'dotted', 'sum': 'dashdot' }
 
         self.colors = ['gray', 'green', 'blue', 'red', 'black', 'orange', 'purple', 'pink', 'cyan', 'magenta']
         self.xValue = []
-        self.display_menu = QMenu("Affichage", self)
+
+        #generate menu of indicators
+        self.indicators_menu = QMenu("Indicators", self)
         self.dictMenuData = {'entities': {}, 'simvariables': {}, 'players': {}}
         self.checkbox_display_menu_data = {}
         self.previous_selected_checkboxes = []
@@ -85,18 +58,28 @@ class SGDiagramController(NavigationToolbar):
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        self.regenerate_menu(self.dataEntities)
+        self.regenerate_indicators_menu(self.dataEntities)
 
-    # message d'erreur si aucune données a affiché
-    def showErrorMessage(self, titre, message):
-        error_dialog = QMessageBox()
-        error_dialog.setIcon(QMessageBox.Warning)
-        error_dialog.setWindowTitle(titre)
-        error_dialog.setText(message)
-        error_dialog.setStandardButtons(QMessageBox.Ok)
-        error_dialog.exec_()
+        # Menu display option for x axis  
+        self.combobox_2_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
+        self.xAxisOption_combobox = QComboBox(parent)
+        self.xAxisOption_combobox.currentIndexChanged.connect(self.update_plot)
+        self.addWidget(self.xAxisOption_combobox)
 
-    def regenerate_menu(self, data):
+        self.addSeparator()
+        
+        # Button refresh
+        button = QPushButton("refresh", self)
+        button.setIcon(QIcon("./icon/actualiser.png"))
+        button.clicked.connect(self.refresh_data)
+        self.addWidget(button)
+
+        #Menu to display the data on specific interval
+
+        # self.generateMenu_DisplaySpecificInterval(parent)
+
+
+    def regenerate_indicators_menu(self, data):
         entitiesMenu = QMenu('Entités', self)
         playersMenu = QMenu('Players', self)
         simulationMenu = QMenu('Simulation variables', self)
@@ -105,7 +88,7 @@ class SGDiagramController(NavigationToolbar):
                              'entityName' in entry and not isinstance(entry['entityName'], dict)}
             if not self.firstEntity:
                 self.firstEntity = sorted(entities_list)[0]
-            attrib_data = ['max', 'mean', 'min', 'stdev']
+            attrib_data = ['mean','sum', 'min','max','stdev']
 
             ###
             players_list = {player['currentPlayer'] for player in data if
@@ -131,9 +114,9 @@ class SGDiagramController(NavigationToolbar):
                     attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
                                                  option_key in attrib_data}
                 self.dictMenuData['entities'][entity_name] = attrib_dict
-            self.display_menu.addMenu(entitiesMenu)
-            self.display_menu.addMenu(playersMenu)
-            self.display_menu.addMenu(simulationMenu)
+            self.indicators_menu.addMenu(entitiesMenu)
+            self.indicators_menu.addMenu(playersMenu)
+            self.indicators_menu.addMenu(simulationMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
 
             simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
@@ -148,6 +131,22 @@ class SGDiagramController(NavigationToolbar):
             #         attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
             #                                      option_key in attrib_data}
             # self.addSubMenus(playersMenu, self.dictMenuData['players'])
+            for entity_name in sorted(self.dataPlayers):
+                attrib_dict = {}
+                attrib_dict[f"entity-:{entity_name}-:population"] = None
+                list_entDef_attribut_key = {x for entry in data for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
+                for entDef_attribut_key in sorted(list_entDef_attribut_key):
+                    attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None                                              
+                list_attribut_key = {attribut for entry in data for attribut in entry.get(self.parentAttributKey, {}) if
+                                     entry['entityName'] == entity_name}
+                if not self.firstAttribut:
+                    self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
+                for attribut_key in sorted(list_attribut_key):
+                    attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
+                                                 option_key in attrib_data}
+                self.dictMenuData['entities'][entity_name] = attrib_dict
+
+
         else:
             entities_list = {entry['entityName'] for entry in data if
                              'entityName' in entry and isinstance(entry[self.parentAttributKey], dict)
@@ -179,9 +178,9 @@ class SGDiagramController(NavigationToolbar):
                             attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
                         attrib_dict[attribut_key] = attrib_tmp_dict
                 self.dictMenuData['entities'][entity_name] = attrib_dict
-            self.display_menu.addMenu(entitiesMenu)
+            self.indicators_menu.addMenu(entitiesMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
-        self.addAction(self.display_menu.menuAction())
+        self.addAction(self.indicators_menu.menuAction())
 
     def addSubMenus(self, parentMenu, subMenuData, firstEntity, firstAttribut):
         for key, value in subMenuData.items():
@@ -309,6 +308,29 @@ class SGDiagramController(NavigationToolbar):
             option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
 
 
+    def generateMenu_DisplaySpecificInterval(self, aParent):
+        if self.typeDiagram in ['plot', 'stackplot']:
+            self.addSeparator()
+            self.combobox_2_data['Intervalle de tours'] = '2'
+            self.start_label = QLabel('Tour Min:')
+            self.start_cmb_round = QComboBox(aParent)
+            self.start_cmb_round.activated.connect(self.onCmbRoundActivated)
+            self.addWidget(self.start_label)
+            self.addWidget(self.start_cmb_round)
+            self.end_label = QLabel('Tour Max:')
+            self.end_cmb_round = QComboBox(aParent)
+            self.end_cmb_round.activated.connect(self.onCmbRoundActivated)
+            self.addWidget(self.end_label)
+            self.addWidget(self.end_cmb_round)
+            self.combobox_per_rounds_data = {}
+            self.add_button = QPushButton('Afficher')
+            self.add_button.clicked.connect(self.update_plot)
+            self.addWidget(self.add_button)
+            self.start_cmb_round.setEnabled(False)
+            self.end_cmb_round.setEnabled(False)
+            self.add_button.setEnabled(False)
+
+ 
     ##############################################################################
 
     def plot_stackplot_typeDiagram(self, data, selected_option_list):
@@ -387,6 +409,14 @@ class SGDiagramController(NavigationToolbar):
             #QApplication.quit()
 
 
+    # message d'erreur si aucune données a affiché
+    def showErrorMessage(self, titre, message):
+        error_dialog = QMessageBox()
+        error_dialog.setIcon(QMessageBox.Warning)
+        error_dialog.setWindowTitle(titre)
+        error_dialog.setText(message)
+        error_dialog.setStandardButtons(QMessageBox.Ok)
+        error_dialog.exec_()
 
     def plot_stack_plot_data_switch_xvalue(self, xValue, data, label):
         if len(xValue) == 1:
@@ -657,14 +687,14 @@ class SGDiagramController(NavigationToolbar):
     def set_combobox_2_items(self):
         # if self.typeDiagram not in ['pie', 'hist']:
         if self.typeDiagram in ['plot', 'stackplot']:
-            self.data_2_combobox.clear()
+            self.xAxisOption_combobox.clear()
             if self.nbRounds == 1:
                 sorted_combobox_data = dict(sorted(self.combobox_2_data.items(), key=lambda item: item[1], reverse=True))
                 self.combobox_2_data = sorted_combobox_data
             for display_text in self.combobox_2_data:
-                self.data_2_combobox.addItem(display_text)
+                self.xAxisOption_combobox.addItem(display_text)
             for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
-                self.data_2_combobox.setItemData(index, key)
+                self.xAxisOption_combobox.setItemData(index, key)
         """
         if self.nbRounds == 1:
             self.data_2_combobox.setCurrentText("Tous les phases")
@@ -694,8 +724,8 @@ class SGDiagramController(NavigationToolbar):
                 self.start_cmb_round.setItemData(index, key)
 
     def get_combobox2_selected_key(self):
-        if self.typeDiagram in ['plot', 'stackplot'] and self.data_2_combobox:
-            selected_text = self.data_2_combobox.currentText()
+        if self.typeDiagram in ['plot', 'stackplot'] and self.xAxisOption_combobox:
+            selected_text = self.xAxisOption_combobox.currentText()
             for key, value in self.combobox_2_data.items():
                 if key == selected_text:
                     return value

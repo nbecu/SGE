@@ -158,6 +158,10 @@ modelAction7=myModel.newModelAction_onCells((lambda aCell: evaluateCell(aCell)))
 myModel.timeManager.newModelPhase([modelAction1,modelAction2,modelAction4,modelAction5,modelAction6,modelAction7])
 
 
+# def rdCustom():
+#     if random.random() < 0.2 : score.incValue(2)
+# myModel.timeManager.newModelPhase([lambda : rdCustom()])
+
 ## Define other interface widgets
 myModel.newLegend()
 myModel.newTimeLabel("Time", Qt.white, Qt.black, Qt.black)

@@ -18,7 +18,7 @@ player_Clara.setValue('Clara''s score',0)
 
 aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara''s score',3)))
 
-resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara''s score',0)),(lambda: myModel.round()%4==0))
+resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara''s score',0)),(lambda: myModel.roundNumber()%4==0))
 aPhase.addAction(resetScoreAction)
 
 dashboard = myModel.newDashBoard()
