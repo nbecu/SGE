@@ -37,7 +37,7 @@ class SGDiagramLinear(QMainWindow):
         self.layout.addWidget(self.canvas)
 
         self.toolbar.set_data()
-        self.toolbar.update_plot()
+        self.toolbar.update_plot() #todo : pas normal car c'est déjà appellé dans set_data()
 
     def add_interval(self):
         start = self.start_line_edit.text()

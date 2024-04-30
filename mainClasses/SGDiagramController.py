@@ -83,23 +83,19 @@ class SGDiagramController(NavigationToolbar):
         entitiesMenu = QMenu('Entités', self)
         playersMenu = QMenu('Players', self)
         simulationMenu = QMenu('Simulation variables', self)
+
         if self.typeDiagram == 'plot':
+
+            #create menu items for entities
+            ##retrieves the list of entities
             entities_list = {entry['entityName'] for entry in data if
                              'entityName' in entry and not isinstance(entry['entityName'], dict)}
+            ###Take this opportunity to initialise the first entitiy to be selected in the menu
             if not self.firstEntity:
                 self.firstEntity = sorted(entities_list)[0]
+            ##define the list of indicators for entities attributes
             attrib_data = ['mean','sum', 'min','max','stdev']
-
-            ###
-            players_list = {player['currentPlayer'] for player in data if
-                            'currentPlayer' in player and not isinstance(player['currentPlayer'], dict)}
-            for player in players_list:
-                self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
-            """for key in simVariables_list:
-                list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
-                self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data"""
-            ###
-
+            ##create the menu items
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 attrib_dict[f"entity-:{entity_name}-:population"] = None
@@ -119,12 +115,23 @@ class SGDiagramController(NavigationToolbar):
             self.indicators_menu.addMenu(simulationMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
 
+            #create menu items for simVariables
             simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
             for simVar in simVariables_list:
                 self.dictMenuData['simvariables'][f"simvariables-:{simVar}"] = None
             self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'], self.firstEntity, self.firstAttribut)
 
+            #Create menu items for players
+            ##get the list of players
+            players_list = {entry['currentPlayer'] for entry in data if  #todo : c'est bizarre ce test sur 'currentPlayer'
+                            'currentPlayer' in entry and not isinstance(entry['currentPlayer'], dict)}
+            for player in players_list:
+                self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
+            """for key in simVariables_list:
+                list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
+                self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data"""
             players_list = {entry['playerName'] for entry in  self.dataPlayers if 'playerName' in entry and not isinstance(entry['playerName'], dict)}
+            ##create the menu for players
             for player_name in sorted(players_list):
                 attrib_dict = {}
                 list_player_attribut_key = {x for entry in self.dataPlayers for x in entry.get('dictAttributes', {}) if entry['playerName'] == player_name}
@@ -279,7 +286,7 @@ class SGDiagramController(NavigationToolbar):
             print("Erreur survenue :", e)
 
     def update_plot(self):
-        self.update_data()
+        self.update_data() #todo   c'est déjà fait dans la méthode juste avant
         selected_option_list = self.get_checkbox_display_menu_selected()
         if self.typeDiagram == 'plot':
             self.plot_linear_typeDiagram(self.dataEntities, selected_option_list)
