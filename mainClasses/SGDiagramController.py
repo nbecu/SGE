@@ -61,7 +61,7 @@ class SGDiagramController(NavigationToolbar):
         self.regenerate_indicators_menu(self.dataEntities)
 
         # Menu display option for x axis  
-        self.combobox_2_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
+        self.combobox__xAxisOption_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
         self.xAxisOption_combobox = QComboBox(parent)
         self.xAxisOption_combobox.currentIndexChanged.connect(self.update_plot)
         self.addWidget(self.xAxisOption_combobox)
@@ -286,7 +286,7 @@ class SGDiagramController(NavigationToolbar):
             print("Erreur survenue :", e)
 
     def update_plot(self):
-        self.update_data() #todo   c'est déjà fait dans la méthode juste avant
+        self.update_data()
         selected_indicators = self.get_checkbox_display_menu_selected()
 
         if self.typeDiagram == 'plot':
@@ -306,7 +306,6 @@ class SGDiagramController(NavigationToolbar):
     def generateMenu_DisplaySpecificInterval(self, aParent):
         if self.typeDiagram in ['plot', 'stackplot']:
             self.addSeparator()
-            self.combobox_2_data['Intervalle de tours'] = '2'
             self.start_label = QLabel('Tour Min:')
             self.start_cmb_round = QComboBox(aParent)
             self.start_cmb_round.activated.connect(self.onCmbRoundActivated)
@@ -337,7 +336,7 @@ class SGDiagramController(NavigationToolbar):
         self.ax.clear()
 
         data_y = []
-        optionXScale = self.get_combobox2_selected_key()
+        optionXScale = self.get_xAxisOption_selected()
 
         for option in selected_option_list:
             if "-:" in option:
@@ -418,7 +417,7 @@ class SGDiagramController(NavigationToolbar):
             self.ax.stackplot(xValue * len(data), data, labels=label)
         else:
             self.ax.stackplot(xValue, data, labels=label)
-            option = self.get_combobox2_selected_key()
+            option = self.get_xAxisOption_selected()
             if self.nbPhases > 2 and option == '3':
                 # Display red doted vertical lines to shaw the rounds
                 round_lab = 1
@@ -497,7 +496,7 @@ class SGDiagramController(NavigationToolbar):
 
     def plot_linear_typeDiagram(self, data, selected_indicators ):
         self.ax.clear()
-        optionXScale = self.get_combobox2_selected_key()
+        optionXScale = self.get_xAxisOption_selected()
         pos = 0
 
         for aMenuIndicatorSpec in selected_indicators:
@@ -518,27 +517,22 @@ class SGDiagramController(NavigationToolbar):
 
     def process_data(self, data, pos, aIndicatorSpec):
         data_y = []
-        
-        label = aIndicatorSpec.get_label() ## à modifier pour afficher le nom de la composante
-
         for r in range(self.nbRoundsWithLastPhase + 1):
             phaseIndex = self.nbPhases if r != 0 else 0
             condition = {'round': r, 'phase': phaseIndex}
             data_y.extend(aIndicatorSpec.get_data([entry for entry in data if all(entry.get(k) == v for k, v in condition.items())]))
-
-
-        line_style = aIndicatorSpec.get_line_style()
         
         if data_y:
+            label = aIndicatorSpec.get_label()
+            line_style = aIndicatorSpec.get_line_style()
             self.plot_data_switch_xvalue(self.xValue, data_y, label, line_style, pos)
-
 
 
 
 ########""
     def plot_linear_typeDiagram_for_simVariable(self, dataSimVariables, selected_option_list, pos):
         data_y = []
-        optionXScale = self.get_combobox2_selected_key()
+        optionXScale = self.get_xAxisOption_selected()
         list_simVariables = [item.split("-:")[1] for item in selected_option_list if
                              item.startswith('simvariables-:') and item.split("-:") and len(item.split("-:")) > 0]
         if list_simVariables:
@@ -588,7 +582,7 @@ class SGDiagramController(NavigationToolbar):
 
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         # self.ax.clear()
-        optionXScale = self.get_combobox2_selected_key()
+        optionXScale = self.get_xAxisOption_selected()
         # Option d'affichage par tour ou par Steps !!!!
         phaseToDisplay = 2 if optionXScale =='specified phase' else self.nbPhases
         pos = 0
@@ -701,7 +695,7 @@ class SGDiagramController(NavigationToolbar):
             if len(xValue) > len(data):
                 data.extend([0] * (len(xValue) - len(data)))
             self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
-            option = self.get_combobox2_selected_key()
+            option = self.get_xAxisOption_selected()
             if self.nbPhases > 2 and option == '3':
                 # Display red doted vertical lines to shaw the rounds
                 round_lab = 1
@@ -731,11 +725,11 @@ class SGDiagramController(NavigationToolbar):
         if self.typeDiagram in ['plot', 'stackplot']:
             self.xAxisOption_combobox.clear()
             if self.nbRounds == 1:
-                sorted_combobox_data = dict(sorted(self.combobox_2_data.items(), key=lambda item: item[1], reverse=True))
-                self.combobox_2_data = sorted_combobox_data
-            for display_text in self.combobox_2_data:
+                sorted_combobox_data = dict(sorted(self.combobox__xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
+                self.combobox__xAxisOption_data = sorted_combobox_data
+            for display_text in self.combobox__xAxisOption_data:
                 self.xAxisOption_combobox.addItem(display_text)
-            for index, (display_text, key) in enumerate(self.combobox_2_data.items()):
+            for index, (display_text, key) in enumerate(self.combobox__xAxisOption_data.items()):
                 self.xAxisOption_combobox.setItemData(index, key)
         """
         if self.nbRounds == 1:
@@ -765,10 +759,10 @@ class SGDiagramController(NavigationToolbar):
                 self.end_cmb_round.setItemData(index, key)
                 self.start_cmb_round.setItemData(index, key)
 
-    def get_combobox2_selected_key(self):
+    def get_xAxisOption_selected(self):
         if self.typeDiagram in ['plot', 'stackplot'] and self.xAxisOption_combobox:
             selected_text = self.xAxisOption_combobox.currentText()
-            for key, value in self.combobox_2_data.items():
+            for key, value in self.combobox__xAxisOption_data.items():
                 if key == selected_text:
                     return value
         return None
@@ -776,7 +770,7 @@ class SGDiagramController(NavigationToolbar):
     def set_data(self):
         self.update_data()
         self.set_combobox_2_items()
-        self.update_plot()
+        # self.update_plot() # Commenté car c'est déjà appellé via set_combobox2_items()
 
     def getAllHistoryData(self):
         historyData = []
@@ -796,7 +790,7 @@ class SGDiagramController(NavigationToolbar):
         self.setXValueData(self.dataEntities)
 
     def setXValueData(self, data):
-        optionXScale = self.get_combobox2_selected_key()
+        optionXScale = self.get_xAxisOption_selected()
         self.xValue = []
         self.rounds = {entry['round'] for entry in data}
         self.phases = {entry['phase'] for entry in data}
