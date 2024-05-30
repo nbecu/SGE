@@ -128,7 +128,7 @@ class AttributeAndValueFunctionalities():
         for aAtt in self.history["value"].keys():
             aVal=tmpDict.get(json.dumps([startDate[0],startDate[1],aAtt]), 'no key recorded')
             if aVal == 'no key recorded':
-                datesForAtt = filter(lambda x: json.loads(x)[2]== aAtt,sortedKeys)
+                datesForAtt = list(filter(lambda x: json.loads(x)[2]== aAtt,sortedKeys))
                 datesForAtt.append(json.dumps(startDate))
                 newSortedDatesForAtt = sorted(datesForAtt,key=keyfunction)
                 previousDateWithValueForAtt = newSortedDatesForAtt[(newSortedDatesForAtt.index(json.dumps(startDate))) -1]

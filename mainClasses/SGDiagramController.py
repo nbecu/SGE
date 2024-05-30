@@ -536,6 +536,7 @@ class SGDiagramController(NavigationToolbar):
 
                 entries = [entry for entry in data if all(entry.get(k) == v for k, v in condition.items())]
                 ####  >>> NON , ca marche pas . cette méthoe généré par chatGPT ne donne rien
+                ### C 'est ici qu eca marche pas et que ca fait que rien ne s'affiche (30/05/2024)
                 if entries:
                     data_y.append(entries[-1]['population'] if key == 'population' else entries[-1]['value'])
                     
