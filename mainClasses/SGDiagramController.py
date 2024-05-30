@@ -287,19 +287,21 @@ class SGDiagramController(NavigationToolbar):
 
     def update_plot(self):
         self.update_data() #todo   c'est déjà fait dans la méthode juste avant
-        selected_option_list = self.get_checkbox_display_menu_selected()
+        selected_indicators = self.get_checkbox_display_menu_selected()
+
         if self.typeDiagram == 'plot':
-            self.plot_linear_typeDiagram(self.dataEntities, selected_option_list)
+            self.plot_linear_typeDiagram(self.dataEntities, selected_indicators)
         elif self.typeDiagram == 'pie':
-            self.plot_pie_typeDiagram(self.dataEntities, selected_option_list)
+            self.plot_pie_typeDiagram(self.dataEntities, selected_indicators)
         elif self.typeDiagram == 'hist':
-            self.plot_hist_typeDiagram(self.dataEntities, selected_option_list)
+            self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
         elif self.typeDiagram == 'stackplot':
-            self.plot_stackplot_typeDiagram(self.dataEntities, selected_option_list)
+            self.plot_stackplot_typeDiagram(self.dataEntities, selected_indicators)
         # for pie diagram
         self.previous_selected_checkboxes = list(set(
             option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
 
+    
 
     def generateMenu_DisplaySpecificInterval(self, aParent):
         if self.typeDiagram in ['plot', 'stackplot']:
@@ -493,55 +495,42 @@ class SGDiagramController(NavigationToolbar):
             self.plot_linear_typeDiagram_for_players(self.dataPlayers, selected_option_list, pos)
 
 
-    def plot_linear_typeDiagram(self, data, selected_option_list):
+    def plot_linear_typeDiagram(self, data, selected_indicators ):
         self.ax.clear()
         optionXScale = self.get_combobox2_selected_key()
         pos = 0
 
-        for option in selected_option_list:
+        for aMenuIndicatorSpec in selected_indicators:
+            aIndicatorSpec = IndicatorSpec(aMenuIndicatorSpec,isQuantitative=True)
             pos += 1
-            list_option = option.split("-:")
-            entity_type = list_option[1] if len(list_option) > 1 and 'entity' in list_option else None
-            key = list_option[-1] if list_option[-1] else None
-
             if optionXScale in ('0', '2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale == 'specified phase':
-                self.process_data(data, [option],  pos, entity_type, key)
+                self.process_data(data, pos, aIndicatorSpec)
             else:  # Case --> 'by steps'
+                # ce cas estt à traiter différenet
                 self.process_data(data, [option],  pos, entity_type, key)
 
         self.ax.legend()
-        title_entities = ", ".join(set([option.split("-:")[1] for option in selected_option_list if 'entity' in option]))
+        title_entities = ", ".join(set([option.split("-:")[1] for option in selected_indicators if 'entity' in option]))
         title = f"Evolution des populations {title_entities}"
         self.ax.set_title(title)
         self.canvas.draw()
 
 
-    def process_data(self, data, selected_option_list, pos, entity_type=None, key=None):
+    def process_data(self, data, pos, aIndicatorSpec):
         data_y = []
-        for option in selected_option_list:
-            entity_condition = 'entity' in option.split("-:")
-            if entity_type and entity_condition and entity_type not in option:
-                continue
+        
+        label = aIndicatorSpec.get_label() ## à modifier pour afficher le nom de la composante
 
-            label = f"Simulations Variable : {entity_type}" if entity_type else f"Populations : {entity_type}"
+        for r in range(self.nbRoundsWithLastPhase + 1):
+            phaseIndex = self.nbPhases if r != 0 else 0
+            condition = {'round': r, 'phase': phaseIndex}
+            data_y.extend(aIndicatorSpec.get_data([entry for entry in data if all(entry.get(k) == v for k, v in condition.items())]))
 
-            for r in range(self.nbRoundsWithLastPhase + 1):
-                phaseIndex = self.nbPhases if r != 0 else 0
-                condition = {'round': r, 'phase': phaseIndex}
-                if entity_type:
-                    condition['entityName'] = entity_type
 
-                if key:
-                    condition['key'] = key
-
-                entries = [entry for entry in data if all(entry.get(k) == v for k, v in condition.items())]
-                ####  >>> NON , ca marche pas . cette méthoe généré par chatGPT ne donne rien
-                ### C 'est ici qu eca marche pas et que ca fait que rien ne s'affiche (30/05/2024)
-                if entries:
-                    data_y.append(entries[-1]['population'] if key == 'population' else entries[-1]['value'])
-                    
+        line_style = aIndicatorSpec.get_line_style()
+        
         if data_y:
-            self.plot_data_switch_xvalue(self.xValue, data_y, label, 'solid', pos)
+            self.plot_data_switch_xvalue(self.xValue, data_y, label, line_style, pos)
 
 
 
@@ -840,4 +829,59 @@ class SGDiagramController(NavigationToolbar):
         if optionXScale in ('0','2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale=='specified phase':
             self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
             self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
+
+
+class IndicatorSpec:
+    def __init__(self, menu_indicator_spec, isQuantitative):
+        self.component, self.indicatorType, self.indicator = self.parse_menu_indicator_spec(menu_indicator_spec,isQuantitative)
+
+    def parse_menu_indicator_spec(self, menu_indicator_spec,isQuantitative):
+        if "entity" in menu_indicator_spec:
+            component = tuple(menu_indicator_spec.split("-:")[:2])
+            if "population" in menu_indicator_spec:
+                indicatorType = 'population'
+                indicator = 'population'
+            else:
+                indicatorType =  'quantiAttributes' if isQuantitative else 'qualiAttributes'
+                indicator = tuple(menu_indicator_spec.split("-:")[-2:])
+        else:
+            component = 'simVariables' if 'simVariables' in menu_indicator_spec else 'player'
+            indicatorType = None
+            indicator = None
+            
+        return component, indicatorType, indicator
+
+    def get_data(self, data_at_a_given_step):
+        if self.component and self.indicator and self.indicatorType:
+            if self.component[0] == 'entity':
+                if self.indicatorType == 'population':
+                    return [entry['population'] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+                elif self.indicatorType == 'quantiAttributes':
+                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+                elif self.indicatorType == 'qualiAttributes':
+                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+            elif self.component[0] == 'simvariables':
+                return [entry['value'] for entry in data_at_a_given_step if entry['simVarName'] == self.component[1]]
+            elif self.component[0] == 'player':
+                return [entry['value'] for entry in data_at_a_given_step if entry['playerName'] == self.component[1]]
+        return []
+
+    def get_label(self):
+        if self.component[0] == 'entity':
+            if self.indicatorType == 'population':
+                return self.component[1] + " - " + "Population" 
+            elif self.indicatorType == 'quantiAttributes':
+                return self.component[1] + " - " + self.indicator[1]   +  " of " +  self.indicator[0] 
+            elif self.indicatorType == 'qualiAttributes':
+                return self.component[1] + " - " + self.indicator[1] + " of " + self.indicator[0]
+        elif self.component[0] == 'player':
+            return self.component[0]
+        elif self.component[0] == 'simVariables':
+            return self.component[0]
+        
+    def get_line_style(self):
+        if self.indicatorType == 'quantiAttributes':
+            return {'mean': 'solid', 'max': 'dashed', 'min': 'dashed','stdev': 'dotted', 'sum': 'dashdot' }[self.indicator[1]]
+        else: return 'solid'
+
 
