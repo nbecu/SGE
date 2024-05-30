@@ -841,6 +841,9 @@ class IndicatorSpec:
             if "population" in menu_indicator_spec:
                 indicatorType = 'population'
                 indicator = 'population'
+            elif len(menu_indicator_spec.split("-:")) == 3:
+                indicatorType = 'entDefAttributes'
+                indicator = menu_indicator_spec.split("-:")[-1]
             else:
                 indicatorType =  'quantiAttributes' if isQuantitative else 'qualiAttributes'
                 indicator = tuple(menu_indicator_spec.split("-:")[-2:])
@@ -856,6 +859,8 @@ class IndicatorSpec:
             if self.component[0] == 'entity':
                 if self.indicatorType == 'population':
                     return [entry['population'] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+                elif self.indicatorType == 'entDefAttributes':
+                    return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
                 elif self.indicatorType == 'quantiAttributes':
                     return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
                 elif self.indicatorType == 'qualiAttributes':
@@ -870,6 +875,8 @@ class IndicatorSpec:
         if self.component[0] == 'entity':
             if self.indicatorType == 'population':
                 return self.component[1] + " - " + "Population" 
+            elif self.indicatorType == 'entDefAttributes':
+                return self.component[1] + " - " + self.indicator
             elif self.indicatorType == 'quantiAttributes':
                 return self.component[1] + " - " + self.indicator[1]   +  " of " +  self.indicator[0] 
             elif self.indicatorType == 'qualiAttributes':
