@@ -189,28 +189,48 @@ class SGDiagramController(NavigationToolbar):
                     if key == f"entity-:{firstEntity}-:{firstAttribut}":
                         action.setChecked(True)
                 else:
-                    action = self.create_indicatorCheckboxMenuItem(key, parentMenu, firstEntity, firstAttribut)
+                    action = self.create_indicatorCheckboxMenuItem(key, parentMenu)
                     if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
                         action.setChecked(True)
-                        self.previous_selected_checkboxes.append(key)
+                        # self.previous_selected_checkboxes.append(key)
                 self.checkbox_indicators_data[key] = action
                 parentMenu.addAction(action)
 
     # set checkbox for diagram ( plot  )
-    def create_indicatorCheckboxMenuItem(self, key, parentMenu, firstEntity, firstAttribut):
-        self.previous_selected_checkboxes = []
+    # def create_indicatorCheckboxMenuItem(self, key, parentMenu, firstEntity, firstAttribut):
+    #     self.previous_selected_checkboxes = []
+    #     action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
+    #                      checkable=True)
+
+    #     if key == f"entity-:{firstEntity}-:{firstAttribut}":
+    #         action.setChecked(True)
+
+    #     #else:
+    #     #    if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
+    #     #        action.setChecked(True)
+    #     #        self.previous_selected_checkboxes.append(key)
+    #     action.setProperty("key", key)
+    #     action.triggered.connect(self.on_indicatoCheckboxMenu_triggered)
+    #     parentMenu.addAction(action)
+    #     return action
+    
+    def create_indicatorCheckboxMenuItem(self, key, parentMenu):
+        # self.previous_selected_checkboxes = []
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
                          checkable=True)
 
-        if key == f"entity-:{firstEntity}-:{firstAttribut}":
-            action.setChecked(True)
-
-        #else:
-        #    if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
-        #        action.setChecked(True)
-        #        self.previous_selected_checkboxes.append(key)
+        # if self.typeDiagram == 'plot':
+        #     if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
+        #         #action.setChecked(True)
+        #         if not action.isCheckable():
+        #             breakpoint()
+                # action.setCheckable(True) 
+        # elif self.typeDiagram in ['pie', 'hist', 'stackplot']:
+        #     if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
+        #         # action.setChecked(True)
+        #         self.previous_selected_checkboxes.append(key)
         action.setProperty("key", key)
-        action.triggered.connect(self.on_indicatoCheckboxMenu_triggered)
+        action.triggered.connect(self.on_indicatorCheckboxMenu_triggered)
         parentMenu.addAction(action)
         return action
 
@@ -235,46 +255,27 @@ class SGDiagramController(NavigationToolbar):
                 aAction.setChecked(False)
         self.update_plot()
 
-    def create_indicatorCheckboxMenuItem(self, key, parentMenu, firstEntity, firstAttribut):
-        self.previous_selected_checkboxes = []
-        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
-                         checkable=True)
-
-        if self.typeDiagram == 'plot':
-            if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
-                #action.setChecked(True)
-                if not action.isCheckable():
-                    breakpoint()
-                # action.setCheckable(True) 
-        elif self.typeDiagram in ['pie', 'hist', 'stackplot']:
-            if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
-                # action.setChecked(True)
-                self.previous_selected_checkboxes.append(key)
-        action.setProperty("key", key)
-        action.triggered.connect(self.on_indicatoCheckboxMenu_triggered)
-        parentMenu.addAction(action)
-        return action
-
+    
 
     # update plot after checked option
-    def on_indicatoCheckboxMenu_triggered(self, state):
+    def on_indicatorCheckboxMenu_triggered(self, state):
         # IndicatorRadioMenu is used only for plot
         # Then, call the method update_plot
-        if self.typeDiagram in ['pie', 'hist', 'stackplot']:
-            #ca ne devrait jamais arrivé
-            selected_option = self.on_toggle_checked_indicator()
-            for option, checkbox in self.checkbox_indicators_data.items():
-                checkbox.setChecked(option in selected_option)
-            self.checkbox_indicators_data.update()
+        # if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+        #     #ca ne devrait jamais arrivé
+        #     selected_option = self.on_toggle_checked_indicator()
+        #     for option, checkbox in self.checkbox_indicators_data.items():
+        #         checkbox.setChecked(option in selected_option)
+        #     self.checkbox_indicators_data.update()
         self.update_plot()
 
     # toggle value between previous and current option selected
-    def on_toggle_checked_indicator(self):
-        # should be obsolete
-        for option, checkbox in self.checkbox_indicators_data.items():
-            checkbox.setChecked(option not in self.previous_selected_checkboxes)
-        self.groupAction.setExclusive(True)
-        return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
+    # def on_toggle_checked_indicator(self):
+    #     # should be obsolete
+    #     for option, checkbox in self.checkbox_indicators_data.items():
+    #         checkbox.setChecked(option not in self.previous_selected_checkboxes)
+    #     self.groupAction.setExclusive(True)
+    #     return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
     # get checkbox selected
     def get_checkbox_indicators_selected(self):
@@ -306,8 +307,8 @@ class SGDiagramController(NavigationToolbar):
         elif self.typeDiagram == 'stackplot':
             self.plot_stackplot_typeDiagram(self.allData_with_quali(), selected_indicators)
         # for pie diagram
-        self.previous_selected_checkboxes = list(set(
-            option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()))
+        # self.previous_selected_checkboxes = list(set(
+        #     option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()))
 
     
 
@@ -420,22 +421,7 @@ class SGDiagramController(NavigationToolbar):
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
 
-    def plot_stack_plot_data_switch_xvalue(self, xValue, data, label):
-        if len(xValue) == 1:
-            self.ax.stackplot(xValue * len(data), data, labels=label)
-        else:
-            self.ax.stackplot(xValue, data, labels=label)
-            option = self.get_xAxisOption_selected()
-            if self.nbPhases > 2 and option == '3':
-                # Display red doted vertical lines to shaw the rounds
-                round_lab = 1
-                for x_val in xValue:
-                    if (x_val -1) % self.nbPhases == 0 and x_val != 1:
-                        self.ax.axvline(x_val, color='r', ls=':')
-                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
-                                     transform=self.ax.get_xaxis_transform())
-                        round_lab += 1
-
+    
     def plot_linear_typeDiagram(self, data, selected_indicators ):
         self.ax.clear()
         optionXScale = self.get_xAxisOption_selected()
@@ -445,10 +431,10 @@ class SGDiagramController(NavigationToolbar):
             aIndicatorSpec = IndicatorSpec(aMenuIndicatorSpec,isQuantitative=True)
             pos += 1
             if optionXScale in ('0', '2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale == 'specified phase':
-                self.process_data(data, pos, aIndicatorSpec)
+                self.process_data_of_indicator_for_linear_typeDiagram(data, pos, aIndicatorSpec)
             else:  # Case --> 'by steps'
                 # ce cas estt à traiter différenet
-                self.process_data(data, [option],  pos, entity_type, key)
+                self.process_data_of_indicator_for_linear_typeDiagram(data, [option],  pos, entity_type, key)
 
         self.ax.legend()
         title_entities = ", ".join(set([option.split("-:")[1] for option in selected_indicators if 'entity' in option]))
@@ -510,20 +496,36 @@ class SGDiagramController(NavigationToolbar):
             self.ax.set_title(self.title)
             self.canvas.draw()
 
-    def plot_linear_typeDiagram_OLDDDDDDDD(self, data, selected_option_list):
-        self.ax.clear()
-        pos = 0
-        if any(item.startswith('entity-:') for item in selected_option_list):
-            self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
+    def plot_stack_plot_data_switch_xvalue(self, xValue, data, label):
+        if len(xValue) == 1:
+            self.ax.stackplot(xValue * len(data), data, labels=label)
+        else:
+            self.ax.stackplot(xValue, data, labels=label)
+            option = self.get_xAxisOption_selected()
+            if self.nbPhases > 2 and option == '3':
+                # Display red doted vertical lines to shaw the rounds
+                round_lab = 1
+                for x_val in xValue:
+                    if (x_val -1) % self.nbPhases == 0 and x_val != 1:
+                        self.ax.axvline(x_val, color='r', ls=':')
+                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
+                                     transform=self.ax.get_xaxis_transform())
+                        round_lab += 1
 
-        if any(item.startswith('simvariables-:') for item in selected_option_list):
-            self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
+    # def plot_linear_typeDiagram_OLDDDDDDDD(self, data, selected_option_list):
+    #     self.ax.clear()
+    #     pos = 0
+    #     if any(item.startswith('entity-:') for item in selected_option_list):
+    #         self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
 
-        if any(item.startswith('player-:') for item in selected_option_list):
-            self.plot_linear_typeDiagram_for_players(self.dataPlayers, selected_option_list, pos)
+    #     if any(item.startswith('simvariables-:') for item in selected_option_list):
+    #         self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
+
+    #     if any(item.startswith('player-:') for item in selected_option_list):
+    #         self.plot_linear_typeDiagram_for_players(self.dataPlayers, selected_option_list, pos)
 
 
-    def process_data(self, data, pos, aIndicatorSpec):
+    def process_data_of_indicator_for_linear_typeDiagram(self, data, pos, aIndicatorSpec):
         data_y = []
         for r in range(self.nbRoundsWithLastPhase + 1):
             phaseIndex = self.nbPhases if r != 0 else 0
@@ -536,6 +538,26 @@ class SGDiagramController(NavigationToolbar):
             self.plot_data_switch_xvalue(self.xValue, data_y, label, line_style, pos)
 
 
+
+    def plot_data_switch_xvalue(self, xValue, data, label, linestyle, pos):
+        color = self.colors[pos % len(self.colors)]
+        if len(xValue) == 1:
+            self.ax.plot(xValue * len(data), data, label=label, color=color, marker='o', linestyle='None')
+        else:
+            data = [0 if isinstance(item, list) and len(item) == 0 else item for item in data]
+            if len(xValue) > len(data):
+                data.extend([0] * (len(xValue) - len(data)))
+            self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
+            option = self.get_xAxisOption_selected()
+            if self.nbPhases > 2 and option == '3':
+                # Display red doted vertical lines to shaw the rounds
+                round_lab = 1
+                for x_val in xValue:
+                    if (x_val -1) % self.nbPhases == 0 :
+                        self.ax.axvline(x_val, color='r', ls=':')
+                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
+                                     transform=self.ax.get_xaxis_transform())
+                        round_lab += 1
 
 ########""
     def plot_linear_typeDiagram_for_simVariable(self, dataSimVariables, selected_option_list, pos):
@@ -694,26 +716,6 @@ class SGDiagramController(NavigationToolbar):
             self.ax.set_title(self.title)
             self.canvas.draw()
 
-    def plot_data_switch_xvalue(self, xValue, data, label, linestyle, pos):
-        color = self.colors[pos % len(self.colors)]
-        if len(xValue) == 1:
-            self.ax.plot(xValue * len(data), data, label=label, color=color, marker='o', linestyle='None')
-        else:
-            data = [0 if isinstance(item, list) and len(item) == 0 else item for item in data]
-            if len(xValue) > len(data):
-                data.extend([0] * (len(xValue) - len(data)))
-            self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
-            option = self.get_xAxisOption_selected()
-            if self.nbPhases > 2 and option == '3':
-                # Display red doted vertical lines to shaw the rounds
-                round_lab = 1
-                for x_val in xValue:
-                    if (x_val -1) % self.nbPhases == 0 :
-                        self.ax.axvline(x_val, color='r', ls=':')
-                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
-                                     transform=self.ax.get_xaxis_transform())
-                        round_lab += 1
-
     def plot_linear_typeDiagram_for_players(self, data, list_option, pos):
         if list_option[:1] == ['currentPlayer']:
             entities = list_option
@@ -727,6 +729,7 @@ class SGDiagramController(NavigationToolbar):
         self.ax.legend()
         self.ax.set_title(self.title)
         self.canvas.draw()
+
 
     def set_combobox_2_items(self):
         # if self.typeDiagram not in ['pie', 'hist']:
