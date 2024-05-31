@@ -539,9 +539,11 @@ class SGDiagramController(NavigationToolbar):
 
 
     def process_data_per_phase_for_linear_typeDiagram(self, data, pos, aIndicatorSpec):
+        currentDate = self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber     
         data_y = []
         for r in range(self.nbRoundsWithLastPhase +2): # +2 pour prendre en compte le dernier tour ainsi que le tour en cours
             for p in range(self.nbPhases +1): # +1 pour prendre en compte le fait que quand on fait un range il exclu le dernier index
+                if (r,p) == currentDate: continue # On saute la date en cours, car les dataEntities n'ont pas les data de la date en cours (seul les data des simVars et des players ont la donnée de la date en cours)
                 condition = {'round': r, 'phase': p}
                 data_y.extend(aIndicatorSpec.get_data([entry for entry in data if all(entry.get(k) == v for k, v in condition.items())]))
         if data_y:
