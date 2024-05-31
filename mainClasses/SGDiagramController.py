@@ -90,17 +90,21 @@ class SGDiagramController(NavigationToolbar):
         This menu allows the user to select different indicators for data visualization.
         Sub-menus are created for entities, players, and simulation variables, each containing specific options.
         """
-        entitiesMenu = QMenu('Entités', self)
-        playersMenu = QMenu('Players', self)
-        simulationMenu = QMenu('Simulation variables', self)
+       
 
         if self.typeDiagram == 'plot':
+            entitiesMenu = QMenu('Entités', self)
+            playersMenu = QMenu('Players', self)
+            simuVarsMenu = QMenu('Simulation variables', self)
+            self.indicators_menu.addMenu(entitiesMenu)
+            self.indicators_menu.addMenu(playersMenu)
+            self.indicators_menu.addMenu(simuVarsMenu)
 
             #create menu items for entities
             ##retrieves the list of entities
             entities_list = {entry['entityName'] for entry in self.dataEntities if
                              'entityName' in entry and not isinstance(entry['entityName'], dict)}
-            ###Take this opportunity to initialise the first entitiy to be selected in the menu
+            ###Take this opportunity to initialize the first entitiy to be selected in the menu
             if not self.firstEntity:
                 self.firstEntity = sorted(entities_list)[0]
             ##define the list of indicators for entities attributes
@@ -120,28 +124,16 @@ class SGDiagramController(NavigationToolbar):
                     attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
                                                  option_key in attrib_data}
                 self.dictMenuData['entities'][entity_name] = attrib_dict
-            self.indicators_menu.addMenu(entitiesMenu)
-            self.indicators_menu.addMenu(playersMenu)
-            self.indicators_menu.addMenu(simulationMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
 
             #create menu items for simVariables
             simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
             for simVar in simVariables_list:
                 self.dictMenuData['simVariables'][f"simVariable-:{simVar}"] = None
-            self.addSubMenus(simulationMenu, self.dictMenuData['simVariables'], self.firstEntity, self.firstAttribut)
+            self.addSubMenus(simuVarsMenu, self.dictMenuData['simVariables'], self.firstEntity, self.firstAttribut)
 
             #Create menu items for players
             ##get the list of players
-
-            # players_list = {entry['currentPlayer'] for entry in self.dataEntities if  #todo : c'est bizarre ce test sur 'currentPlayer'
-            #                 'currentPlayer' in entry and not isinstance(entry['currentPlayer'], dict)}
-            # for player in players_list:
-            #     self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
-            # """for key in simVariables_list:
-            #     list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
-            #     self.dictMenuData['simVariables'][f"simVariable-:{key}"] = list_data"""
-
             players_list = {entry['playerName'] for entry in  self.dataPlayers if 'playerName' in entry and not isinstance(entry['playerName'], dict)}
             ##create the menu for players
             for player_name in sorted(players_list):
@@ -152,38 +144,36 @@ class SGDiagramController(NavigationToolbar):
                 self.dictMenuData['players'][player_name] = attrib_dict
             self.addSubMenus(playersMenu, self.dictMenuData['players'], self.firstEntity, self.firstAttribut)
 
-        else:
-            entities_list = {entry['entityName'] for entry in data if
+        elif self.typeDiagram in ['hist', 'pie', 'stackplot']:
+            entitiesMenu = QMenu('Entités', self)
+            self.indicators_menu.addMenu(entitiesMenu)
+
+            #create menu items for entities
+            ##retrieves the list of entities
+            entities_list = {entry['entityName'] for entry in self.dataEntities if
                              'entityName' in entry and isinstance(entry[self.parentAttributKey], dict)
-                             and entry[self.parentAttributKey].keys() and not isinstance(entry['entityName'], dict)}
+                             and entry[self.parentAttributKey].keys() and not isinstance(entry['entityName'], dict) #pourquoi cettte denière condition ?
+                             }
+            ##Take this opportunity to initialize the first entitiy to be selected in the menu
             if not self.firstEntity:
                 self.firstEntity = sorted(entities_list)[0] if len(entities_list)>0 else ''
 
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
-                list_attribut_key = {attribut for entry in data for attribut in entry.get(self.parentAttributKey, {}) if
+                list_attribut_key = {attribut for entry in self.dataEntities for attribut in entry.get(self.parentAttributKey, {}) if
                                      entry.get('entityName') == entity_name and isinstance(
                                          entry[self.parentAttributKey][attribut], dict)}
 
                 if not self.firstAttribut:
-                    self.firstAttribut = sorted(list_attribut_key)[0] if len(list_attribut_key) > 0 else ""
+                    self.firstAttribut = sorted(list_attribut_key)[0] if len(list_attribut_key) > 0 else ''
 
+                ##create the menu items
                 for attribut_key in list_attribut_key:
                     list_val = []
                     attrib_tmp_dict = {}
-                    if self.typeDiagram in ['hist', 'pie', 'stackplot']:
-                        attrib_dict[f"entity-:{entity_name}-:{attribut_key}"] = None
-                    else:
-                        for sub_attribut_val in {entry[self.parentAttributKey][attribut] for entry in data for attribut in
-                                                 entry.get(self.parentAttributKey, {}) if
-                                                 entry.get('entityName') == entity_name and isinstance(
-                                                     entry[self.parentAttributKey][attribut], str)}:
-                            list_val.append(sub_attribut_val)
-
-                            attrib_tmp_dict[f"entity-:{entity_name}-:{attribut_key}-:{sub_attribut_val}"] = None
-                        attrib_dict[attribut_key] = attrib_tmp_dict
+                    attrib_dict[f"entity-:{entity_name}-:{attribut_key}"] = None
+                    
                 self.dictMenuData['entities'][entity_name] = attrib_dict
-            self.indicators_menu.addMenu(entitiesMenu)
             self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
         self.addAction(self.indicators_menu.menuAction())
 
@@ -194,20 +184,20 @@ class SGDiagramController(NavigationToolbar):
                 parentMenu.addMenu(submenu)
                 self.addSubMenus(submenu, value, firstEntity, firstAttribut)
             else:
-                if self.typeDiagram in ['pie', 'stackplot']:
-                    action = self.createRadioButtonAction(key, parentMenu)
+                if self.typeDiagram in ['hist', 'pie', 'stackplot']:
+                    action = self.create_indicatorRadioMenuItem(key, parentMenu)
                     if key == f"entity-:{firstEntity}-:{firstAttribut}":
                         action.setChecked(True)
                 else:
-                    action = self.set_checkbox_action(key, parentMenu, firstEntity, firstAttribut)
+                    action = self.create_indicatorCheckboxMenuItem(key, parentMenu, firstEntity, firstAttribut)
                     if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
                         action.setChecked(True)
                         self.previous_selected_checkboxes.append(key)
                 self.checkbox_indicators_data[key] = action
                 parentMenu.addAction(action)
 
-    # set checkbox for diagram ( plot and hist )
-    def set_checkbox_action(self, key, parentMenu, firstEntity, firstAttribut):
+    # set checkbox for diagram ( plot  )
+    def create_indicatorCheckboxMenuItem(self, key, parentMenu, firstEntity, firstAttribut):
         self.previous_selected_checkboxes = []
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
                          checkable=True)
@@ -220,12 +210,12 @@ class SGDiagramController(NavigationToolbar):
         #        action.setChecked(True)
         #        self.previous_selected_checkboxes.append(key)
         action.setProperty("key", key)
-        action.triggered.connect(self.update_plot_from_checked_action)
+        action.triggered.connect(self.on_indicatoCheckboxMenu_triggered)
         parentMenu.addAction(action)
         return action
 
     # for typediagram : (pie, stackplot, hist)
-    def createRadioButtonAction(self, key, parentMenu):
+    def create_indicatorRadioMenuItem(self, key, parentMenu):
         #action = QAction(key, self)
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize())
         action.setCheckable(True)
@@ -233,40 +223,45 @@ class SGDiagramController(NavigationToolbar):
         self.groupAction.addAction(action)
         #print("key : ", key)
         #, firstEntity, firstAttribut
-        action.triggered.connect(lambda: self.onActionTriggered(action))
+        action.triggered.connect(lambda: self.on_indicatoRadioMenuItem_triggered(action))
         return action
 
-    def onActionTriggered(self, action):
-        # Désélectionner toutes les autres actions du même groupe
-        for otherAction in self.groupAction.actions():
-            if otherAction != action:
-                otherAction.setChecked(False)
+    def on_indicatoRadioMenuItem_triggered(self, action):
+        # IndicatorRadioMenu is used only for hist, pie, stackplot
+        # Deselect all other indicators except the one that has been selected in the argument action
+        # Then, call the method update_plot
+        for aAction in self.groupAction.actions():
+            if aAction != action:
+                aAction.setChecked(False)
         self.update_plot()
-            #print(f"otherAction : {otherAction.isChecked()} - text : {otherAction.text()}")
 
-    def set_checkbox_action(self, key, parentMenu, firstEntity, firstAttribut):
+    def create_indicatorCheckboxMenuItem(self, key, parentMenu, firstEntity, firstAttribut):
         self.previous_selected_checkboxes = []
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
                          checkable=True)
 
-        if self.typeDiagram not in ['pie', 'hist', 'stackplot']:
+        if self.typeDiagram == 'plot':
             if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
                 #action.setChecked(True)
-                action.setCheckable(True)
-        else:
+                if not action.isCheckable():
+                    breakpoint()
+                # action.setCheckable(True) 
+        elif self.typeDiagram in ['pie', 'hist', 'stackplot']:
             if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
-                action.setChecked(True)
+                # action.setChecked(True)
                 self.previous_selected_checkboxes.append(key)
         action.setProperty("key", key)
-        action.triggered.connect(self.update_plot_from_checked_action)
+        action.triggered.connect(self.on_indicatoCheckboxMenu_triggered)
         parentMenu.addAction(action)
         return action
 
 
     # update plot after checked option
-    def update_plot_from_checked_action(self, state):
-        #print("state : ", state)
+    def on_indicatoCheckboxMenu_triggered(self, state):
+        # IndicatorRadioMenu is used only for plot
+        # Then, call the method update_plot
         if self.typeDiagram in ['pie', 'hist', 'stackplot']:
+            #ca ne devrait jamais arrivé
             selected_option = self.on_toggle_checked_indicator()
             for option, checkbox in self.checkbox_indicators_data.items():
                 checkbox.setChecked(option in selected_option)
@@ -275,6 +270,7 @@ class SGDiagramController(NavigationToolbar):
 
     # toggle value between previous and current option selected
     def on_toggle_checked_indicator(self):
+        # should be obsolete
         for option, checkbox in self.checkbox_indicators_data.items():
             checkbox.setChecked(option not in self.previous_selected_checkboxes)
         self.groupAction.setExclusive(True)
@@ -304,7 +300,7 @@ class SGDiagramController(NavigationToolbar):
         if self.typeDiagram == 'plot':
             self.plot_linear_typeDiagram(self.allData_with_quant(), selected_indicators)
         elif self.typeDiagram == 'hist':
-            self.plot_hist_typeDiagram(self.allData_with_quant(), selected_indicators)
+            self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
         elif self.typeDiagram == 'pie':
             self.plot_pie_typeDiagram(self.allData_with_quali(), selected_indicators)
         elif self.typeDiagram == 'stackplot':
@@ -440,6 +436,27 @@ class SGDiagramController(NavigationToolbar):
                                      transform=self.ax.get_xaxis_transform())
                         round_lab += 1
 
+    def plot_linear_typeDiagram(self, data, selected_indicators ):
+        self.ax.clear()
+        optionXScale = self.get_xAxisOption_selected()
+        pos = 0
+
+        for aMenuIndicatorSpec in selected_indicators:
+            aIndicatorSpec = IndicatorSpec(aMenuIndicatorSpec,isQuantitative=True)
+            pos += 1
+            if optionXScale in ('0', '2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale == 'specified phase':
+                self.process_data(data, pos, aIndicatorSpec)
+            else:  # Case --> 'by steps'
+                # ce cas estt à traiter différenet
+                self.process_data(data, [option],  pos, entity_type, key)
+
+        self.ax.legend()
+        title_entities = ", ".join(set([option.split("-:")[1] for option in selected_indicators if 'entity' in option]))
+        title = f"Evolution des populations {title_entities}"
+        self.ax.set_title(title)
+        self.canvas.draw()
+
+
     def plot_hist_typeDiagram(self, data, selected_option_list):
         self.ax.clear()
         list_data = []
@@ -504,27 +521,6 @@ class SGDiagramController(NavigationToolbar):
 
         if any(item.startswith('player-:') for item in selected_option_list):
             self.plot_linear_typeDiagram_for_players(self.dataPlayers, selected_option_list, pos)
-
-
-    def plot_linear_typeDiagram(self, data, selected_indicators ):
-        self.ax.clear()
-        optionXScale = self.get_xAxisOption_selected()
-        pos = 0
-
-        for aMenuIndicatorSpec in selected_indicators:
-            aIndicatorSpec = IndicatorSpec(aMenuIndicatorSpec,isQuantitative=True)
-            pos += 1
-            if optionXScale in ('0', '2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale == 'specified phase':
-                self.process_data(data, pos, aIndicatorSpec)
-            else:  # Case --> 'by steps'
-                # ce cas estt à traiter différenet
-                self.process_data(data, [option],  pos, entity_type, key)
-
-        self.ax.legend()
-        title_entities = ", ".join(set([option.split("-:")[1] for option in selected_indicators if 'entity' in option]))
-        title = f"Evolution des populations {title_entities}"
-        self.ax.set_title(title)
-        self.canvas.draw()
 
 
     def process_data(self, data, pos, aIndicatorSpec):
