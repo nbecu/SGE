@@ -58,7 +58,7 @@ class SGDiagramController(NavigationToolbar):
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        self.regenerate_indicators_menu()
+        self.regenerate_indicators_menu() # This method will also fetch the data from dataRecorder
 
         # Menu display option for x axis  
         self.combobox__xAxisOption_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
@@ -855,30 +855,30 @@ class IndicatorSpec:
                 indicator = tuple(menu_indicator_spec.split("-:")[-2:])
         elif "simVariable" in menu_indicator_spec:
             component = 'simVariable'
-            indicatorType = 'simVariable'
+            indicatorType = None
             indicator =  menu_indicator_spec.split("-:")[-1]
         elif "player" in menu_indicator_spec:
-            component = 'player'
-            indicatorType = None
-            indicator = None
+            component = tuple(menu_indicator_spec.split("-:")[:2])
+            indicatorType = 'dictAttributes'
+            indicator = menu_indicator_spec.split("-:")[-1]
         return component, indicatorType, indicator
 
     def get_data(self, data_at_a_given_step):
-        if self.component and self.indicator and self.indicatorType:
-            if self.component[0] == 'entity':
-                if self.indicatorType == 'population':
-                    return [entry['population'] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
-                elif self.indicatorType == 'entDefAttributes':
-                    return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
-                elif self.indicatorType == 'quantiAttributes':
-                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
-                elif self.indicatorType == 'qualiAttributes':
-                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
-            elif self.component == 'simVariable':
-                return [entry['value'] for entry in data_at_a_given_step if 'simVarName' in entry and entry['simVarName'] == self.indicator]
-            elif self.component == 'player':
-                return [entry['value'] for entry in data_at_a_given_step if entry['playerName'] == self.indicator]
-        return []
+        if self.component[0] == 'entity':
+            if self.indicatorType == 'population':
+                return [entry['population'] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+            elif self.indicatorType == 'entDefAttributes':
+                return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+            elif self.indicatorType == 'quantiAttributes':
+                return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+            elif self.indicatorType == 'qualiAttributes':
+                return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+        elif self.component == 'simVariable':
+            return [entry['value'] for entry in data_at_a_given_step if 'simVarName' in entry and entry['simVarName'] == self.indicator]
+        elif self.component[0] == 'player':
+            return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'playerName' in entry and entry['playerName'] == self.component[1] ]
+        else: 
+            return []
 
     def get_label(self):
         if self.component[0] == 'entity':
@@ -892,8 +892,8 @@ class IndicatorSpec:
                 return self.component[1] + " - " + self.indicator[1] + " of " + self.indicator[0]
         elif self.component == 'simVariable':
             return self.indicator
-        elif self.component == 'player':
-                return self.indicator
+        elif self.component[0] == 'player':
+                return self.component[1] + " - " + self.indicator
         
     def get_line_style(self):
         if self.indicatorType == 'quantiAttributes':

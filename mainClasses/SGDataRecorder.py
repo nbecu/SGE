@@ -55,11 +55,12 @@ class SGDataRecorder():
         if not [p for p in self.model.players.values() if p.dictAttributes ] : return []
         if not self.stepsData_ofPlayers:
             #in case the records are empty, than the getListOfStepsData() should start from the initial date which is [0,0]
-             lastRecordedDate=[0,0] 
+            lastRecordedDate=[0,0] 
         else:
             lastRecordedDate = [self.stepsData_ofPlayers[-1]['round'], self.stepsData_ofPlayers[-1]['phase']]
             # remove the last recorded date from the records (because the values may have been changed during the concerned step )
-            self.stepsData_ofPlayers = [aStepData  for aStepData in self.stepsData_ofPlayers if [aStepData['round'],aStepData['phase']]==lastRecordedDate]
+            self.stepsData_ofPlayers = [aStepData  for aStepData in self.stepsData_ofPlayers if [aStepData['round'],aStepData['phase']]!=lastRecordedDate]
+            
         
         for aPlayer in self.model.players.values():  
               self.stepsData_ofPlayers.extend(aPlayer.getListOfStepsData(lastRecordedDate))
