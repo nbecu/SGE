@@ -46,8 +46,8 @@ class SGDiagramController(NavigationToolbar):
 
         #generate menu of indicators
         self.indicators_menu = QMenu("Indicators", self)
-        self.dictMenuData = {'entities': {}, 'simvariables': {}, 'players': {}}
-        self.checkbox_display_menu_data = {}
+        self.dictMenuData = {'entities': {}, 'simVariables': {}, 'players': {}}
+        self.checkbox_indicators_data = {}
         self.previous_selected_checkboxes = []
         self.parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['plot', 'hist'] else 'qualiAttributes'
 
@@ -58,7 +58,7 @@ class SGDiagramController(NavigationToolbar):
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        self.regenerate_indicators_menu(self.dataEntities)
+        self.regenerate_indicators_menu()
 
         # Menu display option for x axis  
         self.combobox__xAxisOption_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
@@ -78,8 +78,18 @@ class SGDiagramController(NavigationToolbar):
 
         # self.generateMenu_DisplaySpecificInterval(parent)
 
+    def allData_with_quant(self):
+        return self.dataEntities + self.dataSimVariables + self.dataPlayers
 
-    def regenerate_indicators_menu(self, data):
+    def allData_with_quali(self):
+        return self.dataEntities
+
+    def regenerate_indicators_menu(self):
+        """
+        Regenerates the indicators menu based on the data that have been loaded by the class.
+        This menu allows the user to select different indicators for data visualization.
+        Sub-menus are created for entities, players, and simulation variables, each containing specific options.
+        """
         entitiesMenu = QMenu('Entités', self)
         playersMenu = QMenu('Players', self)
         simulationMenu = QMenu('Simulation variables', self)
@@ -88,7 +98,7 @@ class SGDiagramController(NavigationToolbar):
 
             #create menu items for entities
             ##retrieves the list of entities
-            entities_list = {entry['entityName'] for entry in data if
+            entities_list = {entry['entityName'] for entry in self.dataEntities if
                              'entityName' in entry and not isinstance(entry['entityName'], dict)}
             ###Take this opportunity to initialise the first entitiy to be selected in the menu
             if not self.firstEntity:
@@ -99,10 +109,10 @@ class SGDiagramController(NavigationToolbar):
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 attrib_dict[f"entity-:{entity_name}-:population"] = None
-                list_entDef_attribut_key = {x for entry in data for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
+                list_entDef_attribut_key = {x for entry in self.dataEntities for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
                 for entDef_attribut_key in sorted(list_entDef_attribut_key):
                     attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None                                              
-                list_attribut_key = {attribut for entry in data for attribut in entry.get(self.parentAttributKey, {}) if
+                list_attribut_key = {attribut for entry in self.dataEntities for attribut in entry.get(self.parentAttributKey, {}) if
                                      entry['entityName'] == entity_name}
                 if not self.firstAttribut:
                     self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
@@ -118,18 +128,20 @@ class SGDiagramController(NavigationToolbar):
             #create menu items for simVariables
             simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
             for simVar in simVariables_list:
-                self.dictMenuData['simvariables'][f"simvariables-:{simVar}"] = None
-            self.addSubMenus(simulationMenu, self.dictMenuData['simvariables'], self.firstEntity, self.firstAttribut)
+                self.dictMenuData['simVariables'][f"simVariable-:{simVar}"] = None
+            self.addSubMenus(simulationMenu, self.dictMenuData['simVariables'], self.firstEntity, self.firstAttribut)
 
             #Create menu items for players
             ##get the list of players
-            players_list = {entry['currentPlayer'] for entry in data if  #todo : c'est bizarre ce test sur 'currentPlayer'
-                            'currentPlayer' in entry and not isinstance(entry['currentPlayer'], dict)}
-            for player in players_list:
-                self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
-            """for key in simVariables_list:
-                list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
-                self.dictMenuData['simvariables'][f"simVariable-:{key}"] = list_data"""
+
+            # players_list = {entry['currentPlayer'] for entry in self.dataEntities if  #todo : c'est bizarre ce test sur 'currentPlayer'
+            #                 'currentPlayer' in entry and not isinstance(entry['currentPlayer'], dict)}
+            # for player in players_list:
+            #     self.dictMenuData['players'][f"currentPlayer-:{player}"] = player
+            # """for key in simVariables_list:
+            #     list_data = {entry['simVariable'][key] for entry in data if isinstance(entry.get('simVariable', {}), dict)}
+            #     self.dictMenuData['simVariables'][f"simVariable-:{key}"] = list_data"""
+
             players_list = {entry['playerName'] for entry in  self.dataPlayers if 'playerName' in entry and not isinstance(entry['playerName'], dict)}
             ##create the menu for players
             for player_name in sorted(players_list):
@@ -191,7 +203,7 @@ class SGDiagramController(NavigationToolbar):
                     if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
                         action.setChecked(True)
                         self.previous_selected_checkboxes.append(key)
-                self.checkbox_display_menu_data[key] = action
+                self.checkbox_indicators_data[key] = action
                 parentMenu.addAction(action)
 
     # set checkbox for diagram ( plot and hist )
@@ -255,22 +267,22 @@ class SGDiagramController(NavigationToolbar):
     def update_plot_from_checked_action(self, state):
         #print("state : ", state)
         if self.typeDiagram in ['pie', 'hist', 'stackplot']:
-            selected_option = self.on_toggle_checked_option()
-            for option, checkbox in self.checkbox_display_menu_data.items():
+            selected_option = self.on_toggle_checked_indicator()
+            for option, checkbox in self.checkbox_indicators_data.items():
                 checkbox.setChecked(option in selected_option)
-            self.checkbox_display_menu_data.update()
+            self.checkbox_indicators_data.update()
         self.update_plot()
 
     # toggle value between previous and current option selected
-    def on_toggle_checked_option(self):
-        for option, checkbox in self.checkbox_display_menu_data.items():
+    def on_toggle_checked_indicator(self):
+        for option, checkbox in self.checkbox_indicators_data.items():
             checkbox.setChecked(option not in self.previous_selected_checkboxes)
         self.groupAction.setExclusive(True)
-        return [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
+        return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
     # get checkbox selected
-    def get_checkbox_display_menu_selected(self):
-        return [option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()]
+    def get_checkbox_indicators_selected(self):
+        return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
     def onCmbRoundActivated(self):
         try:
@@ -287,19 +299,19 @@ class SGDiagramController(NavigationToolbar):
 
     def update_plot(self):
         self.update_data()
-        selected_indicators = self.get_checkbox_display_menu_selected()
+        selected_indicators = self.get_checkbox_indicators_selected()
 
         if self.typeDiagram == 'plot':
-            self.plot_linear_typeDiagram(self.dataEntities, selected_indicators)
-        elif self.typeDiagram == 'pie':
-            self.plot_pie_typeDiagram(self.dataEntities, selected_indicators)
+            self.plot_linear_typeDiagram(self.allData_with_quant(), selected_indicators)
         elif self.typeDiagram == 'hist':
-            self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
+            self.plot_hist_typeDiagram(self.allData_with_quant(), selected_indicators)
+        elif self.typeDiagram == 'pie':
+            self.plot_pie_typeDiagram(self.allData_with_quali(), selected_indicators)
         elif self.typeDiagram == 'stackplot':
-            self.plot_stackplot_typeDiagram(self.dataEntities, selected_indicators)
+            self.plot_stackplot_typeDiagram(self.allData_with_quali(), selected_indicators)
         # for pie diagram
         self.previous_selected_checkboxes = list(set(
-            option for option, checkbox in self.checkbox_display_menu_data.items() if checkbox.isChecked()))
+            option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()))
 
     
 
@@ -841,28 +853,31 @@ class IndicatorSpec:
             else:
                 indicatorType =  'quantiAttributes' if isQuantitative else 'qualiAttributes'
                 indicator = tuple(menu_indicator_spec.split("-:")[-2:])
-        else:
-            component = 'simVariables' if 'simVariables' in menu_indicator_spec else 'player'
+        elif "simVariable" in menu_indicator_spec:
+            component = 'simVariable'
+            indicatorType = 'simVariable'
+            indicator =  menu_indicator_spec.split("-:")[-1]
+        elif "player" in menu_indicator_spec:
+            component = 'player'
             indicatorType = None
             indicator = None
-            
         return component, indicatorType, indicator
 
     def get_data(self, data_at_a_given_step):
         if self.component and self.indicator and self.indicatorType:
             if self.component[0] == 'entity':
                 if self.indicatorType == 'population':
-                    return [entry['population'] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+                    return [entry['population'] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
                 elif self.indicatorType == 'entDefAttributes':
-                    return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+                    return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
                 elif self.indicatorType == 'quantiAttributes':
-                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
+                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
                 elif self.indicatorType == 'qualiAttributes':
-                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if entry['entityName'] == self.component[1]]
-            elif self.component[0] == 'simvariables':
-                return [entry['value'] for entry in data_at_a_given_step if entry['simVarName'] == self.component[1]]
-            elif self.component[0] == 'player':
-                return [entry['value'] for entry in data_at_a_given_step if entry['playerName'] == self.component[1]]
+                    return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+            elif self.component == 'simVariable':
+                return [entry['value'] for entry in data_at_a_given_step if 'simVarName' in entry and entry['simVarName'] == self.indicator]
+            elif self.component == 'player':
+                return [entry['value'] for entry in data_at_a_given_step if entry['playerName'] == self.indicator]
         return []
 
     def get_label(self):
@@ -875,10 +890,10 @@ class IndicatorSpec:
                 return self.component[1] + " - " + self.indicator[1]   +  " of " +  self.indicator[0] 
             elif self.indicatorType == 'qualiAttributes':
                 return self.component[1] + " - " + self.indicator[1] + " of " + self.indicator[0]
-        elif self.component[0] == 'player':
-            return self.component[0]
-        elif self.component[0] == 'simVariables':
-            return self.component[0]
+        elif self.component == 'simVariable':
+            return self.indicator
+        elif self.component == 'player':
+                return self.indicator
         
     def get_line_style(self):
         if self.indicatorType == 'quantiAttributes':
