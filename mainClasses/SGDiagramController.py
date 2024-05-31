@@ -61,7 +61,7 @@ class SGDiagramController(NavigationToolbar):
         self.regenerate_indicators_menu() # This method will also fetch the data from dataRecorder
 
         # Menu display option for x axis  
-        self.combobox__xAxisOption_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
+        self.combobox_xAxisOption_data = {'Rounds': '0','Rounds & Phases': '3','Que phase 2': 'specified phase'}
         self.xAxisOption_combobox = QComboBox(parent)
         self.xAxisOption_combobox.currentIndexChanged.connect(self.update_chart)
         self.addWidget(self.xAxisOption_combobox)
@@ -215,34 +215,19 @@ class SGDiagramController(NavigationToolbar):
     #     return action
     
     def create_indicatorCheckboxMenuItem(self, key, parentMenu):
-        # self.previous_selected_checkboxes = []
-        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu,
-                         checkable=True)
-
-        # if self.typeDiagram == 'plot':
-        #     if firstEntity in key.split("-:") or firstAttribut in key.split("-:"):
-        #         #action.setChecked(True)
-        #         if not action.isCheckable():
-        #             breakpoint()
-                # action.setCheckable(True) 
-        # elif self.typeDiagram in ['pie', 'hist', 'stackplot']:
-        #     if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
-        #         # action.setChecked(True)
-        #         self.previous_selected_checkboxes.append(key)
+        # for typediagram : (linear)
+        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu, checkable=True)
         action.setProperty("key", key)
         action.triggered.connect(self.on_indicatorCheckboxMenu_triggered)
         parentMenu.addAction(action)
         return action
 
-    # for typediagram : (pie, stackplot, hist)
     def create_indicatorRadioMenuItem(self, key, parentMenu):
-        #action = QAction(key, self)
+        # for typediagram : (pie, stackplot, hist)
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize())
         action.setCheckable(True)
         parentMenu.addAction(action)
         self.groupAction.addAction(action)
-        #print("key : ", key)
-        #, firstEntity, firstAttribut
         action.triggered.connect(lambda: self.on_indicatoRadioMenuItem_triggered(action))
         return action
 
@@ -254,31 +239,15 @@ class SGDiagramController(NavigationToolbar):
             if aAction != action:
                 aAction.setChecked(False)
         self.update_chart()
-
     
-
-    # update plot after checked option
-    def on_indicatorCheckboxMenu_triggered(self, state):
-        # IndicatorRadioMenu is used only for plot
-        # Then, call the method update_plot
-        # if self.typeDiagram in ['pie', 'hist', 'stackplot']:
-        #     #ca ne devrait jamais arrivé
-        #     selected_option = self.on_toggle_checked_indicator()
-        #     for option, checkbox in self.checkbox_indicators_data.items():
-        #         checkbox.setChecked(option in selected_option)
-        #     self.checkbox_indicators_data.update()
+    def on_indicatorCheckboxMenu_triggered(self):
+        # update plot after checked option
         self.update_chart()
 
-    # toggle value between previous and current option selected
-    # def on_toggle_checked_indicator(self):
-    #     # should be obsolete
-    #     for option, checkbox in self.checkbox_indicators_data.items():
-    #         checkbox.setChecked(option not in self.previous_selected_checkboxes)
-    #     self.groupAction.setExclusive(True)
-    #     return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
-    # get checkbox selected
+
     def get_checkbox_indicators_selected(self):
+        # get indicators selected
         return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
     def onCmbRoundActivated(self):
@@ -313,6 +282,7 @@ class SGDiagramController(NavigationToolbar):
     
 
     def generateMenu_DisplaySpecificInterval(self, aParent):
+        # obsolete a priori car on n'utilise pos la méthode d'affichage par interval de dates
         if self.typeDiagram in ['plot', 'stackplot']:
             self.addSeparator()
             self.start_label = QLabel('Tour Min:')
@@ -431,7 +401,7 @@ class SGDiagramController(NavigationToolbar):
             aIndicatorSpec = IndicatorSpec(aMenuIndicatorSpec,isQuantitative=True)
             pos += 1
             if optionXScale in ('0', '2') or (optionXScale == '3' and self.nbPhases == 1) or optionXScale == 'specified phase':
-                self.process_data_of_indicator_for_linear_typeDiagram(data, pos, aIndicatorSpec)
+                self.process_data_per_round_for_linear_typeDiagram(data, pos, aIndicatorSpec)
             else:  # Case --> 'by steps'
                 # ce cas estt à traiter différenet
                 self.process_data_per_phase_for_linear_typeDiagram(data, pos, aIndicatorSpec)
@@ -477,6 +447,7 @@ class SGDiagramController(NavigationToolbar):
         self.ax.set_ylabel('Nombre d''occurences')
         self.canvas.draw()
 
+
     def plot_pie_typeDiagram(self, data, selected_option_list):
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
             list_option = selected_option_list[0].split("-:")
@@ -496,6 +467,7 @@ class SGDiagramController(NavigationToolbar):
             self.ax.set_title(self.title)
             self.canvas.draw()
 
+
     def plot_stack_plot_data_switch_xvalue(self, xValue, data, label):
         if len(xValue) == 1:
             self.ax.stackplot(xValue * len(data), data, labels=label)
@@ -512,20 +484,8 @@ class SGDiagramController(NavigationToolbar):
                                      transform=self.ax.get_xaxis_transform())
                         round_lab += 1
 
-    # def plot_linear_typeDiagram_OLDDDDDDDD(self, data, selected_option_list):
-    #     self.ax.clear()
-    #     pos = 0
-    #     if any(item.startswith('entity-:') for item in selected_option_list):
-    #         self.plot_linear_typeDiagram_for_entities(data, selected_option_list)
 
-    #     if any(item.startswith('simvariables-:') for item in selected_option_list):
-    #         self.plot_linear_typeDiagram_for_simVariable(self.dataSimVariables, selected_option_list, pos)
-
-    #     if any(item.startswith('player-:') for item in selected_option_list):
-    #         self.plot_linear_typeDiagram_for_players(self.dataPlayers, selected_option_list, pos)
-
-
-    def process_data_of_indicator_for_linear_typeDiagram(self, data, pos, aIndicatorSpec):
+    def process_data_per_round_for_linear_typeDiagram(self, data, pos, aIndicatorSpec):
         data_y = []
         for r in range(self.nbRoundsWithLastPhase + 1):
             phaseIndex = self.nbPhases if r != 0 else 0
@@ -551,50 +511,6 @@ class SGDiagramController(NavigationToolbar):
             line_style = aIndicatorSpec.get_line_style()
             self.plot_data_switch_xvalue(self.xValue, data_y, label, line_style, pos)
 
-        # # 1/ get the first step (round 0, phase 0)
-        # aEntry = [entry for entry in data if
-        #             entry['entityName'] == entityName and entry['round'] == 0 and entry['phase'] == 0][-1]
-        # if key == 'population':
-        #     y = aEntry['population']
-        #     data_populations.append(y)
-        # else:
-        #     if key and key in self.indicators_item:
-        #         attribut_key = list_option[2]
-        #         list_attribut_key.append(attribut_key)
-        #         y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
-        #         data_indicators.append(y_indicators)
-        # # 2/ get all the phases from all the rounds that have been completed
-        # for aR in range(self.nbRoundsWithLastPhase):
-        #     for aP in range(self.nbPhases):
-        #         aEntry = [entry for entry in data if
-        #                     entry['entityName'] == entityName and entry['round'] == (aR + 1) and entry[
-        #                         'phase'] == (aP + 1)][-1]
-        #         if key == 'population':
-        #             y = aEntry['population']
-        #             data_populations.append(y)
-        #         else:
-        #             if key and key in self.indicators_item:
-        #                 attribut_key = list_option[2]
-        #                 list_attribut_key.append(attribut_key)
-        #                 y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
-        #                 data_indicators.append(y_indicators)
-        # # 3/ in case the last round has not been completed, get the phases from this last round
-        # if self.phaseOfLastRound != self.nbPhases:
-        #     for aP in range(self.phaseOfLastRound):
-        #         aEntry = [entry for entry in data if
-        #                     entry['entityName'] == entityName and entry['round'] == self.nbRounds and
-        #                     entry['phase'] == (aP + 1)][-1]
-        #         if key == 'population':
-        #             y = aEntry['population']
-        #             data_populations.append(y)
-        #         else:
-        #             if key and key in self.indicators_item:
-        #                 attribut_key = list_option[2]
-        #                 list_attribut_key.append(attribut_key)
-        #                 y_indicators = aEntry[self.parentAttributKey][attribut_key][key]
-        #                 data_indicators.append(y_indicators)
-
-
 
     def plot_data_switch_xvalue(self, xValue, data, label, linestyle, pos):
         color = self.colors[pos % len(self.colors)]
@@ -616,9 +532,7 @@ class SGDiagramController(NavigationToolbar):
                                      transform=self.ax.get_xaxis_transform())
                         round_lab += 1
 
-########""
-
-
+########"" A GARDER Pour l'instant car il manque à faire l'affichage qu'à la phase 2 (par ex), ou bien encore l'affichage que des derniers tours
     def plot_linear_typeDiagram_for_entities(self, data, selected_option_list):
         # self.ax.clear()
         optionXScale = self.get_combobox_xAxisOption_selected()
@@ -775,7 +689,6 @@ class SGDiagramController(NavigationToolbar):
         self.ax.set_title(title)
         self.canvas.draw()
 
-
     def plot_linear_typeDiagram_for_players(self, data, list_option, pos):
         if list_option[:1] == ['currentPlayer']:
             entities = list_option
@@ -790,17 +703,18 @@ class SGDiagramController(NavigationToolbar):
         self.ax.set_title(self.title)
         self.canvas.draw()
 
+########################################################
 
-    def set_combobox_2_items(self):
+    def set_combobox_xAxisOption(self):
         # if self.typeDiagram not in ['pie', 'hist']:
         if self.typeDiagram in ['plot', 'stackplot']:
             self.xAxisOption_combobox.clear()
             if self.nbRounds == 1:
-                sorted_combobox_data = dict(sorted(self.combobox__xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
-                self.combobox__xAxisOption_data = sorted_combobox_data
-            for display_text in self.combobox__xAxisOption_data:
+                sorted_combobox_data = dict(sorted(self.combobox_xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
+                self.combobox_xAxisOption_data = sorted_combobox_data
+            for display_text in self.combobox_xAxisOption_data:
                 self.xAxisOption_combobox.addItem(display_text)
-            for index, (display_text, key) in enumerate(self.combobox__xAxisOption_data.items()):
+            for index, (display_text, key) in enumerate(self.combobox_xAxisOption_data.items()):
                 self.xAxisOption_combobox.setItemData(index, key)
         """
         if self.nbRounds == 1:
@@ -819,14 +733,14 @@ class SGDiagramController(NavigationToolbar):
     def get_combobox_xAxisOption_selected(self):
         if self.typeDiagram in ['plot', 'stackplot'] and self.xAxisOption_combobox:
             selected_text = self.xAxisOption_combobox.currentText()
-            for key, value in self.combobox__xAxisOption_data.items():
+            for key, value in self.combobox_xAxisOption_data.items():
                 if key == selected_text:
                     return value
         return None
 
     def set_data(self):
         self.update_data()
-        self.set_combobox_2_items()
+        self.set_combobox_xAxisOption()
         # self.update_plot() # Commenté car c'est déjà appellé via set_combobox2_items()
 
     # def getAllHistoryData(self):
