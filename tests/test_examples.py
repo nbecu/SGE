@@ -12,6 +12,7 @@ def test_exStep2_4_execution():
     try:
         app = ex_step.run()
         app.close()  #`close()` ne permet pas de fermer la fenêtre
+        # possible que  l'instruction soit    QApplication.quit()
     except Exception as e:
         pytest.fail(f"ExStep2_4 a échoué à l'exécution : {str(e)}")
     assert True
