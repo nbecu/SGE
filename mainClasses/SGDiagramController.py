@@ -16,57 +16,43 @@ class SGDiagramController(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
         self.parent = parent
-        self.typeDiagram = typeDiagram
-        # layout_per_round = QVBoxLayout()
+        self.typeDiagram = typeDiagram 
 
-        self.roundMin = 0
-        self.roundMax = 0
-        self.is_refresh = False
-        self.indicators = ['max', 'mean', 'min', 'stdev','sum']
-        self.indicators_item = {'max': 'Max', 'mean': 'Moyenne', 'min': 'Min', 'stdev': 'St Dev', 'sum':'Sum'}
-        self.option_affichage_data = {"entityName": "Entités", "simVariable": "Simulation variables",
-                                      "currentPlayer": "Players"}
+        self.is_refresh = False ## l'usage de cette variable est bizarrre. A vérifier
         self.ax = parent.ax
         self.model = model
-        self.title = 'SG Diagramme'
+        self.title = 'SG Diagram'
 
-        self.display_indicators_menu = QMenu("Indicators", self)
-        self.checKbox_indicators_data = ["type", "Attribut", "Max", "Mean", "Min", "St Dev"]
-        self.checKbox_indicators = {}
-
-        self.rounds = []
-        self.phases = []
-
-        # self.linestyles = ['-', '--', '-.', ':', 'dashed', 'dashdot', 'dotted']
-        self.linestyle_items = {'mean': 'solid', 'max': 'dashed', 'min': 'dashed','stdev': 'dotted', 'sum': 'dashdot' }
-
-        self.colors = ['gray', 'green', 'blue', 'red', 'black', 'orange', 'purple', 'pink', 'cyan', 'magenta']
-        self.xValue = []
-
-        #generate menu of indicators
-        self.indicators_menu = QMenu("Indicators", self)
-        self.dictMenuData = {'entities': {}, 'simVariables': {}, 'players': {}}
-        self.checkbox_indicators_data = {}
-        self.previous_selected_checkboxes = []
-        self.parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['plot', 'hist'] else 'qualiAttributes'
-
-        self.groupAction = QActionGroup(self)
-        self.firstEntity = ""
-        self.firstAttribut = ""
-        self.list_attribut_display = []
+        ## Data import
+        # On est obligé de récupérer les data une première fois ici, car elles sont utilisés dans la méthode self.generate_and_add_indicators_menu()
+        # a réfléchir si on pourrait pas appeler la méthode generate_and_add_indicators_menu() seulement après l'init du DiagramController
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        self.regenerate_indicators_menu() # This method will also fetch the data from dataRecorder
+
+        ## Data vizualisation
+        self.linestyle_items = {'mean': 'solid', 'max': 'dashed', 'min': 'dashed','stdev': 'dotted', 'sum': 'dashdot' }
+        self.colors = ['gray', 'green', 'blue', 'red', 'black', 'orange', 'purple', 'pink', 'cyan', 'magenta']
+
+        ## Menu indicators
+        self.indicators = ['max', 'mean', 'min', 'stdev','sum']
+        self.indicators_menu = QMenu("Indicators", self)
+        self.dictMenuData = {'entities': {}, 'simVariables': {}, 'players': {}}
+        self.checkbox_indicators_data = {}
+        self.parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['linear', 'hist'] else 'qualiAttributes'
+        self.groupAction = QActionGroup(self)
+        self.firstEntity = ""
+        self.firstAttribut = ""
+        self.generate_and_add_indicators_menu()
 
         # Menu display option for x axis  
-        self.combobox_xAxisOption_data = {'Rounds': 'per round','Rounds & Phases': 'per step','Que phase 2': 'specified phase'}
+        self.combobox_xAxisOption_data = {'Rounds': 'per round','Rounds & Phases': 'per step','Specified p': 'specified phase'}
         self.specified_phase = 2
         self.xAxisOption_combobox = QComboBox(parent)
-        self.xAxisOption_combobox.currentIndexChanged.connect(self.update_chart)
+        # self.xAxisOption_combobox.currentIndexChanged.connect(self.update_chart) #
         self.addWidget(self.xAxisOption_combobox)
 
-        self.addSeparator()
+        # self.addSeparator()
         
         # Button refresh
         button = QPushButton("refresh", self)
@@ -81,13 +67,13 @@ class SGDiagramController(NavigationToolbar):
     def allData_with_quali(self):
         return self.dataEntities
 
-    def regenerate_indicators_menu(self):
+    def generate_and_add_indicators_menu(self):
         """
         Regenerates the indicators menu based on the data that have been loaded by the class.
         This menu allows the user to select different indicators for data visualization.
         Sub-menus are created for entities, players, and simulation variables, each containing specific options.
         """
-        if self.typeDiagram == 'plot':
+        if self.typeDiagram == 'linear':
             entitiesMenu = QMenu('Entités', self)
             playersMenu = QMenu('Players', self)
             simuVarsMenu = QMenu('Simulation variables', self)
@@ -188,7 +174,6 @@ class SGDiagramController(NavigationToolbar):
                     action = self.create_indicatorCheckboxMenuItem(key, parentMenu)
                     if firstEntity in key.split("-:") and firstAttribut in key.split("-:"):
                         action.setChecked(True)
-                        # self.previous_selected_checkboxes.append(key)
                 self.checkbox_indicators_data[key] = action
                 parentMenu.addAction(action)
 
@@ -213,14 +198,14 @@ class SGDiagramController(NavigationToolbar):
     def on_indicatoRadioMenuItem_triggered(self, action):
         # IndicatorRadioMenu is used only for hist, pie, stackplot
         # Deselect all other indicators except the one that has been selected in the argument action
-        # Then, call the method update_plot
+        # Then, call the method chart
         for aAction in self.groupAction.actions():
             if aAction != action:
                 aAction.setChecked(False)
         self.update_chart()
     
     def on_indicatorCheckboxMenu_triggered(self):
-        # update plot after checked option
+        # update chart after checked option
         self.update_chart()
 
 
@@ -229,25 +214,19 @@ class SGDiagramController(NavigationToolbar):
         return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
 
-    def onCmbRoundActivated(self):
-        try:
-            if self.start_cmb_round and self.end_cmb_round and self.start_cmb_round.currentText() and self.end_cmb_round.currentText():
-                min_round_selected = int(re.search(r'\d+', self.start_cmb_round.currentText()).group())
-                max_round_selected = int(re.search(r'\d+', self.end_cmb_round.currentText()).group())
-                if min_round_selected < max_round_selected:
-                    self.roundMax = max_round_selected
-                    self.roundMin = min_round_selected
-        except ValueError:
-            print("Erreur de conversion")
-        except Exception as e:
-            print("Erreur survenue :", e)
+ #####################################################################################
+    def set_data(self):
+        ## cette méthode est appellé par le constructreur des classes SGDiagramLinear,  SGDiagramStack, SGDiagramHistogram,SGDiagramCircular
+        self.setXValue_basedOnData(self.dataEntities)
+        self.set_combobox_xAxisOption()
+        self.update_chart()
 
 
     def update_chart(self):
         self.update_data()
         selected_indicators = self.get_checkbox_indicators_selected()
 
-        if self.typeDiagram == 'plot':
+        if self.typeDiagram == 'linear':
             self.plot_linear_typeDiagram(self.allData_with_quant(), selected_indicators)
         elif self.typeDiagram == 'hist':
             self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
@@ -256,6 +235,55 @@ class SGDiagramController(NavigationToolbar):
         elif self.typeDiagram == 'stackplot':
             self.plot_stackplot_typeDiagram(self.allData_with_quali(), selected_indicators)
 
+    def update_data(self):
+        self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
+        self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
+        self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
+        self.setXValue_basedOnData(self.dataEntities)
+
+
+    def set_combobox_xAxisOption(self):
+        if self.typeDiagram in ['linear', 'stackplot']:
+            self.xAxisOption_combobox.clear()
+            if self.nbRounds == 1:
+                sorted_combobox_data = dict(sorted(self.combobox_xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
+                self.combobox_xAxisOption_data = sorted_combobox_data
+            for display_text, key in self.combobox_xAxisOption_data.items():
+                self.xAxisOption_combobox.addItem(display_text,key)
+            self.xAxisOption_combobox.currentIndexChanged.connect(self.update_chart) #
+
+    def get_combobox_xAxisOption_selected(self):
+        if self.typeDiagram in ['linear', 'stackplot'] and self.xAxisOption_combobox:
+            selected_text = self.xAxisOption_combobox.currentText()
+            for key, value in self.combobox_xAxisOption_data.items():
+                if key == selected_text:
+                    return value
+        return None
+
+
+    def setXValue_basedOnData(self, data):
+        optionXScale = self.get_combobox_xAxisOption_selected()
+        self.xValue = []
+        self.rounds = {entry['round'] for entry in data}
+        self.phases = {entry['phase'] for entry in data}
+        self.nbRounds = max(self.rounds)
+        self.nbPhases = len(self.model.timeManager.phases)
+        self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
+
+        if optionXScale in ['per round','specified phase'] or (optionXScale == 'per step' and self.nbPhases == 1) :
+            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
+        elif optionXScale == 'per step': 
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
+            self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
+            if self.phaseOfLastRound != self.nbPhases:
+                self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
+        #could add here another case for 'only last rounds' with self.nbOfLastRounds_to_display 
+        
+
+    def refresh_data(self):
+        self.is_refresh = True
+        self.update_chart()
      
     ##############################################################################
 
@@ -486,59 +514,8 @@ class SGDiagramController(NavigationToolbar):
                         round_lab += 1
 
 
-    def set_combobox_xAxisOption(self):
-        if self.typeDiagram in ['plot', 'stackplot']:
-            self.xAxisOption_combobox.clear()
-            if self.nbRounds == 1:
-                sorted_combobox_data = dict(sorted(self.combobox_xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
-                self.combobox_xAxisOption_data = sorted_combobox_data
-            for display_text in self.combobox_xAxisOption_data:
-                self.xAxisOption_combobox.addItem(display_text)
-            for index, (display_text, key) in enumerate(self.combobox_xAxisOption_data.items()):
-                self.xAxisOption_combobox.setItemData(index, key)
+#######################################################################################
 
-
-    def get_combobox_xAxisOption_selected(self):
-        if self.typeDiagram in ['plot', 'stackplot'] and self.xAxisOption_combobox:
-            selected_text = self.xAxisOption_combobox.currentText()
-            for key, value in self.combobox_xAxisOption_data.items():
-                if key == selected_text:
-                    return value
-        return None
-
-    def set_data(self):
-        self.update_data()
-        self.set_combobox_xAxisOption()
-     
-
-    def refresh_data(self):
-        self.is_refresh = True
-        self.update_chart()
-
-    def update_data(self):
-        self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
-        self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
-        self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        self.setXValue_basedOnData(self.dataEntities)
-
-    def setXValue_basedOnData(self, data):
-        optionXScale = self.get_combobox_xAxisOption_selected()
-        self.xValue = []
-        self.rounds = {entry['round'] for entry in data}
-        self.phases = {entry['phase'] for entry in data}
-        self.nbRounds = max(self.rounds)
-        self.nbPhases = len(self.model.timeManager.phases)
-        self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
-
-        if optionXScale in ['per round','specified phase'] or (optionXScale == 'per step' and self.nbPhases == 1) :
-            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
-        elif optionXScale == 'per step': 
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
-            self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
-            if self.phaseOfLastRound != self.nbPhases:
-                self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
-        #could add here another case for 'only last rounds' with self.nbOfLastRounds_to_display 
 
 
 class IndicatorSpec:
@@ -604,5 +581,4 @@ class IndicatorSpec:
         if self.indicatorType == 'quantiAttributes':
             return {'mean': 'solid', 'max': 'dashed', 'min': 'dashed','stdev': 'dotted', 'sum': 'dashdot' }[self.indicator[1]]
         else: return 'solid'
-
 

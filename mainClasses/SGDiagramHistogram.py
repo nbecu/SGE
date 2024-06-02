@@ -10,7 +10,7 @@ from mainClasses.SGDiagramController import SGDiagramController
 
 
 class SGDiagramHistogram(QMainWindow):
-    update_data_signal = pyqtSignal()
+    # update_data_signal = pyqtSignal()
     def __init__(self, parent=None):
         super(SGDiagramHistogram, self).__init__(parent)
         self.parent = parent
@@ -26,4 +26,4 @@ class SGDiagramHistogram(QMainWindow):
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
-        #self.toolbar.update_plot()
+        # self.toolbar.update_chart()

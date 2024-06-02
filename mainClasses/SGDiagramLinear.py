@@ -10,7 +10,7 @@ from mainClasses.SGDiagramController import SGDiagramController
 from PyQt5.QtCore import Qt
 
 class SGDiagramLinear(QMainWindow):
-    update_data_signal = pyqtSignal()
+    # update_data_signal = pyqtSignal()
     def __init__(self, parent=None):
         super(SGDiagramLinear, self).__init__(parent)
         self.parent = parent
@@ -28,7 +28,7 @@ class SGDiagramLinear(QMainWindow):
         #self.xValue = []
 
         self.canvas = FigureCanvas(self.figure)
-        self.toolbar = SGDiagramController(self.canvas, self, parent, 'plot')
+        self.toolbar = SGDiagramController(self.canvas, self, parent, 'linear')
 
         self.layout.addWidget(self.toolbar)
 

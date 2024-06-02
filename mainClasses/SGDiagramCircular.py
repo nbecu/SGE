@@ -10,7 +10,7 @@ from mainClasses.SGDiagramController import SGDiagramController
 
 
 class SGDiagramCircular(QMainWindow):
-    update_data_signal = pyqtSignal()
+    # update_data_signal = pyqtSignal()
     def __init__(self, parent=None):
         super(SGDiagramCircular, self).__init__(parent)
         self.parent = parent
@@ -30,9 +30,8 @@ class SGDiagramCircular(QMainWindow):
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
-        self.toolbar.update_chart()
+        # self.toolbar.update_chart()
 
        # self.update_data_signal.connect(self.toolbar.update_plot)
-
         #self.model.data_changed.connect(self.update_plot)
 

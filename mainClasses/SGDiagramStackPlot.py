@@ -10,7 +10,7 @@ from mainClasses.SGDiagramController import SGDiagramController
 
 
 class SGDiagramStackPlot(QMainWindow):
-    update_data_signal = pyqtSignal()
+    # update_data_signal = pyqtSignal()
     def __init__(self, parent=None):
         super(SGDiagramStackPlot, self).__init__(parent)
         self.parent = parent
