@@ -6,23 +6,26 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget
 from PyQt5.QtCore import pyqtSignal
 
-from mainClasses.SGDiagramController import SGDiagramController
+from mainClasses.SGGraphController import SGGraphController
 
 
-class SGDiagramHistogram(QMainWindow):
+class SGGraphStackPlot(QMainWindow):
     # update_data_signal = pyqtSignal()
     def __init__(self, parent=None):
-        super(SGDiagramHistogram, self).__init__(parent)
+        super(SGGraphStackPlot, self).__init__(parent)
         self.parent = parent
-
-        self.setWindowTitle("Histogramme")
+        self.setWindowTitle("Diagramme Stack Plot")
         self.setGeometry(100, 100, 800, 600)
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
         self.figure, self.ax = plt.subplots()
         self.canvas = FigureCanvas(self.figure)
-        self.toolbar = SGDiagramController(self.canvas, self, parent, 'hist')
+        self.toolbar = SGGraphController(self.canvas, self, parent, 'stackplot')
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
+
+
+
+

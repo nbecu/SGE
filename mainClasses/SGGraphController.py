@@ -12,7 +12,7 @@ from PyQt5.QtCore import Qt
 import re
 
 
-class SGDiagramController(NavigationToolbar):
+class SGGraphController(NavigationToolbar):
     def __init__(self, canvas, parent, model, typeDiagram):
         super().__init__(canvas, parent)
         self.parent = parent
@@ -74,7 +74,7 @@ class SGDiagramController(NavigationToolbar):
     ##############################################################################################
 
     def set_data(self):
-        ## cette méthode est appellé par le constructreur des classes SGDiagramLinear,  SGDiagramStack, SGDiagramHistogram,SGDiagramCircular
+        ## cette méthode est appellé par le constructreur des classes SGGraphLinear,  SGDiagramStack, SGGraphHistogram,SGGraphCircular
         self.setXValue_basedOnData(self.dataEntities)
         self.set_combobox_xAxisOption()
         self.update_chart(reloadData_before_update=False)
