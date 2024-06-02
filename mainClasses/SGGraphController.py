@@ -13,15 +13,15 @@ import re
 
 
 class SGGraphController(NavigationToolbar):
-    def __init__(self, canvas, parent, model, typeDiagram):
+    def __init__(self, canvas, parent, model, type_of_graph):
         super().__init__(canvas, parent)
         self.parent = parent
-        self.typeDiagram = typeDiagram 
+        self.type_of_graph = type_of_graph 
 
         self.is_refresh = False ## l'usage de cette variable est bizarrre. A vérifier
         self.ax = parent.ax
         self.model = model
-        self.title = 'SG Diagram'
+        self.title = 'SG Graph'
 
         ## Data import
         # On est obligé de récupérer les data une première fois ici, car elles sont utilisés dans la méthode self.generate_and_add_indicators_menu()
@@ -39,7 +39,7 @@ class SGGraphController(NavigationToolbar):
         self.indicators_menu = QMenu("Indicators", self)
         self.dictMenuData = {'entities': {}, 'simVariables': {}, 'players': {}}
         self.checkbox_indicators_data = {}
-        self.parentAttributKey = 'quantiAttributes' if self.typeDiagram in ['linear', 'hist'] else 'qualiAttributes'
+        self.parentAttributKey = 'quantiAttributes' if self.type_of_graph in ['linear', 'hist'] else 'qualiAttributes'
         self.groupAction = QActionGroup(self)
         self.firstEntity = ""
         self.firstAttribut = ""
@@ -89,14 +89,14 @@ class SGGraphController(NavigationToolbar):
         self.setXValue_basedOnData(self.dataEntities)
 
         selected_indicators = self.get_checkbox_indicators_selected()
-        if self.typeDiagram == 'linear':
-            self.plot_linear_typeDiagram(self.allData_with_quant(), selected_indicators)
-        elif self.typeDiagram == 'hist':
-            self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
-        elif self.typeDiagram == 'pie':
-            self.plot_pie_typeDiagram(self.allData_with_quali(), selected_indicators)
-        elif self.typeDiagram == 'stackplot':
-            self.plot_stackplot_typeDiagram(self.allData_with_quali(), selected_indicators)
+        if self.type_of_graph == 'linear':
+            self.plot_linear_typeGraph(self.allData_with_quant(), selected_indicators)
+        elif self.type_of_graph == 'hist':
+            self.plot_hist_typeGraph(self.dataEntities, selected_indicators)
+        elif self.type_of_graph == 'pie':
+            self.plot_pie_typeGraph(self.allData_with_quali(), selected_indicators)
+        elif self.type_of_graph == 'stackplot':
+            self.plot_stackplot_typeGraph(self.allData_with_quali(), selected_indicators)
 
 
     def setXValue_basedOnData(self, data):
@@ -134,7 +134,7 @@ class SGGraphController(NavigationToolbar):
         This menu allows the user to select different indicators for data visualization.
         Sub-menus are created for entities, players, and simulation variables, each containing specific options.
         """
-        if self.typeDiagram == 'linear':
+        if self.type_of_graph == 'linear':
             entitiesMenu = QMenu('Entités', self)
             playersMenu = QMenu('Players', self)
             simuVarsMenu = QMenu('Simulation variables', self)
@@ -186,7 +186,7 @@ class SGGraphController(NavigationToolbar):
                 self.dictMenuData['players'][player_name] = attrib_dict
             self.addSubMenus(playersMenu, self.dictMenuData['players'], self.firstEntity, self.firstAttribut)
 
-        elif self.typeDiagram in ['hist', 'pie', 'stackplot']:
+        elif self.type_of_graph in ['hist', 'pie', 'stackplot']:
             entitiesMenu = QMenu('Entités', self)
             self.indicators_menu.addMenu(entitiesMenu)
 
@@ -227,7 +227,7 @@ class SGGraphController(NavigationToolbar):
                 parentMenu.addMenu(submenu)
                 self.addSubMenus(submenu, value, firstEntity, firstAttribut)
             else:
-                if self.typeDiagram in ['hist', 'pie', 'stackplot']:
+                if self.type_of_graph in ['hist', 'pie', 'stackplot']:
                     action = self.create_indicatorRadioMenuItem(key, parentMenu)
                     if key == f"entity-:{firstEntity}-:{firstAttribut}":
                         action.setChecked(True)
@@ -240,7 +240,7 @@ class SGGraphController(NavigationToolbar):
 
     
     def create_indicatorCheckboxMenuItem(self, key, parentMenu):
-        # for typediagram : (linear)
+        # for type_of_graph : (linear)
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu, checkable=True)
         action.setProperty("key", key)
         action.triggered.connect(self.on_indicatorCheckboxMenu_triggered)
@@ -248,7 +248,7 @@ class SGGraphController(NavigationToolbar):
         return action
 
     def create_indicatorRadioMenuItem(self, key, parentMenu):
-        # for typediagram : (pie, stackplot, hist)
+        # for type_of_graph : (pie, stackplot, hist)
         action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize())
         action.setCheckable(True)
         parentMenu.addAction(action)
@@ -280,7 +280,7 @@ class SGGraphController(NavigationToolbar):
     ##############################################################################################
 
     def set_combobox_xAxisOption(self):
-        if self.typeDiagram in ['linear', 'stackplot']:
+        if self.type_of_graph in ['linear', 'stackplot']:
             self.xAxisOption_combobox.clear()
             if self.nbRounds == 1:
                 sorted_combobox_data = dict(sorted(self.combobox_xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
@@ -301,15 +301,8 @@ class SGGraphController(NavigationToolbar):
         self.update_chart()
 
 
-        
-        # self.rounds = {entry['round'] for entry in data}
-        # self.phases = {entry['phase'] for entry in data}
-        # self.nbRounds = max(self.rounds)
-        # self.nbPhases = len(self.model.timeManager.phases)
-        # self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
-
     def get_combobox_xAxisOption_selected(self):
-        if self.typeDiagram in ['linear', 'stackplot'] and self.xAxisOption_combobox:
+        if self.type_of_graph in ['linear', 'stackplot'] and self.xAxisOption_combobox:
             selected_text = self.xAxisOption_combobox.currentText()
             for key, value in self.combobox_xAxisOption_data.items():
                 if key == selected_text:
@@ -334,7 +327,7 @@ class SGGraphController(NavigationToolbar):
     # Methods for plotting the different types of chart
     ##############################################################################################
  
-    def plot_linear_typeDiagram(self, data, selected_indicators ):
+    def plot_linear_typeGraph(self, data, selected_indicators ):
         self.ax.clear()
         optionXScale = self.get_combobox_xAxisOption_selected()
         pos = 0
@@ -357,7 +350,7 @@ class SGGraphController(NavigationToolbar):
         self.canvas.draw()
 
 
-    def plot_hist_typeDiagram(self, data, selected_option_list):
+    def plot_hist_typeGraph(self, data, selected_option_list):
         self.ax.clear()
         list_data = []
         entity_name_list = []
@@ -392,7 +385,7 @@ class SGGraphController(NavigationToolbar):
         self.canvas.draw()
 
 
-    def plot_pie_typeDiagram(self, data, selected_option_list):
+    def plot_pie_typeGraph(self, data, selected_option_list):
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
             list_option = selected_option_list[0].split("-:")
             entityName = list_option[1]
@@ -412,7 +405,7 @@ class SGGraphController(NavigationToolbar):
             self.canvas.draw()
 
 
-    def plot_stackplot_typeDiagram(self, data, selected_option_list):
+    def plot_stackplot_typeGraph(self, data, selected_option_list):
         list_data = []
         formatted_data = {}
         entity_name_list = []
