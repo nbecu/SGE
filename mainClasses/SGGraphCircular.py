@@ -6,13 +6,13 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QComboBox, QWidget
 from PyQt5.QtCore import pyqtSignal
 
-from mainClasses.SGDiagramController import SGDiagramController
+from mainClasses.SGGraphController import SGGraphController
 
 
-class SGDiagramCircular(QMainWindow):
-    update_data_signal = pyqtSignal()
+class SGGraphCircular(QMainWindow):
+    # update_data_signal = pyqtSignal()
     def __init__(self, parent=None):
-        super(SGDiagramCircular, self).__init__(parent)
+        super(SGGraphCircular, self).__init__(parent)
         self.parent = parent
 
         self.setWindowTitle("Diagramme Circulaire")
@@ -25,14 +25,12 @@ class SGDiagramCircular(QMainWindow):
         self.figure, self.ax = plt.subplots()
 
         self.canvas = FigureCanvas(self.figure)
-        self.toolbar = SGDiagramController(self.canvas, self, parent, 'pie')
+        self.toolbar = SGGraphController(self.canvas, self, parent, 'pie')
 
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
-        self.toolbar.update_plot()
 
        # self.update_data_signal.connect(self.toolbar.update_plot)
-
         #self.model.data_changed.connect(self.update_plot)
 

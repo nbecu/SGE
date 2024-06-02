@@ -30,9 +30,9 @@ aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot
 
     #POSSIBILITY TO ADD A GENERAL CONDITION TO THE ACTION
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
-aModelAction4.addCondition(lambda: myModel.round()==3) 
+aModelAction4.addCondition(lambda: myModel.roundNumber()==3) 
 
-aModelAction5 =myModel.newModelAction((lambda: Cell.setRandomEntities("landUse","forest",2)), conditions= (lambda: myModel.round()==3) )
+aModelAction5 =myModel.newModelAction((lambda: Cell.setRandomEntities("landUse","forest",2)), conditions= (lambda: myModel.roundNumber()==3) )
 
 # ADDING MODEL ACTIONS TO THE PHASES
 myModel.timeManager.newModelPhase(aModelAction2)

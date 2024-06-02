@@ -5,11 +5,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMessageBox)
 from PyQt5 import QtWidgets
 
-from mainClasses.SGDiagramCircular import SGDiagramCircular
-from mainClasses.SGDiagramLinear import SGDiagramLinear
+from mainClasses.SGGraphCircular import SGGraphCircular
+from mainClasses.SGGraphLinear import SGGraphLinear
 from mainClasses.SGTestGetData import SGTestGetData
-from mainClasses.SGWindowsGraph import SGWindowsGraph
-from mainClasses.SGDiagramController import SGDiagramController
+from mainClasses.SGGraphWindow import SGGraphWindow
+from mainClasses.SGGraphController import SGGraphController
 from mainClasses.layout.SGVerticalLayout import*
 from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
@@ -236,23 +236,23 @@ class SGModel(QMainWindow):
         self.chooseGraph = self.menuBar().addMenu(QIcon("./icon/icon_dashboards.png"), "&openChooseGraph")
         # Submenu linear
         actionLinearDiagram = QAction(QIcon('./icon/icon_linear.png'), 'Diagramme Linéaire', self)
-        actionLinearDiagram.triggered.connect(self.openLinearDiagram)
+        actionLinearDiagram.triggered.connect(self.openLinearGraph)
         self.chooseGraph.addAction(actionLinearDiagram)
 
         actionHistogramDiagram = QAction(QIcon('./icon/icon_histogram.png'), 'Histogramme', self)
-        actionHistogramDiagram.triggered.connect(self.openHistoDiagram)
+        actionHistogramDiagram.triggered.connect(self.openHistoGraph)
         self.chooseGraph.addAction(actionHistogramDiagram)
 
         actionCircularDiagram = QAction(QIcon('./icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
-        actionCircularDiagram.triggered.connect(self.openCircularDiagram)
+        actionCircularDiagram.triggered.connect(self.openCircularGraph)
         self.chooseGraph.addAction(actionCircularDiagram)
 
         actionStackPlotDiagram = QAction(QIcon('./icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
-        actionStackPlotDiagram.triggered.connect(self.openStackPlotDiagram)
+        actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
 
         actionOtherDiagram = QAction(QIcon('./icon/graph.png'), 'Autres Représentations', self)
-        actionOtherDiagram.triggered.connect(self.openOtherDiagram)
+        actionOtherDiagram.triggered.connect(self.openOtherGraph)
         self.chooseGraph.addAction(actionOtherDiagram)
 
 
@@ -285,27 +285,24 @@ class SGModel(QMainWindow):
         pass
 
 
-    # open diagram windows
-    def openLinearDiagram(self):
-        aGraph = SGWindowsGraph(self).action_one_graph()
+    # open graph windows
+    def openLinearGraph(self):
+        aGraph = SGGraphWindow(self).open_graph_type("linear")
         self.openedGraphs.append(aGraph)
 
-    def openHistoDiagram(self):
-        aGraph = SGWindowsGraph(self).action_histogram_diagram()
+    def openHistoGraph(self):
+        aGraph = SGGraphWindow(self).open_graph_type("histogram")
         self.openedGraphs.append(aGraph)
 
-    def openStackPlotDiagram(self):
-        aGraph = SGWindowsGraph(self).action_stackplot_diagram()
+    def openStackPlotGraph(self):
+        aGraph = SGGraphWindow(self).open_graph_type("stackplot")
         self.openedGraphs.append(aGraph)
 
-    def openCircularDiagram(self):
-        aGraph = SGWindowsGraph(self).action_circular_diagram()
+    def openCircularGraph(self):
+        aGraph = SGGraphWindow(self).open_graph_type("circular")
         self.openedGraphs.append(aGraph)
-        #sgDiagramCircular = SGDiagramCircular(self)
-        #sgDiagramCircular.show()
-        #SGWindowsGraph(self).action_circular_diagram()
 
-    def openOtherDiagram(self):
+    def openOtherGraph(self):
         print("WITH CSV OPTION")
 
         
@@ -819,12 +816,12 @@ class SGModel(QMainWindow):
 
         return aEndGameRule
 
-    def round(self):
-        """Return the actual ingame round"""
+    def roundNumber(self):
+        """Return the current ingame round number"""
         return self.timeManager.currentRoundNumber
 
-    def getCurrentPhase(self):
-        """Return the actual ingame phase"""
+    def phaseNumber(self):
+        """Return the current ingame phase number"""
         return self.timeManager.currentPhaseNumber
     
     def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):

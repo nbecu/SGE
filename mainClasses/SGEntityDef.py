@@ -158,8 +158,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     
 
     def calculateAndRecordCurrentStepStats(self):        
-        currentRound =self.model.timeManager.currentRoundNumber
-        currentPhase = self.model.timeManager.currentPhaseNumber
+        currentRound =self.model.roundNumber()
+        currentPhase = self.model.phaseNumber()
         quantiAttributesStats ={}
         qualiAttributesStats ={}
         if self.entities: 
@@ -424,7 +424,11 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             self.deleteEntity(ent)
 
     # Indicators
-    # to get all entities who respect certain value
+    # to get the nb of entities
+    def nbOfEntities(self):
+        return len(self.getEntities())
+
+    # to get the nb of entities who respect certain value
     def nb_withValue(self, att, value):
         return len(self.getEntities_withValue(att, value))
     

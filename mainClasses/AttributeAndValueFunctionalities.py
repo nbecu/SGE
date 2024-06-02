@@ -102,7 +102,7 @@ class AttributeAndValueFunctionalities():
         if self.history["value"]=={}: return []
         aList=[]
         tmpDict={}
-        nbPhases = len(self.model.timeManager.phases) -1
+        nbPhases = len(self.model.timeManager.phases)
 
         # create a dict (tmpDict) of attribute values with keys as dates of the value updates of each attribute
         for aAtt, listOfData in self.history["value"].items():
@@ -116,17 +116,19 @@ class AttributeAndValueFunctionalities():
         sortedKeys = sorted(list(tmpDict.keys()),key=keyfunction)
 
         startDate = startStep or [json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
-        endDate = endStep or [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
+
+        # endDate = endStep or [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
         #equivalent to
         # startTime = startStep if startStep is not None else [json.loads(sortedKeys[0])[0],json.loads(sortedKeys[0])[1]]
         # endTime = endStep if endStep is not None else [json.loads(sortedKeys[-1])[0],json.loads(sortedKeys[-1])[1]]
         # --> because if startStep is None or empty the 'or' will return the right hand value
-        
+        endDate = [self.model.roundNumber(),self.model.phaseNumber()]
+
         #In case no value exists in tmpDict at the startDate for a given attribute, adds a value that is equal to the previous known value of the attribute
         for aAtt in self.history["value"].keys():
             aVal=tmpDict.get(json.dumps([startDate[0],startDate[1],aAtt]), 'no key recorded')
             if aVal == 'no key recorded':
-                datesForAtt = filter(lambda x: json.loads(x)[2]== aAtt,sortedKeys)
+                datesForAtt = list(filter(lambda x: json.loads(x)[2]== aAtt,sortedKeys))
                 datesForAtt.append(json.dumps(startDate))
                 newSortedDatesForAtt = sorted(datesForAtt,key=keyfunction)
                 previousDateWithValueForAtt = newSortedDatesForAtt[(newSortedDatesForAtt.index(json.dumps(startDate))) -1]

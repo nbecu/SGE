@@ -71,7 +71,7 @@ class SGUserSelector(SGGameSpace):
     def getAuthorizedPlayers(self):
         if self.model.timeManager.isInitialization():
             return self.model.users
-        phase = self.model.timeManager.phases[self.model.getCurrentPhase()-1]
+        phase = self.model.timeManager.phases[self.model.phaseNumber()-1]
         authorizedPlayers = phase.authorizedPlayers
         return authorizedPlayers
 
