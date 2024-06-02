@@ -6,7 +6,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QVBoxLayout, QComboBox, QWidget, QAction, QMenu, \
     QPushButton, \
-    QCheckBox, QSpinBox, QLabel, QSlider, QLineEdit, QActionGroup
+    QCheckBox, QSpinBox, QLabel, QSlider, QLineEdit, QActionGroup, QInputDialog
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
 import re
@@ -46,10 +46,9 @@ class SGDiagramController(NavigationToolbar):
         self.generate_and_add_indicators_menu()
 
         # Menu display option for x axis  
-        self.combobox_xAxisOption_data = {'Rounds': 'per round','Rounds & Phases': 'per step','Specified p': 'specified phase'}
+        self.combobox_xAxisOption_data = {'Rounds': 'per round','Rounds & Phases': 'per step','Specified phase': 'specified phase'}
         self.specified_phase = 2
         self.xAxisOption_combobox = QComboBox(parent)
-        # self.xAxisOption_combobox.currentIndexChanged.connect(self.update_chart) #
         self.addWidget(self.xAxisOption_combobox)
 
         # self.addSeparator()
@@ -60,12 +59,74 @@ class SGDiagramController(NavigationToolbar):
         button.clicked.connect(self.refresh_data)
         self.addWidget(button)
 
+    ##############################################################################################
+    # Accessors
+    ##############################################################################################
 
     def allData_with_quant(self):
         return self.dataEntities + self.dataSimVariables + self.dataPlayers
 
     def allData_with_quali(self):
         return self.dataEntities
+    
+    ##############################################################################################
+    # Methods to set and update the chart
+    ##############################################################################################
+
+    def set_data(self):
+        ## cette méthode est appellé par le constructreur des classes SGDiagramLinear,  SGDiagramStack, SGDiagramHistogram,SGDiagramCircular
+        self.setXValue_basedOnData(self.dataEntities)
+        self.set_combobox_xAxisOption()
+        self.update_chart(reloadData_before_update=False)
+
+
+    def update_chart(self,reloadData_before_update=True):
+        if reloadData_before_update:
+            self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
+            self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
+            self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
+
+        self.setXValue_basedOnData(self.dataEntities)
+
+        selected_indicators = self.get_checkbox_indicators_selected()
+        if self.typeDiagram == 'linear':
+            self.plot_linear_typeDiagram(self.allData_with_quant(), selected_indicators)
+        elif self.typeDiagram == 'hist':
+            self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
+        elif self.typeDiagram == 'pie':
+            self.plot_pie_typeDiagram(self.allData_with_quali(), selected_indicators)
+        elif self.typeDiagram == 'stackplot':
+            self.plot_stackplot_typeDiagram(self.allData_with_quali(), selected_indicators)
+
+
+    def setXValue_basedOnData(self, data):
+        optionXScale = self.get_combobox_xAxisOption_selected()
+        self.xValue = []
+        self.rounds = {entry['round'] for entry in data}
+        self.phases = {entry['phase'] for entry in data}
+        self.nbRounds = max(self.rounds)
+        self.nbPhases = len(self.model.timeManager.phases)
+        self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
+
+        if optionXScale in ['per round','specified phase'] or (optionXScale == 'per step' and self.nbPhases == 1) :
+            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
+        elif optionXScale == 'per step': 
+            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
+            self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
+            if self.phaseOfLastRound != self.nbPhases:
+                self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
+        #could add here another case for 'only last rounds' with self.nbOfLastRounds_to_display 
+        
+
+    def refresh_data(self):
+        self.is_refresh = True
+        self.update_chart()
+
+
+    ##############################################################################################
+    # Methods for Indicators menu
+    ##############################################################################################
 
     def generate_and_add_indicators_menu(self):
         """
@@ -214,33 +275,9 @@ class SGDiagramController(NavigationToolbar):
         return [option for option, checkbox in self.checkbox_indicators_data.items() if checkbox.isChecked()]
 
 
- #####################################################################################
-    def set_data(self):
-        ## cette méthode est appellé par le constructreur des classes SGDiagramLinear,  SGDiagramStack, SGDiagramHistogram,SGDiagramCircular
-        self.setXValue_basedOnData(self.dataEntities)
-        self.set_combobox_xAxisOption()
-        self.update_chart()
-
-
-    def update_chart(self):
-        self.update_data()
-        selected_indicators = self.get_checkbox_indicators_selected()
-
-        if self.typeDiagram == 'linear':
-            self.plot_linear_typeDiagram(self.allData_with_quant(), selected_indicators)
-        elif self.typeDiagram == 'hist':
-            self.plot_hist_typeDiagram(self.dataEntities, selected_indicators)
-        elif self.typeDiagram == 'pie':
-            self.plot_pie_typeDiagram(self.allData_with_quali(), selected_indicators)
-        elif self.typeDiagram == 'stackplot':
-            self.plot_stackplot_typeDiagram(self.allData_with_quali(), selected_indicators)
-
-    def update_data(self):
-        self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
-        self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
-        self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
-        self.setXValue_basedOnData(self.dataEntities)
-
+    ##############################################################################################
+    # Methods for XAxisOption menu
+    ##############################################################################################
 
     def set_combobox_xAxisOption(self):
         if self.typeDiagram in ['linear', 'stackplot']:
@@ -249,8 +286,27 @@ class SGDiagramController(NavigationToolbar):
                 sorted_combobox_data = dict(sorted(self.combobox_xAxisOption_data.items(), key=lambda item: item[1], reverse=True))
                 self.combobox_xAxisOption_data = sorted_combobox_data
             for display_text, key in self.combobox_xAxisOption_data.items():
-                self.xAxisOption_combobox.addItem(display_text,key)
-            self.xAxisOption_combobox.currentIndexChanged.connect(self.update_chart) #
+                self.xAxisOption_combobox.addItem(display_text, key)
+            self.xAxisOption_combobox.currentIndexChanged.connect(self.on_xAxisOption_combobox_triggered)
+    
+    def on_xAxisOption_combobox_triggered(self):    
+        if self.get_combobox_xAxisOption_selected() == 'specified phase':    
+            dialog = QInputDialog(self.parent)
+            dialog.setWindowTitle("Select Specified Phase")
+            dialog.setLabelText(f"Sélectionnez la phase (1-{self.nbPhases}):")
+            dialog.setComboBoxItems([str(i) for i in range(1, self.nbPhases + 1)])
+            dialog.setComboBoxEditable(False)
+            if dialog.exec_() == QInputDialog.Accepted:
+                self.specified_phase = int(dialog.textValue())
+        self.update_chart()
+
+
+        
+        # self.rounds = {entry['round'] for entry in data}
+        # self.phases = {entry['phase'] for entry in data}
+        # self.nbRounds = max(self.rounds)
+        # self.nbPhases = len(self.model.timeManager.phases)
+        # self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
     def get_combobox_xAxisOption_selected(self):
         if self.typeDiagram in ['linear', 'stackplot'] and self.xAxisOption_combobox:
@@ -260,32 +316,9 @@ class SGDiagramController(NavigationToolbar):
                     return value
         return None
 
-
-    def setXValue_basedOnData(self, data):
-        optionXScale = self.get_combobox_xAxisOption_selected()
-        self.xValue = []
-        self.rounds = {entry['round'] for entry in data}
-        self.phases = {entry['phase'] for entry in data}
-        self.nbRounds = max(self.rounds)
-        self.nbPhases = len(self.model.timeManager.phases)
-        self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
-
-        if optionXScale in ['per round','specified phase'] or (optionXScale == 'per step' and self.nbPhases == 1) :
-            self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
-        elif optionXScale == 'per step': 
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
-            self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
-            if self.phaseOfLastRound != self.nbPhases:
-                self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
-        #could add here another case for 'only last rounds' with self.nbOfLastRounds_to_display 
-        
-
-    def refresh_data(self):
-        self.is_refresh = True
-        self.update_chart()
-     
-    ##############################################################################
+    ##############################################################################################
+    # Methods for error message
+    ##############################################################################################
 
     def showErrorMessage(self, titre, message):
         # message d'erreur si aucune données a affiché
@@ -296,7 +329,11 @@ class SGDiagramController(NavigationToolbar):
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
 
-    
+
+    ##############################################################################################
+    # Methods for plotting the different types of chart
+    ##############################################################################################
+ 
     def plot_linear_typeDiagram(self, data, selected_indicators ):
         self.ax.clear()
         optionXScale = self.get_combobox_xAxisOption_selected()
@@ -514,9 +551,9 @@ class SGDiagramController(NavigationToolbar):
                         round_lab += 1
 
 
-#######################################################################################
-
-
+    ##############################################################################################
+    # Class IndicatorSpec
+    ##############################################################################################
 
 class IndicatorSpec:
     def __init__(self, menu_indicator_spec, isQuantitative):

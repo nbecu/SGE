@@ -287,7 +287,7 @@ class SGModel(QMainWindow):
 
     # open diagram windows
     def openLinearDiagram(self):
-        aGraph = SGWindowsGraph(self).action_one_graph()
+        aGraph = SGWindowsGraph(self).action_linear_graph()
         self.openedGraphs.append(aGraph)
 
     def openHistoDiagram(self):

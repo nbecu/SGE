@@ -37,20 +37,7 @@ class SGDiagramLinear(QMainWindow):
         self.layout.addWidget(self.canvas)
 
         self.toolbar.set_data()
-        # self.toolbar.update_plot() Commenté car c'est déjà appellé dans set_data()
 
-    def add_interval(self):
-        start = self.start_line_edit.text()
-        end = self.end_line_edit.text()
-
-        try:
-            start = float(start)
-            end = float(end)
-            interval = (start, end)
-            print("Intervalle ajouté:", interval)
-            # Vous pouvez ajouter ici le code pour stocker cet intervalle dans une liste ou un autre conteneur.
-        except ValueError:
-            print("Veuillez entrer des nombres valides pour le début et la fin de l'intervalle.")
 
     def closeEvent(self, *args, **kwargs):
         self.parent.openedGraphs.remove(self)

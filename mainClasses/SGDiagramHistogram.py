@@ -26,4 +26,3 @@ class SGDiagramHistogram(QMainWindow):
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
         self.toolbar.set_data()
-        # self.toolbar.update_chart()

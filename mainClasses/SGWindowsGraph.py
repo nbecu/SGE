@@ -40,7 +40,7 @@ class SGWindowsGraph(QWidget):
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
 
-    def action_one_graph(self):
+    def action_linear_graph(self):
         if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
             sgDiagramLinear = SGDiagramLinear(self.model)
             sgDiagramLinear.show()
