@@ -1,0 +1,10 @@
+matplotlib==3.8.3
+numpy==1.26.4
+paho-mqtt==2.0.0
+pyparsing==3.1.2
+PyQt5==5.15.10
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.13.0
+pyrsistent==0.20.0
+pywin32==306
+SQLAlchemy==2.0.29
