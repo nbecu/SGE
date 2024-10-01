@@ -2,9 +2,10 @@
 
 > Have you ever dreamed of an editor that easily turns your simulation grid-based game following an agent-based approach ideas into reality? 
 
-Simulation Game Editor (SGE) is a Python based solution powered by PyQt5. It aims to help game modellers to create a simulation grid-based game following an agent-based approach without having to develop the model: **you just need to change some variables**.
+Simulation Game Editor (SGE) is a Python-based solution powered by PyQt5. Its aim is to help game modellers create grid-based simulation games using an agent-based approach without having to redevelop the basic interface and calculation functionality. Modelling a game in SGE essentially consists of **defining the various structural elements** of the game and **setting variables**.
 
-SGE is unique from other pre-existent simulation tools: it implements the notion of point of views, game actions and player time round directly in the model code, like an all-in-one pack. SGE aims to create **distributed asymmetric simulations**: every participant will be immersed in a different point of view according to their personal aptitudes and understandings.
+
+SGE is unique compared with other pre-existing simulation development tools: it implements the notion of viewpoints, players, game actions and game phases directly into the structure of the model, like ready-to-use packs. SGE makes it possible to create  **distributed asymmetric simulations**: each player can interact with the others according to their skills, their personal understanding of the situation and a specific computer interface running on a chosen computer terminal.
 
 > Calculate, test, develop but faster
 
