@@ -962,7 +962,6 @@ class SGModel(QMainWindow):
                 'shape':self.getCheckedSymbologyOfEntity(entDef.entityName),
                 'border': self.getCheckedSymbologyOfEntity(entDef.entityName, borderSymbology = True)
                 }
-        print(selectedSymbologies)
         return selectedSymbologies
 
     def checkFirstSymbologyOfEntitiesInMenu(self):

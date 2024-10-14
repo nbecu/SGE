@@ -168,11 +168,16 @@ Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,
 VillageNord.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageSud.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
-
-
-
-
 Legend=myModel.newLegend(grid="combined")
+
+Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=20,defaultColor=Qt.yellow)
+reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
+Touriste.newAgentAtCoords(reserve)
+
+
+
+
+
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
 sys.exit(monApp.exec_())
