@@ -485,16 +485,17 @@ class SGModel(QMainWindow):
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):
+    def newLegend(self, name='Legend', showAgentsWithNoAtt=False, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
         Args:
         Name (str): name of the Legend (default : Legend)
         showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
+        grid (str) : name of the grid or None (select the first grid) or "combined"
 
         """
-        selectedSymbologies=self.getAllCheckedSymbologies()
+        selectedSymbologies=self.getAllCheckedSymbologies(grid)
         aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
@@ -922,7 +923,7 @@ class SGModel(QMainWindow):
             if selectedSymbology in symbologies:
                 [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
         for aLegend in self.getAdminLegends():
-            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
+            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
 
     def getSymbologiesOfSubmenu(self, submenuName):
@@ -940,17 +941,28 @@ class SGModel(QMainWindow):
 
     def getAllCheckedSymbologies(self, grid=None):
         # return the active symbology of each type of entity
-        # It is supposed to be for a given Grid
-        # for the moment we assume that its for the main (first) grid
-        if grid is None: grid = self.getGrids()[0]
-        cellDef = self.getCellDef(grid)
+        if grid is None: 
+            gridObject = self.getGrids()[0]
+            cellDef = self.getCellDef(gridObject)
+            entitiesDef=[cellDef] + list(self.agentSpecies.values())
+        elif grid == "combined" :
+            entitiesDef=[]
+            for aGrid in self.getGrids():
+                cellDef = self.getCellDef(aGrid)
+                entitiesDef=entitiesDef+[cellDef]
+            entitiesDef=entitiesDef+list(self.agentSpecies.values())
+        else : 
+            gridObject=self.getGrid_withID(grid)
+            cellDef = self.getCellDef(gridObject)
+            entitiesDef=[cellDef] + list(self.agentSpecies.values())
+
         selectedSymbologies={}
-        entitiesDef=[cellDef] + list(self.agentSpecies.values())
         for entDef in entitiesDef:
             selectedSymbologies[entDef]={
                 'shape':self.getCheckedSymbologyOfEntity(entDef.entityName),
                 'border': self.getCheckedSymbologyOfEntity(entDef.entityName, borderSymbology = True)
                 }
+        print(selectedSymbologies)
         return selectedSymbologies
 
     def checkFirstSymbologyOfEntitiesInMenu(self):
