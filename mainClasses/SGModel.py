@@ -485,7 +485,7 @@ class SGModel(QMainWindow):
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False, grid=None):
+    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):#, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
@@ -495,7 +495,8 @@ class SGModel(QMainWindow):
         grid (str) : name of the grid or None (select the first grid) or "combined"
 
         """
-        selectedSymbologies=self.getAllCheckedSymbologies(grid)
+        # selectedSymbologies=self.getAllCheckedSymbologies(grid)
+        selectedSymbologies=self.getAllCheckedSymbologies()
         aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
@@ -923,7 +924,8 @@ class SGModel(QMainWindow):
             if selectedSymbology in symbologies:
                 [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
         for aLegend in self.getAdminLegends():
-            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
+            aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
+            # aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
 
     def getSymbologiesOfSubmenu(self, submenuName):

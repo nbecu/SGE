@@ -168,15 +168,16 @@ Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,
 VillageNord.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageSud.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
-Legend=myModel.newLegend(grid="combined")
+# Legend=myModel.newLegend(grid="combined")
+Legend=myModel.newLegend()
 
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=20,defaultColor=Qt.yellow)
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
 
-
-
-
+Hexagones_test=myModel.newAgentSpecies("Hexagone","squareAgent",defaultSize=80,locationInEntity="center")
+pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
+Hexagones_test.newAgentAtCoords(pioche,1,1)
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")

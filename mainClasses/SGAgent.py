@@ -210,8 +210,8 @@ class SGAgent(SGEntity):
             self.yPos=originPoint.y()+maxSize-10
             return
         if self.classDef.locationInEntity=="center":
-            self.xPos=originPoint.x()+int(maxSize/2)
-            self.yPos=originPoint.y()+int(maxSize/2)
+            self.xPos=originPoint.x()+int(maxSize/2)-int(self.size/2)
+            self.yPos=originPoint.y()+int(maxSize/2)-int(self.size/2)
             return
         else:
             raise ValueError("Error in entry for locationInEntity")
