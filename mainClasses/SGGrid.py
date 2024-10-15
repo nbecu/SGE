@@ -5,7 +5,7 @@ from mainClasses.SGModel import *
 
 # Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True):
+    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, aBackGroundImage=None):
         super().__init__(parent, 0, 60, 0, 0)
         # Basic initialize
         self.zoom = 1
@@ -31,13 +31,19 @@ class SGGrid(SGGameSpace):
 
         if aColor != "None":
             self.setColor(aColor)
+        self.backgroundImage=aBackGroundImage
     
     # Drawing the game board with the cell
     def paintEvent(self, event): 
         self.countPaintEvent += 1
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+        if self.backgroundImage != None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, self.backgroundImage)
+
+        else:
+            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget

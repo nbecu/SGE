@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid")
 
 def constructPlateau():
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=10,name="Plateau")
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=10,name="Plateau",aBackGroundImage=QPixmap("./icon/fond.png"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))
@@ -70,9 +70,9 @@ def constructPlateau():
     Plateau.getEntity(4,4).setValue("zone","Roches")
     Plateau.getEntity(5,4).setValue("zone","Roches")
     Plateau.getEntity(5,5).setValue("zone","Roches")
-    Plateau.getEntity(4,3).setValue("zone","Village")
-    Plateau.getEntity(5,6).setValue("zone","Village")
-    Plateau.getEntity(7,4).setValue("zone","Village")
+    Plateau.getEntity(4,3).setValue("zone","Village Nord")
+    Plateau.getEntity(5,6).setValue("zone","Village Sud")
+    Plateau.getEntity(7,4).setValue("zone","Village Est")
     Plateau.setEntities("coeurDeSite","out")
     Plateau.getEntity(5,2).setValue("coeurDeSite","in")
     Plateau.getEntity(6,2).setValue("coeurDeSite","in")
@@ -92,7 +92,7 @@ def constructPlateau():
     return Plateau
 
 def constructVillageNord():
-    VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=10,name="VillageNord")
+    VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=10,name="VillageNord",color=QColor.fromRgb(135,206,235))
     VillageNord.deleteEntity(VillageNord.getEntity(1,1))
     VillageNord.deleteEntity(VillageNord.getEntity(2,1))
     VillageNord.deleteEntity(VillageNord.getEntity(4,2))
@@ -108,7 +108,7 @@ def constructVillageNord():
     return VillageNord
     
 def constructVillageSud():
-    VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=10,name="VillageSud")
+    VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=10,name="VillageSud",color=QColor.fromRgb(176,224,230))
     VillageSud.deleteEntity(VillageSud.getEntity(1,1))
     VillageSud.deleteEntity(VillageSud.getEntity(3,1))
     VillageSud.deleteEntity(VillageSud.getEntity(4,1))
@@ -132,7 +132,7 @@ def constructVillageSud():
     return VillageSud  
     
 def constructVillageEst():
-    VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=10,name="VillageEst")
+    VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=10,name="VillageEst",color=QColor.fromRgb(0,191,255))
     VillageEst.deleteEntity(VillageEst.getEntity(1,1))
     VillageEst.deleteEntity(VillageEst.getEntity(2,1))
     VillageEst.deleteEntity(VillageEst.getEntity(3,1))
@@ -163,7 +163,7 @@ VillageEst=constructVillageEst()
 
 
 
-Plateau.newPov("Zones joueurs","zone",{"Roches":Qt.white,"Naturaliste":Qt.darkGreen,"Viticulteur":Qt.magenta,"Village":Qt.cyan})
+Plateau.newPov("Zones joueurs","zone",{"Roches":Qt.white,"Naturaliste":Qt.darkGreen,"Viticulteur":Qt.magenta,"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
 Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,6], "out": [Qt.black,1]})
 VillageNord.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageSud.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})

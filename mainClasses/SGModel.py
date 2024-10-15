@@ -394,7 +394,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=""):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",aBackGroundImage=None):
         """
         Create a grid that contains cells
 
@@ -412,7 +412,7 @@ class SGModel(QMainWindow):
             aCellDef: the cellDef that defines the cells that have been placed on a grid
         """
         # Create a grid
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,aBackGroundImage)
 
         # Create a CellDef populate the grid with it
         aCellDef = self.newCellsFromGrid(aGrid)
