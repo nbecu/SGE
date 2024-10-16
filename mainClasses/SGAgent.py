@@ -6,7 +6,7 @@ from mainClasses.SGEntity import SGEntity
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef):
+    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,backGroundImage):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
@@ -17,13 +17,17 @@ class SGAgent(SGEntity):
         self.getPositionInEntity()
         self.last_selected_option=None
         self.initMenu()
+        self.backGroundImage=backGroundImage
         
 
 
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
-        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        if self.backGroundImage != None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, self.backGroundImage)
+        else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
@@ -273,8 +277,20 @@ class SGAgent(SGEntity):
             drag.setHotSpot(e.pos() - self.rect().topLeft())
             drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
+    def dragEnterEvent(self,e):
+        e.accept()
+
+
     def dropEvent(self, e):
         e.accept()
+        theDroppedAgent=e.source()
+        aActiveLegend = self.cell.model.getSelectedLegend() 
+        aLegendItem = self.cell.model.getSelectedLegendItem()
+        if aActiveLegend.isAdminLegend(): 
+            theDroppedAgent.moveTo(self.cell)
+        elif aLegendItem is None : None #Exit the method
+        else :
+            aLegendItem.gameAction.perform_with(theDroppedAgent,self.cell)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
     
                         
@@ -309,7 +325,7 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.backGroundImage)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history

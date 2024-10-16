@@ -521,7 +521,7 @@ class SGModel(QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random"):
+    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",backGroundImage=None):
         """
         Create a new specie of Agents.
 
@@ -531,12 +531,13 @@ class SGModel(QMainWindow):
             dictAttributes (dict) : all the species attributs with all the values
             defaultSize (int) : the species shape size (Default=10)
             locationInEntity (str, optionnal) : topRight, topLeft, center, bottomRight, bottomLeft, random 
+            backGroundImage (str, optionnal) : link to image
         Return:
             a nested dict for the species
             a species
 
         """
-        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity)
+        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,backGroundImage)
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 
@@ -608,7 +609,7 @@ class SGModel(QMainWindow):
         Do not use.
         """
         locationCell = aGrid.getCell_withCoords(int(ValueX), int(ValueY))
-        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef)
+        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef,aAgtDef.backGroundImage)
         aAgent.isDisplay = True
         aAgent.id = anAgentID
         aAgtDef.entities.append(aAgent)

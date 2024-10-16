@@ -92,7 +92,7 @@ def constructPlateau():
     return Plateau
 
 def constructVillageNord():
-    VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=10,name="VillageNord",color=QColor.fromRgb(135,206,235))
+    VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=2,name="VillageNord",color=QColor.fromRgb(135,206,235))
     VillageNord.deleteEntity(VillageNord.getEntity(1,1))
     VillageNord.deleteEntity(VillageNord.getEntity(2,1))
     VillageNord.deleteEntity(VillageNord.getEntity(4,2))
@@ -108,7 +108,7 @@ def constructVillageNord():
     return VillageNord
     
 def constructVillageSud():
-    VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=10,name="VillageSud",color=QColor.fromRgb(176,224,230))
+    VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=2,name="VillageSud",color=QColor.fromRgb(176,224,230))
     VillageSud.deleteEntity(VillageSud.getEntity(1,1))
     VillageSud.deleteEntity(VillageSud.getEntity(3,1))
     VillageSud.deleteEntity(VillageSud.getEntity(4,1))
@@ -132,7 +132,7 @@ def constructVillageSud():
     return VillageSud  
     
 def constructVillageEst():
-    VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=10,name="VillageEst",color=QColor.fromRgb(0,191,255))
+    VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=2,name="VillageEst",color=QColor.fromRgb(0,191,255))
     VillageEst.deleteEntity(VillageEst.getEntity(1,1))
     VillageEst.deleteEntity(VillageEst.getEntity(2,1))
     VillageEst.deleteEntity(VillageEst.getEntity(3,1))
@@ -174,8 +174,11 @@ Legend=myModel.newLegend()
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=20,defaultColor=Qt.yellow)
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",defaultSize=80,locationInEntity="center")
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",defaultSize=70,locationInEntity="center",backGroundImage=QPixmap("./icon/test_solutre.jpg"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
 Hexagones_test.newAgentAtCoords(pioche,1,1)
 
