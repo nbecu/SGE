@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid")
 
 def constructPlateau():
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=10,name="Plateau",aBackGroundImage=QPixmap("./icon/fond.png"))
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",aBackGroundImage=QPixmap("./icon/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))
@@ -175,7 +175,7 @@ Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=20,default
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","squareAgent",defaultSize=80,locationInEntity="center")
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",defaultSize=80,locationInEntity="center")
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
 Hexagones_test.newAgentAtCoords(pioche,1,1)
 

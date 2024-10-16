@@ -80,6 +80,19 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
+            elif agentShape == "hexagonAgent":  # Ajout de l'hexagone
+                self.setGeometry(x, y, self.size+1, self.size+1)
+                side = self.size / 2
+                height = round(side * (3 ** 0.5))+10  # Hauteur de l'hexagone équilatéral
+                points = QPolygon([
+                    QPoint(round(self.size/2), 0),                # Sommet supérieur
+                    QPoint(self.size, round(height/4)),           # Coin supérieur droit
+                    QPoint(self.size, round(3*height/4)),         # Coin inférieur droit
+                    QPoint(round(self.size/2), height),           # Sommet inférieur
+                    QPoint(0, round(3*height/4)),                 # Coin inférieur gauche
+                    QPoint(0, round(height/4))                    # Coin supérieur gauche
+                ])
+                painter.drawPolygon(points)
             self.show()
             painter.end()
 
