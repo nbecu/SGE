@@ -172,15 +172,34 @@ VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRg
 Legend=myModel.newLegend()
 
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=20,defaultColor=Qt.yellow)
+Bouteille=myModel.newAgentSpecies("Touriste","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",defaultSize=70,locationInEntity="center",backGroundImage=QPixmap("./icon/test_solutre.jpg"))
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",backGroundImage=QPixmap("./icon/test_solutre.jpg"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
 Hexagones_test.newAgentAtCoords(pioche,1,1)
+
+def conditionPlacement(aDestinationCell,aHexagone,aPlayer):
+    if aPlayer.value("nbCubes") >= aHexagone.value("coûtCubes"):
+        if aDestinationCell.value("couleur") == aHexagone.value("couleur"):
+            return True
+        else : return False
+    else : return False
+
+def immediatFeedback(aHexagone):
+    return 
+
+def conditionsOfImmediatFeedBack(eHexagone):
+    return
+
+
+Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
+Move1=myModel.newMoveAction(Hexagones_test, 'infinite')
+Move1.addCondition()
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
