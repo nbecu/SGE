@@ -6,7 +6,7 @@ from mainClasses.SGEntity import SGEntity
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,backGroundImage):
+    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
@@ -17,16 +17,18 @@ class SGAgent(SGEntity):
         self.getPositionInEntity()
         self.last_selected_option=None
         self.initMenu()
-        self.backGroundImage=backGroundImage
+        self.defaultImage=defaultImage
         
 
 
     def paintEvent(self,event):
         painter = QPainter() 
         painter.begin(self)
-        if self.backGroundImage != None:
+        region = self.getRegion()
+        if self.defaultImage != None:
             rect = QRect(0, 0, self.width(), self.height())
-            painter.drawPixmap(rect, self.backGroundImage)
+            painter.setClipRegion(region)
+            painter.drawPixmap(rect, self.defaultImage)
         else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         agentShape = self.classDef.shape
         x = self.xPos
@@ -84,7 +86,7 @@ class SGAgent(SGEntity):
                 QPoint(round(self.size/2),self.size)
                 ])
                 painter.drawPolygon(points)
-            elif agentShape == "hexagonAgent":  # Ajout de l'hexagone
+            elif agentShape == "hexagonAgent":
                 self.setGeometry(x, y, self.size+1, self.size+1)
                 side = self.size / 2
                 height = round(side * (3 ** 0.5))+10  # Hauteur de l'hexagone équilatéral
@@ -99,6 +101,66 @@ class SGAgent(SGEntity):
                 painter.drawPolygon(points)
             self.show()
             painter.end()
+    
+    def getRegion(self):
+        agentShape=self.classDef.shape
+        if(agentShape=="circleAgent"):
+            region = QRegion(0, 0, self.size, self.size, QRegion.Ellipse)
+        elif agentShape=="squareAgent":
+            region = QRegion(0, 0, self.size+1, self.size+1)
+        elif agentShape=="ellipseAgent1": 
+            region = QRegion(0,0,self.size*2,self.size)
+        elif agentShape=="ellipseAgent2": 
+            region = QRegion(0,0,self.size,self.size*2)
+        elif agentShape=="rectAgent1": 
+            region = QRegion(0,0,self.size*2,self.size)
+        elif agentShape=="rectAgent2": 
+            region = QRegion(0,0,self.size,self.size*2)
+        elif agentShape=="triangleAgent1": 
+            points = QPolygon([
+            QPoint(round(self.size/2),0),
+            QPoint(0,self.size),
+            QPoint(self.size,  self.size)
+            ])
+            region = QRegion(points)
+        elif agentShape=="triangleAgent2": 
+            points = QPolygon([
+            QPoint(0,0),
+            QPoint(self.size,0),
+            QPoint(round(self.size/2),self.size)
+            ])
+            region = QRegion(points)
+        elif agentShape=="arrowAgent1": 
+            points = QPolygon([
+            QPoint(round(self.size/2),0),
+            QPoint(0,self.size),
+            QPoint(round(self.size/2),round(self.size/3)*2),
+            QPoint(self.size,  self.size)
+            ])
+            region = QRegion(points)
+        elif agentShape=="arrowAgent2": 
+            points = QPolygon([
+            QPoint(0,0),
+            QPoint(round(self.size/2),round(self.size/3)),
+            QPoint(self.size,0),
+            QPoint(round(self.size/2),self.size)
+            ])
+            region = QRegion(points)
+        elif agentShape == "hexagonAgent":  
+            side = self.size / 2
+            height = round(side * (3 ** 0.5))+10  
+            points = QPolygon([
+                QPoint(round(self.size/2), 0),        
+                QPoint(self.size, round(height/4)),           
+                QPoint(self.size, round(3*height/4)),    
+                QPoint(round(self.size/2), height),        
+                QPoint(0, round(3*height/4)),              
+                QPoint(0, round(height/4))                   
+            ])
+            region = QRegion(points)
+        return region
+
+
 
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
@@ -325,7 +387,7 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.backGroundImage)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history

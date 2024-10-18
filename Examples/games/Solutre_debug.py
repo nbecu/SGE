@@ -8,7 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid")
 
 def constructPlateau():
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",aBackGroundImage=QPixmap("./icon/fond_solutre.jpg"))
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))
@@ -179,27 +179,13 @@ Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",backGroundImage=QPixmap("./icon/test_solutre.jpg"))
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/test_solutre.jpg"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
 Hexagones_test.newAgentAtCoords(pioche,1,1)
-
-def conditionPlacement(aDestinationCell,aHexagone,aPlayer):
-    if aPlayer.value("nbCubes") >= aHexagone.value("coûtCubes"):
-        if aDestinationCell.value("couleur") == aHexagone.value("couleur"):
-            return True
-        else : return False
-    else : return False
-
-def immediatFeedback(aHexagone):
-    return 
-
-def conditionsOfImmediatFeedBack(eHexagone):
-    return
 
 
 Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
 Move1=myModel.newMoveAction(Hexagones_test, 'infinite')
-Move1.addCondition()
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")

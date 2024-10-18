@@ -5,7 +5,7 @@ from mainClasses.SGModel import *
 
 # Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, aBackGroundImage=None):
+    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None):
         super().__init__(parent, 0, 60, 0, 0)
         # Basic initialize
         self.zoom = 1
@@ -31,7 +31,7 @@ class SGGrid(SGGameSpace):
 
         if aColor != "None":
             self.setColor(aColor)
-        self.backgroundImage=aBackGroundImage
+        self.backgroundImage=backGroundImage
     
     # Drawing the game board with the cell
     def paintEvent(self, event): 

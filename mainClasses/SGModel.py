@@ -394,7 +394,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",aBackGroundImage=None):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None):
         """
         Create a grid that contains cells
 
@@ -412,7 +412,7 @@ class SGModel(QMainWindow):
             aCellDef: the cellDef that defines the cells that have been placed on a grid
         """
         # Create a grid
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,aBackGroundImage)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
 
         # Create a CellDef populate the grid with it
         aCellDef = self.newCellsFromGrid(aGrid)
@@ -521,7 +521,7 @@ class SGModel(QMainWindow):
             print('You need to add players to the game')
 
     # To create a New kind of agents
-    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",backGroundImage=None):
+    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",defaultImage=None):
         """
         Create a new specie of Agents.
 
@@ -531,13 +531,13 @@ class SGModel(QMainWindow):
             dictAttributes (dict) : all the species attributs with all the values
             defaultSize (int) : the species shape size (Default=10)
             locationInEntity (str, optionnal) : topRight, topLeft, center, bottomRight, bottomLeft, random 
-            backGroundImage (str, optionnal) : link to image
+            defaultImage (str, optionnal) : link to image
         Return:
             a nested dict for the species
             a species
 
         """
-        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,backGroundImage)
+        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
 
@@ -609,7 +609,7 @@ class SGModel(QMainWindow):
         Do not use.
         """
         locationCell = aGrid.getCell_withCoords(int(ValueX), int(ValueY))
-        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef,aAgtDef.backGroundImage)
+        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef,aAgtDef.defaultImage)
         aAgent.isDisplay = True
         aAgent.id = anAgentID
         aAgtDef.entities.append(aAgent)

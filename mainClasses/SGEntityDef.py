@@ -467,10 +467,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",backGroundImage=None):
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",defaultImage=None):
         super().__init__(sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
         self.locationInEntity=locationInEntity
-        self.backGroundImage=backGroundImage
+        self.defaultImage=defaultImage
 
 #Shape of agent availableble : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
 
@@ -483,7 +483,7 @@ class SGAgentDef(SGEntityDef):
         Return:
             a agent
         """
-        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self,backGroundImage=self.backGroundImage)
+        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self,defaultImage=self.defaultImage)
         self.entities.append(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
