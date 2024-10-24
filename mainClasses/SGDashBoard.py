@@ -307,8 +307,8 @@ class SGDashBoard(SGGameSpace):
         return 70+len(self.getLongest())*5
 
     def getSizeYGlobal(self):
-        somme = 150
-        return somme+len(self.indicatorNames)*5
+        somme = 100
+        return somme+len(self.indicatorNames)*20
 
     def getLongest(self):
         longestWord = ""

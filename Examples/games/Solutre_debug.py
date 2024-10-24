@@ -5,10 +5,10 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid")
+myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
 
 def constructPlateau():
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/fond_solutre.jpg"))
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))
@@ -172,7 +172,7 @@ VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRg
 Legend=myModel.newLegend()
 
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Touriste","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
+Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
@@ -186,6 +186,38 @@ Hexagones_test.newAgentAtCoords(pioche,1,1)
 
 Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
 Move1=myModel.newMoveAction(Hexagones_test, 'infinite')
+
+DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
+qualiteVie=myModel.newSimVariable("Qualité de vie",0)
+environnement=myModel.newSimVariable("Environnement",0)
+attractivite=myModel.newSimVariable("Attractivité",0)
+indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
+indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
+indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
+
+DashBoard=myModel.newDashBoard("Suivi des services")
+biodiversite=myModel.newSimVariable("Biodiversité",0)
+sante=myModel.newSimVariable("Santé",0)
+culture=myModel.newSimVariable("Espace culturel",0)
+servicePublic=myModel.newSimVariable("Service public",0)
+bar=myModel.newSimVariable("Bar",0)
+restaurant=myModel.newSimVariable("Restaurant",0)
+democratie=myModel.newSimVariable("Espace de démocratie",0)
+loisirs=myModel.newSimVariable("Espace de loisirs",0)
+emploi=myModel.newSimVariable("Emploi",0)
+indSante=DashBoard.addIndicatorOnSimVariable(sante)
+indCulture=DashBoard.addIndicatorOnSimVariable(culture)
+indServicePublic=DashBoard.addIndicatorOnSimVariable(servicePublic)
+indBar=DashBoard.addIndicatorOnSimVariable(bar)
+indRestaurant=DashBoard.addIndicatorOnSimVariable(restaurant)
+indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
+indLoisirs=DashBoard.addIndicatorOnSimVariable(loisirs)
+indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
+
+DashBoardRessources=myModel.newDashBoard("Ressources")
+DashBoardRessources.addIndicator(Touriste,"nb")
+DashBoardRessources.addIndicator(Bouteille,"nb")
+
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
