@@ -171,7 +171,7 @@ VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRg
 # Legend=myModel.newLegend(grid="combined")
 Legend=myModel.newLegend()
 
-Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=20,defaultColor=Qt.yellow)
+Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 Bouteille=myModel.newAgentSpecies("Touriste","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
@@ -179,7 +179,7 @@ Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/test_solutre.jpg"))
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/test_solutre.jpg"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
 Hexagones_test.newAgentAtCoords(pioche,1,1)
 
