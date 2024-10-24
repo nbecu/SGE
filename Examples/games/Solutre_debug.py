@@ -179,7 +179,7 @@ Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/test_solutre.jpg"))
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
 Hexagones_test.newAgentAtCoords(pioche,1,1)
 
