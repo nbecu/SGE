@@ -168,25 +168,7 @@ Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,
 VillageNord.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageSud.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
 VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
-# Legend=myModel.newLegend(grid="combined")
-Legend=myModel.newLegend()
 
-Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
-BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","ellipseAgent",defaultSize=20,defaultColor=Qt.green)
-reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
-pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
-Hexagones_test.newAgentAtCoords(pioche,1,1,popupImagePath="./icon/solutre/V5.png")
-
-
-Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
-Move1=myModel.newMoveAction(Hexagones_test, 'infinite')
 
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
 qualiteVie=myModel.newSimVariable("Qualité de vie",0)
@@ -215,11 +197,49 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 indLoisirs=DashBoard.addIndicatorOnSimVariable(loisirs)
 indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
 
+Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
+Player2 = myModel.newPlayer("PlayerTest2",attributesAndValues={"nbCubes":6})
+
+Touriste=myModel.newAgentSpecies("Touriste","squareAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
+Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
+BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","ellipseAgent",defaultSize=20,defaultColor=Qt.green)
+reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
+Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve)
+
+Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":Player1,"nom":None,"effetInstantane":None},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
+pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
+Hexagones_test.newAgentAtCoords(pioche,1,1)#,popupImagePath="./icon/solutre/V5.png")
+hexVigne=Hexagones_test.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})
+
 DashBoardRessources=myModel.newDashBoard("Ressources")
 DashBoardRessources.addIndicator(Touriste,"nb")
 DashBoardRessources.addIndicator(Bouteille,"nb")
 DashBoardRessources.addIndicator(BouteilleBio,"nb")
 
+MoveHexagone=myModel.newMoveAction(Hexagones_test, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
+Player1.addGameAction(MoveHexagone)
+Player1ControlPanel = Player1.newControlPanel("Actions")
+
+def execEffetInstantane(aHex):
+    for jauge, valeur in aHex.value("effetInstantane").items():
+        jauge.incValue(valeur)
+
+def updateCubes(aHex):
+    player=aHex.value("joueur")
+    print("AVANT"+str(player.value("nbCubes")))
+    player.decValue("nbCubes",aHex.value("coûtCubes"))
+    print("APRES"+str(player.value("nbCubes")))
+
+        
+GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
+
+userSelector=myModel.newUserSelector()
+myModel.setCurrentPlayer("PlayerTest")
+# Legend=myModel.newLegend(grid="combined")
+Legend=myModel.newLegend()
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
