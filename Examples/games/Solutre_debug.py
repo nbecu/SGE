@@ -173,6 +173,7 @@ Legend=myModel.newLegend()
 
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
+BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","ellipseAgent",defaultSize=20,defaultColor=Qt.green)
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
@@ -181,7 +182,7 @@ Touriste.newAgentAtCoords(reserve)
 
 Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"couleur":None,},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
-Hexagones_test.newAgentAtCoords(pioche,1,1)
+Hexagones_test.newAgentAtCoords(pioche,1,1,popupImagePath="./icon/solutre/V5.png")
 
 
 Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
@@ -217,6 +218,7 @@ indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
 DashBoardRessources=myModel.newDashBoard("Ressources")
 DashBoardRessources.addIndicator(Touriste,"nb")
 DashBoardRessources.addIndicator(Bouteille,"nb")
+DashBoardRessources.addIndicator(BouteilleBio,"nb")
 
 
 myModel.launch()

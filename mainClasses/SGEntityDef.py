@@ -467,14 +467,15 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",defaultImage=None):
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",defaultImage=None,popupImagePath=None):
         super().__init__(sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
         self.locationInEntity=locationInEntity
         self.defaultImage=defaultImage
+        self.popupImagePath=popupImagePath
 
 #Shape of agent availableble : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
 
-    def newAgentOnCell(self, aCell, attributesAndValues=None):
+    def newAgentOnCell(self, aCell, attributesAndValues=None,popupImagePath=None):
         """
         Create a new Agent in the associated species.
         Args:
@@ -483,7 +484,7 @@ class SGAgentDef(SGEntityDef):
         Return:
             a agent
         """
-        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self,defaultImage=self.defaultImage)
+        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self,defaultImage=self.defaultImage,popupImagePath=popupImagePath)
         self.entities.append(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
@@ -491,7 +492,7 @@ class SGAgentDef(SGEntityDef):
         return aAgent
 
 
-    def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None):
+    def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None,popupImagePath=None):
         """
         Create a new Agent in the associated species.
 
@@ -507,7 +508,7 @@ class SGAgentDef(SGEntityDef):
         if xCoord == None: xCoord = random.randint(1, aGrid.columns)
         if yCoord == None: yCoord = random.randint(1, aGrid.rows)
         locationCell = aCellDef.getCell(xCoord, yCoord)
-        return self.newAgentOnCell(locationCell, attributesAndValues)
+        return self.newAgentOnCell(locationCell, attributesAndValues,popupImagePath)
 
     def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None,condition=None):
         """

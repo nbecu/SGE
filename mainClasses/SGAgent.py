@@ -1,12 +1,12 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
 import random
 from mainClasses.SGEntity import SGEntity
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage):
+    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImagePath):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
@@ -18,6 +18,7 @@ class SGAgent(SGEntity):
         self.last_selected_option=None
         self.initMenu()
         self.defaultImage=defaultImage
+        self.popupImagePath=popupImagePath
         
 
 
@@ -341,6 +342,7 @@ class SGAgent(SGEntity):
 
     def dragEnterEvent(self,e):
         e.accept()
+        self.setAcceptDrops(True)
 
 
     def dropEvent(self, e):
@@ -355,6 +357,46 @@ class SGAgent(SGEntity):
             aLegendItem.gameAction.perform_with(theDroppedAgent,self.cell)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
     
+
+    def enterEvent(self, event):
+        # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
+        self.popup = self.create_image_popup(self.popupImagePath)
+        if self.popup is not None : self.show_image_popup(self.popup, self)
+
+    def leaveEvent(self, event):
+        # Ferme la fenêtre contextuelle lorsque la souris quitte le widget
+        self.close_image_popup(self.popup)
+        self.popup = None
+
+
+    def create_image_popup(self,imagePath):
+        """Crée et retourne un QDialog configuré pour afficher une image."""
+        if imagePath == None:
+            return None
+        dialog = QDialog()
+        dialog.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
+        dialog.setStyleSheet("background-color: black;")
+        
+        imageLabel = QLabel(dialog)
+        pixmap = QPixmap(imagePath)
+        imageLabel.setPixmap(pixmap)
+        
+        dialog.setFixedSize(pixmap.width() + 50, pixmap.height() + 50)
+
+        layout = QVBoxLayout()
+        layout.addWidget(imageLabel)
+        dialog.setLayout(layout)
+        return dialog
+
+    def show_image_popup(self,popup, widget):
+        """Affiche la fenêtre contextuelle à côté du widget."""
+        popup.move(widget.mapToGlobal(QPoint(widget.width(), 0)))
+        popup.show()
+
+    def close_image_popup(self,popup):
+        """Ferme la fenêtre contextuelle si elle est ouverte."""
+        if popup:
+            popup.close()
                         
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -387,7 +429,7 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImagePath)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history
