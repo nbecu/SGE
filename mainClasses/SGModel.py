@@ -996,7 +996,7 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGCreate(aClassDef,  dictAttributes, aNumber,listOfRestriction, feedback, conditionOfFeedback)
 
-    def newUpdateAction(self, anObjectType, dictAttributes={}, aNumber='infinite',listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
         """
         Add a Update GameAction to the game.
 

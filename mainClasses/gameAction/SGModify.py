@@ -9,7 +9,7 @@ class SGModify(SGAbstractAction):
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
         self.value = self.dictNewValues[self.att]  # Get associate value
         result = self.att + " " + str(self.value)
-        self.name="UpdateAction "+result   
+        self.name="ModifyAction "+result   
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
         self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
    

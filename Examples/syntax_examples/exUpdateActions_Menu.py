@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="UpdateActions Menu")
+myModel=SGModel(860,700, windowTitle="ModifyActions Menu")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
 Cell.setEntities("landUse","grass")
@@ -28,14 +28,14 @@ theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
-UpdateTest=myModel.newUpdateAction(Sheeps,{"health":"good"})
+Player1.addGameAction(myModel.newModifyAction('Cell',{"landUse":"grass"},3))
+UpdateTest=myModel.newModifyAction(Sheeps,{"health":"good"})
 Player1.addGameAction(UpdateTest)
-UpdateTest2=myModel.newUpdateAction(Sheeps,{"health":"bad"})
+UpdateTest2=myModel.newModifyAction(Sheeps,{"health":"bad"})
 Player1.addGameAction(UpdateTest2)
-UpdateTest3=myModel.newUpdateAction(Sheeps,{"hunger":"good"})
+UpdateTest3=myModel.newModifyAction(Sheeps,{"hunger":"good"})
 Player1.addGameAction(UpdateTest3)
-UpdateTest4=myModel.newUpdateAction(Sheeps,{"hunger":"bad"})
+UpdateTest4=myModel.newModifyAction(Sheeps,{"hunger":"bad"})
 Player1.addGameAction(UpdateTest4)
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 

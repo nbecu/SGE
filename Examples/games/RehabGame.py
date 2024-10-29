@@ -54,10 +54,10 @@ Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
 
 Parc = myModel.newPlayer("Parc")
 
-Parc.addGameAction(myModel.newUpdateAction(
+Parc.addGameAction(myModel.newModifyAction(
     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
     ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
-Parc.addGameAction(myModel.newUpdateAction(
+Parc.addGameAction(myModel.newModifyAction(
     "Cell", "infinite", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Parc.newControlPanel()
 

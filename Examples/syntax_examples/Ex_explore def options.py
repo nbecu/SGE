@@ -46,16 +46,16 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 Player1 = myModel.newPlayer("Harvesters")
 Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
 Player1.addGameAction(myModel.newDeleteAction(Workers))
-Player1.addGameAction(myModel.newUpdateAction('Cell', {"Resource": 3}, 3))
+Player1.addGameAction(myModel.newModifyAction('Cell', {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Parc")
 
-Player2.addGameAction(myModel.newUpdateAction(
+Player2.addGameAction(myModel.newModifyAction(
     "Cell", {"ProtectionLevel": "Reserve"}
     ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
-Player2.addGameAction(myModel.newUpdateAction(
+Player2.addGameAction(myModel.newModifyAction(
     "Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel()
 

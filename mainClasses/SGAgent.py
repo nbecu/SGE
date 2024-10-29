@@ -246,7 +246,7 @@ class SGAgent(SGEntity):
             self.last_selected_option = action
             self.showPopup(action)
             # now execute Actions
-            actionName="UpdateAction "+att+" "+action
+            actionName="ModifyAction "+att+" "+action
             for anAction in actions:
                 if anAction.name==actionName:
                     anAction.perform_with(self)

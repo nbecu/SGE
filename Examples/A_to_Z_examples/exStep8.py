@@ -46,7 +46,7 @@ theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1",{"Percentage of grass":0})
-Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
+Player1.addGameAction(myModel.newModifyAction('Cell',{"landUse":"grass"},3))
 Player2=myModel.newPlayer("Player 2",{"Sheeps in good health":0})
 Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
 Player1Legend=Player1.newControlPanel("Actions du Joueur 1")
