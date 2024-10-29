@@ -5,7 +5,7 @@ from mainClasses.SGCell import SGCell
 from collections import defaultdict
 
 from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGUpdate import SGUpdate
+from mainClasses.gameAction.SGModify import SGModify
 from mainClasses.gameAction.SGMove import SGMove
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 from mainClasses.AttributeAndValueFunctionalities import *
@@ -95,7 +95,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         for action in self.gameActions:
             if isinstance(action.anObject, SGAgent) and not isinstance(action, SGMove):
                 attributs.append(action.anObject.name)
-            if (isinstance(action.anObject, SGCell) or action.anObject == SGCell) and isinstance(action, SGUpdate):  # ! cas des cellules
+            if (isinstance(action.anObject, SGCell) or action.anObject == SGCell) and isinstance(action, SGModify):  # ! cas des cellules
                 key = ''.join(list(action.dictNewValues.keys()))
                 attributs.append(key)
         return attributs
@@ -104,7 +104,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         actionsForMenu=[]
         entityDef=anEntityInstance.classDef
         for aGameAction in self.gameActions:
-            if isinstance(aGameAction,SGUpdate) and aGameAction.targetEntDef==entityDef:
+            if isinstance(aGameAction,SGModify) and aGameAction.targetEntDef==entityDef:
                 actionsForMenu.append(aGameAction)
         return actionsForMenu
 # -----------------------------------------------------------------------------------------

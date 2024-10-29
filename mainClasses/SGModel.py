@@ -15,7 +15,7 @@ from mainClasses.layout.SGHorizontalLayout import*
 from mainClasses.layout.SGGridLayout import*
 from mainClasses.gameAction.SGMove import*
 from mainClasses.gameAction.SGDelete import*
-from mainClasses.gameAction.SGUpdate import*
+from mainClasses.gameAction.SGModify import*
 from mainClasses.gameAction.SGCreate import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
@@ -1009,7 +1009,7 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGUpdate(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback)
+        return SGModify(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback)
 
     def newDeleteAction(self, anObjectType, aNumber='infinite', listOfConditions=[], feedback=[], conditionOfFeedback=[]):
         """

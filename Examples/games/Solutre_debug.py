@@ -211,7 +211,7 @@ Touriste.newAgentAtCoords(reserve)
 
 Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":Player1,"nom":None,"effetInstantane":None},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
 pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
-Hexagones_test.newAgentAtCoords(pioche,1,1)#,popupImagePath="./icon/solutre/V5.png")
+Hexagones_test.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
 hexVigne=Hexagones_test.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})
 
 DashBoardRessources=myModel.newDashBoard("Ressources")
@@ -229,9 +229,9 @@ def execEffetInstantane(aHex):
 
 def updateCubes(aHex):
     player=aHex.value("joueur")
-    print("AVANT"+str(player.value("nbCubes")))
+    print("AVANT "+str(player.value("nbCubes")))
     player.decValue("nbCubes",aHex.value("coûtCubes"))
-    print("APRES"+str(player.value("nbCubes")))
+    print("APRES "+str(player.value("nbCubes")))
 
         
 GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])

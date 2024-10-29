@@ -19,6 +19,7 @@ class SGAgent(SGEntity):
         self.initMenu()
         self.defaultImage=defaultImage
         self.popupImagePath=popupImagePath
+        self.dragging = False
         
 
 
@@ -303,6 +304,9 @@ class SGAgent(SGEntity):
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.close_image_popup(self.popup)
+            self.popup = None
             #Something is selected
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
@@ -356,9 +360,13 @@ class SGAgent(SGEntity):
         else :
             aLegendItem.gameAction.perform_with(theDroppedAgent,self.cell)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
+        self.dragging = False
     
 
     def enterEvent(self, event):
+
+        if self.dragging:
+            return  # N'affiche pas la popup si on est en train de faire un drag and drop
         # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
         self.popup = self.create_image_popup(self.popupImagePath)
         if self.popup is not None : self.show_image_popup(self.popup, self)

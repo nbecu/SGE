@@ -2,7 +2,7 @@ from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of Update
-class SGUpdate(SGAbstractAction):
+class SGModify(SGAbstractAction):
     def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[]):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack)
         self.dictNewValues=dictNewValues
