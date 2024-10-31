@@ -7,6 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
 
+data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
 def constructPlateau():
     Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
