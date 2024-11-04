@@ -8,6 +8,7 @@ monApp=QtWidgets.QApplication([])
 myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
 
 data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
+
 def constructPlateau():
     Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
@@ -198,8 +199,7 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 indLoisirs=DashBoard.addIndicatorOnSimVariable(loisirs)
 indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
 
-Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
-Player2 = myModel.newPlayer("PlayerTest2",attributesAndValues={"nbCubes":6})
+Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":6})
 
 Touriste=myModel.newAgentSpecies("Touriste","squareAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
@@ -210,19 +210,43 @@ Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":Player1,"nom":None,"effetInstantane":None},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
-pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
-Hexagones_test.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
-hexVigne=Hexagones_test.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})
+def createHex(nom,data,species,model=myModel):
+    ligneHex = data[data['nom'] == nom]
+    if ligneHex.empty:
+        return f"L'entité '{nom}' n'existe pas dans le fichier Excel."
+    
+    variables=myModel.getSimVars()
+    coutCubes=int(ligneHex['coutCubes'].values[0])
+    colonnesJauges= data.loc[:, 'Qualité de vie':'Santé'].columns
+    effetInstantane = {}
+    for col in colonnesJauges:
+        variable=next((var for var in variables if var.name == col), None)
+        if variable is not None:
+            effetInstantane[variable] = int(ligneHex[col].values[0]) if not math.isnan(ligneHex[col].values[0]) else 0
+    condPlacement=[]#ast.literal_eval(ligneHex['emplacementPose'].values[0])
+    joueur=model.getPlayer(ligneHex["joueur"].values[0])
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantane': effetInstantane, "condPlacement": condPlacement })
+    return entite
+
+hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantane":None,"condPlacement":None},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
+hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.red,10]})
+hexagones.setDefaultValue("Activation",False)
+hexagones.setAttributesConcernedByUpdateMenu("Activation","Activation")
+pioche=myModel.newCellsOnGrid(6,1,"square",size=120,gap=20,name="Pioche")
+# hexagones.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
+hexVigne=hexagones.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Viticulteur,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3},"Activation":True})
+HexBarVin=createHex("Bar à vin",data_inst,hexagones)
 
 DashBoardRessources=myModel.newDashBoard("Ressources")
 DashBoardRessources.addIndicator(Touriste,"nb")
 DashBoardRessources.addIndicator(Bouteille,"nb")
 DashBoardRessources.addIndicator(BouteilleBio,"nb")
 
-MoveHexagone=myModel.newMoveAction(Hexagones_test, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
-Player1.addGameAction(MoveHexagone)
-Player1ControlPanel = Player1.newControlPanel("Actions")
+MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
+Viticulteur.addGameAction(MoveHexagone)
+ActivationHexagone=myModel.newModifyAction(hexagones,{"Activation":True})
+Viticulteur.addGameAction(ActivationHexagone)
+ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 def execEffetInstantane(aHex):
     for jauge, valeur in aHex.value("effetInstantane").items():
@@ -235,10 +259,10 @@ def updateCubes(aHex):
     print("APRES "+str(player.value("nbCubes")))
 
         
-GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
+GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Viticulteur])
 
 userSelector=myModel.newUserSelector()
-myModel.setCurrentPlayer("PlayerTest")
+myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 Legend=myModel.newLegend()
 

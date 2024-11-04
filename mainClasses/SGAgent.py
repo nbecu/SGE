@@ -32,6 +32,8 @@ class SGAgent(SGEntity):
             painter.setClipRegion(region)
             painter.drawPixmap(rect, self.defaultImage)
         else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        penColorAndWidth = self.getBorderColorAndWidth()
+        painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
@@ -197,7 +199,7 @@ class SGAgent(SGEntity):
                 aAtt = anItem['att']
                 aLabel = anItem['label']
                 aValue = self.value(aAtt)
-                text="Value - "+aLabel + ": "+str(aValue)
+                text= aAtt+" " +aLabel+" : "+str(aValue)
                 gearAct = QAction(text, self)
                 gearAct.setCheckable(False)
                 menu.addAction(gearAct)

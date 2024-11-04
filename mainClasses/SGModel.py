@@ -697,7 +697,7 @@ class SGModel(QMainWindow):
             return playerName
         else:
             return self.players[playerName]
-    
+                
     def setCurrentPlayer(self, aUserName):
         """
         Set the Active Player at the initialisation
@@ -831,6 +831,9 @@ class SGModel(QMainWindow):
         aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
+    
+    def getSimVars(self):
+        return self.simulationVariables
 
     # ---------
 # Layout
