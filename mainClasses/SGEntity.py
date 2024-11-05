@@ -25,6 +25,9 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         #Set the attributes
         self.initAttributesAndValuesWith(attributesAndValues)
         self.owner="admin"
+        # define highlighting
+        self.highlightEffect = None
+        self.isHighlighted = False
 
     
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
@@ -76,6 +79,16 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDefaultColor= self.classDef.defaultBorderColor
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
+    
+    def toggleHighlight(self):
+        if self.isHighlighted:
+            self.setGraphicsEffect(None)
+        else:
+            self.highlightEffect = QtWidgets.QGraphicsColorizeEffect()
+            self.highlightEffect.setColor(QColor("yellow"))
+            self.setGraphicsEffect(self.highlightEffect)
+        
+        self.isHighlighted = not self.isHighlighted
 
     def getRandomXY(self):
         x = 0
