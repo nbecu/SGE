@@ -247,9 +247,9 @@ def createHex(nom,data,species,model=myModel):
     return entite
 
 hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantane":None,"condPlacement":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
-hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,10]})
-hexagones.setDefaultValue("Activation",False)
-hexagones.setAttributesConcernedByUpdateMenu("Activation","Activation")
+hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
+# hexagones.setDefaultValue("Activation",False)
+# hexagones.setAttributesConcernedByUpdateMenu("Activation")#,"Activation")
 pioche=myModel.newCellsOnGrid(6,1,"square",size=120,gap=20,name="Pioche")
 # hexagones.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
 hexVigne=hexagones.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Viticulteur,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})#,"Activation":True})
@@ -275,7 +275,7 @@ ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 def execEffetInstantane(aHex):
     for jauge, valeur in aHex.value("effetInstantane").items():
         jauge.incValue(valeur)
-    aHex.toggleHighlight
+    # aHex.toggleHighlight
 
 def updateCubes(aHex):
     player=aHex.value("joueur")

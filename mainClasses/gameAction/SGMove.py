@@ -3,8 +3,8 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
-    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[]):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack)
+    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],setControllerContextualMenu=False):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
         self.name="Move "+str(self.targetEntDef.entityName)
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent
@@ -34,9 +34,10 @@ class SGMove(SGAbstractAction):
         return newCopyOfAgent
 
     def generateLegendItems(self,aControlPanel):
-        aColor = self.targetEntDef.defaultShapeColor
-        return [SGLegendItem(aControlPanel,'symbol','move',self.targetEntDef,aColor,gameAction=self)]
-    
+        if self.setControllerContextualMenu == False:
+            aColor = self.targetEntDef.defaultShapeColor
+            return [SGLegendItem(aControlPanel,'symbol','move',self.targetEntDef,aColor,gameAction=self)]
+        
     def chooseFeedbackTargetAmong(self,aListOfChoices):
         # aListOfChoices -> [aMovingEntity,aDestinationEntity,aOriginEntity,aParameterHolder,resAction]
         return aListOfChoices[0]

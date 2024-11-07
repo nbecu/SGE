@@ -5,8 +5,8 @@ import copy
 
 #Class who manage the game mechanics of delete
 class SGDelete(SGAbstractAction):
-    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[]):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack)
+    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
         self.name="Delete "+self.targetEntDef.entityName
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef and not aTargetEntity.isDeleted())
 
@@ -14,5 +14,6 @@ class SGDelete(SGAbstractAction):
         self.targetEntDef.deleteEntity(aTargetEntity)
 
     def generateLegendItems(self,aControlPanel):
-        aColor = self.targetEntDef.defaultShapeColor
-        return [SGLegendItem(aControlPanel,'symbol','delete',self.targetEntDef,aColor,gameAction=self)]
+        if self.setControllerContextualMenu == False:
+            aColor = self.targetEntDef.defaultShapeColor
+            return [SGLegendItem(aControlPanel,'symbol','delete',self.targetEntDef,aColor,gameAction=self)]

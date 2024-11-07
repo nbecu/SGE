@@ -28,6 +28,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         # define highlighting
         self.highlightEffect = None
         self.isHighlighted = False
+        # set the contextual and gameAction controller
+        self.initMenu()
 
     
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
@@ -80,16 +82,100 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
     
-    def toggleHighlight(self):
-        if self.isHighlighted:
-            self.setGraphicsEffect(None)
-        else:
-            self.highlightEffect = QtWidgets.QGraphicsColorizeEffect()
-            self.highlightEffect.setColor(QColor("yellow"))
-            self.setGraphicsEffect(self.highlightEffect)
+    # def toggleHighlight(self):
+    #     if self.isHighlighted:
+    #         self.setGraphicsEffect(None)
+    #     else:
+    #         self.highlightEffect = QtWidgets.QGraphicsColorizeEffect()
+    #         self.highlightEffect.setColor(QColor("yellow"))
+    #         self.setGraphicsEffect(self.highlightEffect)
         
-        self.isHighlighted = not self.isHighlighted
+    #     self.isHighlighted = not self.isHighlighted
 
+    # Handle the contextual menu and GameAction controller
+    def initMenu(self):
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_menu)
+    
+    def show_menu(self, point):
+        menu = QMenu(self)
+        options=[]
+
+        player=self.model.getPlayer(self.model.currentPlayer)
+        if player == "Admin":
+            return
+        actions = player.getGameActionsOn(self)
+        for aAction in actions:
+            if aAction.setControllerContextualMenu:
+                gear=QAction(aAction.name,self)
+                gear.setCheckable(False)
+                menu.addAction(gear)
+                options.append(gear)
+
+        for anItem in self.classDef.attributesToDisplayInContextualMenu:
+            aAtt = anItem['att']
+            aLabel = anItem['label']
+            aValue = self.value(aAtt)
+            text = aLabel  + ": "+str(aValue)
+            option = QAction(text, self)
+            menu.addAction(option)
+
+        if self.rect().contains(point):
+            action=menu.exec_(self.mapToGlobal(point))
+            if action in options:
+                self.showGearMenu(action.text()) 
+
+    def showGearMenu(self,aText):
+        # Get the actions from the player
+        player=self.model.getPlayer(self.model.currentPlayer)
+        if player == "Admin":
+            return
+        actions = player.getGameActionsOn(self)
+
+        wordsInText=aText.split()
+        if wordsInText[0]=="ModifyAction":
+            #* Case of a ModifyAction:
+            # Filter the actions by the concerned attribute
+            displayedNames=[]
+            att=wordsInText[1]
+            for aAction in actions:
+                wordsInName=aAction.name.split()
+                if att in wordsInName:
+                    displayedNames.append(aAction.name)
+            # The first value is the current value
+            current_value = self.value(att)
+            displayedValues=[aAction.name.split()[-1] for aAction.name in displayedNames]
+            default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
+            # Dialog box
+            action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues, default_index, False)
+
+            if ok and action:
+                self.last_selected_option = action
+                self.showPopup(action)
+                # ModifyAction excecution:
+                actionName="ModifyAction "+att+" "+action
+                for anAction in actions:
+                    if anAction.name==actionName:
+                        anAction.perform_with(self)
+        
+        elif wordsInText[0]=="ActivateAction":
+            #* Case of a ActivateAction:
+            reply=self.confirmAction()
+            if reply==QMessage.Yes:
+                for anAction in actions:
+                    if aText==anAction.name:
+                        anAction.perform_with(self)
+
+    def confirmAction(self):
+        # confirmation popup
+        reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the activation?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        return reply
+
+    
+    def showPopup(self, selected_option):
+        QMessageBox.information(self, 'Option selected', f'You chose : {selected_option}', QMessageBox.Ok)
+    
+    
     def getRandomXY(self):
         x = 0
         maxSize=self.cell.size

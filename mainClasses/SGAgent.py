@@ -16,7 +16,7 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
         self.last_selected_option=None
-        self.initMenu()
+        # self.initMenu()
         self.defaultImage=defaultImage
         self.popupImagePath=popupImagePath
         self.dragging = False
@@ -176,11 +176,10 @@ class SGAgent(SGEntity):
         self.size=round(self.size-(zoomFactor*10))
         self.update()
             
-    def initMenu(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_menu)
+    # def initMenu(self):
+    #     self.setContextMenuPolicy(Qt.CustomContextMenu)
+    #     self.customContextMenuRequested.connect(self.show_menu)
 
-    # To show a menu
     def show_menu(self, point):
         menu = QMenu(self)
         options=[]
