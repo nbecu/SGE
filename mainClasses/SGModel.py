@@ -17,6 +17,7 @@ from mainClasses.gameAction.SGMove import*
 from mainClasses.gameAction.SGDelete import*
 from mainClasses.gameAction.SGModify import*
 from mainClasses.gameAction.SGCreate import*
+from mainClasses.gameAction.SGActivate import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
 from mainClasses.SGControlPanel import*
@@ -999,9 +1000,9 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGCreate(aClassDef,  dictAttributes, aNumber,listOfRestriction, feedback, conditionOfFeedback)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',listOfRestriction=[], feedback=[], conditionOfFeedback=[]):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',listOfRestriction=[], feedback=[], conditionOfFeedback=[],setControllerContextualMenu=False):
         """
-        Add a Update GameAction to the game.
+        Add a Modify GameAction to the game.
 
         Args:
         - anObjectType : a AgentSpecies or the keyword "Cell"
@@ -1012,7 +1013,7 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGModify(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback)
+        return SGModify(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback,setControllerContextualMenu)
 
     def newDeleteAction(self, anObjectType, aNumber='infinite', listOfConditions=[], feedback=[], conditionOfFeedback=[]):
         """
@@ -1043,6 +1044,17 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGMove(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback, feedbackAgent, conditionOfFeedBackAgent)
 
+    def newActivateAction(self,anObjectType,aNumber='infinite',listOfConditions=[],feedback=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
+        """Add a ActivateAction to the game
+        
+        Args:
+        - an ObjectType : a Entity
+        - """
+
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aNumber == "infinite": aNumber = 9999999
+        return SGActivate(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback,setControllerContextualMenu)
     # -----------------------------------------------------------
     # Getter
 
