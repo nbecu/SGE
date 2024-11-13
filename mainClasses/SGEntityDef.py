@@ -33,8 +33,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.initAttributes(entDefAttributesAndValues)
         self.listOfStepStats=[]
         self.attributesToDisplayInContextualMenu=[]
-        # self.updateMenu=False
-        # self.attributesToDisplayInUpdateMenu=[]
+        self.updateMenu=False
+        self.attributesToDisplayInUpdateMenu=[]
 
     def nextId(self):
         self.IDincr +=1

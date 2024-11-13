@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from collections import defaultdict
 import random
 from mainClasses.AttributeAndValueFunctionalities import *
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
 
 # Class who is in charged of entities : cells and agents
 class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
@@ -142,29 +143,35 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                 wordsInName=aAction.name.split()
                 if att in wordsInName:
                     displayedNames.append(aAction.name)
-            # The first value is the current value
+            # # The first value is the current value
             current_value = self.value(att)
-            displayedValues=[aAction.name.split()[-1] for aAction.name in displayedNames]
+            displayedValues=[]
+            for aActionName in displayedNames :
+                if "ModifyAction" in aActionName:
+                    displayedValues.append(aActionName.split()[-1])
             default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
             # Dialog box
-            action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues, default_index, False)
+            action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
 
             if ok and action:
                 self.last_selected_option = action
                 self.showPopup(action)
                 # ModifyAction excecution:
-                actionName="ModifyAction "+att+" "+action
+                name="ModifyAction "+att+" "+action
                 for anAction in actions:
-                    if anAction.name==actionName:
+                    if anAction.name==name:
                         anAction.perform_with(self)
+                        return
         
         elif wordsInText[0]=="ActivateAction":
             #* Case of a ActivateAction:
+            name=None
             reply=self.confirmAction()
-            if reply==QMessage.Yes:
+            if reply==QMessageBox.Yes:
                 for anAction in actions:
                     if aText==anAction.name:
                         anAction.perform_with(self)
+                        return
 
     def confirmAction(self):
         # confirmation popup

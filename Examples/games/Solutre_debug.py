@@ -10,6 +10,7 @@ myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
 #* Lecture des data
 #* --------------------------
 data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
+data_act=pd.read_excel("./data/solutre_hex_act.xlsx")
 
 #* --------------------------
 #* Construction des plateaux
@@ -228,32 +229,63 @@ Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 Touriste.newAgentAtCoords(reserve)
 
-def createHex(nom,data,species,model=myModel):
-    ligneHex = data[data['nom'] == nom]
-    if ligneHex.empty:
-        return f"L'entité '{nom}' n'existe pas dans le fichier Excel."
-    
+def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     variables=myModel.getSimVars()
-    coutCubes=int(ligneHex['coutCubes'].values[0])
-    colonnesJauges= data.loc[:, 'Qualité de vie':'Santé'].columns
+    
+    # Création des effets instantanés
+    ligneHexInst = dataInst[dataInst['nom'] == nom]
+    if ligneHexInst.empty:
+        return f"L'entité '{nom}' n'existe pas dans le fichier Excel Inst."
+    
+    coutCubes=int(ligneHexInst['coutCubes'].values[0])
+    colonnesJauges= dataInst.loc[:, 'Qualité de vie':'Santé'].columns
     effetInstantane = {}
     for col in colonnesJauges:
         variable=next((var for var in variables if var.name == col), None)
         if variable is not None:
-            effetInstantane[variable] = int(ligneHex[col].values[0]) if not math.isnan(ligneHex[col].values[0]) else 0
-    condPlacement=[]#ast.literal_eval(ligneHex['emplacementPose'].values[0])
-    joueur=model.getPlayer(ligneHex["joueur"].values[0])
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantane': effetInstantane, "condPlacement": condPlacement })
+            effetInstantane[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
+    condPlacement=[]#ast.literal_eval(ligneHexInst['emplacementPose'].values[0])
+    joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
+    
+    # Création des effets activables
+    ligneHexAct = dataAct[dataAct['nom'] == nom]
+    if ligneHexAct.empty:
+        return f"L'entité '{nom}' n'existe pas dans le fichier Excel Act."
+    
+    coutCubesAct=int(ligneHexAct['coutCubesAct'].values[0]) if not math.isnan(ligneHexAct['coutCubesAct'].values[0]) else 0
+    coutVin=int(ligneHexAct['coutVin'].values[0]) if not math.isnan(ligneHexAct['coutVin'].values[0]) else 0
+    coutVinBio=int(ligneHexAct['coutVinBio'].values[0]) if not math.isnan(ligneHexAct['coutVinBio'].values[0]) else 0
+    coutSous=int(ligneHexAct['coutSous'].values[0]) if not math.isnan(ligneHexAct['coutSous'].values[0]) else 0
+
+    vin=int(ligneHexAct['vin'].values[0]) if not math.isnan(ligneHexAct['vin'].values[0]) else 0
+    vinBio=int(ligneHexAct['vinBio'].values[0]) if not math.isnan(ligneHexAct['vinBio'].values[0]) else 0
+    sou=int(ligneHexAct['sou'].values[0]) if not math.isnan(ligneHexAct['sou'].values[0]) else 0
+    touriste=int(ligneHexAct['touriste'].values[0]) if not math.isnan(ligneHexAct['touriste'].values[0]) else 0
+
+    gains=[vin,vinBio,sou,touriste]
+
+    effetActivable={}
+    colonnesJauges= dataAct.loc[:, 'Biodiversité':'Qualité de vie'].columns
+    for col in colonnesJauges:
+        variable=next((var for var in variables if var.name == col), None)
+        if variable is not None:
+            effetActivable[variable] = int(ligneHexAct[col].values[0]) if not math.isnan(ligneHexAct[col].values[0]) else 0
+
+    # Création des effets permanents
+
+    #TODO
+
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantane': effetInstantane, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"gains":gains,"effetActivable":effetActivable})
     return entite
 
-hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantane":None,"condPlacement":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
+hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantane":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"gains":None,"effetActivable":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
-# hexagones.setDefaultValue("Activation",False)
+hexagones.setDefaultValue("Activation",False)
 # hexagones.setAttributesConcernedByUpdateMenu("Activation")#,"Activation")
 pioche=myModel.newCellsOnGrid(6,1,"square",size=120,gap=20,name="Pioche")
 # hexagones.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
-hexVigne=hexagones.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Viticulteur,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})#,"Activation":True})
-HexBarVin=createHex("Bar à vin",data_inst,hexagones)
+# hexVigne=hexagones.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Viticulteur,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})#,"Activation":True})
+HexBarVin=createHex("Bar à vin",hexagones,data_inst,data_act)
 
 #* --------------------------
 #* Dashboard des ressources
@@ -268,8 +300,10 @@ DashBoardRessources.addIndicator(BouteilleBio,"nb")
 #* --------------------------
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
 Viticulteur.addGameAction(MoveHexagone)
-ActivationHexagone=myModel.newModifyAction(hexagones,{"Activation":True})
+ActivationHexagone=myModel.newModifyAction(hexagones,{"Activation":True},setControllerContextualMenu=True)
 Viticulteur.addGameAction(ActivationHexagone)
+ActivateTest=myModel.newActivateAction(hexagones,"execEffetActivable",setControllerContextualMenu=True)
+Viticulteur.addGameAction(ActivateTest)
 ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 def execEffetInstantane(aHex):
@@ -283,6 +317,17 @@ def updateCubes(aHex):
     player.decValue("nbCubes",aHex.value("coûtCubes"))
     print("APRES "+str(player.value("nbCubes")))
 
+def execEffetActivable(aHex):
+    if all(aHex.value(key) == 0 for key in ['coutCubesAct', 'coutVin', 'coutVinBio', 'coutSous']):
+        myModel.newWarningPopUp("Attention!","Cet hexagone n'est pas activable!")
+        return
+    for jauge,valeur in aHex.value("effetActivable").items():
+        jauge.incValue(valeur)
+
+def updatesCubesActivation(aHex):
+    player=aHex.value("joueur")
+    player.decValue("nbCubes",aHex.value("coutCubesAct"))
+
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
@@ -293,6 +338,9 @@ myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 Legend=myModel.newLegend()
 
-myModel.launch()
-# myModel.launch_withMQTT("Instantaneous")
-sys.exit(monApp.exec_())
+print(str(sys.argv[0]))
+
+if __name__ == '__main__':
+    myModel.launch()
+    # myModel.launch_withMQTT("Instantaneous")
+    sys.exit(monApp.exec_())

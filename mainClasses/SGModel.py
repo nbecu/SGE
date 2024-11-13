@@ -836,6 +836,15 @@ class SGModel(QMainWindow):
     def getSimVars(self):
         return self.simulationVariables
 
+    def newWarningPopUp(self,aTitle, aMessage):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(aTitle)
+        msg.setText(aMessage)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+        return
+
     # ---------
 # Layout
 
@@ -1044,7 +1053,7 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGMove(aClassDef, aNumber, listOfConditions, feedback, conditionOfFeedback, feedbackAgent, conditionOfFeedBackAgent)
 
-    def newActivateAction(self,anObjectType,aNumber='infinite',listOfConditions=[],feedback=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',listOfConditions=[],feedback=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
         """Add a ActivateAction to the game
         
         Args:
@@ -1053,8 +1062,9 @@ class SGModel(QMainWindow):
 
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if setControllerContextualMenu: aClassDef.updateMenu=True
         if aNumber == "infinite": aNumber = 9999999
-        return SGActivate(aClassDef,  dictAttributes,aNumber, listOfRestriction, feedback, conditionOfFeedback,setControllerContextualMenu)
+        return SGActivate(aClassDef, aMethod ,aNumber, listOfConditions, feedback, conditionOfFeedBack,setControllerContextualMenu)
     # -----------------------------------------------------------
     # Getter
 
