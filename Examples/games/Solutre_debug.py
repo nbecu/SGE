@@ -308,9 +308,9 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous disponi
 #* GameActions
 #* --------------------------
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedback=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)])
-# MoveHexagone.addCondition(lambda aTargetCell: aTargetCell.value("zone")==aMovingEntity.value("joueur").name)
+MoveHexagone.addCondition(lambda aHex,aTargetCell: aTargetCell.value("zone")==aHex.value("joueur").name)
 MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
-MoveHexagone.addCondition(lambda aTargetCell : aTargetCell.value("zone") not in ["Roches","Village Nord","Village Sud","Village Est"])
+MoveHexagone.addCondition(lambda aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
 Viticulteur.addGameAction(MoveHexagone)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
