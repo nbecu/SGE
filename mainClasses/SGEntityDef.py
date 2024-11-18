@@ -120,6 +120,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     def displayPov(self,nameOfPov):
         self.model.checkSymbologyinMenuBar(self,nameOfPov)
 
+    def displayBorderPov(self,nameOfBorderPov):
+        self.model.checkSymbologyinMenuBar(self,nameOfBorderPov,borderSymbology=True)
+
     def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
         """
         Declare a new Point of View (only for border color).

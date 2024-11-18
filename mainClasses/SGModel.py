@@ -922,13 +922,16 @@ class SGModel(QMainWindow):
         # add actions to the submenu
         self.symbologiesInSubmenus[submenu].append(item)
 
-    def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
+    def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology,borderSymbology=False):
         if self.symbologyMenu is None: return False
-        symbologies = self.getSymbologiesOfSubmenu(aClassDef.entityName)
+        if borderSymbology: entityName = aClassDef.entityName + self.keyword_borderSubmenu
+        else: entityName=aClassDef.entityName
+        symbologies = self.getSymbologiesOfSubmenu(entityName)
         for aSymbology in symbologies:
             if aSymbology.text() == nameOfSymbology:
                 aSymbology.setChecked(True)
-            else: aSymbology.setChecked(False)
+            else: 
+                if border is False: aSymbology.setChecked(False)
 
     def menu_item_triggered(self):
         # get the triggered QAction object
@@ -942,7 +945,7 @@ class SGModel(QMainWindow):
             # aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
 
-    def getSymbologiesOfSubmenu(self, submenuName):
+    def getSymbologiesOfSubmenu(self, submenuName, borderSymbology = False):
         # return the  symbologies of a entity present in the menuBar
         submenu = self.getSubmenuSymbology(submenuName)
         return self.symbologiesInSubmenus.get(submenu) 

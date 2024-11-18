@@ -215,7 +215,7 @@ indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
 #* --------------------------
 #* Déclaration des joueurs
 #* --------------------------
-Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":6})
+Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":6,"Sous":0})
 
 #* --------------------------
 #* Déclaration des agents
@@ -295,15 +295,26 @@ DashBoardRessources.addIndicator(Touriste,"nb")
 DashBoardRessources.addIndicator(Bouteille,"nb")
 DashBoardRessources.addIndicator(BouteilleBio,"nb")
 
+
+#* --------------------------
+#* Dashboard du Viticulteur
+#* --------------------------
+DashBoardViticulteur=myModel.newDashBoard("Viticulteur")
+DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
+DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous disponibles")
+
+
 #* --------------------------
 #* GameActions
 #* --------------------------
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedback=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)])
+# MoveHexagone.addCondition(lambda aTargetCell: aTargetCell.value("zone")==aMovingEntity.value("joueur").name)
+MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
+MoveHexagone.addCondition(lambda aTargetCell : aTargetCell.value("zone") not in ["Roches","Village Nord","Village Sud","Village Est"])
 Viticulteur.addGameAction(MoveHexagone)
-ActivationHexagone=myModel.newModifyAction(hexagones,{"Activation":True},setControllerContextualMenu=True)
-Viticulteur.addGameAction(ActivationHexagone)
-ActivateTest=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
-Viticulteur.addGameAction(ActivateTest)
+ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
+ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+Viticulteur.addGameAction(ActivateHexagone)
 ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 def execeffetInstantaneJauge(aHex):
@@ -323,6 +334,7 @@ def execeffetActivableJauge(aHex):
         return
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
+        updatesCubesActivation(aHex)
 
 def updatesCubesActivation(aHex):
     player=aHex.value("joueur")
@@ -332,6 +344,8 @@ def updatesCubesActivation(aHex):
 #* Paramètres du modèle
 #* --------------------------        
 GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Viticulteur])
+
+Plateau.displayBorderPov("Coeur de site")
 
 userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
