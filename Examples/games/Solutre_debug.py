@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
+myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
 #* --------------------------
 #* Lecture des data
 #* --------------------------
@@ -349,9 +349,24 @@ Plateau.displayBorderPov("Coeur de site")
 userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
-Legend=myModel.newLegend()
+# Legend=myModel.newLegend()
+
+def customLayout():
+    Plateau.grid.moveToCoords(440,130)
+    VillageNord.grid.moveToCoords(30,130)
+    VillageEst.grid.moveToCoords(1180,400)
+    VillageSud.grid.moveToCoords(30,380)
+    pioche.grid.moveToCoords(400,730)
+    reserve.grid.moveToCoords(135,765)
+    DashBoardInd.moveToCoords(1180,130)
+    DashBoard.moveToCoords(1390,130)
+    DashBoardRessources.moveToCoords(1640,130)
+    DashBoardViticulteur.moveToCoords(1500,730)
+    ViticulteurControlPanel.moveToCoords(1330,730)
+
 
 if __name__ == '__main__':
+    customLayout()
     myModel.launch()
     # myModel.launch_withMQTT("Instantaneous")
     sys.exit(monApp.exec_())
