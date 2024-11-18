@@ -281,7 +281,6 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
 hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
 hexagones.setDefaultValue("Activation",False)
-# hexagones.setAttributesConcernedByUpdateMenu("Activation")#,"Activation")
 pioche=myModel.newCellsOnGrid(6,1,"square",size=120,gap=20,name="Pioche")
 # hexagones.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantaneJauge":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
 # hexVigne=hexagones.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Viticulteur,"nom":"Vigne","effetInstantaneJauge":{emploi:-1,bar:3}})#,"Activation":True})
@@ -351,8 +350,6 @@ userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 Legend=myModel.newLegend()
-
-print(str(sys.argv[0]))
 
 if __name__ == '__main__':
     myModel.launch()

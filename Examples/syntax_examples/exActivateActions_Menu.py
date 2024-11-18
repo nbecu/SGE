@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="ModifyActions Menu")
+myModel=SGModel(860,700, windowTitle="ActivateActions Menu")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
 Cell.setEntities("landUse","grass")
@@ -26,7 +26,7 @@ theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1")
-# For SGModifyAction it is possible to specify setControllerContextualMenu=True to set the controller on the entity on right clic
+# For SGActivateAction it is possible to specify setControllerContextualMenu=True to set the controller on the entity on right clic
 Player1.addGameAction(myModel.newModifyAction('Cell',{"landUse":"grass"},3))
 UpdateTest=myModel.newModifyAction(Sheeps,{"health":"good"},setControllerContextualMenu=True)
 Player1.addGameAction(UpdateTest)
