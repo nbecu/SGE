@@ -163,6 +163,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                 for anAction in actions:
                     if anAction.name==name:
                         anAction.perform_with(self)
+                        self.contextMenu=False
                         return
         
         elif wordsInText[0]=="ActivateAction":
@@ -173,6 +174,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                 for anAction in actions:
                     if aText==anAction.name:
                         anAction.perform_with(self)
+                        self.contextMenu=False
                         return
 
     def confirmAction(self):
