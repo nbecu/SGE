@@ -931,7 +931,7 @@ class SGModel(QMainWindow):
             if aSymbology.text() == nameOfSymbology:
                 aSymbology.setChecked(True)
             else: 
-                if border is False: aSymbology.setChecked(False)
+                if borderSymbology is False: aSymbology.setChecked(False)
 
     def menu_item_triggered(self):
         # get the triggered QAction object
