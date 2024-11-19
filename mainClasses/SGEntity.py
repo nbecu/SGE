@@ -31,6 +31,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.isHighlighted = False
         # set the contextual and gameAction controller
         self.initMenu()
+        self.contextMenu=False
 
     
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
@@ -99,6 +100,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.customContextMenuRequested.connect(self.show_menu)
     
     def show_menu(self, point):
+        self.contextMenu=True
         menu = QMenu(self)
         options=[]
 
