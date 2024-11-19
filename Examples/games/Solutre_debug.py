@@ -248,6 +248,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
             effetInstantaneJauge[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
     condPlacement=[]#ast.literal_eval(ligneHexInst['emplacementPose'].values[0])
     joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
+    image=ligneHexInst["image"].values[0] if isinstance(ligneHexInst["image"].values[0], str) else None
     
     # Création des effets activables
     ligneHexAct = dataAct[dataAct['nom'] == nom]
@@ -272,13 +273,15 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         variable=next((var for var in variables if var.name == col), None)
         if variable is not None:
             effetActivableJauge[variable] = int(ligneHexAct[col].values[0]) if not math.isnan(ligneHexAct[col].values[0]) else 0
+    
+    image_ACT=ligneHexAct["image"].values[0] if isinstance(ligneHexAct["image"].values[0], str) else None
 
     # Création des effets permanents
 
     #TODO
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge})
-    return entite
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image),popupImagePath=image_ACT)
+    return #entite
 
 hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
@@ -286,9 +289,17 @@ hexagones.setDefaultValue("Activation",False)
 pioche=myModel.newCellsOnGrid(6,1,"square",size=120,gap=20,name="Pioche")
 pioche.getEntity(6,1).setValue("zone",True)
 pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
-# hexagones.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantaneJauge":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
-# hexVigne=hexagones.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Viticulteur,"nom":"Vigne","effetInstantaneJauge":{emploi:-1,bar:3}})#,"Activation":True})
-HexBarVin=createHex("Bar à vin",hexagones,data_inst,data_act)
+
+# Création des hexagones
+
+createHex("Bar à vin",hexagones,data_inst,data_act)
+createHex("Vigne",hexagones,data_inst,data_act)
+createHex("Dégustation au caveau",hexagones,data_inst,data_act)
+createHex("Vigne Bio",hexagones,data_inst,data_act)
+createHex("Export vin BIO",hexagones,data_inst,data_act)
+createHex("Parcours gastronomique",hexagones,data_inst,data_act)
+createHex("Bar",hexagones,data_inst,data_act)
+createHex("Labellisation bio",hexagones,data_inst,data_act)
 
 #* --------------------------
 #* Dashboard des ressources
