@@ -101,13 +101,19 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 attributs.append(key)
         return attributs
     
-    def getGameActionsOn(self, anEntityInstance):
+    def getAllGameActionsOn(self, anEntityInstance):
         actionsForMenu=[]
         entityDef=anEntityInstance.classDef
         for aGameAction in self.gameActions:
             if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) and aGameAction.targetEntDef==entityDef:
                 actionsForMenu.append(aGameAction)
         return actionsForMenu
+    
+    def getAuthorizedGameActionsOn(self, anEntityInstance):
+        actions = self.getAllGameActionsOn(anEntityInstance)
+        for aAction in actions:
+            if isinstance(aAction,SGActivate):
+                return
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 

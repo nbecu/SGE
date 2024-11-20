@@ -107,7 +107,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         player=self.model.getPlayer(self.model.currentPlayer)
         if player == "Admin":
             return
-        actions = player.getGameActionsOn(self)
+        actions = player.getAllGameActionsOn(self)
         for aAction in actions:
             if aAction.setControllerContextualMenu:
                 gear=QAction(aAction.name,self)
@@ -133,7 +133,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         player=self.model.getPlayer(self.model.currentPlayer)
         if player == "Admin":
             return
-        actions = player.getGameActionsOn(self)
+        actions = player.getAllGameActionsOn(self)
 
         wordsInText=aText.split()
         if wordsInText[0]=="ModifyAction":

@@ -365,6 +365,9 @@ userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 # Legend=myModel.newLegend()
+titre=myModel.newTextBox("SOLUTRÉ","Bienvenue dans")
+titre.setTextFormat("Verdana",12)
+
 
 def customLayout():
     Plateau.grid.moveToCoords(440,130)
@@ -378,7 +381,7 @@ def customLayout():
     DashBoardRessources.moveToCoords(1640,130)
     DashBoardViticulteur.moveToCoords(1500,730)
     ViticulteurControlPanel.moveToCoords(1330,730)
-
+    titre.moveToCoords(30,30)
 
 if __name__ == '__main__':
     customLayout()
