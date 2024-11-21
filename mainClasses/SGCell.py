@@ -137,6 +137,7 @@ class SGCell(SGEntity):
         else :
             aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
+        aAgent.dragging = False
                             
     # To handle the drag of the grid
     def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell

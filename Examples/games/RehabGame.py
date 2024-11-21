@@ -50,16 +50,16 @@ Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, default
 Clans = myModel.newPlayer("Clan")
 Clans.addGameAction(myModel.newCreateAction(harvesters, 20))
 
-Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
+# Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
 
 Parc = myModel.newPlayer("Parc")
 
-Parc.addGameAction(myModel.newModifyAction(
-    "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-    ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
-Parc.addGameAction(myModel.newModifyAction(
-    "Cell", "infinite", {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Parc.newControlPanel()
+# Parc.addGameAction(myModel.newModifyAction(
+#     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
+#     ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
+# Parc.addGameAction(myModel.newModifyAction(
+#     "Cell", "infinite", {"ProtectionLevel": "Free"}))
+# Player2ControlPanel = Parc.newControlPanel()
 
 
 firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')

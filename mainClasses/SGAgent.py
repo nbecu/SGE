@@ -1,6 +1,8 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
+from PyQt5.QtGui import QCursor
+
 import random
 from mainClasses.SGEntity import SGEntity
    
@@ -275,6 +277,8 @@ class SGAgent(SGEntity):
 
 
     def dropEvent(self, e):
+        raise ValueError("This function shouldn't be used")
+        #TODO If this function is not used, delete it.
         e.accept()
         theDroppedAgent=e.source()
         aActiveLegend = self.cell.model.getSelectedLegend() 
@@ -289,7 +293,6 @@ class SGAgent(SGEntity):
     
 
     def enterEvent(self, event):
-
         if self.dragging:
             return  # N'affiche pas la popup si on est en train de faire un drag and drop
         # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
@@ -299,9 +302,12 @@ class SGAgent(SGEntity):
         if self.popup is not None : self.show_image_popup(self.popup, self)
 
     def leaveEvent(self, event):
-        # Ferme la fenêtre contextuelle lorsque la souris quitte le widget
-        self.close_image_popup(self.popup)
-        self.popup = None
+        if self.popup is not None:
+            cursor_pos = QCursor.pos()
+            if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):
+                return 
+            self.close_image_popup(self.popup)
+            self.popup = None
 
 
     def create_image_popup(self,imagePath):
@@ -325,13 +331,17 @@ class SGAgent(SGEntity):
 
     def show_image_popup(self,popup, widget):
         """Affiche la fenêtre contextuelle à côté du widget."""
-        popup.move(widget.mapToGlobal(QPoint(widget.width(), 0)))
+        offset_x = widget.width() + 10  # Décalage horizontal pour éviter le chevauchement
+        offset_y = 10  # Optionnel : décalage vertical si nécessaire
+        popup.move(widget.mapToGlobal(QPoint(offset_x, offset_y)))
         popup.show()
+
 
     def close_image_popup(self,popup):
         """Ferme la fenêtre contextuelle si elle est ouverte."""
-        if popup:
+        if popup and popup.isVisible():
             popup.close()
+            popup.deleteLater()
                         
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):

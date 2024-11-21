@@ -126,7 +126,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         if self.rect().contains(point):
             action=menu.exec_(self.mapToGlobal(point))
             if action in options:
-                self.showGearMenu(action.text()) 
+                self.showGearMenu(action.text())
+        self.contextMenu=False 
 
     def showGearMenu(self,aText):
         # Get the actions from the player

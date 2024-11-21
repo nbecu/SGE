@@ -187,8 +187,8 @@ qualiteVie=myModel.newSimVariable("Qualité de vie",0)
 environnement=myModel.newSimVariable("Environnement",0)
 attractivite=myModel.newSimVariable("Attractivité",0)
 indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
-indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
+indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 
 #* --------------------------
 #* Dashboard des services
@@ -203,33 +203,35 @@ restaurant=myModel.newSimVariable("Restaurant",0)
 democratie=myModel.newSimVariable("Espace de démocratie",0)
 loisirs=myModel.newSimVariable("Espace de loisirs",0)
 emploi=myModel.newSimVariable("Emploi",0)
+indBiodiv=DashBoard.addIndicatorOnSimVariable(biodiversite)
 indSante=DashBoard.addIndicatorOnSimVariable(sante)
 indCulture=DashBoard.addIndicatorOnSimVariable(culture)
 indServicePublic=DashBoard.addIndicatorOnSimVariable(servicePublic)
 indBar=DashBoard.addIndicatorOnSimVariable(bar)
 indRestaurant=DashBoard.addIndicatorOnSimVariable(restaurant)
-indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 indLoisirs=DashBoard.addIndicatorOnSimVariable(loisirs)
 indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
+indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 
 #* --------------------------
 #* Déclaration des joueurs
 #* --------------------------
-Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":6,"Sous":0})
+Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
 
 #* --------------------------
 #* Déclaration des agents
 #* --------------------------
-Touriste=myModel.newAgentSpecies("Touriste","squareAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
-BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","ellipseAgent",defaultSize=20,defaultColor=Qt.green)
-reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
+Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
+Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vin.png"))
+BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vinBIO.png"))
+reserve=myModel.newCellsOnGrid(2,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
+reserve.getEntity(2,1).setValue("zone",True)
 reserve.newPov("Zones joueurs","zone",{True:Qt.darkGray})
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
+Touriste.newAgentAtCoords(reserve,1,1)
+Touriste.newAgentAtCoords(reserve,1,1)
+Bouteille.newAgentAtCoords(reserve,2,1)
+BouteilleBio.newAgentAtCoords(reserve,2,1)
 
 def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     variables=myModel.getSimVars()
@@ -248,7 +250,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
             effetInstantaneJauge[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
     condPlacement=[]#ast.literal_eval(ligneHexInst['emplacementPose'].values[0])
     joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
-    image=ligneHexInst["image"].values[0] if isinstance(ligneHexInst["image"].values[0], str) else None
+    image=ligneHexInst["image recto"].values[0] if isinstance(ligneHexInst["image recto"].values[0], str) else None
     
     # Création des effets activables
     ligneHexAct = dataAct[dataAct['nom'] == nom]
@@ -265,7 +267,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     sou=int(ligneHexAct['sou'].values[0]) if not math.isnan(ligneHexAct['sou'].values[0]) else 0
     touriste=int(ligneHexAct['touriste'].values[0]) if not math.isnan(ligneHexAct['touriste'].values[0]) else 0
 
-    effetRessourcesAct=[vin,vinBio,sou,touriste]
+    effetRessourcesAct={"vin":vin,"vinBio":vinBio,"sou":sou,"touriste":touriste}
 
     effetActivableJauge={}
     colonnesJauges= dataAct.loc[:, 'Biodiversité':'Qualité de vie'].columns
@@ -274,13 +276,13 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         if variable is not None:
             effetActivableJauge[variable] = int(ligneHexAct[col].values[0]) if not math.isnan(ligneHexAct[col].values[0]) else 0
     
-    image_ACT=ligneHexAct["image"].values[0] if isinstance(ligneHexAct["image"].values[0], str) else None
+    image_ACT=ligneHexAct["image verso"].values[0] if isinstance(ligneHexAct["image verso"].values[0], str) else None
 
     # Création des effets permanents
 
     #TODO
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image),popupImagePath=image_ACT)
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image_ACT),popupImagePath=image)
     return #entite
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
@@ -292,28 +294,32 @@ def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
 hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
 hexagones.setDefaultValue("Activation",False)
-pioche=myModel.newCellsOnGrid(6,1,"square",size=120,gap=20,name="Pioche")
+pioche=myModel.newCellsOnGrid(6,1,"square",size=80,gap=20,name="Pioche")
 pioche.getEntity(6,1).setValue("zone",True)
 pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 
 # Création des hexagones
 
 createHex("Bar à vin",hexagones,data_inst,data_act)
-createHex("Vigne",hexagones,data_inst,data_act)
 createHex("Dégustation au caveau",hexagones,data_inst,data_act)
 createHex("Vigne Bio",hexagones,data_inst,data_act)
 createHex("Export vin BIO",hexagones,data_inst,data_act)
 createHex("Parcours gastronomique",hexagones,data_inst,data_act)
 createHex("Bar",hexagones,data_inst,data_act)
 createHex("Labellisation bio",hexagones,data_inst,data_act)
+createHex("Vigne",hexagones,data_inst,data_act)
 
 #* --------------------------
 #* Dashboard des ressources
 #* --------------------------
 DashBoardRessources=myModel.newDashBoard("Ressources")
 DashBoardRessources.addIndicator(Touriste,"nb")
-DashBoardRessources.addIndicator(Bouteille,"nb")
-DashBoardRessources.addIndicator(BouteilleBio,"nb")
+vin=myModel.newSimVariable("Vin",0)
+vinBio=myModel.newSimVariable("Vin Bio",0)
+indVin=DashBoardRessources.addIndicatorOnSimVariable(vin)
+indVinBio=DashBoardRessources.addIndicatorOnSimVariable(vinBio)
+# DashBoardRessources.addIndicator(Bouteille,"nb")
+# DashBoardRessources.addIndicator(BouteilleBio,"nb")
 
 
 #* --------------------------
@@ -321,7 +327,7 @@ DashBoardRessources.addIndicator(BouteilleBio,"nb")
 #* --------------------------
 DashBoardViticulteur=myModel.newDashBoard("Viticulteur")
 DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
-DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous disponibles")
+DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 
 
 #* --------------------------
@@ -330,8 +336,11 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous disponi
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedback=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)])
 MoveHexagone.addCondition(lambda aHex,aTargetCell: aTargetCell.value("zone")==aHex.value("joueur").name)
 MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
-MoveHexagone.addCondition(lambda aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
+MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
 Viticulteur.addGameAction(MoveHexagone)
+MovePioche=myModel.newMoveAction(hexagones, 'infinite')
+MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
+Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 Viticulteur.addGameAction(ActivateHexagone)
@@ -354,17 +363,22 @@ def execeffetActivableJauge(aHex):
         return
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
-        updatesCubesActivation(aHex)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
         if ressource == "vin":
-            Bouteille.newAgentsAtCoords(value,reserve)
+            # for n in range(value):
+            #     n1=Bouteille.newAgentAtCoords(reserve,2,1)
+            #     n1.show()
+            vin.incValue(valeur)
+            print(vin.value)
         if ressource == "vinBio":
-            BouteilleBio.newAgentsAtCoords(value,reserve)
+            # BouteilleBio.newAgentsAtCoords(value,reserve,2,1)
+            vinBio.incValue(valeur)
         if ressource == 'touriste':
-            Touriste.newAgentsAtCoords(value,reserve)
+            Touriste.newAgentsAtCoords(valeur,reserve,1,1)
         if ressource == "sou":
             player=aHex.value("joueur")
-            player.incValue("Sous",value)
+            player.incValue("Sous",valeur)
+    updatesCubesActivation(aHex)
 
 def updatesCubesActivation(aHex):
     player=aHex.value("joueur")
