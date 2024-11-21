@@ -58,7 +58,7 @@ pZH1=constructZH1()
 cases.newPov("vue normal","typeZH",{"vide":QColor(0,0,0,0), "zh1":QColor.fromRgb(176,224,230),"zh2":Qt.green})
 cases.newBorderPovColorAndWidth("bords","surface", {1: [Qt.black,1], 2: [Qt.black,4]})
 pZH1.newPov("vue normal","actions1",{"marche":Qt.blue,"observation":QColor.fromRgb(255,165,0)})
-cases.displayBorderPov("vue normal")
+# cases.displayBorderPov("vue normal")
 
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
 sequestration=myModel.newSimVariable("Sequestration",0)
