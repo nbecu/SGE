@@ -283,6 +283,12 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image),popupImagePath=image_ACT)
     return #entite
 
+def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
+    listOfHex=list(dataInst['nom'])
+    for aHexName in listOfHex:
+        createHex(aHexName,species,dataInst,dataAct,dataPerm,model)
+
+
 hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
 hexagones.setDefaultValue("Activation",False)
@@ -349,6 +355,16 @@ def execeffetActivableJauge(aHex):
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
         updatesCubesActivation(aHex)
+    for ressource,valeur in aHex.value("effetRessourcesAct").items():
+        if ressource == "vin":
+            Bouteille.newAgentsAtCoords(value,reserve)
+        if ressource == "vinBio":
+            BouteilleBio.newAgentsAtCoords(value,reserve)
+        if ressource == 'touriste':
+            Touriste.newAgentsAtCoords(value,reserve)
+        if ressource == "sou":
+            player=aHex.value("joueur")
+            player.incValue("Sous",value)
 
 def updatesCubesActivation(aHex):
     player=aHex.value("joueur")
@@ -365,8 +381,8 @@ userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 # Legend=myModel.newLegend()
-titre=myModel.newTextBox("SOLUTRÉ","Bienvenue dans")
-titre.setTextFormat("Verdana",12)
+# titre=myModel.newTextBox("SOLUTRÉ","Bienvenue dans")
+# titre.setTextFormat("Verdana",12)
 
 
 def customLayout():
@@ -381,7 +397,7 @@ def customLayout():
     DashBoardRessources.moveToCoords(1640,130)
     DashBoardViticulteur.moveToCoords(1500,730)
     ViticulteurControlPanel.moveToCoords(1330,730)
-    titre.moveToCoords(30,30)
+    # titre.moveToCoords(30,30)
 
 if __name__ == '__main__':
     customLayout()
