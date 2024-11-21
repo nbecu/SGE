@@ -479,8 +479,91 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         aDict['att']=aAttribut
         aDict['label']= (aLabel if aLabel is not None else aAttribut)
         self.attributesToDisplayInUpdateMenu.append(aDict)
-    
+
+
 # ********************************************************    
+
+class SGCellDef(SGEntityDef):
+    def __init__(self,grid, shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.white,entityName='Cell'):
+        super().__init__(grid.model, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
+        self.grid= grid
+        self.deletedCells=[]
+
+    def newCell (self, x, y):
+        ent = SGCell(self, x, y)
+        self.entities.append(ent)
+        ent.show()
+
+    def setCell(self, x, y, aAttribute, aValue):
+        """
+        set the value of attribute value for a specific cell
+        Args:
+            x (int): a column number
+            y (int): a row number
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+        """
+        ent = self.getCell(x, y).setValue(aAttribute, aValue)
+        return ent
+    
+    # Return the cell matching a Id or at specified coordinates
+    def getCell(self, x, y=None):
+        """
+        Return a cell identified by its column number and row number.
+        args:
+            x (int): column number
+            y (int): row number
+        Alternativly can also return a cell identified by its id
+        arg:
+            id (int): id of the cell
+        """
+        if isinstance(y, int):
+            if x < 0 or y < 0 : return None
+            aId= self.cellIdFromCoords(x,y)
+        else:
+            aId=x
+        return next(filter(lambda ent: ent.id==aId, self.entities),None)
+
+    # Return the cell at specified coordinates
+    def getEntity(self, x, y=None):
+        return self.getCell(x, y)
+
+    def getEntities_withRow(self, aRowNumber):
+        return self.grid.getCells_withRow(aRowNumber)
+
+    def getEntities_withColumn(self, aColumnNumber):
+        return self.grid.getCells_withColumn(aColumnNumber)
+
+    def cellIdFromCoords(self,x,y):
+        if x < 0 or y < 0 : return None
+        return x + (self.grid.columns * (y -1))
+
+    def deleteEntity(self, aCell):
+        """
+        Delete a given cell
+        args:
+            aCell (instance): the cell to de deleted
+        """
+        if len(aCell.agents) !=0:
+            aCell.deleteAllAgents()
+        self.deletedCells.append(aCell)
+        aCell.isDisplay = False
+        self.entities.remove(aCell)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aCell.update()
+
+    def reviveThisCell(self, aCell):
+        self.entities.append(aCell)
+        aCell.isDisplay = True
+        self.deletedCells.remove(aCell)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aCell.update()
+ 
+
+# ********************************************************    
+
 
 class SGAgentDef(SGEntityDef):
     def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",defaultImage=None,popupImagePath=None):
@@ -605,83 +688,3 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         #aAgent.update()
-
-
-class SGCellDef(SGEntityDef):
-    def __init__(self,grid, shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.white,entityName='Cell'):
-        super().__init__(grid.model, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
-        self.grid= grid
-        self.deletedCells=[]
-
-    def newCell (self, x, y):
-        ent = SGCell(self, x, y)
-        self.entities.append(ent)
-        ent.show()
-
-    def setCell(self, x, y, aAttribute, aValue):
-        """
-        set the value of attribute value for a specific cell
-        Args:
-            x (int): a column number
-            y (int): a row number
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        ent = self.getCell(x, y).setValue(aAttribute, aValue)
-        return ent
-    
-    # Return the cell matching a Id or at specified coordinates
-    def getCell(self, x, y=None):
-        """
-        Return a cell identified by its column number and row number.
-        args:
-            x (int): column number
-            y (int): row number
-        Alternativly can also return a cell identified by its id
-        arg:
-            id (int): id of the cell
-        """
-        if isinstance(y, int):
-            if x < 0 or y < 0 : return None
-            aId= self.cellIdFromCoords(x,y)
-        else:
-            aId=x
-        return next(filter(lambda ent: ent.id==aId, self.entities),None)
-
-    # Return the cell at specified coordinates
-    def getEntity(self, x, y=None):
-        return self.getCell(x, y)
-
-    def getEntities_withRow(self, aRowNumber):
-        return self.grid.getCells_withRow(aRowNumber)
-
-    def getEntities_withColumn(self, aColumnNumber):
-        return self.grid.getCells_withColumn(aColumnNumber)
-
-    def cellIdFromCoords(self,x,y):
-        if x < 0 or y < 0 : return None
-        return x + (self.grid.columns * (y -1))
-
-    def deleteEntity(self, aCell):
-        """
-        Delete a given cell
-        args:
-            aCell (instance): the cell to de deleted
-        """
-        if len(aCell.agents) !=0:
-            aCell.deleteAllAgents()
-        self.deletedCells.append(aCell)
-        aCell.isDisplay = False
-        self.entities.remove(aCell)
-        self.updateWatchersOnPop()
-        self.updateWatchersOnAllAttributes()
-        aCell.update()
-
-    def reviveThisCell(self, aCell):
-        self.entities.append(aCell)
-        aCell.isDisplay = True
-        self.deletedCells.remove(aCell)
-        self.updateWatchersOnPop()
-        self.updateWatchersOnAllAttributes()
-        aCell.update()
-        

@@ -11,11 +11,7 @@ sPC = 2
 sGC = 4
     
 # Définition des zones avec leurs caractéristiques
-zones = {
-    "vide": {
-        "sequestration": 0,
-        "couleur": QColor(0, 0, 0, 0)
-    },
+ZHs = {
     "marais doux": {
         "sequestration": 0.25,
         "couleur": QColor(173, 216, 230, 120)
@@ -26,7 +22,7 @@ zones = {
     },
     "marais saumatre": {
         "sequestration": 1.51,
-        "couleur": QColor(255, 0, 0, 120)
+        "couleur": QColor(147, 112, 219, 120)
     },
     "marais sale": {
         "sequestration": 1.51,
@@ -38,7 +34,7 @@ zones = {
     },
     "pres sales": {
         "sequestration": 2.4,
-        "couleur": QColor(144, 238, 144, 120)
+        "couleur": QColor(70, 110, 70, 120)
     },
     "vasiere nue": {
         "sequestration": 0.4,
@@ -46,7 +42,7 @@ zones = {
     },
     "demi-herbier": {
         "sequestration": 0.9,  # moitié zoostère, moitié vasière nue
-        "couleur": QColor(150, 120, 80, 120)
+        "couleur": QColor(130, 180, 100, 120)
     },
     "herbier": {
         "sequestration": 1.4,
@@ -63,6 +59,10 @@ zones = {
     "plage": {
         "sequestration": 0,
         "couleur": QColor(255, 218, 185, 120)
+    },
+    "vide": {
+        "sequestration": 0,
+        "couleur": QColor(0, 0, 0, 0)
     },
 }
 
@@ -82,18 +82,18 @@ tM = "mer"
 tP = "plage"
 
 # Exemple d'accès aux valeurs
-sequestration_vide = zones[t0]["sequestration"]
-couleur_vide = zones[t0]["couleur"]
+sequestration_vide = ZHs[t0]["sequestration"]
+couleur_vide = ZHs[t0]["couleur"]
 
-sequestration_marais_doux = zones[tD]["sequestration"]
-couleur_marais_doux = zones[tD]["couleur"]
+sequestration_marais_doux = ZHs[tD]["sequestration"]
+couleur_marais_doux = ZHs[tD]["couleur"]
 
 def constructPlateau():
     cases=myModel.newCellsOnGrid(21,21,"square",size=40,gap=0,backGroundImage=QPixmap("./icon/MTZC/plateau-jeu.jpg"))
     # Liste des coordonnées spécifiques à préserver avec leur valeur de surface
     cases_preservees = {
         (10,2): [sPC, tH2], (11,2): [sGC, tPS], (13,2): [sGC, tA],
-        (9,3): [sPC, tH2], (10,3): [sGC, tA], (11,3): [sPC, tPS], (13,3): [sGC, tA], (14,3): [sGC, tA],          (18,3): [sPC, tA],
+        (9,3): [sPC, tH2], (10,3): [sGC, tV], (11,3): [sPC, tPS], (13,3): [sGC, tA], (14,3): [sGC, tA],          (18,3): [sPC, tA],
         (9,4): [sPC, tPS], (10,4): [sPC, tPS],                                          (18,4): [sGC, tA], (19,4): [sGC, tA],
         (8,5): [sPC, tSAL],   (10,5): [sGC, tSAU],       (12,5): [sPC, tSAU], (13,5): [sGC, tSAU], (14,5): [sPC, tSAU],                                                                                                                                                    (21,5): [sPC, tA],
         (7,6): [sPC, tP], (8,6): [sPC, tO], (9,6): [sPC, tO],     (10,6): [sPC, tSAU],         (12,6): [sPC, tA], (13,6): [sPC, tA],                                                                                           (18,6): [sGC, tA], (19,6): [sPC, tA], (20,6): [sGC, tA], (21,6): [sPC, tA],        
@@ -140,14 +140,13 @@ def constructZH2(): #ex. estran, ou marais doux
     
 
 cases=constructPlateau()
-pZH1=constructZH1()
-# pZH2=constructZH2()
-
-
-
-cases.newPov("vue normal","typeZH",{"vide":couleur_vide, "marais doux":couleur_marais_doux,"marais saumatre":zones[tSAU]["couleur"]})
+dicoCouleurs = {zh: infos["couleur"] for zh, infos in ZHs.items()}
+cases.newPov("vue normal","typeZH",dicoCouleurs)
 cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.black,4]})
 cases.displayBorderPov("bords")
+
+pZH1=constructZH1()
+# pZH2=constructZH2()
 pZH1.newPov("vue normal","actions1",{"marche":Qt.blue,"observation":QColor.fromRgb(255,165,0)})
 
 
@@ -162,17 +161,19 @@ Player = myModel.newPlayer("Player")
 
 # MoveHexagone=myModel.newMoveAction(Hexagones_test, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
 
-zh1Action=myModel.newModifyAction(cases, {"typeZH":"marais doux"},feedback=[lambda : updateJauges()])
-Player.addGameAction(zh1Action)
-Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"marais saumatre"},feedback=[lambda : updateJauges()]))
-Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"vide"},feedback=[lambda : updateJauges()]))
+# zh1Action=myModel.newModifyAction(cases, {"typeZH":"marais doux"},feedback=[lambda : updateJauges()])
+# Player.addGameAction(zh1Action)
+for aZH in ZHs.keys():
+    Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":aZH},feedback=[lambda : updateJauges()]))
+# Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"vide"},feedback=[lambda : updateJauges()]))
+
 
 def updateJauges():
     totSequest = 0
     totEco = 0
     
     for aCase in cases.getEntities():
-        valeur = zones[aCase.getValue('typeZH')]["sequestration"]  # 0 si la clé n'est pas trouvée
+        valeur = ZHs[aCase.getValue('typeZH')]["sequestration"]  # 0 si la clé n'est pas trouvée
         sequestCase  = valeur * aCase.getValue('surface')
         totSequest += sequestCase
     sequestration.setValue(totSequest)
@@ -191,6 +192,8 @@ indSequestration=DashBoardInd.addIndicatorOnSimVariable(sequestration)
 indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 
 # Legend=myModel.newLegend('Type de zone humide à placer')
+
+updateJauges()
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
