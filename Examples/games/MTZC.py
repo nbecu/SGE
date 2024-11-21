@@ -176,7 +176,7 @@ def updateJauges():
         valeur = ZHs[aCase.getValue('typeZH')]["sequestration"]  # 0 si la clé n'est pas trouvée
         sequestCase  = valeur * aCase.getValue('surface')
         totSequest += sequestCase
-    sequestration.setValue(totSequest)
+    sequestration.setValue(round(totSequest,1))  # Arrondi à l'unité
 
 
 Player1ControlPanel = Player.newControlPanel("Actions")
