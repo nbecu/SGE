@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
+import random
 
 monApp=QtWidgets.QApplication([])
 
@@ -149,13 +150,17 @@ pZH1=constructZH1()
 # pZH2=constructZH2()
 pZH1.newPov("vue normal","actions1",{"marche":Qt.blue,"observation":QColor.fromRgb(255,165,0)})
 
+pionAction1=myModel.newAgentSpecies("Action1","circleAgent",{'joueur':{'J1','J2','J3','J4'}},defaultSize=10,)
+pionAction1.newPov("joueur","joueur",{'J1': Qt.blue, 'J2': Qt.red, 'J3': Qt.yellow, 'J4':Qt.green})
+
+
 
 sequestration=myModel.newSimVariable("Sequestration",0)
 economie=myModel.newSimVariable("Economie",0)
 
 
 Player = myModel.newPlayer("Player")
-# Touriste=myModel.newAgentSpecies("Touriste","squareAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
+# pionAction1=myModel.newAgentSpecies("Action1","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 # Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
 # Touriste.newAgentAtCoords(reserve)
 
@@ -166,6 +171,11 @@ Player = myModel.newPlayer("Player")
 for aZH in ZHs.keys():
     Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":aZH},feedback=[lambda : updateJauges()]))
 # Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"vide"},feedback=[lambda : updateJauges()]))
+
+Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J1'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J1') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
+Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J2'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J2') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
+Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J3'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J3') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
+Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J4'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J4') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
 
 
 def updateJauges():
@@ -178,10 +188,18 @@ def updateJauges():
         totSequest += sequestCase
     sequestration.setValue(round(totSequest,1))  # Arrondi à l'unité
 
+def updateActions1():
+    totEco = 0
+    
+    for aPion in pionAction1.getEntities():
+        valeur = random.randint(1, 3)
+        totEco  += valeur
+    economie.setValue(round(totEco))
+
 
 Player1ControlPanel = Player.newControlPanel("Actions")
 
-# GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
+GamePhase=myModel.timeManager.newGamePhase("Jouer",[Player])
 
 # userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Player")
