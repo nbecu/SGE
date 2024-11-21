@@ -909,13 +909,34 @@ class SGModel(QMainWindow):
         # add actions to the submenu
         self.symbologiesInSubmenus[submenu].append(item)
 
-    def checkSymbologyinMenuBar(self, aClassDef,nameOfSymbology):
-        if self.symbologyMenu is None: return False
-        symbologies = self.getSymbologiesOfSubmenu(aClassDef.entityName)
+    def checkSymbologyinMenuBar(self, aClassDef, nameOfSymbology, borderSymbology=False):
+        """
+        Checks and updates the symbology in the menu bar for the specified class definition.
+
+        Args:
+            aClassDef: The class definition for which the symbology is being checked.
+            nameOfSymbology (str): The name of the symbology to check.
+            borderSymbology (bool): Indicates if the symbology is for a border (default: False).
+
+        Returns:
+            bool: False if the symbology menu is not initialized, otherwise None.
+        """
+        if self.symbologyMenu is None:
+            return False
+
+        if borderSymbology:
+            entityName = aClassDef.entityName + self.keyword_borderSubmenu
+        else:
+            entityName = aClassDef.entityName
+
+        symbologies = self.getSymbologiesOfSubmenu(entityName)
+
         for aSymbology in symbologies:
             if aSymbology.text() == nameOfSymbology:
                 aSymbology.setChecked(True)
-            else: aSymbology.setChecked(False)
+            else:
+                if not borderSymbology:
+                    aSymbology.setChecked(False)
 
     def menu_item_triggered(self):
         # get the triggered QAction object
@@ -929,7 +950,7 @@ class SGModel(QMainWindow):
             # aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
 
-    def getSymbologiesOfSubmenu(self, submenuName):
+    def getSymbologiesOfSubmenu(self, submenuName, borderSymbology = False):
         # return the  symbologies of a entity present in the menuBar
         submenu = self.getSubmenuSymbology(submenuName)
         return self.symbologiesInSubmenus.get(submenu) 

@@ -118,6 +118,12 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             self.displayPov(nameOfPov)
 
     def displayPov(self,nameOfPov):
+        """
+        Displays the symbology for the specified Point of View.
+
+        Args:
+            nameOfPov (str): The name of the Point of View to display.
+        """
         self.model.checkSymbologyinMenuBar(self,nameOfPov)
 
     def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):
@@ -142,6 +148,16 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         dictOfColorAndWidth = self.reformatDictOfColorAndWidth(dictOfColorAndWidth)
         self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+
+
+    def displayBorderPov(self,nameOfBorderPov):
+        """
+        Displays the border symbology for the specified Point of View.
+
+        Args:
+            nameOfBorderPov (str): The name of the border Point of View to display.
+        """
+        self.model.checkSymbologyinMenuBar(self,nameOfBorderPov,borderSymbology=True)
 
 
     def addWidthInPovDictOfColors(self,borderWidth,dictOfColor):

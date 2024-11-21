@@ -40,6 +40,14 @@ class AttributeAndValueFunctionalities():
         """
         return self.dictAttributes.get(att,None)
     
+    def getValue(self,att):
+        """
+        Return the value of a cell Attribut
+        Args:
+            att (str): Name of the attribute
+        """
+        return self.value(att)
+    
     def incValue(self,aAttribut,valueToSet=1,max=None):
         """
         Increase the value of an attribut with an additional value

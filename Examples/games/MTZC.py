@@ -5,33 +5,92 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1500,800, windowTitle="MTZC", typeOfLayout ="grid", x=4,y=4)
+myModel=SGModel(1500,900, windowTitle="MTZC", typeOfLayout ="grid", x=4,y=4)
 
+sPC = 2
+sGC = 4
+    
+t0 = "vide"
+tD=  "marais doux"
+tDA =  "marais doux agricole"
+tSAU =  "marais saumatre"
+tSAL =  "marais sale"
+tO =  "oestricole"
+tPS =  "pres sales"
+tV =  "vasiere nue"
+tH2 =  "demi-herbier"
+tH =  "herbier"
+tA =  "prairie agricole"
+tM =  "mer"
+tP =  "plage"
+
+
+valeur_sequestr = {
+        "vide": 0,
+        "marais doux": 0.25,
+        "marais doux agricole": 0.1,
+        "marais saumatre": 1.51,
+        "marais sale": 1.51,
+        "oestricole": 1, #a verifier
+        "pres sales": 2.4,
+        "vasiere nue": 0.4,
+        "demi-herbier": 0.9, #moitie zoostere, moitiere vasière nue
+        "herbier": 1.4,
+        "prairie agricole": 0.05, #a verifier
+        "mer": 0.004,
+        "plage": 0,
+    }
+
+color_typeZH = {
+        "vide": QColor(0,0,0,0),
+        "marais doux": QColor(173, 216, 230, 120),
+        "marais doux agricole": QColor(139, 69, 19, 120),
+        "marais saumatre": QColor(255, 0, 0, 120),
+        "marais sale": QColor(0, 255, 0, 120),
+        "oestricole": QColor(128, 128, 128, 120),
+        "pres sales": QColor(144, 238, 144, 120),
+        "vasiere nue": QColor(210, 180, 140, 120),
+        "demi-herbier": QColor(150, 120, 80, 120),
+        "herbier": QColor(0, 128, 0, 120),
+        "prairie agricole": QColor(255, 0, 0, 120),
+        "mer": QColor(0, 0, 255, 120),
+        "plage": QColor(255, 218, 185, 120),
+    }
 # data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
 def constructPlateau():
     cases=myModel.newCellsOnGrid(21,21,"square",size=40,gap=0,backGroundImage=QPixmap("./icon/MTZC/plateau-jeu.jpg"))
-    # Liste des coordonnées spécifiques à préserver
-    cases_preservees = [
-        (10,2), (11,2), (13,2), (9,3), (10,3), (11,3), (13,3), (14,3), (18,3),
-        (9,4), (10,4), (12,5), (13,5), (14,5), (18,4), (19,4), (8,5), (10,5),
-        (7,7), (8,5), (18,6), (19,6), (20,6), (21,5), (21,6),(7,6),(8,6),(9,6),(10,6), (10,7), (11,7),(12,7), (13,7),
-        (12,6), (13,6), 
-        (3,9)
-    ]
-    
+    # Liste des coordonnées spécifiques à préserver avec leur valeur de surface
+    cases_preservees = {
+        (10,2): [sPC, tH2], (11,2): [sGC, tPS], (13,2): [sGC, tA],
+        (9,3): [sPC, tH2], (10,3): [sGC, tA], (11,3): [sPC, tPS], (13,3): [sGC, tA], (14,3): [sGC, tA],          (18,3): [sPC, tA],
+        (9,4): [sPC, tPS], (10,4): [sPC, tPS],                                          (18,4): [sGC, tA], (19,4): [sGC, tA],
+        (8,5): [sPC, tSAL],   (10,5): [sGC, tSAU],       (12,5): [sPC, tSAU], (13,5): [sGC, tSAU], (14,5): [sPC, tSAU],                                                                                                                                                    (21,5): [sPC, tA],
+        (7,6): [sPC, tP], (8,6): [sPC, tO], (9,6): [sPC, tO],     (10,6): [sPC, tSAU],         (12,6): [sPC, tA], (13,6): [sPC, tA],                                                                                           (18,6): [sGC, tA], (19,6): [sPC, tA], (20,6): [sGC, tA], (21,6): [sPC, tA],        
+        (7,7): [sPC, tP],  (10,7): [sPC, tSAU], (11,7): [sPC, tA], (12,7): [sPC, tA], (13,7): [sPC, tA], 
+        (3,8): [sPC, tH2], (4,8): [sPC, tV], (5,8): [sPC, tV],          (7,8): [sPC, tDA],
+        (2,9): [sPC, tV],                                           (6,9): [sPC, tA], (7,9): [sPC, tDA], (8,9): [sPC, tDA],  (9,9): [sGC, tDA], (10,9): [sGC, tDA], (11,9): [sGC, tDA],                                                     (19,9): [sPC, tA], (20,9): [sPC, tA],  
+        (2,10): [sPC, tV],                                                                          (7,10): [sPC, tDA], (8,10): [sPC, tDA], (9,10): [sGC, tDA], (10,10): [sGC, tDA], (11,10): [sGC, tDA],                                       (18,10): [sPC, tA], (19,10): [sPC, tA], (20,10): [sGC, tA],  
+        (4,11): [sPC, t0], (5,11): [sGC, t0],                                                                         (8,11): [sPC, tDA], (9,11): [sGC, tDA], (10,11): [sGC, tDA], (11,11): [sGC, tDA], (12,11): [sGC, tDA], (13,11): [sGC, tDA],         (16,11): [sPC, tA], (17,11): [sGC, tA], (18,11): [sGC, tA], (19,11): [sGC, tA], (20,11): [sGC, tA],  
+                                                                                                                                                               (10,12): [sPC, tDA], (11,12): [sPC, tDA], (12,12): [sPC, tDA],                    (16,12): [sPC, tA], (17,12): [sPC, tA], (18,12): [sGC, tA], (19,12): [sGC, tA], (20,12): [sGC, tA],  
+                                                                                                                                                                                                                                                                                               (19,13): [sGC, tA], 
+                         (4,15): [sPC, tO], (5,15): [sPC, tO], 
+        (3,18): [sPC, tP], 
+        (3,19): [sGC, tP],
+                         (4,20): [sPC, tSAU], (5,20): [sGC, tSAU],                                 (9,20): [sGC, t0],       (12,20): [sPC, tD], (13,20): [sPC, tD],    (16,20): [sPC, tD], (17,20): [sPC, tD],
+        (3,21): [sGC, tSAU], (4,21): [sGC, tSAU], (5,21): [sGC, tSAU], (6,21): [sGC, tSAU],        (9,21): [sGC, t0],                                              (17,21): [sPC, tD], (18,21): [sGC, tD], (19,21): [sGC, tD],
+
+    }
     # Balayage de toutes les cases
-    for x in range(1, 22):
-        for y in range(1, 22):
-            # On vérifie si les coordonnées actuelles ne sont pas dans la liste des cases à préserver
-            if (x,y) not in cases_preservees:
-                try:
-                    cases.deleteEntity(cases.getEntity(x,y))
-                except:
-                    pass
-    
-    cases.setEntities("typeZH","vide")
-    cases.setEntities("surface",1)
-    cases.getEntity(11,2).setValue("surface",2)
+    for aCase in cases.getEntities():
+        if (aCase.xPos,aCase.yPos) in cases_preservees:
+            aCase.setValue("surface", cases_preservees[(aCase.xPos, aCase.yPos)][0])  # Définir la valeur de surface
+            aCase.setValue("typeZH", cases_preservees[(aCase.xPos, aCase.yPos)][1])  # Définir la valeur de TYPEzh
+        else:
+            try:
+                cases.deleteEntity(aCase)
+            except:
+                pass
+    # cases.setEntities("typeZH","vide")
     return cases
 
 def constructZH1(): #ex. estran, ou marais doux
@@ -55,35 +114,52 @@ pZH1=constructZH1()
 
 
 
-cases.newPov("vue normal","typeZH",{"vide":QColor(0,0,0,0), "zh1":QColor.fromRgb(176,224,230),"zh2":Qt.green})
-cases.newBorderPovColorAndWidth("bords","surface", {1: [Qt.black,1], 2: [Qt.black,4]})
+cases.newPov("vue normal","typeZH",{"vide":color_typeZH.get("vide"), "marais doux":color_typeZH.get("marais doux"),"marais saumatre":color_typeZH.get("marais saumatre")})
+cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.black,4]})
+cases.displayBorderPov("bords")
 pZH1.newPov("vue normal","actions1",{"marche":Qt.blue,"observation":QColor.fromRgb(255,165,0)})
-# cases.displayBorderPov("vue normal")
 
-DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
+
 sequestration=myModel.newSimVariable("Sequestration",0)
 economie=myModel.newSimVariable("Economie",0)
-indSequestration=DashBoardInd.addIndicatorOnSimVariable(sequestration)
-indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 
 
-# Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
-# Player2 = myModel.newPlayer("PlayerTest2",attributesAndValues={"nbCubes":6})
-
+Player = myModel.newPlayer("Player")
 # Touriste=myModel.newAgentSpecies("Touriste","squareAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 # Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
 # Touriste.newAgentAtCoords(reserve)
 
 # MoveHexagone=myModel.newMoveAction(Hexagones_test, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
-# Player1.addGameAction(MoveHexagone)
-# Player1ControlPanel = Player1.newControlPanel("Actions")
+
+zh1Action=myModel.newModifyAction(cases, {"typeZH":"marais doux"},feedback=[lambda : updateJauges()])
+Player.addGameAction(zh1Action)
+Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"marais saumatre"},feedback=[lambda : updateJauges()]))
+Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"vide"},feedback=[lambda : updateJauges()]))
+
+def updateJauges():
+    totSequest = 0
+    totEco = 0
+    
+    for aCase in cases.getEntities():
+        valeur = valeur_sequestr.get(aCase.getValue('typeZH'), 0)  # 0 si la clé n'est pas trouvée
+        sequestCase  = valeur * aCase.getValue('surface')
+        totSequest += sequestCase
+    sequestration.setValue(totSequest)
+
+
+Player1ControlPanel = Player.newControlPanel("Actions")
 
 # GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
 
 # userSelector=myModel.newUserSelector()
-# myModel.setCurrentPlayer("PlayerTest")
+myModel.setCurrentPlayer("Player")
 # Legend=myModel.newLegend(grid="combined")
-Legend=myModel.newLegend('Type de zone humide à placer')
+
+DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
+indSequestration=DashBoardInd.addIndicatorOnSimVariable(sequestration)
+indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
+
+# Legend=myModel.newLegend('Type de zone humide à placer')
 
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
