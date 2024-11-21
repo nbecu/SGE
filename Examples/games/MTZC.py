@@ -10,53 +10,84 @@ myModel=SGModel(1500,900, windowTitle="MTZC", typeOfLayout ="grid", x=4,y=4)
 sPC = 2
 sGC = 4
     
+# Définition des zones avec leurs caractéristiques
+zones = {
+    "vide": {
+        "sequestration": 0,
+        "couleur": QColor(0, 0, 0, 0)
+    },
+    "marais doux": {
+        "sequestration": 0.25,
+        "couleur": QColor(173, 216, 230, 120)
+    },
+    "marais doux agricole": {
+        "sequestration": 0.1,
+        "couleur": QColor(139, 69, 19, 120)
+    },
+    "marais saumatre": {
+        "sequestration": 1.51,
+        "couleur": QColor(255, 0, 0, 120)
+    },
+    "marais sale": {
+        "sequestration": 1.51,
+        "couleur": QColor(0, 255, 0, 120)
+    },
+    "oestricole": {
+        "sequestration": 1,  # à vérifier
+        "couleur": QColor(128, 128, 128, 120)
+    },
+    "pres sales": {
+        "sequestration": 2.4,
+        "couleur": QColor(144, 238, 144, 120)
+    },
+    "vasiere nue": {
+        "sequestration": 0.4,
+        "couleur": QColor(210, 180, 140, 120)
+    },
+    "demi-herbier": {
+        "sequestration": 0.9,  # moitié zoostère, moitié vasière nue
+        "couleur": QColor(150, 120, 80, 120)
+    },
+    "herbier": {
+        "sequestration": 1.4,
+        "couleur": QColor(0, 128, 0, 120)
+    },
+    "prairie agricole": {
+        "sequestration": 0.05,  # à vérifier
+        "couleur": QColor(255, 0, 0, 120)
+    },
+    "mer": {
+        "sequestration": 0.004,
+        "couleur": QColor(0, 0, 255, 120)
+    },
+    "plage": {
+        "sequestration": 0,
+        "couleur": QColor(255, 218, 185, 120)
+    },
+}
+
+# Accès aux valeurs
 t0 = "vide"
-tD=  "marais doux"
-tDA =  "marais doux agricole"
-tSAU =  "marais saumatre"
-tSAL =  "marais sale"
-tO =  "oestricole"
-tPS =  "pres sales"
-tV =  "vasiere nue"
-tH2 =  "demi-herbier"
-tH =  "herbier"
-tA =  "prairie agricole"
-tM =  "mer"
-tP =  "plage"
+tD = "marais doux"
+tDA = "marais doux agricole"
+tSAU = "marais saumatre"
+tSAL = "marais sale"
+tO = "oestricole"
+tPS = "pres sales"
+tV = "vasiere nue"
+tH2 = "demi-herbier"
+tH = "herbier"
+tA = "prairie agricole"
+tM = "mer"
+tP = "plage"
 
+# Exemple d'accès aux valeurs
+sequestration_vide = zones[t0]["sequestration"]
+couleur_vide = zones[t0]["couleur"]
 
-valeur_sequestr = {
-        "vide": 0,
-        "marais doux": 0.25,
-        "marais doux agricole": 0.1,
-        "marais saumatre": 1.51,
-        "marais sale": 1.51,
-        "oestricole": 1, #a verifier
-        "pres sales": 2.4,
-        "vasiere nue": 0.4,
-        "demi-herbier": 0.9, #moitie zoostere, moitiere vasière nue
-        "herbier": 1.4,
-        "prairie agricole": 0.05, #a verifier
-        "mer": 0.004,
-        "plage": 0,
-    }
+sequestration_marais_doux = zones[tD]["sequestration"]
+couleur_marais_doux = zones[tD]["couleur"]
 
-color_typeZH = {
-        "vide": QColor(0,0,0,0),
-        "marais doux": QColor(173, 216, 230, 120),
-        "marais doux agricole": QColor(139, 69, 19, 120),
-        "marais saumatre": QColor(255, 0, 0, 120),
-        "marais sale": QColor(0, 255, 0, 120),
-        "oestricole": QColor(128, 128, 128, 120),
-        "pres sales": QColor(144, 238, 144, 120),
-        "vasiere nue": QColor(210, 180, 140, 120),
-        "demi-herbier": QColor(150, 120, 80, 120),
-        "herbier": QColor(0, 128, 0, 120),
-        "prairie agricole": QColor(255, 0, 0, 120),
-        "mer": QColor(0, 0, 255, 120),
-        "plage": QColor(255, 218, 185, 120),
-    }
-# data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
 def constructPlateau():
     cases=myModel.newCellsOnGrid(21,21,"square",size=40,gap=0,backGroundImage=QPixmap("./icon/MTZC/plateau-jeu.jpg"))
     # Liste des coordonnées spécifiques à préserver avec leur valeur de surface
@@ -114,7 +145,7 @@ pZH1=constructZH1()
 
 
 
-cases.newPov("vue normal","typeZH",{"vide":color_typeZH.get("vide"), "marais doux":color_typeZH.get("marais doux"),"marais saumatre":color_typeZH.get("marais saumatre")})
+cases.newPov("vue normal","typeZH",{"vide":couleur_vide, "marais doux":couleur_marais_doux,"marais saumatre":zones[tSAU]["couleur"]})
 cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.black,4]})
 cases.displayBorderPov("bords")
 pZH1.newPov("vue normal","actions1",{"marche":Qt.blue,"observation":QColor.fromRgb(255,165,0)})
@@ -141,7 +172,7 @@ def updateJauges():
     totEco = 0
     
     for aCase in cases.getEntities():
-        valeur = valeur_sequestr.get(aCase.getValue('typeZH'), 0)  # 0 si la clé n'est pas trouvée
+        valeur = zones[aCase.getValue('typeZH')]["sequestration"]  # 0 si la clé n'est pas trouvée
         sequestCase  = valeur * aCase.getValue('surface')
         totSequest += sequestCase
     sequestration.setValue(totSequest)
