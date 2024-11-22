@@ -14,7 +14,7 @@ class SGActivate(SGAbstractAction):
         self.method=method
     
 
-    def executeAction(self,aTargetEntity):
+    def executeAction(self,aTargetEntity,serverUpdate=True):
         method = self.method
         try:
             gameScript = self.logFromModeleur(sys.argv[0])
@@ -22,6 +22,7 @@ class SGActivate(SGAbstractAction):
                 func = getattr(gameScript, method)
                 if callable(func):
                     func(aTargetEntity)
+                    if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
                 else:
                     print(f"{method} n'est pas une fonction exécutable.")
             else:

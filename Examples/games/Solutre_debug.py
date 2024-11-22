@@ -233,6 +233,18 @@ Touriste.newAgentAtCoords(reserve,1,1)
 Bouteille.newAgentAtCoords(reserve,2,1)
 BouteilleBio.newAgentAtCoords(reserve,2,1)
 
+#* --------------------------
+#* Dashboard des ressources
+#* --------------------------
+DashBoardRessources=myModel.newDashBoard("Ressources")
+touriste=myModel.newSimVariable("touriste",0)
+vin=myModel.newSimVariable("vin",0)
+vinBio=myModel.newSimVariable("vinBio",0)
+indVin=DashBoardRessources.addIndicatorOnSimVariable(vin)
+indVinBio=DashBoardRessources.addIndicatorOnSimVariable(vinBio)
+indTouriste=DashBoardRessources.addIndicatorOnSimVariable(touriste)
+
+
 def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     variables=myModel.getSimVars()
     
@@ -262,12 +274,13 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     coutVinBio=int(ligneHexAct['coutVinBio'].values[0]) if not math.isnan(ligneHexAct['coutVinBio'].values[0]) else 0
     coutSous=int(ligneHexAct['coutSous'].values[0]) if not math.isnan(ligneHexAct['coutSous'].values[0]) else 0
 
-    vin=int(ligneHexAct['vin'].values[0]) if not math.isnan(ligneHexAct['vin'].values[0]) else 0
-    vinBio=int(ligneHexAct['vinBio'].values[0]) if not math.isnan(ligneHexAct['vinBio'].values[0]) else 0
-    sou=int(ligneHexAct['sou'].values[0]) if not math.isnan(ligneHexAct['sou'].values[0]) else 0
-    touriste=int(ligneHexAct['touriste'].values[0]) if not math.isnan(ligneHexAct['touriste'].values[0]) else 0
-
-    effetRessourcesAct={"vin":vin,"vinBio":vinBio,"sou":sou,"touriste":touriste}
+    # ressources =["vin","vinBio","touriste","sou"]
+    effetRessourcesAct={}
+    ressources= dataAct.loc[:, 'vin':'touriste'].columns
+    for res in ressources:
+        variable=next((var for var in variables if var.name == res), None)
+        if variable is not None:
+            effetRessourcesAct[variable] = int(ligneHexAct[res].values[0]) if not math.isnan(ligneHexAct[res].values[0]) else 0
 
     effetActivableJauge={}
     colonnesJauges= dataAct.loc[:, 'Biodiversité':'Qualité de vie'].columns
@@ -277,10 +290,6 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
             effetActivableJauge[variable] = int(ligneHexAct[col].values[0]) if not math.isnan(ligneHexAct[col].values[0]) else 0
     
     image_ACT=ligneHexAct["image verso"].values[0] if isinstance(ligneHexAct["image verso"].values[0], str) else None
-
-    # Création des effets permanents
-
-    #TODO
 
     entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image_ACT),popupImagePath=image)
     return #entite
@@ -312,14 +321,10 @@ createHex("Vigne",hexagones,data_inst,data_act)
 #* --------------------------
 #* Dashboard des ressources
 #* --------------------------
-DashBoardRessources=myModel.newDashBoard("Ressources")
-DashBoardRessources.addIndicator(Touriste,"nb")
-vin=myModel.newSimVariable("Vin",0)
-vinBio=myModel.newSimVariable("Vin Bio",0)
-indVin=DashBoardRessources.addIndicatorOnSimVariable(vin)
-indVinBio=DashBoardRessources.addIndicatorOnSimVariable(vinBio)
-# DashBoardRessources.addIndicator(Bouteille,"nb")
-# DashBoardRessources.addIndicator(BouteilleBio,"nb")
+DashBoardRessources2=myModel.newDashBoard("Ressources2")
+DashBoardRessources2.addIndicator(Touriste,"nb")
+DashBoardRessources2.addIndicator(Bouteille,"nb")
+DashBoardRessources2.addIndicator(BouteilleBio,"nb")
 
 
 #* --------------------------
@@ -353,31 +358,17 @@ def execeffetInstantaneJauge(aHex):
 
 def updateCubes(aHex):
     player=aHex.value("joueur")
-    print("AVANT "+str(player.value("nbCubes")))
     player.decValue("nbCubes",aHex.value("coûtCubes"))
-    print("APRES "+str(player.value("nbCubes")))
 
 def execeffetActivableJauge(aHex):
-    if all(aHex.value(key) == 0 for key in ['coutCubesAct', 'coutVin', 'coutVinBio', 'coutSous']):
+    if not aHex.value("effetActivableJauge") and not aHex.value("effetRessourcesAct"):
         myModel.newWarningPopUp("Attention!","Cet hexagone n'est pas activable!")
         return
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
-        if ressource == "vin":
-            # for n in range(value):
-            #     n1=Bouteille.newAgentAtCoords(reserve,2,1)
-            #     n1.show()
-            vin.incValue(valeur)
-            print(vin.value)
-        if ressource == "vinBio":
-            # BouteilleBio.newAgentsAtCoords(value,reserve,2,1)
-            vinBio.incValue(valeur)
-        if ressource == 'touriste':
-            Touriste.newAgentsAtCoords(valeur,reserve,1,1)
-        if ressource == "sou":
-            player=aHex.value("joueur")
-            player.incValue("Sous",valeur)
+        ressource.incValue(valeur)
+        Bouteille.newAgentAtCoords(reserve,2,1,image=QPixmap("./icon/solutre/vin.png"))
     updatesCubesActivation(aHex)
 
 def updatesCubesActivation(aHex):

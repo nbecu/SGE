@@ -341,7 +341,7 @@ class SGAgent(SGEntity):
         """Ferme la fenêtre contextuelle si elle est ouverte."""
         if popup and popup.isVisible():
             popup.close()
-            popup.deleteLater()
+            # popup.deleteLater()
                         
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
