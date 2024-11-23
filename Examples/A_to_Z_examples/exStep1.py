@@ -7,7 +7,7 @@ monApp = QtWidgets.QApplication([])
 
 # This is your model. A Model is an interactive window where you will be able to
 # add items later. You can choose its size, name and type of organization.
-myModel = SGModel(550, 550, windowTitle="Hello World")
+myModel = SGModel(550, 550)
 
 # This launchs your model and it will always be the last twwo lines of the code.
 myModel.launch()

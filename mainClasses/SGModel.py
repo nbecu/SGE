@@ -1,4 +1,3 @@
-
 from PyQt5.QtSvg import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -57,7 +56,7 @@ class SGModel(QMainWindow):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame"):
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None):
         """
         Declaration of a new model
 
@@ -78,10 +77,13 @@ class SGModel(QMainWindow):
         # Init of variable of the Model
         self.name = name
         # Definition of the title of the window
-        self.setWindowTitle(self.name) if windowTitle is None else self.setWindowTitle(windowTitle)
+        self.windowTitle_prefix = (windowTitle or self.name or ' ') # if windowTitle  is None, the name of the model is used as prefix for window title
+        self.setWindowTitle(self.windowTitle_prefix)
+        # Option to display time (round and phase) in window title
+        self.isTimeDisplayedInWindowTitle = False
+        
         # We allow the drag in this widget
         self.setAcceptDrops(True)
-
         # Definition of variable
         # Definition for all gameSpaces
         self.gameSpaces = {}
@@ -387,6 +389,17 @@ class SGModel(QMainWindow):
 
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
+
+    # Handle window title
+    def updateWindowTitle(self):
+        # Update window title with the number of the round and number of the phase
+        if self.isTimeDisplayedInWindowTitle :
+            if self.timeManager.numberOfPhases() == 1:
+                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}"
+            else:
+                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+            self.setWindowTitle(title) 
+
 
 
 # -----------------------------------------------------------------------------------------
@@ -737,6 +750,15 @@ class SGModel(QMainWindow):
                 selection.append(aP.name) 
         return selection
 
+
+    def displayTimeInWindowTitle(self, setting=True):
+        """
+        Set whether to display the time (Round number and Phase number) in the window title.
+        Args:
+            setting (bool, optional): If True or not specified, the time will be displayed in the window title; if False, it will not.
+        """
+        self.isTimeDisplayedInWindowTitle = setting
+        
     # To create a Time Label
     def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         """
@@ -1330,4 +1352,5 @@ class SGModel(QMainWindow):
             else: raise ValueError('No other possible choices')
 
         self.actionsFromBrokerToBeExecuted=[]
+
 

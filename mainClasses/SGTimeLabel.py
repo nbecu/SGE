@@ -140,7 +140,7 @@ class SGTimeLabel(SGGameSpace):
             self.label3.fontMetrics().boundingRect(self.label3.text()).width())
 
     def displayUpdate(self):
-        if len(self.model.timeManager.phases) > 2:
+        if self.model.timeManager.numberOfPhases() > 2:
             self.displayPhaseName = True
             self.displayPhaseNumber = True
         self.label3.setVisible(self.displayPhaseName)

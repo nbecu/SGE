@@ -105,7 +105,7 @@ class SGGraphController(NavigationToolbar):
         self.rounds = {entry['round'] for entry in data}
         self.phases = {entry['phase'] for entry in data}
         self.nbRounds = max(self.rounds)
-        self.nbPhases = len(self.model.timeManager.phases)
+        self.nbPhases = self.model.timeManager.numberOfPhases()
         self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
 
         if optionXScale in ['per round','specified phase'] or (optionXScale == 'per step' and self.nbPhases == 1) :

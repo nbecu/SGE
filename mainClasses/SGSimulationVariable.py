@@ -64,7 +64,7 @@ class SGSimulationVariable():
         if self.history==[]: return []
         aList=[]
         tmpDict={}
-        nbPhases = len(self.model.timeManager.phases)
+        nbPhases = self.model.timeManager.numberOfPhases()
         for aData in self.history:
             tmpDict[json.dumps([aData[0],aData[1]])]=aData[2]
         def keyfunction(dumped_item):

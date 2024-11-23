@@ -110,7 +110,7 @@ class AttributeAndValueFunctionalities():
         if self.history["value"]=={}: return []
         aList=[]
         tmpDict={}
-        nbPhases = len(self.model.timeManager.phases)
+        nbPhases = self.model.timeManager.numberOfPhases()
 
         # create a dict (tmpDict) of attribute values with keys as dates of the value updates of each attribute
         for aAtt, listOfData in self.history["value"].items():

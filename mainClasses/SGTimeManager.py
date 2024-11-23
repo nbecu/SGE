@@ -20,18 +20,21 @@ class SGTimeManager():
         
     # To increment the time of the game
     def nextPhase(self):
-        if len(self.phases) == 0:
+        if self.numberOfPhases() == 0:
             print('warning : should we handle the case when there is no phases defined ?')
             return
         
+        # Record the data of the step in dataRecorded
         self.model.dataRecorder.calculateStepStats()
+
+        # Process the conditions of game ending
         isEndGame = self.checkEndGame()
         if isEndGame : return
 
         if self.currentRoundNumber ==0:     #This case is to quit the Initialization phase at the begining of the game
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
-        elif self.isCurrentPhase_Last():    #This case is when  there is no nextphase after the current one. Therefor it is a next round
+        elif self.isItTheLastPhase():    #This case is when  there is no nextphase after the current one. Therefor it is a next round
             self.currentRoundNumber += 1
             self.currentPhaseNumber = 1
             #reset GameActions count
@@ -43,8 +46,9 @@ class SGTimeManager():
         # Process the widgets for this next phase/round
         if self.model.myTimeLabel is not None:
             self.model.myTimeLabel.updateTimeLabel()
+        self.model.updateWindowTitle()
+
         if self.model.userSelector is not None:
-            # self.model.userSelector.updateUI(QHBoxLayout())
             self.model.userSelector.updateOnNewPhase()
 
         # execute the actions of the phase
@@ -64,7 +68,7 @@ class SGTimeManager():
                 if isinstance(self.getCurrentPhase().messageAutoForward,str):
                     aText = self.getCurrentPhase().messageAutoForward
                 else:
-                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isCurrentPhase_Last() else ("the next phase: '"+self.getNextPhase().name+"'")) 
+                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isItTheLastPhase() else ("the next phase: '"+self.getNextPhase().name+"'")) 
                 msg_box.setText(aText)
                 msg_box.setStandardButtons(QMessageBox.Ok)
                 msg_box.setDefaultButton(QMessageBox.Ok)
@@ -81,7 +85,7 @@ class SGTimeManager():
                 thePhase = self.phases[self.currentPhase]
                 # check conditions for the phase
                 doThePhase = True
-                if self.currentPhase == 1 and len(self.phases) > 1:
+                if self.currentPhase == 1 and self.numberOfPhases() > 1:
                     self.currentRound += 1
                     if self.model.myTimeLabel is not None:
                         self.model.myTimeLabel.updateTimeLabel()
@@ -113,11 +117,14 @@ class SGTimeManager():
                 else:
                     self.nextPhase()"""
 
-    def isCurrentPhase_Last(self):
-        return (self.currentPhaseNumber + 1) > len(self.phases) 
+    def isItTheLastPhase(self):
+        return (self.currentPhaseNumber + 1) > self.numberOfPhases() 
 
     def getCurrentPhase(self):
         return self.phases[self.currentPhaseNumber-1]
+    
+    def numberOfPhases(self):
+        return len(self.phases)
                             
     def getNextPhase(self):
         return self.phases[self.currentPhaseNumber]

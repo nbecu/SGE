@@ -6,8 +6,7 @@ import random
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1500,900, windowTitle="MTZC", typeOfLayout ="grid", x=4,y=4)
-
+myModel=SGModel(1500,900, name="MTZC", typeOfLayout ="grid", x=4,y=4)
 sPC = 2
 sGC = 4
     
@@ -25,7 +24,7 @@ ZHs = {
         "sequestration": 1.51,
         "couleur": QColor(147, 112, 219, 120)
     },
-    "marais sale": {
+    "marais salant": {
         "sequestration": 1.51,
         "couleur": QColor(0, 255, 0, 120)
     },
@@ -72,7 +71,7 @@ t0 = "vide"
 tD = "marais doux"
 tDA = "marais doux agricole"
 tSAU = "marais saumatre"
-tSAL = "marais sale"
+tSAL = "marais salant"
 tO = "oestricole"
 tPS = "pres sales"
 tV = "vasiere nue"
@@ -126,11 +125,12 @@ def constructPlateau():
     return cases
 
 def constructZH1(): #ex. estran, ou marais doux
-    aZH=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=QColor.fromRgb(135,206,235))
-    aZH.getEntity(1,1).setValue("action1","marche")
-    aZH.getEntity(1,2).setValue("action1","observation")
+    pZH1=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=QColor.fromRgb(135,206,235))
+    pZH1.setValue('capacite accueil',7)
+    pZH1.getEntity(1,1).setValue("action1","marche")
+    pZH1.getEntity(1,2).setValue("action1","observation")
     # aZH.defaultShapeColor = Qt.yellow
-    return aZH
+    return pZH1
 def constructZH2(): #ex. estran, ou marais doux
     aZH2=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=Qt.green)
     aZH2.getEntity(1,1).setValue("action1","marche")
@@ -172,7 +172,7 @@ for aZH in ZHs.keys():
     Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":aZH},feedback=[lambda : updateJauges()]))
 # Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":"vide"},feedback=[lambda : updateJauges()]))
 
-Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J1'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J1') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
+Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J1'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J1') < 12, lambda aCell: aCell.classDef != cases, lambda aCell: aCell.classDef.nbOfEntities() < aCell.classDef.value('capacite accueil')], feedback=[lambda : updateActions1()]))
 Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J2'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J2') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
 Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J3'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J3') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
 Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":'J4'}, listOfRestriction=[lambda : pionAction1.nb_withValue("joueur",'J4') < 12, lambda aCell: aCell.classDef != cases], feedback=[lambda : updateActions1()]))
@@ -200,6 +200,7 @@ def updateActions1():
 Player1ControlPanel = Player.newControlPanel("Actions")
 
 GamePhase=myModel.timeManager.newGamePhase("Jouer",[Player])
+myModel.displayTimeInWindowTitle()
 
 # userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Player")
