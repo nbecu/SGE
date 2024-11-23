@@ -43,7 +43,7 @@ class SGGrid(SGGameSpace):
             painter.drawPixmap(rect, self.backgroundImage)
 
         else:
-            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget

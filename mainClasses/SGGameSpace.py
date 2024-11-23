@@ -1,12 +1,11 @@
 from PyQt5 import QtWidgets
-
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
             
 class SGGameSpace(QtWidgets.QWidget):
-    def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroudColor=Qt.gray,forceDisplay=False):
+    def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroundColor=Qt.gray,forceDisplay=False):
         super().__init__(parent)
         self.model=parent
         self.posXInLayout=posXInLayout
@@ -14,7 +13,7 @@ class SGGameSpace(QtWidgets.QWidget):
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.isDraggable = isDraggable
-        self.backgroudColor = backgroudColor
+        self.backgroundColor = backgroundColor
         self.forceDisplay = forceDisplay
         
                
@@ -114,7 +113,7 @@ class SGGameSpace(QtWidgets.QWidget):
         
     #Funtion to have the global size of a gameSpace  
     def setColor(self,aColor):
-        self.backgroudColor=aColor
+        self.backgroundColor=aColor
         
         
     #Function to change the order in the layout

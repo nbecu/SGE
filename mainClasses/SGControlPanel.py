@@ -50,7 +50,7 @@ class SGControlPanel(SGLegend):
             painter = QPainter() 
             painter.begin(self)
             if self.isActive:
-                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+                painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
             else:
                 painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
             painter.setPen(QPen(self.borderColor,1))

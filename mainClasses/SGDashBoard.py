@@ -56,7 +56,7 @@ class SGDashBoard(SGGameSpace):
             if len(self.indicators) != 0:
                 painter = QPainter()
                 painter.begin(self)
-                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+                painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
                 painter.setPen(QPen(self.borderColor, 1))
                 # Draw the corner of the DB
                 self.setMinimumSize(self.getSizeXGlobal()+10,

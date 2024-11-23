@@ -6,7 +6,6 @@ from sqlalchemy import true
 from mainClasses.SGGameSpace import SGGameSpace
 
 
-# Class who is responsible of the Legend creation
 class SGTimeLabel(SGGameSpace):
     def __init__(self, parent, title, backgroundColor=Qt.darkGray, borderColor=Qt.black, textColor=Qt.red):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
@@ -107,7 +106,7 @@ class SGTimeLabel(SGGameSpace):
         if len(self.labels) != 0:
             painter = QPainter()
             painter.begin(self)
-            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
             painter.setPen(QPen(self.borderColor, 1))
             # Draw the corner of the Legend
             self.setMinimumSize(self.getSizeXGlobal()+3,

@@ -310,7 +310,7 @@ def updateActions1():
 
 
 PlayerControlPanel = Player.newControlPanel("Actions")
-PlayerControlPanel.moveToCoords(900,30)
+PlayerControlPanel.moveToCoords(700,30)
 
 GamePhase=myModel.timeManager.newGamePhase("Jouer",[Player])
 myModel.displayTimeInWindowTitle()

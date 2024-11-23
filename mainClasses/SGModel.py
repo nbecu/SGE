@@ -29,6 +29,7 @@ from mainClasses.SGModelAction import*
 from mainClasses.SGPlayer import*
 from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTextBox import*
+from mainClasses.SGLabel import*
 from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
@@ -797,6 +798,11 @@ class SGModel(QMainWindow):
         self.applyPersonalLayout()
 
         return aTextBox
+    
+    # To create a Text Box
+    def newLabel(self, label, position, style="", borderStyle="",backgroundColor=""):
+        aLabel = SGLabel(self, label, position, style, borderStyle, backgroundColor)
+        
 
     def deleteTextBox(self, titleOfTheTextBox):
         del self.gameSpaces[titleOfTheTextBox]
