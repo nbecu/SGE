@@ -202,7 +202,7 @@ def constructPlateau():
     # cases.setEntities("typeZH","vide")
     return cases
 
-def constructZH(typeZH): #ex. estran, ou marais doux
+def constructZH(typeZH, coords=None): #ex. estran, ou marais doux
     pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
     case1= pZH[typeZH].getEntity(1,1)
     case1.setValue('type','action1')
@@ -216,17 +216,30 @@ def constructZH(typeZH): #ex. estran, ou marais doux
             caseX.setValue(aParam, aValue)
     
     pZH[typeZH].newPov("vue normal","type",{"action1":Qt.gray,"action2":QColor.fromRgb(255,165,0)})
+    if coords != None : pZH[typeZH].grid.moveToCoords(coords)
 
     return pZH[typeZH]
-    
+
+# def customLayout():
+#     Plateau.grid.moveToCoords(440,130)
+#     VillageNord.grid.moveToCoords(30,130)
+#     VillageEst.grid.moveToCoords(1180,400)
+#     VillageSud.grid.moveToCoords(30,380)
+#     pioche.grid.moveToCoords(400,730)
+#     reserve.grid.moveToCoords(135,765)
+#     DashBoardInd.moveToCoords(1180,130)
+#     DashBoard.moveToCoords(1390,130)
+#     DashBoardRessources.moveToCoords(1640,130)
+#     DashBoardViticulteur.moveToCoords(1500,730)
+#     ViticulteurControlPanel.moveToCoords(1330,730)    
 
  
-def constructZH2(): #ex. estran, ou marais doux
-    aZH2=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=Qt.green)
-    aZH2.getEntity(1,1).setValue("action1","marche")
-    aZH2.getEntity(1,2).setValue("action1","observation")
-    # aZH.defaultShapeColor = Qt.yellow
-    return aZH2
+# def constructZH2(): #ex. estran, ou marais doux
+#     aZH2=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=Qt.green)
+#     aZH2.getEntity(1,1).setValue("action1","marche")
+#     aZH2.getEntity(1,2).setValue("action1","observation")
+#     # aZH.defaultShapeColor = Qt.yellow
+#     return aZH2
     
     
 
@@ -238,8 +251,16 @@ cases.displayBorderPov("bords")
 
 pZH={}
 # constructZH("marais doux")
-for aZHtype in ZHs.keys():
-    constructZH(aZHtype)
+posX = 1150
+posY = 30
+for i, aZHtype in enumerate(ZHs.keys()):
+    if aZHtype == "vide": continue
+    constructZH(aZHtype, (posX, posY))
+    posX += 100  # Incrémentation de posX
+    # Vérification si posX dépasse 1450
+    if posX > 1400:
+        posX = 1150  # Réinitialisation de posX
+        posY += 150  # Incrémentation de posY
 
 pionAction1=myModel.newAgentSpecies("Action1","circleAgent",{'joueur':{'J1','J2','J3','J4'}},defaultSize=10,)
 pionAction1.newPov("joueur","joueur",{'J1': Qt.blue, 'J2': Qt.red, 'J3': Qt.yellow, 'J4':Qt.green})
@@ -288,7 +309,8 @@ def updateActions1():
     economie.setValue(round(totEco))
 
 
-Player1ControlPanel = Player.newControlPanel("Actions")
+PlayerControlPanel = Player.newControlPanel("Actions")
+PlayerControlPanel.moveToCoords(900,30)
 
 GamePhase=myModel.timeManager.newGamePhase("Jouer",[Player])
 myModel.displayTimeInWindowTitle()
@@ -298,6 +320,7 @@ myModel.setCurrentPlayer("Player")
 # Legend=myModel.newLegend(grid="combined")
 
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
+DashBoardInd.moveToCoords(900,600)
 indSequestration=DashBoardInd.addIndicatorOnSimVariable(sequestration)
 indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 

@@ -125,7 +125,7 @@ class SGGameSpace(QtWidgets.QWidget):
         self.posYInLayout=y
 
     #Function to move a GameSpace in the model window
-    def moveToCoords(self,x,y):
+    def moveToCoords(self,x,y=None):
         """
         Permits to move a GameSpace at a specific coordinate based on the left upper corner
 
@@ -133,6 +133,13 @@ class SGGameSpace(QtWidgets.QWidget):
             x (int) : x-axis corrdinate in pixels
             y (int) : y-axis corrdinate in pixels
         """
+        if y is None :
+            if not isinstance(x, tuple):
+                raise ValueError('Wrong format: x must be a coordinate tuple (x,y).')
+            else:
+                y = x[1]
+                x = x[0]
+                
         if x < self.model.width() + self.width() or x < 0:
             if y < self.model.height() + self.height() or y < 0:
                 self.move(x,y)
