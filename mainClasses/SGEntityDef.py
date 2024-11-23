@@ -236,6 +236,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aId=x
         return next(filter(lambda ent: ent.id==aId, self.entities),None)
 
+
 # to get all entities. a condition on the entity can be used to select only some entities
     def getEntities(self, condition=None):
 
@@ -517,16 +518,8 @@ class SGCellDef(SGEntityDef):
         arg:
             id (int): id of the cell
         """
-        if isinstance(y, int):
-            if x < 0 or y < 0 : return None
-            aId= self.cellIdFromCoords(x,y)
-        else:
-            aId=x
-        return next(filter(lambda ent: ent.id==aId, self.entities),None)
-
-    # Return the cell at specified coordinates
-    def getEntity(self, x, y=None):
-        return self.getCell(x, y)
+        return self.getEntity(x, y)
+       
 
     def getEntities_withRow(self, aRowNumber):
         return self.grid.getCells_withRow(aRowNumber)
@@ -535,8 +528,7 @@ class SGCellDef(SGEntityDef):
         return self.grid.getCells_withColumn(aColumnNumber)
 
     def cellIdFromCoords(self,x,y):
-        if x < 0 or y < 0 : return None
-        return x + (self.grid.columns * (y -1))
+        return self.grid.cellIdFromCoords(x,y)
 
     def deleteEntity(self, aCell):
         """

@@ -14,56 +14,134 @@ sGC = 4
 ZHs = {
     "marais doux": {
         "sequestration": 0.25,
-        "couleur": QColor(173, 216, 230, 120)
+        "couleur": QColor(173, 216, 230, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":-1, "feedback economie":2, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":3, "feedback economie":-2, "image":'autre.jpg'}
+        }
     },
     "marais doux agricole": {
         "sequestration": 0.1,
-        "couleur": QColor(139, 69, 19, 120)
+        "couleur": QColor(139, 69, 19, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":2, "feedback economie":1, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":-2, "feedback economie":3, "image":'autre.jpg'}
+        }
     },
     "marais saumatre": {
         "sequestration": 1.51,
-        "couleur": QColor(147, 112, 219, 120)
+        "couleur": QColor(147, 112, 219, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":3, "feedback economie":-1, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":1, "feedback economie":2, "image":'autre.jpg'}
+        }
     },
     "marais salant": {
         "sequestration": 1.51,
-        "couleur": QColor(0, 255, 0, 120)
+        "couleur": QColor(0, 255, 0, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":-2, "feedback economie":3, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":2, "feedback economie":1, "image":'autre.jpg'}
+        }
     },
     "oestricole": {
-        "sequestration": 1,  # à vérifier
-        "couleur": QColor(128, 128, 128, 120)
+        "sequestration": 1,
+        "couleur": QColor(128, 128, 128, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":1, "feedback economie":3, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":-1, "feedback economie":2, "image":'autre.jpg'}
+        }
     },
     "pres sales": {
         "sequestration": 2.4,
-        "couleur": QColor(70, 110, 70, 120)
+        "couleur": QColor(70, 110, 70, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":2, "feedback economie":-2, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":3, "feedback economie":1, "image":'autre.jpg'}
+        }
     },
     "vasiere nue": {
         "sequestration": 0.4,
-        "couleur": QColor(210, 180, 140, 120)
+        "couleur": QColor(210, 180, 140, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":-1, "feedback economie":3, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":2, "feedback economie":-1, "image":'autre.jpg'}
+        }
     },
     "demi-herbier": {
-        "sequestration": 0.9,  # moitié zoostère, moitié vasière nue
-        "couleur": QColor(130, 180, 100, 120)
+        "sequestration": 0.9,
+        "couleur": QColor(130, 180, 100, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":3, "feedback economie":-2, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":1, "feedback economie":2, "image":'autre.jpg'}
+        }
     },
     "herbier": {
         "sequestration": 1.4,
-        "couleur": QColor(0, 128, 0, 120)
+        "couleur": QColor(0, 128, 0, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":-2, "feedback economie":1, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":2, "feedback economie":3, "image":'autre.jpg'}
+        }
     },
     "prairie agricole": {
-        "sequestration": 0.05,  # à vérifier
-        "couleur": QColor(255, 0, 0, 120)
+        "sequestration": 0.05,
+        "couleur": QColor(255, 0, 0, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":1, "feedback economie":-1, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":3, "feedback economie":2, "image":'autre.jpg'}
+        }
     },
     "mer": {
         "sequestration": 0.004,
-        "couleur": QColor(0, 0, 255, 120)
+        "couleur": QColor(0, 0, 255, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":2, "feedback economie":3, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":-2, "feedback economie":1, "image":'autre.jpg'}
+        }
     },
     "plage": {
         "sequestration": 0,
-        "couleur": QColor(255, 218, 185, 120)
+        "couleur": QColor(255, 218, 185, 120),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":3, "feedback economie":2, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":-1, "feedback economie":3, "image":'autre.jpg'}
+        }
     },
     "vide": {
         "sequestration": 0,
-        "couleur": QColor(0, 0, 0, 0)
-    },
+        "couleur": QColor(0, 0, 0, 0),
+        "taille plateau":(2,3),
+        "capacite accueil actions1":7,
+        "cases actions2":{
+            "tracteur":{"feedback sequestration":-2, "feedback economie":2, "image":'tracteur.jpg'},
+            "autreAction2":{"feedback sequestration":1, "feedback economie":-1, "image":'autre.jpg'}
+        }
+    }
 }
 
 # Accès aux valeurs
@@ -124,13 +202,25 @@ def constructPlateau():
     # cases.setEntities("typeZH","vide")
     return cases
 
-def constructZH1(): #ex. estran, ou marais doux
-    pZH1=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=QColor.fromRgb(135,206,235))
-    pZH1.setValue('capacite accueil',7)
-    pZH1.getEntity(1,1).setValue("action1","marche")
-    pZH1.getEntity(1,2).setValue("action1","observation")
-    # aZH.defaultShapeColor = Qt.yellow
-    return pZH1
+def constructZH(typeZH): #ex. estran, ou marais doux
+    pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
+    case1= pZH[typeZH].getEntity(1,1)
+    case1.setValue('type','action1')
+    case1.setValue('capacite accueil',ZHs[typeZH]["capacite accueil actions1"])
+
+    for i, (typeCaseAction2, paramCaseAction2) in enumerate(ZHs[typeZH]["cases actions2"].items(), start=2):
+        caseX = pZH[typeZH].getEntity(i)
+        caseX.setValue("type", "action2")
+        caseX.setValue("type_action2", typeCaseAction2)
+        for aParam, aValue in paramCaseAction2.items():
+            caseX.setValue(aParam, aValue)
+    
+    pZH[typeZH].newPov("vue normal","type",{"action1":Qt.gray,"action2":QColor.fromRgb(255,165,0)})
+
+    return pZH[typeZH]
+    
+
+ 
 def constructZH2(): #ex. estran, ou marais doux
     aZH2=myModel.newCellsOnGrid(2,3,"square",size=60,gap=2,name="ZH1",color=Qt.green)
     aZH2.getEntity(1,1).setValue("action1","marche")
@@ -146,9 +236,10 @@ cases.newPov("vue normal","typeZH",dicoCouleurs)
 cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.black,4]})
 cases.displayBorderPov("bords")
 
-pZH1=constructZH1()
-# pZH2=constructZH2()
-pZH1.newPov("vue normal","actions1",{"marche":Qt.blue,"observation":QColor.fromRgb(255,165,0)})
+pZH={}
+# constructZH("marais doux")
+for aZHtype in ZHs.keys():
+    constructZH(aZHtype)
 
 pionAction1=myModel.newAgentSpecies("Action1","circleAgent",{'joueur':{'J1','J2','J3','J4'}},defaultSize=10,)
 pionAction1.newPov("joueur","joueur",{'J1': Qt.blue, 'J2': Qt.red, 'J3': Qt.yellow, 'J4':Qt.green})

@@ -162,6 +162,7 @@ class SGGrid(SGGameSpace):
     def cellIdFromCoords(self,x,y):
         if x < 0 or y < 0 : return None
         return x + (self.columns * (y -1))
+    
 
     def getCell_withCoords(self,x,y):
         return self.getCell_withId(self.cellIdFromCoords(x,y))
