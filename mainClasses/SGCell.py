@@ -194,6 +194,12 @@ class SGCell(SGEntity):
         else: listAgts = self.getAgents()
         return  len(listAgts)
  
+    def isEmpty(self,specie=None):
+        return self.hasAgents(specie)
+    
+    def hasAgents(self,specie=None):
+        return self.nbAgents(specie) == 0
+
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
