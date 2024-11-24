@@ -7,8 +7,6 @@ import string
 
 monApp = QtWidgets.QApplication([])
 
-# This is your model. A Model is an interactive window where you will be able to
-# add items later. You can choose its size, name and type of organization.
 myModel = SGModel(550, 550)
 
 
@@ -20,28 +18,20 @@ options_color = ["red", "blue", "green", "yellow", "black", "white", "purple",
                       "rgba(154, 20, 8, 0.5)", "rgba(114, 84, 210, 0.8)"]
 
 
-#Text Style
+#Text Style options
 options_font_family = ["Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact"]
-
-
-
+#text_color  # see  options_color
 options_text_decoration = ["none", "underline", "overline", "line-through", "blink"]
-
-
 options_font_weight = ["normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"]
-
-
 options_font_style = ["normal", "italic", "oblique"]
 
-    
+# Border Styles options
+options_border_style = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset"]
+#border_size   # any integer from 0 to 100. O is equal to 'no border'
+#border_color  # see  options_color
 
-
-# Border Styles
-options_line_style = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset"]
-
-
-
-
+# Background Style
+#background_color  # see  options_color
 
 # ********* specific methods used in this example **************
 def rgb(color):
@@ -83,24 +73,34 @@ for i in range(25):  # Repeat 15 times
     text_decoration = random.choice(options_text_decoration)
     font_weight = random.choice(options_font_weight)  # Choix aléatoire du poids de la police
     font_style = random.choice(options_font_style)  # Choix aléatoire du style de police
-    text_style = f"font-family: {font_family}; font-size: {font_size}px; color: {text_color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
-    line_style = random.choice(options_line_style)
-    line_size = random.randint(0, 5)
-    line_color = random.choice(options_color)
-    border_style = f"border: {line_size}px {line_style} {line_color};"           
-    background_color = f"background-color: {random.choice([color for color in options_color if not colors_close(color, text_color)])};"
+    
+    border_style = random.choice(options_border_style)
+    border_size = random.randint(0, 5)
+    border_color = random.choice(options_color)
     text = f"{i}:{generate_random_text()}"
     position = (random.randint(0, 380),random.randint(20, 530))
+    
+    background_color = random.choice([color for color in options_color if not colors_close(color, text_color)])
+
+    text_style = f"font-family: {font_family}; font-size: {font_size}px; color: {text_color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
+    border_specs = f"border: {border_size}px {border_style} {border_color};"           
+
     print(f"Text {i}:\n"
           f"text_style: {text_style}\n"
-          f"border_style: {border_style}\n"
+          f"border_specs: {border_specs}\n"
           f"background_color: {background_color}\n")
-    myModel.newLabel(text,position,text_style, border_style, background_color)
+
+    # Use newLabel_stylised instead of newLabel
+    myModel.newLabel_stylised(text, position,
+                              font=font_family, size=font_size, color=text_color,
+                              text_decoration=text_decoration, font_weight=font_weight,
+                              font_style=font_style, border_style=border_style,
+                              border_size=border_size, border_color=border_color,
+                              background_color=background_color)
 
 
 
 
-# This launchs your model and it will always be the last twwo lines of the code.
 myModel.launch()
 sys.exit(monApp.exec_())
 

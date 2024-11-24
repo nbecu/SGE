@@ -6,9 +6,8 @@ import random
 
 monApp = QtWidgets.QApplication([])
 
-# This is your model. A Model is an interactive window where you will be able to
-# add items later. You can choose its size, name and type of organization.
-myModel = SGModel(550, 550)
+
+myModel = SGModel(550, 250)
 
 
 #Color options
@@ -18,13 +17,11 @@ options_color = ["red", "blue", "green", "yellow", "black", "white", "purple",
                       "rgb(127, 12, 0)", "rgb(6, 78, 255)", "rgb(0, 255, 0)",
                       "rgba(154, 20, 8, 0.5)", "rgba(114, 84, 210, 0.8)"]
 
-
 #Text Style
 options_font_family = ["Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact"]
 font_family = random.choice(options_font_family)
 
-font_size = random.randint(7, 24)
-
+font_size = random.randint(16, 34)
 text_color = random.choice(options_color)
 
 options_text_decoration = ["none", "underline", "overline", "line-through", "blink"]
@@ -36,21 +33,16 @@ font_weight = random.choice(options_font_weight)  # Choix aléatoire du poids de
 options_font_style = ["normal", "italic", "oblique"]
 font_style = random.choice(options_font_style)  # Choix aléatoire du style de police
 
-text_style = f"font-family: {font_family}; font-size: {font_size}px; color: {text_color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
+textStyle_specs = f"font-family: {font_family}; font-size: {font_size}px; color: {text_color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
     
 
-
 # Border Styles
-options_line_style = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset"]
-line_style = random.choice(options_line_style)
+options_border_style = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset"]
+border_style = random.choice(options_border_style)
+border_size = random.randint(0, 5)
+border_color = random.choice(options_color)
 
-line_size = random.randint(0, 5)
-
-line_color = random.choice(options_color)
-
-border_style = f"border: {line_size}px {line_style} {line_color};"           
-
-
+borderStyle_specs = f"border: {border_size}px {border_style} {border_color};"           
 
 
 # ********* specific methods used in this example **************
@@ -96,16 +88,14 @@ def contrastingColor(aColor):
 # *****************************************************
 
 
-# Update the background_color variable to include other settings
-
-background_color = random.choice([color for color in options_color if not colors_close(color, text_color)])
+# set the background_color with a color that os not close to the text color
+backgroundColor = random.choice([color for color in options_color if not colors_close(color, text_color)])
 
 # Options for the background image
 options_background_images = [
     "url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0')",  # Landscape image
     "url('path/to/image.jpg')" 
 ]
-
 background_image = random.choice(options_background_images)
 
 options_background_position = ["left", "center", "right", "top", "bottom", "10px 20px", "50% 50%"]
@@ -115,18 +105,20 @@ background_repeat = random.choice(options_background_repeat)
 options_background_size = ["auto", "cover", "contain", "100px 50px", "50% 50%"]
 background_size = random.choice(options_background_size) 
 # Update the background_style variable to include other settings
-background_style = f"background-color: {random.choice(options_color)}; background-image: {background_image}; background-position: {background_position}; background-repeat: {background_repeat}; background-size: {background_size};"
-background_style_without_image = f"background-color: {random.choice(options_color)};"
+backgroundColor_FullSpecs = f"background-color: {random.choice(options_color)}; background-image: {background_image}; background-position: {background_position}; background-repeat: {background_repeat}; background-size: {background_size};"
 
-print(f"text_style:{text_style}")
-print(f"border_style:{border_style}")
-print(f"background_style:{background_style}")
-myModel.newLabel('This is a text in a label',(70,250),text_style, border_style, background_style_without_image)
+#For this exaple we do not used image ni background. We use color for background
+backgroundColor_specs = f"background-color: {random.choice(options_color)};"
+
+print(f"text_style:{textStyle_specs}")
+print(f"border_style:{borderStyle_specs}")
+print(f"background_style:{backgroundColor_specs}")
+
+#Instead of using the newLabel_stylised() method, you can directly use the newLabel() method and provide the textStyle_specs, borderStyle_specs and backgroundColor_specs using the exact same syntax as used above)
+myModel.newLabel('This is a text in a label',(70,100),textStyle_specs, borderStyle_specs, backgroundColor_specs)
 
 
 
-
-# This launchs your model and it will always be the last twwo lines of the code.
 myModel.launch()
 sys.exit(monApp.exec_())
 

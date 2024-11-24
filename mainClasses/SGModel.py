@@ -800,9 +800,47 @@ class SGModel(QMainWindow):
         return aTextBox
     
     # To create a Text Box
-    def newLabel(self, label, position, style="", borderStyle="",backgroundColor=""):
-        aLabel = SGLabel(self, label, position, style, borderStyle, backgroundColor)
+    def newLabel(self, label, position, textStyle_specs="", borderStyle_specs="",backgroundColor_specs=""):
+        """Display a text at a given position
+
+        Args:
+            text (str): The text to display.
+            position (tuple): Coordinates (x, y) of the position of the text.
+        """
+        aLabel = SGLabel(self, label, position, textStyle_specs, borderStyle_specs, backgroundColor_specs)
+        return aLabel
+
+    def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", border_style="solid", border_size=0, border_color=None, background_color=None):
+        """Display a text at a given position and allow setting the style of the text, border, and background.
+
+        Args:
+            text (str): The text to display.
+            position (tuple): Coordinates (x, y) of the position of the text.
+            font (str, optional): Font family. Options include "Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact".
+            size (int, optional): Font size in pixels.
+            color (str, optional): Text color. Can be specified by name (e.g., "red", "orange", "navy", "gold"), hex code (e.g., "#FF0000", "#AB28F9"), RGB values (e.g., "rgb(127, 12, 0)"), or RGBA values for transparency (e.g., "rgba(154, 20, 8, 0.5)").
+            text_decoration (str, optional): Text decoration style. Options include "none", "underline", "overline", "line-through", "blink".
+            font_weight (str, optional): Font weight. Options include "normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900".
+            font_style (str, optional): Font style. Options include "normal", "italic", "oblique".
+            border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
+            border_size (int, optional): Border size in pixels.
+            border_color (str, optional): Same options as color.
+            background_color (str, optional): Same options as color.
+        """
+        # Create the text style
+        text_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
         
+        # Create the border style
+        border_specs = f"border: {border_size}px {border_style} {border_color};"
+        
+        # Create the background style
+        background_specs = f"background-color: {background_color};"
+        
+        # Call the newLabel method with the created styles
+        aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs)
+        return aLabel
+
+
 
     def deleteTextBox(self, titleOfTheTextBox):
         del self.gameSpaces[titleOfTheTextBox]
