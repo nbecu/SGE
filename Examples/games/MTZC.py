@@ -248,7 +248,7 @@ for jX in list(listeJoueurs.keys()):
 
 
 nbPionActions2_parJoueur=6
-pionAction2=myModel.newAgentSpecies("Action1","squareAgent",defaultSize=20,locationInEntity='center')
+pionAction2=myModel.newAgentSpecies("Action2","squareAgent",defaultSize=20,locationInEntity='center')
 pionAction2.newPov("joueur","joueur",listeJoueurs)
 
 for jX in list(listeJoueurs.keys()):
@@ -290,7 +290,7 @@ def updateActions2():
 
 
 PlayerControlPanel = Player.newControlPanel("Actions")
-PlayerControlPanel.moveToCoords(700,30)
+# PlayerControlPanel.moveToCoords(700,30)
 
 myModel.setCurrentPlayer("Player")
 
@@ -347,7 +347,7 @@ myModel.displayTimeInWindowTitle()
 
 #********************************************************************
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
-DashBoardInd.moveToCoords(900,685)
+DashBoardInd.moveToCoords(882,715)
 indSequestration=DashBoardInd.addIndicatorOnSimVariable(sequestration)
 indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 
