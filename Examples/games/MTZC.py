@@ -290,7 +290,6 @@ def updateActions2():
 
 
 PlayerControlPanel = Player.newControlPanel("Actions")
-# PlayerControlPanel.moveToCoords(700,30)
 
 myModel.setCurrentPlayer("Player")
 
@@ -353,6 +352,10 @@ indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 
 #********************************************************************
 updateJauges()
+
+PlayerControlPanel.moveToCoords(882,30)
+pZH['plage'].grid.moveToCoords(1350, 480)
+
 
 #********************************************************************
 myModel.launch()
