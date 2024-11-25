@@ -10,6 +10,7 @@ class SGGameSpace(QtWidgets.QWidget):
         self.model=parent
         self.posXInLayout=posXInLayout
         self.posYInLayout=posYInLayout
+        self.positionDefineByModeler = None
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.isDraggable = isDraggable
@@ -48,6 +49,9 @@ class SGGameSpace(QtWidgets.QWidget):
     
     def setStartYBase(self,number):
         self.startYBase = number
+    
+    def isPositionDefineByModeler(self):
+        return self.positionDefineByModeler != None
     
     #Calculate the area
     def areaCalc(self):
@@ -141,8 +145,8 @@ class SGGameSpace(QtWidgets.QWidget):
                 
         if x < self.model.width() + self.width() or x < 0:
             if y < self.model.height() + self.height() or y < 0:
+                self.positionDefineByModeler=(x,y)
                 self.move(x,y)
-                self.model.isMoveToCoordsUsed = True
             else:
                 raise ValueError('The y value is too high or negative')
         else:

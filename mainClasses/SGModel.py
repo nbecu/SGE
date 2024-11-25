@@ -188,9 +188,11 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-        if not self.isMoveToCoordsUsed : QTimer.singleShot(100, self.moveWidgets)
+        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustWidgetsPosition)
         
-    
+    def hasDefinedPositionGameSpace(self):
+        return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
+
     def updateFunction(self):
         aList = self.getAllAgents()
         if not aList : return False
@@ -385,7 +387,8 @@ class SGModel(QMainWindow):
         menu = QMenu(self)
 
         option1 = QAction("LayoutCheck", self)
-        option1.triggered.connect(self.moveWidgets)
+        option1.triggered.connect(self.adjustWidgetsPosition) #todo Pourquoi lancer cette méthode ici ???
+                                        #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
         menu.addAction(option1)
 
         if self.rect().contains(point):
@@ -515,7 +518,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
         return aLegend
     
     def newUserSelector(self):
@@ -529,7 +532,7 @@ class SGModel(QMainWindow):
             self.gameSpaces["userSelector"] = userSelector
             # Realocation of the position thanks to the layout
             userSelector.globalPosition()
-            self.applyPersonalLayout()
+            self.applyAutomaticLayout()
             return userSelector
         else:
             print('You need to add players to the game')
@@ -776,7 +779,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aTimeLabel
         # Realocation of the position thanks to the layout
         aTimeLabel.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aTimeLabel
 
@@ -795,7 +798,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aTextBox
         # Realocation of the position thanks to the layout
         aTextBox.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aTextBox
     
@@ -864,7 +867,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aDashBoard
         # Realocation of the position thanks to the layout
         aDashBoard.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aDashBoard
 
@@ -881,7 +884,7 @@ class SGModel(QMainWindow):
         self.endGameRule = aEndGameRule
         # Realocation of the position thanks to the layout
         aEndGameRule.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aEndGameRule
 
@@ -911,20 +914,18 @@ class SGModel(QMainWindow):
         return gameSpaces
     
     # To apply the layout to all the current game spaces
-    def applyPersonalLayout(self):
+    def applyAutomaticLayout(self):
         self.layoutOfModel.ordered()
-        for anElement in self.gameSpaces:
-            if (self.typeOfLayout == "vertical"):
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase, self.gameSpaces[anElement].startYBase +
-                                                20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]))
+        for aGameSpace in (element for element in self.gameSpaces.values() if not element.isPositionDefineByModeler()):
+            if self.typeOfLayout == "vertical":
+                aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase +
+                                                20*self.layoutOfModel.getNumberOfaGameSpace(aGameSpace))
             elif (self.typeOfLayout == "horizontal"):
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*self.layoutOfModel.getNumberOfAnElement(
-                    self.gameSpaces[anElement]), self.gameSpaces[anElement].startYBase)
+                aGameSpace.move(aGameSpace.startXBase+20*self.layoutOfModel.getNumberOfaGameSpace(
+                    aGameSpace), aGameSpace.startYBase)
             else:
-                pos = self.layoutOfModel.foundInLayout(
-                    self.gameSpaces[anElement])
-                self.gameSpaces[anElement].move(
-                    self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
+                pos = self.layoutOfModel.foundInLayout(aGameSpace)
+                aGameSpace.move(aGameSpace.startXBase+20*pos[0], aGameSpace.startYBase+20*pos[1])
                 
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
@@ -932,13 +933,13 @@ class SGModel(QMainWindow):
             return True
         return False
     
-    def moveWidgets(self):
-        for name,element in self.gameSpaces.items():
+    def adjustWidgetsPosition(self):
+        for name,aGameSpace in self.gameSpaces.items():
             for otherName,otherElement in self.gameSpaces.items():
-                while self.checkLayoutIntersection(name,element,otherName,otherElement):
-                    if element.areaCalc() <= otherElement.areaCalc():
-                        local_pos=element.pos()
-                        element.move(local_pos.x()+10,local_pos.y()+10)
+                while self.checkLayoutIntersection(name,aGameSpace,otherName,otherElement):
+                    if aGameSpace.areaCalc() <= otherElement.areaCalc():
+                        local_pos=aGameSpace.pos()
+                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10)
                     else:
                         local_pos=otherElement.pos()
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)

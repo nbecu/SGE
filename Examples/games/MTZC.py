@@ -210,13 +210,50 @@ cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.blac
 cases.displayBorderPov("bords")
 
 
+#********************************************************************
+# construct plateaux des zones humides 
+
+# méthode générique pour la construction d'un plateau ZH
+casesAction1 =[]
+def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere ou marais doux)
+    pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
+    pZH[typeZH].setEntities('capacite accueil',0)
+    case1= pZH[typeZH].getEntity(1,1)
+    casesAction1.append(case1)
+    case1.setValue('type','action1')
+    case1.setValue('capacite accueil',ZHs[typeZH]["capacite accueil actions1"])
+
+    for i, (typeCaseAction2, paramCaseAction2) in enumerate(ZHs[typeZH]["cases actions2"].items(), start=2):
+        caseX = pZH[typeZH].getEntity(i)
+        caseX.setValue("type", "action2")
+        caseX.setValue("type_action2", typeCaseAction2)
+        for aParam, aValue in paramCaseAction2.items():
+            caseX.setValue(aParam, aValue)
+    
+    pZH[typeZH].newPov("vue normal","type",{"action1":Qt.gray,"action2":QColor.fromRgb(255,165,0)})
+    if coords != None : pZH[typeZH].grid.moveToCoords(coords)
+
+    return pZH[typeZH]
+
+# les plateaux des ZH sont stockés dans le dico pZH{)
+pZH={}
+posX = 1150
+posY = 30
+for i, aZHtype in enumerate(ZHs.keys()):
+    if aZHtype == "vide": continue
+    myModel.newLabel_stylised(aZHtype,(posX+5,posY-2), size=10)
+    constructZH(aZHtype, (posX, posY))
+    posX += 100  # Incrémentation de posX
+    # Vérification si posX dépasse 1450
+    if posX > 1400:
+        posX = 1150  # Réinitialisation de posX
+        posY += 150  # Incrémentation de posY
 
 #********************************************************************
 # variables de simulation
 
 sequestration=myModel.newSimVariable("Sequestration",0)
 economie=myModel.newSimVariable("Economie",0)
-
 
 #********************************************************************
 # Definiion des actions de jeu
@@ -259,8 +296,8 @@ for jX in list(listeJoueurs.keys()):
                                     lambda aCell: aCell.isEmpty(),
                                     ],
                             feedbacks=[lambda : updateActions2()]))
-#********************************************************************
 
+#********************************************************************
 def updateJauges():
     totSequest = 0
     for aCase in cases.getEntities():
@@ -288,51 +325,10 @@ def updateActions2():
 
 #********************************************************************
 
-
 PlayerControlPanel = Player.newControlPanel("Actions")
+PlayerControlPanel.moveToCoords(882,30)
 
 myModel.setCurrentPlayer("Player")
-
-#********************************************************************
-# construct plateaux des zones humides 
-
-# méthode générique pour la construction d'un plateau ZH
-
-casesAction1 =[]
-def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere ou marais doux)
-    pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
-    pZH[typeZH].setEntities('capacite accueil',0)
-    case1= pZH[typeZH].getEntity(1,1)
-    casesAction1.append(case1)
-    case1.setValue('type','action1')
-    case1.setValue('capacite accueil',ZHs[typeZH]["capacite accueil actions1"])
-
-    for i, (typeCaseAction2, paramCaseAction2) in enumerate(ZHs[typeZH]["cases actions2"].items(), start=2):
-        caseX = pZH[typeZH].getEntity(i)
-        caseX.setValue("type", "action2")
-        caseX.setValue("type_action2", typeCaseAction2)
-        for aParam, aValue in paramCaseAction2.items():
-            caseX.setValue(aParam, aValue)
-    
-    pZH[typeZH].newPov("vue normal","type",{"action1":Qt.gray,"action2":QColor.fromRgb(255,165,0)})
-    if coords != None : pZH[typeZH].grid.moveToCoords(coords)
-
-    return pZH[typeZH]
-
-# les plateaux des ZH sont stockés dans le dico pZH{)
-pZH={}
-posX = 1150
-posY = 30
-for i, aZHtype in enumerate(ZHs.keys()):
-    if aZHtype == "vide": continue
-    myModel.newLabel_stylised(aZHtype,(posX+5,posY-2), size=10)
-    constructZH(aZHtype, (posX, posY))
-    posX += 100  # Incrémentation de posX
-    # Vérification si posX dépasse 1450
-    if posX > 1400:
-        posX = 1150  # Réinitialisation de posX
-        posY += 150  # Incrémentation de posY
-
 
 #********************************************************************
 
@@ -352,9 +348,6 @@ indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 
 #********************************************************************
 updateJauges()
-
-PlayerControlPanel.moveToCoords(882,30)
-pZH['plage'].grid.moveToCoords(1350, 480)
 
 
 #********************************************************************
