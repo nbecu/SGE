@@ -318,13 +318,13 @@ createHex("Bar",hexagones,data_inst,data_act)
 createHex("Labellisation bio",hexagones,data_inst,data_act)
 createHex("Vigne",hexagones,data_inst,data_act)
 
-#* --------------------------
-#* Dashboard des ressources
-#* --------------------------
-DashBoardRessources2=myModel.newDashBoard("Ressources2")
-DashBoardRessources2.addIndicator(Touriste,"nb")
-DashBoardRessources2.addIndicator(Bouteille,"nb")
-DashBoardRessources2.addIndicator(BouteilleBio,"nb")
+# #* --------------------------
+# #* Dashboard des ressources
+# #* --------------------------
+# DashBoardRessources2=myModel.newDashBoard("Ressources2")
+# DashBoardRessources2.addIndicator(Touriste,"nb")
+# DashBoardRessources2.addIndicator(Bouteille,"nb")
+# DashBoardRessources2.addIndicator(BouteilleBio,"nb")
 
 
 #* --------------------------
@@ -386,8 +386,7 @@ userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 # Legend=myModel.newLegend()
-# titre=myModel.newTextBox("SOLUTRÉ","Bienvenue dans")
-# titre.setTextFormat("Verdana",12)
+
 
 
 def customLayout():
@@ -402,7 +401,6 @@ def customLayout():
     DashBoardRessources.moveToCoords(1640,130)
     DashBoardViticulteur.moveToCoords(1500,730)
     ViticulteurControlPanel.moveToCoords(1330,730)
-    # titre.moveToCoords(30,30)
 
 if __name__ == '__main__':
     customLayout()
