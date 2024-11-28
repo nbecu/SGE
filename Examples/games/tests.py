@@ -28,7 +28,7 @@ Cell.setCell(2,4,"biomass", 3)
 Cell.setCell(4,4,"biomass", 0)
 Cell.setCell(5,4,"biomass", 2)
 
-# GlobalColor.
+
 Cell.newPov("biomass", "biomass", {
                0: Qt.white, 1: Qt.green, 2: QColor.fromRgb(30,190,0), 3: QColorConstants.DarkGreen})
 Cell.newBorderPov("Parc info", "ProtectionLevel", {
@@ -48,18 +48,10 @@ Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, default
 
 
 Clans = myModel.newPlayer("Clan")
-Clans.addGameAction(myModel.newCreateAction(harvesters, 20))
-
-# Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
+Clans.addGameAction(myModel.newCreateAction(harvesters, aNumber=20))
+Clans.newControlPanel("Actions")
 
 Parc = myModel.newPlayer("Parc")
-
-# Parc.addGameAction(myModel.newModifyAction(
-#     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-#     ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
-# Parc.addGameAction(myModel.newModifyAction(
-#     "Cell", "infinite", {"ProtectionLevel": "Free"}))
-# Player2ControlPanel = Parc.newControlPanel()
 
 
 firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')
@@ -135,7 +127,7 @@ i6 = DashBoard.addIndicator('Bird', "sumAtt", attribute='nb reproduction',color=
 
 
 myModel.launch()
-# myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
+
 
 
 sys.exit(monApp.exec_())

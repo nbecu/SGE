@@ -16,6 +16,7 @@ from mainClasses.gameAction.SGMove import*
 from mainClasses.gameAction.SGDelete import*
 from mainClasses.gameAction.SGModify import*
 from mainClasses.gameAction.SGCreate import*
+from mainClasses.gameAction.SGActivate import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
 from mainClasses.SGControlPanel import*
@@ -411,7 +412,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None,defaultCellImage=None):
         """
         Create a grid that contains cells
 
@@ -432,7 +433,7 @@ class SGModel(QMainWindow):
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
 
         # Create a CellDef populate the grid with it
-        aCellDef = self.newCellsFromGrid(aGrid)
+        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage)
         aGrid.cellDef =aCellDef
 
         self.gameSpaces[name] = aGrid
@@ -441,8 +442,8 @@ class SGModel(QMainWindow):
         aGrid.globalPosition()
         return aCellDef
     
-    def newCellsFromGrid(self,grid):
-        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None)
+    def newCellsFromGrid(self,grid,defaultCellImage):
+        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None,defaultCellImage=defaultCellImage)
         self.cellOfGrids[grid.id] = CellDef
         for lin in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
@@ -714,7 +715,7 @@ class SGModel(QMainWindow):
             return playerName
         else:
             return self.players[playerName]
-    
+                
     def setCurrentPlayer(self, aUserName):
         """
         Set the Active Player at the initialisation
@@ -900,6 +901,18 @@ class SGModel(QMainWindow):
         aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
+    
+    def getSimVars(self):
+        return self.simulationVariables
+
+    def newWarningPopUp(self,aTitle, aMessage):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(aTitle)
+        msg.setText(aMessage)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+        return
 
     # ---------
 # Layout
@@ -1086,7 +1099,7 @@ class SGModel(QMainWindow):
 
     def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],setControllerContextualMenu=False):
         """
-        Add a Update GameAction to the game.
+        Add a Modify GameAction to the game.
 
         Args:
         - anObjectType : a AgentSpecies or the keyword "Cell"
@@ -1128,6 +1141,18 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent)
 
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],setControllerContextualMenu=False):
+        """Add a ActivateAction to the game
+        
+        Args:
+        - an ObjectType : a Entity
+        - """
+
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if setControllerContextualMenu: aClassDef.updateMenu=True
+        if aNumber == "infinite": aNumber = 9999999
+        return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
     # -----------------------------------------------------------
     # Getter
 

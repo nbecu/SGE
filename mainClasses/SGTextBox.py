@@ -61,7 +61,7 @@ class SGTextBox(SGGameSpace):
         return 160
 
     def getSizeYGlobal(self):
-        return 150
+        return 100
 
     def paintEvent(self, event):
         painter = QPainter()

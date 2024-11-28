@@ -304,7 +304,7 @@ class SGDashBoard(SGGameSpace):
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):
-        return 70+len(self.getLongest())*5
+        return 100+len(self.getLongest())*5
 
     def getSizeYGlobal(self):
         somme = 100

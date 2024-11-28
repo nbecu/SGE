@@ -1,12 +1,14 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
+from PyQt5.QtGui import QCursor
+
 import random
 from mainClasses.SGEntity import SGEntity
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImagePath):
+    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImage):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
@@ -16,9 +18,9 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
         self.last_selected_option=None
-        self.initMenu()
+        # self.initMenu()
         self.defaultImage=defaultImage
-        self.popupImagePath=popupImagePath
+        self.popupImage=popupImage
         self.dragging = False
         
 
@@ -27,11 +29,18 @@ class SGAgent(SGEntity):
         painter = QPainter() 
         painter.begin(self)
         region = self.getRegion()
+        image=self.getImage()
         if self.defaultImage != None:
             rect = QRect(0, 0, self.width(), self.height())
             painter.setClipRegion(region)
             painter.drawPixmap(rect, self.defaultImage)
+        elif image != None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.setClipRegion(region)
+            painter.drawPixmap(rect, image)
         else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        penColorAndWidth = self.getBorderColorAndWidth()
+        painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
         agentShape = self.classDef.shape
         x = self.xPos
         y = self.yPos
@@ -174,86 +183,6 @@ class SGAgent(SGEntity):
         self.size=round(self.size-(zoomFactor*10))
         self.update()
             
-    def initMenu(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_menu)
-
-    # To show a menu
-    def show_menu(self, point):
-        menu = QMenu(self)
-        options=[]
-
-        for anItem in self.classDef.attributesToDisplayInContextualMenu:
-            aAtt = anItem['att']
-            aLabel = anItem['label']
-            aValue = self.value(aAtt)
-            text = aLabel  + ": "+str(aValue)
-            option = QAction(text, self)
-            menu.addAction(option)
-        
-        if self.classDef.updateMenu:
-            if len(self.classDef.attributesToDisplayInUpdateMenu)==1:  
-                anItem=self.classDef.attributesToDisplayInUpdateMenu[0]
-                aAtt = anItem['att']
-                aLabel = anItem['label']
-                aValue = self.value(aAtt)
-                text="Value - "+aLabel + ": "+str(aValue)
-                gearAct = QAction(text, self)
-                gearAct.setCheckable(False)
-                menu.addAction(gearAct)
-                options.append(gearAct)
-
-            if len(self.classDef.attributesToDisplayInUpdateMenu)>1:
-                gearMenu=menu.addMenu('Values')
-                for anItem in self.classDef.attributesToDisplayInUpdateMenu:
-                    aAtt = anItem['att']
-                    aLabel = anItem['label'] 
-                    aValue = self.value(aAtt)
-                    text = aAtt+" " +aLabel+" : "+str(aValue)
-                    option = QAction(text, self)
-                    option.setCheckable(False) 
-                    gearMenu.addAction(option)
-                    options.append(option)
-
-        if self.rect().contains(point):
-            action=menu.exec_(self.mapToGlobal(point))
-            if action in options:
-                self.showGearMenu(action.text()) 
-
-    def showGearMenu(self,aText):
-        # Get the actions from the player
-        player=self.model.getPlayer(self.model.currentPlayer)
-        if player == "Admin":
-            return
-        actions = player.getGameActionsOn(self)
-        actionsNames =[action.name for action in actions]
-        # Filter the actions by the concerned attribute
-        displayedNames=[]
-        wordsInText=aText.split()
-        att=wordsInText[0]
-        for aName in actionsNames:
-            wordsInName=aName.split()
-            if att in wordsInName:
-                displayedNames.append(aName)
-        # The first value is the current value
-        current_value = self.value(att)
-        displayedValues=[aName.split()[-1] for aName in displayedNames]
-        default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
-        # Dialog box
-        action, ok = QInputDialog.getItem(self, 'Change Value','Select a NEW Value for '+att, displayedValues, default_index, False)
-
-        if ok and action:
-            self.last_selected_option = action
-            self.showPopup(action)
-            # now execute Actions
-            actionName="ModifyAction "+att+" "+action
-            for anAction in actions:
-                if anAction.name==actionName:
-                    anAction.perform_with(self)
-
-    def showPopup(self, selected_option):
-        QMessageBox.information(self, 'Option selected', f'You chose : {selected_option}', QMessageBox.Ok)
-        
     def getRandomX(self):        
         maxSize=self.cell.size
         originPoint=self.cell.pos()
@@ -305,8 +234,6 @@ class SGAgent(SGEntity):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
-            self.close_image_popup(self.popup)
-            self.popup = None
             #Something is selected
             aLegendItem = self.model.getSelectedLegendItem()
             if aLegendItem is None : return #Exit the method
@@ -330,7 +257,12 @@ class SGAgent(SGEntity):
                 if  authorisation :
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
                     # self.update()
-                        
+        if event.button() == Qt.RightButton:
+            self.contextMenu=True
+            self.close_image_popup(self.popup)
+            self.popup = None
+
+            
     #To handle the drag of the agent
     def mouseMoveEvent(self, e):
     
@@ -350,6 +282,8 @@ class SGAgent(SGEntity):
 
 
     def dropEvent(self, e):
+        raise ValueError("This function shouldn't be used")
+        #TODO If this function is not used, delete it.
         e.accept()
         theDroppedAgent=e.source()
         aActiveLegend = self.cell.model.getSelectedLegend() 
@@ -364,32 +298,36 @@ class SGAgent(SGEntity):
     
 
     def enterEvent(self, event):
-
         if self.dragging:
             return  # N'affiche pas la popup si on est en train de faire un drag and drop
         # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
-        self.popup = self.create_image_popup(self.popupImagePath)
+        if self.contextMenu:
+            return
+        self.popup = self.create_image_popup(self.popupImage)
         if self.popup is not None : self.show_image_popup(self.popup, self)
 
     def leaveEvent(self, event):
-        # Ferme la fenêtre contextuelle lorsque la souris quitte le widget
-        self.close_image_popup(self.popup)
-        self.popup = None
+        if self.popup is not None:
+            cursor_pos = QCursor.pos()
+            if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):
+                return 
+            self.close_image_popup(self.popup)
+            self.popup = None
 
 
-    def create_image_popup(self,imagePath):
+    def create_image_popup(self,image):
         """Crée et retourne un QDialog configuré pour afficher une image."""
-        if imagePath == None:
+        if image == None:
             return None
         dialog = QDialog()
         dialog.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
         dialog.setStyleSheet("background-color: black;")
         
         imageLabel = QLabel(dialog)
-        pixmap = QPixmap(imagePath)
-        imageLabel.setPixmap(pixmap)
+        # pixmap = QPixmap(image)
+        imageLabel.setPixmap(image)
         
-        dialog.setFixedSize(pixmap.width() + 50, pixmap.height() + 50)
+        dialog.setFixedSize(image.width() + 50, image.height() + 50)
 
         layout = QVBoxLayout()
         layout.addWidget(imageLabel)
@@ -398,13 +336,17 @@ class SGAgent(SGEntity):
 
     def show_image_popup(self,popup, widget):
         """Affiche la fenêtre contextuelle à côté du widget."""
-        popup.move(widget.mapToGlobal(QPoint(widget.width(), 0)))
+        offset_x = widget.width() + 10  # Décalage horizontal pour éviter le chevauchement
+        offset_y = 10  # Optionnel : décalage vertical si nécessaire
+        popup.move(widget.mapToGlobal(QPoint(offset_x, offset_y)))
         popup.show()
+
 
     def close_image_popup(self,popup):
         """Ferme la fenêtre contextuelle si elle est ouverte."""
-        if popup:
+        if popup and popup.isVisible():
             popup.close()
+            # popup.deleteLater()
                         
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -437,7 +379,7 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImagePath)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImage)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history
