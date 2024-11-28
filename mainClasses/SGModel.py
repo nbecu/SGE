@@ -1015,7 +1015,7 @@ class SGModel(QMainWindow):
     # -----------------------------------------------------------
     # Game mechanics function
 
-    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionOfFeedback=[]):
+    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[]):
         """
         Add a Create GameAction to the game.
 
@@ -1028,9 +1028,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGCreate(aClassDef,  dictAttributes, aNumber, conditions, feedbacks, conditionOfFeedback)
+        return SGCreate(aClassDef,  dictAttributes, aNumber, conditions, feedbacks, conditionsOfFeedback)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',conditions=[], feedbacks=[], conditionOfFeedback=[],setControllerContextualMenu=False):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',conditions=[], feedbacks=[], conditionsOfFeedback=[],setControllerContextualMenu=False):
         """
         Add a Modify GameAction to the game.
 
@@ -1043,9 +1043,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionOfFeedback,setControllerContextualMenu)
+        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
 
-    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionOfFeedback=[]):
+    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[]):
         """
         Add a Delete GameAction to the game.
 
@@ -1058,9 +1058,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionOfFeedback)
+        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback)
 
-    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[]):
+    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[]):
         """
         Add a MoveAction to the game.
 
@@ -1072,9 +1072,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionOfFeedback, feedbackAgent, conditionOfFeedBackAgent)
+        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent)
 
-    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],setControllerContextualMenu=False):
         """Add a ActivateAction to the game
         
         Args:
@@ -1085,7 +1085,7 @@ class SGModel(QMainWindow):
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if setControllerContextualMenu: aClassDef.updateMenu=True
         if aNumber == "infinite": aNumber = 9999999
-        return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionOfFeedBack,setControllerContextualMenu)
+        return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
     # -----------------------------------------------------------
     # Getter
 
