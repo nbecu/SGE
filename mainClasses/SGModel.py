@@ -395,7 +395,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None,defaultCellImage=None):
         """
         Create a grid that contains cells
 
@@ -416,7 +416,7 @@ class SGModel(QMainWindow):
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
 
         # Create a CellDef populate the grid with it
-        aCellDef = self.newCellsFromGrid(aGrid)
+        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage)
         aGrid.cellDef =aCellDef
 
         self.gameSpaces[name] = aGrid
@@ -425,8 +425,8 @@ class SGModel(QMainWindow):
         aGrid.globalPosition()
         return aCellDef
     
-    def newCellsFromGrid(self,grid):
-        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None)
+    def newCellsFromGrid(self,grid,defaultCellImage):
+        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None,defaultCellImage=defaultCellImage)
         self.cellOfGrids[grid.id] = CellDef
         for lin in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):

@@ -8,7 +8,7 @@ from mainClasses.SGEntity import SGEntity
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImagePath):
+    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImage):
         aGrid = cell.grid
         super().__init__(aGrid,classDef, size,attributesAndValues)
         self.cell=None
@@ -20,7 +20,7 @@ class SGAgent(SGEntity):
         self.last_selected_option=None
         # self.initMenu()
         self.defaultImage=defaultImage
-        self.popupImagePath=popupImagePath
+        self.popupImage=popupImage
         self.dragging = False
         
 
@@ -29,10 +29,15 @@ class SGAgent(SGEntity):
         painter = QPainter() 
         painter.begin(self)
         region = self.getRegion()
+        image=self.getImage()
         if self.defaultImage != None:
             rect = QRect(0, 0, self.width(), self.height())
             painter.setClipRegion(region)
             painter.drawPixmap(rect, self.defaultImage)
+        elif image != None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.setClipRegion(region)
+            painter.drawPixmap(rect, image)
         else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         penColorAndWidth = self.getBorderColorAndWidth()
         painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
@@ -298,7 +303,7 @@ class SGAgent(SGEntity):
         # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
         if self.contextMenu:
             return
-        self.popup = self.create_image_popup(self.popupImagePath)
+        self.popup = self.create_image_popup(self.popupImage)
         if self.popup is not None : self.show_image_popup(self.popup, self)
 
     def leaveEvent(self, event):
@@ -310,19 +315,19 @@ class SGAgent(SGEntity):
             self.popup = None
 
 
-    def create_image_popup(self,imagePath):
+    def create_image_popup(self,image):
         """Crée et retourne un QDialog configuré pour afficher une image."""
-        if imagePath == None:
+        if image == None:
             return None
         dialog = QDialog()
         dialog.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
         dialog.setStyleSheet("background-color: black;")
         
         imageLabel = QLabel(dialog)
-        pixmap = QPixmap(imagePath)
-        imageLabel.setPixmap(pixmap)
+        # pixmap = QPixmap(image)
+        imageLabel.setPixmap(image)
         
-        dialog.setFixedSize(pixmap.width() + 50, pixmap.height() + 50)
+        dialog.setFixedSize(image.width() + 50, image.height() + 50)
 
         layout = QVBoxLayout()
         layout.addWidget(imageLabel)
@@ -374,7 +379,7 @@ class SGAgent(SGEntity):
     # To copy an Agent to make a move
     def copyOfAgentAtCoord(self, aCell):
         oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImagePath)
+        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImage)
         self.classDef.IDincr -=1
         newAgent.id = oldAgent.id
         newAgent.history = oldAgent.history

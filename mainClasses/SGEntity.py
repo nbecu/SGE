@@ -84,6 +84,9 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDefaultWidth=self.classDef.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
     
+    def getImage(self):
+        return None
+    
     # def toggleHighlight(self):
     #     if self.isHighlighted:
     #         self.setGraphicsEffect(None)

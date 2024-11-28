@@ -470,15 +470,15 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 # ********************************************************    
 
 class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",defaultImage=None,popupImagePath=None):
+    def __init__(self, sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.black,locationInEntity="random",defaultImage=None,popupImage=None):
         super().__init__(sgModel, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
         self.locationInEntity=locationInEntity
         self.defaultImage=defaultImage
-        self.popupImagePath=popupImagePath
+        self.popupImage=popupImage
 
 #Shape of agent availableble : circleAgent squareAgent ellipseAgent1 ellipseAgent2 rectAgent1 rectAgent2 triangleAgent1 triangleAgent2 arrowAgent1 arrowAgent2
 
-    def newAgentOnCell(self, aCell, attributesAndValues=None,image=None,popupImagePath=None):
+    def newAgentOnCell(self, aCell, attributesAndValues=None,image=None,popupImage=None):
         """
         Create a new Agent in the associated species.
         Args:
@@ -489,9 +489,9 @@ class SGAgentDef(SGEntityDef):
         """
         if image is None:
             image=self.defaultImage
-        if popupImagePath is None:
-            popupImagePath = self.popupImagePath
-        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self,defaultImage=image,popupImagePath=popupImagePath)
+        if popupImage is None:
+            popupImage = self.popupImage
+        aAgent = SGAgent(aCell, self.defaultsize,attributesAndValues, self.defaultShapeColor,classDef=self,defaultImage=image,popupImage=popupImage)
         self.entities.append(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
@@ -499,7 +499,7 @@ class SGAgentDef(SGEntityDef):
         return aAgent
 
 
-    def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None,image=None,popupImagePath=None):
+    def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None,image=None,popupImage=None):
         """
         Create a new Agent in the associated species.
 
@@ -515,7 +515,7 @@ class SGAgentDef(SGEntityDef):
         if xCoord == None: xCoord = random.randint(1, aGrid.columns)
         if yCoord == None: yCoord = random.randint(1, aGrid.rows)
         locationCell = aCellDef.getCell(xCoord, yCoord)
-        return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImagePath)
+        return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImage)
 
     def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None,condition=None):
         """
@@ -595,13 +595,14 @@ class SGAgentDef(SGEntityDef):
 
 
 class SGCellDef(SGEntityDef):
-    def __init__(self,grid, shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.white,entityName='Cell'):
+    def __init__(self,grid, shape,defaultsize,entDefAttributesAndValues,defaultColor=Qt.white,entityName='Cell',defaultCellImage=None):
         super().__init__(grid.model, entityName,shape,defaultsize,entDefAttributesAndValues,defaultColor)
         self.grid= grid
         self.deletedCells=[]
+        self.defaultImage=defaultCellImage
 
     def newCell (self, x, y):
-        ent = SGCell(self, x, y)
+        ent = SGCell(self, x, y,self.defaultImage)
         self.entities.append(ent)
         ent.show()
 

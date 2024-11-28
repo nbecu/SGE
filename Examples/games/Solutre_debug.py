@@ -291,7 +291,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     
     image_ACT=ligneHexAct["image verso"].values[0] if isinstance(ligneHexAct["image verso"].values[0], str) else None
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image_ACT),popupImagePath=image)
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image_ACT),popupImage=QPixmap(image))
     return #entite
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
