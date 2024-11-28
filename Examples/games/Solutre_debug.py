@@ -5,9 +5,16 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1100,550, windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
-
+myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
+#* --------------------------
+#* Lecture des data
+#* --------------------------
 data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
+data_act=pd.read_excel("./data/solutre_hex_act.xlsx")
+
+#* --------------------------
+#* Construction des plateaux
+#* --------------------------
 def constructPlateau():
     Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
@@ -162,23 +169,30 @@ VillageNord=constructVillageNord()
 VillageSud=constructVillageSud()
 VillageEst=constructVillageEst()
 
+#* --------------------------
+#* Classifications et POV
+#* --------------------------
 
-
-Plateau.newPov("Zones joueurs","zone",{"Roches":Qt.white,"Naturaliste":Qt.darkGreen,"Viticulteur":Qt.magenta,"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
+Plateau.newPov("Zones joueurs","zone",{"Roches":Qt.white,"Naturaliste":QPixmap("./icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("./icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
 Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,6], "out": [Qt.black,1]})
-VillageNord.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
-VillageSud.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
-VillageEst.newPov("Zones joueurs","zone",{"Elu":Qt.blue,"Habitant":QColor.fromRgb(255,165,0),"Tourisme":Qt.yellow})
+VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
+VillageSud.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
+VillageEst.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
 
-
+#* --------------------------
+#* Dashboard des indicateurs
+#* -------------------------- 
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
 qualiteVie=myModel.newSimVariable("Qualité de vie",0)
 environnement=myModel.newSimVariable("Environnement",0)
 attractivite=myModel.newSimVariable("Attractivité",0)
 indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
-indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
+indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 
+#* --------------------------
+#* Dashboard des services
+#* --------------------------
 DashBoard=myModel.newDashBoard("Suivi des services")
 biodiversite=myModel.newSimVariable("Biodiversité",0)
 sante=myModel.newSimVariable("Santé",0)
@@ -189,59 +203,207 @@ restaurant=myModel.newSimVariable("Restaurant",0)
 democratie=myModel.newSimVariable("Espace de démocratie",0)
 loisirs=myModel.newSimVariable("Espace de loisirs",0)
 emploi=myModel.newSimVariable("Emploi",0)
+indBiodiv=DashBoard.addIndicatorOnSimVariable(biodiversite)
 indSante=DashBoard.addIndicatorOnSimVariable(sante)
 indCulture=DashBoard.addIndicatorOnSimVariable(culture)
 indServicePublic=DashBoard.addIndicatorOnSimVariable(servicePublic)
 indBar=DashBoard.addIndicatorOnSimVariable(bar)
 indRestaurant=DashBoard.addIndicatorOnSimVariable(restaurant)
-indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 indLoisirs=DashBoard.addIndicatorOnSimVariable(loisirs)
 indEmploi=DashBoard.addIndicatorOnSimVariable(emploi)
+indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 
-Player1 = myModel.newPlayer("PlayerTest",attributesAndValues={"nbCubes":6})
-Player2 = myModel.newPlayer("PlayerTest2",attributesAndValues={"nbCubes":6})
+#* --------------------------
+#* Déclaration des joueurs
+#* --------------------------
+Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
 
-Touriste=myModel.newAgentSpecies("Touriste","squareAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Bouteille de vin conventionnel","ellipseAgent",defaultSize=20,defaultColor=Qt.magenta)
-BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","ellipseAgent",defaultSize=20,defaultColor=Qt.green)
-reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
-Touriste.newAgentAtCoords(reserve)
+#* --------------------------
+#* Déclaration des agents
+#* --------------------------
+Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
+Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vin.png"))
+BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vinBIO.png"))
+reserve=myModel.newCellsOnGrid(2,1,"square",size=120,gap=0,name="Réserve")
+reserve.getEntity(1,1).setValue("zone",True)
+reserve.getEntity(2,1).setValue("zone",True)
+reserve.newPov("Zones joueurs","zone",{True:Qt.darkGray})
+Touriste.newAgentAtCoords(reserve,1,1)
+Touriste.newAgentAtCoords(reserve,1,1)
+Bouteille.newAgentAtCoords(reserve,2,1)
+BouteilleBio.newAgentAtCoords(reserve,2,1)
 
-Hexagones_test=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":Player1,"nom":None,"effetInstantane":None},defaultSize=70,locationInEntity="center",defaultImage=QPixmap("./icon/solutre/N1.png"))
-pioche=myModel.newCellsOnGrid(5,1,"square",size=120,gap=20,name="Pioche")
-Hexagones_test.newAgentAtCoords(pioche,1,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}},popupImagePath="./icon/solutre/V5.png")
-hexVigne=Hexagones_test.newAgentAtCoords(pioche,2,1,{"coûtCubes":1,"joueur":Player1,"nom":"Vigne","effetInstantane":{emploi:-1,bar:3}})
-
+#* --------------------------
+#* Dashboard des ressources
+#* --------------------------
 DashBoardRessources=myModel.newDashBoard("Ressources")
-DashBoardRessources.addIndicator(Touriste,"nb")
-DashBoardRessources.addIndicator(Bouteille,"nb")
-DashBoardRessources.addIndicator(BouteilleBio,"nb")
+touriste=myModel.newSimVariable("touriste",0)
+vin=myModel.newSimVariable("vin",0)
+vinBio=myModel.newSimVariable("vinBio",0)
+indVin=DashBoardRessources.addIndicatorOnSimVariable(vin)
+indVinBio=DashBoardRessources.addIndicatorOnSimVariable(vinBio)
+indTouriste=DashBoardRessources.addIndicatorOnSimVariable(touriste)
 
-MoveHexagone=myModel.newMoveAction(Hexagones_test, 'infinite',feedback=[lambda aHex: execEffetInstantane(aHex),lambda aHex:updateCubes(aHex)])
-Player1.addGameAction(MoveHexagone)
-Player1ControlPanel = Player1.newControlPanel("Actions")
 
-def execEffetInstantane(aHex):
-    for jauge, valeur in aHex.value("effetInstantane").items():
+def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
+    variables=myModel.getSimVars()
+    
+    # Création des effets instantanés
+    ligneHexInst = dataInst[dataInst['nom'] == nom]
+    if ligneHexInst.empty:
+        return f"L'entité '{nom}' n'existe pas dans le fichier Excel Inst."
+    
+    coutCubes=int(ligneHexInst['coutCubes'].values[0])
+    colonnesJauges= dataInst.loc[:, 'Qualité de vie':'Santé'].columns
+    effetInstantaneJauge = {}
+    for col in colonnesJauges:
+        variable=next((var for var in variables if var.name == col), None)
+        if variable is not None:
+            effetInstantaneJauge[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
+    condPlacement=[]#ast.literal_eval(ligneHexInst['emplacementPose'].values[0])
+    joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
+    image=ligneHexInst["image recto"].values[0] if isinstance(ligneHexInst["image recto"].values[0], str) else None
+    
+    # Création des effets activables
+    ligneHexAct = dataAct[dataAct['nom'] == nom]
+    if ligneHexAct.empty:
+        return f"L'entité '{nom}' n'existe pas dans le fichier Excel Act."
+    
+    coutCubesAct=int(ligneHexAct['coutCubesAct'].values[0]) if not math.isnan(ligneHexAct['coutCubesAct'].values[0]) else 0
+    coutVin=int(ligneHexAct['coutVin'].values[0]) if not math.isnan(ligneHexAct['coutVin'].values[0]) else 0
+    coutVinBio=int(ligneHexAct['coutVinBio'].values[0]) if not math.isnan(ligneHexAct['coutVinBio'].values[0]) else 0
+    coutSous=int(ligneHexAct['coutSous'].values[0]) if not math.isnan(ligneHexAct['coutSous'].values[0]) else 0
+
+    # ressources =["vin","vinBio","touriste","sou"]
+    effetRessourcesAct={}
+    ressources= dataAct.loc[:, 'vin':'touriste'].columns
+    for res in ressources:
+        variable=next((var for var in variables if var.name == res), None)
+        if variable is not None:
+            effetRessourcesAct[variable] = int(ligneHexAct[res].values[0]) if not math.isnan(ligneHexAct[res].values[0]) else 0
+
+    effetActivableJauge={}
+    colonnesJauges= dataAct.loc[:, 'Biodiversité':'Qualité de vie'].columns
+    for col in colonnesJauges:
+        variable=next((var for var in variables if var.name == col), None)
+        if variable is not None:
+            effetActivableJauge[variable] = int(ligneHexAct[col].values[0]) if not math.isnan(ligneHexAct[col].values[0]) else 0
+    
+    image_ACT=ligneHexAct["image verso"].values[0] if isinstance(ligneHexAct["image verso"].values[0], str) else None
+
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image_ACT),popupImage=QPixmap(image))
+    return #entite
+
+def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
+    listOfHex=list(dataInst['nom'])
+    for aHexName in listOfHex:
+        createHex(aHexName,species,dataInst,dataAct,dataPerm,model)
+
+
+hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
+hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
+hexagones.setDefaultValue("Activation",False)
+pioche=myModel.newCellsOnGrid(6,1,"square",size=80,gap=20,name="Pioche")
+pioche.getEntity(6,1).setValue("zone",True)
+pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
+
+# Création des hexagones
+
+createHex("Bar à vin",hexagones,data_inst,data_act)
+createHex("Dégustation au caveau",hexagones,data_inst,data_act)
+createHex("Vigne Bio",hexagones,data_inst,data_act)
+createHex("Export vin BIO",hexagones,data_inst,data_act)
+createHex("Parcours gastronomique",hexagones,data_inst,data_act)
+createHex("Bar",hexagones,data_inst,data_act)
+createHex("Labellisation bio",hexagones,data_inst,data_act)
+createHex("Vigne",hexagones,data_inst,data_act)
+
+# #* --------------------------
+# #* Dashboard des ressources
+# #* --------------------------
+# DashBoardRessources2=myModel.newDashBoard("Ressources2")
+# DashBoardRessources2.addIndicator(Touriste,"nb")
+# DashBoardRessources2.addIndicator(Bouteille,"nb")
+# DashBoardRessources2.addIndicator(BouteilleBio,"nb")
+
+
+#* --------------------------
+#* Dashboard du Viticulteur
+#* --------------------------
+DashBoardViticulteur=myModel.newDashBoard("Viticulteur")
+DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
+DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
+
+
+#* --------------------------
+#* GameActions
+#* --------------------------
+MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedback=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)])
+MoveHexagone.addCondition(lambda aHex,aTargetCell: aTargetCell.value("zone")==aHex.value("joueur").name)
+MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
+MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
+Viticulteur.addGameAction(MoveHexagone)
+MovePioche=myModel.newMoveAction(hexagones, 'infinite')
+MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
+Viticulteur.addGameAction(MovePioche)
+ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
+ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+Viticulteur.addGameAction(ActivateHexagone)
+ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
+
+def execeffetInstantaneJauge(aHex):
+    for jauge, valeur in aHex.value("effetInstantaneJauge").items():
         jauge.incValue(valeur)
+    # aHex.toggleHighlight
 
 def updateCubes(aHex):
     player=aHex.value("joueur")
-    print("AVANT "+str(player.value("nbCubes")))
     player.decValue("nbCubes",aHex.value("coûtCubes"))
-    print("APRES "+str(player.value("nbCubes")))
 
-        
-GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
+def execeffetActivableJauge(aHex):
+    if not aHex.value("effetActivableJauge") and not aHex.value("effetRessourcesAct"):
+        myModel.newWarningPopUp("Attention!","Cet hexagone n'est pas activable!")
+        return
+    for jauge,valeur in aHex.value("effetActivableJauge").items():
+        jauge.incValue(valeur)
+    for ressource,valeur in aHex.value("effetRessourcesAct").items():
+        ressource.incValue(valeur)
+        Bouteille.newAgentAtCoords(reserve,2,1,image=QPixmap("./icon/solutre/vin.png"))
+    updatesCubesActivation(aHex)
+
+def updatesCubesActivation(aHex):
+    player=aHex.value("joueur")
+    player.decValue("nbCubes",aHex.value("coutCubesAct"))
+
+#* --------------------------
+#* Paramètres du modèle
+#* --------------------------        
+GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Viticulteur])
+
+Plateau.displayBorderPov("Coeur de site")
 
 userSelector=myModel.newUserSelector()
-myModel.setCurrentPlayer("PlayerTest")
+myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
-Legend=myModel.newLegend()
+# Legend=myModel.newLegend()
 
-myModel.launch()
-# myModel.launch_withMQTT("Instantaneous")
-sys.exit(monApp.exec_())
+
+
+def customLayout():
+    Plateau.grid.moveToCoords(440,130)
+    VillageNord.grid.moveToCoords(30,130)
+    VillageEst.grid.moveToCoords(1180,400)
+    VillageSud.grid.moveToCoords(30,380)
+    pioche.grid.moveToCoords(400,730)
+    reserve.grid.moveToCoords(135,765)
+    DashBoardInd.moveToCoords(1180,130)
+    DashBoard.moveToCoords(1390,130)
+    DashBoardRessources.moveToCoords(1640,130)
+    DashBoardViticulteur.moveToCoords(1500,730)
+    ViticulteurControlPanel.moveToCoords(1330,730)
+
+if __name__ == '__main__':
+    customLayout()
+    myModel.launch()
+    # myModel.launch_withMQTT("Instantaneous")
+    sys.exit(monApp.exec_())

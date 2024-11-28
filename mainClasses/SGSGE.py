@@ -9,3 +9,5 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
 import pandas as pd
+import ast as ast
+import math as math

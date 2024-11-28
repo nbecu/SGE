@@ -4,7 +4,7 @@ from mainClasses.SGEntity import SGEntity
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,classDef, x, y):
+    def __init__(self,classDef, x, y,defaultImage):
         super().__init__(classDef.grid,classDef,classDef.defaultsize,attributesAndValues=None)
         #Basic initialize
         self.grid=classDef.grid
@@ -22,6 +22,8 @@ class SGCell(SGEntity):
         self.agents=[]
         self.initUI()
 
+        self.defaultImage=defaultImage
+
     
     def initUI(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -33,8 +35,18 @@ class SGCell(SGEntity):
     def paintEvent(self,event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        region=self.getRegion()
+        image=self.getImage()
         if self.isDisplay==True:
+            if self.defaultImage != None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.setClipRegion(region)
+                painter.drawPixmap(rect, self.defaultImage)
+            elif image != None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.setClipRegion(region)
+                painter.drawPixmap(rect, image)
+            else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
             penColorAndWidth = self.getBorderColorAndWidth()
             painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
             self.startXBase=self.grid.frameMargin
@@ -65,6 +77,23 @@ class SGCell(SGEntity):
                     self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
                         
         painter.end()
+    
+    def getRegion(self):
+        cellShape=self.classDef.shape
+        if cellShape == "square":
+            region = QRegion(0,0,self.size,self.size)
+        if cellShape =="hexagonal":
+            points = QPolygon([
+                    QPoint(int(self.size/2), 0),
+                    QPoint(self.size, int(self.size/4)),
+                    QPoint(self.size, int(3*self.size/4)),
+                    QPoint(int(self.size/2), self.size),
+                    QPoint(0, int(3*self.size/4)),
+                    QPoint(0, int(self.size/4))              
+                ])
+            region=QRegion(points)
+        return region
+
 
     #Funtion to handle the zoom
     def zoomIn(self):
@@ -137,6 +166,7 @@ class SGCell(SGEntity):
         else :
             aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
+        aAgent.dragging = False
                             
     # To handle the drag of the grid
     def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell

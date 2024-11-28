@@ -37,8 +37,9 @@ class SGControlPanel(SGLegend):
                 lastEntDefTitle = aGameAction.targetEntDef.entityName
             #case of ModifyAction
             listOfLegendItems = aGameAction.generateLegendItems(self)
-            for anItem in listOfLegendItems:
-                self.legendItems.append(anItem)
+            if listOfLegendItems is not None:
+                for anItem in listOfLegendItems :
+                    self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
             anItem.show()
