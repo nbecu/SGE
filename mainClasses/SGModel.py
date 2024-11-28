@@ -1084,7 +1084,7 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',conditions=[], feedbacks=[], conditionsOfFeedback=[]):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite',conditions=[], feedbacks=[], conditionsOfFeedback=[],setControllerContextualMenu=False):
         """
         Add a Update GameAction to the game.
 
@@ -1097,7 +1097,7 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback)
+        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
 
     def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[]):
         """
