@@ -85,7 +85,15 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
     
     def getImage(self):
-        return None
+        if self.isDisplay==False: return None
+        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
+        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
+        if aPovDef is None: return None
+        aAtt=list(aPovDef.keys())[0]
+        aDictOfValueAndImage=list(aPovDef.values())[0]
+        aImage = aDictOfValueAndImage.get(self.value(aAtt))
+        return aImage if aImage is not None and isinstance(aImage,QPixmap) else None
+
     
     # def toggleHighlight(self):
     #     if self.isHighlighted:
