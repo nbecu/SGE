@@ -1,4 +1,3 @@
-
 from PyQt5.QtSvg import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -31,6 +30,7 @@ from mainClasses.SGModelAction import*
 from mainClasses.SGPlayer import*
 from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTextBox import*
+from mainClasses.SGLabel import*
 from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
@@ -58,7 +58,7 @@ class SGModel(QMainWindow):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name="Simulation of a boardGame", windowTitle="myGame"):
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None):
         """
         Declaration of a new model
 
@@ -79,10 +79,13 @@ class SGModel(QMainWindow):
         # Init of variable of the Model
         self.name = name
         # Definition of the title of the window
-        self.setWindowTitle(self.name) if windowTitle is None else self.setWindowTitle(windowTitle)
+        self.windowTitle_prefix = (windowTitle or self.name or ' ') # if windowTitle  is None, the name of the model is used as prefix for window title
+        self.setWindowTitle(self.windowTitle_prefix)
+        # Option to display time (round and phase) in window title
+        self.isTimeDisplayedInWindowTitle = False
+        
         # We allow the drag in this widget
         self.setAcceptDrops(True)
-
         # Definition of variable
         # Definition for all gameSpaces
         self.gameSpaces = {}
@@ -186,9 +189,11 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-        if not self.isMoveToCoordsUsed : QTimer.singleShot(100, self.moveWidgets)
+        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustWidgetsPosition)
         
-    
+    def hasDefinedPositionGameSpace(self):
+        return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
+
     def updateFunction(self):
         aList = self.getAllAgents()
         if not aList : return False
@@ -383,11 +388,23 @@ class SGModel(QMainWindow):
         menu = QMenu(self)
 
         option1 = QAction("LayoutCheck", self)
-        option1.triggered.connect(self.moveWidgets)
+        option1.triggered.connect(self.adjustWidgetsPosition) #todo Pourquoi lancer cette méthode ici ???
+                                        #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
         menu.addAction(option1)
 
         if self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
+
+    # Handle window title
+    def updateWindowTitle(self):
+        # Update window title with the number of the round and number of the phase
+        if self.isTimeDisplayedInWindowTitle :
+            if self.timeManager.numberOfPhases() == 1:
+                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}"
+            else:
+                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+            self.setWindowTitle(title) 
+
 
 
 # -----------------------------------------------------------------------------------------
@@ -502,7 +519,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
         return aLegend
     
     def newUserSelector(self):
@@ -516,7 +533,7 @@ class SGModel(QMainWindow):
             self.gameSpaces["userSelector"] = userSelector
             # Realocation of the position thanks to the layout
             userSelector.globalPosition()
-            self.applyPersonalLayout()
+            self.applyAutomaticLayout()
             return userSelector
         else:
             print('You need to add players to the game')
@@ -738,6 +755,15 @@ class SGModel(QMainWindow):
                 selection.append(aP.name) 
         return selection
 
+
+    def displayTimeInWindowTitle(self, setting=True):
+        """
+        Set whether to display the time (Round number and Phase number) in the window title.
+        Args:
+            setting (bool, optional): If True or not specified, the time will be displayed in the window title; if False, it will not.
+        """
+        self.isTimeDisplayedInWindowTitle = setting
+        
     # To create a Time Label
     def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         """
@@ -754,7 +780,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aTimeLabel
         # Realocation of the position thanks to the layout
         aTimeLabel.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aTimeLabel
 
@@ -773,9 +799,52 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aTextBox
         # Realocation of the position thanks to the layout
         aTextBox.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aTextBox
+    
+    # To create a Text Box
+    def newLabel(self, label, position, textStyle_specs="", borderStyle_specs="",backgroundColor_specs=""):
+        """Display a text at a given position
+
+        Args:
+            text (str): The text to display.
+            position (tuple): Coordinates (x, y) of the position of the text.
+        """
+        aLabel = SGLabel(self, label, position, textStyle_specs, borderStyle_specs, backgroundColor_specs)
+        return aLabel
+
+    def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", border_style="solid", border_size=0, border_color=None, background_color=None):
+        """Display a text at a given position and allow setting the style of the text, border, and background.
+
+        Args:
+            text (str): The text to display.
+            position (tuple): Coordinates (x, y) of the position of the text.
+            font (str, optional): Font family. Options include "Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact".
+            size (int, optional): Font size in pixels.
+            color (str, optional): Text color. Can be specified by name (e.g., "red", "orange", "navy", "gold"), hex code (e.g., "#FF0000", "#AB28F9"), RGB values (e.g., "rgb(127, 12, 0)"), or RGBA values for transparency (e.g., "rgba(154, 20, 8, 0.5)").
+            text_decoration (str, optional): Text decoration style. Options include "none", "underline", "overline", "line-through", "blink".
+            font_weight (str, optional): Font weight. Options include "normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900".
+            font_style (str, optional): Font style. Options include "normal", "italic", "oblique".
+            border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
+            border_size (int, optional): Border size in pixels.
+            border_color (str, optional): Same options as color.
+            background_color (str, optional): Same options as color.
+        """
+        # Create the text style
+        text_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
+        
+        # Create the border style
+        border_specs = f"border: {border_size}px {border_style} {border_color};"
+        
+        # Create the background style
+        background_specs = f"background-color: {background_color};"
+        
+        # Call the newLabel method with the created styles
+        aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs)
+        return aLabel
+
+
 
     def deleteTextBox(self, titleOfTheTextBox):
         del self.gameSpaces[titleOfTheTextBox]
@@ -799,7 +868,7 @@ class SGModel(QMainWindow):
         self.gameSpaces[title] = aDashBoard
         # Realocation of the position thanks to the layout
         aDashBoard.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aDashBoard
 
@@ -816,7 +885,7 @@ class SGModel(QMainWindow):
         self.endGameRule = aEndGameRule
         # Realocation of the position thanks to the layout
         aEndGameRule.globalPosition()
-        self.applyPersonalLayout()
+        self.applyAutomaticLayout()
 
         return aEndGameRule
 
@@ -858,20 +927,18 @@ class SGModel(QMainWindow):
         return gameSpaces
     
     # To apply the layout to all the current game spaces
-    def applyPersonalLayout(self):
+    def applyAutomaticLayout(self):
         self.layoutOfModel.ordered()
-        for anElement in self.gameSpaces:
-            if (self.typeOfLayout == "vertical"):
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase, self.gameSpaces[anElement].startYBase +
-                                                20*self.layoutOfModel.getNumberOfAnElement(self.gameSpaces[anElement]))
+        for aGameSpace in (element for element in self.gameSpaces.values() if not element.isPositionDefineByModeler()):
+            if self.typeOfLayout == "vertical":
+                aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase +
+                                                20*self.layoutOfModel.getNumberOfaGameSpace(aGameSpace))
             elif (self.typeOfLayout == "horizontal"):
-                self.gameSpaces[anElement].move(self.gameSpaces[anElement].startXBase+20*self.layoutOfModel.getNumberOfAnElement(
-                    self.gameSpaces[anElement]), self.gameSpaces[anElement].startYBase)
+                aGameSpace.move(aGameSpace.startXBase+20*self.layoutOfModel.getNumberOfaGameSpace(
+                    aGameSpace), aGameSpace.startYBase)
             else:
-                pos = self.layoutOfModel.foundInLayout(
-                    self.gameSpaces[anElement])
-                self.gameSpaces[anElement].move(
-                    self.gameSpaces[anElement].startXBase+20*pos[0], self.gameSpaces[anElement].startYBase+20*pos[1])
+                pos = self.layoutOfModel.foundInLayout(aGameSpace)
+                aGameSpace.move(aGameSpace.startXBase+20*pos[0], aGameSpace.startYBase+20*pos[1])
                 
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
@@ -879,13 +946,13 @@ class SGModel(QMainWindow):
             return True
         return False
     
-    def moveWidgets(self):
-        for name,element in self.gameSpaces.items():
+    def adjustWidgetsPosition(self):
+        for name,aGameSpace in self.gameSpaces.items():
             for otherName,otherElement in self.gameSpaces.items():
-                while self.checkLayoutIntersection(name,element,otherName,otherElement):
-                    if element.areaCalc() <= otherElement.areaCalc():
-                        local_pos=element.pos()
-                        element.move(local_pos.x()+10,local_pos.y()+10)
+                while self.checkLayoutIntersection(name,aGameSpace,otherName,otherElement):
+                    if aGameSpace.areaCalc() <= otherElement.areaCalc():
+                        local_pos=aGameSpace.pos()
+                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10)
                     else:
                         local_pos=otherElement.pos()
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)
@@ -1355,4 +1422,5 @@ class SGModel(QMainWindow):
             else: raise ValueError('No other possible choices')
 
         self.actionsFromBrokerToBeExecuted=[]
+
 

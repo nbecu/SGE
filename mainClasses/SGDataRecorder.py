@@ -18,7 +18,7 @@ class SGDataRecorder():
         self.stepsData_ofEntities = []
         self.stepsData_ofSimVariables = []
         self.stepsData_ofPlayers = []
-        self.nbPhases = len(self.model.timeManager.phases) -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
+        self.nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
         
 
     def calculateStepStats(self):
@@ -69,7 +69,7 @@ class SGDataRecorder():
 
 
     def convertStep_inRoundAndPhase(self,aStep):
-        nbPhases = len(self.model.timeManager.phases) -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
+        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
         if aStep == 0: aPhase=0
         else:
             aPhase = (aStep % nbPhases)
@@ -78,7 +78,7 @@ class SGDataRecorder():
         return {'round':aRound , 'phase':aPhase}
     
     def convertRoundAndPhase_inStep(self,aRound, aPhase):
-        nbPhases = len(self.model.timeManager.phases) -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
+        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
         return aPhase+((aRound -1)*nbPhases)+1
 
     def getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(self,entityName,entityId,aRound,aPhase):

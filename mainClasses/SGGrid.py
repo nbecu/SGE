@@ -43,7 +43,7 @@ class SGGrid(SGGameSpace):
             painter.drawPixmap(rect, self.backgroundImage)
 
         else:
-            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+            painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
@@ -162,6 +162,7 @@ class SGGrid(SGGameSpace):
     def cellIdFromCoords(self,x,y):
         if x < 0 or y < 0 : return None
         return x + (self.columns * (y -1))
+    
 
     def getCell_withCoords(self,x,y):
         return self.getCell_withId(self.cellIdFromCoords(x,y))

@@ -56,7 +56,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
             pos = self.model.layoutOfModel.foundInLayout(self.controlPanel)
             self.controlPanel.move(self.controlPanel.startXBase+20 *
                          pos[0], self.controlPanel.startYBase+20*pos[1])
-        self.model.applyPersonalLayout()
+        self.model.applyAutomaticLayout()
         return self.controlPanel
 
     # To handle attributesAndValues

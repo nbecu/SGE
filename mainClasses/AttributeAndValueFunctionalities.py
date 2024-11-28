@@ -40,6 +40,14 @@ class AttributeAndValueFunctionalities():
         """
         return self.dictAttributes.get(att,None)
     
+    def getValue(self,att):
+        """
+        Return the value of a cell Attribut
+        Args:
+            att (str): Name of the attribute
+        """
+        return self.value(att)
+    
     def incValue(self,aAttribut,valueToSet=1,max=None):
         """
         Increase the value of an attribut with an additional value
@@ -102,7 +110,7 @@ class AttributeAndValueFunctionalities():
         if self.history["value"]=={}: return []
         aList=[]
         tmpDict={}
-        nbPhases = len(self.model.timeManager.phases)
+        nbPhases = self.model.timeManager.numberOfPhases()
 
         # create a dict (tmpDict) of attribute values with keys as dates of the value updates of each attribute
         for aAtt, listOfData in self.history["value"].items():

@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QMenu, QAction
 from mainClasses.SGGameSpace import SGGameSpace
 
 
-# Class who is responsible of the Legend creation
 class SGTextBox(SGGameSpace):
     def __init__(self, parent, textToWrite, title, sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
@@ -67,7 +66,7 @@ class SGTextBox(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+        painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
         painter.setPen(QPen(self.borderColor, 1))
         # Draw the corner of the Legend
         if self.sizeX == None or self.sizeY == None:
