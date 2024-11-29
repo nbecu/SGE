@@ -178,9 +178,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
                 if type(aVal) in [int,float]:
                     listQuantiAttributes.append(aAtt)
                 elif type(aVal) == str:
-                    listQualiAttributes.append(aAtt)
-                else:
-                    raise TypeError("Only int float and str are allowed")
+                    listQualiAttributes.append(aAtt) 
+                # else:
+                #     raise TypeError("Only int float and str are allowed")
             for aAtt in listQuantiAttributes:
                 listOfValues = [aEnt.value(aAtt) for aEnt in self.entities]
                 quantiAttributesStats[aAtt] = {

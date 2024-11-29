@@ -913,7 +913,16 @@ class SGModel(QMainWindow):
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
         return
-
+    
+    def newPopUp(self, aTitle, aMessage):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(aTitle)
+        msg.setText(aMessage)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+        return
+        
     # ---------
 # Layout
 

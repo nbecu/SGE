@@ -224,6 +224,7 @@ Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vin.png"))
 BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vinBIO.png"))
+Buisson=myModel.newAgentSpecies("Buisson","circleAgent",defaultSize=40,defaultColor=Qt.darkGreen,locationInEntity="center")
 reserve=myModel.newCellsOnGrid(2,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
 reserve.getEntity(2,1).setValue("zone",True)
@@ -232,6 +233,9 @@ Touriste.newAgentAtCoords(reserve,1,1)
 Touriste.newAgentAtCoords(reserve,1,1)
 Bouteille.newAgentAtCoords(reserve,2,1)
 BouteilleBio.newAgentAtCoords(reserve,2,1)
+Buisson.newAgentAtCoords(Plateau,5,5)
+Buisson.newAgentAtCoords(Plateau,3,6)
+Buisson.newAgentAtCoords(Plateau,6,2)
 
 #* --------------------------
 #* Dashboard des ressources
@@ -349,6 +353,8 @@ Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 Viticulteur.addGameAction(ActivateHexagone)
+DeleteBuisson=myModel.newDeleteAction(Buisson)#,conditions= [lambda : aPlayer.value("nbCubes")>1],feedbacks= [lambda aPlayer: aPlayer.decValue("nbCubes")])
+Viticulteur.addGameAction(DeleteBuisson)
 ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 def execeffetInstantaneJauge(aHex):
@@ -368,8 +374,8 @@ def execeffetActivableJauge(aHex):
         jauge.incValue(valeur)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
         ressource.incValue(valeur)
-        Bouteille.newAgentAtCoords(reserve,2,1,image=QPixmap("./icon/solutre/vin.png"))
     updatesCubesActivation(aHex)
+    aHex.setValue("Activation",True)
 
 def updatesCubesActivation(aHex):
     player=aHex.value("joueur")
@@ -378,7 +384,37 @@ def updatesCubesActivation(aHex):
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
-GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Viticulteur])
+dataEvents=pd.read_excel("./data/data_events.xlsx")
+usedKeys=["Au Nom des Roches"]
+
+def getEvent(events,usedKeys):
+    randomKey=random.choice(list(dataEvents["Nom"]))
+    while randomKey in usedKeys:
+        randomKey=random.choice(list(dataEvents["Nom"]))
+    usedKeys.append(randomKey)
+    return randomKey, dataEvents["Descriptif"][randomKey], dataEvents["nbTouristes"][randomKey]
+
+def execEvent(model,events,usedKeys):
+    aEventName, aEventMessage, eventTouristes = getEvent(events,usedKeys)
+    myModel.newPopUp(aEventName,aEventMessage)
+    Touriste.newAgentsAtCoords(int(eventTouristes),pioche,1,1)
+
+def execFirstEvent():
+    eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
+    myModel.newPopUp(eventLine['Nom'],eventLine["Descriptif"])
+    Touriste.newAgentsAtCoords(eventLine["nbTouristes"],pioche,1,1)
+
+eventPopUp=myModel.newModelAction(lambda: execEvent(myModel,events,usedKeys), lambda: myModel.timeManager.currentRoundNumber != 1)
+EventPhase=myModel.timeManager.newModelPhase(eventPopUp, name="Évènements")
+GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
+# GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
+unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
+Embuissonnement=myModel.newModelAction([lambda: Buisson.newAgentsAtRandom(3,Plateau,condition= lambda aCell: aCell.value("zone")=="Roches")])
+ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,Embuissonnement],name="Résolution de l'année en cours")
+ModelPhase.autoForwardOn=True
+ModelPhase.messageAutoForward=True
+
+myModel.newTimeLabel()
 
 Plateau.displayBorderPov("Coeur de site")
 
