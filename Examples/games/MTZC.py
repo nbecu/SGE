@@ -27,33 +27,33 @@ ZHs = {
         "couleur": QColor(173, 216, 230, 120),
         "taille plateau":(2,2),
         "capacite accueil actions1":7,
-        "cases actions2":{
-            "recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'},
-            "tourisme":{"effet sequestration":-1, "effet economie":2, "image":'valise.jpg'},
-            "tourisme":{"effet sequestration":-1, "effet economie":2, "image":'valise.jpg'}
-        }
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'},
+        ]
     },
     "marais saumatre": {##
         "sequestration": 1.51,
         "couleur": QColor(147, 112, 219, 120),
         "taille plateau":(2,3),
         "capacite accueil actions1":15,
-        "cases actions2":{
-           "recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'},
-           "tourisme":{"effet sequestration":-1, "effet economie":2, "image":'valise.jpg'},
-           "tourisme":{"effet sequestration":-1, "effet economie":2, "image":'valise.jpg'},
-           **({"toursime": {"effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'}} if nbJoueurs >= 6 else {})
-        }
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'},
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'} if nbJoueurs >= 6 else {})
+        ]
     },
     "marais salee": {##
         "sequestration": 1.51,
         "couleur": QColor(0, 255, 0, 120),
         "taille plateau":(2,2),
         "capacite accueil actions1": 10 if nbJoueurs <= 6 else (11 if nbJoueurs == 7 else 13),
-        "cases actions2":{
-            "recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'},
-             **({"tourisme":{"effet sequestration":-1, "effet economie":2, "image":'valise.jpg'}} if nbJoueurs >= 6 else {})    
-        }
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'},
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'} if nbJoueurs >= 6 else {})
+        ]
     },
     # "marais salant": {##
     #     "sequestration": 1.51,
@@ -73,27 +73,27 @@ ZHs = {
         "couleur": QColor(128, 128, 128, 120),
         "taille plateau":(2,3),
         "capacite accueil actions1":4,
-        "cases actions2":{
-            "economie conchylicole":{"effet sequestration":-1, "effet economie":2, "image":'huitre.jpg'},
-            "economie conchylicole":{"effet sequestration":-1, "effet economie":2, "image":'huitre.jpg'},
-            "economie conchylicole":{"effet sequestration":-1, "effet economie":2, "image":'huitre.jpg'},
-            **({"economie conchylicole":{"effet sequestration":-1, "effet economie":2, "image":'huitre.jpg'}} if nbJoueurs >= 6 else {}),
-            **({"economie conchylicole":{"effet sequestration":-1, "effet economie":2, "image":'huitre.jpg'}} if nbJoueurs >= 8 else {})
-        }
+        "cases actions2": [
+            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2, "image": 'huitre.jpg'},
+            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2, "image": 'huitre.jpg'},
+            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2, "image": 'huitre.jpg'},
+            *({"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2, "image": 'huitre.jpg'} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2, "image": 'huitre.jpg'} if nbJoueurs >= 8 else {})
+        ]
     },
     "vasiere nue": {##
         "sequestration": 0.4,
         "couleur": QColor(210, 180, 140, 120),
         "taille plateau":(2,4),
         "capacite accueil actions1":10,
-        "cases actions2":{
-            "recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'},
-            "navire":{"effet sequestration":-1,  "effet economie":2, "image":'porte conteneur.jpg'},
-            "coquillage":{"effet sequestration":0, "effet economie":2, "image":'huitre.jpg'},
-            **({"navire":{"effet sequestration":-1,  "effet economie":2, "image":'porte conteneur.jpg'}} if nbJoueurs >= 6 else {}),
-            **({"tourisme":{"effet sequestration":-2, "effet economie":2, "image":'valise.jpg'}} if nbJoueurs >= 7 else {}),
-            **({"recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'}} if nbJoueurs >= 8 else {})
-        }
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'},
+            {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2, "image": 'porte conteneur.jpg'},
+            {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2, "image": 'huitre.jpg'},
+            *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2, "image": 'porte conteneur.jpg'} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2, "image": 'valise.jpg'} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'} if nbJoueurs >= 8 else {})
+        ]
     },
     "demi-herbier": {##
         "sequestration": 0.9,
@@ -104,29 +104,28 @@ ZHs = {
         "couleur": QColor(0, 128, 0, 120),
         "taille plateau":(2,4),
         "capacite accueil actions1":10,
-        "cases actions2":{
-            "recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'},
-            "coquillage":{"effet sequestration":0, "effet economie":2, "image":'huitre.jpg'},
-            "navire":{"effet sequestration":-1,  "effet economie":2, "image":'porte conteneur.jpg'},
-            **({"navire":{"effet sequestration":-1,  "effet economie":2, "image":'porte conteneur.jpg'}} if nbJoueurs >= 6 else {}),
-            **({"tourisme":{"effet sequestration":-1, "effet economie":2, "image":'valise.jpg'}} if nbJoueurs >= 7 else {}),
-            **({"recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'}} if nbJoueurs >= 8 else {})
-
-        }
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'},
+            {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2, "image": 'huitre.jpg'},
+            {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2, "image": 'porte conteneur.jpg'},
+            *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2, "image": 'porte conteneur.jpg'} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2, "image": 'valise.jpg'} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'} if nbJoueurs >= 8 else {})
+        ]
     },
     "champs agricoles": { ##
         "sequestration": 0.05,
         "couleur": QColor(255, 0, 0, 120),
         "taille plateau":(2,3),
         "capacite accueil actions1":None,
-        "cases actions2":{
-            "agri intensive":{"effet sequestration":-1, "effet economie":3, "image":'tracteur.jpg'},
-            "agri bio":{"effet sequestration":1, "effet economie":1, "image":'tracteur.jpg'},
-            "grande culture":{"effet sequestration":0, "effet economie":1, "image":'grande culture.jpg'},
-            "apiculture":{"effet sequestration":0, "effet economie":1, "image":'apiculture.jpg'},
-            "bovin":{"effet sequestration":-1, "effet economie":2, "image":'bovin.jpg'},
-            "ovin":{"effet sequestration":-1, "effet economie":2, "image":'ovin.jpg'}
-        }
+        "cases actions2": [
+            {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3, "image": 'tracteur.jpg'},
+            {"type_action2": "agri bio", "effet sequestration": 1, "effet economie": 1, "image": 'tracteur.jpg'},
+            {"type_action2": "grande culture", "effet sequestration": 0, "effet economie": 1, "image": 'grande culture.jpg'},
+            {"type_action2": "apiculture", "effet sequestration": 0, "effet economie": 1, "image": 'apiculture.jpg'},
+            {"type_action2": "bovin", "effet sequestration": -1, "effet economie": 2, "image": 'bovin.jpg'},
+            {"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2, "image": 'ovin.jpg'}
+        ]
     },
   
     "plage": {##
@@ -134,85 +133,84 @@ ZHs = {
         "couleur": QColor(255, 218, 185, 120),
         "taille plateau":(2,3),
         "capacite accueil actions1":13,
-        "cases actions2":{
-            "toursime":{"effet sequestration":-1, "effet economie":3, "image":'valise.jpg'},
-            "toursime":{"effet sequestration":-1, "effet economie":3, "image":'valise.jpg'},
-            "toursime":{"effet sequestration":-1, "effet economie":3, "image":'valise.jpg'},
-            **({"toursime": {"effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'}} if nbJoueurs >= 6 else {}),
-            **({"toursime": {"effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'}} if nbJoueurs >= 7 else {})
-
-        }
-    },
-     "foret": {##
-        "sequestration": 0,
-        "couleur": QColor(0, 100, 0, 120),
-        "taille plateau":(2,2),
-        "capacite accueil actions1":15,
-        "cases actions2":{
-            "coupe arbres":{"effet sequestration":-1,  "effet economie":1, "image":'coupe-arbres.jpg'},
-            "coupe arbres":{"effet sequestration":-1,  "effet economie":1, "image":'coupe-arbres.jpg'},
-            **({"coupe arbres": {"effet sequestration": -1, "effet economie": 1, "image": 'coupe-arbres.jpg'}} if nbJoueurs >= 7 else {})
-        }
+        "cases actions2": [
+            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'},
+            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'},
+            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'},
+            *({"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'} if nbJoueurs >= 7 else {})
+        ]
     },
     "port industriel": {##
         "sequestration": 0,
         "couleur": QColor(0, 100, 0, 120),
         "taille plateau":(2,3),
         "capacite accueil actions1":None,
-        "cases actions2":{
-            "industrie portuaire":{"effet sequestration":-1,  "effet economie":3, "image":'porte conteneur.jpg'},
-            "industrie portuaire":{"effet sequestration":-1,  "effet economie":3, "image":'porte conteneur.jpg'},
-            "industrie portuaire":{"effet sequestration":-1,  "effet economie":3, "image":'porte conteneur.jpg'},
-            "industrie portuaire":{"effet sequestration":-1,  "effet economie":3, "image":'porte conteneur.jpg'},
-            **({"industrie portuaire":{"effet sequestration":-1,  "effet economie":3, "image":'porte conteneur.jpg'}} if nbJoueurs >= 7 else {}),
-            **({"industrie portuaire":{"effet sequestration":-1,  "effet economie":3, "image":'porte conteneur.jpg'}} if nbJoueurs >= 8 else {})
-        }
+        "cases actions2": [
+            {"type_action2": "industrie portuaire", "effet sequestration": -1, "effet economie": 3, "image": 'porte conteneur.jpg'},
+            {"type_action2": "industrie portuaire", "effet sequestration": -1, "effet economie": 3, "image": 'porte conteneur.jpg'},
+            {"type_action2": "industrie portuaire", "effet sequestration": -1, "effet economie": 3, "image": 'porte conteneur.jpg'},
+            {"type_action2": "industrie portuaire", "effet sequestration": -1, "effet economie": 3, "image": 'porte conteneur.jpg'},
+            *({"type_action2": "industrie portuaire", "effet sequestration": -1, "effet economie": 3, "image": 'porte conteneur.jpg'} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "industrie portuaire", "effet sequestration": -1, "effet economie": 3, "image": 'porte conteneur.jpg'} if nbJoueurs >= 8 else {})
+        ]
     },
     "pres sales": {##
         "sequestration": 2.4,
         "couleur": QColor(70, 110, 70, 120),
         "taille plateau":(2,4),
         "capacite accueil actions1":5,
-        "cases actions2":{
-           "recherche":{"effet sequestration":1, "effet economie":1, "image":'loupe.jpg'},
-           "grande culture":{"effet sequestration":-1, "effet economie":1, "image":'grande culture.jpg'},
-           "ovin":{"effet sequestration":1, "effet economie":1, "image":'ovin.jpg'},
-           **({"ovin":{"effet sequestration":1, "effet economie":1, "image":'ovin.jpg'}} if nbJoueurs >= 6 else {}),
-           **({"ovin":{"effet sequestration":1, "effet economie":1, "image":'ovin.jpg'}} if nbJoueurs >= 7 else {}),
-           **({"tourisme":{"effet sequestration":-2, "effet economie":2, "image":'valise.jpg'}} if nbJoueurs >= 8 else {}),
-        }
+        "cases actions2": [
+           {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1, "image": 'loupe.jpg'},
+           {"type_action2": "grande culture", "effet sequestration": -1, "effet economie": 1, "image": 'grande culture.jpg'},
+           {"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1, "image": 'ovin.jpg'},
+           *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1, "image": 'ovin.jpg'} if nbJoueurs >= 6 else {}),
+           *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1, "image": 'ovin.jpg'} if nbJoueurs >= 7 else {}),
+           *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2, "image": 'valise.jpg'} if nbJoueurs >= 8 else {})
+        ]
     },
     "marais doux agricole": {##
         "sequestration": 0.1,
         "couleur": QColor(139, 69, 19, 120),
         "taille plateau":(2,4),
         "capacite accueil actions1":9,
-        "cases actions2":{
-            "agri intensive":{"effet sequestration":-1, "effet economie":3, "image":'tracteur.jpg'},
-            "agri bio":{"effet sequestration":0, "effet economie":1, "image":'tracteur.jpg'},
-            "grande culture":{"effet sequestration":0, "effet economie":0, "image":'grande culture.jpg'},
-            "apiculture":{"effet sequestration":0, "effet economie":1, "image":'apiculture.jpg'},
-            "bovin":{"effet sequestration":-1, "effet economie":2, "image":'bovin.jpg'},
-            "ovin":{"effet sequestration":-1, "effet economie":2, "image":'ovin.jpg'}
-        }
+        "cases actions2": [
+            {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3, "image": 'tracteur.jpg'},
+            {"type_action2": "agri bio", "effet sequestration": 0, "effet economie": 1, "image": 'tracteur.jpg'},
+            {"type_action2": "grande culture", "effet sequestration": 0, "effet economie": 0, "image": 'grande culture.jpg'},
+            {"type_action2": "apiculture", "effet sequestration": 0, "effet economie": 1, "image": 'apiculture.jpg'},
+            {"type_action2": "bovin", "effet sequestration": -1, "effet economie": 2, "image": 'bovin.jpg'},
+            {"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2, "image": 'ovin.jpg'}
+        ]
     },
     "port plaisance": {##
         "sequestration": 0,
         "couleur": QColor(0, 100, 0, 120),
         "taille plateau":(2,5),
         "capacite accueil actions1":16,
-        "cases actions2":{
-            "economie portuaire":{"effet sequestration":-1,  "effet economie":2, "image":'porte conteneur.jpg'},
-            "plaisance":{"effet sequestration":-1,  "effet economie":1, "image":'voilier.jpg'},
-            "plaisance":{"effet sequestration":-1,  "effet economie":1, "image":'voilier.jpg'},
-            "plaisance":{"effet sequestration":-1,  "effet economie":1, "image":'voilier.jpg'},
-            "plaisance":{"effet sequestration":-1,  "effet economie":1, "image":'voilier.jpg'},
-            "tourisme":{"effet sequestration":-1,  "effet economie":3, "image":'valise.jpg'},
-            "tourisme":{"effet sequestration":-1,  "effet economie":3, "image":'valise.jpg'},
-            **({"tourisme":{"effet sequestration":-1,  "effet economie":3, "image":'valise.jpg'}} if nbJoueurs >= 7 else {}),
-            **({"plaisance":{"effet sequestration":-1,  "effet economie":1, "image":'voilier.jpg'}} if nbJoueurs >= 8 else {})
-        }
+        "cases actions2": [
+            {"type_action2": "economie portuaire", "effet sequestration": -1, "effet economie": 2, "image": 'porte conteneur.jpg'},
+            {"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1, "image": 'voilier.jpg'},
+            {"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1, "image": 'voilier.jpg'},
+            {"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1, "image": 'voilier.jpg'},
+            {"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1, "image": 'voilier.jpg'},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'},
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 3, "image": 'valise.jpg'} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1, "image": 'voilier.jpg'} if nbJoueurs >= 8 else {})
+        ]
     },
+     "foret": {##
+        "sequestration": 0,
+        "couleur": QColor(0, 100, 0, 120),
+        "taille plateau":(2,2),
+        "capacite accueil actions1":15,
+        "cases actions2": [
+            {"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1, "image": 'coupe-arbres.jpg'},
+            {"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1, "image": 'coupe-arbres.jpg'},
+            *({"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1, "image": 'coupe-arbres.jpg'} if nbJoueurs >= 7 else {})
+        ]
+    },    
     "mer": {##
         "sequestration": 0.004,
         "couleur": QColor(0, 0, 255, 120)
@@ -285,7 +283,7 @@ for aCase in cases.getEntities():
 # cases.setEntities("typeZH","vide")
 
 dicoCouleurs = {zh: infos["couleur"] for zh, infos in ZHs.items()}
-cases.newPov("vue normal","typeZH",dicoCouleurs)
+cases.newPov("vue normale","typeZH",dicoCouleurs)
 cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.black,4]})
 cases.displayBorderPov("bords")
 
@@ -298,6 +296,8 @@ casesAction1 =[]
 def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere ou marais doux)
     pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
     pZH[typeZH].setEntities('capacite accueil',0)
+    pZH[typeZH].setEntities('type',"vide")
+    pZH[typeZH].setEntities('vue normale',"vide")
     if ZHs[typeZH]["capacite accueil actions1"] is None:
         startCasesActions2 = 1
     else:
@@ -305,16 +305,28 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
         case1= pZH[typeZH].getEntity(1,1)
         casesAction1.append(case1)
         case1.setValue('type','action1')
+        case1.setValue('vue normale',"action1")
         case1.setValue('capacite accueil',ZHs[typeZH]["capacite accueil actions1"])
 
-    for i, (typeCaseAction2, paramCaseAction2) in enumerate(ZHs[typeZH]["cases actions2"].items(), start=startCasesActions2):
+    for i, paramCaseAction2 in enumerate(ZHs[typeZH]["cases actions2"], start=startCasesActions2):
         caseX = pZH[typeZH].getEntity(i)
         caseX.setValue("type", "action2")
-        caseX.setValue("type_action2", typeCaseAction2)
+        caseX.setValue("vue normale", "action2")
         for aParam, aValue in paramCaseAction2.items():
             caseX.setValue(aParam, aValue)
+            # if caseX.value("type_action2") == "recherche" : caseX.setValue("vue normale", "recherche")
+            if aParam == "type_action2" and aValue == "recherche" :
+                caseX.setValue("vue normale", "recherche")
     
-    pZH[typeZH].newPov("vue normal","type",{"action1":Qt.gray,"action2":QColor.fromRgb(255,165,0)})
+    pZH[typeZH].newPov("vue normale", "vue normale", {"action1": Qt.gray, "action2": QColor(255, 165, 0, 250), "vide": Qt.transparent, "recherche": QPixmap("./icon/MTZC/loupe.png")})  
+    pZH[typeZH].newBorderPovColorAndWidth("bords", "type", {"action1": [Qt.black,1], "action2": [Qt.black,1], "vide": [Qt.transparent,0]})
+    pZH[typeZH].displayBorderPov("bords")
+  
+
+#, None: QColor(0, 0, 0, 0)
+    #QColor.fromRgb(255, 165, 0, 0)
+    # VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
+
     if coords != None : pZH[typeZH].grid.moveToCoords(coords)
 
     return pZH[typeZH]
@@ -325,6 +337,7 @@ posX = 1150
 posY = 30
 for i, aZHtype in enumerate(ZHs.keys()):
     if aZHtype in ["vide", "mer", "demi-herbier"]: continue
+    if i in [7,13]: posY +=40 # permet de prendre en compte la taille plus grande des plateaux de la ligne précédente    
     myModel.newLabel_stylised(aZHtype,(posX+5,posY-2), size=10)
     constructZH(aZHtype, (posX, posY))
     posX += 100  # Incrémentation de posX

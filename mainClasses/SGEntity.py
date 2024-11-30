@@ -66,6 +66,8 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aAtt=list(aBorderPovDef.keys())[0]
         aDictOfValueAndColorWidth=list(aBorderPovDef.values())[0]
         dictColorAndWidth = aDictOfValueAndColorWidth.get(self.value(aAtt))
+        if dictColorAndWidth is None:  # Vérification si la valeur n'existe pas
+            raise ValueError(f'BorderPov cannot work because {self.privateID} has no value for attribute "{aAtt}"')
         if not isinstance(dictColorAndWidth,dict): raise ValueError('wrong format')
         return dictColorAndWidth
 
