@@ -45,21 +45,21 @@ class SGControlPanel(SGLegend):
             anItem.show()
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
-    #Drawing the Legend
-    def paintEvent(self,event):
-        if self.checkDisplay():
-            painter = QPainter() 
-            painter.begin(self)
-            if self.isActive:
-                painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
-            else:
-                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor,1))
-            #Draw the corner of the Legend
-            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+    # #Drawing the Legend       #obsolete   becasue same as super class
+    # def paintEvent(self,event):
+    #     if self.checkDisplay():
+    #         painter = QPainter() 
+    #         painter.begin(self)
+    #         if self.isActive:
+    #             painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
+    #         else:
+    #             painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
+    #         painter.setPen(QPen(self.borderColor,1))
+    #         #Draw the corner of the Legend
+    #         self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+    #         painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
 
-            painter.end()
+    #         painter.end()
     
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
