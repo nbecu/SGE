@@ -804,17 +804,26 @@ class SGModel(QMainWindow):
         return aTextBox
     
     # To create a Text Box
-    def newLabel(self, label, position, textStyle_specs="", borderStyle_specs="",backgroundColor_specs=""):
+    def newLabel(self, text, position, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
         """Display a text at a given position
 
         Args:
             text (str): The text to display.
             position (tuple): Coordinates (x, y) of the position of the text.
+            textStyle_specs (str, optional): CSS-like specifications for the text style (font, size, color, etc.).
+            borderStyle_specs (str, optional): CSS-like specifications for the border style (size, color, type).
+            backgroundColor_specs (str, optional): CSS-like specifications for the background color.
+            alignement (str, optional): Text alignment. Options include "Left", "Right", "HCenter", "Top", "Bottom", "VCenter", "Center", "Justify".
+            fixedWidth (float, optional): Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long.
+            fixedHeight (float, optional): Fixed height of the widget in pixels. If specified, the widget will have a fixed height and will not resize.
+
+        Returns:
+            SGLabel: An instance of SGLabel with the specified properties.
         """
-        aLabel = SGLabel(self, label, position, textStyle_specs, borderStyle_specs, backgroundColor_specs)
+        aLabel = SGLabel(self, text, position, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
         return aLabel
 
-    def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", border_style="solid", border_size=0, border_color=None, background_color=None):
+    def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", alignement= "Left", border_style="solid", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):
         """Display a text at a given position and allow setting the style of the text, border, and background.
 
         Args:
@@ -826,10 +835,13 @@ class SGModel(QMainWindow):
             text_decoration (str, optional): Text decoration style. Options include "none", "underline", "overline", "line-through", "blink".
             font_weight (str, optional): Font weight. Options include "normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900".
             font_style (str, optional): Font style. Options include "normal", "italic", "oblique".
+            alignement (str, optional): Text alignment. Options include "Left", "Right, "HCenter", "Top", "Bottom", "VCenter", "Center", "Justify".
             border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
             border_size (int, optional): Border size in pixels.
             border_color (str, optional): Same options as color.
             background_color (str, optional): Same options as color.
+            fixedWidth (float, optional): Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long.
+            fixedHeight (float, optional): Fixed height of the widget in pixels.
         """
         # Create the text style
         text_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
@@ -841,7 +853,7 @@ class SGModel(QMainWindow):
         background_specs = f"background-color: {background_color};"
         
         # Call the newLabel method with the created styles
-        aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs)
+        aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs, alignement, fixedWidth, fixedHeight)
         return aLabel
 
 
