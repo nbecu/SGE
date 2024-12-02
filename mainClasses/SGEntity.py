@@ -95,6 +95,35 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDictOfValueAndImage=list(aPovDef.values())[0]
         aImage = aDictOfValueAndImage.get(self.value(aAtt))
         return aImage if aImage is not None and isinstance(aImage,QPixmap) else None
+    
+    def rescaleImage(self, image):
+        imageWidth = image.width()
+        imageHeight = image.height()
+
+        agentWidth = self.width()
+        agentHeight = self.height()
+
+        # scaleFactor = min(agentWidth / imageWidth, agentHeight / imageHeight)
+
+        # newWidth = round(imageWidth * scaleFactor)
+        # newHeight = round(imageHeight * scaleFactor)
+
+        # x_offset = (agentWidth - newWidth) // 2
+        # y_offset = (agentHeight - newHeight) // 2
+
+        # target_rect = QRect(x_offset, y_offset, newWidth, newHeight)
+
+        while imageWidth > agentWidth or imageHeight > agentHeight:
+            imageWidth -= 1
+            imageHeight -= 1
+
+        scaled_image = image.scaled(imageWidth, imageHeight, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        x_offset = (agentWidth - scaled_image.width()) // 2
+        y_offset = (agentHeight - scaled_image.height()) // 2
+
+        target_rect = QRect(x_offset, y_offset, scaled_image.width(), scaled_image.height())
+        return target_rect, scaled_image
 
     
     # def toggleHighlight(self):
