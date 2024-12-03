@@ -160,7 +160,7 @@ class SGCell(SGEntity):
         
         aActiveLegend = self.model.getSelectedLegend() 
         aLegendItem = self.model.getSelectedLegendItem()
-        if aActiveLegend.isAdminLegend(): 
+        if aActiveLegend is None or aActiveLegend.isAdminLegend(): 
             aAgent.moveTo(self)
         elif aLegendItem is None : None #Exit the method
         else :

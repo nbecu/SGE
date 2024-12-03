@@ -37,13 +37,7 @@ class SGGameSpace(QtWidgets.QWidget):
         pass
     
     
-    #The getter and setter
-    def getStartXBase(self):
-        return self.startXBase
-    
-    def getStartYBase(self):
-        return self.startYBase
-    
+    #The setters
     def setStartXBase(self,number):
         self.startXBase = number
     

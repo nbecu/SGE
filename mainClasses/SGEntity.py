@@ -100,32 +100,22 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         imageWidth = image.width()
         imageHeight = image.height()
 
-        agentWidth = self.width()
-        agentHeight = self.height()
+        # entityWidth = self.width() #could use self.size, instead
+        # entityHeight = self.height()  
+        entityWidth = self.size
+        entityHeight = self.size
 
-        # scaleFactor = min(agentWidth / imageWidth, agentHeight / imageHeight)
-
-        # newWidth = round(imageWidth * scaleFactor)
-        # newHeight = round(imageHeight * scaleFactor)
-
-        # x_offset = (agentWidth - newWidth) // 2
-        # y_offset = (agentHeight - newHeight) // 2
-
-        # target_rect = QRect(x_offset, y_offset, newWidth, newHeight)
-
-        while imageWidth > agentWidth or imageHeight > agentHeight:
-            imageWidth -= 1
-            imageHeight -= 1
-
-        scaled_image = image.scaled(imageWidth, imageHeight, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-        x_offset = (agentWidth - scaled_image.width()) // 2
-        y_offset = (agentHeight - scaled_image.height()) // 2
-
+        if (imageHeight / imageWidth) < (entityHeight / entityWidth):
+            scaled_image = image.scaledToHeight(entityHeight, Qt.SmoothTransformation)
+        else:
+            scaled_image = image.scaledToWidth(entityWidth, Qt.SmoothTransformation)
+        # Calculer le rectangle cible pour le dessin
+        x_offset = (entityWidth - scaled_image.width()) // 2
+        y_offset = (entityHeight - scaled_image.height()) // 2
         target_rect = QRect(x_offset, y_offset, scaled_image.width(), scaled_image.height())
-        return target_rect, scaled_image
 
-    
+        return target_rect, scaled_image
+   
     # def toggleHighlight(self):
     #     if self.isHighlighted:
     #         self.setGraphicsEffect(None)
