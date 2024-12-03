@@ -229,13 +229,13 @@ reserve=myModel.newCellsOnGrid(2,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
 reserve.getEntity(2,1).setValue("zone",True)
 reserve.newPov("Zones joueurs","zone",{True:Qt.darkGray})
-Touriste.newAgentAtCoords(reserve,1,1)
-Touriste.newAgentAtCoords(reserve,1,1)
-Bouteille.newAgentAtCoords(reserve,2,1)
-BouteilleBio.newAgentAtCoords(reserve,2,1)
-Buisson.newAgentAtCoords(Plateau,5,5)
-Buisson.newAgentAtCoords(Plateau,3,6)
-Buisson.newAgentAtCoords(Plateau,6,2)
+# Touriste.newAgentAtCoords(reserve,1,1)
+# Touriste.newAgentAtCoords(reserve,1,1)
+# Bouteille.newAgentAtCoords(reserve,2,1)
+# BouteilleBio.newAgentAtCoords(reserve,2,1)
+# Buisson.newAgentAtCoords(Plateau,5,5)
+# Buisson.newAgentAtCoords(Plateau,3,6)
+# Buisson.newAgentAtCoords(Plateau,6,2)
 
 #* --------------------------
 #* Dashboard des ressources
@@ -387,30 +387,55 @@ def updatesCubesActivation(aHex):
 dataEvents=pd.read_excel("./data/data_events.xlsx")
 usedKeys=["Au Nom des Roches"]
 
-def getEvent(events,usedKeys):
+def execEvent():
     randomKey=random.choice(list(dataEvents["Nom"]))
     while randomKey in usedKeys:
         randomKey=random.choice(list(dataEvents["Nom"]))
+    eventLine=dataEvents[dataEvents['Nom']==randomKey]
     usedKeys.append(randomKey)
-    return randomKey, dataEvents["Descriptif"][randomKey], dataEvents["nbTouristes"][randomKey]
-
-def execEvent(model,events,usedKeys):
-    aEventName, aEventMessage, eventTouristes = getEvent(events,usedKeys)
-    myModel.newPopUp(aEventName,aEventMessage)
-    Touriste.newAgentsAtCoords(int(eventTouristes),pioche,1,1)
-
+    myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze())
+    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
+   
 def execFirstEvent():
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
-    myModel.newPopUp(eventLine['Nom'],eventLine["Descriptif"])
-    Touriste.newAgentsAtCoords(eventLine["nbTouristes"],pioche,1,1)
+    myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze())
+    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
 
-eventPopUp=myModel.newModelAction(lambda: execEvent(myModel,events,usedKeys), lambda: myModel.timeManager.currentRoundNumber != 1)
-EventPhase=myModel.timeManager.newModelPhase(eventPopUp, name="Évènements")
-GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
-# GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
-unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
+def checkTouriste():
+    cell=reserve.getCell(1,1)
+    nbTouriste=cell.nbAgents()
+    if nbTouriste != 0:
+        for n in nbTouriste:
+            aInd=random.choice([attractivite,qualiteDeVie,environnement])
+            aInd.decValue()
+        print(f"Attention ! Cette année, {nbTouriste} touristes n'ont pas été placés.")
+    Touriste.deleteAllEntities()
+
+def checkBuisson():
+    nbBuisson=Buisson.nbOfEntities()
+    if nbBuisson != 0:
+        for n in nbBuisson:
+            aInd=random.choice([attractivite,qualiteDeVie,environnement])
+            aInd.decValue()
+        print(f"Attention ! Cette année, {nbBuisson} buissons n'ont pas été entretenus.")
+    Buisson.deleteAllEntities()
+
+#PHASE 1 : Début d'années = événements + buissons
+eventPopUp=myModel.newModelAction(lambda: execEvent(), lambda: myModel.timeManager.currentRoundNumber > 1)
+eventPopUp2= myModel.newModelAction(lambda: execFirstEvent(), lambda: myModel.timeManager.currentRoundNumber == 1)
 Embuissonnement=myModel.newModelAction([lambda: Buisson.newAgentsAtRandom(3,Plateau,condition= lambda aCell: aCell.value("zone")=="Roches")])
-ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,Embuissonnement],name="Résolution de l'année en cours")
+EventPhase=myModel.timeManager.newModelPhase([eventPopUp,eventPopUp2,Embuissonnement], name="Évènements")
+EventPhase.autoForwardOn=True
+
+#PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
+GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
+
+#PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
+GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
+
+#PHASE 4 : Résolution de l'année = 
+unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
+ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson],name="Résolution de l'année en cours")
 ModelPhase.autoForwardOn=True
 ModelPhase.messageAutoForward=True
 
