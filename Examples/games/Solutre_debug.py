@@ -426,6 +426,7 @@ eventPopUp2= myModel.newModelAction(lambda: execFirstEvent(), lambda: myModel.ti
 Embuissonnement=myModel.newModelAction([lambda: Buisson.newAgentsAtRandom(3,Plateau,condition= lambda aCell: aCell.value("zone")=="Roches")])
 EventPhase=myModel.timeManager.newModelPhase([eventPopUp,eventPopUp2,Embuissonnement], name="Évènements")
 EventPhase.autoForwardOn=True
+EventPhase.messageAutoForward=False
 
 #PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
 GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
@@ -437,9 +438,9 @@ GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
 ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson],name="Résolution de l'année en cours")
 ModelPhase.autoForwardOn=True
-ModelPhase.messageAutoForward=True
+ModelPhase.messageAutoForward=False
 
-myModel.newTimeLabel()
+aTimeLabel = myModel.newTimeLabel()
 
 Plateau.displayBorderPov("Coeur de site")
 
@@ -462,6 +463,7 @@ def customLayout():
     DashBoardRessources.moveToCoords(1640,130)
     DashBoardViticulteur.moveToCoords(1500,730)
     ViticulteurControlPanel.moveToCoords(1330,730)
+    aTimeLabel.moveToCoords(30,40)
 
 if __name__ == '__main__':
     customLayout()
