@@ -405,8 +405,8 @@ def checkTouriste():
     cell=reserve.getCell(1,1)
     nbTouriste=cell.nbAgents()
     if nbTouriste != 0:
-        for n in nbTouriste:
-            aInd=random.choice([attractivite,qualiteDeVie,environnement])
+        for n in range(nbTouriste):
+            aInd=random.choice([attractivite,qualiteVie,environnement])
             aInd.decValue()
         print(f"Attention ! Cette année, {nbTouriste} touristes n'ont pas été placés.")
     Touriste.deleteAllEntities()
@@ -414,8 +414,8 @@ def checkTouriste():
 def checkBuisson():
     nbBuisson=Buisson.nbOfEntities()
     if nbBuisson != 0:
-        for n in nbBuisson:
-            aInd=random.choice([attractivite,qualiteDeVie,environnement])
+        for n in range(nbBuisson):
+            aInd=random.choice([attractivite,qualiteVie,environnement])
             aInd.decValue()
         print(f"Attention ! Cette année, {nbBuisson} buissons n'ont pas été entretenus.")
     Buisson.deleteAllEntities()
@@ -431,7 +431,7 @@ EventPhase.autoForwardOn=True
 GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
-GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
+# GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
