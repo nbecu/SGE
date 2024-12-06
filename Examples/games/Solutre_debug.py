@@ -217,6 +217,7 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 #* Déclaration des joueurs
 #* --------------------------
 Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
+Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":30,"Sous":0})
 
 #* --------------------------
 #* Déclaration des agents
@@ -247,6 +248,7 @@ vinBio=myModel.newSimVariable("vinBio",0)
 indVin=DashBoardRessources.addIndicatorOnSimVariable(vin)
 indVinBio=DashBoardRessources.addIndicatorOnSimVariable(vinBio)
 indTouriste=DashBoardRessources.addIndicatorOnSimVariable(touriste)
+DashBoardRessources.addIndicator(Touriste,"nb")
 
 
 def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
@@ -295,7 +297,15 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     
     image_ACT=ligneHexAct["image verso"].values[0] if isinstance(ligneHexAct["image verso"].values[0], str) else None
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge},image=QPixmap(image_ACT),popupImage=QPixmap(image))
+    coutTouriste=int(ligneHexAct['coutTouriste'].values[0]) if not math.isnan(ligneHexAct['coutTouriste'].values[0]) else 0
+    effetActivableTouriste={
+        "sous":int(ligneHexAct['feedbackTouristeSous'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeSous'].values[0]) else 0,
+        "attractivité":int(ligneHexAct['feedbackTouristeAttractivité'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeAttractivité'].values[0]) else 0,
+        "qualité de vie": int(ligneHexAct['feedbackTouristeQDV'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeQDV'].values[0]) else 0,
+    }
+    
+
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste},image=QPixmap(image_ACT),popupImage=QPixmap(image))
     return #entite
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
@@ -357,6 +367,11 @@ DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()
 Viticulteur.addGameAction(DeleteBuisson)
 ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
+
+
+PlaceTouriste=myModel.newMoveAction(Touriste,"infinite")
+
+
 def execeffetInstantaneJauge(aHex):
     for jauge, valeur in aHex.value("effetInstantaneJauge").items():
         jauge.incValue(valeur)
@@ -389,6 +404,7 @@ def checkCubes():
 def decCubes():
     player=myModel.getPlayer(myModel.currentPlayer)
     player.decValue("nbCubes")
+
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
@@ -403,11 +419,13 @@ def execEvent():
     usedKeys.append(randomKey)
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze())
     Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
+    touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
    
 def execFirstEvent():
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze())
     Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
+    touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
 
 def checkTouriste():
     cell=reserve.getCell(1,1)
@@ -456,8 +474,6 @@ userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
 # Legend=myModel.newLegend(grid="combined")
 # Legend=myModel.newLegend()
-
-
 
 def customLayout():
     Plateau.grid.moveToCoords(440,130)
