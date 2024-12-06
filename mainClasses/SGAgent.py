@@ -259,8 +259,6 @@ class SGAgent(SGEntity):
                     # self.update()
         if event.button() == Qt.RightButton:
             self.contextMenu=True
-            # self.close_image_popup(self.popup)
-            # self.popup = None
 
             
     #To handle the drag of the agent
@@ -295,28 +293,8 @@ class SGAgent(SGEntity):
             aLegendItem.gameAction.perform_with(theDroppedAgent,self.cell)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
         self.dragging = False
-    
-
-    # def enterEvent(self, event):
-    #     print("ENTER")
-    #     if self.dragging:
-    #         return
-    #     if self.contextMenu:
-    #         return
-    #     self.popup = self.create_image_popup(self.popupImage)
-    #     if self.popup is not None : self.show_image_popup(self.popup, self)
-
-    # def leaveEvent(self, event):
-    #     print("OUT")
-    #     if self.popup is not None:
-    #         cursor_pos = QCursor.pos()
-    #         if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):
-    #             return 
-    #         self.close_image_popup(self.popup)
-    #         self.popup = None
 
     def enterEvent(self, event):
-        print("ENTER")
         if self.dragging:
             return
         if self.contextMenu:
@@ -328,42 +306,7 @@ class SGAgent(SGEntity):
             QToolTip.showText(QCursor.pos(), image_html, self)
 
     def leaveEvent(self, event):
-        print("OUT")
         QToolTip.hideText()
-
-
-    def create_image_popup(self,image):
-        """Crée et retourne un QDialog configuré pour afficher une image."""
-        if image == None:
-            return None
-        dialog = QDialog()
-        dialog.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
-        dialog.setStyleSheet("background-color: black;")
-        
-        imageLabel = QLabel(dialog)
-        # pixmap = QPixmap(image)
-        imageLabel.setPixmap(image)
-        
-        dialog.setFixedSize(image.width() + 50, image.height() + 50)
-
-        layout = QVBoxLayout()
-        layout.addWidget(imageLabel)
-        dialog.setLayout(layout)
-        return dialog
-
-    def show_image_popup(self,popup, widget):
-        """Affiche la fenêtre contextuelle à côté du widget."""
-        offset_x = widget.width() + 10  # Décalage horizontal pour éviter le chevauchement
-        offset_y = 10  # Optionnel : décalage vertical si nécessaire
-        popup.move(widget.mapToGlobal(QPoint(offset_x, offset_y)))
-        popup.show()
-
-
-    def close_image_popup(self,popup):
-        """Ferme la fenêtre contextuelle si elle est ouverte."""
-        if popup and popup.isVisible():
-            popup.close()
-            # popup.deleteLater()
                         
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
