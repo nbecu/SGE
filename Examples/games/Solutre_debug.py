@@ -353,7 +353,7 @@ Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 Viticulteur.addGameAction(ActivateHexagone)
-DeleteBuisson=myModel.newDeleteAction(Buisson)#,conditions= [lambda : aPlayer.value("nbCubes")>1],feedbacks= [lambda aPlayer: aPlayer.decValue("nbCubes")])
+DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()])
 Viticulteur.addGameAction(DeleteBuisson)
 ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
@@ -381,6 +381,14 @@ def updatesCubesActivation(aHex):
     player=aHex.value("joueur")
     player.decValue("nbCubes",aHex.value("coutCubesAct"))
 
+def checkCubes():
+    player=myModel.getPlayer(myModel.currentPlayer)
+    if player.value("nbCubes")>1: return True
+    else: return False
+
+def decCubes():
+    player=myModel.getPlayer(myModel.currentPlayer)
+    player.decValue("nbCubes")
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
