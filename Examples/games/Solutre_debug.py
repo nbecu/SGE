@@ -305,7 +305,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     }
     
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste},image=QPixmap(image_ACT),popupImage=QPixmap(image))
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
     return #entite
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):

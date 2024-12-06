@@ -1,6 +1,6 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
 from PyQt5.QtGui import QCursor
 
 import random
@@ -297,23 +297,39 @@ class SGAgent(SGEntity):
         self.dragging = False
     
 
+    # def enterEvent(self, event):
+    #     print("ENTER")
+    #     if self.dragging:
+    #         return
+    #     if self.contextMenu:
+    #         return
+    #     self.popup = self.create_image_popup(self.popupImage)
+    #     if self.popup is not None : self.show_image_popup(self.popup, self)
+
+    # def leaveEvent(self, event):
+    #     print("OUT")
+    #     if self.popup is not None:
+    #         cursor_pos = QCursor.pos()
+    #         if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):
+    #             return 
+    #         self.close_image_popup(self.popup)
+    #         self.popup = None
+
     def enterEvent(self, event):
         print("ENTER")
         if self.dragging:
             return
         if self.contextMenu:
             return
-        self.popup = self.create_image_popup(self.popupImage)
-        if self.popup is not None : self.show_image_popup(self.popup, self)
+
+        if self.popupImage:
+            # Convertir l'image en HTML pour ToolTip
+            image_html = f"<img src='{self.popupImage}' style='max-width: 200px; max-height: 200px;'>"
+            QToolTip.showText(QCursor.pos(), image_html, self)
 
     def leaveEvent(self, event):
         print("OUT")
-        if self.popup is not None:
-            cursor_pos = QCursor.pos()
-            if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):
-                return 
-            self.close_image_popup(self.popup)
-            self.popup = None
+        QToolTip.hideText()
 
 
     def create_image_popup(self,image):
