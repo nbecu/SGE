@@ -298,15 +298,16 @@ class SGAgent(SGEntity):
     
 
     def enterEvent(self, event):
+        print("ENTER")
         if self.dragging:
-            return  # N'affiche pas la popup si on est en train de faire un drag and drop
-        # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
+            return
         if self.contextMenu:
             return
         self.popup = self.create_image_popup(self.popupImage)
         if self.popup is not None : self.show_image_popup(self.popup, self)
 
     def leaveEvent(self, event):
+        print("OUT")
         if self.popup is not None:
             cursor_pos = QCursor.pos()
             if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):

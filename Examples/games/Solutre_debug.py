@@ -417,13 +417,13 @@ def execEvent():
         randomKey=random.choice(list(dataEvents["Nom"]))
     eventLine=dataEvents[dataEvents['Nom']==randomKey]
     usedKeys.append(randomKey)
-    myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze())
+    myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
     Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
     touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
    
 def execFirstEvent():
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
-    myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze())
+    myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
     Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
     touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
 
