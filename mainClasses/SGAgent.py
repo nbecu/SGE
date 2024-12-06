@@ -259,8 +259,8 @@ class SGAgent(SGEntity):
                     # self.update()
         if event.button() == Qt.RightButton:
             self.contextMenu=True
-            self.close_image_popup(self.popup)
-            self.popup = None
+            # self.close_image_popup(self.popup)
+            # self.popup = None
 
             
     #To handle the drag of the agent
