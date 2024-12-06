@@ -820,7 +820,8 @@ class SGModel(QMainWindow):
         Returns:
             SGLabel: An instance of SGLabel with the specified properties.
         """
-        aLabel = SGLabel(self, text, position, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
+        aLabel = SGLabel(self, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
+        aLabel.move(position[0], position[1])
         return aLabel
 
     def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", alignement= "Left", border_style="solid", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):

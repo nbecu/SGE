@@ -3,7 +3,7 @@ from sqlalchemy import true
 # from PyQt5.QtWidgets import QStyleFactory
 # from mainClasses.SGGameSpace import SGGameSpace
 
-class SGCustomZone(QtWidgets.QWidget):
+class SGCustomWidgetZone(QtWidgets.QWidget):
     def __init__(self, parent=None, background_color="white", border_color="black", border_size=1, text_style="", *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.setAutoFillBackground(True)
