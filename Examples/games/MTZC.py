@@ -6,7 +6,7 @@ import random
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1500,900, name="MTZC", typeOfLayout ="grid", x=5,y=4)
+myModel=SGModel(1500,910, name="MTZC", typeOfLayout ="grid", x=5,y=4)
     
 #********************************************************************
 
@@ -16,8 +16,10 @@ listeJoueurs = {
     'J2': Qt.red,
     'J3': Qt.yellow,
     'J4':Qt.green,
-    'J5':Qt.black,
+    'J5':Qt.white,
     }
+
+ordreZHs = ['marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'vasiere nue',  'herbier', 'champs agricoles', 'plage', 'port industriel', 'pres sales', 'marais doux agricole', 'port plaisance', 'foret', 'marais salant',]
 
 # # Définition des zones avec leurs caractéristiques
 ZHs = {
@@ -102,15 +104,19 @@ ZHs = {
     "champs agricoles": { ##
         "sequestration": 0.05,
         "couleur": QColor(255, 0, 0, 120),
-        "taille plateau":(2,3),
+        "taille plateau":(2,5),
         "capacite accueil actions1":None,
         "cases actions2": [
             {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
-            {"type_action2": "agri bio", "effet sequestration": 1, "effet economie": 1},
-            {"type_action2": "grande culture", "effet sequestration": 0, "effet economie": 1},
-            {"type_action2": "apiculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
+            {"type_action2": "agri extensive", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "agri extensive", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "fauchage", "effet sequestration": 0, "effet economie": 1},
             {"type_action2": "bovin", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2}
+            {"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2},
+            {"type_action2": "apiculture", "effet sequestration": 0, "effet economie": 1},
+            *({"type_action2": "bovin", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 8 else {})
         ]
     },
   
@@ -148,7 +154,7 @@ ZHs = {
         "capacite accueil actions1":5,
         "cases actions2": [
            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-           {"type_action2": "grande culture", "effet sequestration": -1, "effet economie": 1},
+           {"type_action2": "fauchage", "effet sequestration": -1, "effet economie": 1},
            {"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1},
            *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 6 else {}),
            *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 7 else {}),
@@ -158,15 +164,19 @@ ZHs = {
     "marais doux agricole": {##
         "sequestration": 0.1,
         "couleur": QColor(139, 69, 19, 120),
-        "taille plateau":(2,4),
+        "taille plateau":(2,6),
         "capacite accueil actions1":9,
         "cases actions2": [
             {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
-            {"type_action2": "agri bio", "effet sequestration": 0, "effet economie": 1},
-            {"type_action2": "grande culture", "effet sequestration": 0, "effet economie": 0},
-            {"type_action2": "apiculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
+            {"type_action2": "agri extensive", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "agri extensive", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "fauchage", "effet sequestration": 0, "effet economie": 0},
             {"type_action2": "bovin", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2}
+            {"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2},
+            *({"type_action2": "apiculture", "effet sequestration": 0, "effet economie": 1} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "bovin", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 8 else {})
         ]
     },
     "port plaisance": {##
@@ -196,7 +206,20 @@ ZHs = {
             {"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1},
             *({"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1} if nbJoueurs >= 7 else {})
         ]
-    },    
+    },
+    "marais salant": {##
+        "sequestration": 1.2,
+        "couleur": QColor(255, 255, 255, 200), 
+        "taille plateau":(2,3),
+        "capacite accueil actions1":4,
+        "cases actions2": [
+            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
+            *({"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1} if nbJoueurs >= 6 else {}),
+        ]
+    },
     "mer": {##
         "sequestration": 0.004,
         "couleur": QColor(0, 0, 255, 120)
@@ -215,8 +238,8 @@ images_action2 = {
     "navire": 'porte-conteneur.png',
     "coquillage": 'huitre.png',
     "agri intensive": 'tracteur.png',
-    "agri bio": 'agribio.png',
-    "grande culture": 'grande-culture.png',
+    "agri extensive": 'agribio.png',
+    "fauchage": 'grande-culture.png',
     "apiculture": 'apiculture.png',
     "bovin": 'bovin.png',
     "ovin": 'ovin.png',
@@ -225,7 +248,8 @@ images_action2 = {
     "coupe arbres": 'coupe-arbres.png',
     "plaisance":'voilier.png',
     "economie portuaire":'porte-conteneur.png',
-}
+    "saliculture":'etelle.png'
+    }
 
 # Accès aux valeurs
 t0 = "vide"
@@ -309,7 +333,11 @@ dictSymbology = {
 # méthode générique pour la construction d'un plateau ZH
 casesAction1 =[]
 def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere ou marais doux)
-    pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
+    nbCases = (0 if ZHs[typeZH]["capacite accueil actions1"] is None else 1) + len(ZHs[typeZH]["cases actions2"])
+    nbCols = 2
+    nbLines = -(-nbCases // nbCols)  # Arrondir au nombre entier supérieur
+    pZH[typeZH]=myModel.newCellsOnGrid(nbCols,nbLines,"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
+    # pZH[typeZH]=myModel.newCellsOnGrid(ZHs[typeZH]["taille plateau"][0],ZHs[typeZH]["taille plateau"][1],"square",size=40,gap=2,name="typeZH",color=ZHs[typeZH]["couleur"])
     pZH[typeZH].setEntities('capacite accueil',0)
     pZH[typeZH].setEntities('type',"vide")
     pZH[typeZH].setEntities('vue normale',"vide")
@@ -343,18 +371,25 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
 
 # les plateaux des ZH sont stockés dans le dico pZH{)
 pZH={}
-posX = 1150
+posXinit = 870
+posX = posXinit
 posY = 30
-for i, aZHtype in enumerate(ZHs.keys()):
+maxHeightPlateauxPrecedents = 0
+for i, aZHtype in enumerate(ordreZHs):
     if aZHtype in ["vide", "mer", "demi-herbier"]: continue
-    if i in [7,13]: posY +=40 # permet de prendre en compte la taille plus grande des plateaux de la ligne précédente    
+    # if i in [7,13]: posY +=40 # permet de prendre en compte la taille plus grande des plateaux de la ligne précédente    
     myModel.newLabel_stylised(aZHtype,(posX+5,posY-2), size=10)
-    constructZH(aZHtype, (posX, posY))
-    posX += 100  # Incrémentation de posX
-    # Vérification si posX dépasse 1450
-    if posX > 1400:
-        posX = 1150  # Réinitialisation de posX
-        posY += 150  # Incrémentation de posY
+    aPZH = constructZH(aZHtype, (posX, posY))
+    aPZH_height = (aPZH.grid.rows * (aPZH.defaultsize + aPZH.grid.gap)) + aPZH.grid.frameMargin  +10
+    print(aPZH_height)
+    maxHeightPlateauxPrecedents = max([maxHeightPlateauxPrecedents , aPZH_height])
+    posX += 102  # Incrémentation de posX
+    # Vérification si posX dépasse la largeur souhauté
+    if posX > 1100:
+        posX = posXinit  # Réinitialisation de posX
+        # posY += 150  # Incrémentation de posY
+        posY += maxHeightPlateauxPrecedents
+        maxHeightPlateauxPrecedents =0
 
 #********************************************************************
 # variables de simulation
@@ -370,7 +405,7 @@ Player = myModel.newPlayer("Player")
 for aZH in ZHs.keys():
     Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":aZH},feedbacks=[lambda : updateJauges()]))
 
-nbPionActions1_parJoueur=20
+nbPionActions1_parJoueur='infinite' #20
 pionAction1=myModel.newAgentSpecies("Action1","circleAgent",defaultSize=5,)
 pionAction1.newPov("joueur","joueur",listeJoueurs)
 
@@ -379,12 +414,12 @@ for jX in list(listeJoueurs.keys()):
     Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":nomJ},nbPionActions1_parJoueur,
                             conditions=[
                                     lambda aCell: aCell.classDef != cases and aCell.value('type') == 'action1',
-                                    lambda aCell: aCell.nbAgents() < aCell.value('capacite accueil'),
+                                    # lambda aCell: aCell.nbAgents() < aCell.value('capacite accueil'),
                                     ],
                             feedbacks=[lambda : updateActions1()]))
+Player.addGameAction(myModel.newDeleteAction(pionAction1))
 
-
-nbPionActions2_parJoueur=6
+nbPionActions2_parJoueur='infinite' #6
 pionAction2=myModel.newAgentSpecies("Action2","squareAgent",defaultSize=20,locationInEntity='center')
 pionAction2.newPov("joueur","joueur",listeJoueurs)
 
@@ -396,6 +431,8 @@ for jX in list(listeJoueurs.keys()):
                                     lambda aCell: aCell.isEmpty(),
                                     ],
                             feedbacks=[lambda : updateActions2()]))
+Player.addGameAction(myModel.newDeleteAction(pionAction2))
+
 
 #********************************************************************
 def updateJauges():
@@ -426,7 +463,7 @@ def updateActions2():
 #********************************************************************
 
 PlayerControlPanel = Player.newControlPanel("Actions")
-PlayerControlPanel.moveToCoords(882,30)
+PlayerControlPanel.moveToCoords(1182,30)
 
 myModel.setCurrentPlayer("Player")
 
@@ -442,7 +479,7 @@ myModel.displayTimeInWindowTitle()
 
 #********************************************************************
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
-DashBoardInd.moveToCoords(882,715)
+DashBoardInd.moveToCoords(882,750)
 indSequestration=DashBoardInd.addIndicatorOnSimVariable(sequestration)
 indEconomie=DashBoardInd.addIndicatorOnSimVariable(economie)
 
