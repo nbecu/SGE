@@ -16,6 +16,8 @@ class SGGameSpace(QtWidgets.QWidget):
         self.isDraggable = isDraggable
         self.backgroundColor = backgroundColor
         self.forceDisplay = forceDisplay
+        self.rightMargin = 9
+        self.verticalGapBetweenLabels = 5
         
                
     #Funtion to have the global size of a gameSpace  
