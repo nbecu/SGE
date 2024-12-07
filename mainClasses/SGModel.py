@@ -189,7 +189,7 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustWidgetsPosition)
+        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
         
     def hasDefinedPositionGameSpace(self):
         return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
@@ -388,7 +388,7 @@ class SGModel(QMainWindow):
         menu = QMenu(self)
 
         option1 = QAction("LayoutCheck", self)
-        option1.triggered.connect(self.adjustWidgetsPosition) #todo Pourquoi lancer cette méthode ici ???
+        option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
                                         #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
         menu.addAction(option1)
 
@@ -412,7 +412,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None,defaultCellImage=None):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None):
         """
         Create a grid that contains cells
 
@@ -429,6 +429,11 @@ class SGModel(QMainWindow):
         Returns:
             aCellDef: the cellDef that defines the cells that have been placed on a grid
         """
+        # process the name if not defined by the user. The name has to be uniquer, because it is used to reference the CellDef and the associated grid
+        if name is None:
+            name = f'grid{str(self.numberOfGrids()+1)}'
+            if name in self.gameSpaces:
+                name = name + 'bis'
         # Create a grid
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
 
@@ -440,6 +445,7 @@ class SGModel(QMainWindow):
 
         # Realocation of the position thanks to the layout
         aGrid.globalPosition()
+        self.applyAutomaticLayout()
         return aCellDef
     
     def newCellsFromGrid(self,grid,defaultCellImage):
@@ -469,6 +475,12 @@ class SGModel(QMainWindow):
         for entDef in self.cellOfGrids.values():
             aList.extend(entDef.entities)
         return aList
+    
+    def numberOfCellDef(self):
+        return len(self.cellOfGrids)
+    
+    def numberOfGrids(self):
+        return self.numberOfCellDef()
 
     def getAllEntities(self):
         # send back the cells of all the grids and the agents of all the species
@@ -499,11 +511,11 @@ class SGModel(QMainWindow):
         newPos = self.layoutOfModel.addGameSpace(aVoid)
         aVoid.setStartXBase(newPos[0])
         aVoid.setStartYBase(newPos[1])
-        aVoid.move(aVoid.getStartXBase(), aVoid.getStartYBase())
+        aVoid.move(aVoid.startXBase, aVoid.startYBase)
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):#, grid=None):
+    def newLegend(self, name='Legend', showAgentsWithNoAtt=False, addDeleteButton=True):#, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
@@ -515,7 +527,7 @@ class SGModel(QMainWindow):
         """
         # selectedSymbologies=self.getAllCheckedSymbologies(grid)
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt, addDeleteButton)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
@@ -949,18 +961,20 @@ class SGModel(QMainWindow):
         return gameSpaces
     
     # To apply the layout to all the current game spaces
-    def applyAutomaticLayout(self):
+    def applyAutomaticLayout(self): #todo basculer ce code dans les classes de layout
         self.layoutOfModel.ordered()
+        aGap = self.layoutOfModel.gapBetweenGameSpaces
         for aGameSpace in (element for element in self.gameSpaces.values() if not element.isPositionDefineByModeler()):
             if self.typeOfLayout == "vertical":
-                aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase +
-                                                20*self.layoutOfModel.getNumberOfaGameSpace(aGameSpace))
+                aGameSpace.move(aGameSpace.startXBase,
+                                aGameSpace.startYBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)))
             elif (self.typeOfLayout == "horizontal"):
-                aGameSpace.move(aGameSpace.startXBase+20*self.layoutOfModel.getNumberOfaGameSpace(
-                    aGameSpace), aGameSpace.startYBase)
+                aGameSpace.move( aGameSpace.startXBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)),
+                                         aGameSpace.startYBase)
             else:
                 pos = self.layoutOfModel.foundInLayout(aGameSpace)
-                aGameSpace.move(aGameSpace.startXBase+20*pos[0], aGameSpace.startYBase+20*pos[1])
+                aGameSpace.move( aGameSpace.startXBase + (aGap * pos[0]),
+                                 aGameSpace.startYBase + (aGap * pos[1]))
                 
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
@@ -968,13 +982,13 @@ class SGModel(QMainWindow):
             return True
         return False
     
-    def adjustWidgetsPosition(self):
+    def adjustGamespacesPosition(self):
         for name,aGameSpace in self.gameSpaces.items():
             for otherName,otherElement in self.gameSpaces.items():
                 while self.checkLayoutIntersection(name,aGameSpace,otherName,otherElement):
                     if aGameSpace.areaCalc() <= otherElement.areaCalc():
                         local_pos=aGameSpace.pos()
-                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10)
+                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10) #todo Ce code créé un décalage vertical meme lorsque qu'il n'y a pas de superposition
                     else:
                         local_pos=otherElement.pos()
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)

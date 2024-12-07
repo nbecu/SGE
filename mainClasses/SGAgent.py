@@ -31,13 +31,13 @@ class SGAgent(SGEntity):
         region = self.getRegion()
         image=self.getImage()
         if self.defaultImage != None:
-            rect = QRect(0, 0, self.width(), self.height())
+            rect, scaledImage = self.rescaleImage(self.defaultImage)
             painter.setClipRegion(region)
-            painter.drawPixmap(rect, self.defaultImage)
+            painter.drawPixmap(rect, scaledImage)
         elif image != None:
-            rect = QRect(0, 0, self.width(), self.height())
+            rect, scaledImage = self.rescaleImage(image)
             painter.setClipRegion(region)
-            painter.drawPixmap(rect, image)
+            painter.drawPixmap(rect, scaledImage)
         else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         penColorAndWidth = self.getBorderColorAndWidth()
         painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
@@ -170,9 +170,7 @@ class SGAgent(SGEntity):
             ])
             region = QRegion(points)
         return region
-
-
-
+   
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
         self.size=round(self.size+(zoomFactor*10))

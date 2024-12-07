@@ -14,7 +14,7 @@ class SGLegend(SGGameSpace):
     def __init__(self, parent,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
        
-    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
+    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,addDeleteButton=True,borderColor=Qt.black):
         self.id=legendName
         self.model=model
         self.playerName=playerName
@@ -23,7 +23,7 @@ class SGLegend(SGGameSpace):
         self.isActive=True
         self.selected = None # To handle the selection of an item in the legend
         self.borderColor=borderColor
-        self.haveADeleteButton=False
+        self.haveADeleteButton=addDeleteButton
         self.updateWithSymbologies(listOfSymbologies)
         return self
 
@@ -68,8 +68,9 @@ class SGLegend(SGGameSpace):
                 for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
                     anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
                     self.legendItems.append(anItem)
-        anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
-        self.legendItems.append(anItem)
+        if self.haveADeleteButton :
+            anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
+            self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
             anItem.adjustSize()  #NEW

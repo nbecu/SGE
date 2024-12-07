@@ -95,8 +95,27 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         aDictOfValueAndImage=list(aPovDef.values())[0]
         aImage = aDictOfValueAndImage.get(self.value(aAtt))
         return aImage if aImage is not None and isinstance(aImage,QPixmap) else None
-
     
+    def rescaleImage(self, image):
+        imageWidth = image.width()
+        imageHeight = image.height()
+
+        # entityWidth = self.width() #could use self.size, instead
+        # entityHeight = self.height()  
+        entityWidth = self.size
+        entityHeight = self.size
+
+        if (imageHeight / imageWidth) < (entityHeight / entityWidth):
+            scaled_image = image.scaledToHeight(entityHeight, Qt.SmoothTransformation)
+        else:
+            scaled_image = image.scaledToWidth(entityWidth, Qt.SmoothTransformation)
+        # Calculer le rectangle cible pour le dessin
+        x_offset = (entityWidth - scaled_image.width()) // 2
+        y_offset = (entityHeight - scaled_image.height()) // 2
+        target_rect = QRect(x_offset, y_offset, scaled_image.width(), scaled_image.height())
+
+        return target_rect, scaled_image
+   
     # def toggleHighlight(self):
     #     if self.isHighlighted:
     #         self.setGraphicsEffect(None)
