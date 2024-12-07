@@ -87,7 +87,7 @@ class SGUserSelector(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
+        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
         # Draw the corner of the US
         self.setMinimumSize(self.getSizeXGlobal()+15, self.getSizeYGlobal()+10)
         painter.drawRect(0, 0, self.getSizeXGlobal(), self.getSizeYGlobal())

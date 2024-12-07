@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from mainClasses.SGAspect import *
 
 
             
@@ -14,10 +15,17 @@ class SGGameSpace(QtWidgets.QWidget):
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.isDraggable = isDraggable
-        self.backgroundColor = backgroundColor
         self.forceDisplay = forceDisplay
         self.rightMargin = 9
         self.verticalGapBetweenLabels = 5
+        self.gs_aspect = SGAspect.baseBorder()
+        self.gs_aspect.background_color = backgroundColor
+        self.title1_aspect = SGAspect.title1()
+        self.title2_aspect = SGAspect.title2()
+        self.title3_aspect = SGAspect.title3()
+        self.text1_aspect = SGAspect.text1()
+        self.text2_aspect = SGAspect.text2()
+        self.text3_aspect = SGAspect.text3()
         
                
     #Funtion to have the global size of a gameSpace  
@@ -111,10 +119,6 @@ class SGGameSpace(QtWidgets.QWidget):
     def setDraggability(self,aBoolean):
         self.isDraggable=aBoolean
         
-    #Funtion to have the global size of a gameSpace  
-    def setColor(self,aColor):
-        self.backgroundColor=aColor
-        
         
     #Function to change the order in the layout
     def setInPosition(self,x,y):
@@ -147,5 +151,22 @@ class SGGameSpace(QtWidgets.QWidget):
                 raise ValueError('The y value is too high or negative')
         else:
             raise ValueError('The x value is too high or negative')
-        
     
+    #Funtion to set the color of the background of the gameSpace 
+    def setColor(self,aColor):
+        self.gs_aspect.background_color=aColor
+        
+        
+    def setTitlesAndTextsColor(self, textColor):
+        self.setTitlesColor(textColor)
+        self.setTextsColor(textColor)
+
+    # Application de textColor à chaque titre
+    def setTitlesColor(self, textColor):
+        for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect]:
+            aspect.color = textColor  
+
+    # Application de textColor à chaque texte
+    def setTextsColor(self, textColor):
+        for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+            aspect.color = textColor 

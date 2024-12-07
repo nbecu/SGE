@@ -11,8 +11,8 @@ class SGTimeLabel(SGGameSpace):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
         self.timeManager = self.model.timeManager
-        self.borderColor = borderColor
-        self.textColor = textColor
+        self.gs_aspect.border_color = borderColor
+        self.setTitlesAndTextsColor(textColor)
         self.moveable = True
         self.textTitle  = title
         self.displayTitle = self.textTitle is not None
@@ -41,16 +41,14 @@ class SGTimeLabel(SGGameSpace):
             self.labelPhaseName = QtWidgets.QLabel(self)
             self.labels.append(self.labelPhaseName)
 
-        color = QColor(self.textColor)
-        color_string = f"color: {color.name()};"
+        # color = QColor(self.textColor)
+        
+        # color_string = f"color: {color.name()};"
         for aLabel in self.labels:
-            aLabel.setStyleSheet(color_string)
+            aLabel.setStyleSheet(self.text1_aspect.getTextStyle())
         if self.displayTitle:
-            self.labelTitle.setText(self.id)
-            font = QFont()
-            font.setBold(True)
-            font.setPixelSize(14)
-            self.labelTitle.setFont(font)
+            self.labelTitle.setText(self.textTitle)
+            self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
 
         # Créer un layout vertical
         layout = QtWidgets.QVBoxLayout()
@@ -65,8 +63,8 @@ class SGTimeLabel(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
-        painter.setPen(QPen(self.borderColor, 1))
+        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
+        painter.setPen(QPen(self.gs_aspect.getBorderColor(), 1))
         painter.drawRect(0, 0, self.getSizeXGlobal() -1, self.getSizeYGlobal() -1)
         painter.end()
 

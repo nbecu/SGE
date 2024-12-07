@@ -14,13 +14,13 @@ class SGDashBoard(SGGameSpace):
 
     def __init__(self, parent, title, borderColor=Qt.black, backgroundColor=Qt.lightGray, titleColor=Qt.black, layout="vertical"):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
-        self.model = parent
         self.id = title
         self.indicatorNames = []
         self.indicators = []
-        self.borderColor = borderColor
-        self.backgroundColor = backgroundColor
-        self.titleColor = titleColor
+        self.textTitle  = title
+        self.displayTitle = self.textTitle is not None
+        self.gs_aspect.border_color = borderColor
+        self.setTitlesColor(titleColor)
         self.posYOfItems = 0
         self.isDisplay = True
         self.IDincr = 0
@@ -35,13 +35,14 @@ class SGDashBoard(SGGameSpace):
         layout = self.layout
 
         title = QtWidgets.QLabel(self.id)
-        font = QFont()
-        font.setBold(True)
-        font.setPixelSize(14)
-        title.setFont(font)
-        color = QColor(self.titleColor)
-        color_string = f"color: {color.name()};"
-        title.setStyleSheet(color_string)
+        # font = QFont()
+        # font.setBold(True)
+        # font.setPixelSize(14)
+        # title.setFont(font)
+        # color = QColor(self.titleColor)
+        # color_string = f"color: {color.name()};"
+        # title.setStyleSheet(color_string)
+        title.setStyleSheet(self.title1_aspect.getFontStyle())
         layout.addWidget(title)
 
         for indicator in self.indicators:
@@ -56,8 +57,8 @@ class SGDashBoard(SGGameSpace):
             if len(self.indicators) != 0:
                 painter = QPainter()
                 painter.begin(self)
-                painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
-                painter.setPen(QPen(self.borderColor, 1))
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
+                painter.setPen(QPen(self.gs_aspect.getBorderColor(), 1))
                 # Draw the corner of the DB
                 self.setMinimumSize(self.getSizeXGlobal()+10,
                                     self.getSizeYGlobal()+10)

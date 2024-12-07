@@ -47,7 +47,7 @@ myModel.timeManager.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
+DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black,layout='horizontal')
 
 score1= myModel.newSimVariable("Global Score:",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1)
