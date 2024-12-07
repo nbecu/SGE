@@ -25,8 +25,7 @@ class SGGraphWindow(QWidget):
         error_dialog = QMessageBox()
         error_dialog.setIcon(QMessageBox.Warning)
         error_dialog.setWindowTitle("Unable to display the window")
-        error_dialog.setText("Please start by playing two rounds or two phases before selecting the type of graph.\n\n"
-                             "Example: Click the play button (>) at least twice")
+        error_dialog.setText("The graph can only be opened after at least one step for circular and histogram diagrams, and after at least three steps for linear and stackplot diagrams.")
         error_dialog.setStandardButtons(QMessageBox.Ok)
         error_dialog.exec_()
 
@@ -39,7 +38,8 @@ class SGGraphWindow(QWidget):
         }
         graph_class = graph_classes.get(graph_type)
         if graph_class:
-            if len(self.model.dataRecorder.getStats_ofEntities()) > 2:
+            if (self.model.dataRecorder.nbStepsRecorded_ofEntities() >= 
+                (1 if graph_type in ["circular", "histogram"] else 3)):
                 graph = graph_class(self.model)
                 graph.show()
                 return graph

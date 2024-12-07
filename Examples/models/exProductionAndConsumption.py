@@ -164,6 +164,10 @@ myModel.timeManager.newModelPhase([modelAction1,modelAction2,modelAction4,modelA
 
 ## Define other interface widgets
 myModel.newLegend()
+
+# myModel.timeManager.currentRoundNumber=5
+# myModel.timeManager.currentPhaseNumber=1
+
 myModel.newTimeLabel("Time", Qt.white, Qt.black, Qt.black)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
 DashBoard.addIndicatorOnSimVariable(score)

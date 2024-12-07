@@ -294,19 +294,23 @@ class SGModel(QMainWindow):
     # open graph windows
     def openLinearGraph(self):
         aGraph = SGGraphWindow(self).open_graph_type("linear")
-        self.openedGraphs.append(aGraph)
+        if aGraph is not None:
+            self.openedGraphs.append(aGraph)
 
     def openHistoGraph(self):
         aGraph = SGGraphWindow(self).open_graph_type("histogram")
-        self.openedGraphs.append(aGraph)
+        if aGraph is not None:
+            self.openedGraphs.append(aGraph)
 
     def openStackPlotGraph(self):
         aGraph = SGGraphWindow(self).open_graph_type("stackplot")
-        self.openedGraphs.append(aGraph)
+        if aGraph is not None:
+            self.openedGraphs.append(aGraph)
 
     def openCircularGraph(self):
         aGraph = SGGraphWindow(self).open_graph_type("circular")
-        self.openedGraphs.append(aGraph)
+        if aGraph is not None:
+            self.openedGraphs.append(aGraph)
 
     def openOtherGraph(self):
         print("WITH CSV OPTION")

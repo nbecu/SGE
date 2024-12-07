@@ -17,6 +17,7 @@ class SGTimeManager():
         self.currentPhaseNumber = 0
         self.phases = []
         self.conditionOfEndGame = []
+        self.past_steps =[] 
         
     # To increment the time of the game
     def nextPhase(self):
@@ -31,6 +32,10 @@ class SGTimeManager():
         isEndGame = self.checkEndGame()
         if isEndGame : return
 
+        #save memory of past steps . a stepc is defined by a round number  and a phase number 
+        self.past_steps.append({'round':self.currentRoundNumber , 'phase':self.currentPhaseNumber})
+        
+        #increment the round and phase numbers
         if self.currentRoundNumber ==0:     #This case is to quit the Initialization phase at the begining of the game
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
@@ -213,8 +218,8 @@ class SGTimeManager():
         self.phases = self.phases + [aPhase]
         return aPhase
 
-    # To verify a number of round
-    def verifNumberOfRound(self, aNumber):
+    # To verify the number of round
+    def isItRoundNumber(self, aNumber):
         return self.currentRoundNumber == aNumber
 
     # To verify if the number of round is peer

@@ -46,6 +46,8 @@ aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 myModel.timeManager.newModelPhase(aModelAction2)
 
 # To display a widget with the Time information you can add a TimeLabel
+
+# myModel.timeManager.currentRoundNumber=2
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 

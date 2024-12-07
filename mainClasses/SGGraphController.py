@@ -102,20 +102,26 @@ class SGGraphController(NavigationToolbar):
     def setXValue_basedOnData(self, data):
         optionXScale = self.get_combobox_xAxisOption_selected()
         self.xValue = []
+        # self.dates_inRecordedData =  self.model.dataRecorder.dates_inRecordedData(data)
         self.rounds = {entry['round'] for entry in data}
         self.phases = {entry['phase'] for entry in data}
-        self.nbRounds = max(self.rounds)
+        self.nbRounds = len(self.rounds) #includes round 0
+        # self.model.dataRecorder.convertRoundAndPhase_inStep(self.dates_inRecordedData[1]['round'],self.dates_inRecordedData[1]['phase'])
+        # self.model.dataRecorder.convertDatesInSteps(self.dates_inRecordedData)
+        self.nbOfLastRound = max(self.rounds)   ## AJOUT
+        # self.nbRounds = max(self.rounds)    ATTENTION CA C'est le code de départ mais ca renvoie 2 rounds lorsqu'il y a en fait 3 rounds d'enregistré (round 0 étant le premier round)
         self.nbPhases = self.model.timeManager.numberOfPhases()
-        self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbRounds})
+        self.phaseOfLastRound = max({entry['phase'] for entry in data if entry['round'] == self.nbOfLastRound}) # CHANGEMENT  self.nbRounds})
+
+        self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
 
         if optionXScale in ['per round','specified phase'] or (optionXScale == 'per step' and self.nbPhases == 1) :
             self.xValue = list(self.rounds) if self.phaseOfLastRound == self.nbPhases else list(self.rounds)[:-1]
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
         elif optionXScale == 'per step': 
-            self.nbRoundsWithLastPhase = self.nbRounds if self.phaseOfLastRound == self.nbPhases else self.nbRounds - 1
-            self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
-            if self.phaseOfLastRound != self.nbPhases:
-                self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
+            # self.xValue = [0] + [i for i in range(1, self.nbRoundsWithLastPhase * self.nbPhases + 1)]
+            self.xValue = self.model.dataRecorder.steps_inRecordedData(data)
+            # if self.phaseOfLastRound != self.nbPhases:
+            #     self.xValue += [self.xValue[-1] + i for i in range(1, self.phaseOfLastRound + 1)]
         #could add here another case for 'only last rounds' with self.nbOfLastRounds_to_display 
         
 

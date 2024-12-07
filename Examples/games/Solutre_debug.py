@@ -410,9 +410,7 @@ GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[
 # GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
 Embuissonnement=myModel.newModelAction([lambda: Buisson.newAgentsAtRandom(3,Plateau,condition= lambda aCell: aCell.value("zone")=="Roches")])
-ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,Embuissonnement],name="Résolution de l'année en cours")
-ModelPhase.autoForwardOn=True
-ModelPhase.messageAutoForward=True
+ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,Embuissonnement],name="Résolution de l'année en cours",autoForwardOn=True,messageAutoForward=True)
 
 myModel.newTimeLabel()
 

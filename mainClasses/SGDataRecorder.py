@@ -30,6 +30,32 @@ class SGDataRecorder():
         for aEntDef in self.model.getEntitiesDef():  
               aList.extend(aEntDef.listOfStepStats)
         return aList
+    
+    def datesRecorded_ofEntities(self):
+        aList=[]
+        seen=set()
+        for aEntDef in self.model.getEntitiesDef(): 
+            for entry in aEntDef.listOfStepStats:
+                if (entry['round'] , entry['phase']) not in seen:
+                    seen.add((entry['round'] , entry['phase']))
+                    aList.append({'round':entry['round'] , 'phase':entry['phase']})
+        return aList
+    
+    def nbStepsRecorded_ofEntities(self):
+        return len(self.datesRecorded_ofEntities())
+    
+    def dates_inRecordedData(self, listOfData):
+        aList=[]
+        seen=set()
+        for entry in listOfData:
+            if (entry['round'] , entry['phase']) not in seen:
+                seen.add((entry['round'] , entry['phase']))
+                aList.append({'round':entry['round'] , 'phase':entry['phase']})
+        return aList
+    
+    def steps_inRecordedData(self, listOfData):
+        return self.convertDatesInSteps(self.dates_inRecordedData(listOfData))
+
 
     def getStepsData_ofEntities(self):
         if not [e for e in self.model.getAllEntities.values() if e.dictAttributes ] : return []
@@ -68,8 +94,10 @@ class SGDataRecorder():
     
 
 
+####################################
+
     def convertStep_inRoundAndPhase(self,aStep):
-        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
+        nbPhases = self.model.timeManager.numberOfPhases()
         if aStep == 0: aPhase=0
         else:
             aPhase = (aStep % nbPhases)
@@ -77,22 +105,29 @@ class SGDataRecorder():
         aRound = ((aStep-1) // nbPhases) +1
         return {'round':aRound , 'phase':aPhase}
     
-    def convertRoundAndPhase_inStep(self,aRound, aPhase):
-        nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
-        return aPhase+((aRound -1)*nbPhases)+1
+    def convertRoundAndPhase_inStep(self, aRound : int | dict, aPhase : int | None = None):
+        if isinstance(aRound,dict):
+            aPhase = aRound['phase']
+            aRound = aRound['round']
+        nbPhases = self.model.timeManager.numberOfPhases() 
+        return aPhase+(max([0,aRound -1])*nbPhases)
+    
+    def convertDatesInSteps(self, listOfDates : list):
+        return [self.convertRoundAndPhase_inStep(item) for item in listOfDates]
 
-    def getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(self,entityName,entityId,aRound,aPhase):
+    def getDictAttributesOfEntityAtRoundAndPhase(self,entityName,entityId,aRound,aPhase):
         #keys of a stepData are -> 'entityType','entityName','id','round','phase','dictAttributes'
         res=  next((aStepData for aStepData in self.stepsData_ofEntities if entityName==aStepData['entityName'] and entityId==aStepData['id'] and aRound==aStepData['round'] and aPhase==aStepData['phase']), None) 
         return res if None else res['dictAttributes']
 
-    def getAttributeValueOfAEntityAtRoundAndPhase(self,entityName,entityId,aRound,aPhase,aAttribute):
-        res=  self.getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(entityName,entityId,aRound,aPhase)
+    def getAttributeValueOfEntityAtRoundAndPhase(self,aAttribute, entityName,entityId,aRound,aPhase):
+        res=  self.getDictAttributesOfEntityAtRoundAndPhase(entityName,entityId,aRound,aPhase)
         return res if None else res[aAttribute]
     
-    def getAttributeValueOfAEntityAtSpecifiedStep(self,entityName,entityId,aStep,aAttribute):
+    def getAttributeValueOfEntityAtStep(self, aAttribute, entityName, entityId,aStep):
         aDate = self.convertStep_inRoundAndPhase(aStep)
-        return self.getValueOfAEntityAndAttributeAtSpecifiedRoundAndPhase(entityName,entityId,aDate['round'],aDate['phase'],aAttribute)
+        return self.getAttributeValueOfEntityAtRoundAndPhase(aAttribute, entityName,entityId,aDate['round'],aDate['phase'])
+
 
     
         
