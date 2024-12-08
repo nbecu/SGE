@@ -7,10 +7,8 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
 
    
 #Class who is responsible of indicator creation 
-class SGIndicator(QtWidgets.QWidget):
+class SGIndicator():
     def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
-        super().__init__(parent)
-        #Basic initialize
         self.dashboard=parent
         self.method=method
         if self.method=="thresoldToLogicOp":
@@ -36,17 +34,13 @@ class SGIndicator(QtWidgets.QWidget):
         
 
     def initUI(self):
-        self.indicatorLayout = QtWidgets.QHBoxLayout()
         calcValue=self.byMethod()
         self.result=calcValue
         self.setName()
-        self.label = QtWidgets.QTextEdit(self.name + str(calcValue))
-        self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.label.setReadOnly(True)
+        self.label = QtWidgets.QLabel(self.name + str(calcValue))
         color = QColor(self.color)
         color_string = f"color: {color.name()};"
         self.label.setStyleSheet(color_string+"border: none;background-color: transparent;")
-        self.indicatorLayout.addWidget(self.label)
 
     def setName(self):
         if self.name is not None:
@@ -70,30 +64,30 @@ class SGIndicator(QtWidgets.QWidget):
     def checkAndUpdate(self):
         if self.getUpdatePermission():
             self.updateText()
-        
+
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
         newText= self.name + str(self.result)
-        self.label.setPlainText(newText)
-        self.dashboard.model.timeManager.updateEndGame()
-    
-    def updateTextByValue(self,aValue):
-        self.result=aValue
-        newText=self.name + str(self.result)
-        self.label.setPlainText(newText)
-        self.dashboard.model.timeManager.updateEndGame()
-    
-    def updateByMqtt(self,newValue):
-        self.result=newValue
-        newText= self.name + str(newValue)
-        self.label.setPlainText(newText)
+        self.label.setText(newText)
+        # ajout pour gérer le size
+        self.label.setFixedWidth(self.label.fontMetrics().boundingRect(self.label.text()).width()+5)
+        self.label.setFixedHeight(self.label.fontMetrics().boundingRect(self.label.text()).height())
+        self.label.adjustSize()
+        # self.setMinimumSize(self.geometry().size())
+
         self.dashboard.model.timeManager.updateEndGame()
 
     def setResult(self, aValue):
         """Function to configure a score in an Indicator"""
         self.result=aValue
-        self.label.setPlainText(self.name + str(self.result))
+        self.label.setText(self.name + str(self.result))
+        # ajout pour gérer le size
+        self.label.setFixedWidth(self.label.fontMetrics().boundingRect(self.label.text()).width()+5)
+        self.label.setFixedHeight(self.label.fontMetrics().boundingRect(self.label.text()).height())
+        self.label.adjustSize()
+        # self.setMinimumSize(self.geometry().size())
+
         if isinstance(self.listOfEntDef,SGSimulationVariable):
             self.listOfEntDef.value=aValue
     
@@ -160,8 +154,6 @@ class SGIndicator(QtWidgets.QWidget):
             res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentRoundNumber))
         return res
 
-    def getSizeXGlobal(self):
-        return 150+len(self.name)*5
     
     def getListOfEntities(self):
         return [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  #This list comprehension expression concatenates the list of entities of all specified EntDef    

@@ -41,13 +41,9 @@ class SGTimeLabel(SGGameSpace):
             self.labelPhaseName = QtWidgets.QLabel(self)
             self.labels.append(self.labelPhaseName)
 
-        # color = QColor(self.textColor)
-        
-        # color_string = f"color: {color.name()};"
         for aLabel in self.labels:
             aLabel.setStyleSheet(self.text1_aspect.getTextStyle())
         if self.displayTitle:
-            self.labelTitle.setText(self.textTitle)
             self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
 
         # Créer un layout vertical
@@ -64,7 +60,7 @@ class SGTimeLabel(SGGameSpace):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColor(), 1))
+        painter.setPen(QPen(self.gs_aspect.getBorderColor(), self.gs_aspect.getBorderSize()))
         painter.drawRect(0, 0, self.getSizeXGlobal() -1, self.getSizeYGlobal() -1)
         painter.end()
 
@@ -89,9 +85,7 @@ class SGTimeLabel(SGGameSpace):
         max_bottom = max(aLabel.geometry().bottom() for aLabel in self.labels)
         
         self.sizeXGlobal = max_right +self.rightMargin
-        # self.sizeYGlobal = max_bottom + (4 * self.verticalGapBetweenLabels)
         self.setFixedSize(QSize(self.getSizeXGlobal() , self.getSizeYGlobal()))
-        # self.setMinimumSize(        )
     
 
     def getSizeXGlobal(self):

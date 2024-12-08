@@ -15,7 +15,6 @@ class SGDashBoard(SGGameSpace):
     def __init__(self, parent, title, borderColor=Qt.black, backgroundColor=Qt.lightGray, titleColor=Qt.black, layout="vertical"):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
-        self.indicatorNames = []
         self.indicators = []
         self.textTitle  = title
         self.displayTitle = self.textTitle is not None
@@ -24,57 +23,51 @@ class SGDashBoard(SGGameSpace):
         self.posYOfItems = 0
         self.isDisplay = True
         self.IDincr = 0
+
+        # Créer un layout
         if layout == 'vertical':
             self.layout = QtWidgets.QVBoxLayout()
         elif layout == 'horizontal':
             self.layout = QtWidgets.QHBoxLayout()
+        
+        self.initLabels()
+        # self.updateLabelsandWidgetSize()
+
+    def initLabels(self):
+        self.labels =[]
+
+        # ajouter le label du titre en premier
+        if self.displayTitle:
+            self.labelTitle = QtWidgets.QLabel(self)
+            self.labelTitle.setText(self.textTitle)
+            self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
+            self.labelTitle.adjustSize()
+            self.labels.append(self.labelTitle)
+            self.layout.addWidget(self.labelTitle)
+
+        # The label of indicators are added afterwards
+
+        # adjust sizes       
+        self.updateLabelsandWidgetSize()
+        #set layout
+        self.setLayout(self.layout)
 
     def showIndicators(self):
-        """At the end of the configuration, permits to show the Indicators."""
-        # Delete all
-        layout = self.layout
-
-        title = QtWidgets.QLabel(self.id)
-        # font = QFont()
-        # font.setBold(True)
-        # font.setPixelSize(14)
-        # title.setFont(font)
-        # color = QColor(self.titleColor)
-        # color_string = f"color: {color.name()};"
-        # title.setStyleSheet(color_string)
-        title.setStyleSheet(self.title1_aspect.getFontStyle())
-        layout.addWidget(title)
-
+        """This method is called when the model is launched (after all indicators have been defined by the modeler"""
+          
+        # ajout des labels des indicateurs
         for indicator in self.indicators:
             if indicator.isDisplay:
-                layout.addLayout(indicator.indicatorLayout)
+                self.labels.append(indicator.label)
+                self.layout.addWidget(indicator.label)
 
-        self.setLayout(layout)
+        # adjust sizes       
+        self.updateLabelsandWidgetSize()
+        #set layout
+        self.setLayout(self.layout)
 
-        # Drawing the DB
-    def paintEvent(self, event):
-        if self.checkDisplay():
-            if len(self.indicators) != 0:
-                painter = QPainter()
-                painter.begin(self)
-                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
-                painter.setPen(QPen(self.gs_aspect.getBorderColor(), 1))
-                # Draw the corner of the DB
-                self.setMinimumSize(self.getSizeXGlobal()+10,
-                                    self.getSizeYGlobal()+10)
-                painter.drawRect(0, 0, self.getSizeXGlobal(),
-                                 self.getSizeYGlobal())
-
-                painter.end()
-
-    def checkDisplay(self):
-        if self.isDisplay:
-            return True
-        else:
-            return False
 
     def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
-        
         """
         Add an Indicator on the DashBoard.
 
@@ -116,7 +109,6 @@ class SGDashBoard(SGGameSpace):
             raise ValueError('Wrong type')
         
         indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay)
-        self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -155,7 +147,6 @@ class SGDashBoard(SGGameSpace):
         self.posYOfItems = self.posYOfItems+1
     
         indicator = SGIndicator(self, title, method, attribute, value, entity, logicOp, color, displayRefresh,isDisplay)
-        self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -167,7 +158,6 @@ class SGDashBoard(SGGameSpace):
     def addIndicatorOnSimVariable(self,aSimulationVariable,displayRefresh="instantaneous"):
         self.posYOfItems = self.posYOfItems+1
         indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,displayRefresh,None,aSimulationVariable.isDisplay)
-        self.indicatorNames.append(indicator.name)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -303,17 +293,36 @@ class SGDashBoard(SGGameSpace):
         separator=self.addIndicator(None,"separator")
         return separator
 
-    # *Functions to have the global size of a gameSpace
+
+#############################
+        # Drawing the DB
+    def paintEvent(self, event):
+        if self.isDisplay and len(self.indicators) != 0:
+            painter = QPainter()
+            painter.begin(self)
+            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
+            painter.setPen(QPen(self.gs_aspect.getBorderColor(), self.gs_aspect.getBorderSize()))
+            # Draw the corner of the DB
+            # self.setMinimumSize(self.getSizeXGlobal(), self.getSizeYGlobal())
+            painter.drawRect(0, 0, self.getSizeXGlobal()-1, self.getSizeYGlobal()-1)
+            painter.end()
+
+    def updateLabelsandWidgetSize(self):
+        # Recalculer les dimensions en fonction du texte et du styleSheet utilisé dans les QLabel
+        for aLabel in self.labels:
+            aLabel.setFixedWidth(aLabel.fontMetrics().boundingRect(aLabel.text()).width()+5)
+            aLabel.setFixedHeight(aLabel.fontMetrics().boundingRect(aLabel.text()).height())
+            aLabel.adjustSize()
+            
+        max_width = max([aLabel.width() for aLabel in self.labels])
+        self.sizeXGlobal = max_width +self.rightMargin
+        self.sizeYGlobal = sum([aLabel.height() + self.verticalGapBetweenLabels for aLabel in self.labels])
+        self.setFixedSize(QSize(self.getSizeXGlobal() , self.getSizeYGlobal()))
+    
+
     def getSizeXGlobal(self):
-        return 100+len(self.getLongest())*5
-
+        return self.sizeXGlobal
+    
     def getSizeYGlobal(self):
-        somme = 100
-        return somme+len(self.indicatorNames)*20
-
-    def getLongest(self):
-        longestWord = ""
-        for indicatorName in self.indicatorNames:
-            if len(indicatorName) > len(longestWord):
-                longestWord = indicatorName
-        return longestWord
+        return self.sizeYGlobal
+    
