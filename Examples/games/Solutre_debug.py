@@ -268,6 +268,10 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
             effetInstantaneJauge[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
     condPlacement=[]#ast.literal_eval(ligneHexInst['emplacementPose'].values[0])
     joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
+
+    #! ADJACENCE
+
+
     image=ligneHexInst["image recto"].values[0] if isinstance(ligneHexInst["image recto"].values[0], str) else None
     
     # Création des effets activables
@@ -299,9 +303,9 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
 
     coutTouriste=int(ligneHexAct['coutTouriste'].values[0]) if not math.isnan(ligneHexAct['coutTouriste'].values[0]) else 0
     effetActivableTouriste={
-        "sous":int(ligneHexAct['feedbackTouristeSous'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeSous'].values[0]) else 0,
-        "attractivité":int(ligneHexAct['feedbackTouristeAttractivité'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeAttractivité'].values[0]) else 0,
-        "qualité de vie": int(ligneHexAct['feedbackTouristeQDV'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeQDV'].values[0]) else 0,
+        "Sous":int(ligneHexAct['feedbackTouristeSous'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeSous'].values[0]) else 0,
+        "Attractivité":int(ligneHexAct['feedbackTouristeAttractivité'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeAttractivité'].values[0]) else 0,
+        "Qualité de vie": int(ligneHexAct['feedbackTouristeQDV'].values[0]) if not math.isnan(ligneHexAct['feedbackTouristeQDV'].values[0]) else 0,
     }
     
 
@@ -382,9 +386,9 @@ def updateCubes(aHex):
     player.decValue("nbCubes",aHex.value("coûtCubes"))
 
 def execeffetActivableJauge(aHex):
-    if not aHex.value("effetActivableJauge") and not aHex.value("effetRessourcesAct"):
-        myModel.newWarningPopUp("Attention!","Cet hexagone n'est pas activable!")
-        return
+    # if not aHex.value("effetActivableJauge") and not aHex.value("effetRessourcesAct"):
+    #     myModel.newWarningPopUp("Attention!","Cet hexagone n'est pas activable!")
+    #     return
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
@@ -405,6 +409,37 @@ def decCubes():
     player=myModel.getPlayer(myModel.currentPlayer)
     player.decValue("nbCubes")
 
+def checkTouristes():
+    if touriste.value >= 1: return True
+    else: return False
+
+def decTouristes():
+    touriste.decValue()
+
+def execeffetActivableTouriste(aHex):
+    dictOfValues=aHex.value("effetActivableTouriste")
+    attractivite.incValue(int(dictOfValues.get("Attractivité")))
+    qualiteVie.incValue(int(dictOfValues.get("Qualité de vie")))
+    
+def checkAdjacence(aHex):
+    return
+
+def checkAdjacenceFeedback(aHex):
+    if aHex.value("conditionFeedbackAdjacence") == "coutTouriste":
+        listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
+        for aNeighbourHex in listOfNeighbours:
+            if aNeighbourHex.value("coutTouriste")>0:
+                return True
+        return False
+    else: return False
+
+def adjacenceFeedback(aHex):
+    if aHex.value("conditionFeedbackAdjacence") == "coutTouriste":
+        listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
+        for aNeighbourHex in listOfNeighbours:
+            if aNeighbourHex.value("coutTouriste")>0:
+                attractivite.incValue()
+                
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
@@ -445,6 +480,7 @@ def checkBuisson():
             aInd.decValue()
         print(f"Attention ! Cette année, {nbBuisson} buissons n'ont pas été entretenus.")
     Buisson.deleteAllEntities()
+
 
 #PHASE 1 : Début d'années = événements + buissons
 eventPopUp=myModel.newModelAction(lambda: execEvent(), lambda: myModel.timeManager.currentRoundNumber > 1)

@@ -445,7 +445,7 @@ class SGAgent(SGEntity):
     
     def nbNeighborAgents(self,rule='moore',aSpecies=None):  
         if aSpecies:
-            return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
+            return len(self.getNeighborAgents(rule,aSpecies))
         return len(self.getNeighborAgents(rule))
 
     def getNeighborsN(self,aSpecies=None):
