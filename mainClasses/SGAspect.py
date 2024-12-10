@@ -120,11 +120,17 @@ class SGAspect():
     def getBorderSize(self):
         return self.border_size
 
-    def getBorderColor(self):
-        return self.border_color
+    # def getBorderColor(self):
+    #     return self.border_color
 
-    def getBackgroundColor(self):
-        return self.background_color
+    def getBorderColorValue(self):
+        return QColor(self.border_color)
+    
+    # def getBackgroundColor(self):
+    #     return self.background_color
+    
+    def getBackgroundColorValue(self):
+        return QColor(self.background_color)
 
     # Méthodes pour créer les spécifications de style
     def getTextStyle(self):

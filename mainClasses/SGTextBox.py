@@ -66,7 +66,7 @@ class SGTextBox(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
+        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
         painter.setPen(QPen(self.borderColor, 1))
         # Draw the corner of the Legend
         if self.sizeX == None or self.sizeY == None:

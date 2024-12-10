@@ -59,8 +59,8 @@ class SGTimeLabel(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColor(), self.gs_aspect.getBorderSize()))
+        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
         painter.drawRect(0, 0, self.getSizeXGlobal() -1, self.getSizeYGlobal() -1)
         painter.end()
 

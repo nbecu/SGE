@@ -67,7 +67,7 @@ class SGDashBoard(SGGameSpace):
         self.setLayout(self.layout)
 
 
-    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
+    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,conditionsOnEntities=[]):
         """
         Add an Indicator on the DashBoard.
 
@@ -92,9 +92,9 @@ class SGDashBoard(SGGameSpace):
         """
         self.posYOfItems = self.posYOfItems+1
         if isinstance(entityName,str) :
-            res = self.model.getEntityDef(entityName)
-            if res is None: raise ValueError('Wrong type')  
-            listOfEntDef = [self.model.getEntityDef(entityName)]
+            resEntDef = self.model.getEntityDef(entityName)
+            if resEntDef is None: raise ValueError('Wrong type')  
+            listOfEntDef = [resEntDef]
         elif isinstance(entityName,SGEntityDef) :
             listOfEntDef = [entityName]
         elif entityName is None :
@@ -108,7 +108,7 @@ class SGDashBoard(SGGameSpace):
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay)
+        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay,conditionsOnEntities=conditionsOnEntities)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -118,20 +118,24 @@ class SGDashBoard(SGGameSpace):
         return indicator
     
 
-    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, displayRefresh="instantaneous",isDisplay=True):
+    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, displayRefresh="instantaneous", isDisplay=True):
         """
-        Add an Indicator on a particular entity on the DashBoard only two methods available : display (default) & thresoldToLogicOp (if a value and a logicOp defined).
+        Add an Indicator on a particular entity on the DashBoard.
+
+        Two usages are possible:
+         - Show the value of an attribute. Example: dashBoard.addIndicatorOnEntity(aEntity, 'landUse').
+         - Show True or False depending on a logical test on an attribute value (logicOp and value need to be defined). Example: addIndicatorOnEntity(aEntity, 'landUse', logicOp='equal', value='forest').
 
         Args:
-            entity (SGEntity) : an entity (cell, or agent)
-            attribute (str) : concerned attribute 
-            color (Qt.color) : text color
-            logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
-            thresold (str, optionnal) : only if method = thresoldToLogicOp, thresold value (default :None )
-            title (str, optionnal) : name displayed on the dashboard
-            displayRefresh (str) :
-            isDisplay (bool) : display on the dashboard (default : True)
-
+            entity (SGEntity): An entity (cell or agent).
+            attribute (str): The concerned attribute.
+            color (Qt.color): The text color (default is Qt.black).
+            value (optional): The value to compare against for logical tests.
+            logicOp (str, optional): The logical operator for the test performed. Possible values: "greater", "greater or equal", "equal", "less or equal", "less".
+            threshold (str, optional): The threshold value for logical tests.
+            title (str, optional): The name displayed on the dashboard.
+            displayRefresh (str, optional): Determines how the display is refreshed (e.g., "instantaneous", "onTimeConditions").
+            isDisplay (bool, optional): Whether to display on the dashboard (default is True).
         """
         if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer)): raise ValueError ('Wrong entity format')
         self.entity= entity
@@ -166,7 +170,7 @@ class SGDashBoard(SGGameSpace):
     
         return indicator
 
-    def addIndicator_Sum(self, entity, attribute,title, color, displayRefresh="instantaneous", isDisplay=True):
+    def addIndicator_Sum(self, entity, attribute,title=None, color=Qt.black, displayRefresh="instantaneous", isDisplay=True,conditionsOnEntities=[]):
         """
         Add a sum indicator
         Args :
@@ -178,7 +182,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'sumAtt'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,conditionsOnEntities=conditionsOnEntities)
         return indicator
 
     def addIndicator_Avg(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
@@ -300,8 +304,8 @@ class SGDashBoard(SGGameSpace):
         if self.isDisplay and len(self.indicators) != 0:
             painter = QPainter()
             painter.begin(self)
-            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColor(), Qt.SolidPattern))
-            painter.setPen(QPen(self.gs_aspect.getBorderColor(), self.gs_aspect.getBorderSize()))
+            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
             # Draw the corner of the DB
             # self.setMinimumSize(self.getSizeXGlobal(), self.getSizeYGlobal())
             painter.drawRect(0, 0, self.getSizeXGlobal()-1, self.getSizeYGlobal()-1)

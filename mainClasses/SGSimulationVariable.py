@@ -18,7 +18,13 @@ class SGSimulationVariable():
             self.setValue(initValue())
         else:
             self.setValue(initValue)
-        
+
+    def value(self):
+        """
+        Return the value of the simulation variable
+        Can use '.value' instead
+        """
+        return self.value    
 
     def setValue(self,newValue):
         self.value=newValue

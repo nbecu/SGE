@@ -275,3 +275,10 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     #To perform action --> Check if this method is used or not
     def doAction(self, aLambdaFunction):
         aLambdaFunction(self)
+
+
+    def entDef(self):
+        """
+        Returns the 'entity definition' class of the entity
+        """        
+        return self.classDef

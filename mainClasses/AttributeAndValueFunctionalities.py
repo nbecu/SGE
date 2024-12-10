@@ -105,7 +105,10 @@ class AttributeAndValueFunctionalities():
         if aItem: return aItem[2]
         else: return self.getDictOfAttributes_atRoundAndPhase(aRound,aPhase)[aAttribute]
 
-        
+    def getInitialValue(self,aAttribute):
+        return self.getAttributeValue_atRoundAndPhase(0,0,aAttribute)
+
+
     def getListOfUntagedStepsData(self,startStep=None,endStep=None):
         if self.history["value"]=={}: return []
         aList=[]

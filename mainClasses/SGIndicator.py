@@ -4,11 +4,10 @@ from PyQt5.QtCore import *
 
 from mainClasses.SGSimulationVariable import SGSimulationVariable
 
-
    
 #Class who is responsible of indicator creation 
 class SGIndicator():
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,conditionsOnEntities=[]):
         self.dashboard=parent
         self.method=method
         if self.method=="thresoldToLogicOp":
@@ -29,7 +28,7 @@ class SGIndicator():
         self.isDisplay=isDisplay
         self.displayRefresh=displayRefresh
         self.timeConditions=onTimeConditions 
-        self.memory=[]
+        self.conditionsOnEntities=conditionsOnEntities
         self.initUI()
         
 
@@ -74,7 +73,6 @@ class SGIndicator():
         self.label.setFixedWidth(self.label.fontMetrics().boundingRect(self.label.text()).width()+5)
         self.label.setFixedHeight(self.label.fontMetrics().boundingRect(self.label.text()).height())
         self.label.adjustSize()
-        # self.setMinimumSize(self.geometry().size())
 
         self.dashboard.model.timeManager.updateEndGame()
 
@@ -156,7 +154,16 @@ class SGIndicator():
 
     
     def getListOfEntities(self):
-        return [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  #This list comprehension expression concatenates the list of entities of all specified EntDef    
+        listOfAllEntities = [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  
+        if self.conditionsOnEntities:
+            entitiesSatisfyingConditions = []
+            for aEnt in listOfAllEntities:
+                for aCondition in self.conditionsOnEntities:
+                    if aCondition(aEnt): entitiesSatisfyingConditions.append(aEnt)
+            return entitiesSatisfyingConditions
+        return listOfAllEntities
+    
+    
     
     def byMethod(self):
         calcValue=0.0
@@ -213,6 +220,57 @@ class SGIndicator():
 
     def getMethods(self):
         print(self.methods)
+
+    @classmethod
+    def metricOn(cls, listOfEntities, metric, attribute, value):
+        """
+        Calculate a value based on the specified metric, attribute, and value for a given list of entities.
+
+        Args:
+            listOfEntities (list): The list of entities to process.
+            metric (str): The metric to use for statistical evaluation. Possible values include:
+                - 'nb': Count of entities whose specified attribute is equal to the specified value.
+                - 'sumAtt': Sum of the specified attribute values.
+                - 'avgAtt': Average of the specified attribute values.
+                - 'minAtt': Minimum value of the specified attribute.
+                - 'maxAtt': Maximum value of the specified attribute.
+                - 'nbWithLess': Count of entities with attribute values less than the specified value.
+                - 'nbWithMore': Count of entities with attribute values greater than the specified value.
+                - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
+            attribute (str): The attribute to evaluate.
+            value (optional): The value to compare against for certain metrics.
+
+        Returns:
+            float or int: The calculated value based on the specified metric.
+        """
+        calcValue = 0.0
+        counter = 0
+        
+        if metric == 'nb':
+            if attribute is not None and value is not None:
+                filteredList = [entity for entity in listOfEntities if entity.value(attribute) == value]
+                return len(filteredList)
+            else:
+                return len(listOfEntities)
+        
+        elif metric in ["sumAtt", "avgAtt", "minAtt", "maxAtt", "nbWithLess", "nbWithMore", "nbEqualTo"]:
+            listOfValues = [aEnt.value(attribute) for aEnt in listOfEntities]
+            if metric == 'sumAtt':
+                return sum(listOfValues)
+            if metric == 'avgAtt':
+                return round(sum(listOfValues) / len(listOfValues), 2) if listOfValues else 0
+            if metric == 'minAtt':
+                return min(listOfValues) if listOfValues else 0
+            if metric == 'maxAtt':
+                return max(listOfValues) if listOfValues else 0
+            if metric == 'nbWithLess':
+                return len([x for x in listOfValues if x < value])
+            if metric == 'nbWithMore':
+                return len([x for x in listOfValues if x > value])
+            if metric == 'nbEqualTo':
+                return len([x for x in listOfValues if x == value])
+        else:
+            raise ValueError(f"Invalid metric: '{metric}'. Please provide a valid metric.")
 
 
             

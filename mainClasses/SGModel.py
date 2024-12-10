@@ -438,7 +438,7 @@ class SGModel(QMainWindow):
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
 
         # Create a CellDef populate the grid with it
-        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage)
+        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage,name)
         aGrid.cellDef =aCellDef
 
         self.gameSpaces[name] = aGrid
@@ -448,12 +448,12 @@ class SGModel(QMainWindow):
         self.applyAutomaticLayout()
         return aCellDef
     
-    def newCellsFromGrid(self,grid,defaultCellImage):
-        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None,defaultCellImage=defaultCellImage)
+    def newCellsFromGrid(self,grid,defaultCellImage,entityName):
+        CellDef = SGCellDef(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,entityName=entityName,defaultCellImage=defaultCellImage)
         self.cellOfGrids[grid.id] = CellDef
-        for lin in range(1, grid.rows + 1):
+        for row in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
-                CellDef.newCell(col, lin)
+                CellDef.newCell(col, row)
         return CellDef
 
     # To get the CellDef corresponding to a Grid
