@@ -1210,7 +1210,7 @@ class SGModel(QMainWindow):
         self.users = listOfUsers
 
     # To open and launch the game without a mqtt broker
-    def launch(self):
+    def  launch(self):
         """
         Launch the game.
         """

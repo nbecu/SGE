@@ -439,8 +439,13 @@ class SGAgent(SGEntity):
         sortedAgents=[]
         if len(agents)!=0:
             for aAgent in agents:
-                if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
-                    aAgent.append(sortedAgents)
+                if isinstance(aAgent,list):
+                    for agent in aAgent:
+                        if agent.classDef == aSpecies or agent.classDef.entityName == aSpecies:
+                            sortedAgents.append(agent)
+                elif isinstance(aAgent,SGAgent):
+                    if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
+                        sortedAgents.append(aAgent)
         return sortedAgents
     
     def nbNeighborAgents(self,rule='moore',aSpecies=None):  

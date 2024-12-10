@@ -60,6 +60,14 @@ class SGMove(SGAbstractAction):
     def executeAction(self, aMovingEntity,aDestinationEntity):
         newCopyOfAgent = aMovingEntity.moveTo(aDestinationEntity)
         return newCopyOfAgent
+    
+    def executeFeedbacks(self, feedbackTarget):
+        listOfRes = []
+        for aFeedback in self.feedbacks:
+            res = aFeedback() if aFeedback.__code__.co_argcount == 0 else aFeedback(feedbackTarget)
+            listOfRes.append(res)
+        if not listOfRes: raise ValueError('why is this method called when the list of feedbaks is  empty')
+        return res if len(listOfRes) == 1 else listOfRes
 
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:

@@ -219,6 +219,7 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
 Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":30,"Sous":0})
 
+
 #* --------------------------
 #* Déclaration des agents
 #* --------------------------
@@ -257,7 +258,8 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     # Création des effets instantanés
     ligneHexInst = dataInst[dataInst['nom'] == nom]
     if ligneHexInst.empty:
-        return f"L'entité '{nom}' n'existe pas dans le fichier Excel Inst."
+        return print(f"L'entité '{nom}' n'existe pas dans le fichier Excel Inst.")
+        
     
     coutCubes=int(ligneHexInst['coutCubes'].values[0])
     colonnesJauges= dataInst.loc[:, 'Qualité de vie':'Santé'].columns
@@ -266,10 +268,12 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         variable=next((var for var in variables if var.name == col), None)
         if variable is not None:
             effetInstantaneJauge[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
-    condPlacement=[]#ast.literal_eval(ligneHexInst['emplacementPose'].values[0])
     joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
 
-    #! ADJACENCE
+    conditionAdjacence=ligneHexInst["conditionAdjacence"].values[0] if isinstance(ligneHexInst["conditionAdjacence"].values[0], str) else None
+    nbAdjacence=ligneHexInst["nbAdjacence"].values[0] if not math.isnan(ligneHexInst["nbAdjacence"].values[0]) else 1
+    conditionFeedbackAdjacence=ligneHexInst["conditionFeedbackAdjacence"].values[0] if isinstance(ligneHexInst["conditionFeedbackAdjacence"].values[0], str) else None
+    feedbackAdjacenceAttractivité=ligneHexInst["feedbackAdjacenceAttractivité"].values[0] if not math.isnan(ligneHexInst["nbAdjacence"].values[0]) else 0
 
 
     image=ligneHexInst["image recto"].values[0] if isinstance(ligneHexInst["image recto"].values[0], str) else None
@@ -277,7 +281,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     # Création des effets activables
     ligneHexAct = dataAct[dataAct['nom'] == nom]
     if ligneHexAct.empty:
-        return f"L'entité '{nom}' n'existe pas dans le fichier Excel Act."
+        return print(f"L'entité '{nom}' n'existe pas dans le fichier Excel Act.")
     
     coutCubesAct=int(ligneHexAct['coutCubesAct'].values[0]) if not math.isnan(ligneHexAct['coutCubesAct'].values[0]) else 0
     coutVin=int(ligneHexAct['coutVin'].values[0]) if not math.isnan(ligneHexAct['coutVin'].values[0]) else 0
@@ -309,7 +313,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     }
     
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, "condPlacement": condPlacement , 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
     return #entite
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
@@ -327,14 +331,14 @@ pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 
 # Création des hexagones
 
-createHex("Bar à vin",hexagones,data_inst,data_act)
-createHex("Dégustation au caveau",hexagones,data_inst,data_act)
-createHex("Vigne Bio",hexagones,data_inst,data_act)
-createHex("Export vin BIO",hexagones,data_inst,data_act)
-createHex("Parcours gastronomique",hexagones,data_inst,data_act)
-createHex("Bar",hexagones,data_inst,data_act)
-createHex("Labellisation bio",hexagones,data_inst,data_act)
+# createHex("Bar à vin",hexagones,data_inst,data_act)
+# createHex("Dégustation au caveau",hexagones,data_inst,data_act)
+# createHex("Vigne Bio",hexagones,data_inst,data_act)
+# createHex("Export vin BIO",hexagones,data_inst,data_act)
+# createHex("Parcours gastronomique",hexagones,data_inst,data_act)
+# createHex("Labellisation bio",hexagones,data_inst,data_act)
 createHex("Vigne",hexagones,data_inst,data_act)
+createHex("Bar",hexagones,data_inst,data_act)
 
 # #* --------------------------
 # #* Dashboard des ressources
@@ -357,9 +361,10 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 #* GameActions
 #* --------------------------
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)])
-MoveHexagone.addCondition(lambda aHex,aTargetCell: aTargetCell.value("zone")==aHex.value("joueur").name)
+MoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
 MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
 MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
+MoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
 Viticulteur.addGameAction(MoveHexagone)
 MovePioche=myModel.newMoveAction(hexagones, 'infinite')
 MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
@@ -374,6 +379,12 @@ ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 
 PlaceTouriste=myModel.newMoveAction(Touriste,"infinite")
+PlaceTouriste.addCondition(lambda: checkIsThereTouristes())
+PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHébergement(aTargetCell))
+PlaceTouriste.addFeedback(lambda: decTouristes())
+PlaceTouriste.addFeedback(lambda aTourist: execeffetActivableTouriste(aTourist))
+Tourisme.addGameAction(PlaceTouriste)
+TourismeControlPanel = Tourisme.newControlPanel("Gestion Touristes")
 
 
 def execeffetInstantaneJauge(aHex):
@@ -409,29 +420,46 @@ def decCubes():
     player=myModel.getPlayer(myModel.currentPlayer)
     player.decValue("nbCubes")
 
-def checkTouristes():
+def checkIsThereTouristes():
     if touriste.value >= 1: return True
     else: return False
+
+def checkIsHébergement(aTargetCell):
+    hexa=aTargetCell.getAgents(specie="Hexagone")
+    for aHex in hexa:
+        if aHex.value("coutTouriste") !=0: return True
+        else: return False
 
 def decTouristes():
     touriste.decValue()
 
-def execeffetActivableTouriste(aHex):
+def execeffetActivableTouriste(aTourist):
+    aTargetCell=aTourist.cell
+    aHex=aTargetCell.getAgents(specie="Hexagone")[0]
     dictOfValues=aHex.value("effetActivableTouriste")
     attractivite.incValue(int(dictOfValues.get("Attractivité")))
     qualiteVie.incValue(int(dictOfValues.get("Qualité de vie")))
+    Tourisme.incValue("Sous",int(dictOfValues.get("Sous")))
     
 def checkAdjacence(aHex):
-    return
-
-def checkAdjacenceFeedback(aHex):
-    if aHex.value("conditionFeedbackAdjacence") == "coutTouriste":
+    if aHex.value("conditionAdjacence") is not None:
         listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
+        nbNeighbour=0
         for aNeighbourHex in listOfNeighbours:
-            if aNeighbourHex.value("coutTouriste")>0:
-                return True
-        return False
-    else: return False
+            if aHex.value("conditionAdjacence") == aNeighbourHex.value("player").name: 
+                if aHex.value("nbAdjacence") == 1: return True
+                else:
+                    nbNeighbour=+1
+                    if aHex.value("nbAdjacence") == nbNeighbour:
+                        return True
+            elif aHex.value("conditionAdjacence") in ["Service public","Espace de démocratie"]:
+                for jauge, value in aNeighbourHex.value("effetActivableJauge").items():
+                    if jauge.name == aHex.value("conditionAdjacence"): return True
+            elif aHex.value("conditionAdjacence") in ["vinBio","vin"]:
+                for ressource, value in aNeighbourHex.value("effetRessourcesAct").items():
+                    if ressource.name == aHex.value("effetRessourcesAct"): return True
+            elif aHex.value("conditionAdjacence") == "coutTouriste" and aNeighbourHex.value("coutTouriste")>0: return True
+    else: return True
 
 def adjacenceFeedback(aHex):
     if aHex.value("conditionFeedbackAdjacence") == "coutTouriste":
@@ -439,7 +467,7 @@ def adjacenceFeedback(aHex):
         for aNeighbourHex in listOfNeighbours:
             if aNeighbourHex.value("coutTouriste")>0:
                 attractivite.incValue()
-                
+
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
@@ -494,7 +522,7 @@ EventPhase.messageAutoForward=False
 GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
-# GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes")
+GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",[Tourisme])
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])

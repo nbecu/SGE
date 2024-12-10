@@ -17,8 +17,8 @@ class SGAbstractAction():
         self.numberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
-        self.feedbacks=feedBacks
-        self.conditionsOfFeedBack=conditionsOfFeedBack 
+        self.feedbacks=copy.deepcopy(feedBacks)
+        self.conditionsOfFeedBack=copy.deepcopy(conditionsOfFeedBack) 
         self.setControllerContextualMenu=setControllerContextualMenu           
 
     def nextId(self):
