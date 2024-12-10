@@ -331,12 +331,12 @@ pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 
 # Création des hexagones
 
-# createHex("Bar à vin",hexagones,data_inst,data_act)
-# createHex("Dégustation au caveau",hexagones,data_inst,data_act)
-# createHex("Vigne Bio",hexagones,data_inst,data_act)
-# createHex("Export vin BIO",hexagones,data_inst,data_act)
-# createHex("Parcours gastronomique",hexagones,data_inst,data_act)
-# createHex("Labellisation bio",hexagones,data_inst,data_act)
+createHex("Bar à vin",hexagones,data_inst,data_act)
+createHex("Dégustation au caveau",hexagones,data_inst,data_act)
+createHex("Vigne Bio",hexagones,data_inst,data_act)
+createHex("Export vin BIO",hexagones,data_inst,data_act)
+createHex("Parcours gastronomique",hexagones,data_inst,data_act)
+createHex("Labellisation bio",hexagones,data_inst,data_act)
 createHex("Vigne",hexagones,data_inst,data_act)
 createHex("Bar",hexagones,data_inst,data_act)
 
@@ -371,6 +371,7 @@ MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
 Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
 Viticulteur.addGameAction(ActivateHexagone)
 DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()])
 Viticulteur.addGameAction(DeleteBuisson)
@@ -397,15 +398,16 @@ def updateCubes(aHex):
     player.decValue("nbCubes",aHex.value("coûtCubes"))
 
 def execeffetActivableJauge(aHex):
-    # if not aHex.value("effetActivableJauge") and not aHex.value("effetRessourcesAct"):
-    #     myModel.newWarningPopUp("Attention!","Cet hexagone n'est pas activable!")
-    #     return
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
         ressource.incValue(valeur)
     updatesCubesActivation(aHex)
     aHex.setValue("Activation",True)
+
+def checkIfActivable(aHex):
+    values= list(aHex.value("effetActivableJauge").values())+list(aHex.value("effetRessourcesAct").values())
+    return any(val != 0 for val in values)
 
 def updatesCubesActivation(aHex):
     player=aHex.value("joueur")

@@ -121,10 +121,11 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         actions = player.getAllGameActionsOn(self)
         for aAction in actions:
             if aAction.setControllerContextualMenu:
-                gear=QAction(aAction.name,self)
-                gear.setCheckable(False)
-                menu.addAction(gear)
-                options.append(gear)
+                    if aAction.checkAuthorization(self):
+                        gear=QAction(aAction.name,self)
+                        gear.setCheckable(False)
+                        menu.addAction(gear)
+                        options.append(gear)
 
         for anItem in self.classDef.attributesToDisplayInContextualMenu:
             aAtt = anItem['att']
