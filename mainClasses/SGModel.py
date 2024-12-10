@@ -878,18 +878,18 @@ class SGModel(QMainWindow):
         for aTextBox in TextBoxes:
             print(str(aTextBox.id)+' : '+str(aTextBox.history))
 
-    def newDashBoard(self, title=None, borderColor=Qt.black, backgroundColor=Qt.transparent, textColor=Qt.black, layout ='vertical'):
-        """
+    def newDashBoard(self, title=None, borderColor=Qt.black, borderSize=1, backgroundColor=QColor(230, 230, 230), textColor=Qt.black, layout ='vertical'):
+        """  Qt.lightGray
         Create the score board of the game
 
         Args:
         title (str) : title of the widget (default:"Phases&Rounds")
         backgroundColor (Qt Color) : color of the background (default : Qt.transparent)
-        borderColor (Qt Color) : color of the border (default : Qt.black)
+        borderColor (Qt Color, default very light gray) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
         aDashBoard = SGDashBoard(
-            self, title, borderColor, backgroundColor, textColor, layout)
+            self, title, borderColor, borderSize, backgroundColor, textColor, layout)
         self.gameSpaces[title] = aDashBoard
         # Realocation of the position thanks to the layout
         aDashBoard.globalPosition()

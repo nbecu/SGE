@@ -26,11 +26,25 @@ class SGSimulationVariable():
         """
         return self.value    
 
-    def setValue(self,newValue):
-        self.value=newValue
+    def setValue(self, newValue):
+        """
+        Sets the value of the simulation variable
+        Args:
+            newValue: The new value to assign to the simulation variable.
+        """
+        self.value = newValue
         self.saveValueInHistory(newValue)     
         for watcher in self.watchers:
             watcher.checkAndUpdate()
+    
+    def setValue_silently(self,newValue):
+        """
+        Sets the value of the simulation variable, without notifying  the watchers.
+        Args:
+            newValue: The new value to assign to the simulation variable.
+        """
+        self.value=newValue
+        self.saveValueInHistory(newValue)
 
     def saveValueInHistory(self,aValue):
         self.history.append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])

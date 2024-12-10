@@ -20,107 +20,14 @@ listeJoueurs = {
     }
 
 #OLD(initial)  ordreZHs = ['marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'vasiere nue',  'herbier', 'champs agricoles', 'plage', 'port industriel', 'pres sales', 'marais doux agricole', 'port plaisance', 'foret', 'marais salant',]
-ordreZHs = ['champs agricoles','marais doux agricole', 'marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'marais salant', 'pres sales',  'vasiere nue',  'herbier',  'plage', 'port plaisance',  'port industriel',  'foret',]
+ordreZHs = ['champs agricoles','marais doux agricole', 'marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'marais salant', 'pres sales', 'vasiere nue', 'herbier', "demi-herbier", 'plage', 'port plaisance', 'port industriel', 'foret', "mer", "vide"]
 
 # # Définition des zones avec leurs caractéristiques
 ZHs = {
-    "marais doux": {##
-        "sequestration": 0.25,
-        "couleur": QColor(173, 216, 230, 120),
-        "taille plateau":(2,2),
-        "potentiel accueil actions1": {5:15,6:18,7:21,8:24}[nbJoueurs], 
-        "cases actions2": [
-            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
-        ]
-    },
-    "marais saumatre": {##
-        "sequestration": 1.51,
-        "couleur": QColor(147, 112, 219, 120),
-        "taille plateau":(2,3),
-        "potentiel accueil actions1":15,
-        "cases actions2": [
-            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
-            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {})
-        ]
-    },
-    "marais salee": {##
-        "sequestration": 1.75,
-        "couleur": QColor(0, 255, 0, 120),
-        "taille plateau":(2,2),
-        "potentiel accueil actions1": 10 if nbJoueurs <= 6 else (11 if nbJoueurs == 7 else 13),
-        "cases actions2": [
-            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {})
-        ]
-    },
-    "oestricole": {##
-        "sequestration": 1,
-        "couleur": QColor(128, 128, 128, 120),
-        "taille plateau":(2,3),
-        "potentiel accueil actions1":4,
-        "cases actions2": [
-            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2},
-            *({"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
-            *({"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 8 else {})
-        ]
-    },
-    "vasiere nue": {##
-        "sequestration": 0.25,
-        "couleur": QColor(210, 180, 140, 120),
-        "taille plateau":(2,4),
-        "potentiel accueil actions1":10,
-        "cases actions2": [
-            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-            {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2},
-            {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2},
-            *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
-            *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2} if nbJoueurs >= 7 else {}),
-            *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 8 else {})
-        ]
-    },
-    # "vasiere nue bai de diop": {##
-    #     "sequestration": 7,9,
-    #     "couleur": QColor(210, 180, 140, 120),
-    #     "taille plateau":(2,4),
-    #     "potentiel accueil actions1":10,
-    #     "cases actions2": [
-    #         {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-    #         {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2},
-    #         {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2},
-    #         *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
-    #         *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2} if nbJoueurs >= 7 else {}),
-    #         *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 8 else {})
-    #     ]
-    # },
-    "demi-herbier": {##
-        "sequestration": 0.83, #moitié herbier, moitié vasière nue,
-        "couleur": QColor(130, 180, 100, 120)
-    },
-    "herbier": {##
-        "sequestration": 1.4,
-        "couleur": QColor(0, 128, 0, 120),
-        "taille plateau":(2,4),
-        "potentiel accueil actions1":10,
-        "cases actions2": [
-            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-            {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2},
-            {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2},
-            *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
-            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 7 else {}),
-            *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 8 else {})
-        ]
-    },
-    "champs agricoles": { ##
+    'champs agricoles': {##
         "sequestration": 0,
         "couleur": QColor(255, 0, 0, 120),
-        "taille plateau":(2,5),
-        "potentiel accueil actions1":None,
+        "potentiel accueil actions1": None,
         "cases actions2": [
             {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
             {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
@@ -134,53 +41,10 @@ ZHs = {
             *({"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 8 else {})
         ]
     },
-  
-    "plage": {##
-        "sequestration": 0,
-        "couleur": QColor(255, 218, 185, 120),
-        "taille plateau":(2,3),
-        "potentiel accueil actions1":13,
-        "cases actions2": [
-            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3},
-            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3},
-            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3},
-            *({"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3} if nbJoueurs >= 6 else {}),
-            *({"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3} if nbJoueurs >= 7 else {})
-        ]
-    },
-    "port industriel": {##
-        "sequestration": 0,
-        "couleur": QColor(0, 100, 0, 120),
-        "taille plateau":(2,3),
-        "potentiel accueil actions1":None,
-        "cases actions2": [
-            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
-            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
-            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
-            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
-            *({"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6} if nbJoueurs >= 7 else {}),
-            *({"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6} if nbJoueurs >= 8 else {})
-        ]
-    },
-    "pres sales": {##
-        "sequestration": 2.4,
-        "couleur": QColor(70, 110, 70, 120),
-        "taille plateau":(2,4),
-        "potentiel accueil actions1":5,
-        "cases actions2": [
-           {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
-           {"type_action2": "fauchage", "effet sequestration": -1, "effet economie": 1},
-           {"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1},
-           *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 6 else {}),
-           *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 7 else {}),
-           *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2} if nbJoueurs >= 8 else {})
-        ]
-    },
-    "marais doux agricole": {##
+    'marais doux agricole': {##
         "sequestration": 0.1,
         "couleur": QColor(139, 69, 19, 120),
-        "taille plateau":(2,6),
-        "potentiel accueil actions1":9,
+        "potentiel accueil actions1": {5: 7, 6: 8, 7: 9, 8: 10}[nbJoueurs],
         "cases actions2": [
             {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
             {"type_action2": "agri intensive", "effet sequestration": -1, "effet economie": 3},
@@ -194,11 +58,132 @@ ZHs = {
             *({"type_action2": "ovin", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 8 else {})
         ]
     },
-    "port plaisance": {##
+    'marais doux': {##
+        "sequestration": 0.25,
+        "couleur": QColor(100, 149, 237, 120), 
+        "potentiel accueil actions1": {5: 15, 6: 18, 7: 21, 8: 24}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
+        ]
+    },
+    'marais saumatre': {##
+        "sequestration": 1.51,
+        "couleur": QColor(137, 56, 173, 150), # QColor(128, 0, 128, 150),#QColor(147, 112, 219, 150),
+        "potentiel accueil actions1": {5: 15, 6: 17, 7: 19, 8: 21}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {})
+        ]
+    },
+    'marais salee': {##
+        "sequestration": 1.75,
+        "couleur": QColor(100, 200, 180, 150), #QColor(0, 255, 0, 120),
+        "potentiel accueil actions1": 5 if nbJoueurs <= 6 else (6 if nbJoueurs == 7 else 7),  # TODO PROBLEME. Y' a pas de valeurs.
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {})
+        ]
+    },
+    'oestricole': {##
+        "sequestration": 1,
+        "couleur": QColor(192, 192, 192, 120), #QColor(128, 128, 128, 120),
+        "potentiel accueil actions1": {5: 4, 6: 5, 7: 6, 8: 7}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2},
+            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2},
+            {"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2},
+            *({"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "economie conchylicole", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 8 else {})
+        ]
+    },
+    'marais salant': {##
+        "sequestration": 1.2,  # moins que maree salée (1.75), mais plus que oestricole (1)
+        "couleur": QColor(255, 255, 255, 200),
+        "potentiel accueil actions1": 5 if nbJoueurs <= 6 else (6 if nbJoueurs == 7 else 7),  # TODO PROBLEME. Y' a pas de valeurs
+        "cases actions2": [
+            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
+            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
+            *({"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1} if nbJoueurs >= 6 else {}),
+        ]
+    },
+    'pres sales': {##
+        "sequestration": 2.4,
+        "couleur":QColor(0, 128, 0, 140), #QColor(70, 110, 70, 120),
+        "potentiel accueil actions1": {5: 8, 6: 10, 7: 13, 8: 15}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "fauchage", "effet sequestration": -1, "effet economie": 1},
+            {"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1},
+            *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "ovin", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2} if nbJoueurs >= 8 else {})
+        ]
+    },
+    'vasiere nue': {##
+        "sequestration": 0.25,
+        "couleur":  QColor(180, 150, 100, 140), #QColor(210, 180, 140, 120),
+        "potentiel accueil actions1": {5: 14, 6: 17, 7: 20, 8: 23}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2},
+            {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2},
+            *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 8 else {})
+        ]
+    },
+    # "vasiere nue bai de diop": {##
+    #     "sequestration": 7,9,
+    #     "couleur": QColor(210, 180, 140, 120),
+    #     "potentiel accueil actions1":10,
+    #     "cases actions2": [
+    #         {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+    #         {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2},
+    #         {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2},
+    #         *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
+    #         *({"type_action2": "tourisme", "effet sequestration": -2, "effet economie": 2} if nbJoueurs >= 7 else {}),
+    #         *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 8 else {})
+    #     ]
+    # },
+    "demi-herbier": {##
+        "sequestration": 0.83, #moitié herbier, moitié vasière nue,
+        "couleur": QColor(0, 255, 0, 50), #QColor(130, 180, 100, 120)
+    },
+    'herbier': {##
+        "sequestration": 1.4,
+        "couleur": QColor(0, 255, 0, 150), #QColor(0, 128, 0, 120),
+        "potentiel accueil actions1": {5: 9, 6: 11, 7: 13, 8: 15}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1},
+            {"type_action2": "coquillage", "effet sequestration": 0, "effet economie": 2},
+            {"type_action2": "navire", "effet sequestration": -1, "effet economie": 2},
+            *({"type_action2": "navire", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "recherche", "effet sequestration": 1, "effet economie": 1} if nbJoueurs >= 8 else {})
+        ]
+    },
+    'plage': {##
         "sequestration": 0,
-        "couleur": QColor(0, 100, 0, 120),
-        "taille plateau":(2,5),
-        "potentiel accueil actions1":16,
+        "couleur": QColor(255, 255, 130, 180), # QColor(255, 240, 200, 170), # QColor(255, 218, 185, 120),
+        "potentiel accueil actions1": {5: 14, 6: 16, 7: 18, 8: 20}[nbJoueurs],
+        "cases actions2": [
+            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3},
+            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3},
+            {"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3},
+            *({"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3} if nbJoueurs >= 6 else {}),
+            *({"type_action2": "toursime", "effet sequestration": -1, "effet economie": 3} if nbJoueurs >= 7 else {})
+        ]
+    },
+    'port plaisance': {##
+        "sequestration": 0,
+        "couleur": QColor(30, 30, 90, 120), # QColor(50, 50, 130, 120), 
+        "potentiel accueil actions1": {5: 11, 6: 13, 7: 15, 8: 17}[nbJoueurs],
         "cases actions2": [
             {"type_action2": "economie portuaire", "effet sequestration": -1, "effet economie": 2},
             {"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1},
@@ -211,35 +196,34 @@ ZHs = {
             *({"type_action2": "plaisance", "effet sequestration": -1, "effet economie": 1} if nbJoueurs >= 8 else {})
         ]
     },
-     "foret": {##
+    'port industriel': {##
         "sequestration": 0,
-        "couleur": QColor(0, 100, 0, 120),
-        "taille plateau":(2,2),
-        "potentiel accueil actions1":15,
+        "couleur": QColor(40, 40, 40, 180),  
+        "potentiel accueil actions1": None,
+        "cases actions2": [
+            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
+            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
+            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
+            {"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6},
+            *({"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6} if nbJoueurs >= 7 else {}),
+            *({"type_action2": "industrie portuaire", "effet sequestration": -2, "effet economie": 6} if nbJoueurs >= 8 else {})
+        ]
+    },
+    'foret': {##
+        "sequestration": 0,
+        "couleur": QColor(0, 100, 0, 200), #QColor(0, 100, 0, 120),
+        "potentiel accueil actions1": {5: 13, 6: 15, 7: 17, 8: 19}[nbJoueurs],
         "cases actions2": [
             {"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1},
             {"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1},
             *({"type_action2": "coupe arbres", "effet sequestration": -1, "effet economie": 1} if nbJoueurs >= 7 else {})
         ]
     },
-    "marais salant": {##
-        "sequestration": 1.2,  #moins que maree salée (1.75), mais plus que oestricole (1)
-        "couleur": QColor(255, 255, 255, 200), 
-        "taille plateau":(2,3),
-        "potentiel accueil actions1":4,
-        "cases actions2": [
-            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
-            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
-            {"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1},
-            {"type_action2": "tourisme", "effet sequestration": -1, "effet economie": 2},
-            *({"type_action2": "saliculture", "effet sequestration": 0, "effet economie": 1} if nbJoueurs >= 6 else {}),
-        ]
-    },
-    "mer": {##
+    'mer': {##
         "sequestration": 0.004,
         "couleur": QColor(0, 0, 255, 120)
     },
-    "vide": {##
+    'vide': {##
         "sequestration": 0,
         "couleur": QColor(0, 0, 0, 0)
     }
@@ -334,6 +318,16 @@ cases.newPov("vue normale","typeZH",dicoCouleurs)
 cases.newBorderPovColorAndWidth("bords","surface", {2: [Qt.black,1], 4: [Qt.black,4]})
 cases.displayBorderPov("bords")
 
+
+############################ Gestion des types d'occupation du sol special (qui ne sont pas indiqué sur la carte au début mais qui ont une surface initiale)
+
+surfaceCorrespondantAuPotentielAcceilInitial ={
+    'marais salee' : 2,
+    'marais salant' : 2,
+    'port plaisance' : 4 ,
+    'foret' : 80,
+    'herbier' : 3
+    }
 
 #********************************************************************
 # construct plateaux des zones humides 
@@ -498,17 +492,28 @@ def initDebutTour():
     pionAction1.deleteAllEntities()
     pionAction2.deleteAllEntities()
     for aCase in casesAction1:
-            aCase.setValue('surfrequentation',0) #0 si la cpacité d'accueil n'est passé  / 1 si la cpacité d'accueil est dépassé
+            aCase.setValue('surfrequentation',0) #0 si la potentiel d'accueil n'est passé  / 1 si la potentiel d'accueil est dépassé
             aCase.grid.gs_aspect.border_color='black'
             aCase.grid.gs_aspect.border_size=1
             aCase.grid.update()
             # updatePotentielAccueil
             aTypeZH = aCase.entDef().entityName
-            if surfaceInitiales[aTypeZH] != 0 : # TEST AJOUTE A CAUSE DE MARAIS SALEE / HERBIER / MARAIS SALANT, QUI N'ONT PAS DE SURFACE AU DEBUT
-                aCase.setValue('potentiel accueil',
-                        round(aCase.getInitialValue('potentiel accueil') * cases.metricOnEntitiesWithValue('typeZH',aTypeZH,'sumAtt', 'surface') / surfaceInitiales[aTypeZH]) 
-                                )
+            if surfaceInitiales[aTypeZH] == 0 :
+                # surfaceInitialeDeReference = 2  # TODO  Valeur ajouté  AJOUTE A CAUSE DE MARAIS SALEE / HERBIER / MARAIS SALANT, QUI N'ONT PAS DE SURFACE AU DEBUT
+                surfaceInitialeDeReference = surfaceCorrespondantAuPotentielAcceilInitial[aTypeZH]
+            else:
+                surfaceInitialeDeReference = surfaceInitiales[aTypeZH]
 
+            # TODO  Probleème car Foret et Port de plaisance n'ont pas de surface init mais ont pourtant un potentiel d'accueil dès le départ
+            surfaceAcutuelle = cases.metricOnEntitiesWithValue('typeZH',aTypeZH,'sumAtt', 'surface')
+            if aTypeZH in ['port plaisance','foret'] : surfaceAcutuelle += surfaceCorrespondantAuPotentielAcceilInitial[aTypeZH]
+            if aTypeZH in ['herbier'] : surfaceAcutuelle += (cases.metricOnEntitiesWithValue('typeZH','demi-herbier','sumAtt', 'surface') / 2)
+            aCase.setValue('potentiel accueil',
+                       round(aCase.getInitialValue('potentiel accueil') * surfaceAcutuelle / surfaceInitialeDeReference) 
+                                )
+            # aCase.setValue('potentiel accueil',
+            #            round(aCase.getInitialValue('potentiel accueil') * cases.metricOnEntitiesWithValue('typeZH',aTypeZH,'sumAtt', 'surface') / surfaceInitialeDeReference) 
+            #                     )
 
 
 #********************************************************************
@@ -567,25 +572,30 @@ for aZHtype in ordreZHs:
 # DashBoardSurfaces.addIndicator_Sum(cases,"surface",'demi-herbier', conditionsOnEntities=[lambda case: case.value("typeZH")=='demi-herbier'])
 # DashBoardSurfaces.addIndicator_Sum(cases,"surface",'plage', conditionsOnEntities=[lambda case: case.value("typeZH")=='plage'])
 DashBoardSurfaces.moveToCoords(1480,30)
-#********************************************************************
 
+#********************************************************************
 # Dashboard des potentiel d'accueil des ZH
 DashBoardPotAccueil = myModel.newDashBoard("Potentiel accueil")
-# for aTypeZH in ordreZHs:
-#     pZH[aTypeZH]
 for aCaseAction in casesAction1:
-    DashBoardPotAccueil.addIndicatorOnEntity(aCaseAction,'potentiel accueil',title=aCaseAction.entDef().entityName)
+    aTypeZH = aCaseAction.entDef().entityName
+    aInd = DashBoardPotAccueil.addIndicatorOnEntity(aCaseAction,'potentiel accueil',title=aCaseAction.entDef().entityName)
+
+    if surfaceInitiales[aTypeZH] == 0 and aTypeZH not in ['port plaisance','foret','herbier']:
+         aInd.setResult(0)
 DashBoardPotAccueil.moveToCoords(1480,500)
 
-
-
+#********************************************************************
+# Dashboard SOLO - TEST -->  IL FAUDRAIT AFFFICHER PLUTOT LE NOMBRE D'AGENTS (et pas le potentiel d'accueil), 
+#           Et donc créé un attribut 'nbPions' qui est mis à jour à chaque pose de pion
+dashboardSOLO = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent)
+dashboardSOLO.addIndicatorOnEntity(casesAction1[0],'potentiel accueil', displayName=False)
+dashboardSOLO.moveToCoords(1080,145)
 
 #********************************************************************
 
 # first calc of sequestration
 updateActions3()
 calcSequestrationTot()
-initDebutTour()
 
 #********************************************************************
 myModel.launch()

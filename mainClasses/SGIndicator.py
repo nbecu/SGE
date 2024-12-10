@@ -7,7 +7,8 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator():
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,conditionsOnEntities=[]):
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities):
+    # def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,displayName=True,conditionsOnEntities=[]):
         self.dashboard=parent
         self.method=method
         if self.method=="thresoldToLogicOp":
@@ -26,6 +27,7 @@ class SGIndicator():
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
+        self.displayName=displayName
         self.displayRefresh=displayRefresh
         self.timeConditions=onTimeConditions 
         self.conditionsOnEntities=conditionsOnEntities
@@ -42,6 +44,9 @@ class SGIndicator():
         self.label.setStyleSheet(color_string+"border: none;background-color: transparent;")
 
     def setName(self):
+        if not self.displayName:
+            self.name = ''
+            return
         if self.name is not None:
             self.name = self.name + ' : '
             return 
@@ -87,7 +92,10 @@ class SGIndicator():
         # self.setMinimumSize(self.geometry().size())
 
         if isinstance(self.listOfEntDef,SGSimulationVariable):
-            self.listOfEntDef.value=aValue
+            self.listOfEntDef.setValue_silently(aValue)
+
+        self.dashboard.model.timeManager.updateEndGame()
+
     
     def getUpdatePermission(self):
         if self.displayRefresh=='instantaneous':

@@ -12,13 +12,14 @@ from mainClasses.SGPlayer import SGPlayer
 # Class who is responsible of the Legend creation
 class SGDashBoard(SGGameSpace):
 
-    def __init__(self, parent, title, borderColor=Qt.black, backgroundColor=Qt.lightGray, titleColor=Qt.black, layout="vertical"):
+    def __init__(self, parent, title, borderColor, borderSize, backgroundColor, titleColor, layout):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
         self.indicators = []
         self.textTitle  = title
         self.displayTitle = self.textTitle is not None
         self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = borderSize
         self.setTitlesColor(titleColor)
         self.posYOfItems = 0
         self.isDisplay = True
@@ -44,13 +45,10 @@ class SGDashBoard(SGGameSpace):
             self.labelTitle.adjustSize()
             self.labels.append(self.labelTitle)
             self.layout.addWidget(self.labelTitle)
-
-        # The label of indicators are added afterwards
-
-        # adjust sizes       
-        self.updateLabelsandWidgetSize()
-        #set layout
-        self.setLayout(self.layout)
+            # The label of indicators are added afterwards
+            self.updateLabelsandWidgetSize() # adjust sizes  
+            #set layout
+            self.setLayout(self.layout)
 
     def showIndicators(self):
         """This method is called when the model is launched (after all indicators have been defined by the modeler"""
@@ -67,7 +65,7 @@ class SGDashBoard(SGGameSpace):
         self.setLayout(self.layout)
 
 
-    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,conditionsOnEntities=[]):
+    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add an Indicator on the DashBoard.
 
@@ -108,7 +106,7 @@ class SGDashBoard(SGGameSpace):
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay,conditionsOnEntities=conditionsOnEntities)
+        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities=conditionsOnEntities)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -118,7 +116,7 @@ class SGDashBoard(SGGameSpace):
         return indicator
     
 
-    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, displayRefresh="instantaneous", isDisplay=True):
+    def addIndicatorOnEntity(self, entity, attribute, color=Qt.black, value=None, logicOp=None, title=None, displayRefresh="instantaneous", onTimeConditions= None, isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add an Indicator on a particular entity on the DashBoard.
 
@@ -150,7 +148,8 @@ class SGDashBoard(SGGameSpace):
         
         self.posYOfItems = self.posYOfItems+1
     
-        indicator = SGIndicator(self, title, method, attribute, value, entity, logicOp, color, displayRefresh,isDisplay)
+        # indicator = SGIndicator(self, title, method, attribute, value, entity, logicOp, color, displayRefresh, isDisplay, displayName, conditionsOnEntities)
+        indicator = SGIndicator(self, title, method, attribute, value, entity, color=color,logicOp=None,displayRefresh=displayRefresh, onTimeConditions=onTimeConditions,isDisplay=isDisplay,displayName=displayName,conditionsOnEntities=conditionsOnEntities)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -159,9 +158,9 @@ class SGDashBoard(SGGameSpace):
 
         return indicator
 
-    def addIndicatorOnSimVariable(self,aSimulationVariable,displayRefresh="instantaneous"):
+    def addIndicatorOnSimVariable(self,aSimulationVariable,displayRefresh="instantaneous", displayName=True, conditionsOnEntities=[]):
         self.posYOfItems = self.posYOfItems+1
-        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,displayRefresh,None,aSimulationVariable.isDisplay)
+        indicator=SGIndicator(self,aSimulationVariable.name,"simVar",None,aSimulationVariable.value,aSimulationVariable,None,aSimulationVariable.color,displayRefresh,None,aSimulationVariable.isDisplay,displayName=displayName,conditionsOnEntities=conditionsOnEntities)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
@@ -170,7 +169,7 @@ class SGDashBoard(SGGameSpace):
     
         return indicator
 
-    def addIndicator_Sum(self, entity, attribute,title=None, color=Qt.black, displayRefresh="instantaneous", isDisplay=True,conditionsOnEntities=[]):
+    def addIndicator_Sum(self, entity, attribute,title=None, color=Qt.black, displayRefresh="instantaneous", isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add a sum indicator
         Args :
@@ -182,10 +181,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'sumAtt'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,conditionsOnEntities=conditionsOnEntities)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName,conditionsOnEntities=conditionsOnEntities)
         return indicator
 
-    def addIndicator_Avg(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_Avg(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add a average indicator
         Args :
@@ -197,10 +196,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'avgAtt'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName,conditionsOnEntities=conditionsOnEntities)
         return indicator
 
-    def addIndicator_Min(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_Min(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add a minimum indicator
         Args :
@@ -212,10 +211,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'minAtt'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName,conditionsOnEntities=conditionsOnEntities)
         return indicator
 
-    def addIndicator_Max(self, entity, attribute,title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_Max(self, entity, attribute,title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add a maximum indicator
         Args :
@@ -227,10 +226,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'maxAtt'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName,conditionsOnEntities=conditionsOnEntities)
         return indicator
 
-    def addIndicator_EqualTo(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_EqualTo(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True):
         """
         Add a equal to indicator
         Args :
@@ -243,10 +242,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbEqualTo'
-        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
         return indicator
 
-    def addIndicator_WithLess(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_WithLess(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True):
         """
         Add a with less indicator
         Args :
@@ -259,10 +258,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithLess'
-        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
         return indicator
 
-    def addIndicator_WithMore(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_WithMore(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True):
         """
         Add a with more indicator
         Args :
@@ -275,10 +274,10 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nbWithMore'
-        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
         return indicator
 
-    def addIndicator_Nb(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True):
+    def addIndicator_Nb(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True):
         """
         Add a sum indicator
         Args :
@@ -290,7 +289,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nb'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay)
+        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
         return indicator
     
     def addSeparator(self):
