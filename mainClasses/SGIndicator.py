@@ -166,36 +166,27 @@ class SGIndicator():
     
     
     def byMethod(self):
-        calcValue=0.0
-        counter=0
-        
-        if self.method =='nb':
+        if self.method == 'nb':
             if self.attribute is not None and self.value is not None:
                 listEntities = self.getListOfEntities()
-                filteredList=[entity for entity in listEntities if entity.value(self.attribute)==self.value]
-                return len(filteredList)
+                return SGIndicator.metricOn(listEntities, 'nb', self.attribute, self.value)
             else:
                 listEntities = self.getListOfEntities()
-                return len(listEntities)
-        
-        elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
-            listEntities = self.getListOfEntities()
-            listOfValues = [aEnt.value(self.attribute) for aEnt in listEntities]
-            if self.method == 'sumAtt': return sum(listOfValues)
-            if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
-            if self.method == 'minAtt': return min(listOfValues)
-            if self.method == 'maxAtt': return max(listOfValues)
-            if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
-            if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
-            if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
+                return SGIndicator.metricOn(listEntities, 'nb', self.attribute)
 
+        elif self.method in ["sumAtt", "avgAtt", "minAtt", "maxAtt", "nbWithLess", "nbWithMore", "nbEqualTo"]:
+            listEntities = self.getListOfEntities()
+            return SGIndicator.metricOn(listEntities, self.method, self.attribute, self.value)
+      
         elif self.method=="simVar":
             return self.simVar.value
         
         elif self.method =="display":
             return self.entity.value(self.attribute)
+        
         elif self.method=="separator":
             return "---------------"
+        
         elif self.method=="thresoldToLogicOp":
             if self.logicOp =="greater":
                 if self.entity.value(self.attribute) > self.threshold:
