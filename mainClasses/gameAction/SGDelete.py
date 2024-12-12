@@ -5,7 +5,7 @@ import copy
 
 #Class who manage the game mechanics of delete
 class SGDelete(SGAbstractAction):
-    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
+    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False,setOnController=True):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
         self.name="Delete "+self.targetEntDef.entityName
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef and not aTargetEntity.isDeleted())

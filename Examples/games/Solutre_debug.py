@@ -360,13 +360,13 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 #* --------------------------
 #* GameActions
 #* --------------------------
-MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)])
+MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 MoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
 MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
 MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
 MoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
 Viticulteur.addGameAction(MoveHexagone)
-MovePioche=myModel.newMoveAction(hexagones, 'infinite')
+MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
 MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
 Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
@@ -379,7 +379,7 @@ ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 
 
-PlaceTouriste=myModel.newMoveAction(Touriste,"infinite")
+PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
 PlaceTouriste.addCondition(lambda: checkIsThereTouristes())
 PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHébergement(aTargetCell))
 PlaceTouriste.addFeedback(lambda: decTouristes())

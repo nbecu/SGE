@@ -3,7 +3,7 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
-    def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
+    def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False,setOnController=True):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
         self.dictNewValues=dictNewValues
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
