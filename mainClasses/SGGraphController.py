@@ -337,10 +337,16 @@ class SGGraphController(NavigationToolbar):
             pos += 1
             if optionXScale == 'per round' or (optionXScale == 'per step' and self.nbPhases == 1) :
                 self.process_data_per_round_for_linear_typeDiagram(data, pos, aIndicatorSpec, self.nbPhases)
+                self.ax.set_xticks(self.xValue)
+                self.ax.set_xlabel('Round')
             elif optionXScale == 'per step' :  
                 self.process_data_per_phase_for_linear_typeDiagram(data, pos, aIndicatorSpec)
+                self.ax.set_xticks(self.xValue)
+                self.ax.set_xlabel('Step')
             elif optionXScale == 'specified phase' :
                 self.process_data_per_round_for_linear_typeDiagram(data, pos, aIndicatorSpec,self.specified_phase)
+                self.ax.set_xticks(self.xValue)
+                self.ax.set_xlabel(f"Phase {self.specified_phase}")
             #could add here another case for 'only last rounds' with self.nbOfLastRounds_to_display 
 
         self.ax.legend()
@@ -369,13 +375,15 @@ class SGGraphController(NavigationToolbar):
                 list_data.append(histo_y)
 
         for h in list_data:
-            h_abcis = np.average([list(h.values())[0][1][1:], list(h.values())[0][1][:-1]], axis=0)
+            h_xValues_ofIntervals = list(h.values())[0][1]
+            h_abcis = np.average([h_xValues_ofIntervals[1:], h_xValues_ofIntervals[:-1]], axis=0)
             h_height = list(h.values())[0][0]
             label = str(list(h.keys())[0]) if h.keys() and len(list(h.keys())) > 0 else ''
-            bins = [val - (h_abcis[1] - h_abcis[0]) / 2 for val in h_abcis] + [
-                h_abcis[-1] + (h_abcis[1] - h_abcis[0]) / 2]
+            # bins = [val - (h_abcis[1] - h_abcis[0]) / 2 for val in h_abcis] + [
+            #     h_abcis[-1] + (h_abcis[1] - h_abcis[0]) / 2]
+            bins = h_xValues_ofIntervals
             self.ax.hist(h_abcis, weights=h_height, bins=bins, label=label, edgecolor='black')
-            self.ax.set_xticks(list(h.values())[0][1])
+            self.ax.set_xticks(h_xValues_ofIntervals)
 
         self.ax.legend()
         self.title = "Analyse de la fréquence des {} des {}".format(attribut_value, " et ".join(entity_name_list))
@@ -492,8 +500,8 @@ class SGGraphController(NavigationToolbar):
                 for x_val in xValue:
                     if (x_val -1) % self.nbPhases == 0 and x_val != 1:
                         self.ax.axvline(x_val, color='r', ls=':')
-                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
-                                     transform=self.ax.get_xaxis_transform())
+                        # self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='center', backgroundcolor='1', va='top', rotation=90, transform=self.ax.get_xaxis_transform())                        
+                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='left', va='top', rotation=90, transform=self.ax.get_xaxis_transform())                        
                         round_lab += 1
 
 
@@ -539,8 +547,8 @@ class SGGraphController(NavigationToolbar):
                 for x_val in xValue:
                     if (x_val -1) % self.nbPhases == 0 :
                         self.ax.axvline(x_val, color='r', ls=':')
-                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='right', va='top', rotation=90,
-                                     transform=self.ax.get_xaxis_transform())
+                        # self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='center', backgroundcolor='1',va='top', rotation=90, transform=self.ax.get_xaxis_transform())
+                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='left',va='top', rotation=90, transform=self.ax.get_xaxis_transform())
                         round_lab += 1
 
 
