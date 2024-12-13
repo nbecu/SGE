@@ -868,6 +868,39 @@ class SGModel(QMainWindow):
         # Call the newLabel method with the created styles
         aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs, alignement, fixedWidth, fixedHeight)
         return aLabel
+    
+def set_gameSpaces_draggability(self, all_elements=None, include=None, exclude=None, value=True):
+        """
+        Met à jour l'état de "draggability" des éléments.
+        
+        :param all_elements: Si True, applique la valeur à tous les éléments.
+        :param include: Liste des éléments spécifiques à modifier.
+        :param exclude: Liste des éléments à exclure.
+        :param value: Valeur à appliquer (True ou False).
+        """
+        all_game_spaces = self.gameSpaces.values()
+
+
+        # Initialiser la liste des éléments à modifier
+        elements_to_change = set()
+
+        # Ajouter tous les éléments si all_elements est True
+        if all_elements:
+            elements_to_change.update(all_game_spaces)
+
+        # Ajouter les éléments spécifiés dans include
+        if include:
+            elements_to_change.update(include)
+
+        # Exclure les éléments spécifiés dans exclude
+        if exclude:
+            elements_to_change.difference_update(exclude)
+
+        # Mettre à jour la "draggability" pour les éléments sélectionnés
+        for element in elements_to_change:
+            element.setDraggability(value)
+
+#****************************************************
 
 
 
