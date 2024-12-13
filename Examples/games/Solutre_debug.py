@@ -360,18 +360,21 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 #* --------------------------
 #* GameActions
 #* --------------------------
-MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
-MoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
-MoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
+MoveHexagone=myModel.newMoveAction(hexagones, 'infinite')#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
-MoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
 Viticulteur.addGameAction(MoveHexagone)
+ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True)#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
+ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
+ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
+ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
+Viticulteur.addGameAction(ValiderMoveHexagone)
 MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
 MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
 Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
+ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation"==False))
 Viticulteur.addGameAction(ActivateHexagone)
 DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()])
 Viticulteur.addGameAction(DeleteBuisson)
@@ -391,7 +394,7 @@ TourismeControlPanel = Tourisme.newControlPanel("Gestion Touristes")
 def execeffetInstantaneJauge(aHex):
     for jauge, valeur in aHex.value("effetInstantaneJauge").items():
         jauge.incValue(valeur)
-    # aHex.toggleHighlight
+    updatesCubes(aHex)
 
 def updateCubes(aHex):
     player=aHex.value("joueur")
