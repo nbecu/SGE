@@ -869,7 +869,7 @@ class SGModel(QMainWindow):
         aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs, alignement, fixedWidth, fixedHeight)
         return aLabel
     
-def set_gameSpaces_draggability(self, all_elements=None, include=None, exclude=None, value=True):
+    def set_gameSpaces_draggability(self, all_elements=None, include=None, exclude=None, value=True):
         """
         Met à jour l'état de "draggability" des éléments.
         
