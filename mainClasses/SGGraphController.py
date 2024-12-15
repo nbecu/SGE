@@ -45,11 +45,12 @@ class SGGraphController(NavigationToolbar):
         self.firstAttribut = ""
         self.generate_and_add_indicators_menu()
 
-        # Menu display option for x axis  
-        self.combobox_xAxisOption_data = {'Rounds': 'per round','Rounds & Phases': 'per step','Specified phase': 'specified phase'}
-        self.specified_phase = 2
-        self.xAxisOption_combobox = QComboBox(parent)
-        self.addWidget(self.xAxisOption_combobox)
+        if self.type_of_graph in ['linear',  'stackplot']:
+            # Menu display option for x axis  
+            self.combobox_xAxisOption_data = {'Rounds': 'per round','Rounds & Phases': 'per step','Specified phase': 'specified phase'}
+            self.specified_phase = 2
+            self.xAxisOption_combobox = QComboBox(parent)
+            self.addWidget(self.xAxisOption_combobox)
 
         # self.addSeparator()
         
@@ -134,57 +135,67 @@ class SGGraphController(NavigationToolbar):
         This menu allows the user to select different indicators for data visualization.
         Sub-menus are created for entities, players, and simulation variables, each containing specific options.
         """
+
         if self.type_of_graph == 'linear':
-            entitiesMenu = QMenu('Entités', self)
-            playersMenu = QMenu('Players', self)
-            simuVarsMenu = QMenu('Simulation variables', self)
-            self.indicators_menu.addMenu(entitiesMenu)
-            self.indicators_menu.addMenu(playersMenu)
-            self.indicators_menu.addMenu(simuVarsMenu)
+            if self.dataEntities:
+                entitiesMenu = QMenu('Entités', self)
+                self.indicators_menu.addMenu(entitiesMenu)
 
-            #create menu items for entities
-            ##retrieves the list of entities
-            entities_list = {entry['entityName'] for entry in self.dataEntities if
-                             'entityName' in entry and not isinstance(entry['entityName'], dict)}
-            ###Take this opportunity to initialize the first entitiy to be selected in the menu
-            if not self.firstEntity:
-                self.firstEntity = sorted(entities_list)[0]
-            ##define the list of indicators for entities attributes
-            attrib_data = ['mean','sum', 'min','max','stdev']
-            ##create the menu items
-            for entity_name in sorted(entities_list):
-                attrib_dict = {}
-                attrib_dict[f"entity-:{entity_name}-:population"] = None
-                list_entDef_attribut_key = {x for entry in self.dataEntities for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
-                for entDef_attribut_key in sorted(list_entDef_attribut_key):
-                    attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None                                              
-                list_attribut_key = {attribut for entry in self.dataEntities for attribut in entry.get(self.parentAttributKey, {}) if
-                                     entry['entityName'] == entity_name}
-                if not self.firstAttribut:
-                    self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
-                for attribut_key in sorted(list_attribut_key):
-                    attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
-                                                 option_key in attrib_data}
-                self.dictMenuData['entities'][entity_name] = attrib_dict
-            self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
+                #create menu items for entities
+                ##retrieves the list of entities
+                entities_list = {entry['entityName'] for entry in self.dataEntities if
+                                'entityName' in entry and not isinstance(entry['entityName'], dict)}
+                ###Take this opportunity to initialize the first entitiy to be selected in the menu
+                if not self.firstEntity:
+                    self.firstEntity = sorted(entities_list)[0]
+                ##define the list of indicators for entities attributes
+                attrib_data = ['mean','sum', 'min','max','stdev']
 
-            #create menu items for simVariables
-            simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
-            for simVar in simVariables_list:
-                self.dictMenuData['simVariables'][f"simVariable-:{simVar}"] = None
-            self.addSubMenus(simuVarsMenu, self.dictMenuData['simVariables'], self.firstEntity, self.firstAttribut)
+                ##create the menu items
+                for entity_name in sorted(entities_list):
+                    attrib_dict = {}
+                    attrib_dict[f"entity-:{entity_name}-:population"] = None
+                    list_entDef_attribut_key = {x for entry in self.dataEntities for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
+                    for entDef_attribut_key in sorted(list_entDef_attribut_key):
+                        attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None                                              
+                    list_attribut_key = {attribut for entry in self.dataEntities for attribut in entry.get(self.parentAttributKey, {}) if
+                                        entry['entityName'] == entity_name}
+                    if not self.firstAttribut:
+                        self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
+                    for attribut_key in sorted(list_attribut_key):
+                        attrib_dict[attribut_key] = {f"entity-:{entity_name}-:{attribut_key}-:{option_key}": None for
+                                                    option_key in attrib_data}
+                    self.dictMenuData['entities'][entity_name] = attrib_dict
+                self.addSubMenus(entitiesMenu, self.dictMenuData['entities'], self.firstEntity, self.firstAttribut)
 
-            #Create menu items for players
-            ##get the list of players
-            players_list = {entry['playerName'] for entry in  self.dataPlayers if 'playerName' in entry and not isinstance(entry['playerName'], dict)}
-            ##create the menu for players
-            for player_name in sorted(players_list):
-                attrib_dict = {}
-                list_player_attribut_key = {x for entry in self.dataPlayers for x in entry.get('dictAttributes', {}) if entry['playerName'] == player_name}
-                for player_attribut_key in sorted(list_player_attribut_key):
-                    attrib_dict[f"player-:{player_name}-:{player_attribut_key}"] = None                                              
-                self.dictMenuData['players'][player_name] = attrib_dict
-            self.addSubMenus(playersMenu, self.dictMenuData['players'], self.firstEntity, self.firstAttribut)
+
+            #Create menu for Player Indicator
+            if self.dataPlayers: #Only if its not empty
+                playersMenu = QMenu('Players', self)
+                self.indicators_menu.addMenu(playersMenu)
+                #Create menu items for players
+                ##get the list of players
+                players_list = {entry['playerName'] for entry in  self.dataPlayers if 'playerName' in entry and not isinstance(entry['playerName'], dict)}
+                ##create the menu for players
+                for player_name in sorted(players_list):
+                    attrib_dict = {}
+                    list_player_attribut_key = {x for entry in self.dataPlayers for x in entry.get('dictAttributes', {}) if entry['playerName'] == player_name}
+                    for player_attribut_key in sorted(list_player_attribut_key):
+                        attrib_dict[f"player-:{player_name}-:{player_attribut_key}"] = None                                              
+                    self.dictMenuData['players'][player_name] = attrib_dict
+                self.addSubMenus(playersMenu, self.dictMenuData['players'], self.firstEntity, self.firstAttribut)
+
+
+            #Create menu for SimVariables
+            if self.dataSimVariables:
+                simuVarsMenu = QMenu('Simulation variables', self)
+                self.indicators_menu.addMenu(simuVarsMenu)
+                #create menu items for simVariables
+                simVariables_list = list(set(entry['simVarName'] for entry in self.dataSimVariables))
+                for simVar in simVariables_list:
+                    self.dictMenuData['simVariables'][f"simVariable-:{simVar}"] = None
+                self.addSubMenus(simuVarsMenu, self.dictMenuData['simVariables'], self.firstEntity, self.firstAttribut)
+
 
         elif self.type_of_graph in ['hist', 'pie', 'stackplot']:
             entitiesMenu = QMenu('Entités', self)
@@ -241,7 +252,8 @@ class SGGraphController(NavigationToolbar):
     
     def create_indicatorCheckboxMenuItem(self, key, parentMenu):
         # for type_of_graph : (linear)
-        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu, checkable=True)
+        # action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize(), parentMenu, checkable=True)
+        action = QAction(str(key.split("-:")[-1]) if "-:" in key else str(key), parentMenu, checkable=True)
         action.setProperty("key", key)
         action.triggered.connect(self.on_indicatorCheckboxMenu_triggered)
         parentMenu.addAction(action)
@@ -249,7 +261,8 @@ class SGGraphController(NavigationToolbar):
 
     def create_indicatorRadioMenuItem(self, key, parentMenu):
         # for type_of_graph : (pie, stackplot, hist)
-        action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize())
+        # action = QAction(str(key.split("-:")[-1]).capitalize() if "-:" in key else str(key).capitalize())
+        action = QAction(str(key.split("-:")[-1]) if "-:" in key else str(key))
         action.setCheckable(True)
         parentMenu.addAction(action)
         self.groupAction.addAction(action)
