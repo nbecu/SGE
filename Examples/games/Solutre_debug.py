@@ -173,7 +173,7 @@ VillageEst=constructVillageEst()
 #* Classifications et POV
 #* --------------------------
 
-Plateau.newPov("Zones joueurs","zone",{"Roches":Qt.white,"Naturaliste":QPixmap("./icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("./icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
+Plateau.newPov("Zones joueurs","zone",{"Roches":QPixmap("./icon/solutre/roches1_cell.png"),"Naturaliste":QPixmap("./icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("./icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
 Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,6], "out": [Qt.black,1]})
 VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
 VillageSud.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
@@ -313,7 +313,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     }
     
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité,"placed":False},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
     return #entite
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
@@ -362,10 +362,12 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 #* --------------------------
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite')#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
+MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
 Viticulteur.addGameAction(MoveHexagone)
 ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True)#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
+ValiderMoveHexagone.addCondition(lambda aHex: aHex.cell.grid.id!="Pioche")
 ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
 Viticulteur.addGameAction(ValiderMoveHexagone)
 MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
@@ -374,7 +376,8 @@ Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
-ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation"==False))
+ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)
+ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
 Viticulteur.addGameAction(ActivateHexagone)
 DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()])
 Viticulteur.addGameAction(DeleteBuisson)
@@ -390,11 +393,16 @@ PlaceTouriste.addFeedback(lambda aTourist: execeffetActivableTouriste(aTourist))
 Tourisme.addGameAction(PlaceTouriste)
 TourismeControlPanel = Tourisme.newControlPanel("Gestion Touristes")
 
+def checkIfAHexIsHere(aTargetCell):
+    hexa=aTargetCell.getAgents(specie="Hexagone")
+    if len(hexa) != 0: return False
+    else: return True
 
 def execeffetInstantaneJauge(aHex):
     for jauge, valeur in aHex.value("effetInstantaneJauge").items():
         jauge.incValue(valeur)
-    updatesCubes(aHex)
+    updateCubes(aHex)
+    aHex.setValue("placed",True)
 
 def updateCubes(aHex):
     player=aHex.value("joueur")
