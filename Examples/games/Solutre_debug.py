@@ -321,8 +321,11 @@ def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
     for aHexName in listOfHex:
         createHex(aHexName,species,dataInst,dataAct,dataPerm,model)
 
+def setImageFaceHexagone():
+    for aHex in hexagones.getEntities():
+        return
 
-hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
+hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
 hexagones.setDefaultValue("Activation",False)
 pioche=myModel.newCellsOnGrid(6,1,"square",size=80,gap=20,name="Pioche")
@@ -363,17 +366,19 @@ DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 MoveHexagone=myModel.newMoveAction(hexagones, 'infinite')#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
 MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
+MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 Viticulteur.addGameAction(MoveHexagone)
-ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True)#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
+ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True,aNameToDisplay="Valider le placement")#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.cell.grid.id!="Pioche")
 ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
+ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 Viticulteur.addGameAction(ValiderMoveHexagone)
 MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
 MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
 Viticulteur.addGameAction(MovePioche)
-ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True)
+ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
 ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)

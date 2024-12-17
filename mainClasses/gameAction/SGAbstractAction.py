@@ -7,7 +7,7 @@ import copy
 class SGAbstractAction():
     IDincr=0
     instances = []
-    def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],setControllerContextualMenu=False,setOnController=True):
+    def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test

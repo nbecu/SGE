@@ -4,13 +4,14 @@ from mainClasses.SGTimePhase import SGTimePhase,SGModelPhase
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
-    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],setControllerContextualMenu=False,setOnController=True):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu,setOnController)
-        self.name="Move "+str(self.targetEntDef.entityName)
+    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
+        if nameToDisplay is None:self.name="Move "+str(self.targetEntDef.entityName)
+        else:self.name=nameToDisplay
+        self.actionType="Move"
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
-        self.setOnController=setOnController
 
     def perform_with(self,aTargetEntity,aDestinationEntity=None,serverUpdate=True):
         # The arg aDestinationEntity has a default value set to None, because the method is also defined at the superclass level and it takes only 2 arguments 

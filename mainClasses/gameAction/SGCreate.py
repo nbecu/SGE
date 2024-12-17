@@ -4,10 +4,12 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False,setOnController=True):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
+    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None):#,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay)#,setControllerContextualMenu)
         self.dictAttributs=dictAttributs
-        self.name="Create "+str(self.targetEntDef.entityName)
+        if nameToDisplay is None: self.name="Create "+str(self.targetEntDef.entityName)
+        else: self.name=nameToDisplay
+        self.actionType="Create"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef.entityType() == 'Cell')
 
 
