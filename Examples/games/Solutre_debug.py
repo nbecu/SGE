@@ -231,13 +231,6 @@ reserve=myModel.newCellsOnGrid(2,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
 reserve.getEntity(2,1).setValue("zone",True)
 reserve.newPov("Zones joueurs","zone",{True:Qt.darkGray})
-# Touriste.newAgentAtCoords(reserve,1,1)
-# Touriste.newAgentAtCoords(reserve,1,1)
-# Bouteille.newAgentAtCoords(reserve,2,1)
-# BouteilleBio.newAgentAtCoords(reserve,2,1)
-# Buisson.newAgentAtCoords(Plateau,5,5)
-# Buisson.newAgentAtCoords(Plateau,3,6)
-# Buisson.newAgentAtCoords(Plateau,6,2)
 
 #* --------------------------
 #* Dashboard des ressources
@@ -288,7 +281,6 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     coutVinBio=int(ligneHexAct['coutVinBio'].values[0]) if not math.isnan(ligneHexAct['coutVinBio'].values[0]) else 0
     coutSous=int(ligneHexAct['coutSous'].values[0]) if not math.isnan(ligneHexAct['coutSous'].values[0]) else 0
 
-    # ressources =["vin","vinBio","touriste","sou"]
     effetRessourcesAct={}
     ressources= dataAct.loc[:, 'vin':'touriste'].columns
     for res in ressources:
@@ -314,7 +306,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     
 
     entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité,"placed":False},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
-    return #entite
+    return
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
     listOfHex=list(dataInst['nom'])
@@ -342,14 +334,6 @@ createHex("Parcours gastronomique",hexagones,data_inst,data_act)
 createHex("Labellisation bio",hexagones,data_inst,data_act)
 createHex("Vigne",hexagones,data_inst,data_act)
 createHex("Bar",hexagones,data_inst,data_act)
-
-# #* --------------------------
-# #* Dashboard des ressources
-# #* --------------------------
-# DashBoardRessources2=myModel.newDashBoard("Ressources2")
-# DashBoardRessources2.addIndicator(Touriste,"nb")
-# DashBoardRessources2.addIndicator(Bouteille,"nb")
-# DashBoardRessources2.addIndicator(BouteilleBio,"nb")
 
 
 #* --------------------------
@@ -396,7 +380,6 @@ PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHébergement(aTa
 PlaceTouriste.addFeedback(lambda: decTouristes())
 PlaceTouriste.addFeedback(lambda aTourist: execeffetActivableTouriste(aTourist))
 Tourisme.addGameAction(PlaceTouriste)
-TourismeControlPanel = Tourisme.newControlPanel("Gestion Touristes")
 
 def checkIfAHexIsHere(aTargetCell):
     hexa=aTargetCell.getAgents(specie="Hexagone")
@@ -554,8 +537,6 @@ Plateau.displayBorderPov("Coeur de site")
 
 userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
-# Legend=myModel.newLegend(grid="combined")
-# Legend=myModel.newLegend()
 
 def customLayout():
     Plateau.grid.moveToCoords(440,130)
