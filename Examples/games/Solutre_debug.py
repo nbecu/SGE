@@ -500,6 +500,7 @@ def checkTouriste():
             aInd.decValue()
         print(f"Attention ! Cette année, {nbTouriste} touristes n'ont pas été placés.")
     Touriste.deleteAllEntities()
+    touriste.setValue(0)
 
 def checkBuisson():
     nbBuisson=Buisson.nbOfEntities()
@@ -509,6 +510,14 @@ def checkBuisson():
             aInd.decValue()
         print(f"Attention ! Cette année, {nbBuisson} buissons n'ont pas été entretenus.")
     Buisson.deleteAllEntities()
+
+def resetHexagones():
+    nbHexReset=0
+    for aHex in hexagones.getEntities():
+        if aHex.cell.grid.id!="Pioche" and aHex.value("placed")==False:
+            aHex.moveToCell(pioche,6,1)
+            nbHexReset=+1
+    print(f"{nbHexReset} hexagones ont été remis dans la pioche.")
 
 
 #PHASE 1 : Début d'années = événements + buissons
@@ -527,7 +536,7 @@ GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
-ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson],name="Résolution de l'année en cours")
+ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson,resetHexagones],name="Résolution de l'année en cours")
 ModelPhase.autoForwardOn=True
 ModelPhase.messageAutoForward=False
 
