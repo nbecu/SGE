@@ -261,7 +261,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         variable=next((var for var in variables if var.name == col), None)
         if variable is not None:
             effetInstantaneJauge[variable] = int(ligneHexInst[col].values[0]) if not math.isnan(ligneHexInst[col].values[0]) else 0
-    joueur=model.getPlayer(ligneHexInst["joueur"].values[0])
+    joueur=model.getPlayer(ligneHexInst["joueur"].values[0]) if not "Plateau" in ligneHexInst["joueur"].values[0] else None
 
     conditionAdjacence=ligneHexInst["conditionAdjacence"].values[0] if isinstance(ligneHexInst["conditionAdjacence"].values[0], str) else None
     nbAdjacence=ligneHexInst["nbAdjacence"].values[0] if not math.isnan(ligneHexInst["nbAdjacence"].values[0]) else 1
@@ -335,6 +335,11 @@ createHex("Labellisation bio",hexagones,data_inst,data_act)
 createHex("Vigne",hexagones,data_inst,data_act)
 createHex("Bar",hexagones,data_inst,data_act)
 
+createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+createHex("Vigne du plateau",hexagones,data_inst,data_act)
+createHex("Caveau du plateau",hexagones,data_inst,data_act)
+
 
 #* --------------------------
 #* Dashboard du Viticulteur
@@ -353,11 +358,11 @@ MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCel
 MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 Viticulteur.addGameAction(MoveHexagone)
 ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True,aNameToDisplay="Valider le placement")#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
+ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.cell.grid.id!="Pioche")
 ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
-ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 Viticulteur.addGameAction(ValiderMoveHexagone)
 MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
 MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
@@ -387,6 +392,7 @@ def checkIfAHexIsHere(aTargetCell):
     else: return True
 
 def execeffetInstantaneJauge(aHex):
+    print(aHex.value("placed"))
     for jauge, valeur in aHex.value("effetInstantaneJauge").items():
         jauge.incValue(valeur)
     updateCubes(aHex)
@@ -490,7 +496,7 @@ def execFirstEvent():
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
     Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
     touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
-
+            
 def checkTouriste():
     cell=reserve.getCell(1,1)
     nbTouriste=cell.nbAgents()
@@ -561,8 +567,29 @@ def customLayout():
     ViticulteurControlPanel.moveToCoords(1330,730)
     aTimeLabel.moveToCoords(30,40)
 
+def placeInitHexagones():
+    n=0
+    cells=[VillageSud.getCell(3,5),VillageNord.getCell(3,1)]
+    for aHex in hexagones.getEntities():
+        if aHex.value("placed")==False:
+            if aHex.value("nom")=="Vigne du plateau":
+                aHex.setValue("placed",True)
+                aHex.moveTo(Plateau.getCell(8,4))
+                
+                print(f"Vigne du plateau placé: {aHex.value('placed')}")
+            if aHex.value("nom")=="Caveau du plateau":
+                aHex.setValue("placed",True)
+                aHex.moveTo(Plateau.getCell(8,5))
+                
+            if aHex.value("nom")=="Chambre d'hôtes du plateau":
+                aHex.setValue("placed",True)
+                aHex.moveTo(cells[n])
+                n=+1
+                
+
 if __name__ == '__main__':
     customLayout()
+    placeInitHexagones()
     myModel.launch()
     # myModel.launch_withMQTT("Instantaneous")
     sys.exit(monApp.exec_())
