@@ -550,8 +550,42 @@ aTimeLabel = myModel.newTimeLabel()
 
 Plateau.displayBorderPov("Coeur de site")
 
+
+#* --------------------------
+#* Joueur
+#* --------------------------
 userSelector=myModel.newUserSelector()
 myModel.setCurrentPlayer("Viticulteur")
+data_objectifs=pd.read_excel("./data/data_objectifs.xlsx")
+
+def getObjectif(aCardName):
+    player=myModel.currentPlayer
+    objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
+    objectif = objectifs_joueur[objectifs_joueur['Nom'] == aCardName]
+    if not objectif.empty:
+        objectif_dict = objectif.to_dict(orient='records')[0]
+        title = objectif_dict.pop('Nom')
+        text = "\n".join([f"{key}: {value}" for key, value in objectif_dict.items()])
+        textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
+        return textBoxObj
+    else:
+        return ValueError("Le nom d'objectif n'est pas correct ou le joueur n'a pas été spécifié.")
+
+def getRandomObjectif():
+    player=myModel.currentPlayer
+    objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
+    if not objectifs_joueur.empty:
+        objectif = objectifs_joueur.sample(n=1)
+    if not objectif.empty:
+        objectif_dict = objectif.to_dict(orient='records')[0]
+        title = objectif_dict.pop('Nom')
+        text = "\n".join([f"{key}: {value}" for key, value in objectif_dict.items()])
+        textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
+        return textBoxObj
+    else:
+        return ValueError("Le joueur n'a pas été spécifié.")
+
+objectif=getObjectif("Grande famille")
 
 def customLayout():
     Plateau.grid.moveToCoords(440,130)
