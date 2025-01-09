@@ -922,7 +922,15 @@ class SGModel(QMainWindow):
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
         return
-        
+    
+    def newProgressGauge(self, simVar, title, maximum, minimum, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+        aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
+        self.gameSpaces[title] = aProgressGauge
+        # Realocation of the position thanks to the layout
+        aProgressGauge.globalPosition()
+        self.applyAutomaticLayout()
+
+        return aProgressGauge   
     # ---------
 # Layout
 
