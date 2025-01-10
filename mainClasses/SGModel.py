@@ -36,6 +36,7 @@ from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
 from mainClasses.SGVoid import*
 from mainClasses.SGDataRecorder import*
+from mainClasses.SGProgressGauge import*
 from email.policy import default
 from logging.config import listen
 import sys

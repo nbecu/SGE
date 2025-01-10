@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=5,y=5)
+myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
 #* --------------------------
 #* Lecture des data
 #* --------------------------
@@ -189,6 +189,11 @@ attractivite=myModel.newSimVariable("Attractivité",0)
 indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
 indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
 indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
+
+jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-3)
+
+
+
 
 #* --------------------------
 #* Dashboard des services
@@ -600,6 +605,7 @@ def customLayout():
     DashBoardViticulteur.moveToCoords(1500,730)
     ViticulteurControlPanel.moveToCoords(1330,730)
     aTimeLabel.moveToCoords(30,40)
+    jaugeQDV.moveToCoords(250,48)
 
 def placeInitHexagones():
     n=0
