@@ -13,8 +13,8 @@ class SGProgressGauge(SGGameSpace):
         self.title = title
         self.id = title
         self.simVar = simVar
-        self.maximum = maximum
-        self.minimum = minimum
+        self.maximum=maximum
+        self.minimum=minimum
         self.borderColor = borderColor
         self.backgroundColor = backgroundColor
         self.simVar.addWatcher(self)  # Ajout de l'observateur
@@ -34,9 +34,43 @@ class SGProgressGauge(SGGameSpace):
         self.setLayout(self.layout)
         self.setWindowTitle(self.title)
         self.resize(300, 150)
-        self.show()
 
 
+    def paintEvent(self, event):
+        painter = QPainter()
+        painter.begin(self)
+        painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
+        painter.setPen(QPen(self.borderColor, 1))
+        # Draw the corner of the Legend
+        self.setMinimumSize(self.getSizeXGlobal()+3,
+                            self.getSizeYGlobal()+3)
+        painter.drawRect(0, 0, self.getSizeXGlobal(),
+                            self.getSizeYGlobal())
+        painter.end()
+
+
+    def checkAndUpdate(self):
+        self.updateProgressBar()
+
+    def updateProgressBar(self):
+        newValue = self.simVar.value
+        mappedValue = self.mapValue(newValue)
+        self.progress_bar.setValue(int(mappedValue))
+        self.progress_bar.setFormat(f"{newValue}")
+
+    def mapValue(self, value):
+        if self.minimum < 0:
+            return (value - self.minimum) * (self.maximum / self.valueRange)
+        return value
+
+
+    # *Functions to have the global size of a gameSpace
+    def getSizeXGlobal(self):
+        return 300
+
+    def getSizeYGlobal(self):
+        return 150
+        
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)

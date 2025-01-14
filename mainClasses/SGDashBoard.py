@@ -37,7 +37,7 @@ class SGDashBoard(SGGameSpace):
         title = QtWidgets.QLabel(self.id)
         font = QFont()
         font.setBold(True)
-        font.setPixelSize(14)
+        font.setPointSize(font.pointSize() + 3)
         title.setFont(font)
         color = QColor(self.titleColor)
         color_string = f"color: {color.name()};"

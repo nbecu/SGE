@@ -317,6 +317,12 @@ def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
     listOfHex=list(dataInst['nom'])
     for aHexName in listOfHex:
         createHex(aHexName,species,dataInst,dataAct,dataPerm,model)
+    
+def createPlayerHex(aPlayerName, species, dataInst, dataAct, dataPerm=None, model=myModel):
+    playerHex = dataInst[dataInst['joueur'] == aPlayerName]['nom'].tolist()
+    random.shuffle(playerHex)
+    for hexName in playerHex:
+        createHex(hexName, species, dataInst, dataAct, dataPerm, model)
 
 def setImageFaceHexagone():
     for aHex in hexagones.getEntities():
@@ -331,27 +337,31 @@ pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 
 # Création des hexagones
 
-createHex("Bar à vin",hexagones,data_inst,data_act)
-createHex("Dégustation au caveau",hexagones,data_inst,data_act)
-createHex("Vigne Bio",hexagones,data_inst,data_act)
-createHex("Export vin BIO",hexagones,data_inst,data_act)
-createHex("Parcours gastronomique",hexagones,data_inst,data_act)
-createHex("Labellisation bio",hexagones,data_inst,data_act)
-createHex("Vigne",hexagones,data_inst,data_act)
-createHex("Bar",hexagones,data_inst,data_act)
+# createHex("Bar à vin",hexagones,data_inst,data_act)
+# createHex("Dégustation au caveau",hexagones,data_inst,data_act)
+# createHex("Vigne Bio",hexagones,data_inst,data_act)
+# createHex("Export vin BIO",hexagones,data_inst,data_act)
+# createHex("Parcours gastronomique",hexagones,data_inst,data_act)
+# createHex("Labellisation bio",hexagones,data_inst,data_act)
+# createHex("Vigne",hexagones,data_inst,data_act)
+# createHex("Bar",hexagones,data_inst,data_act)
 
-createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
-createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
-createHex("Vigne du plateau",hexagones,data_inst,data_act)
-createHex("Caveau du plateau",hexagones,data_inst,data_act)
+# createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+# createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+# createHex("Vigne du plateau",hexagones,data_inst,data_act)
+# createHex("Caveau du plateau",hexagones,data_inst,data_act)
+
+
+
+
 
 
 #* --------------------------
 #* Dashboard du Viticulteur
 #* --------------------------
-DashBoardViticulteur=myModel.newDashBoard("Viticulteur")
-DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
-DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
+# DashBoardViticulteur=myModel.newDashBoard("Viticulteur",backgroundColor=QColor.fromRgb(153,0,153))
+# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
+# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
 
 
 #* --------------------------
@@ -380,7 +390,7 @@ ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
 Viticulteur.addGameAction(ActivateHexagone)
 DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()])
 Viticulteur.addGameAction(DeleteBuisson)
-ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
+# ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
 
 
 
@@ -414,6 +424,7 @@ def execeffetActivableJauge(aHex):
         ressource.incValue(valeur)
     updatesCubesActivation(aHex)
     aHex.setValue("Activation",True)
+    
 
 def checkIfActivable(aHex):
     values= list(aHex.value("effetActivableJauge").values())+list(aHex.value("effetRessourcesAct").values())
@@ -479,6 +490,9 @@ def adjacenceFeedback(aHex):
         for aNeighbourHex in listOfNeighbours:
             if aNeighbourHex.value("coutTouriste")>0:
                 attractivite.incValue()
+    
+    print("valeur jauge :")
+    print(jaugeQDV.simVar.value)
 
 #* --------------------------
 #* Paramètres du modèle
@@ -559,19 +573,42 @@ Plateau.displayBorderPov("Coeur de site")
 #* --------------------------
 #* Joueur
 #* --------------------------
-userSelector=myModel.newUserSelector()
-myModel.setCurrentPlayer("Viticulteur")
+
+# myModel.setCurrentPlayer("Viticulteur")
 data_objectifs=pd.read_excel("./data/data_objectifs.xlsx")
 
+
+# DashBoardViticulteur=myModel.newDashBoard("Viticulteur",backgroundColor=QColor.fromRgb(153,0,153))
+# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
+# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
+
+def selectPlayer(aPlayerName, aObjectifCardName="random"):
+    myModel.setCurrentPlayer(aPlayerName)
+    player=myModel.getPlayer(aPlayerName)
+    if aObjectifCardName=="random":
+        objectif=getRandomObjectif()
+    else:
+        objectif=getObjectif(aObjectifCardName)
+    color=getColorByPlayer(aPlayerName)
+    aDashboard=myModel.newDashBoard(f"{aPlayerName}",backgroundColor=color)
+    aDashboard.addIndicatorOnEntity(player,"nbCubes",title="Nombre de cubes actions restant")
+    aDashboard.addIndicatorOnEntity(player,"Sous",title="Sous")
+
+    createPlayerHex(aPlayerName,hexagones,data_inst,data_act)
+
+    return objectif, aDashboard
+
+
+
 def getObjectif(aCardName):
-    player=myModel.currentPlayer
+    player = myModel.currentPlayer
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     objectif = objectifs_joueur[objectifs_joueur['Nom'] == aCardName]
     if not objectif.empty:
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
-        text = "\n".join([f"{key}: {value}" for key, value in objectif_dict.items()])
-        textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
+        text = "\n".join([f"{key}: {value}" if "Unnamed" not in key else f"{value}" for key, value in objectif_dict.items()])
+        textBoxObj = myModel.newTextBox(textToWrite=text, title=title)
         return textBoxObj
     else:
         return ValueError("Le nom d'objectif n'est pas correct ou le joueur n'a pas été spécifié.")
@@ -584,13 +621,30 @@ def getRandomObjectif():
     if not objectif.empty:
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
-        text = "\n".join([f"{key}: {value}" for key, value in objectif_dict.items()])
+        text = "\n".join([f"{key}: {value}" if key else f"{value}" for key, value in objectif_dict.items()])
         textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
         return textBoxObj
     else:
         return ValueError("Le joueur n'a pas été spécifié.")
+    
 
-objectif=getObjectif("Grande famille")
+def getColorByPlayer(aPlayerName):
+    if aPlayerName=="Viticulteur":
+        return QColor.fromRgb(147,1,208)
+    elif aPlayerName=="Tourisme":
+        return QColor.fromRgb(254,254,1)
+    elif aPlayerName=="Naturaliste":
+        return QColor.fromRgb(0,128,0)
+    elif aPlayerName=="Habitant":
+        return QColor.fromRgb(254,140,1)
+    elif aPlayerName=="Elu":
+        return QColor.fromRgb(31,143,254)
+    else:
+        raise ValueError("Le nom du joueur n'est pas correct.")
+
+# objectif=getObjectif("Grande famille")
+objectif, DashBoardViticulteur = selectPlayer("Viticulteur","Grande famille")
+
 
 def customLayout():
     Plateau.grid.moveToCoords(440,130)
@@ -603,9 +657,10 @@ def customLayout():
     DashBoard.moveToCoords(1390,130)
     DashBoardRessources.moveToCoords(1640,130)
     DashBoardViticulteur.moveToCoords(1500,730)
-    ViticulteurControlPanel.moveToCoords(1330,730)
+    # ViticulteurControlPanel.moveToCoords(1330,730)
     aTimeLabel.moveToCoords(30,40)
     jaugeQDV.moveToCoords(250,48)
+    objectif.moveToCoords(1065,730)
 
 def placeInitHexagones():
     n=0

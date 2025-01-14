@@ -927,6 +927,7 @@ class SGModel(QMainWindow):
     def newProgressGauge(self, simVar, title, maximum, minimum, borderColor=Qt.black, backgroundColor=Qt.lightGray):
         aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
         self.gameSpaces[title] = aProgressGauge
+        simVar.addWatcher(aProgressGauge)  # Ajout de l'observateur
         # Realocation of the position thanks to the layout
         aProgressGauge.globalPosition()
         self.applyAutomaticLayout()
