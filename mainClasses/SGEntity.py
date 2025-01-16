@@ -192,36 +192,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                                 anAction.perform_with(self)
                                 self.contextMenu=False
                                 return
-
-        # wordsInText=aText.split()
-        # if wordsInText[0]=="ModifyAction":
-        #     # Filter the actions by the concerned attribute
-        #     displayedNames=[]
-        #     att=wordsInText[1]
-        #     for aAction in actions:
-        #         wordsInName=aAction.name.split()
-        #         if att in wordsInName:
-        #             displayedNames.append(aAction.name)
-        #     # # The first value is the current value
-        #     current_value = self.value(att)
-        #     displayedValues=[]
-        #     for aActionName in displayedNames :
-        #         if "ModifyAction" in aActionName:
-        #             displayedValues.append(aActionName.split()[-1])
-            
-        #     # Dialog box
-        #     action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
-
-        #     if ok and action:
-        #         self.last_selected_option = action
-        #         self.showPopup(action)
-        #         # ModifyAction excecution:
-        #         name="ModifyAction "+att+" "+action
-        #         for anAction in actions:
-        #             if anAction.name==name:
-        #                 anAction.perform_with(self)
-        #                 self.contextMenu=False
-        #                 return
         
                 elif aAction.actionType == "Activate":
                     #* Case of a ActivateAction:
@@ -233,10 +203,26 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                                 anAction.perform_with(self)
                                 self.contextMenu=False
                                 return
+                
+                elif aAction.actionType == "Delete":
+                    #* Case of a DeleteAction:
+                    name=None
+                    reply=self.confirmDelete()
+                    if reply==QMessageBox.Yes:
+                        for anAction in actions:
+                            if aText==anAction.name:
+                                anAction.perform_with(self)
+                                self.contextMenu=False
+                                return
 
     def confirmAction(self):
         # confirmation popup
         reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the activation?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        return reply
+    
+    def confirmDelete(self):
+        # confirmation popup
+        reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the deletion?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         return reply
 
     

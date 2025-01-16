@@ -11,6 +11,8 @@ myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
 #* --------------------------
 data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
 data_act=pd.read_excel("./data/solutre_hex_act.xlsx")
+data_objectifs=pd.read_excel("./data/data_objectifs.xlsx")
+dataEvents=pd.read_excel("./data/data_events.xlsx")
 
 #* --------------------------
 #* Construction des plateaux
@@ -292,6 +294,8 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         variable=next((var for var in variables if var.name == res), None)
         if variable is not None:
             effetRessourcesAct[variable] = int(ligneHexAct[res].values[0]) if not math.isnan(ligneHexAct[res].values[0]) else 0
+        if res == "sous":
+            effetRessourcesAct["Sous"] = int(ligneHexAct[res].values[0]) if not math.isnan(ligneHexAct[res].values[0]) else 0
 
     effetActivableJauge={}
     colonnesJauges= dataAct.loc[:, 'Biodiversité':'Qualité de vie'].columns
@@ -335,35 +339,6 @@ pioche=myModel.newCellsOnGrid(6,1,"square",size=80,gap=20,name="Pioche")
 pioche.getEntity(6,1).setValue("zone",True)
 pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 
-# Création des hexagones
-
-# createHex("Bar à vin",hexagones,data_inst,data_act)
-# createHex("Dégustation au caveau",hexagones,data_inst,data_act)
-# createHex("Vigne Bio",hexagones,data_inst,data_act)
-# createHex("Export vin BIO",hexagones,data_inst,data_act)
-# createHex("Parcours gastronomique",hexagones,data_inst,data_act)
-# createHex("Labellisation bio",hexagones,data_inst,data_act)
-# createHex("Vigne",hexagones,data_inst,data_act)
-# createHex("Bar",hexagones,data_inst,data_act)
-
-# createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
-# createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
-# createHex("Vigne du plateau",hexagones,data_inst,data_act)
-# createHex("Caveau du plateau",hexagones,data_inst,data_act)
-
-
-
-
-
-
-#* --------------------------
-#* Dashboard du Viticulteur
-#* --------------------------
-# DashBoardViticulteur=myModel.newDashBoard("Viticulteur",backgroundColor=QColor.fromRgb(153,0,153))
-# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
-# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
-
-
 #* --------------------------
 #* GameActions
 #* --------------------------
@@ -388,10 +363,8 @@ ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
 ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
 Viticulteur.addGameAction(ActivateHexagone)
-DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()])
+DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()],setControllerContextualMenu=True,aNameToDisplay="Supprimer le buisson")
 Viticulteur.addGameAction(DeleteBuisson)
-# ViticulteurControlPanel = Viticulteur.newControlPanel("Actions")
-
 
 
 PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
@@ -421,7 +394,10 @@ def execeffetActivableJauge(aHex):
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         jauge.incValue(valeur)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
-        ressource.incValue(valeur)
+        if ressource != "Sous":
+            ressource.incValue(valeur)
+        else:
+            aHex.value("joueur").incValue("Sous",valeur)
     updatesCubesActivation(aHex)
     aHex.setValue("Activation",True)
     
@@ -497,7 +473,6 @@ def adjacenceFeedback(aHex):
 #* --------------------------
 #* Paramètres du modèle
 #* --------------------------        
-dataEvents=pd.read_excel("./data/data_events.xlsx")
 usedKeys=["Au Nom des Roches"]
 
 def execEvent():
@@ -573,15 +548,6 @@ Plateau.displayBorderPov("Coeur de site")
 #* --------------------------
 #* Joueur
 #* --------------------------
-
-# myModel.setCurrentPlayer("Viticulteur")
-data_objectifs=pd.read_excel("./data/data_objectifs.xlsx")
-
-
-# DashBoardViticulteur=myModel.newDashBoard("Viticulteur",backgroundColor=QColor.fromRgb(153,0,153))
-# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"nbCubes",title="Nombre de cubes actions restant")
-# DashBoardViticulteur.addIndicatorOnEntity(Viticulteur,"Sous",title="Sous")
-
 def selectPlayer(aPlayerName, aObjectifCardName="random"):
     myModel.setCurrentPlayer(aPlayerName)
     player=myModel.getPlayer(aPlayerName)
@@ -597,8 +563,6 @@ def selectPlayer(aPlayerName, aObjectifCardName="random"):
     createPlayerHex(aPlayerName,hexagones,data_inst,data_act)
 
     return objectif, aDashboard
-
-
 
 def getObjectif(aCardName):
     player = myModel.currentPlayer
@@ -627,7 +591,6 @@ def getRandomObjectif():
     else:
         return ValueError("Le joueur n'a pas été spécifié.")
     
-
 def getColorByPlayer(aPlayerName):
     if aPlayerName=="Viticulteur":
         return QColor.fromRgb(147,1,208)
@@ -642,7 +605,6 @@ def getColorByPlayer(aPlayerName):
     else:
         raise ValueError("Le nom du joueur n'est pas correct.")
 
-# objectif=getObjectif("Grande famille")
 objectif, DashBoardViticulteur = selectPlayer("Viticulteur","Grande famille")
 
 
@@ -657,7 +619,6 @@ def customLayout():
     DashBoard.moveToCoords(1390,130)
     DashBoardRessources.moveToCoords(1640,130)
     DashBoardViticulteur.moveToCoords(1500,730)
-    # ViticulteurControlPanel.moveToCoords(1330,730)
     aTimeLabel.moveToCoords(30,40)
     jaugeQDV.moveToCoords(250,48)
     objectif.moveToCoords(1065,730)

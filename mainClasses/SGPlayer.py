@@ -105,7 +105,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         actionsForMenu=[]
         entityDef=anEntityInstance.classDef
         for aGameAction in self.gameActions:
-            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) and aGameAction.targetEntDef==entityDef:
+            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) or isinstance(aGameAction,SGDelete) and aGameAction.targetEntDef==entityDef:
                 actionsForMenu.append(aGameAction)
         return actionsForMenu
     
