@@ -192,9 +192,30 @@ indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
 indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
 indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 
-jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-3)
+jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-2)
+jaugeEnv=myModel.newProgressGauge(qualiteVie,"Environnement",10,-2)
+jaugeAtt=myModel.newProgressGauge(qualiteVie,"Attractivité",10,-2)
+
+bonusVin=myModel.newSimVariable("Bonus vin",0)
+bonusBio=myModel.newSimVariable("Bonus vin bio",0)
+bonusTouriste=myModel.newSimVariable("Bonus touriste",0)
+bonusEnvironnement=myModel.newSimVariable("Bonus environnement",0)
 
 
+jaugeEnv.setThresholdValue(6, lambda: bonusBio.incValue(2), lambda: bonusBio.decValue(2))
+
+jaugeAtt.setThresholdValue(5, lambda: bonusVin.incValue(1), lambda: bonusVin.decValue(1))
+jaugeAtt.setThresholdValue(5, lambda: bonusBio.incValue(1), lambda: bonusBio.decValue(1))
+jaugeAtt.setThresholdValue(7, lambda: bonusVin.incValue(1), lambda: bonusVin.decValue(1))
+jaugeAtt.setThresholdValue(7, lambda: bonusBio.incValue(1), lambda: bonusBio.decValue(1))
+jaugeAtt.setThresholdValue(3, lambda: bonusTouriste.incValue(1), lambda: bonusTouriste.decValue(1))
+jaugeAtt.setThresholdValue(1, lambda: bonusTouriste.incValue(1), lambda: bonusTouriste.decValue(1))
+jaugeAtt.setThresholdValue(5, lambda: bonusTouriste.incValue(1), lambda: bonusTouriste.decValue(1))
+jaugeAtt.setThresholdValue(6, lambda: bonusTouriste.incValue(1), lambda: bonusTouriste.decValue(1))
+jaugeAtt.setThresholdValue(7, lambda: bonusTouriste.incValue(2), lambda: bonusTouriste.decValue(2))
+
+jaugeEnv.setThresholdValue(7, lambda: bonusEnvironnement.incValue(1), lambda: None)
+jaugeEnv.setThresholdValue(15, lambda: bonusEnvironnement.incValue(1), lambda: None)
 
 
 #* --------------------------
@@ -262,7 +283,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         
     
     coutCubes=int(ligneHexInst['coutCubes'].values[0])
-    colonnesJauges= dataInst.loc[:, 'Qualité de vie':'Santé'].columns
+    colonnesJauges= dataInst.loc[:, 'Qualité de vie':'vinBio'].columns
     effetInstantaneJauge = {}
     for col in colonnesJauges:
         variable=next((var for var in variables if var.name == col), None)
@@ -359,6 +380,7 @@ MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
 Viticulteur.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
 ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
 ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
@@ -380,9 +402,11 @@ def checkIfAHexIsHere(aTargetCell):
     else: return True
 
 def execeffetInstantaneJauge(aHex):
-    print(aHex.value("placed"))
     for jauge, valeur in aHex.value("effetInstantaneJauge").items():
-        jauge.incValue(valeur)
+        if jauge != "Biodiversité":
+            jauge.incValue(valeur)
+        else:
+            jauge.incValue(valeur+bonusEnvironnement.value)
     updateCubes(aHex)
     aHex.setValue("placed",True)
 
@@ -392,12 +416,20 @@ def updateCubes(aHex):
 
 def execeffetActivableJauge(aHex):
     for jauge,valeur in aHex.value("effetActivableJauge").items():
-        jauge.incValue(valeur)
+        if jauge != "Biodiversité":
+            jauge.incValue(valeur)
+        else:
+            jauge.incValue(valeur+bonusEnvironnement.value)
     for ressource,valeur in aHex.value("effetRessourcesAct").items():
         if ressource != "Sous":
             ressource.incValue(valeur)
         else:
-            aHex.value("joueur").incValue("Sous",valeur)
+            if aHex.value("coutVinBio")>0:
+                aHex.value("joueur").incValue("Sous",(valeur+bonusBio.value)*aHex.value("coutVinBio"))
+            elif aHex.value("coutVin")>0:
+                aHex.value("joueur").incValue("Sous",(valeur+bonusVin.value)*aHex.value("coutVin"))
+            else:
+                aHex.value("joueur").incValue("Sous",valeur)
     updatesCubesActivation(aHex)
     aHex.setValue("Activation",True)
     
@@ -405,6 +437,33 @@ def execeffetActivableJauge(aHex):
 def checkIfActivable(aHex):
     values= list(aHex.value("effetActivableJauge").values())+list(aHex.value("effetRessourcesAct").values())
     return any(val != 0 for val in values)
+
+
+def checkRessources(aHex):
+    model=aHex.model
+    simVars=model.getSimVars()
+    vin = next((aSimVar for aSimVar in simVars if aSimVar.name == "vin"), None)
+    vinBio = next((aSimVar for aSimVar in simVars if aSimVar.name == "vinBio"), None)
+    if aHex.value("coutVin")>0 :
+        if vin.value>=aHex.value("coutVin"): return True
+        else: return False
+    elif aHex.value("coutVinBio")>0:
+        if vinBio.value>=aHex.value("coutVinBio"): return True
+        else: return False
+    elif aHex.value("coutSous")>0:
+        if aHex.value("joueur").value("Sous")>=aHex.value("coutSous"): return True
+        else: return False
+    else: return True
+
+def decRessources(aHex):
+    model=aHex.model
+    simVars=model.getSimVars()
+    vin = next((aSimVar for aSimVar in simVars if aSimVar.name == "vin"), None)
+    vinBio = next((aSimVar for aSimVar in simVars if aSimVar.name == "vinBio"), None)
+    vin.decValue(aHex.value("coutVin"))
+    vinBio.decValue(aHex.value("coutVinBio"))
+    aHex.value("joueur").decValue("Sous",aHex.value("coutSous"))
+
 
 def updatesCubesActivation(aHex):
     player=aHex.value("joueur")
@@ -466,9 +525,6 @@ def adjacenceFeedback(aHex):
         for aNeighbourHex in listOfNeighbours:
             if aNeighbourHex.value("coutTouriste")>0:
                 attractivite.incValue()
-    
-    print("valeur jauge :")
-    print(jaugeQDV.simVar.value)
 
 #* --------------------------
 #* Paramètres du modèle
@@ -482,8 +538,8 @@ def execEvent():
     eventLine=dataEvents[dataEvents['Nom']==randomKey]
     usedKeys.append(randomKey)
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
-    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
-    touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
+    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste),reserve,1,1)
+    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste))
    
 def execFirstEvent():
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
@@ -606,6 +662,8 @@ def getColorByPlayer(aPlayerName):
         raise ValueError("Le nom du joueur n'est pas correct.")
 
 objectif, DashBoardViticulteur = selectPlayer("Viticulteur","Grande famille")
+createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 
 
 def customLayout():
@@ -621,6 +679,8 @@ def customLayout():
     DashBoardViticulteur.moveToCoords(1500,730)
     aTimeLabel.moveToCoords(30,40)
     jaugeQDV.moveToCoords(250,48)
+    jaugeEnv.moveToCoords(250,98)
+    jaugeAtt.moveToCoords(250,148)
     objectif.moveToCoords(1065,730)
 
 def placeInitHexagones():

@@ -158,6 +158,9 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         aAgent=e.source()
+
+        if not isinstance(aAgent,SGEntity):
+            return
         
         currentPlayer=self.model.getPlayer(self.model.currentPlayer)
         moveActions=currentPlayer.getMoveActionsOn(aAgent)
