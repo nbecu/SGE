@@ -538,8 +538,8 @@ def execEvent():
     eventLine=dataEvents[dataEvents['Nom']==randomKey]
     usedKeys.append(randomKey)
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
-    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste.value),reserve,1,1)
-    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste.value))
+    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste),reserve,1,1)
+    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste))
    
 def execFirstEvent():
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
@@ -706,6 +706,6 @@ def placeInitHexagones():
 if __name__ == '__main__':
     customLayout()
     placeInitHexagones()
-    myModel.launch()
-    # myModel.launch_withMQTT("Instantaneous")
+    # myModel.launch()
+    myModel.launch_withMQTT("Instantaneous")
     sys.exit(monApp.exec_())

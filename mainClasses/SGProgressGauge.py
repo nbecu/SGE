@@ -21,7 +21,7 @@ class SGProgressGauge(SGGameSpace):
         self.simVar.addWatcher(self)  # Ajout de l'observateur
         self.valueRange = maximum - minimum
         self.thresholds = {}
-        self.previousValue = None
+        self.previousValue = self.simVar.value
         self.init_ui()
     
     def init_ui(self):

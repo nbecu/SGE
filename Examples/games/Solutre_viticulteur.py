@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
+myModel=SGModel(windowTitle="Solutré - VITICULTEUR", typeOfLayout ="grid", x=100,y=100)
 #* --------------------------
 #* Lecture des data
 #* --------------------------
@@ -245,8 +245,6 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 #* Déclaration des joueurs
 #* --------------------------
 Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
-Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":30,"Sous":0})
-
 
 #* --------------------------
 #* Déclaration des agents
@@ -538,8 +536,8 @@ def execEvent():
     eventLine=dataEvents[dataEvents['Nom']==randomKey]
     usedKeys.append(randomKey)
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
-    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste.value),reserve,1,1)
-    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste.value))
+    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste),reserve,1,1)
+    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste))
    
 def execFirstEvent():
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
@@ -706,6 +704,6 @@ def placeInitHexagones():
 if __name__ == '__main__':
     customLayout()
     placeInitHexagones()
-    myModel.launch()
-    # myModel.launch_withMQTT("Instantaneous")
+    # myModel.launch()
+    myModel.launch_withMQTT("Instantaneous")
     sys.exit(monApp.exec_())
