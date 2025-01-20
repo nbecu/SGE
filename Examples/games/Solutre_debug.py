@@ -193,8 +193,13 @@ indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
 indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 
 jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-2)
-jaugeEnv=myModel.newProgressGauge(qualiteVie,"Environnement",10,-2)
-jaugeAtt=myModel.newProgressGauge(qualiteVie,"Attractivité",10,-2)
+jaugeEnv=myModel.newProgressGauge(environnement,"Environnement",10,-2)
+jaugeAtt=myModel.newProgressGauge(attractivite,"Attractivité",10,-2)
+
+dictOfMappedValues={"-2":0,"-1":8,"0":17,"1":25,"2":33,"3":42,"4":50,"5":58,"6":67,"7":75,"8":83,"9":92,"10":100}
+jaugeAtt.setDictOfMappedValues(dictOfMappedValues)
+jaugeQDV.setDictOfMappedValues(dictOfMappedValues)
+jaugeEnv.setDictOfMappedValues(dictOfMappedValues)
 
 bonusVin=myModel.newSimVariable("Bonus vin",0)
 bonusBio=myModel.newSimVariable("Bonus vin bio",0)
