@@ -203,7 +203,7 @@ jaugeEnv.setDictOfMappedValues(dictOfMappedValues)
 
 bonusVin=myModel.newSimVariable("Bonus vin",0)
 bonusBio=myModel.newSimVariable("Bonus vin bio",0)
-bonusTouriste=myModel.newSimVariable("Bonus touriste",0)
+bonusTouriste=myModel.newSimVariable("Bonus touriste",-1)
 bonusEnvironnement=myModel.newSimVariable("Bonus environnement",0)
 
 
@@ -249,8 +249,11 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 #* --------------------------
 #* Déclaration des joueurs
 #* --------------------------
-Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
-Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":30,"Sous":0})
+Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":6,"Sous":0})
+Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":6,"Sous":0})
+Elu=myModel.newPlayer("Elu",attributesAndValues={"nbCubes":6,"Sous":0})
+Naturaliste=myModel.newPlayer("Naturaliste",attributesAndValues={"nbCubes":6,"Sous":0})
+Habitant=myModel.newPlayer("Habitant",attributesAndValues={"nbCubes":6,"Sous":0})
 
 
 #* --------------------------
@@ -373,6 +376,7 @@ MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") no
 MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
 MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 Viticulteur.addGameAction(MoveHexagone)
+Tourisme.addGameAction(MoveHexagone)
 ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True,aNameToDisplay="Valider le placement")#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
 ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
@@ -380,18 +384,23 @@ ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCube
 ValiderMoveHexagone.addCondition(lambda aHex: aHex.cell.grid.id!="Pioche")
 ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
 Viticulteur.addGameAction(ValiderMoveHexagone)
+Tourisme.addGameAction(ValiderMoveHexagone)
 MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
 MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
 Viticulteur.addGameAction(MovePioche)
+Tourisme.addGameAction(MovePioche)
 ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
 ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
 ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
 ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)
 ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
+ActivateHexagone.addFeedback(lambda aHex: decRessources(aHex))
 Viticulteur.addGameAction(ActivateHexagone)
+Tourisme.addGameAction(ActivateHexagone)
 DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()],setControllerContextualMenu=True,aNameToDisplay="Supprimer le buisson")
 Viticulteur.addGameAction(DeleteBuisson)
+Tourisme.addGameAction(DeleteBuisson)
 
 
 PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
@@ -666,7 +675,7 @@ def getColorByPlayer(aPlayerName):
     else:
         raise ValueError("Le nom du joueur n'est pas correct.")
 
-objectif, DashBoardViticulteur = selectPlayer("Viticulteur","Grande famille")
+objectif, DashBoardViticulteur = selectPlayer("Tourisme")
 createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 

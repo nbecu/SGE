@@ -99,7 +99,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         imageHeight = image.height() 
         entityWidth = self.size
         entityHeight = self.size
-
+        if imageWidth == 0 or imageHeight == 0: return QRect (0,0,0,0), image
         if (imageHeight / imageWidth) < (entityHeight / entityWidth):
             scaled_image = image.scaledToHeight(entityHeight, Qt.SmoothTransformation)
         else:
