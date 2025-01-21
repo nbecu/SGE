@@ -17,10 +17,17 @@ player_Clara = myModel.newPlayer('Clara',attributesAndValues={'foo':5})
 player_Clara.setValue('Clara score',0)
 
 
-aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara score',3)))
+aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara score',3)), name='Model phase')
 
 resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara score',0)),(lambda: myModel.roundNumber()%4==0))
 aPhase.addAction(resetScoreAction)
+
+gamePhase = myModel.timeManager.newGamePhase('Game phase',[player_Clara])
+
+ActivateHexagone=myModel.newActivateAction(myModel,"execeffetActivableJauge",setControllerContextualMenu=True)
+# ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+player_Clara.addGameAction(ActivateHexagone)
+
 
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnEntity(player_Clara,'foo')

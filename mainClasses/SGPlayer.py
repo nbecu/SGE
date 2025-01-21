@@ -61,17 +61,23 @@ class SGPlayer(AttributeAndValueFunctionalities):
 
     # To handle attributesAndValues
     # setter
-    def setValue(self,aAttribut,aValue):
+    def setValue(self,aAttribut,valueToSet):
         """
         Sets the value of an attribut
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.saveValueInHistory(aAttribut,aValue)
         self.dictAttributes[aAttribut]=aValue
+        self.saveValueInHistory(aAttribut,aValue)
+        # self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        # self.model.update()
         return True
 
     def getListOfStepsData(self,startStep=None,endStep=None):

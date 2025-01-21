@@ -11,8 +11,13 @@ class SGAbstractAction():
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test
-        self.targetEntDef=entDef
-        self.model=self.targetEntDef.model 
+        from mainClasses.SGModel import SGModel  # Import local pour éviter l'import circulaire
+        if isinstance(entDef, SGModel):
+            self.targetEntDef='model'
+            self.model=entDef
+        else:
+            self.targetEntDef=entDef
+            self.model=self.targetEntDef.model 
         self.number=number
         self.numberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another

@@ -415,7 +415,9 @@ class SGGraphController(NavigationToolbar):
             data_pie = next((entry[self.parentAttributKey][attribut_value] for entry in data
                              if entry['round'] == max(self.rounds) and
                              entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]), None)
-
+            if data_pie is None:
+                return None 
+                # raise ValueError('Did not find data for Pie Chart')  
             labels = list(data_pie.keys())
             values = list(data_pie.values())
             self.title = f"Répartition des {entityName} par {attribut_value} en (%)"
@@ -454,10 +456,26 @@ class SGGraphController(NavigationToolbar):
                     for r in range(nbRounds + 1):
                         phase_to_display = self.specified_phase if optionXScale == 'specified phase' else self.nbPhases
                         phaseIndex = phase_to_display if r != 0 else 0
-                        aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if entry['entityName'] == entityName
-                                  and attribut_value in entry[self.parentAttributKey] and
-                                  entry['round'] == r and entry['phase'] == phaseIndex][-1]
-                        list_data.append(aEntry)
+
+                        # code initiale qui bug car parfois l'index [-1] n'existe pas car la liste est vide
+                        # aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if entry['entityName'] == entityName
+                        #           and attribut_value in entry[self.parentAttributKey] and
+                        #           entry['round'] == r and entry['phase'] == phaseIndex][-1]
+                        # list_data.append(aEntry)
+
+                        entries = [entry[self.parentAttributKey][attribut_value] for entry in data 
+                                 if entry['entityName'] == entityName
+                                 and attribut_value in entry[self.parentAttributKey] 
+                                 and entry['round'] == r 
+                                 and entry['phase'] == phaseIndex]
+                        if entries:  # vérifie si la liste n'est pas vide
+                            aEntry = entries[-1]
+                            list_data.append(aEntry)
+                        else:
+                            # list_data.append(0) #todo this issue is not resolved
+                            continue  # ou gérer le cas où aucune donnée n'est trouvée
+
+                       
 
                 else:  # Case --> 'per step'
                     # 1/ get the first step (round 0, phase 0)
@@ -488,9 +506,14 @@ class SGGraphController(NavigationToolbar):
             values = []
             for aLabel in labels:
                 values.append([aData.get(aLabel, 0) for aData in list_data])
+            if len(values[0]) != len(self.xValue):
+                titre = "Impossible d'afficher les données"
+                message = "Aucune données à afficher. veuillez continuer le jeu "
+                self.showErrorMessage(titre, message)
+                return None
             self.plot_stackplot_data_switch_xvalue(self.xValue, values, labels)
             self.ax.legend()
-            print("labels : ", labels)
+            # print("labels : ", labels)
             #title = "{} et des Simulations Variables".format(self.title)
             self.title = "Analyse comparative des composantes de la {} ".format(attribut_value.capitalize())
             self.ax.set_title(self.title)

@@ -19,7 +19,7 @@ class SGSimulationVariable():
         else:
             self.setValue(initValue)
 
-    def value(self):
+    def getValue(self):
         """
         Return the value of the simulation variable
         Can use '.value' instead

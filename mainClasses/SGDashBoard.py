@@ -49,6 +49,9 @@ class SGDashBoard(SGGameSpace):
             self.updateLabelsandWidgetSize() # adjust sizes  
             #set layout
             self.setLayout(self.layout)
+        # else:
+        #     self.updateLabelsandWidgetSize()
+        #     self.setLayout(self.layout)
 
     def showIndicators(self):
         """This method is called when the model is launched (after all indicators have been defined by the modeler"""
@@ -320,6 +323,7 @@ class SGDashBoard(SGGameSpace):
         max_width = max([aLabel.width() for aLabel in self.labels])
         self.sizeXGlobal = max_width +self.rightMargin
         self.sizeYGlobal = sum([aLabel.height() + self.verticalGapBetweenLabels for aLabel in self.labels])
+        self.sizeYGlobal = max([self.sizeYGlobal ,30]) #todo (need to refactor): Line temporarely added to manage the case when only one label and no title
         self.setFixedSize(QSize(self.getSizeXGlobal() , self.getSizeYGlobal()))
     
 

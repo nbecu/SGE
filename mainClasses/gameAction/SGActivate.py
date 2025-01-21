@@ -7,7 +7,7 @@ import sys
 class SGActivate(SGAbstractAction):
     def __init__(self,entDef,method,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
-        if entDef != "model":
+        if self.targetEntDef != "model":
             self.name="ActivateAction "+ entDef.entityName
             self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
@@ -17,7 +17,7 @@ class SGActivate(SGAbstractAction):
     def executeAction(self,aTargetEntity,serverUpdate=True):
         method = self.method
         try:
-            gameScript = self.logFromModeleur(sys.argv[0])
+            gameScript = self.logFromModeler(sys.argv[0])
             if hasattr(gameScript, method):
                 func = getattr(gameScript, method)
                 if callable(func):
@@ -30,7 +30,7 @@ class SGActivate(SGAbstractAction):
         except FileNotFoundError as e:
             print(e)
     
-    def logFromModeleur(self, fileName):
+    def logFromModeler(self, fileName):
         # Import the method by name from game file
         spec=importlib.util.spec_from_file_location("GameFile",fileName)
         module=importlib.util.module_from_spec(spec)

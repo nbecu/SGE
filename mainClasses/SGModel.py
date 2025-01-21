@@ -31,6 +31,7 @@ from mainClasses.SGPlayer import*
 from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTextBox import*
 from mainClasses.SGLabel import*
+from mainClasses.SGButton import*
 from mainClasses.SGTimeLabel import*
 from mainClasses.SGTimeManager import*
 from mainClasses.SGUserSelector import*
@@ -400,9 +401,10 @@ class SGModel(QMainWindow):
         # Update window title with the number of the round and number of the phase
         if self.isTimeDisplayedInWindowTitle :
             if self.timeManager.numberOfPhases() == 1:
-                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}"
+                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}"
             else:
-                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+
             self.setWindowTitle(title) 
 
 
@@ -657,6 +659,8 @@ class SGModel(QMainWindow):
     def checkAndUpdateWatchers(self):
         for entDef in self.getEntitiesDef():
             entDef.updateAllWatchers()
+        for aPlayer in self.getEntitiesDef():
+            entDef.updateAllWatchers()
     
     def getAgentsPrivateID(self):
         agents=self.getAllAgents()
@@ -869,6 +873,93 @@ class SGModel(QMainWindow):
         aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs, alignement, fixedWidth, fixedHeight)
         return aLabel
     
+    # To create a Push Button
+    def newButton(self, method, text, position, 
+                    background_color='white',
+                    background_image=None,
+                    border_size=1,
+                    border_color='lightgray',
+                    border_style='solid',
+                    border_radius=5,
+                    text_color=None,
+                    font_family=None,
+                    font_size=None,
+                    font_weight=None,
+                    min_width=None,
+                    min_height=None,
+                    padding=2,
+                    hover_text_color= None,
+                    hover_background_color= '#c6eff7',
+                    hover_border_color= '#6bd8ed',
+                    pressed_color=None,
+                    disabled_color=None):
+        """Display a button with customizable style.
+
+        Args:
+            method (lambda function): Method to execute when button is pressed (should be encapsulated in a lambda function)
+            text (str): Text of the button
+            position (tuple): Coordinates (x, y) of the button position
+            background_color (str, optional): Background color. Can be name (e.g., "red"), hex (#FF0000), RGB (rgb(127,12,0)) or RGBA
+            background_image (str, optional): Path to background image
+            border_size (int, optional): Border size in pixels
+            border_color (str, optional): Border color. Same format as background_color
+            border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
+            border_radius (int, optional): Border radius in pixels for rounded corners
+            text_color (str, optional): Text color. Same format as background_color
+            font_family (str, optional): Font family (e.g., "Arial", "Times New Roman", "Helvetica")
+            font_size (int, optional): Font size in pixels
+            font_weight (str, optional): Font weight ("normal", "bold", "100" to "900")
+            min_width (int, optional): Minimum button width in pixels
+            min_height (int, optional): Minimum button height in pixels
+            padding (int, optional): Internal padding in pixels
+            hover_color (str, optional): Background color on hover. Same format as background_color
+            pressed_color (str, optional): Background color when pressed. Same format as background_color
+            disabled_color (str, optional): Background color when disabled. Same format as background_color
+        """
+        #  # Create the text style
+        # textStyle_specs = ';'.join(filter(None, [
+        #     f"font-family: {font}" if font is not None else None,
+        #     f"font-size: {size}px" if size is not None else None,
+        #     f"color: {color}" if color is not None else None,
+        #     # f"text-decoration: {text_decoration}" if text_decoration is not None else None,
+        #     f"font-weight: {font_weight}" if font_weight is not None else None,
+        #     f"font-style: {font_style}" if font_style is not None else None
+        # ])) + ';'
+        # # textStyle_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
+        # # Create the border style
+        # borderStyle_specs = ';'.join(filter(None, [
+        #     f"border: {border_size}px {border_style} {border_color}" if all(x is not None for x in [border_size, border_style, border_color]) else None
+        # ])) + ';'
+        # # borderStyle_specs = f"border: {border_size}px {border_style} {border_color};"        
+        # # Create the background style
+        # backgroundColor_specs = f"background-color: {background_color};"
+
+        # aButton = SGButton(self, method, text)
+        
+        aButton = SGButton(self, method, text,
+                        background_color=background_color,
+                        background_image=background_image,
+                        border_size=border_size,
+                        border_style=border_style,
+                        border_color=border_color,
+                        border_radius=border_radius,
+                        text_color=text_color,
+                        font_family=font_family,
+                        font_size=font_size,
+                        font_weight=font_weight,
+                        min_width=min_width,
+                        min_height=min_height,
+                        padding=padding,
+                        hover_text_color= hover_text_color,
+                        hover_background_color= hover_background_color,
+                        hover_border_color= hover_border_color,
+                        pressed_color=pressed_color,
+                        disabled_color=disabled_color)
+        # aButton = SGButton(self, method, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, fixedWidth, fixedHeight)
+        aButton.move(position[0], position[1])
+        return aButton
+    
+
     def set_gameSpaces_draggability(self, all_elements=None, include=None, exclude=None, value=True):
         """
         Met à jour l'état de "draggability" des éléments.
@@ -1216,10 +1307,15 @@ class SGModel(QMainWindow):
         Args:
         - an ObjectType : a Entity
         - """
-
+        #Case for action on a Entity
         aClassDef = self.getEntityDef(anObjectType)
-        if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        if setControllerContextualMenu: aClassDef.updateMenu=True
+        # if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aClassDef is not None and setControllerContextualMenu:
+            aClassDef.updateMenu=True
+
+        #Case for action on the model
+        if anObjectType is None or anObjectType ==self: aClassDef = self
+
         if aNumber == "infinite": aNumber = 9999999
         return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
     # -----------------------------------------------------------

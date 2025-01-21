@@ -23,6 +23,7 @@ class SGGridLayout(SGAbstractLayout):
         if len(aListe)<self.x and self.foundInLayout(aGameSpace) is None:
             aGameSpace.posXInLayout=len(aListe)
             aListe.append(aGameSpace)
+        else: raise ValueError('gameSpace could not be added')
         size=size=self.calculateSize(aGameSpace)
         return size
     

@@ -133,8 +133,8 @@ class SGGameSpace(QtWidgets.QWidget):
         Permits to move a GameSpace at a specific coordinate based on the left upper corner
 
         Args:
-            x (int) : x-axis corrdinate in pixels
-            y (int) : y-axis corrdinate in pixels
+            x (int) : x-axis coordinate in pixels
+            y (int) : y-axis coordinate in pixels
         """
         if y is None :
             if not isinstance(x, tuple):
