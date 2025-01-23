@@ -443,10 +443,16 @@ def execeffetActivableJauge(aHex):
         if ressource != "Sous":
             ressource.incValue(valeur)
         else:
-            if aHex.value("coutVinBio")>0:
+            if aHex.value("coutVinBio")>0 and aHex.value("joueur") == "Viticulteur":
                 aHex.value("joueur").incValue("Sous",(valeur+bonusBio.value)*aHex.value("coutVinBio"))
-            elif aHex.value("coutVin")>0:
+            elif aHex.value("coutVin")>0 and aHex.value("joueur") == "Viticulteur":
                 aHex.value("joueur").incValue("Sous",(valeur+bonusVin.value)*aHex.value("coutVin"))
+            elif aHex.value("coutVinBio")>0 :
+                aHex.value("joueur").incValue("Sous",valeur*aHex.value("coutVinBio"))
+                Viticulteur.incValue("Sous",(bonusBio.value)*aHex.value("coutVinBio"))
+            elif aHex.value("coutVin")>0:
+                aHex.value("joueur").incValue("Sous",valeur*aHex.value("coutVin"))
+                Viticulteur.incValue("Sous",(bonusVin.value)*aHex.value("coutVin"))
             else:
                 aHex.value("joueur").incValue("Sous",valeur)
     updatesCubesActivation(aHex)
@@ -590,7 +596,8 @@ def resetHexagones():
     nbHexReset=0
     for aHex in hexagones.getEntities():
         if aHex.cell.grid.id!="Pioche" and aHex.value("placed")==False:
-            aHex.moveToCell(pioche,6,1)
+            destinationCell=pioche.getEntity(6,1)
+            aHex.moveTo(pioche,destinationCell)
             nbHexReset=+1
     print(f"{nbHexReset} hexagones ont été remis dans la pioche.")
 
@@ -691,7 +698,7 @@ def getColorByPlayer(aPlayerName):
     else:
         raise ValueError("Le nom du joueur n'est pas correct.")
 
-objectif, DashBoardViticulteur = selectPlayer("Tourisme")
+objectif, DashBoardViticulteur = selectPlayer("Viticulteur")
 createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 
