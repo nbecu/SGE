@@ -153,3 +153,19 @@ Pour lancer le jeu avec le protocole MQTT, vous devez utiliser la fonction `myMo
 
 Tous les ordinateurs doivent être connectés au broker et utiliser le même port sur la carte réseau.
 
+## Liste des éléments développés et non-développés de Solutré
+
+### Eléments implémentés
+- Effets immédiats des hexagones
+- Effets activables des hexagones
+- Gestion des actions joueurs
+- Tours de jeu
+- Jauges avec valeur(s) de seuil 
+
+### A implémenter
+- Effets permanents
+- Grands projets
+- Système de vote
+- Apparition des pions Vin / Vin Bio
+- Possibilité d'activer un hexagone 3 fois dans le même tour
+- Possibilité de choisir le nombre de ressources pour multiplier les gains
