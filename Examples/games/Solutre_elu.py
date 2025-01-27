@@ -659,7 +659,7 @@ EventPhase.autoForwardOn=True
 EventPhase.messageAutoForward=False
 
 #PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
-GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
+GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur,Elu,Habitant,Naturaliste,Tourisme])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
 GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",[Tourisme])
@@ -697,6 +697,8 @@ def selectPlayer(aPlayerName, aObjectifCardName="random"):
 
     if aPlayerName=="Tourisme":
         actions=GameActionsList+TourismeSpecificActions
+    elif aPlayerName=="ViticulteurTourisme":
+        actions=GameActionsList+TourismeSpecificActions
     else: actions=GameActionsList
 
     for action in actions:
@@ -727,7 +729,7 @@ def getRandomObjectif():
     if not objectif.empty:
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
-        text = "\n".join([f"{key}: {value}" if key else f"{value}" for key, value in objectif_dict.items()])
+        text = "\n".join([f"{key}: {value}" if "Unnamed" not in key else f"{value}" for key, value in objectif_dict.items()])
         textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
         return textBoxObj
     else:
@@ -748,10 +750,16 @@ def getColorByPlayer(aPlayerName):
     else:
         raise ValueError("Le nom du joueur n'est pas correct.")
 
-objectif, DashBoardViticulteur = selectPlayer("Viticulteur")
-createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
-createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+def createInitHexagones():
+    """Crée les hexagones initiaux sur le plateau"""
+    if myModel.currentPlayer != "Viticulteur":
+        createHex("Vigne du plateau",hexagones,data_inst,data_act)
+        createHex("Caveau du plateau",hexagones,data_inst,data_act)
+    createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+    createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 
+objectif, DashBoardPlayer = selectPlayer("Elu")
+createInitHexagones()
 
 def customLayout():
     """Crée le layout personnalisé du jeu"""
@@ -764,7 +772,7 @@ def customLayout():
     DashBoardInd.moveToCoords(1180,130)
     DashBoard.moveToCoords(1390,130)
     DashBoardRessources.moveToCoords(1640,130)
-    DashBoardViticulteur.moveToCoords(1500,730)
+    DashBoardPlayer.moveToCoords(1500,730)
     aTimeLabel.moveToCoords(30,40)
     jaugeQDV.moveToCoords(250,48)
     jaugeEnv.moveToCoords(250,98)

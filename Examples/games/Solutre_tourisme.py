@@ -18,6 +18,7 @@ dataEvents=pd.read_excel("./data/data_events.xlsx")
 #* Construction des plateaux
 #* --------------------------
 def constructPlateau():
+    """Permet de construire le plateau de jeu principal de Solutré"""
     Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
@@ -102,6 +103,7 @@ def constructPlateau():
     return Plateau
 
 def constructVillageNord():
+    """Permet de construire le village Nord de Solutré"""
     VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=2,name="VillageNord",color=QColor.fromRgb(135,206,235))
     VillageNord.deleteEntity(VillageNord.getEntity(1,1))
     VillageNord.deleteEntity(VillageNord.getEntity(2,1))
@@ -118,6 +120,7 @@ def constructVillageNord():
     return VillageNord
     
 def constructVillageSud():
+    """Permet de construire le village Sud de Solutré"""
     VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=2,name="VillageSud",color=QColor.fromRgb(176,224,230))
     VillageSud.deleteEntity(VillageSud.getEntity(1,1))
     VillageSud.deleteEntity(VillageSud.getEntity(3,1))
@@ -142,6 +145,7 @@ def constructVillageSud():
     return VillageSud  
     
 def constructVillageEst():
+    """Permet de construire le village Est de Solutré"""
     VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=2,name="VillageEst",color=QColor.fromRgb(0,191,255))
     VillageEst.deleteEntity(VillageEst.getEntity(1,1))
     VillageEst.deleteEntity(VillageEst.getEntity(2,1))
@@ -174,7 +178,7 @@ VillageEst=constructVillageEst()
 #* --------------------------
 #* Classifications et POV
 #* --------------------------
-
+# Création des classifications couleur pour les plateaux : permet d'attribuer une couleur à chaque zone
 Plateau.newPov("Zones joueurs","zone",{"Roches":QPixmap("./icon/solutre/roches1_cell.png"),"Naturaliste":QPixmap("./icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("./icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
 Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,6], "out": [Qt.black,1]})
 VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
@@ -184,6 +188,8 @@ VillageEst.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell
 #* --------------------------
 #* Dashboard des indicateurs
 #* -------------------------- 
+# Création du dashboard des indicateurs
+# Chaque indicateur affiche la valeur portée par une variable de simulation
 DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
 qualiteVie=myModel.newSimVariable("Qualité de vie",0)
 environnement=myModel.newSimVariable("Environnement",0)
@@ -192,16 +198,26 @@ indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
 indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
 indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 
+#* On peut également afficher les valeurs des variables de simulation par des jauges : 
+# celles ci sont mises à jour automatiquement lorsqu'une variable de simulation est modifiée et peuvent contenir
+# des valeurs seuils qui déclenchent des actions
 jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-2)
-jaugeEnv=myModel.newProgressGauge(qualiteVie,"Environnement",10,-2)
-jaugeAtt=myModel.newProgressGauge(qualiteVie,"Attractivité",10,-2)
+jaugeEnv=myModel.newProgressGauge(environnement,"Environnement",10,-2)
+jaugeAtt=myModel.newProgressGauge(attractivite,"Attractivité",10,-2)
 
+# Ici on définit les valeurs de la jauge en fonction des valeurs de la variable de simulation
+dictOfMappedValues={"-2":0,"-1":8,"0":17,"1":25,"2":33,"3":42,"4":50,"5":58,"6":67,"7":75,"8":83,"9":92,"10":100}
+jaugeAtt.setDictOfMappedValues(dictOfMappedValues)
+jaugeQDV.setDictOfMappedValues(dictOfMappedValues)
+jaugeEnv.setDictOfMappedValues(dictOfMappedValues)
+
+# déclaration des variables de simulation qui vont contenir les bonus des jauges
 bonusVin=myModel.newSimVariable("Bonus vin",0)
 bonusBio=myModel.newSimVariable("Bonus vin bio",0)
-bonusTouriste=myModel.newSimVariable("Bonus touriste",0)
+bonusTouriste=myModel.newSimVariable("Bonus touriste",-1)
 bonusEnvironnement=myModel.newSimVariable("Bonus environnement",0)
 
-
+# On définit les valeurs seuils des jauges qui déclenchent des actions et les actions associées
 jaugeEnv.setThresholdValue(6, lambda: bonusBio.incValue(2), lambda: bonusBio.decValue(2))
 
 jaugeAtt.setThresholdValue(5, lambda: bonusVin.incValue(1), lambda: bonusVin.decValue(1))
@@ -221,6 +237,7 @@ jaugeEnv.setThresholdValue(15, lambda: bonusEnvironnement.incValue(1), lambda: N
 #* --------------------------
 #* Dashboard des services
 #* --------------------------
+# Création du dashboard des services (même principe que précédemment)
 DashBoard=myModel.newDashBoard("Suivi des services")
 biodiversite=myModel.newSimVariable("Biodiversité",0)
 sante=myModel.newSimVariable("Santé",0)
@@ -244,25 +261,31 @@ indDemocratie=DashBoard.addIndicatorOnSimVariable(democratie)
 #* --------------------------
 #* Déclaration des joueurs
 #* --------------------------
-Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":30,"Sous":0})
-Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":30,"Sous":0})
+# Création des joueurs : TOUS les joueurs sont créés à chaque code de jeu Solutré
+Viticulteur = myModel.newPlayer("Viticulteur",attributesAndValues={"nbCubes":6,"Sous":0})
+Tourisme = myModel.newPlayer("Tourisme",attributesAndValues={"nbCubes":6,"Sous":0})
+Elu=myModel.newPlayer("Elu",attributesAndValues={"nbCubes":6,"Sous":0})
+Naturaliste=myModel.newPlayer("Naturaliste",attributesAndValues={"nbCubes":6,"Sous":0})
+Habitant=myModel.newPlayer("Habitant",attributesAndValues={"nbCubes":6,"Sous":0})
 
 
 #* --------------------------
 #* Déclaration des agents
 #* --------------------------
+# Création des agents : représente les pions du jeu Solutré
+# Ici nous créons les "espèces" d'agents, qui servent de modèle pour la création des pions individuels
 Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
 Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vin.png"))
 BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vinBIO.png"))
 Buisson=myModel.newAgentSpecies("Buisson","circleAgent",defaultSize=40,defaultColor=Qt.darkGreen,locationInEntity="center")
-reserve=myModel.newCellsOnGrid(2,1,"square",size=120,gap=0,name="Réserve")
+reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
-reserve.getEntity(2,1).setValue("zone",True)
 reserve.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 
 #* --------------------------
 #* Dashboard des ressources
 #* --------------------------
+# Création du dashboard des ressources (même principe que précédemment)
 DashBoardRessources=myModel.newDashBoard("Ressources")
 touriste=myModel.newSimVariable("touriste",0)
 vin=myModel.newSimVariable("vin",0)
@@ -274,6 +297,7 @@ DashBoardRessources.addIndicator(Touriste,"nb")
 
 
 def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
+    """Cette fonction permet de créer une tuile hexagone à partir du nom de celle-ci et des données issues des tableaux excel"""
     variables=myModel.getSimVars()
     
     # Création des effets instantanés
@@ -339,19 +363,17 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     return
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
+    """Cette fonction permet de créer toutes les tuiles hexagones à partir des données issues des tableaux excel"""
     listOfHex=list(dataInst['nom'])
     for aHexName in listOfHex:
         createHex(aHexName,species,dataInst,dataAct,dataPerm,model)
     
 def createPlayerHex(aPlayerName, species, dataInst, dataAct, dataPerm=None, model=myModel):
+    """Cette fonction permet de créer les tuiles hexagones d'un joueur à partir des données issues des tableaux excel"""
     playerHex = dataInst[dataInst['joueur'] == aPlayerName]['nom'].tolist()
     random.shuffle(playerHex)
     for hexName in playerHex:
         createHex(hexName, species, dataInst, dataAct, dataPerm, model)
-
-def setImageFaceHexagone():
-    for aHex in hexagones.getEntities():
-        return
 
 hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
@@ -363,45 +385,66 @@ pioche.newPov("Zones joueurs","zone",{True:Qt.darkGray})
 #* --------------------------
 #* GameActions
 #* --------------------------
-MoveHexagone=myModel.newMoveAction(hexagones, 'infinite')#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
-MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
-MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
-MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
-Viticulteur.addGameAction(MoveHexagone)
-ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True,aNameToDisplay="Valider le placement")#,feedbacks=[lambda aHex: execeffetInstantaneJauge(aHex),lambda aHex:updateCubes(aHex)],setOnController=False)
-ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
-ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
-ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
-ValiderMoveHexagone.addCondition(lambda aHex: aHex.cell.grid.id!="Pioche")
-ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
-Viticulteur.addGameAction(ValiderMoveHexagone)
-MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
-MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
-Viticulteur.addGameAction(MovePioche)
-ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
-ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
-ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
-ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
-ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)
-ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
-Viticulteur.addGameAction(ActivateHexagone)
-DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubes()],feedbacks= [lambda : decCubes()],setControllerContextualMenu=True,aNameToDisplay="Supprimer le buisson")
-Viticulteur.addGameAction(DeleteBuisson)
+GameActionsList=[]
+TourismeSpecificActions=[]
 
+def createPlayerCommuneGA():
+    """Cette fonction permet de créer les actions communes à tous les joueurs"""
+    # Action pour déplacer un hexagone sur les plateaux
+    MoveHexagone=myModel.newMoveAction(hexagones, 'infinite')
+    MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
+    MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
+    MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
+    GameActionsList.append(MoveHexagone)
+    # Action pour valider le placement d'un hexagone
+    ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True,aNameToDisplay="Valider le placement")
+    ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
+    ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
+    ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
+    ValiderMoveHexagone.addCondition(lambda aHex: aHex.cell.grid.id!="Pioche")
+    ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
+    GameActionsList.append(ValiderMoveHexagone)
+    # Action pour déplacer un hexagone sur la pioche
+    MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
+    MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
+    GameActionsList.append(MovePioche)
+    # Action pour activer un hexagone
+    ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
+    ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+    ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
+    ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
+    ActivateHexagone.addCondition(lambda aHex: aHex.value("Activation")==False)
+    ActivateHexagone.addCondition(lambda aHex: aHex.value("placed")==True)
+    ActivateHexagone.addFeedback(lambda aHex: decRessources(aHex))
+    GameActionsList.append(ActivateHexagone)
+    # Action pour supprimer un buisson
+    DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubesBuisson()],feedbacks= [lambda : decCubesBuisson()],setControllerContextualMenu=True,aNameToDisplay="Supprimer le buisson")
+    GameActionsList.append(DeleteBuisson)
+    return GameActionsList
 
-PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
-PlaceTouriste.addCondition(lambda: checkIsThereTouristes())
-PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHébergement(aTargetCell))
-PlaceTouriste.addFeedback(lambda: decTouristes())
-PlaceTouriste.addFeedback(lambda aTourist: execeffetActivableTouriste(aTourist))
-Tourisme.addGameAction(PlaceTouriste)
+GameActionsList = createPlayerCommuneGA()
+
+def createTourismeSpecificGA():
+    """Cette fonction permet de créer les actions spécifiques au joueur Tourisme"""
+    # Action pour placer un touriste
+    PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
+    PlaceTouriste.addCondition(lambda: checkIsThereTouristes())
+    PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHébergement(aTargetCell))
+    PlaceTouriste.addFeedback(lambda: decTouristes())
+    PlaceTouriste.addFeedback(lambda aTourist: execeffetActivableTouriste(aTourist))
+    TourismeSpecificActions.append(PlaceTouriste)
+    return TourismeSpecificActions
+
+TourismeSpecificActions = createTourismeSpecificGA()
 
 def checkIfAHexIsHere(aTargetCell):
+    """Permet de vérifier si une tuile hexagone est déjà présente sur une cellule de plateau"""
     hexa=aTargetCell.getAgents(specie="Hexagone")
     if len(hexa) != 0: return False
     else: return True
 
 def execeffetInstantaneJauge(aHex):
+    """Détaille les actions réalisées au placement d'un hexagone"""
     for jauge, valeur in aHex.value("effetInstantaneJauge").items():
         if jauge != "Biodiversité":
             jauge.incValue(valeur)
@@ -411,10 +454,12 @@ def execeffetInstantaneJauge(aHex):
     aHex.setValue("placed",True)
 
 def updateCubes(aHex):
+    """Permet de mettre à jour le nombre de cubes d'un joueur après le placement d'un hexagone"""
     player=aHex.value("joueur")
     player.decValue("nbCubes",aHex.value("coûtCubes"))
 
 def execeffetActivableJauge(aHex):
+    """Détaille les actions réalisées à l'activation d'un hexagone"""
     for jauge,valeur in aHex.value("effetActivableJauge").items():
         if jauge != "Biodiversité":
             jauge.incValue(valeur)
@@ -424,10 +469,16 @@ def execeffetActivableJauge(aHex):
         if ressource != "Sous":
             ressource.incValue(valeur)
         else:
-            if aHex.value("coutVinBio")>0:
+            if aHex.value("coutVinBio")>0 and aHex.value("joueur") == "Viticulteur":
                 aHex.value("joueur").incValue("Sous",(valeur+bonusBio.value)*aHex.value("coutVinBio"))
-            elif aHex.value("coutVin")>0:
+            elif aHex.value("coutVin")>0 and aHex.value("joueur") == "Viticulteur":
                 aHex.value("joueur").incValue("Sous",(valeur+bonusVin.value)*aHex.value("coutVin"))
+            elif aHex.value("coutVinBio")>0 :
+                aHex.value("joueur").incValue("Sous",valeur*aHex.value("coutVinBio"))
+                Viticulteur.incValue("Sous",(bonusBio.value)*aHex.value("coutVinBio"))
+            elif aHex.value("coutVin")>0:
+                aHex.value("joueur").incValue("Sous",valeur*aHex.value("coutVin"))
+                Viticulteur.incValue("Sous",(bonusVin.value)*aHex.value("coutVin"))
             else:
                 aHex.value("joueur").incValue("Sous",valeur)
     updatesCubesActivation(aHex)
@@ -435,11 +486,13 @@ def execeffetActivableJauge(aHex):
     
 
 def checkIfActivable(aHex):
+    """Permet de vérifier si un hexagone est activable"""
     values= list(aHex.value("effetActivableJauge").values())+list(aHex.value("effetRessourcesAct").values())
     return any(val != 0 for val in values)
 
 
 def checkRessources(aHex):
+    """Permet de vérifier si les ressources nécessaires sont présentes pour activer un hexagone"""
     model=aHex.model
     simVars=model.getSimVars()
     vin = next((aSimVar for aSimVar in simVars if aSimVar.name == "vin"), None)
@@ -456,6 +509,7 @@ def checkRessources(aHex):
     else: return True
 
 def decRessources(aHex):
+    """Permet de mettre à jour les ressources après l'activation d'un hexagone"""
     model=aHex.model
     simVars=model.getSimVars()
     vin = next((aSimVar for aSimVar in simVars if aSimVar.name == "vin"), None)
@@ -466,32 +520,39 @@ def decRessources(aHex):
 
 
 def updatesCubesActivation(aHex):
+    """Permet de mettre à jour le nombre de cubes d'un joueur après l'activation d'un hexagone"""
     player=aHex.value("joueur")
     player.decValue("nbCubes",aHex.value("coutCubesAct"))
 
-def checkCubes():
+def checkCubesBuisson():
+    """Permet de vérifier si un joueur a assez de cubes pour réaliser supprimer un buisson"""
     player=myModel.getPlayer(myModel.currentPlayer)
     if player.value("nbCubes")>1: return True
     else: return False
 
-def decCubes():
+def decCubesBuisson():
+    """Permet de mettre à jour le nombre de cubes d'un joueur après la suppression d'un buisson"""
     player=myModel.getPlayer(myModel.currentPlayer)
     player.decValue("nbCubes")
 
 def checkIsThereTouristes():
+    """Permet de vérifier si des touristes sont présents dans la réserve"""
     if touriste.value >= 1: return True
     else: return False
 
 def checkIsHébergement(aTargetCell):
+    """Permet de vérifier si une cellule est un hébergement pour les touristes"""
     hexa=aTargetCell.getAgents(specie="Hexagone")
     for aHex in hexa:
         if aHex.value("coutTouriste") !=0: return True
         else: return False
 
 def decTouristes():
+    """Permet de mettre à jour le nombre de touristes après leur placement"""
     touriste.decValue()
 
 def execeffetActivableTouriste(aTourist):
+    """Détaille les actions réalisées à l'activation d'un hexagone par le placement d'un touriste"""
     aTargetCell=aTourist.cell
     aHex=aTargetCell.getAgents(specie="Hexagone")[0]
     dictOfValues=aHex.value("effetActivableTouriste")
@@ -500,6 +561,7 @@ def execeffetActivableTouriste(aTourist):
     Tourisme.incValue("Sous",int(dictOfValues.get("Sous")))
     
 def checkAdjacence(aHex):
+    """Permet de vérifier si un hexagone est placé à côté d'un autre hexagone en fonction des besoins"""
     if aHex.value("conditionAdjacence") is not None:
         listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
         nbNeighbour=0
@@ -520,6 +582,7 @@ def checkAdjacence(aHex):
     else: return True
 
 def adjacenceFeedback(aHex):
+    """Détaille les actions réalisées à l'activation d'un hexagone par la présence d'un autre hexagone à côté"""
     if aHex.value("conditionFeedbackAdjacence") == "coutTouriste":
         listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
         for aNeighbourHex in listOfNeighbours:
@@ -532,22 +595,25 @@ def adjacenceFeedback(aHex):
 usedKeys=["Au Nom des Roches"]
 
 def execEvent():
+    """Détaille les actions de début de tour"""
     randomKey=random.choice(list(dataEvents["Nom"]))
     while randomKey in usedKeys:
         randomKey=random.choice(list(dataEvents["Nom"]))
     eventLine=dataEvents[dataEvents['Nom']==randomKey]
     usedKeys.append(randomKey)
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
-    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste),reserve,1,1)
-    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste))
+    Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()+bonusTouriste.value),reserve,1,1)
+    touriste.incValue(int(eventLine["nbTouristes"].squeeze()+bonusTouriste.value))
    
 def execFirstEvent():
+    """Détaille les actions de début de partie"""
     eventLine=dataEvents[dataEvents['Nom'] == "Au Nom des Roches"]
     myModel.newPopUp(eventLine['Nom'].squeeze(),eventLine["Descriptif"].squeeze()+" Nombre de touristes cette année :"+str(eventLine["nbTouristes"].squeeze()))
     Touriste.newAgentsAtCoords(int(eventLine["nbTouristes"].squeeze()),reserve,1,1)
     touriste.incValue(int(eventLine["nbTouristes"].squeeze()))
             
 def checkTouriste():
+    """Permet de vérifier si des touristes n'ont pas été placés"""
     cell=reserve.getCell(1,1)
     nbTouriste=cell.nbAgents()
     if nbTouriste != 0:
@@ -559,6 +625,7 @@ def checkTouriste():
     touriste.setValue(0)
 
 def checkBuisson():
+    """Permet de vérifier si des buissons n'ont pas été entretenus"""
     nbBuisson=Buisson.nbOfEntities()
     if nbBuisson != 0:
         for n in range(nbBuisson):
@@ -568,12 +635,19 @@ def checkBuisson():
     Buisson.deleteAllEntities()
 
 def resetHexagones():
+    """Permet de remettre les hexagones non placés dans la pioche"""
     nbHexReset=0
     for aHex in hexagones.getEntities():
         if aHex.cell.grid.id!="Pioche" and aHex.value("placed")==False:
-            aHex.moveToCell(pioche,6,1)
+            destinationCell=pioche.getEntity(6,1)
+            aHex.moveTo(pioche,destinationCell)
             nbHexReset=+1
     print(f"{nbHexReset} hexagones ont été remis dans la pioche.")
+
+def resetCubes():
+    """Permet de remettre les cubes des joueurs à 6 en début de tour"""
+    for player in myModel.getPlayers():
+        player.setValue("nbCubes",6)
 
 
 #PHASE 1 : Début d'années = événements + buissons
@@ -585,19 +659,21 @@ EventPhase.autoForwardOn=True
 EventPhase.messageAutoForward=False
 
 #PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
-GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur])
+GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur,Elu,Habitant,Naturaliste,Tourisme])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
 GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",[Tourisme])
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
-ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson,resetHexagones],name="Résolution de l'année en cours")
+ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson,resetHexagones,resetCubes],name="Résolution de l'année en cours")
 ModelPhase.autoForwardOn=True
 ModelPhase.messageAutoForward=False
 
+# crée l'objet qui affiche les tours de jeu
 aTimeLabel = myModel.newTimeLabel()
 
+# fixe la vue du jeu (les couleurs choisies pour les différentes zones)
 Plateau.displayBorderPov("Coeur de site")
 
 
@@ -605,6 +681,7 @@ Plateau.displayBorderPov("Coeur de site")
 #* Joueur
 #* --------------------------
 def selectPlayer(aPlayerName, aObjectifCardName="random"):
+    """Permet de sélectionner quel est le joueur sur cette machine"""
     myModel.setCurrentPlayer(aPlayerName)
     player=myModel.getPlayer(aPlayerName)
     if aObjectifCardName=="random":
@@ -618,9 +695,19 @@ def selectPlayer(aPlayerName, aObjectifCardName="random"):
 
     createPlayerHex(aPlayerName,hexagones,data_inst,data_act)
 
+    if aPlayerName=="Tourisme":
+        actions=GameActionsList+TourismeSpecificActions
+    elif aPlayerName=="ViticulteurTourisme":
+        actions=GameActionsList+TourismeSpecificActions
+    else: actions=GameActionsList
+
+    for action in actions:
+        player.addGameAction(action)
+
     return objectif, aDashboard
 
 def getObjectif(aCardName):
+    """Choisis un objectif pour le joueur choisi par un nom"""
     player = myModel.currentPlayer
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     objectif = objectifs_joueur[objectifs_joueur['Nom'] == aCardName]
@@ -634,6 +721,7 @@ def getObjectif(aCardName):
         return ValueError("Le nom d'objectif n'est pas correct ou le joueur n'a pas été spécifié.")
 
 def getRandomObjectif():
+    """Choisis un objectif aléatoire pour le joueur choisi"""
     player=myModel.currentPlayer
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     if not objectifs_joueur.empty:
@@ -641,13 +729,14 @@ def getRandomObjectif():
     if not objectif.empty:
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
-        text = "\n".join([f"{key}: {value}" if key else f"{value}" for key, value in objectif_dict.items()])
+        text = "\n".join([f"{key}: {value}" if "Unnamed" not in key else f"{value}" for key, value in objectif_dict.items()])
         textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
         return textBoxObj
     else:
         return ValueError("Le joueur n'a pas été spécifié.")
     
 def getColorByPlayer(aPlayerName):
+    """Permet de choisir la couleur du dashboard en fonction du joueur"""
     if aPlayerName=="Viticulteur":
         return QColor.fromRgb(147,1,208)
     elif aPlayerName=="Tourisme":
@@ -661,12 +750,19 @@ def getColorByPlayer(aPlayerName):
     else:
         raise ValueError("Le nom du joueur n'est pas correct.")
 
-objectif, DashBoardViticulteur = selectPlayer("Viticulteur","Grande famille")
-createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
-createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+def createInitHexagones():
+    """Crée les hexagones initiaux sur le plateau"""
+    if myModel.currentPlayer != "Viticulteur":
+        createHex("Vigne du plateau",hexagones,data_inst,data_act)
+        createHex("Caveau du plateau",hexagones,data_inst,data_act)
+    createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
+    createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 
+objectif, DashBoardPlayer = selectPlayer("Tourisme")
+createInitHexagones()
 
 def customLayout():
+    """Crée le layout personnalisé du jeu"""
     Plateau.grid.moveToCoords(440,130)
     VillageNord.grid.moveToCoords(30,130)
     VillageEst.grid.moveToCoords(1180,400)
@@ -676,7 +772,7 @@ def customLayout():
     DashBoardInd.moveToCoords(1180,130)
     DashBoard.moveToCoords(1390,130)
     DashBoardRessources.moveToCoords(1640,130)
-    DashBoardViticulteur.moveToCoords(1500,730)
+    DashBoardPlayer.moveToCoords(1500,730)
     aTimeLabel.moveToCoords(30,40)
     jaugeQDV.moveToCoords(250,48)
     jaugeEnv.moveToCoords(250,98)
@@ -684,6 +780,7 @@ def customLayout():
     objectif.moveToCoords(1065,730)
 
 def placeInitHexagones():
+    """Place les hexagones initiaux sur le plateau"""
     n=0
     cells=[VillageSud.getCell(3,5),VillageNord.getCell(3,1)]
     for aHex in hexagones.getEntities():
@@ -706,6 +803,6 @@ def placeInitHexagones():
 if __name__ == '__main__':
     customLayout()
     placeInitHexagones()
-    # myModel.launch()
-    myModel.launch_withMQTT("Instantaneous")
+    myModel.launch()
+    # myModel.launch_withMQTT("Instantaneous")
     sys.exit(monApp.exec_())

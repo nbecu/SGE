@@ -758,7 +758,7 @@ def createInitHexagones():
     createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
     createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 
-objectif, DashBoardPlayer = selectPlayer("Viticulteur")
+objectif, DashBoardPlayer = selectPlayer("Habitant")
 createInitHexagones()
 
 def customLayout():
