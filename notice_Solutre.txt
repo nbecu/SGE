@@ -2,7 +2,7 @@
 
 ## Installation de Visual Studio Code
 
-Pour éditer et exécuter le script `Solutre.py`, vous pouvez utiliser Visual Studio Code. Suivez les étapes ci-dessous pour installer Visual Studio Code :
+Pour éditer et exécuter le script `Solutre_selectyourPlayer.py`, vous pouvez utiliser Visual Studio Code. Suivez les étapes ci-dessous pour installer Visual Studio Code :
 
 1. Rendez-vous sur le site officiel de Visual Studio Code : [https://code.visualstudio.com/](https://code.visualstudio.com/)
 2. Téléchargez l'installateur correspondant à votre système d'exploitation (Windows, macOS, Linux).
@@ -10,7 +10,7 @@ Pour éditer et exécuter le script `Solutre.py`, vous pouvez utiliser Visual St
 
 ## Installation de Python
 
-Pour exécuter le script `Solutre.py`, vous devez installer Python. Suivez les étapes ci-dessous pour installer Python :
+Pour exécuter le script `Solutre_selectyourPlayer.py`, vous devez installer Python. Suivez les étapes ci-dessous pour installer Python :
 
 1. Rendez-vous sur le site officiel de Python : [https://www.python.org/](https://www.python.org/)
 2. Téléchargez l'installateur correspondant à votre système d'exploitation (Windows, macOS, Linux).
@@ -18,7 +18,7 @@ Pour exécuter le script `Solutre.py`, vous devez installer Python. Suivez les �
 
 ## Installation des packages nécessaires
 
-Pour exécuter le script `Solutre.py`, vous devez installer les packages suivants :
+Pour exécuter le script `Solutre_selectyourPlayer.py`, vous devez installer les packages suivants :
 
 1. **pandas** : pour la manipulation des données.
 2. **PyQt5** : pour l'interface graphique.
@@ -43,9 +43,17 @@ pip show <package-name>
 ```
 Cela permet d'afficher la version actuelle du package. A comparer avec les versions indiquées dans requirements.txt
 
+
+### Charger Solutré dans Visual Studio Code
+Ouvrir l'ensemble du dossier SGE dans Visual Studio Code.
+Les scripts de jeu se trouvent dans Examples > games.
+Main Classes comprend toute la partie dev.
+icon comprend toutes les images.
+
+
 ## Structure du code
 
-Le script `Solutre.py` est structuré en plusieurs sections principales :
+Le script `Solutre_selectyourPlayer.py` est structuré en plusieurs sections principales :
 
 1. **Importation des modules** : Importation des modules nécessaires pour le fonctionnement du script.
 2. **Lecture des données** : Chargement des données à partir des fichiers Excel.
