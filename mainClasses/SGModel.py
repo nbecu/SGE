@@ -924,13 +924,15 @@ class SGModel(QMainWindow):
         msg.exec_()
         return
     
-    def newProgressGauge(self, simVar, title, maximum, minimum, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+    def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
         aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
         self.gameSpaces[title] = aProgressGauge
+        if dictOfMappedValues is not None: aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
         simVar.addWatcher(aProgressGauge)  # Ajout de l'observateur
         # Realocation of the position thanks to the layout
         aProgressGauge.globalPosition()
         self.applyAutomaticLayout()
+        aProgressGauge.checkAndUpdate()
 
         return aProgressGauge   
     # ---------

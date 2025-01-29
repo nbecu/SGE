@@ -36,7 +36,7 @@ class SGProgressGauge(SGGameSpace):
         self.progress_bar.setMinimum(self.minimum)
         self.progress_bar.setMaximum(self.maximum)
         self.progress_bar.setAlignment(Qt.AlignCenter)
-        # self.progress_bar.setFormat(f"{int(self.simVar.value)}")
+        self.progress_bar.setFormat(f"{int(self.simVar.value)}")
         self.layout.addWidget(self.title_label)
         self.layout.addWidget(self.progress_bar)
         self.setLayout(self.layout)
@@ -64,9 +64,8 @@ class SGProgressGauge(SGGameSpace):
     def updateProgressBar(self):
         newValue = self.simVar.value
         mappedValue = self.getMappedValue(str(newValue))
-        # mappedValue = self.mapValue(newValue)
         self.progress_bar.setValue(int(mappedValue))
-        # self.progress_bar.setFormat(f"{newValue}")
+        self.progress_bar.setFormat(f"{newValue}")
         self.checkThresholds(newValue)
 
     def setThresholdValue(self, thresholdValue, aLambdaFunctionForCrossingUp=None, aLambdaFunctionForCrossingDown=None):
@@ -90,13 +89,6 @@ class SGProgressGauge(SGGameSpace):
         if value is not None: return value
         else: return 0 
 
-    def mapValueOld(self, value):
-        if self.minimum < 0:
-            return (value - self.minimum) * (self.maximum / self.valueRange)
-        return value
-
-    def mapValue(self, value):
-        return (value - self.minimum) * 100 / self.valueRange
 
      # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):

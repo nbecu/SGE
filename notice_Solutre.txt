@@ -159,6 +159,8 @@ Tous les ordinateurs doivent être connectés au broker et utiliser le même por
 - Effets immédiats des hexagones
 - Effets activables des hexagones
 - Gestion des actions joueurs
+- pions Touristes
+- buissons
 - Tours de jeu
 - Jauges avec valeur(s) de seuil 
 
@@ -168,4 +170,4 @@ Tous les ordinateurs doivent être connectés au broker et utiliser le même por
 - Système de vote
 - Apparition des pions Vin / Vin Bio
 - Possibilité d'activer un hexagone 3 fois dans le même tour
-- Possibilité de choisir le nombre de ressources pour multiplier les gains
+- Possibilité de choisir le nombre de ressources pour multiplier les gains (hexagone "Garde champêtre")
