@@ -24,6 +24,8 @@ class SGMove(SGAbstractAction):
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
             self.incNbUsed()
+            self.savePerformedActionInHistory(aTargetEntity, aMovingEntity, resFeedback)
+
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity,aDestinationEntity)
             return aMovingEntity if not self.feedbacks else [aMovingEntity,resFeedback]
         else:

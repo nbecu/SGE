@@ -24,7 +24,11 @@ class SGAbstractAction():
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
         self.feedbacks=feedBacks
         self.conditionsOfFeedBack=conditionsOfFeedBack 
-        self.setControllerContextualMenu=setControllerContextualMenu           
+        self.setControllerContextualMenu=setControllerContextualMenu
+        
+        #Define variables to handle the history 
+        self.history={}
+        self.history["performed"]=[]    
 
     def nextId(self):
         SGAbstractAction.IDincr +=1
@@ -43,6 +47,7 @@ class SGAbstractAction():
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
             self.incNbUsed()
+            self.savePerformedActionInHistory(aTargetEntity, resAction, resFeedback)
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
             return resAction if not self.feedbacks else [resAction,resFeedback]
         else:
@@ -87,7 +92,16 @@ class SGAbstractAction():
             listOfRes.append(res)
         if not listOfRes: raise ValueError('why is this method called when the list of feedbaks is  empty')
         return res if len(listOfRes) == 1 else listOfRes
-    
+   
+    def savePerformedActionInHistory(self,aTargetEntity, resAction, resFeedback):
+        self.history["performed"].append([self.model.timeManager.currentRoundNumber,
+                                          self.model.timeManager.currentPhaseNumber,
+                                          self.numberUsed,
+                                          aTargetEntity,
+                                          resAction,
+                                          resFeedback])
+
+
     def updateServer_gameAction_performed(self, *args):
         if self.model.mqttMajType == "Instantaneous":
             dict ={}

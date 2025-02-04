@@ -84,6 +84,26 @@ class SGPlayer(AttributeAndValueFunctionalities):
         aList=self.getListOfUntagedStepsData(startStep,endStep)
         return [{**{'playerName': self.name}, **aStepData} for aStepData in aList]
 
+    def getStatsOfGameActions(self,startStep=None,endStep=None):
+        stats = []
+        for step in range(self.model.timeManager.currentRoundNumber + 1):
+            step_actions = {
+                'step': step,
+                'actions_performed': [
+                    {
+                        'action_id': action.id,
+                        'action_type': action.__class__.__name__,
+                        'action_target_entity': action.targetEntDef,
+                        'nb_used': len([p for p in action.history["performed"] if p[0] == step])
+                    }
+                    for action in self.gameActions
+                    if any(p[0] == step for p in action.history["performed"])
+                ]
+            }
+            if step_actions['actions_performed']:
+                stats.append(step_actions)
+        return stats
+        # return [{**{'playerName': self.name}, **aStepData} for aStepData in aList]
 
     def addWatcher(self,aIndicator):
         if aIndicator.attribute is None:
