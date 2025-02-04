@@ -117,6 +117,17 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         if len(self.povShapeColor)==1:
             self.displayPov(nameOfPov)
 
+   
+    def newDefaultPov(self, concernedAtt, dictOfColor):
+        """
+        Declare a default Point of View for the Species.
+
+        Args:
+            concernedAtt (str): name of the attribut concerned by the declaration
+            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color
+        """
+        self.newPov("default", concernedAtt, dictOfColor)
+
     def displayPov(self,nameOfPov):
         self.model.checkSymbologyinMenuBar(self,nameOfPov)
 

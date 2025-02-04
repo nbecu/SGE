@@ -199,6 +199,9 @@ class SGCell(SGEntity):
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     
     #To get the neighbor cells
+    def getNeighbors(self,rule='moore'):
+        return self.getNeighborCells(rule)
+    
     def getNeighborCells(self,rule='moore'):
         neighbors = []
         for i in range(self.xPos - 1, self.xPos + 2):
