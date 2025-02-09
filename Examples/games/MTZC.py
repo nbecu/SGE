@@ -289,6 +289,10 @@ tH = "herbier"
 tA = "champs agricoles"
 tM = "mer"
 tP = "plage"
+tPP = 'port plaisance'
+tPI = 'port industriel'
+tF = 'foret'
+
 
 # Exemple d'accès aux valeurs
 sequestration_vide = ZHs[t0]["sequestration"]
@@ -311,17 +315,17 @@ cases_preservees = {
                        (8,5): [sPC, tO],                   (10,5): [sGC, tSAU],        (12,5): [sPC, tSAU], (13,5): [sGC, tSAU], (14,5): [sPC, tSAU],                                                                                                                           (21,5): [sPC, tA],
     (7,6): [sPC, tP], (8,6): [sGC, tO],                    (10,6): [sPC, tSAU],         (12,6): [sPC, tA], (13,6): [sPC, tA],                                                                                           (18,6): [sGC, tA], (19,6): [sPC, tA], (20,6): [sGC, tA], (21,6): [sPC, tA],        
     (7,7): [sPC, tP],                                     (10,7): [sPC, tSAU], (11,7): [sPC, tA], (12,7): [sPC, tA], 
-  (3,8): [sPC, tH2], (4,8): [sPC, tV], (5,8): [sPC, tV],   (8,8): [sPC, tDA],
+  (3,8): [sPC, tV], (4,8): [sPC, tV], (5,8): [sPC, tV],   (8,8): [sPC, tDA],
 (2,9): [sPC, tV],    (4,9): [sPC, t0], (5,9): [sPC, t0],(6,9): [sPC, t0], (7,9): [sPC, tDA], (8,9): [sPC, tDA],  (9,9): [sGC, tDA], (10,9): [sGC, tDA], (11,9): [sGC, tDA],                                                     (19,9): [sPC, tA], (20,9): [sPC, tA],  
 (2,10): [sPC, tV],                                                        (7,10): [sPC, tDA], (8,10): [sPC, tDA], (9,10): [sGC, tDA], (10,10): [sGC, tDA], (11,10): [sGC, tDA],                                       (18,10): [sPC, tA], (19,10): [sPC, tA], (20,10): [sGC, tA],  
                      (4,11): [sPC, t0], (5,11): [sGC, t0],                                   (8,11): [sPC, tDA], (9,11): [sGC, tDA], (10,11): [sGC, tDA], (11,11): [sGC, tDA], (12,11): [sGC, tDA], (13,11): [sGC, tDA],         (16,11): [sPC, tA], (17,11): [sGC, tA], (18,11): [sGC, tA], (19,11): [sGC, tA], (20,11): [sGC, tA],  
-(2,12): [sPC, t0], (3,12): [sPC, t0],                                                                                                (10,12): [sPC, tDA], (11,12): [sPC, tDA], (12,12): [sPC, tDA],                    (16,12): [sPC, tA], (17,12): [sPC, tA], (18,12): [sGC, tA], (19,12): [sGC, tA], (20,12): [sGC, tA],  
-                   (3,13): [sPC, t0],                                                                                                                                                                                                                                             (19,13): [sGC, tA], 
-                   (3,14): [sPC, t0],(4,14): [sPC, t0],
-                                   (4,15): [sPC, tO], (5,15): [sPC, tO],                                                                                                                                                                                                                                 (20,15): [sPC, t0], (21,15): [sGC, t0], 
-                                                                                                                                                                                                                                                                                     (19,16): [sGC, t0], (20,16): [sGC, t0], (21,16): [sGC, t0], 
+(2,12): [sPC, tPI], (3,12): [sPC, tPI],                                                                                                (10,12): [sPC, tDA], (11,12): [sPC, tDA], (12,12): [sPC, tDA],                    (16,12): [sPC, tA], (17,12): [sPC, tA], (18,12): [sGC, tA], (19,12): [sGC, tA], (20,12): [sGC, tA],  
+                   (3,13): [sPC, tPP],                                                                                                                                                                                                                                             (19,13): [sGC, tA], 
+                   (3,14): [sPC, tPP],(4,14): [sPC, tPP],
+                                   (4,15): [sPC, tO], (5,15): [sPC, tO],                                                                                                                                                                                                                                 (20,15): [sPC, tF], (21,15): [sGC, tF], 
+                                                                                                                                                                                                                                                                                     (19,16): [sGC, tF], (20,16): [sGC, tF], (21,16): [sGC, tF], 
     (3,18): [sPC, tP], 
-    (3,19): [sGC, tP],                                                                                   (10,19): [sGC, t0], 
+    (3,19): [sGC, tP],                                                                                    
                         (4,20): [sPC, tSAU], (5,20): [sGC, tSAU],                                 (9,20): [sGC, t0],       (12,20): [sPC, tD], (13,20): [sPC, tD],    (16,20): [sPC, tD], (17,20): [sPC, tD],
     (3,21): [sGC, tSAU], (4,21): [sGC, tSAU], (5,21): [sGC, tSAU], (6,21): [sGC, tSAU],                                                                                                 (17,21): [sPC, tD], (18,21): [sGC, tD], (19,21): [sGC, tD],
 
