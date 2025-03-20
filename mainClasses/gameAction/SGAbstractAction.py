@@ -46,6 +46,7 @@ class SGAbstractAction():
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aTargetEntity,resAction]) # Previously Three choices aTargetEntity,aParameterHolder,resAction
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
+            else : resFeedback = None
             self.incNbUsed()
             self.savePerformedActionInHistory(aTargetEntity, resAction, resFeedback)
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)

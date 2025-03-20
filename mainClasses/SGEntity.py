@@ -252,25 +252,25 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
 
     #To handle the attributs and values
     # Should check how to manage this method with the one of the superclass AttributeAndValueFunctinalities
-    def setValue(self,aAttribut,valueToSet):
-        """
-        Sets the value of an attribut
-        Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
-        """
-        if callable(valueToSet):
-            aValue = valueToSet()
-        else:
-            aValue = valueToSet
-        # if self.model.roundNumber()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
-        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.dictAttributes[aAttribut]=aValue
-        self.saveValueInHistory(aAttribut,aValue)
-        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
-        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.update()
-        return True
+    # def setValue(self,aAttribut,valueToSet):
+    #     """
+    #     Sets the value of an attribut
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be set
+    #     """
+    #     if callable(valueToSet):
+    #         aValue = valueToSet()
+    #     else:
+    #         aValue = valueToSet
+    #     # if self.model.roundNumber()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
+    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+    #     self.dictAttributes[aAttribut]=aValue
+    #     self.saveValueInHistory(aAttribut,aValue)
+    #     self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
+    #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+    #     self.update()
+    #     return True
 
     #To perform action --> Check if this method is used or not
     def doAction(self, aLambdaFunction):

@@ -24,7 +24,9 @@ class SGCreate(SGAbstractAction):
                 aList = []
                 for aAtt, aValue in self.dictAttributs.items():
                     aColor = self.targetEntDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
-                    aList.append(SGLegendItem(aControlPanel,'symbol','create('+aAtt+'='+str(aValue)+')',self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
+                    
+                    #todo Modifs pour MTZC pour que ce soit plus simple
+                    aList.append(SGLegendItem(aControlPanel,'symbol',str(aValue),self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
                 return aList
 
 

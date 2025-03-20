@@ -26,10 +26,11 @@ class AttributeAndValueFunctionalities():
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.dictAttributes[aAttribut]=aValue
         self.saveValueInHistory(aAttribut,aValue)
-
-        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
+        if hasattr(self, 'classDef'): # This is to prevent the EntDef from executing the following line
+            self.classDef.updateWatchersOnAttribute(aAttribut) # This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.update()
+        if hasattr(self, 'update') and callable(getattr(self, 'update')):  # This is to prevent the EntDef from executing the following line
+            self.update()
         return True
     
     def value(self,att):

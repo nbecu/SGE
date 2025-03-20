@@ -5,7 +5,7 @@ from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
 import numpy as np
-from collections import Counter
+from collections import Counter, defaultdict
 import random
 # Définition de SGEntityDef
 class SGEntityDef(AttributeAndValueFunctionalities):
@@ -23,6 +23,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.povBorderColorAndWidth = {}
         self.shapeColorClassif = {}  # Classif will replace pov
         self.borderColorClassif = {}  # Classif will replace pov
+        
+        #Define variables to handle the history 
+        self.history={}
+        self.history["value"]=defaultdict(list)
         self.watchers = {}
         self.IDincr = 0
         self.entities = []
@@ -343,6 +347,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
     #     return True
 
+    
 
     # To define a value for all entities
     def setEntities(self, aAttribute, aValue, condition=None):
