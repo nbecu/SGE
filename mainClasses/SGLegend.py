@@ -13,7 +13,9 @@ from mainClasses.gameAction.SGCreate import SGCreate
 class SGLegend(SGGameSpace):
     def __init__(self, parent,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
-       
+        # self.heightOfLabels= 25 #added for CarbonPolis
+        self.heightOfLabels= 20 #added for CarbonPolis
+
     def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,addDeleteButton=True,borderColor=Qt.black):
         self.id=legendName
         self.model=model
@@ -112,7 +114,7 @@ class SGLegend(SGGameSpace):
         return max_width + 10
     
     def getSizeYGlobal(self):
-        return 25*(len(self.legendItems)+1)
+        return (self.heightOfLabels)*(len(self.legendItems)+1)
     
     #Funtion to handle the zoom
     def zoomIn(self):

@@ -147,7 +147,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setFont(QFont("Verdana",8))
                 painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
-            self.move(10,self.posY*25)#25
+            self.move(10,self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
             painter.end()
             
     

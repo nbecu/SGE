@@ -1242,7 +1242,7 @@ class SGModel(QMainWindow):
     # -----------------------------------------------------------
     # Game mechanics function
 
-    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[]):
+    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],create_several_at_each_click=False):
         """
         Add a Create GameAction to the game.
 
@@ -1255,7 +1255,7 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback)
+        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback, create_several_at_each_click = create_several_at_each_click)
 
     def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],setControllerContextualMenu=False):
         """
