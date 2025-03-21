@@ -521,6 +521,8 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
         case1.setValue('type','action1')
         case1.setValue('vue normale',"action1")
         case1.setValue('potentiel accueil',ZHs[typeZH]["potentiel accueil actions1"])
+
+
         #supprimer les cases de la première ligne sauf la première
         for aCaseInutile in pZH[typeZH].getEntities_withRow(1)[1:]:
             pZH[typeZH].deleteEntity(aCaseInutile)
@@ -822,6 +824,12 @@ def bonusAmenagemet():
 # dashboardSOLO.addIndicatorOnEntity(casesAction1[0],'potentiel accueil', displayName=False)
 # dashboardSOLO.moveToCoords(1080,145)
 
+#### Autre tentative###
+
+        #ajout d'un dashbord sur le potentiel accueil'
+        # aMonitorOnPotAC = myModel.newDashBoard(backgroundColor=ZHs[typeZH]["couleur"], borderColor='transparent')
+        # aMonitorOnPotAC.addIndicatorOnEntity(case1,'potentiel accueil')
+        # aMonitorOnPotAC.moveToCoords(1070,852)
 #********************************************************************
 
 # first calc of sequestration
