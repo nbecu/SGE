@@ -42,7 +42,7 @@ from logging.config import listen
 import sys
 from pathlib import Path
 from pyrsistent import s
-from win32api import GetSystemMetrics
+from screeninfo import get_monitors
 from paho.mqtt import client as mqtt_client
 import threading
 import queue
