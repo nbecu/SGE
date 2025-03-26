@@ -74,7 +74,15 @@ class SGModel(QMainWindow):
         """
         super().__init__()
         # Definition the size of the window ( temporary here)
-        screensize = GetSystemMetrics(0), GetSystemMetrics(1)
+        primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
+
+        if primary_monitor:
+           width_screen = primary_monitor.width
+           height_screen = primary_monitor.height
+        
+        else: raise ValueError("Screen problem")
+
+        screensize = width_screen, height_screen
         self.setGeometry(
             int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
         # Init of variable of the Model
