@@ -166,6 +166,10 @@ class SGModel(QMainWindow):
 
         self.nameOfPov = "default"
 
+        startGame=QAction(" &"+"Start the game")
+        self.startGame.addAction(startGame)
+        startGame.triggered.connect(self.nextTurn)
+
         testMode=QAction(" &"+"Cursor Position", self,checkable=True)
         self.settingsMenu.addAction(testMode)
         testMode.triggered.connect(lambda: self.showCursorCoords())
@@ -216,9 +220,11 @@ class SGModel(QMainWindow):
     
     # Create the menu of the menu
     def createMenu(self):
-        aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &play", self)
-        aAction.triggered.connect(self.nextTurn)
-        self.menuBar().addAction(aAction)
+        #aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &play", self)
+        #aAction.triggered.connect(self.nextTurn)
+        #self.menuBar().addAction(aAction)
+
+        self.startGame = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &Start")
 
         self.menuBar().addSeparator()
 
