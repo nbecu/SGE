@@ -19,7 +19,7 @@ dataEvents=pd.read_excel("./data/data_events.xlsx")
 #* --------------------------
 def constructPlateau():
     """Permet de construire le plateau de jeu principal de Solutré"""
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("./icon/solutre/fond_solutre.jpg"))
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))
@@ -179,11 +179,11 @@ VillageEst=constructVillageEst()
 #* Classifications et POV
 #* --------------------------
 # Création des classifications couleur pour les plateaux : permet d'attribuer une couleur à chaque zone
-Plateau.newPov("Zones joueurs","zone",{"Roches":QPixmap("./icon/solutre/roches1_cell.png"),"Naturaliste":QPixmap("./icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("./icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
+Plateau.newPov("Zones joueurs","zone",{"Roches":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/roches1_cell.png"),"Naturaliste":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
 Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,6], "out": [Qt.black,1]})
-VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
-VillageSud.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
-VillageEst.newPov("Zones joueurs","zone",{"Elu":QPixmap("./icon/solutre/Elu_cell.png"),"Habitant":QPixmap("./icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("./icon/solutre/Tourisme_cell.png")})
+VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Elu_cell.png"),"Habitant":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Tourisme_cell.png")})
+VillageSud.newPov("Zones joueurs","zone",{"Elu":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Elu_cell.png"),"Habitant":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Tourisme_cell.png")})
+VillageEst.newPov("Zones joueurs","zone",{"Elu":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Elu_cell.png"),"Habitant":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Tourisme_cell.png")})
 
 #* --------------------------
 #* Dashboard des indicateurs
@@ -274,9 +274,9 @@ Habitant=myModel.newPlayer("Habitant",attributesAndValues={"nbCubes":6,"Sous":0}
 #* --------------------------
 # Création des agents : représente les pions du jeu Solutré
 # Ici nous créons les "espèces" d'agents, qui servent de modèle pour la création des pions individuels
-Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vin.png"))
-BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("./icon/solutre/vinBIO.png"))
+Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/touriste.png"))
+Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/vin.png"))
+BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/vinBIO.png"))
 Buisson=myModel.newAgentSpecies("Buisson","circleAgent",defaultSize=40,defaultColor=Qt.darkGreen,locationInEntity="center")
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
