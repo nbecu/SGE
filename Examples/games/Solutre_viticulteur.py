@@ -9,10 +9,10 @@ myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
 #* --------------------------
 #* Lecture des data
 #* --------------------------
-data_inst=pd.read_excel("./data/solutre_hex_inst.xlsx")
-data_act=pd.read_excel("./data/solutre_hex_act.xlsx")
-data_objectifs=pd.read_excel("./data/data_objectifs.xlsx")
-dataEvents=pd.read_excel("./data/data_events.xlsx")
+data_inst=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/data/solutre_hex_inst.xlsx")
+data_act=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//data/solutre_hex_act.xlsx")
+data_objectifs=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/data/data_objectifs.xlsx")
+dataEvents=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/data/data_events.xlsx")
 
 #* --------------------------
 #* Construction des plateaux
