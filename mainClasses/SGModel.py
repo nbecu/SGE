@@ -208,31 +208,31 @@ class SGModel(QMainWindow):
     
     # Create the menu of the menu
     def createMenu(self):
-        aAction = QAction(QIcon("./icon/play.png"), " &play", self)
+        aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &play", self)
         aAction.triggered.connect(self.nextTurn)
         self.menuBar().addAction(aAction)
 
         self.menuBar().addSeparator()
 
-        aAction = QAction(QIcon("./icon/zoomPlus.png"), " &zoomPlus", self)
+        aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/zoomPlus.png"), " &zoomPlus", self)
         aAction.triggered.connect(self.zoomPlusModel)
         self.menuBar().addAction(aAction)
 
-        aAction = QAction(QIcon("./icon/zoomLess.png"), " &zoomLess", self)
+        aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/zoomLess.png"), " &zoomLess", self)
         aAction .triggered.connect(self.zoomLessModel)
         self.menuBar().addAction(aAction)
 
-        aAction  = QAction(QIcon("./icon/zoomToFit.png"), " &zoomToFit", self)
+        aAction  = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/zoomToFit.png"), " &zoomToFit", self)
         aAction .triggered.connect(self.zoomFitModel)
         self.menuBar().addAction(aAction)
 
         self.menuBar().addSeparator()
 
-        self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
+        self.symbologyMenu = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/symbology.png"), "&Symbology")
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
-        self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
+        self.settingsMenu = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/settings.png"), " &Settings")
 
         self.createGraphMenu()
 
@@ -240,44 +240,44 @@ class SGModel(QMainWindow):
     # Create all the action related to the menu
 
     def createGraphMenu(self):
-        self.chooseGraph = self.menuBar().addMenu(QIcon("./icon/icon_dashboards.png"), "&openChooseGraph")
+        self.chooseGraph = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_dashboards.png"), "&openChooseGraph")
         # Submenu linear
-        actionLinearDiagram = QAction(QIcon('./icon/icon_linear.png'), 'Diagramme Linéaire', self)
+        actionLinearDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_linear.png'), 'Diagramme Linéaire', self)
         actionLinearDiagram.triggered.connect(self.openLinearGraph)
         self.chooseGraph.addAction(actionLinearDiagram)
 
-        actionHistogramDiagram = QAction(QIcon('./icon/icon_histogram.png'), 'Histogramme', self)
+        actionHistogramDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_histogram.png'), 'Histogramme', self)
         actionHistogramDiagram.triggered.connect(self.openHistoGraph)
         self.chooseGraph.addAction(actionHistogramDiagram)
 
-        actionCircularDiagram = QAction(QIcon('./icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
+        actionCircularDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
         actionCircularDiagram.triggered.connect(self.openCircularGraph)
         self.chooseGraph.addAction(actionCircularDiagram)
 
-        actionStackPlotDiagram = QAction(QIcon('./icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
+        actionStackPlotDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
         actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
 
-        actionOtherDiagram = QAction(QIcon('./icon/graph.png'), 'Autres Représentations', self)
+        actionOtherDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/graph.png'), 'Autres Représentations', self)
         actionOtherDiagram.triggered.connect(self.openOtherGraph)
         self.chooseGraph.addAction(actionOtherDiagram)
 
 
     def createAction(self):
-        self.save = QAction(QIcon("./icon/save.png"), " &save", self)
+        self.save = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
 
         self.backward = QAction(
-            QIcon("./icon/backwardArrow.png"), " &backward", self)
+            QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/backwardArrow.png"), " &backward", self)
         self.backward.triggered.connect(self.backwardAction)
 
         self.forward = QAction(
-            QIcon("./icon/forwardArrow.png"), " &forward", self)
+            QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/forwardArrow.png"), " &forward", self)
         self.forward.triggered.connect(self.forwardAction)
 
         self.inspect = QAction(
-            QIcon("./icon/inspect.png"), " &inspectAll", self)
+            QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/inspect.png"), " &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)
 
     # Zoom
