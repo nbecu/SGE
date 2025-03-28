@@ -1,4 +1,5 @@
 import json
+import numbers
 #A class to be inherited, that handlse the attributs and values
 
 class AttributeAndValueFunctionalities():
@@ -60,7 +61,7 @@ class AttributeAndValueFunctionalities():
             aValue = valueToSet()
         else:
             aValue = valueToSet
-        if isinstance(self.value(aAttribut), int) and isinstance(aValue, int):
+        if isinstance(self.value(aAttribut), numbers.Number) and isinstance(aValue, numbers.Number):
             self.setValue(aAttribut,
                           (self.value(aAttribut) + aValue if max is None else min(self.value(aAttribut) + aValue, max)))
         #self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
@@ -77,7 +78,7 @@ class AttributeAndValueFunctionalities():
             aValue (str): Value to be subtracted to the current value of the attribute
         """
 
-        if isinstance(self.value(aAttribut), int) and isinstance(aValue, int):
+        if isinstance(self.value(aAttribut), numbers.Number) and isinstance(aValue, numbers.Number):
             self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
 
     def calcValue(self,aAttribut,aLambdaFunction):

@@ -131,6 +131,19 @@ class SGAspect():
     
     def getBackgroundColorValue(self):
         return QColor(self.background_color)
+    
+    def getBackgroundColorValue_whenDisactivated(self):
+        return QColor(QColor(100, 100, 100)) #Gray color
+    
+    def getBrushPattern_whenDisactivated(self):
+        return Qt.DiagCrossPattern
+                # Qt.NoBrush  # Pas de remplissage
+                # Qt.Dense1Pattern  # Motif dense
+                # Qt.Dense3Pattern  # Motif moins dense
+                # Qt.HorPattern    # Lignes horizontales
+                # Qt.VerPattern    # Lignes verticales
+                # Qt.CrossPattern  # Motif en croix
+                # Qt.DiagCrossPattern # Motif en croix diagonale
 
     # Méthodes pour créer les spécifications de style
     def getTextStyle(self):

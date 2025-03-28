@@ -2,11 +2,12 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
+from PyQt5.QtWidgets import QInputDialog
 import random
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,1020, name="MTZC", typeOfLayout ="grid", x=5,y=5)
+myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=6,y=6)
     
 #********************************************************************
 
@@ -33,7 +34,7 @@ coutBonusAmenage = {
 }[nbJoueurs]
 
 #OLD(initial)  ordreZHs = ['marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'vasiere nue',  'herbier', 'champs agricoles', 'plage', 'port industriel', 'pres sales', 'marais doux agricole', 'port plaisance', 'foret', 'marais salant',]
-ordreZHs = ['champs agricoles','marais doux agricole', 'marais doux', 'marais saumatre', 'marais saumatre protege', 'marais salee', 'oestricole', 'marais salant', 'pres sales', 'vasiere nue', 'herbier', "demi-herbier", 'plage', 'port plaisance', 'port industriel', 'foret', "mer", "vide"]
+ordreZHs = ['champs agricoles','marais doux agricole', 'marais doux', 'marais saumatre', 'marais saumatre d''Huyez', 'marais salee', 'oestricole', 'marais salant', 'pres sales', 'vasiere nue', 'herbier', "demi-herbier", 'plage', 'port plaisance', 'port industriel', 'foret', 'vasiere nue Diop', "mer", "vide"]
 
 # # Définition des zones avec leurs caractéristiques
 ZHs = {
@@ -127,7 +128,7 @@ ZHs = {
         ],
         "seuil variation actions2":8 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
     },
-    'marais saumatre protege': {##
+    'marais saumatre d''Huyez': {##
         "sequestration": 1.51,
         "couleur": QColor(67, 16, 103, 150), # QColor(128, 0, 128, 150),#QColor(147, 112, 219, 150),
         "potentiel accueil actions1": {5: 5, 6: 6, 7: 7, 8: 8}[nbJoueurs],
@@ -425,6 +426,24 @@ couleur_marais_doux = ZHs[tD]["couleur"]
 sPC = 2
 sGC = 4
 
+def updateSurfaceZH(typeZH):
+    """
+    Met à jour la surface actuelle d'un type de ZH.
+    
+    Args:
+        typeZH (str): Le type de zone humide à mettre à jour
+    """
+    pZH[typeZH].setValue("surface actuelle",cases.metricOnEntitiesWithValue('typeZH', typeZH, 'sumAtt', 'surface'))
+    if typeZH in ['herbier','vasiere nue']:
+        surface_demi_herbier = cases.metricOnEntitiesWithValue('typeZH','demi-herbier','sumAtt', 'surface')
+        pZH[typeZH].incValue("surface actuelle",(surface_demi_herbier / 2))      
+
+def updateSurfaceAllZH():
+    for typeZH in ZHs.keys():
+            if typeZH in ['demi-herbier', 'mer', 'vide','vasiere nue Diop','pres sales Diop','demi-herbier Diop']: continue
+            updateSurfaceZH(typeZH)
+
+
 # construction du plateau
 cases=myModel.newCellsOnGrid(21,21,"square",size=40,gap=0,backGroundImage=QPixmap("./icon/MTZC/plateau-jeu.jpg"))
 # Liste des coordonnées spécifiques à préserver avec leur valeur de surface
@@ -474,7 +493,7 @@ surfaceCorrespondantAuPotentielAcceilInitial ={
     'marais salee' : 2,
     'marais salant' : 2,
     # 'port plaisance' : 4 ,
-    'marais saumatre protege' : 8 ,
+    'marais saumatre d''Huyez' : 8 ,
     # 'foret' : 80,
     'herbier' : 2,
     'vasiere nue' : 16
@@ -508,6 +527,7 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
     pZH[typeZH].setEntities('effet economie',0)
     pZH[typeZH].setValue('surface initiale',cases.metricOnEntitiesWithValue('typeZH',typeZH,'sumAtt', 'surface'))
     pZH[typeZH].setValue('surfaceDuSeuilPrécédent',pZH[typeZH].value('surface initiale'))
+    # updateSurfaceZH(typeZH)
     pZH[typeZH].setValue("surface actuelle",cases.metricOnEntitiesWithValue('typeZH',typeZH,'sumAtt', 'surface'))      
 
 
@@ -588,6 +608,17 @@ for i, aZHtype in enumerate(ordreZHs):
         # posY += 150  # Incrémentation de posY
         # posY += maxHeightPlateauxPrecedents
         # maxHeightPlateauxPrecedents =0
+    
+    #TEST AJOUT VALUER DS LES PLATEAUX
+    if aPZH.getEntity(1,1).value('type') == 'action1':
+        print('ici')
+        aMonitorOnPotAC = myModel.newDashBoard(title='Hello',backgroundColor=ZHs[aZHtype]["couleur"]) #, borderColor='transparent'
+        aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
+        aMonitorOnPotAC.addSeparator()                               
+        aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
+        aMonitorOnPotAC.addSeparator()                               
+        aMonitorOnPotAC.moveToCoords((posX+5,listPosY[num_col]+10))
+
 
 #********************************************************************
 # variables de simulation
@@ -659,6 +690,7 @@ def updateActions2():
     ptDE.setValue(totDE)
 
 def updateActions3():
+    updateSurfaceAllZH()
     totSequest = 0
     for aCase in cases.getEntities():
         valeur = ZHs[aCase.getValue('typeZH')]["sequestration"]  # 0 si la clé n'est pas trouvée
@@ -673,17 +705,11 @@ def calcSequestrationTot():
 def calcCumulDE():
     cumulDE.incValue(ptDE.value)
 
-
-
 def initDebutTour():
     pionAction1.deleteAllEntities()
     pionAction2.deleteAllEntities()
     #Calcul des surfaces actuelles
-    surface_demi_herbier = cases.metricOnEntitiesWithValue('typeZH','demi-herbier','sumAtt', 'surface')
-    for typeZH in ZHs.keys():
-        if typeZH in ['demi-herbier', 'mer', 'vide','vasiere nue Diop','pres sales Diop','demi-herbier Diop']: continue
-        pZH[typeZH].setValue("surface actuelle",cases.metricOnEntitiesWithValue('typeZH',typeZH,'sumAtt', 'surface'))      
-        if typeZH in ['herbier','vasiere nue'] : pZH[typeZH].incValue("surface actuelle",(surface_demi_herbier / 2))        
+    updateSurfaceAllZH()
     #maj des cases Actions1 et des potentiels d'accueil
     for aCase in casesAction1:
             aCase.setValue('surfrequentation',0) #0 si la potentiel d'accueil n'est pas dépassé  / 1 si la potentiel d'accueil est dépassé
@@ -698,8 +724,12 @@ def initDebutTour():
                 surfaceInitialeDeReference = surfaceInitiales[aTypeZH]
 
             surfaceActuelle = aCase.entDef().value('surface actuelle')
-            aCase.setValue('potentiel accueil',
-                       round(aCase.getInitialValue('potentiel accueil') * surfaceActuelle / surfaceInitialeDeReference) )
+            # Si la surface est 0, le potentiel d'accueil est 0
+            if surfaceActuelle == 0:
+                aCase.setValue('potentiel accueil', 0)
+            else:
+                aCase.setValue('potentiel accueil',
+                           round(aCase.getInitialValue('potentiel accueil') * surfaceActuelle / surfaceInitialeDeReference))
 
     # maj des actions2
     for typeZH, zhData in ZHs.items():
@@ -737,6 +767,17 @@ def initDebutTour():
         # if typeZH in['marais doux', 'marais doux agricole']:
         #     print(f"APRES Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent')}")
 
+        # maj des plateaux inactifs
+        if pZH[typeZH].value('surface actuelle') == 0:
+            pZH[typeZH].grid.isActive = False
+            # pZH[typeZH].grid.gs_aspect.border_color='red'  # Rouge pour indiquer inactif
+            # pZH[typeZH].grid.setOpacity(0.5)
+            # pZH[typeZH].grid.gs_aspect.border_color = Qt.red
+            # pZH[typeZH].grid.gs_aspect.border_style = Qt.DashLine
+        else:
+            pZH[typeZH].grid.isActive = True
+            # pZH[typeZH].grid.gs_aspect.border_color='green'  # Vert pour indiquer actif
+        # pZH[typeZH].grid.gs_aspect.border_size=2  # Taille de bordure uniforme
         
     ptCB.setValue(0)
     ptDE.setValue(0)
@@ -782,10 +823,17 @@ DashBoardInd.moveToCoords(1510,725)
 DashBoardSurfaces = myModel.newDashBoard("Surfaces")
 # dict pour sauvegarder les surfaces initiales
 surfaceInitiales = {}
+
+for typeZH in ZHs.keys():
+        if typeZH in ['demi-herbier', 'mer', 'vide','vasiere nue Diop','pres sales Diop','demi-herbier Diop']: continue
+        aMetricIndicator = DashBoardSurfaces.addIndicatorOnEntity(pZH[typeZH],'surface actuelle',title=typeZH)
+
+
 for aZHtype in ordreZHs:
-    aMetricIndicator = DashBoardSurfaces.addIndicator_Sum(cases, "surface", aZHtype, 
-        conditionsOnEntities=[(lambda case, typeZH=aZHtype: case.value("typeZH") == typeZH)])
-    surfaceInitiales[aZHtype] = aMetricIndicator.result
+#     aMetricIndicator = DashBoardSurfaces.addIndicatorOnEntity(cases,'surface actuelle',title=aZHtype)
+#     # aMetricIndicator = DashBoardSurfaces.addIndicator_Sum(cases, "surface", aZHtype, 
+#     #     conditionsOnEntities=[(lambda case, typeZH=aZHtype: case.value("typeZH") == typeZH)])
+    surfaceInitiales[aZHtype] = aMetricIndicator.result ## TODO A ENLEVER ????
 DashBoardSurfaces.moveToCoords(1510,30)
 
 #********************************************************************
@@ -797,7 +845,7 @@ for aCaseAction in casesAction1:
 
     if surfaceInitiales[aTypeZH] == 0 and aTypeZH not in ['port plaisance','foret','herbier']:
          aInd.setResult(0)
-DashBoardPotAccueil.moveToCoords(1510,430)
+DashBoardPotAccueil.moveToCoords(1510,400)
 
 
 #********************************************************************
@@ -805,17 +853,31 @@ DashBoardPotAccueil.moveToCoords(1510,430)
 nbBonusAmenage = myModel.newSimVariable(' Bonus déjà utilisés   ',0)
 dashBonus = myModel.newDashBoard(backgroundColor='#afe3d7', borderColor='transparent')
 dashBonus.addIndicatorOnSimVariable(nbBonusAmenage)
-dashBonus.moveToCoords(870,852)
+dashBonus.moveToCoords(1070,852)
 myModel.newButton(
     (lambda: bonusAmenagemet()),
     f"Bonus 10ha \nd'aménagement ({coutBonusAmenage} DE)",
-    (870,800),
+    (1070,800),
     padding=10,
     background_color='#afe3d7'
 )
 def bonusAmenagemet():
     cumulDE.decValue(coutBonusAmenage)
     nbBonusAmenage.incValue()
+
+def ajoutDE():
+    number, ok = QInputDialog.getInt(None, 'Points DE',f"Nb de pts DE à ajouter (à retrancher si nombre négatif)", 0)
+    if ok:
+        cumulDE.incValue(number)
+        
+
+myModel.newButton(
+    (lambda: ajoutDE()),
+    f"Ajouter/Retrancher des points DE)",
+    (1070,882),
+    padding=8,
+    background_color='#afe3d7'
+)
 
 #********************************************************************
 # Dashboard SOLO - TEST -->  IL FAUDRAIT AFFFICHER PLUTOT LE NOMBRE D'AGENTS (et pas le potentiel d'accueil), 
@@ -832,7 +894,8 @@ def bonusAmenagemet():
         # aMonitorOnPotAC.moveToCoords(1070,852)
 #********************************************************************
 
-# first calc of sequestration
+# first calc
+# updateSurfaceAllZH()
 updateActions3()
 calcSequestrationTot()
 

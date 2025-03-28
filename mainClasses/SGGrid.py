@@ -42,7 +42,11 @@ class SGGrid(SGGameSpace):
             rect = QRect(0, 0, self.width(), self.height())
             painter.drawPixmap(rect, self.backgroundImage)
         else:
-            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            # painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            if self.isActive:
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            else:
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue_whenDisactivated(), self.gs_aspect.getBrushPattern_whenDisactivated()))
         painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
         # Base of the gameBoard
         if (self.cellShape == "square"):

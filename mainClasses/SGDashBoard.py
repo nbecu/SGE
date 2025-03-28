@@ -328,8 +328,9 @@ class SGDashBoard(SGGameSpace):
     
 
     def getSizeXGlobal(self):
-        return self.sizeXGlobal
+        return getattr(self, 'sizeXGlobal', 10)
     
     def getSizeYGlobal(self):
-        return self.sizeYGlobal
+        return getattr(self, 'sizeYGlobal', 10)
+
     

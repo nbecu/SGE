@@ -15,6 +15,7 @@ class SGGameSpace(QtWidgets.QWidget):
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.isDraggable = isDraggable
+        self.isActive = True
         self.forceDisplay = forceDisplay
         self.rightMargin = 9
         self.verticalGapBetweenLabels = 5
@@ -152,7 +153,7 @@ class SGGameSpace(QtWidgets.QWidget):
         else:
             raise ValueError('The x value is too high or negative')
     
-    #Funtion to set the color of the background of the gameSpace 
+    #Function to set the color of the background of the gameSpace 
     def setColor(self,aColor):
         self.gs_aspect.background_color=aColor
         
