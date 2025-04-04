@@ -27,7 +27,22 @@ class SGGameSpace(QtWidgets.QWidget):
         self.text1_aspect = SGAspect.text1()
         self.text2_aspect = SGAspect.text2()
         self.text3_aspect = SGAspect.text3()
+        # Assign the unique ID to the instance
+        self.id = self.__class__.nextId()
         
+
+    @classmethod
+    def nextId(cls):
+        """
+        Generates the next unique identifier for this type of GameSpace.
+        
+        Returns:
+            str: A unique identifier in the form 'TypeGameSpace#N'
+        """
+        if not hasattr(cls, '_nextId'):
+            cls._nextId = 0
+        cls._nextId += 1
+        return f"{cls.__name__}#{cls._nextId}"
                
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
@@ -171,3 +186,5 @@ class SGGameSpace(QtWidgets.QWidget):
     def setTextsColor(self, textColor):
         for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.color = textColor 
+
+    

@@ -1014,7 +1014,7 @@ class SGModel(QMainWindow):
         """
         aDashBoard = SGDashBoard(
             self, title, borderColor, borderSize, backgroundColor, textColor, layout)
-        self.gameSpaces[title] = aDashBoard
+        self.gameSpaces[aDashBoard.id] = aDashBoard
         # Realocation of the position thanks to the layout
         aDashBoard.globalPosition()
         self.applyAutomaticLayout()

@@ -3,11 +3,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtCore import QPoint
 import random
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=6,y=6)
+myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=7,y=7)
     
 #********************************************************************
 
@@ -591,6 +592,8 @@ nbColumns_plateauxZH = 3
 maxPosX = 1300 # A faire varier en fonctio du nb de colonnes
 listPosY = [30,30,30]
 # maxHeightPlateauxPrecedents = 0
+
+
 num_col = 0
 for i, aZHtype in enumerate(ordreZHs):
     if aZHtype in ["vide", "mer", "demi-herbier"]: continue
@@ -611,13 +614,26 @@ for i, aZHtype in enumerate(ordreZHs):
     
     #TEST AJOUT VALUER DS LES PLATEAUX
     if aPZH.getEntity(1,1).value('type') == 'action1':
-        print('ici')
-        aMonitorOnPotAC = myModel.newDashBoard(title='Hello',backgroundColor=ZHs[aZHtype]["couleur"]) #, borderColor='transparent'
-        aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
-        aMonitorOnPotAC.addSeparator()                               
-        aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
-        aMonitorOnPotAC.addSeparator()                               
-        aMonitorOnPotAC.moveToCoords((posX+5,listPosY[num_col]+10))
+        # aMonitorOnPotAC = myModel.newDashBoard(backgroundColor=ZHs[aZHtype]["couleur"]) #, borderColor='transparent'
+        aMonitorOnPotAC = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent) #, borderColor='transparent'
+        aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil', displayName=False)
+        aMonitorOnPotAC.moveToCoords(aPZH.grid.mapToGlobal(QPoint(0, 0)).x()-835,aPZH.grid.mapToGlobal(QPoint(0, 0)).y()-205)
+
+
+# dashboardSOLO = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent)
+# dashboardSOLO.addIndicatorOnEntity(casesAction1[0],'potentiel accueil', displayName=False)
+# dashboardSOLO.moveToCoords(1080,145)
+
+        # aMonitorOnPotAC.addSeparator()                               
+        # aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
+        # aMonitorOnPotAC.addSeparator()
+        #         aMonitorOnPotAC.moveToCoords((posX+5,listPosY[num_col]+10))                            
+        # aMonitorOnPotAC.moveToCoords((aPZH.grid.size + 10, aPZH.grid.size))
+        # aMonitorOnPotAC.moveToCoords(posX+30,listPosY[num_col]+10)
+        # aMonitorOnPotAC.moveToCoords(aPZH.getEntity(1,1).startXBase+30,aPZH.getEntity(1,1).startYBase+10)
+        # aMonitorOnPotAC.moveToCoords(aPZH.getEntity(1,1).mapToGlobal(QPoint(0, 0)).x()+30,aPZH.getEntity(1,1).mapToGlobal(QPoint(0, 0)).y()+10)
+
+        
 
 
 #********************************************************************
@@ -838,14 +854,14 @@ DashBoardSurfaces.moveToCoords(1510,30)
 
 #********************************************************************
 # Dashboard des potentiel d'accueil des ZH
-DashBoardPotAccueil = myModel.newDashBoard("Potentiel accueil")
-for aCaseAction in casesAction1:
-    aTypeZH = aCaseAction.entDef().entityName
-    aInd = DashBoardPotAccueil.addIndicatorOnEntity(aCaseAction,'potentiel accueil',title=aCaseAction.entDef().entityName)
+# DashBoardPotAccueil = myModel.newDashBoard("Potentiel accueil")
+# for aCaseAction in casesAction1:
+#     aTypeZH = aCaseAction.entDef().entityName
+#     aInd = DashBoardPotAccueil.addIndicatorOnEntity(aCaseAction,'potentiel accueil',title=aCaseAction.entDef().entityName)
 
-    if surfaceInitiales[aTypeZH] == 0 and aTypeZH not in ['port plaisance','foret','herbier']:
-         aInd.setResult(0)
-DashBoardPotAccueil.moveToCoords(1510,400)
+#     if surfaceInitiales[aTypeZH] == 0 and aTypeZH not in ['port plaisance','foret','herbier']:
+#          aInd.setResult(0)
+# DashBoardPotAccueil.moveToCoords(1510,400)
 
 
 #********************************************************************
@@ -880,6 +896,29 @@ myModel.newButton(
 )
 
 #********************************************************************
+ #TEST AJOUT VALUER DS LES PLATEAUX
+ 
+# for i, aZHtype in enumerate(ordreZHs):
+#     if aPZH.getEntity(1,1).value('type') == 'action1':
+#         print('ici')
+#         # aMonitorOnPotAC = myModel.newDashBoard(backgroundColor=ZHs[aZHtype]["couleur"]) #, borderColor='transparent'
+#         aMonitorOnPotAC = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent) #, borderColor='transparent'
+#         aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil', displayName=False)
+
+# # dashboardSOLO = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent)
+# # dashboardSOLO.addIndicatorOnEntity(casesAction1[0],'potentiel accueil', displayName=False)
+# # dashboardSOLO.moveToCoords(1080,145)
+
+
+
+#         # aMonitorOnPotAC.addSeparator()                               
+#         # aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
+#         # aMonitorOnPotAC.addSeparator()
+#         #         aMonitorOnPotAC.moveToCoords((posX+5,listPosY[num_col]+10))                            
+#         # aMonitorOnPotAC.moveToCoords((aPZH.grid.size + 10, aPZH.grid.size))
+#         # aMonitorOnPotAC.moveToCoords(posX+30,listPosY[num_col]+10)
+#         aMonitorOnPotAC.moveToCoords(aPZH.getEntity(1,1).mapToGlobal(QPoint(0, 0)).x()+30,aPZH.getEntity(1,1).mapToGlobal(QPoint(0, 0)).y()+10)
+
 # Dashboard SOLO - TEST -->  IL FAUDRAIT AFFFICHER PLUTOT LE NOMBRE D'AGENTS (et pas le potentiel d'accueil), 
 #           Et donc créé un attribut 'nbPions' qui est mis à jour à chaque pose de pion
 # dashboardSOLO = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent)
