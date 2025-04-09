@@ -12,8 +12,6 @@ myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=7,y=7)
     
 #********************************************************************
 
-nbJoueurs = 5 #Entre 5 et 8
-
 # Def des joueurs
 joueurs_potentiels = {
     'J1': Qt.blue,
@@ -25,7 +23,7 @@ joueurs_potentiels = {
     'J7': Qt.magenta,  
     'J8': Qt.gray      
     }
-
+nbJoueurs = 5 #Entre 5 et 8
 # Créer le dictionnaire joueurs_actifs avec les N (N= nbJoueurs) premiers éléments de joueurs_poentiels
 joueurs_actifs = {key: joueurs_potentiels[key] for key in list(joueurs_potentiels.keys())[:nbJoueurs]}
 # Définir le coût du bonus aménagé en fonction du nombre de joueurs
@@ -144,7 +142,8 @@ ZHs = {
     'marais salee': {##
         "sequestration": 1.75,
         "couleur": QColor(100, 200, 180, 150), #QColor(0, 255, 0, 120),
-        "potentiel accueil actions1": {5: 8, 6: 10, 7: 13, 8: 15}[nbJoueurs],   # VALEURS Identiques à Pré salés
+        # "potentiel accueil actions1": 5 if nbJoueurs <= 6 else (6 if nbJoueurs == 7 else 7),   # TODO PROBLEME. Y' a pas de valeurs dans la regle.
+        "potentiel accueil actions1": {5: 2, 6: 2, 7: 3, 8: 3}[nbJoueurs],
         "cases actions2": [
             # {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
             # {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
@@ -185,7 +184,7 @@ ZHs = {
     'marais salant': {##
         "sequestration": 1.2, # moins que maree salée (1.75), mais plus que oestricole (1)
         "couleur": QColor(255, 255, 255, 200),
-        "potentiel accueil actions1": {5: 4, 6: 5, 7: 6, 8: 7}[nbJoueurs], # VALEURS Identiques à Marais Oestréicoles
+        "potentiel accueil actions1": 5 if nbJoueurs <= 6 else (6 if nbJoueurs == 7 else 7), # TODO PROBLEME. Y' a pas de valeurs
         "cases actions2": [
             {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
             {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
@@ -242,8 +241,8 @@ ZHs = {
     "vasiere nue Diop": {##
         "sequestration": 7.9,
         "couleur": QColor(210, 180, 140, 120),
-        # "potentiel accueil actions1": {5: 1, 6: 1, 7: 1, 8: 1}[nbJoueurs],
-        "potentiel accueil actions1": {5: 8, 6: 9, 7: 11, 8: 12}[nbJoueurs],
+        "potentiel accueil actions1": {5: 1, 1: 1, 7: 1, 8: 1}[nbJoueurs],
+        # "potentiel accueil actions1": {5: 8, 6: 9, 7: 11, 8: 12}[nbJoueurs],
         "cases actions2": [
             {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 0},
             {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 0},
@@ -443,14 +442,14 @@ def updateSurfaceZH(typeZH):
     pZH[typeZH].setValue("surface actuelle",cases.metricOnEntitiesWithValue('typeZH', typeZH, 'sumAtt', 'surface'))
     if typeZH in ['herbier','vasiere nue']:
         surface_demi_herbier = cases.metricOnEntitiesWithValue('typeZH','demi-herbier','sumAtt', 'surface')
-        pZH[typeZH].incValue("surface actuelle",int(surface_demi_herbier / 2))      
+        pZH[typeZH].incValue("surface actuelle",(surface_demi_herbier / 2))      
     if typeZH in ['herbier','vasiere nue Diop']:
         surface_demi_herbier_diop = cases.metricOnEntitiesWithValue('typeZH','demi-herbier Diop','sumAtt', 'surface')
-        pZH[typeZH].incValue("surface actuelle",int(surface_demi_herbier_diop / 2))    
+        pZH[typeZH].incValue("surface actuelle",(surface_demi_herbier_diop / 2))    
 
 def updateSurfaceAllZH():
     for typeZH in ZHs.keys():
-            if typeZH in ['demi-herbier', 'mer', 'vide','pres sales Diop','demi-herbier Diop']: continue
+            if typeZH in ['demi-herbier', 'mer', 'vide','vasiere nue Diop','pres sales Diop','demi-herbier Diop']: continue
             updateSurfaceZH(typeZH)
 
 
@@ -537,14 +536,10 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
     pZH[typeZH].setEntities('vue normale',"vide")
     pZH[typeZH].setEntities('effet sequestration',0)
     pZH[typeZH].setEntities('effet economie',0)
-    updateSurfaceZH(typeZH) #permet de calculer la surface actuelle en prenant en compte le cas des demi-herbier et autre cas particuliers
-    if typeZH in surfaceCorrespondantAuPotentielAccueilInitial:  
-        surfaceInitialeDeReferencePourPotentielAccueil = surfaceCorrespondantAuPotentielAccueilInitial[typeZH]
-    else:
-        surfaceInitialeDeReferencePourPotentielAccueil = pZH[typeZH].value('surface actuelle')
-    pZH[typeZH].setValue('surfaceInitialeDeReferencePourPotentielAccueil', surfaceInitialeDeReferencePourPotentielAccueil)
-    pZH[typeZH].setValue('surfaceDuSeuilPrécédent_action2',pZH[typeZH].value('surface actuelle'))
-    
+    pZH[typeZH].setValue('surface initiale',cases.metricOnEntitiesWithValue('typeZH',typeZH,'sumAtt', 'surface'))
+    pZH[typeZH].setValue('surfaceDuSeuilPrécédent',pZH[typeZH].value('surface initiale'))
+    # updateSurfaceZH(typeZH)
+    pZH[typeZH].setValue("surface actuelle",cases.metricOnEntitiesWithValue('typeZH',typeZH,'sumAtt', 'surface'))      
 
 
     if ZHs[typeZH]["potentiel accueil actions1"] is None:
@@ -571,7 +566,7 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
             caseX.setValue(aParam, aValue)
             if aParam == "type_action2":
                 caseX.setValue("vue normale", aValue)
-    # print(f"{typeZH}: {i if 'i' in locals() else 0}, startCasesActions2: {startCasesActions2}")
+    print(f"{typeZH}: {i if 'i' in locals() else 0}, startCasesActions2: {startCasesActions2}")
     
     #Ajout des actions2 en plus
     ZHs[typeZH]['Actions2 en plus']=[]
@@ -632,11 +627,7 @@ for i, aZHtype in enumerate(ordreZHs):
         # aMonitorOnPotAC = myModel.newDashBoard(backgroundColor=ZHs[aZHtype]["couleur"]) #, borderColor='transparent'
         aMonitorOnPotAC = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent) #, borderColor='transparent'
         aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil', displayName=False)
-        aMonitorOnPotAC.rightMargin = aMonitorOnPotAC.rightMargin + 5
-        aMonitorOnPotAC.moveToCoords(
-            aPZH.grid.mapToParent(QPoint(0, 0)).x()+aPZH.grid.size+5,
-            aPZH.grid.mapToParent(QPoint(0, 0)).y()+5
-            )
+        aMonitorOnPotAC.moveToCoords(aPZH.grid.mapToGlobal(QPoint(0, 0)).x()-835,aPZH.grid.mapToGlobal(QPoint(0, 0)).y()-205)
 
 
 # dashboardSOLO = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent)
@@ -753,37 +744,26 @@ def initDebutTour():
             aCase.grid.update()
             # updatePotentielAccueil
             aTypeZH = aCase.entDef().entityName
-            # if aTypeZH in surfaceCorrespondantAuPotentielAccueilInitial:    #  AJOUT A CAUSE DE MARAIS SALEE / HERBIER / MARAIS SALANT, QUI N'ONT PAS DE SURFACE AU DEBUT
-            #     surfaceInitialeDeReference = surfaceCorrespondantAuPotentielAccueilInitial[aTypeZH]
-            #     print('surfaceCorrespondantAuPotentielAcceilInitial') 
-            # else:
-            #     print('surfaceInitiales[aTypeZH]')
-            #     surfaceInitialeDeReference = surfaceInitiales[aTypeZH]
-            surfaceInitialeDeReference = aCase.entDef().value('surfaceInitialeDeReferencePourPotentielAccueil')
+            if aTypeZH in surfaceCorrespondantAuPotentielAccueilInitial:    #  AJOUT A CAUSE DE MARAIS SALEE / HERBIER / MARAIS SALANT, QUI N'ONT PAS DE SURFACE AU DEBUT
+                surfaceInitialeDeReference = surfaceCorrespondantAuPotentielAccueilInitial[aTypeZH]
+                print('surfaceCorrespondantAuPotentielAcceilInitial') 
+            else:
+                print('surfaceInitiales[aTypeZH]')
+                surfaceInitialeDeReference = surfaceInitiales[aTypeZH]
 
-            # updateSurfaceZH(aTypeZH)  # Mise à jour de la surface actuelle avec la fonction dédiée #INUTILE ,c'est fait au dessus
             surfaceActuelle = aCase.entDef().value('surface actuelle')
-
-            if aTypeZH ==  'vasiere nue Diop':
-                surfaceActuelle = (surfaceActuelle
-                                    + (cases.metricOnEntitiesWithValue('typeZH','demi-herbier Diop','sumAtt', 'surface') / 2)
-                                    + cases.metricOnEntitiesWithValue('typeZH','pres sales Diop','sumAtt', 'surface')   ) 
-
             # Si la surface est 0, le potentiel d'accueil est 0
             if surfaceActuelle == 0:
                 aCase.setValue('potentiel accueil', 0)
             else:
-                # print(f"{aTypeZH}: potentielAccueil={aCase.value('potentiel accueil')}")
-                print(f"{aTypeZH}: InitialValue={aCase.getInitialValue('potentiel accueil')}")
-
+                print(f"{aTypeZH}: potentielAccueil={aCase.value('potentiel accueil')}")
                 aCase.setValue('potentiel accueil',
                            round(aCase.getInitialValue('potentiel accueil') * surfaceActuelle / surfaceInitialeDeReference))
-                
                 print(f"{aTypeZH}: surfaceInitialeDeReference={surfaceInitialeDeReference}, surfaceActuelle={surfaceActuelle}, potentielAccueil={aCase.value('potentiel accueil')}")
 
     # maj des actions2
     for typeZH, zhData in ZHs.items():
-        if typeZH in ['demi-herbier', 'mer', 'vide','pres sales Diop','demi-herbier Diop']: continue
+        if typeZH in ['demi-herbier', 'mer', 'vide','vasiere nue Diop','pres sales Diop','demi-herbier Diop']: continue
         surfaceActuelle = pZH[typeZH].value('surface actuelle')
         seuilVariation = zhData.get("seuil variation actions2", float('inf'))
         # surfaceInitiale = pZH[typeZH].value("surface initiale")
@@ -791,12 +771,12 @@ def initDebutTour():
         # print(f"Type ZH: {typeZH}, Surface Actuelle: {surfaceActuelle}, Surface Initiale: {surfaceInitiale}, Seuil Variation: {seuilVariation}, Nombre de Tranches du Seuil: {nombreDeTranchesDeSeuil_ParRapport_a_Initial}")
         # if typeZH in['marais doux', 'marais doux agricole']:
         #     print(f"Type ZH: {typeZH}, Surface Actuelle: {surfaceActuelle}")
-        #     print(f"AVANT Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent_action2')}")
+        #     print(f"AVANT Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent')}")
         
-        while surfaceActuelle >= pZH[typeZH].value("surfaceDuSeuilPrécédent_action2") + seuilVariation:
-            # Si surfaceActuelle >= surfaceDuSeuilPrécédent_action2
+        while surfaceActuelle >= pZH[typeZH].value("surfaceDuSeuilPrécédent") + seuilVariation:
+            # Si surfaceActuelle >= surfaceDuSeuilPrécédent
             # alors on ajoute des actions
-            pZH[typeZH].incValue("surfaceDuSeuilPrécédent_action2", seuilVariation)
+            pZH[typeZH].incValue("surfaceDuSeuilPrécédent", seuilVariation)
             if ZHs[typeZH]['Actions2 en plus'] == []: break # sort de la boucle, si il n'y a plus de case actions2 en plus
             casesEnPlus = ZHs[typeZH]['Actions2 en plus'][0]
             pZH[typeZH].reviveThisCell(casesEnPlus)
@@ -804,9 +784,9 @@ def initDebutTour():
             # casesEnPlus.gs_aspect.border_color='red'
             # casesEnPlus.gs_aspect.border_size=4
                  
-        # Deuxième boucle while pour gérer le cas où surfaceActuelle <= (surfaceDuSeuilPrécédent_action2 + seuilVariation)
-        while (pZH[typeZH].value("surfaceDuSeuilPrécédent_action2") - surfaceActuelle) >= seuilVariation:
-            pZH[typeZH].decValue("surfaceDuSeuilPrécédent_action2", seuilVariation)
+        # Deuxième boucle while pour gérer le cas où surfaceActuelle <= (surfaceDuSeuilPrécédent + seuilVariation)
+        while (pZH[typeZH].value("surfaceDuSeuilPrécédent") - surfaceActuelle) >= seuilVariation:
+            pZH[typeZH].decValue("surfaceDuSeuilPrécédent", seuilVariation)
             casesActions2_actives = pZH[typeZH].getEntities_withValue("type", "action2")
             if casesActions2_actives == []: break # sort de la boucle, si il n'y a plus de case actions2 à enlever
             # Récupérer la dernière case à enlever
@@ -815,13 +795,19 @@ def initDebutTour():
             ZHs[typeZH]['Actions2 en plus'].insert(0, caseX)  # Ajoute caseX au début de la liste
 
         # if typeZH in['marais doux', 'marais doux agricole']:
-        #     print(f"APRES Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent_action2')}")
+        #     print(f"APRES Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent')}")
 
         # maj des plateaux inactifs
         if pZH[typeZH].value('surface actuelle') == 0:
             pZH[typeZH].grid.isActive = False
+            # pZH[typeZH].grid.gs_aspect.border_color='red'  # Rouge pour indiquer inactif
+            # pZH[typeZH].grid.setOpacity(0.5)
+            # pZH[typeZH].grid.gs_aspect.border_color = Qt.red
+            # pZH[typeZH].grid.gs_aspect.border_style = Qt.DashLine
         else:
             pZH[typeZH].grid.isActive = True
+            # pZH[typeZH].grid.gs_aspect.border_color='green'  # Vert pour indiquer actif
+        # pZH[typeZH].grid.gs_aspect.border_size=2  # Taille de bordure uniforme
         
     ptCB.setValue(0)
     ptDE.setValue(0)
@@ -865,14 +851,22 @@ DashBoardInd.moveToCoords(1510,725)
 
 # Dashboard des surfaces des ZH
 DashBoardSurfaces = myModel.newDashBoard("Surfaces")
+# dict pour sauvegarder les surfaces initiales
+surfaceInitiales = {}
 
 for typeZH in ZHs.keys():
-        if typeZH in ['demi-herbier', 'demi-herbier Diop', 'mer', 'vide']: continue
-        if typeZH in ['pres sales Diop']:
+        if typeZH in ['demi-herbier', 'mer', 'vide']: continue
+        if typeZH in ['vasiere nue Diop','pres sales Diop','demi-herbier Diop']:
             aMetricIndicator = DashBoardSurfaces.addIndicator_Sum(cases, "surface", typeZH, conditionsOnEntities=[(lambda case, typeZH=typeZH: case.value("typeZH") == typeZH)])
         else:
             aMetricIndicator = DashBoardSurfaces.addIndicatorOnEntity(pZH[typeZH],'surface actuelle',title=typeZH)
 
+
+for aZHtype in ordreZHs:
+#     aMetricIndicator = DashBoardSurfaces.addIndicatorOnEntity(cases,'surface actuelle',title=aZHtype)
+#     # aMetricIndicator = DashBoardSurfaces.addIndicator_Sum(cases, "surface", aZHtype, 
+#     #     conditionsOnEntities=[(lambda case, typeZH=aZHtype: case.value("typeZH") == typeZH)])
+    surfaceInitiales[aZHtype] = aMetricIndicator.result ## TODO A ENLEVER ????
 DashBoardSurfaces.moveToCoords(1510,30)
 
 #********************************************************************
@@ -959,7 +953,6 @@ myModel.newButton(
 # first calc
 # updateSurfaceAllZH()
 updateActions3()
-# initDebutTour()
 calcSequestrationTot()
 
 #********************************************************************

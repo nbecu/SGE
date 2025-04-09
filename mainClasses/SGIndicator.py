@@ -78,6 +78,7 @@ class SGIndicator():
         self.label.setFixedWidth(self.label.fontMetrics().boundingRect(self.label.text()).width()+5)
         self.label.setFixedHeight(self.label.fontMetrics().boundingRect(self.label.text()).height())
         self.label.adjustSize()
+        # self.label.update()
 
         self.dashboard.model.timeManager.updateEndGame()
 
