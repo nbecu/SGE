@@ -5,6 +5,10 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
+
+
+#TODO Cett exemple ne fonctionne pas. Il n'a jamais été fini. Il faut le supprimer
+
 myModel=SGModel(400,400)
 myModel.displayTimeInWindowTitle()
 
@@ -15,7 +19,7 @@ Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QCo
 
 player_Clara = myModel.newPlayer('Clara',attributesAndValues={'foo':5})
 player_Clara.setValue('Clara score',0)
-
+myModel.setCurrentPlayer('Clara')
 
 aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara score',3)), name='Model phase')
 

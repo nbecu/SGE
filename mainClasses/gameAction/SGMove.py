@@ -23,6 +23,7 @@ class SGMove(SGAbstractAction):
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity])
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
+            else : resFeedback = None
             self.incNbUsed()
             self.savePerformedActionInHistory(aTargetEntity, aMovingEntity, resFeedback)
 

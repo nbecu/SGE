@@ -609,7 +609,16 @@ class SGModel(QMainWindow):
     def getEntityDef(self, entityName):
         if isinstance(entityName,SGEntityDef):
             return entityName
-        return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+        return self.getEntityDefByName(entityName)
+    
+    def getEntityDefByName(self, entityName):
+        entityDef = next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+        
+        if entityDef is None:
+            existing_entities = [entDef.entityName for entDef in self.getEntitiesDef()]
+            raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
+        
+        return entityDef
 
     #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
     def getSGEntity_withIdentfier(self, aIdentificationDict):
@@ -726,6 +735,9 @@ class SGModel(QMainWindow):
         self.users.append(player.name)
         return player
 
+    def getAllPlayers(self):
+        return list(self.players.values())
+        
     def getPlayer(self, playerName):
         if playerName == "Admin":
             return playerName
@@ -1587,5 +1599,14 @@ class SGModel(QMainWindow):
             else: raise ValueError('No other possible choices')
 
         self.actionsFromBrokerToBeExecuted=[]
+
+    def getEntityDefByName(self, entityName):
+        entityDef = next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+        
+        if entityDef is None:
+            existing_entities = [entDef.entityName for entDef in self.getEntitiesDef()]
+            raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
+        
+        return entityDef
 
 
