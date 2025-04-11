@@ -280,7 +280,7 @@ class SGDashBoard(SGGameSpace):
         indicator = self.addIndicator(entity,method,attribute,value,color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
         return indicator
 
-    def addIndicator_Nb(self, entity, attribute, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True):
+    def addIndicator_Nb(self, entity, attribute, value, title, color,displayRefresh="instantaneous",isDisplay=True, displayName=True):
         """
         Add a sum indicator
         Args :
@@ -292,7 +292,7 @@ class SGDashBoard(SGGameSpace):
             isDisplay (bool) : display on the dashboard (default : True)
         """
         method = 'nb'
-        indicator = self.addIndicator(entity,method,attribute,value=None,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
+        indicator = self.addIndicator(entity,method,attribute,value,color=color,logicOp=None,title=title,displayRefresh=displayRefresh,isDisplay=isDisplay,displayName=displayName)
         return indicator
     
     def addSeparator(self):

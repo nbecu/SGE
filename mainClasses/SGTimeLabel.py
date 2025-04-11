@@ -67,9 +67,10 @@ class SGTimeLabel(SGGameSpace):
     def updateTimeLabel(self):
         self.labelRoundNumber.setText('Round Number : {}'.format(
             self.timeManager.currentRoundNumber))
-        self.labelPhaseNumber.setText('Phase Number : {}'.format(
-            self.timeManager.currentPhaseNumber))
-        self.labelPhaseName.setText(self.timeManager.getCurrentPhase().name)
+        if self.displayPhaseNumber:
+            self.labelPhaseNumber.setText('Phase Number : {}'.format(
+                self.timeManager.currentPhaseNumber))
+            self.labelPhaseName.setText(self.timeManager.getCurrentPhase().name)
 
         self.updateLabelsandWidgetSize()
 

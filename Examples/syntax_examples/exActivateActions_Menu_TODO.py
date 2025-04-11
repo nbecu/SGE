@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="ActivateActions Menu")
 
-Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -27,7 +27,7 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 # For SGActivateAction it is possible to specify setControllerContextualMenu=True to set the controller on the entity on right clic
-Player1.addGameAction(myModel.newModifyAction('Cell',{"landUse":"grass"},3))
+Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 UpdateTest=myModel.newModifyAction(Sheeps,{"health":"good"},setControllerContextualMenu=True)
 Player1.addGameAction(UpdateTest)
 UpdateTest2=myModel.newModifyAction(Sheeps,{"health":"bad"},setControllerContextualMenu=True)
