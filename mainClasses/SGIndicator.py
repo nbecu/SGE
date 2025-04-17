@@ -181,7 +181,7 @@ class SGIndicator():
                 return SGIndicator.metricOn(listEntities, 'nb', self.attribute, self.value)
             else:
                 listEntities = self.getListOfEntities()
-                return SGIndicator.metricOn(listEntities, 'nb', self.attribute)
+                return SGIndicator.metricOn(listEntities, 'nb')
 
         elif self.method in ["sumAtt", "avgAtt", "minAtt", "maxAtt", "nbWithLess", "nbWithMore", "nbEqualTo"]:
             listEntities = self.getListOfEntities()
@@ -222,7 +222,7 @@ class SGIndicator():
         print(self.methods)
 
     @classmethod
-    def metricOn(cls, listOfEntities, metric, attribute, value):
+    def metricOn(cls, listOfEntities, metric, attribute=None, value=None):
         """
         Calculate a value based on the specified metric, attribute, and value for a given list of entities.
 

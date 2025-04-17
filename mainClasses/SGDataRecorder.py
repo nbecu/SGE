@@ -68,7 +68,7 @@ class SGDataRecorder():
         return self.stepsData_ofPlayers
     
     def getStepsData_ofGameActions(self):
-        if not [p for p in self.model.players.values() if p.dictAttributes ] : return []
+        # if not [p for p in self.model.players.values() if p.dictAttributes ] : return []
         # if not self.stepsData_ofGameActions:
         #     #in case the records are empty, than the getListOfStepsData() should start from the initial date which is [0,0]
         #     lastRecordedDate=[0,0] 

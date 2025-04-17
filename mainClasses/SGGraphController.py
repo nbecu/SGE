@@ -29,6 +29,8 @@ class SGGraphController(NavigationToolbar):
         self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
         self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
         self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
+        self.dataGameActions = self.model.dataRecorder.getStepsData_ofGameActions()
+
 
         ## Data vizualisation
         self.linestyle_items = {'mean': 'solid', 'max': 'dashed', 'min': 'dashed','stdev': 'dotted', 'sum': 'dashdot' }
@@ -195,6 +197,16 @@ class SGGraphController(NavigationToolbar):
                 for simVar in simVariables_list:
                     self.dictMenuData['simVariables'][f"simVariable-:{simVar}"] = None
                 self.addSubMenus(simuVarsMenu, self.dictMenuData['simVariables'], self.firstEntity, self.firstAttribut)
+
+            #Create menu for Game Actions
+            if self.dataGameActions:
+                gameActionsMenu = QMenu('Game actions', self)
+                self.indicators_menu.addMenu(gameActionsMenu)
+                #create menu items for simVariables
+                gameActions_list = list(set(entry['gameAction'] for entry in self.dataGameActions))
+                for gameAction, in gameActions_list:
+                    self.dictMenuData['gameActions'][f"gameActions-:{gameAction}"] = None
+                self.addSubMenus(gameActionsMenu, self.dictMenuData['gameActions'], self.firstEntity, self.firstAttribut)
 
 
         elif self.type_of_graph in ['hist', 'pie', 'stackplot']:
