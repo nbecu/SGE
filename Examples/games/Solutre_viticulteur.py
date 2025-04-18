@@ -6,20 +6,21 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
+localLink="/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE"
 #* --------------------------
 #* Lecture des data
 #* --------------------------
-data_inst=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/data/solutre_hex_inst.xlsx")
-data_act=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//data/solutre_hex_act.xlsx")
-data_objectifs=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/data/data_objectifs.xlsx")
-dataEvents=pd.read_excel("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/data/data_events.xlsx")
+data_inst=pd.read_excel(localLink+"/data/solutre_hex_inst.xlsx")
+data_act=pd.read_excel(localLink+"/data/solutre_hex_act.xlsx")
+data_objectifs=pd.read_excel(localLink+"/data/data_objectifs.xlsx")
+dataEvents=pd.read_excel(localLink+"/data/data_events.xlsx")
 
 #* --------------------------
 #* Construction des plateaux
 #* --------------------------
 def constructPlateau():
     """Permet de construire le plateau de jeu principal de Solutré"""
-    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/fond_solutre.jpg"))
+    Plateau=myModel.newCellsOnGrid(8,8,"hexagonal",size=80,gap=2,name="Plateau",backGroundImage=QPixmap(localLink+"/icon/solutre/fond_solutre.jpg"))
     Plateau.deleteEntity(Plateau.getEntity(1,1))
     Plateau.deleteEntity(Plateau.getEntity(2,1))
     Plateau.deleteEntity(Plateau.getEntity(3,1))
@@ -179,11 +180,11 @@ VillageEst=constructVillageEst()
 #* Classifications et POV
 #* --------------------------
 # Création des classifications couleur pour les plateaux : permet d'attribuer une couleur à chaque zone
-Plateau.newPov("Zones joueurs","zone",{"Roches":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/roches1_cell.png"),"Naturaliste":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
+Plateau.newPov("Zones joueurs","zone",{"Roches":QPixmap(localLink+"/icon/solutre/roches1_cell.png"),"Naturaliste":QPixmap(localLink+"/icon/solutre/Naturaliste_cell.png"),"Viticulteur":QPixmap(localLink+"/icon/solutre/Viticulteur_cell.png"),"Village Nord":QColor.fromRgb(135,206,235),"Village Sud":QColor.fromRgb(176,224,230),"Village Est":QColor.fromRgb(0,191,255)})
 Plateau.newBorderPovColorAndWidth("Coeur de site","coeurDeSite", {"in": [Qt.red,6], "out": [Qt.black,1]})
-VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Elu_cell.png"),"Habitant":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Tourisme_cell.png")})
-VillageSud.newPov("Zones joueurs","zone",{"Elu":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Elu_cell.png"),"Habitant":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Tourisme_cell.png")})
-VillageEst.newPov("Zones joueurs","zone",{"Elu":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Elu_cell.png"),"Habitant":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/Tourisme_cell.png")})
+VillageNord.newPov("Zones joueurs","zone",{"Elu":QPixmap(localLink+"/icon/solutre/Elu_cell.png"),"Habitant":QPixmap(localLink+"/icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap(localLink+"/icon/solutre/Tourisme_cell.png")})
+VillageSud.newPov("Zones joueurs","zone",{"Elu":QPixmap(localLink+"/icon/solutre/Elu_cell.png"),"Habitant":QPixmap(localLink+"/icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap(localLink+"/icon/solutre/Tourisme_cell.png")})
+VillageEst.newPov("Zones joueurs","zone",{"Elu":QPixmap(localLink+"/icon/solutre/Elu_cell.png"),"Habitant":QPixmap(localLink+"/icon/solutre/Habitant_cell.png"),"Tourisme":QPixmap(localLink+"/icon/solutre/Tourisme_cell.png")})
 
 #* --------------------------
 #* Dashboard des indicateurs
@@ -274,9 +275,9 @@ Habitant=myModel.newPlayer("Habitant",attributesAndValues={"nbCubes":6,"Sous":0}
 #* --------------------------
 # Création des agents : représente les pions du jeu Solutré
 # Ici nous créons les "espèces" d'agents, qui servent de modèle pour la création des pions individuels
-Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/vin.png"))
-BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE//icon/solutre/vinBIO.png"))
+Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/touriste.png"))
+Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/vin.png"))
+BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/vinBIO.png"))
 Buisson=myModel.newAgentSpecies("Buisson","circleAgent",defaultSize=40,defaultColor=Qt.darkGreen,locationInEntity="center")
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
@@ -321,7 +322,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     feedbackAdjacenceAttractivité=ligneHexInst["feedbackAdjacenceAttractivité"].values[0] if not math.isnan(ligneHexInst["nbAdjacence"].values[0]) else 0
 
 
-    image=ligneHexInst["image recto"].values[0] if isinstance(ligneHexInst["image recto"].values[0], str) else None
+    image = localLink + ligneHexInst["image recto"].values[0].lstrip(".") if isinstance(ligneHexInst["image recto"].values[0], str) else None
     
     # Création des effets activables
     ligneHexAct = dataAct[dataAct['nom'] == nom]
@@ -349,7 +350,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
         if variable is not None:
             effetActivableJauge[variable] = int(ligneHexAct[col].values[0]) if not math.isnan(ligneHexAct[col].values[0]) else 0
     
-    image_ACT=ligneHexAct["image verso"].values[0] if isinstance(ligneHexAct["image verso"].values[0], str) else None
+    image_ACT = localLink + ligneHexAct["image verso"].values[0].lstrip(".") if isinstance(ligneHexAct["image verso"].values[0], str) else None
 
     coutTouriste=int(ligneHexAct['coutTouriste'].values[0]) if not math.isnan(ligneHexAct['coutTouriste'].values[0]) else 0
     effetActivableTouriste={
@@ -359,7 +360,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     }
     
 
-    entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité,"placed":False},image=QPixmap(image_ACT),popupImage=image)#QPixmap(image))
+    entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité,"placed":False},image=QPixmap(image_ACT),popupImage=image)
     return
 
 def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
@@ -375,7 +376,7 @@ def createPlayerHex(aPlayerName, species, dataInst, dataAct, dataPerm=None, mode
     for hexName in playerHex:
         createHex(hexName, species, dataInst, dataAct, dataPerm, model)
 
-hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=70,locationInEntity="center")#,defaultImage=QPixmap("./icon/solutre/N1.png"))
+hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=50,locationInEntity="center")
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
 hexagones.setDefaultValue("Activation",False)
 pioche=myModel.newCellsOnGrid(6,1,"square",size=80,gap=20,name="Pioche")
