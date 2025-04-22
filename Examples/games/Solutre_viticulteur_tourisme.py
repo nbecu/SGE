@@ -567,7 +567,7 @@ def checkAdjacence(aHex):
         listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
         nbNeighbour=0
         for aNeighbourHex in listOfNeighbours:
-            if aHex.value("conditionAdjacence") == aNeighbourHex.value("player").name: 
+            if aHex.value("conditionAdjacence") == aNeighbourHex.value("joueur").name: 
                 if aHex.value("nbAdjacence") == 1: return True
                 else:
                     nbNeighbour=+1
@@ -578,7 +578,9 @@ def checkAdjacence(aHex):
                     if jauge.name == aHex.value("conditionAdjacence"): return True
             elif aHex.value("conditionAdjacence") in ["vinBio","vin"]:
                 for ressource, value in aNeighbourHex.value("effetRessourcesAct").items():
-                    if ressource.name == aHex.value("effetRessourcesAct"): return True
+                    for aRessource in aHex.value("effetRessourcesAct").items():
+                        if ressource == "Sous": return True
+                        if aRessource[0].name == ressource.name: return True
             elif aHex.value("conditionAdjacence") == "coutTouriste" and aNeighbourHex.value("coutTouriste")>0: return True
     else: return True
 
@@ -663,7 +665,7 @@ EventPhase.messageAutoForward=False
 GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur,Elu,Habitant,Naturaliste,Tourisme])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
-GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",[Tourisme])
+GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",[Viticulteur,Tourisme])
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
@@ -759,7 +761,7 @@ def createInitHexagones():
     createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
     createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)
 
-objectif, DashBoardPlayer = selectPlayer("ViticulteurTourisme")
+objectif, DashBoardPlayer = selectPlayer("Viticulteur")
 createInitHexagones()
 
 def customLayout():
