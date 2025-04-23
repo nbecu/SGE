@@ -6,7 +6,8 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
-localLink="/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE"
+# localLink="/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE"
+localLink="."
 #* --------------------------
 #* Lecture des data
 #* --------------------------
