@@ -519,7 +519,7 @@ def updatesCubesActivation(aHex):
 def checkCubesBuisson():
     """Permet de vérifier si un joueur a assez de cubes pour réaliser supprimer un buisson"""
     player=myModel.getPlayer(myModel.currentPlayer)
-    if player.value("nbCubes")>1: return True
+    if player.value("nbCubes")>=1: return True
     else: return False
 
 def decCubesBuisson():
