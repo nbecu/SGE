@@ -730,12 +730,15 @@ class SGModel(QMainWindow):
             return playerName
         else:
             return self.players[playerName]
-    
-    def getPlayer(self, playerName):
-        if playerName == "Admin":
-            return playerName
-        else:
-            return self.players[playerName]
+        
+    def getPlayers(self):
+        """
+        Get all the players of the game
+
+        Returns:
+            list: list of players
+        """
+        return self.players.values()
         
     def setCurrentPlayer(self, aUserName):
         """
