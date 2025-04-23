@@ -730,7 +730,13 @@ class SGModel(QMainWindow):
             return playerName
         else:
             return self.players[playerName]
-                
+    
+    def getPlayer(self, playerName):
+        if playerName == "Admin":
+            return playerName
+        else:
+            return self.players[playerName]
+        
     def setCurrentPlayer(self, aUserName):
         """
         Set the Active Player at the initialisation
