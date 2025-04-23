@@ -224,7 +224,7 @@ class SGModel(QMainWindow):
         #aAction.triggered.connect(self.nextTurn)
         #self.menuBar().addAction(aAction)
 
-        self.startGame = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &Start")
+        self.startGame = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &Step")
 
         self.menuBar().addSeparator()
 
