@@ -166,7 +166,7 @@ class SGModel(QMainWindow):
 
         self.nameOfPov = "default"
 
-        startGame=QAction(" &"+"Start the game", self)
+        startGame=QAction(" &"+"Next step", self)
         self.startGame.addAction(startGame)
         startGame.triggered.connect(self.nextTurn)
 
