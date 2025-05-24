@@ -107,6 +107,23 @@ class SGEndGameRule(SGGameSpace):
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
 
+   
+
+    def addEndGameCondition_onLambda(self, lambda_function, name="Lambda based condition", color=Qt.black, isDisplay=True):
+        """
+        Create an EndGame Condition based on a lambda function.
+
+        Args:
+            lambda_function (callable): A lambda function that returns a boolean indicating the end game condition.
+            name (str): Name of the end game condition, displayed (default: "Lambda based condition").
+            color (Qt.color): Text color (default: black).
+            isDisplay (bool): Whether to display in the EndGameRule board (default: True).
+        """
+        aCondition = SGEndGameCondition(self, name, entity=None, method=lambda_function, objective=None,
+                                        attribut=None, color=color, calcType="onLambda", isDisplay=isDisplay)
+        self.endGameConditions.append(aCondition)
+        self.model.timeManager.conditionOfEndGame.append(aCondition)
+
     def paintEvent(self, event):
         if self.checkDisplay():
             painter = QPainter()
