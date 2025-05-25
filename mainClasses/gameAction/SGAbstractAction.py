@@ -1,6 +1,6 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
-from mainClasses.SGTimePhase import SGTimePhase,SGModelPhase
+from mainClasses.SGTimePhase import *
 import copy
 
 #Class who manage the game mechanics of Update
@@ -49,20 +49,24 @@ class SGAbstractAction():
             else : resFeedback = None
             self.incNbUsed()
             self.savePerformedActionInHistory(aTargetEntity, resAction, resFeedback)
-            if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
-            return resAction if not self.feedbacks else [resAction,resFeedback]
-        else:
-            return False
 
-    #Function to test if the game action could be use
-    def checkAuthorization(self,aTargetEntity):
-        res = True
+            if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
+
+            self.model.timeManager.getCurrentPhase().handleAutoForward()
+
+            #commented because unsued -  return resAction if not self.feedbacks else [resAction,resFeedback]
+        # else:
+        #     return False
+
+    #Function to test if the game action can be used
+
+    def canBeUsed(self):
         if self.model.timeManager.numberOfPhases()==0:
             return True
         if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
             # TODO add a facultative permission 
             return False
-        if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
+        if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGGamePhase):#If this is a GamePhase, as default players can do actions
             player=self.model.getPlayer(self.model.currentPlayer)
             if player in self.model.timeManager.phases[self.model.phaseNumber()-1].authorizedPlayers:
                 res = True
@@ -71,11 +75,17 @@ class SGAbstractAction():
             # TODO add a facultative restriction 
         if self.numberUsed >= self.number:
             return False
+        return True
+    
+    def checkAuthorization(self,aTargetEntity):
+        if not self.canBeUsed():
+            return False
+        res = True
         for aCondition in self.conditions:
             res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity))
         return res
 
-    #Function to test if the game action could be use
+    #Function to test if the action feedback 
     def checkFeedbackAuhorization(self,aFeedbackTarget):
         res = True 
         for aCondition in self.conditionsOfFeedBack:

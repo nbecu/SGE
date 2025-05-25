@@ -71,9 +71,8 @@ class SGUserSelector(SGGameSpace):
     def getAuthorizedPlayers(self):
         if self.model.timeManager.isInitialization():
             return self.model.users
-        phase = self.model.timeManager.phases[self.model.phaseNumber()-1]
-        authorizedPlayers = phase.authorizedPlayers
-        return authorizedPlayers
+        phase = self.model.timeManager.getCurrentPhase()
+        return phase.getAuthorizedPlayers()
 
     # Funtion to have the global size of a gameSpace
     def getSizeXGlobal(self):

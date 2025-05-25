@@ -158,4 +158,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
             self.gameActions.append(aGameAction)
         return aGameAction
 
+    def hasActionsToUse(self):
+        for action in self.gameActions:
+            if action.canBeUsed():
+                return True
+        return False
     
