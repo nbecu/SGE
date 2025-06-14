@@ -39,7 +39,7 @@ class SGGraphController(NavigationToolbar):
         ## Menu indicators
         self.indicators = ['max', 'mean', 'min', 'stdev','sum']
         self.indicators_menu = QMenu("Indicators", self)
-        self.dictMenuData = {'entities': {}, 'simVariables': {}, 'players': {}}
+        self.dictMenuData = {'entities': {}, 'simVariables': {}, 'players': {}, 'gameActions': {}}
         self.checkbox_indicators_data = {}
         self.parentAttributKey = 'quantiAttributes' if self.type_of_graph in ['linear', 'hist'] else 'qualiAttributes'
         self.groupAction = QActionGroup(self)
@@ -67,7 +67,7 @@ class SGGraphController(NavigationToolbar):
     ##############################################################################################
 
     def allData_with_quant(self):
-        return self.dataEntities + self.dataSimVariables + self.dataPlayers
+        return self.dataEntities + self.dataSimVariables + self.dataPlayers + self.dataGameActions
 
     def allData_with_quali(self):
         return self.dataEntities
@@ -203,9 +203,15 @@ class SGGraphController(NavigationToolbar):
                 gameActionsMenu = QMenu('Game actions', self)
                 self.indicators_menu.addMenu(gameActionsMenu)
                 #create menu items for simVariables
-                gameActions_list = list(set(entry['gameAction'] for entry in self.dataGameActions))
-                for gameAction, in gameActions_list:
-                    self.dictMenuData['gameActions'][f"gameActions-:{gameAction}"] = None
+                print(self.dataGameActions)
+                gameActions_list = list(set((action['action_type']) 
+                                          for entry in self.dataGameActions 
+                                          for action in entry['actions_performed']))
+                print(self.dictMenuData)
+                # Créer une liste plate des combinaisons action_type + target_entity
+                for action_type in gameActions_list:
+                    menu_label = f"{action_type}"
+                    self.dictMenuData['gameActions'][f"gameActions-:{menu_label}"] = None
                 self.addSubMenus(gameActionsMenu, self.dictMenuData['gameActions'], self.firstEntity, self.firstAttribut)
 
 
@@ -628,6 +634,10 @@ class IndicatorSpec:
             component = tuple(menu_indicator_spec.split("-:")[:2])
             indicatorType = 'dictAttributes'
             indicator = menu_indicator_spec.split("-:")[-1]
+        elif "gameActions" in menu_indicator_spec:
+            component = 'gameActions'
+            indicatorType = 'actions_performed'
+            indicator = menu_indicator_spec.split("-:")[-1]
         return component, indicatorType, indicator
 
     def get_data(self, data_at_a_given_step):
@@ -644,6 +654,13 @@ class IndicatorSpec:
             return [entry['value'] for entry in data_at_a_given_step if 'simVarName' in entry and entry['simVarName'] == self.indicator]
         elif self.component[0] == 'player':
             return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'playerName' in entry and entry['playerName'] == self.component[1] ]
+        elif self.component == 'gameActions':
+            return [
+                action['usage_count'] 
+                for entry in data_at_a_given_step 
+                for action in entry.get('actions_performed', [])
+                if 'actions_performed' in entry and action['action_type'] == self.indicator
+            ]
         else: 
             breakpoint()
             return []
@@ -662,6 +679,8 @@ class IndicatorSpec:
             return self.indicator
         elif self.component[0] == 'player':
                 return self.component[1] + " - " + self.indicator
+        elif self.component == 'gameActions':
+            return self.indicator
         
     def get_line_style(self):
         if self.indicatorType == 'quantiAttributes':

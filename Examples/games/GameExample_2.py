@@ -10,7 +10,7 @@ monApp = QtWidgets.QApplication([])
 # STEP1 Model
 
 myModel = SGModel(
-    1800, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
+    1100, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
 
 
 # STEP2 Grid and Cells
@@ -67,8 +67,8 @@ Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithN
 userSelector=myModel.newUserSelector()
 
 # STEP5 Time management
-myModel.timeManager.newGamePhase('Phase 1', [Player1, Player2])
-myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
+myModel.timeManager.newGamePhase('Phase 1', [Player2])
+myModel.timeManager.newGamePhase('Phase 2', [Player1])
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 myModel.setCurrentPlayer('Player 1')
 

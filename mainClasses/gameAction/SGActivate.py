@@ -8,7 +8,7 @@ class SGActivate(SGAbstractAction):
     def __init__(self,entDef,method,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
         if self.targetEntDef != "model":
-            self.name="ActivateAction "+ entDef.entityName
+            self.name="Activate "+ entDef.entityName
             self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         self.method=method
