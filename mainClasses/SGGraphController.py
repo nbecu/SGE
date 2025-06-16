@@ -88,6 +88,7 @@ class SGGraphController(NavigationToolbar):
             self.dataEntities = self.model.dataRecorder.getStats_ofEntities()
             self.dataSimVariables = self.model.dataRecorder.getStepsData_ofSimVariables()
             self.dataPlayers = self.model.dataRecorder.getStepsData_ofPlayers()
+            self.dataGameActions = self.model.dataRecorder.getStepsData_ofGameActions()
 
         self.setXValue_basedOnData(self.dataEntities)
 
@@ -203,11 +204,11 @@ class SGGraphController(NavigationToolbar):
                 gameActionsMenu = QMenu('Game actions', self)
                 self.indicators_menu.addMenu(gameActionsMenu)
                 #create menu items for simVariables
-                print(self.dataGameActions)
+                # print(self.dataGameActions)
                 gameActions_list = list(set((action['action_type']) 
                                           for entry in self.dataGameActions 
                                           for action in entry['actions_performed']))
-                print(self.dictMenuData)
+                # print(self.dictMenuData)
                 # Créer une liste plate des combinaisons action_type + target_entity
                 for action_type in gameActions_list:
                     menu_label = f"{action_type}"

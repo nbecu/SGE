@@ -86,9 +86,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
 
     def getStatsOfGameActions(self):
         stats = []
-        endTime=[self.model.roundNumber(),self.model.phaseNumber()]
-        
-        nbRounds = self.model.timeManager.currentRoundNumber
+                
+        currentRound = self.model.timeManager.currentRoundNumber
+        currentPhase = self.model.timeManager.currentPhaseNumber
         nbPhases = self.model.timeManager.numberOfPhases()
 
         # D'abord traiter l'étape d'initialisation (0,0)
@@ -103,16 +103,16 @@ class SGPlayer(AttributeAndValueFunctionalities):
                     'usage_count': len([p for p in action.history["performed"] if p[0] == 0 and p[1] == 0])
                 }
                 for action in self.gameActions
-                if any(p[0] == 0 and p[1] == 0 for p in action.history["performed"])
+                # if any(p[0] == 0 and p[1] == 0 for p in action.history["performed"])
             ]
         }
-        if step_actions['actions_performed']:
-            stats.append(step_actions)
+        stats.append(step_actions)
         
         # Ensuite parcourir tous les rounds (à partir de 1)
-        for round_num in range(1, nbRounds + 1):
+        for round_num in range(1, currentRound + 1):
             # Pour chaque round, parcourir toutes les phases (à partir de 1)
             for phase_num in range(1, nbPhases + 1):
+                if round_num == currentRound and phase_num > currentPhase: continue
                 step_actions = {
                     'player_name': self.name,
                     'round': round_num,
@@ -124,7 +124,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
                             'usage_count': len([p for p in action.history["performed"] if p[0] == round_num and p[1] == phase_num])
                         }
                         for action in self.gameActions
-                        if any(p[0] == round_num and p[1] == phase_num for p in action.history["performed"])
+                        # if any(p[0] == round_num and p[1] == phase_num for p in action.history["performed"])
                     ]
                 }
                 if step_actions['actions_performed']:

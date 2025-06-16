@@ -77,6 +77,7 @@ class SGDataRecorder():
         #     # remove the last recorded date from the records (because the values may have been changed during the concerned step )
         #     self.stepsData_ofGameActions = [aStepData  for aStepData in self.stepsData_ofGameActions if [aStepData['round'],aStepData['phase']]!=lastRecordedDate]
 
+        self.stepsData_ofGameActions = []
         for aPlayer in self.model.players.values():  
               self.stepsData_ofGameActions.extend(aPlayer.getStatsOfGameActions())
         return self.stepsData_ofGameActions
