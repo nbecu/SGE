@@ -301,7 +301,7 @@ ZHs = {
             {"type_action2": "toursime", "effet economie": 1, "effet sequestration": -1},
             {"type_action2": "toursime", "effet economie": -1, "effet sequestration": -1}
         ],
-        "seuil variation actions2": 4 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
+        "seuil variation actions2": 3 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
     },
     'port plaisance': {##
         "sequestration": 0,
@@ -708,12 +708,17 @@ Player.addGameAction(myModel.newDeleteAction(pionAction2,feedbacks=[lambda : upd
 def updateActions1():
     for aCase in casesAction1:
         aCase.setValue('frequentation',aCase.nbAgents()) 
-        if aCase.nbAgents() > aCase.value('potentiel accueil'):
-            aCase.setValue('surfrequentation',1) #0 si la capacité d'accueil n'est pas dépassé  / 1 si la cpacité d'accueil est dépassé
+        if aCase.nbAgents() > (aCase.value('potentiel accueil') * 1.25):
+            aCase.setValue('surfrequentation',1) #0 si la capacité d'accueil n'est pas dépassé  / 1 si la capacité d'accueil est dépassé de plus de 25%
             aCase.grid.gs_aspect.border_color='red'
+            aCase.grid.gs_aspect.border_size=6
+            aCase.grid.update()
+
+        elif aCase.nbAgents() > aCase.value('potentiel accueil'):
+            aCase.setValue('surfrequentation',0.5) #0 si la capacité d'accueil n'est pas dépassé  / 0.5 si la capacité d'accueil est dépassé de moins de 25%
+            aCase.grid.gs_aspect.border_color='dark orange'
             aCase.grid.gs_aspect.border_size=4
             aCase.grid.update()
-            
 
 def updateActions2():
     totCB = 0
