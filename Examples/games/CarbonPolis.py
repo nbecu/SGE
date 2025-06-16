@@ -12,7 +12,7 @@ myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=7,y=7)
     
 #********************************************************************
 
-nbJoueurs = 8 #Entre 5 et 8
+nbJoueurs = 5 #Entre 5 et 8
 
 # Def des joueurs
 joueurs_potentiels = {
@@ -301,7 +301,7 @@ ZHs = {
             {"type_action2": "toursime", "effet economie": 1, "effet sequestration": -1},
             {"type_action2": "toursime", "effet economie": -1, "effet sequestration": -1}
         ],
-        "seuil variation actions2": 3 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
+        "seuil variation actions2": 2 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
     },
     'port plaisance': {##
         "sequestration": 0,
