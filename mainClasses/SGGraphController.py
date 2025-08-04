@@ -213,7 +213,10 @@ class SGGraphController(NavigationToolbar):
                 for action_type in gameActions_list:
                     menu_label = f"{action_type}"
                     self.dictMenuData['gameActions'][f"gameActions-:{menu_label}"] = None
-                self.addSubMenus(gameActionsMenu, self.dictMenuData['gameActions'], self.firstEntity, self.firstAttribut)
+                # self.addSubMenus(gameActionsMenu, self.dictMenuData['gameActions'])
+                # Trier le dictionnaire gameActions par ordre alphabétique des clés
+                sorted_game_actions = dict(sorted(self.dictMenuData['gameActions'].items()))
+                self.addSubMenus(gameActionsMenu, sorted_game_actions)
 
 
         elif self.type_of_graph in ['hist', 'pie', 'stackplot']:
@@ -250,7 +253,7 @@ class SGGraphController(NavigationToolbar):
         self.addAction(self.indicators_menu.menuAction())
 
 
-    def addSubMenus(self, parentMenu, subMenuData, firstEntity, firstAttribut):
+    def addSubMenus(self, parentMenu, subMenuData, firstEntity=None, firstAttribut=None):
         for key, value in subMenuData.items():
             if isinstance(value, dict):
                 submenu = QMenu(key, self)
@@ -535,6 +538,7 @@ class SGGraphController(NavigationToolbar):
             # print("labels : ", labels)
             #title = "{} et des Simulations Variables".format(self.title)
             self.title = "Analyse comparative des composantes de la {} ".format(attribut_value.capitalize())
+            self.ax.set_xticks(self.xValue)
             self.ax.set_title(self.title)
             self.canvas.draw()
         else:
@@ -548,18 +552,20 @@ class SGGraphController(NavigationToolbar):
             self.ax.stackplot(xValue * len(data), data, labels=label)
         else:
             self.ax.stackplot(xValue, data, labels=label)
-            option = self.get_combobox_xAxisOption_selected()
-            if self.nbPhases > 2 and option == 'per step':
-                # Display red doted vertical lines to shaw the rounds
-                round_lab = 1
-                for x_val in xValue:
-                    if (x_val -1) % self.nbPhases == 0 and x_val != 1:
-                        self.ax.axvline(x_val, color='r', ls=':')
-                        # self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='center', backgroundcolor='1', va='top', rotation=90, transform=self.ax.get_xaxis_transform())                        
-                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='left', va='top', rotation=90, transform=self.ax.get_xaxis_transform())                        
-                        round_lab += 1
+            self.plot_vertical_lines_of_steps(xValue)
 
-
+    def plot_vertical_lines_of_steps(self, xValue):
+        option = self.get_combobox_xAxisOption_selected()
+        if self.nbPhases >= 2 and option == 'per step':
+            # Display red doted vertical lines to shaw the rounds
+            round_lab = 1
+            for x_val in xValue:
+                if (x_val -1) % self.nbPhases == 0 and x_val != 0:
+                    self.ax.axvline(x_val, color='r', ls=':')
+                    # self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='center', backgroundcolor='1', va='top', rotation=90, transform=self.ax.get_xaxis_transform())                        
+                    self.ax.text(x_val, 1, f"Round {round_lab} ↓", color='r', ha='left', va='top', rotation=90, transform=self.ax.get_xaxis_transform())                        
+                    round_lab += 1
+    
     def process_data_per_round_for_linear_typeDiagram(self, data, pos, aIndicatorSpec, phase_to_display):
         data_y = []
         for r in range(self.nbRoundsWithLastPhase + 1):
@@ -586,7 +592,7 @@ class SGGraphController(NavigationToolbar):
             line_style = aIndicatorSpec.get_line_style()
             self.plot_data_switch_xvalue(self.xValue, data_y, label, line_style, pos)
 
-    def plot_data_switch_xvalue(self, xValue, data, label, linestyle, pos): #shoudl perhaps be renamed
+    def plot_data_switch_xvalue(self, xValue, data, label, linestyle, pos): #should perhaps be renamed
         color = self.colors[pos % len(self.colors)]
         if len(xValue) == 1:
             self.ax.plot(xValue * len(data), data, label=label, color=color, marker='o', linestyle='None')
@@ -595,16 +601,9 @@ class SGGraphController(NavigationToolbar):
             if len(xValue) > len(data):
                 data.extend([0] * (len(xValue) - len(data)))
             self.ax.plot(xValue, data, label=label, linestyle=linestyle, color=color)
-            option = self.get_combobox_xAxisOption_selected()
-            if self.nbPhases > 2 and option == 'per step':
-                # Display red doted vertical lines to shaw the rounds
-                round_lab = 1
-                for x_val in xValue:
-                    if (x_val -1) % self.nbPhases == 0 :
-                        self.ax.axvline(x_val, color='r', ls=':')
-                        # self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='center', backgroundcolor='1',va='top', rotation=90, transform=self.ax.get_xaxis_transform())
-                        self.ax.text(x_val, 1, f"Round {round_lab}", color='r', ha='left',va='top', rotation=90, transform=self.ax.get_xaxis_transform())
-                        round_lab += 1
+            self.plot_vertical_lines_of_steps(xValue)
+
+                
 
 
     ##############################################################################################
