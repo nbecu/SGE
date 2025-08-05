@@ -177,10 +177,6 @@ class SGModel(QMainWindow):
 
         self.nameOfPov = "default"
 
-        startGame=QAction(" &"+"Next step", self)
-        self.startGame.addAction(startGame)
-        startGame.triggered.connect(self.nextTurn)
-
         testMode=QAction(" &"+"Cursor Position", self,checkable=True)
         self.settingsMenu.addAction(testMode)
         testMode.triggered.connect(lambda: self.showCursorCoords())
@@ -231,12 +227,19 @@ class SGModel(QMainWindow):
     
     # Create the menu of the menu
     def createMenu(self):
-        #aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
-        #aAction.triggered.connect(self.nextTurn)
-        #self.menuBar().addAction(aAction)
-
-        self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
-
+        # Add the 'play' button
+        if sys.platform == "darwin":
+            # For Mac compatibility: add the play button in a submenu
+            self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
+            startGame = QAction(" &Next step", self)
+            self.startGame.addAction(startGame)
+            startGame.triggered.connect(self.nextTurn)
+        else:
+            # for all other platforms than Mac, direct action on play icon
+            aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
+            aAction.triggered.connect(self.nextTurn)
+            self.menuBar().addAction(aAction)
+        
         self.menuBar().addSeparator()
 
         aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
