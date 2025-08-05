@@ -142,10 +142,11 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         actions = player.getAllGameActionsOn(self)
         for aAction in actions:
             if aAction.setControllerContextualMenu:
-                gear=QAction(aAction.name,self)
-                gear.setCheckable(False)
-                menu.addAction(gear)
-                options.append(gear)
+                    if aAction.checkAuthorization(self):
+                        gear=QAction(aAction.name,self)
+                        gear.setCheckable(False)
+                        menu.addAction(gear)
+                        options.append(gear)
 
         for anItem in self.classDef.attributesToDisplayInContextualMenu:
             aAtt = anItem['att']
@@ -168,51 +169,65 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             return
         actions = player.getAllGameActionsOn(self)
 
-        wordsInText=aText.split()
-        if wordsInText[0]=="ModifyAction":
-            #* Case of a ModifyAction:
-            # Filter the actions by the concerned attribute
-            displayedNames=[]
-            att=wordsInText[1]
-            for aAction in actions:
-                wordsInName=aAction.name.split()
-                if att in wordsInName:
-                    displayedNames.append(aAction.name)
-            # # The first value is the current value
-            current_value = self.value(att)
-            displayedValues=[]
-            for aActionName in displayedNames :
-                if "ModifyAction" in aActionName:
-                    displayedValues.append(aActionName.split()[-1])
-            default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
-            # Dialog box
-            action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
 
-            if ok and action:
-                self.last_selected_option = action
-                self.showPopup(action)
-                # ModifyAction excecution:
-                name="ModifyAction "+att+" "+action
-                for anAction in actions:
-                    if anAction.name==name:
-                        anAction.perform_with(self)
-                        self.contextMenu=False
-                        return
+        for aAction in actions:
+            if aText == aAction.name:
+                if aAction.actionType == "Modify":
+                #* Case of a ModifyAction:
+                    # Filter the actions by the concerned attribute
+                    displayedNames=[]
+                    displayedValues=[]
+                    att=aAction.att
+                    for anAnotherAction in actions:
+                        if att == anAnotherAction.att and aAction.entityDef == anAnotherAction.entityDef:
+                            displayedNames.append(anAnotherAction.name)
+                            displayedValues.append(anAnotherAction.value)
+                    # # The first value is the current value
+                    current_value = self.value(att)
+                    default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
+                    action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
+
+                    if ok and action:
+                        self.last_selected_option = action
+                        self.showPopup(action)
+                        # ModifyAction excecution:
+                        name="ModifyAction "+att+" "+action
+                        for anAction in actions:
+                            if anAction.value==action:
+                                anAction.perform_with(self)
+                                self.contextMenu=False
+                                return
         
-        elif wordsInText[0]=="ActivateAction":
-            #* Case of a ActivateAction:
-            name=None
-            reply=self.confirmAction()
-            if reply==QMessageBox.Yes:
-                for anAction in actions:
-                    if aText==anAction.name:
-                        anAction.perform_with(self)
-                        self.contextMenu=False
-                        return
+                elif aAction.actionType == "Activate":
+                    #* Case of a ActivateAction:
+                    name=None
+                    reply=self.confirmAction()
+                    if reply==QMessageBox.Yes:
+                        for anAction in actions:
+                            if aText==anAction.name:
+                                anAction.perform_with(self)
+                                self.contextMenu=False
+                                return
+                
+                elif aAction.actionType == "Delete":
+                    #* Case of a DeleteAction:
+                    name=None
+                    reply=self.confirmDelete()
+                    if reply==QMessageBox.Yes:
+                        for anAction in actions:
+                            if aText==anAction.name:
+                                anAction.perform_with(self)
+                                self.contextMenu=False
+                                return
 
     def confirmAction(self):
         # confirmation popup
         reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the activation?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        return reply
+    
+    def confirmDelete(self):
+        # confirmation popup
+        reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the deletion?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         return reply
 
     

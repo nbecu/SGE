@@ -158,15 +158,25 @@ class SGPlayer(AttributeAndValueFunctionalities):
         actionsForMenu=[]
         entityDef=anEntityInstance.classDef
         for aGameAction in self.gameActions:
-            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) and aGameAction.targetEntDef==entityDef:
+            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) or isinstance(aGameAction,SGDelete) and aGameAction.targetEntDef==entityDef:
                 actionsForMenu.append(aGameAction)
         return actionsForMenu
     
     def getAuthorizedGameActionsOn(self, anEntityInstance):
+        raise ValueError("Not used, to be deleted")
         actions = self.getAllGameActionsOn(anEntityInstance)
         for aAction in actions:
             if isinstance(aAction,SGActivate):
                 return
+    
+    def getMoveActionsOn(self, anEntityInstance):
+        entityDef=anEntityInstance.classDef
+        moveActions=[]
+        for aGameAction in self.gameActions:
+            if isinstance(aGameAction,SGMove):
+                moveActions.append(aGameAction)
+        return moveActions
+
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 

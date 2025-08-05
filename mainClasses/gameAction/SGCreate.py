@@ -6,10 +6,12 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False , create_several_at_each_click = False):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
+    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False , create_several_at_each_click = False):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu)
         self.dictAttributs=dictAttributs
-        self.name="Create "+str(self.targetEntDef.entityName)
+        if nameToDisplay is None: self.name="Create "+str(self.targetEntDef.entityName)
+        else: self.name=nameToDisplay
+        self.actionType="Create"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef.entityType() == 'Cell')
         self.create_several_at_each_click=create_several_at_each_click
 

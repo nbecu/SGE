@@ -8,7 +8,7 @@ myModel=SGModel(600,400, windowTitle="A board with hexagonal cells")
 
 # You can change the specifications of the grid cells 
 # For example you can change the shape of the cells
-Cell=myModel.newCellsOnGrid(10,10,"square",size=30)
+Cell=myModel.newCellsOnGrid(10,10,"hexagonal",size=30)
 
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)

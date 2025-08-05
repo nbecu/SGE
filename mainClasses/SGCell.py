@@ -1,6 +1,7 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
+# from mainClasses.gameAction.SGMove import SGMove
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
@@ -157,16 +158,31 @@ class SGCell(SGEntity):
     def dropEvent(self, e):
         e.accept()
         aAgent=e.source()
+
+        if not isinstance(aAgent,SGEntity):
+            return
         
-        aActiveLegend = self.model.getSelectedLegend() 
-        aLegendItem = self.model.getSelectedLegendItem()
-        if aActiveLegend is None or aActiveLegend.isAdminLegend(): 
-            aAgent.moveTo(self)
-        elif aLegendItem is None : None #Exit the method
-        else :
-            aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-        e.setDropAction(Qt.MoveAction)
-        aAgent.dragging = False
+        currentPlayer=self.model.getPlayer(self.model.currentPlayer)
+        moveActions=currentPlayer.getMoveActionsOn(aAgent)
+
+        for aMoveAction in moveActions:
+            if aMoveAction.checkAuthorization(aAgent,self):
+                aMoveAction.perform_with(aAgent,self)
+                e.setDropAction(Qt.MoveAction)
+                aAgent.dragging = False
+
+        # Le code ci-dessous est la version précédente de la méthode dropEvent. Il est conservé pour référence
+        # e.accept()
+        # aAgent=e.source()
+        # aActiveLegend = self.model.getSelectedLegend() 
+        # aLegendItem = self.model.getSelectedLegendItem()
+        # if aActiveLegend is None or aActiveLegend.isAdminLegend(): 
+        #     aAgent.moveTo(self)
+        # elif aLegendItem is None : None #Exit the method
+        # else :
+        #     aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+        # e.setDropAction(Qt.MoveAction)
+        # aAgent.dragging = False
                             
     # To handle the drag of the grid
     def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell

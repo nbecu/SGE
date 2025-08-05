@@ -1,6 +1,6 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
 from PyQt5.QtGui import QCursor
 
 import random
@@ -257,8 +257,6 @@ class SGAgent(SGEntity):
                     # self.update()
         if event.button() == Qt.RightButton:
             self.contextMenu=True
-            self.close_image_popup(self.popup)
-            self.popup = None
 
             
     #To handle the drag of the agent
@@ -293,58 +291,20 @@ class SGAgent(SGEntity):
             aLegendItem.gameAction.perform_with(theDroppedAgent,self.cell)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
         e.setDropAction(Qt.MoveAction)
         self.dragging = False
-    
 
     def enterEvent(self, event):
         if self.dragging:
-            return  # N'affiche pas la popup si on est en train de faire un drag and drop
-        # Crée et affiche la fenêtre contextuelle lorsque la souris entre dans le widget
+            return
         if self.contextMenu:
             return
-        self.popup = self.create_image_popup(self.popupImage)
-        if self.popup is not None : self.show_image_popup(self.popup, self)
+
+        if self.popupImage:
+            # Convertir l'image en HTML pour ToolTip
+            image_html = f"<img src='{self.popupImage}' style='max-width: 200px; max-height: 200px;'>"
+            QToolTip.showText(QCursor.pos(), image_html, self)
 
     def leaveEvent(self, event):
-        if self.popup is not None:
-            cursor_pos = QCursor.pos()
-            if self.geometry().contains(self.mapFromGlobal(cursor_pos)) or self.popup.geometry().contains(cursor_pos):
-                return 
-            self.close_image_popup(self.popup)
-            self.popup = None
-
-
-    def create_image_popup(self,image):
-        """Crée et retourne un QDialog configuré pour afficher une image."""
-        if image == None:
-            return None
-        dialog = QDialog()
-        dialog.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
-        dialog.setStyleSheet("background-color: black;")
-        
-        imageLabel = QLabel(dialog)
-        # pixmap = QPixmap(image)
-        imageLabel.setPixmap(image)
-        
-        dialog.setFixedSize(image.width() + 50, image.height() + 50)
-
-        layout = QVBoxLayout()
-        layout.addWidget(imageLabel)
-        dialog.setLayout(layout)
-        return dialog
-
-    def show_image_popup(self,popup, widget):
-        """Affiche la fenêtre contextuelle à côté du widget."""
-        offset_x = widget.width() + 10  # Décalage horizontal pour éviter le chevauchement
-        offset_y = 10  # Optionnel : décalage vertical si nécessaire
-        popup.move(widget.mapToGlobal(QPoint(offset_x, offset_y)))
-        popup.show()
-
-
-    def close_image_popup(self,popup):
-        """Ferme la fenêtre contextuelle si elle est ouverte."""
-        if popup and popup.isVisible():
-            popup.close()
-            # popup.deleteLater()
+        QToolTip.hideText()
                         
     #Apply the feedBack of a gameMechanics
     def feedBack(self, theAction):
@@ -477,13 +437,18 @@ class SGAgent(SGEntity):
         sortedAgents=[]
         if len(agents)!=0:
             for aAgent in agents:
-                if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
-                    aAgent.append(sortedAgents)
+                if isinstance(aAgent,list):
+                    for agent in aAgent:
+                        if agent.classDef == aSpecies or agent.classDef.entityName == aSpecies:
+                            sortedAgents.append(agent)
+                elif isinstance(aAgent,SGAgent):
+                    if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
+                        sortedAgents.append(aAgent)
         return sortedAgents
     
     def nbNeighborAgents(self,rule='moore',aSpecies=None):  
         if aSpecies:
-            return len(self.getNeighborAgentsBySpecies(aSpecies,rule))
+            return len(self.getNeighborAgents(rule,aSpecies))
         return len(self.getNeighborAgents(rule))
 
     def getNeighborsN(self,aSpecies=None):

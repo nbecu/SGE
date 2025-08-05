@@ -7,7 +7,7 @@ import copy
 class SGAbstractAction():
     IDincr=0
     instances = []
-    def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],setControllerContextualMenu=False):
+    def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test
@@ -22,9 +22,10 @@ class SGAbstractAction():
         self.numberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
-        self.feedbacks=feedBacks
-        self.conditionsOfFeedBack=conditionsOfFeedBack 
+        self.feedbacks=copy.deepcopy(feedBacks)
+        self.conditionsOfFeedBack=copy.deepcopy(conditionsOfFeedBack) 
         self.setControllerContextualMenu=setControllerContextualMenu
+        self.setOnController=copy.deepcopy(setOnController)        
         
         #Define variables to handle the history 
         self.history={}

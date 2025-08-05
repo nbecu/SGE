@@ -3,13 +3,16 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
-    def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
+    def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
         self.dictNewValues=dictNewValues
+        self.entityDef=entDef
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
         self.value = self.dictNewValues[self.att]  # Get associate value
         result = self.att + " " + str(self.value)
-        self.name="Modify "+result   
+        if nameToDisplay is None:self.name="ModifyAction "+result
+        else: self.name=nameToDisplay 
+        self.actionType="Modify"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
         self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
    

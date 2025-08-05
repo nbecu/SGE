@@ -1,0 +1,181 @@
+# Notice d'installation et de compréhension du code Solutre
+
+## Installation de Visual Studio Code
+
+Pour éditer et exécuter le script `Solutre_selectyourPlayer.py`, vous pouvez utiliser Visual Studio Code. Suivez les étapes ci-dessous pour installer Visual Studio Code :
+
+1. Rendez-vous sur le site officiel de Visual Studio Code : [https://code.visualstudio.com/](https://code.visualstudio.com/)
+2. Téléchargez l'installateur correspondant à votre système d'exploitation (Windows, macOS, Linux).
+3. Exécutez l'installateur et suivez les instructions à l'écran pour installer Visual Studio Code.
+
+## Installation de Python
+
+Pour exécuter le script `Solutre_selectyourPlayer.py`, vous devez installer Python. Suivez les étapes ci-dessous pour installer Python :
+
+1. Rendez-vous sur le site officiel de Python : [https://www.python.org/](https://www.python.org/)
+2. Téléchargez l'installateur correspondant à votre système d'exploitation (Windows, macOS, Linux).
+3. Exécutez l'installateur et suivez les instructions à l'écran pour installer Python. Assurez-vous de cocher l'option "Add Python to PATH" lors de l'installation.
+
+## Installation des packages nécessaires
+
+Pour exécuter le script `Solutre_selectyourPlayer.py`, vous devez installer les packages suivants :
+
+1. **pandas** : pour la manipulation des données.
+2. **PyQt5** : pour l'interface graphique.
+3. **openpyxl** : pour lire les fichiers Excel.
+4. **matplotlib** : pour les graphiques.
+5. **numpy** : pour les calculs numériques.
+6. **paho-mqtt** : pour la communication MQTT.
+7. **pyparsing** : pour l'analyse syntaxique.
+8. **pyrsistent** : pour les structures de données persistantes.
+9. **pywin32** : pour les extensions Windows.
+10. **SQLAlchemy** : pour la gestion des bases de données.
+11. **tzdata** : pour les données de fuseaux horaires.
+
+Vous pouvez installer ces packages en utilisant pip :
+```bash
+pip install pandas pyqt5 openpyxl matplotlib numpy paho-mqtt pyparsing pyrsistent pywin32 SQLAlchemy tzdata
+```
+
+En cas de dysfonctionnement : ne pas hésiter à taper dans la console :
+```bash
+pip show <package-name>
+```
+Cela permet d'afficher la version actuelle du package. A comparer avec les versions indiquées dans requirements.txt
+
+
+### Charger Solutré dans Visual Studio Code
+Ouvrir l'ensemble du dossier SGE dans Visual Studio Code.
+Les scripts de jeu se trouvent dans Examples > games.
+Main Classes comprend toute la partie dev.
+icon comprend toutes les images.
+
+
+## Structure du code
+
+Le script `Solutre_selectyourPlayer.py` est structuré en plusieurs sections principales :
+
+1. **Importation des modules** : Importation des modules nécessaires pour le fonctionnement du script.
+2. **Lecture des données** : Chargement des données à partir des fichiers Excel.
+3. **Construction des plateaux** : Création des plateaux de jeu.
+4. **Classifications et POV** : Définition des classifications et des points de vue pour les plateaux.
+5. **Dashboard des indicateurs** : Création et configuration des tableaux de bord pour suivre les indicateurs.
+6. **Dashboard des services** : Création et configuration des tableaux de bord pour suivre les services.
+7. **Déclaration des joueurs** : Création des joueurs du jeu.
+8. **Déclaration des agents** : Création des agents (pions) du jeu.
+9. **Dashboard des ressources** : Création et configuration des tableaux de bord pour suivre les ressources.
+10. **GameActions** : Définition des actions de jeu.
+11. **Paramètres du modèle** : Configuration des paramètres du modèle de jeu.
+12. **Fonctions utilitaires** : Fonctions utilitaires pour le jeu.
+13. **Lancement du jeu** : Initialisation et lancement du jeu.
+
+## Fonctionnement du jeu
+
+### Lecture des données
+
+Les données sont lues à partir de fichiers Excel situés dans le dossier `./data/`. Les fichiers suivants sont utilisés :
+- `solutre_hex_inst.xlsx` : Contient les données des hexagones instantanés.
+- `solutre_hex_act.xlsx` : Contient les données des hexagones activables.
+- `data_objectifs.xlsx` : Contient les objectifs des joueurs.
+- `data_events.xlsx` : Contient les événements du jeu.
+
+Les fichiers Excel peuvent être modifiés sans problème. Il faut juste prêter attention à bien conserver l'emplacement du fichier au moment de l'enregistrement.
+/!\ il ne faut jamais avoir deux hexagones / objectifs / events avec le même nom !
+
+### Construction des plateaux
+
+Les plateaux de jeu sont construits à l'aide de la fonction `constructPlateau()`. Les villages Nord, Sud et Est sont construits à l'aide des fonctions `constructVillageNord()`, `constructVillageSud()` et `constructVillageEst()` respectivement.
+Ces fonctions permettent de supprimer les cellules non utilisées et de mettre les bons attributs pour afficher la bonne information via la classification.
+
+### Classifications et POV
+
+Les classifications et les points de vue (POV) sont définis pour les plateaux afin d'attribuer des couleurs et des images aux différentes zones. 
+A noter : les images utilisées peuvent être modifiées, attention à bien garder le même chemin vers l'image. Toutes les couleurs sont exprimées en RGB (Rouge-Vert-Bleu).
+
+### Dashboard des indicateurs et des services
+
+Les tableaux de bord des indicateurs et des services sont créés pour suivre les valeurs des variables de simulation. Les jauges de progression sont également configurées pour afficher les valeurs des variables de simulation.
+Attention à ne pas créer deux variables de simulation avec le même nom. Une même variable peut être utilisée dans un nombre infini d'indicateurs et/ou de jauges.
+
+### Déclaration des joueurs et des agents
+
+Les joueurs et les agents (pions) du jeu sont créés et configurés. Les joueurs sont définis avec des attributs et des valeurs spécifiques.
+
+### GameActions
+
+Les actions de jeu sont définies pour permettre aux joueurs de déplacer/activer des hexagones et supprimer des buissons. Des actions spécifiques sont également définies pour le joueur Tourisme: activer des hexagones avec des pions Touristes.
+Il existe un grand nombre de fonctions liées aux conditions, feedbacks des différentes actions, voir les commentaires associés.
+
+### Paramètres du modèle
+
+Les paramètres du modèle de jeu sont configurés, y compris les phases du jeu et les actions à exécuter au début de chaque tour.
+
+### Placement des hexagones initiaux
+
+Les hexagones initiaux sont placés sur le plateau à l'aide de la fonction `placeInitHexagones()`.
+
+### Layout personnalisé
+
+Le layout personnalisé du jeu est configuré à l'aide de la fonction `customLayout()`.
+
+### Lancement du jeu
+
+Le jeu est lancé en appelant la fonction `myModel.launch()`. Pour lancer le protocole MQTT, merci de vous référer au point MQTT.
+
+## Utilisation du jeu
+
+Solutré est disponible sur plusieurs scripts :
+- Solutre_selectyourPlayer.py : pour comprendre la sélection du joueur, merci de vous référer au point suivant.
+- Solutre_Viticulteur.py : lance le jeu dans le rôle "Viticulteur"
+- Solutre_Naturaliste.py : lance le jeu dans le rôle "Naturaliste"
+- Solutre_Elu.py : lance le jeu dans le rôle "Elu"
+- Solutre_Habitant.py : lance le jeu dans le rôle "Habitant"
+- Solutre_Tourisme.py : lance le jeu dans le rôle "Tourisme"
+- Solutre_ViticulteurTourisme.py : lance le jeu dans le rôle "Viticulteur" qui a aussi les permissions du joueur "Tourisme".
+
+### Sélection du joueur
+
+Utilisez la fonction `selectPlayer(aPlayerName, aObjectifCardName="random")` pour sélectionner le joueur actif et définir son objectif.
+
+#### Paramètres de `selectPlayer`
+
+- `aPlayerName` (str) : Le nom du joueur à sélectionner, Viticulteur, Naturaliste, Elu, Tourisme ou Habitant.
+- `aObjectifCardName` (str, optionnel) : Le nom de la carte objectif à attribuer au joueur. Par défaut, une carte aléatoire est attribuée. Vérifier le nom dans data_events.
+
+## Paramétrage MQTT
+
+### Installation d'un broker MQTT (exemple avec Mosquitto)
+
+Pour utiliser le protocole MQTT avec le jeu, vous devez installer un broker MQTT. Voici comment installer Mosquitto, un broker MQTT populaire :
+
+1. Rendez-vous sur le site officiel de Mosquitto : [https://mosquitto.org/download/](https://mosquitto.org/download/)
+2. Téléchargez l'installateur correspondant à votre système d'exploitation (Windows, macOS, Linux).
+3. Suivez les instructions d'installation spécifiques à votre système d'exploitation.
+
+### Lancement du jeu avec MQTT
+
+Pour lancer le jeu avec le protocole MQTT, vous devez utiliser la fonction `myModel.launch_withMQTT()` au lieu de `myModel.launch()`. Vous avez deux options pour le type de mise à jour :
+
+- `myModel.launch_withMQTT("Instantaneous")` : Pour des mises à jour instantanées.
+- `myModel.launch_withMQTT("Phase")` : Pour des mises à jour à chaque phase.
+
+Tous les ordinateurs doivent être connectés au broker et utiliser le même port sur la carte réseau.
+
+## Liste des éléments développés et non-développés de Solutré
+
+### Eléments implémentés
+- Effets immédiats des hexagones
+- Effets activables des hexagones
+- Gestion des actions joueurs
+- pions Touristes
+- buissons
+- Tours de jeu
+- Jauges avec valeur(s) de seuil 
+
+### A implémenter
+- Effets permanents
+- Grands projets
+- Système de vote
+- Apparition des pions Vin / Vin Bio
+- Possibilité d'activer un hexagone 3 fois dans le même tour
+- Possibilité de choisir le nombre de ressources pour multiplier les gains (hexagone "Garde champêtre")

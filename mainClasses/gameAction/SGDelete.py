@@ -5,9 +5,11 @@ import copy
 
 #Class who manage the game mechanics of delete
 class SGDelete(SGAbstractAction):
-    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],setControllerContextualMenu=False):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,setControllerContextualMenu)
-        self.name="Delete "+self.targetEntDef.entityName
+    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False):#,setOnController=True):
+        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu)
+        if nameToDisplay is None: self.name="Delete "+self.targetEntDef.entityName
+        else: self.name=nameToDisplay
+        self.actionType="Delete"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef and not aTargetEntity.isDeleted())
 
     def executeAction(self, aTargetEntity):

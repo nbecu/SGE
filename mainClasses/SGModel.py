@@ -1,58 +1,70 @@
-from PyQt5.QtSvg import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMessageBox)
-from PyQt5 import QtWidgets
-
-from mainClasses.SGGraphCircular import SGGraphCircular
-from mainClasses.SGGraphLinear import SGGraphLinear
-from mainClasses.SGTestGetData import SGTestGetData
-from mainClasses.SGGraphWindow import SGGraphWindow
-from mainClasses.SGGraphController import SGGraphController
-from mainClasses.layout.SGVerticalLayout import*
-from mainClasses.layout.SGHorizontalLayout import*
-from mainClasses.layout.SGGridLayout import*
-from mainClasses.gameAction.SGMove import*
-from mainClasses.gameAction.SGDelete import*
-from mainClasses.gameAction.SGModify import*
-from mainClasses.gameAction.SGCreate import*
-from mainClasses.gameAction.SGActivate import*
-from mainClasses.SGAgent import*
-from mainClasses.SGCell import*
-from mainClasses.SGControlPanel import*
-from mainClasses.SGDashBoard import*
-from mainClasses.SGEndGameRule import*
-from mainClasses.SGEntity import*
-from mainClasses.SGEntityDef import*
-from mainClasses.SGGrid import*
-from mainClasses.SGLegend import*
-from mainClasses.SGModelAction import*
-from mainClasses.SGPlayer import*
-from mainClasses.SGSimulationVariable import*
-from mainClasses.SGTextBox import*
-from mainClasses.SGLabel import*
-from mainClasses.SGButton import*
-from mainClasses.SGTimeLabel import*
-from mainClasses.SGTimeManager import*
-from mainClasses.SGUserSelector import*
-from mainClasses.SGVoid import*
-from mainClasses.SGDataRecorder import*
+# --- Standard library imports ---
+import json
+import queue
+import re
+import sys
+import threading
+import uuid
 from email.policy import default
 from logging.config import listen
-import sys
 from pathlib import Path
-from pyrsistent import s
-from win32api import GetSystemMetrics
-from paho.mqtt import client as mqtt_client
-import threading
-import queue
-import uuid
-import re
-import json
 
-
+# Ensure the current file's directory is in sys.path for local imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+# --- Third-party imports ---
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtSvg import *
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox
+from PyQt5 import QtWidgets
+from paho.mqtt import client as mqtt_client
+from pyrsistent import s
+from screeninfo import get_monitors
+
+# --- Project imports ---
+from mainClasses.SGAgent import *
+from mainClasses.SGCell import *
+from mainClasses.SGControlPanel import *
+from mainClasses.SGDashBoard import *
+from mainClasses.SGDataRecorder import *
+from mainClasses.SGEndGameRule import *
+from mainClasses.SGEntity import *
+from mainClasses.SGEntityDef import *
+from mainClasses.SGGraphController import SGGraphController
+from mainClasses.SGGraphLinear import SGGraphLinear
+from mainClasses.SGGraphCircular import SGGraphCircular
+from mainClasses.SGGraphWindow import SGGraphWindow
+from mainClasses.SGGrid import *
+from mainClasses.SGLegend import *
+from mainClasses.SGModelAction import *
+from mainClasses.SGPlayer import *
+from mainClasses.SGProgressGauge import *
+from mainClasses.SGSimulationVariable import *
+from mainClasses.SGTestGetData import SGTestGetData
+from mainClasses.SGTextBox import *
+from mainClasses.SGLabel import *
+from mainClasses.SGButton import*
+from mainClasses.SGTimeLabel import *
+from mainClasses.SGTimeManager import *
+from mainClasses.SGUserSelector import *
+from mainClasses.SGVoid import *
+from mainClasses.layout.SGGridLayout import *
+from mainClasses.layout.SGHorizontalLayout import *
+from mainClasses.layout.SGVerticalLayout import *
+from mainClasses.gameAction.SGActivate import *
+from mainClasses.gameAction.SGCreate import *
+from mainClasses.gameAction.SGDelete import *
+from mainClasses.gameAction.SGModify import *
+from mainClasses.gameAction.SGMove import *
+
+
+# By default, use a relative path based on the project structure
+path_icon = str(Path(__file__).parent.parent / 'icon')
+
+# Alternative method: uncomment the following line to use an absolute path
+# Example of absolute path: '/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/'
+# path_icon = '/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/'
 
 # Mother class of all the SGE System
 class SGModel(QMainWindow):
@@ -74,7 +86,15 @@ class SGModel(QMainWindow):
         """
         super().__init__()
         # Definition the size of the window ( temporary here)
-        screensize = GetSystemMetrics(0), GetSystemMetrics(1)
+        primary_monitor = next((m for m in get_monitors() if m.is_primary), None)
+
+        if primary_monitor:
+           width_screen = primary_monitor.width
+           height_screen = primary_monitor.height
+        
+        else: raise ValueError("Screen problem")
+
+        screensize = width_screen, height_screen
         self.setGeometry(
             int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
         # Init of variable of the Model
@@ -208,31 +228,40 @@ class SGModel(QMainWindow):
     
     # Create the menu of the menu
     def createMenu(self):
-        aAction = QAction(QIcon("./icon/play.png"), " &play", self)
-        aAction.triggered.connect(self.nextTurn)
-        self.menuBar().addAction(aAction)
-
+        # Add the 'play' button
+        if sys.platform == "darwin":
+            # For Mac compatibility: add the play button in a submenu
+            self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
+            startGame = QAction(" &Next step", self)
+            self.startGame.addAction(startGame)
+            startGame.triggered.connect(self.nextTurn)
+        else:
+            # for all other platforms than Mac, direct action on play icon
+            aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
+            aAction.triggered.connect(self.nextTurn)
+            self.menuBar().addAction(aAction)
+        
         self.menuBar().addSeparator()
 
-        aAction = QAction(QIcon("./icon/zoomPlus.png"), " &zoomPlus", self)
+        aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
         aAction.triggered.connect(self.zoomPlusModel)
         self.menuBar().addAction(aAction)
 
-        aAction = QAction(QIcon("./icon/zoomLess.png"), " &zoomLess", self)
+        aAction = QAction(QIcon(f"{path_icon}/zoomLess.png"), " &zoomLess", self)
         aAction .triggered.connect(self.zoomLessModel)
         self.menuBar().addAction(aAction)
 
-        aAction  = QAction(QIcon("./icon/zoomToFit.png"), " &zoomToFit", self)
+        aAction  = QAction(QIcon(f"{path_icon}/zoomToFit.png"), " &zoomToFit", self)
         aAction .triggered.connect(self.zoomFitModel)
         self.menuBar().addAction(aAction)
 
         self.menuBar().addSeparator()
 
-        self.symbologyMenu = self.menuBar().addMenu(QIcon("./icon/symbology.png"), "&Symbology")
+        self.symbologyMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
-        self.settingsMenu = self.menuBar().addMenu(QIcon("./icon/settings.png"), " &Settings")
+        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
 
         self.createGraphMenu()
 
@@ -240,44 +269,44 @@ class SGModel(QMainWindow):
     # Create all the action related to the menu
 
     def createGraphMenu(self):
-        self.chooseGraph = self.menuBar().addMenu(QIcon("./icon/icon_dashboards.png"), "&openChooseGraph")
+        self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&openChooseGraph")
         # Submenu linear
-        actionLinearDiagram = QAction(QIcon('./icon/icon_linear.png'), 'Diagramme Linéaire', self)
+        actionLinearDiagram = QAction(QIcon(f'{path_icon}/icon_linear.png'), 'Diagramme Linéaire', self)
         actionLinearDiagram.triggered.connect(self.openLinearGraph)
         self.chooseGraph.addAction(actionLinearDiagram)
 
-        actionHistogramDiagram = QAction(QIcon('./icon/icon_histogram.png'), 'Histogramme', self)
+        actionHistogramDiagram = QAction(QIcon(f'{path_icon}/icon_histogram.png'), 'Histogramme', self)
         actionHistogramDiagram.triggered.connect(self.openHistoGraph)
         self.chooseGraph.addAction(actionHistogramDiagram)
 
-        actionCircularDiagram = QAction(QIcon('./icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
+        actionCircularDiagram = QAction(QIcon(f'{path_icon}/icon_circular.jpg'), 'Diagramme Circulaire', self)
         actionCircularDiagram.triggered.connect(self.openCircularGraph)
         self.chooseGraph.addAction(actionCircularDiagram)
 
-        actionStackPlotDiagram = QAction(QIcon('./icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
+        actionStackPlotDiagram = QAction(QIcon(f'{path_icon}/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
         actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
 
-        actionOtherDiagram = QAction(QIcon('./icon/graph.png'), 'Autres Représentations', self)
+        actionOtherDiagram = QAction(QIcon(f'{path_icon}/graph.png'), 'Autres Représentations', self)
         actionOtherDiagram.triggered.connect(self.openOtherGraph)
         self.chooseGraph.addAction(actionOtherDiagram)
 
 
     def createAction(self):
-        self.save = QAction(QIcon("./icon/save.png"), " &save", self)
+        self.save = QAction(QIcon(f"{path_icon}/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
 
         self.backward = QAction(
-            QIcon("./icon/backwardArrow.png"), " &backward", self)
+            QIcon(f"{path_icon}/backwardArrow.png"), " &backward", self)
         self.backward.triggered.connect(self.backwardAction)
 
         self.forward = QAction(
-            QIcon("./icon/forwardArrow.png"), " &forward", self)
+            QIcon(f"{path_icon}/forwardArrow.png"), " &forward", self)
         self.forward.triggered.connect(self.forwardAction)
 
         self.inspect = QAction(
-            QIcon("./icon/inspect.png"), " &inspectAll", self)
+            QIcon(f"{path_icon}/inspect.png"), " &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)
 
     # Zoom
@@ -743,7 +772,16 @@ class SGModel(QMainWindow):
             return playerName
         else:
             return self.players[playerName]
-                
+        
+    def getPlayers(self):
+        """
+        Get all the players of the game
+
+        Returns:
+            list: list of players
+        """
+        return self.players.values()
+        
     def setCurrentPlayer(self, aUserName):
         """
         Set the Active Player at the initialisation
@@ -1083,7 +1121,18 @@ class SGModel(QMainWindow):
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
         return
-        
+    
+    def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+        aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
+        self.gameSpaces[title] = aProgressGauge
+        if dictOfMappedValues is not None: aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
+        simVar.addWatcher(aProgressGauge)  # Ajout de l'observateur
+        # Realocation of the position thanks to the layout
+        aProgressGauge.globalPosition()
+        self.applyAutomaticLayout()
+        aProgressGauge.checkAndUpdate()
+
+        return aProgressGauge   
     # ---------
 # Layout
 
@@ -1254,7 +1303,7 @@ class SGModel(QMainWindow):
     # -----------------------------------------------------------
     # Game mechanics function
 
-    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],create_several_at_each_click=False):
+    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False):
         """
         Add a Create GameAction to the game.
 
@@ -1267,9 +1316,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback, create_several_at_each_click = create_several_at_each_click)
+        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],setControllerContextualMenu=False):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
         Add a Modify GameAction to the game.
 
@@ -1282,9 +1331,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
+        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
-    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[]):
+    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
         Add a Delete GameAction to the game.
 
@@ -1297,9 +1346,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback)
+        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
-    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[]):
+    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
         """
         Add a MoveAction to the game.
 
@@ -1311,9 +1360,9 @@ class SGModel(QMainWindow):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
-        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent)
+        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
-    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],setControllerContextualMenu=False):
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """Add a ActivateAction to the game
         
         Args:
@@ -1329,7 +1378,7 @@ class SGModel(QMainWindow):
         if anObjectType is None or anObjectType ==self: aClassDef = self
 
         if aNumber == "infinite": aNumber = 9999999
-        return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,setControllerContextualMenu)
+        return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
     # -----------------------------------------------------------
     # Getter
 
@@ -1378,7 +1427,7 @@ class SGModel(QMainWindow):
         self.users = listOfUsers
 
     # To open and launch the game without a mqtt broker
-    def launch(self):
+    def  launch(self):
         """
         Launch the game.
         """
@@ -1442,6 +1491,7 @@ class SGModel(QMainWindow):
 
         print("connectMQTT")
         self.client = mqtt_client.Client(self.currentPlayer)
+        # self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayer) # for the new version of paho possible correction
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         self.client.on_log = on_log
