@@ -1,4 +1,5 @@
 import json
+import numbers
 #A class to be inherited, that handlse the attributs and values
 
 class AttributeAndValueFunctionalities():
@@ -26,10 +27,11 @@ class AttributeAndValueFunctionalities():
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.dictAttributes[aAttribut]=aValue
         self.saveValueInHistory(aAttribut,aValue)
-
-        self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
+        if hasattr(self, 'classDef'): # This is to prevent the EntDef from executing the following line
+            self.classDef.updateWatchersOnAttribute(aAttribut) # This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        self.update()
+        if hasattr(self, 'update') and callable(getattr(self, 'update')):  # This is to prevent the EntDef from executing the following line
+            self.update()
         return True
     
     def value(self,att):
@@ -59,7 +61,7 @@ class AttributeAndValueFunctionalities():
             aValue = valueToSet()
         else:
             aValue = valueToSet
-        if isinstance(self.value(aAttribut), int) and isinstance(aValue, int):
+        if isinstance(self.value(aAttribut), numbers.Number) and isinstance(aValue, numbers.Number):
             self.setValue(aAttribut,
                           (self.value(aAttribut) + aValue if max is None else min(self.value(aAttribut) + aValue, max)))
         #self.setValue(aAttribut,(self.value(aAttribut)+aValue if max is None else min(self.value(aAttribut)+aValue,max)))
@@ -76,7 +78,7 @@ class AttributeAndValueFunctionalities():
             aValue (str): Value to be subtracted to the current value of the attribute
         """
 
-        if isinstance(self.value(aAttribut), int) and isinstance(aValue, int):
+        if isinstance(self.value(aAttribut), numbers.Number) and isinstance(aValue, numbers.Number):
             self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
 
     def calcValue(self,aAttribut,aLambdaFunction):
@@ -105,7 +107,10 @@ class AttributeAndValueFunctionalities():
         if aItem: return aItem[2]
         else: return self.getDictOfAttributes_atRoundAndPhase(aRound,aPhase)[aAttribute]
 
-        
+    def getInitialValue(self,aAttribute):
+        return self.getAttributeValue_atRoundAndPhase(0,0,aAttribute)
+
+
     def getListOfUntagedStepsData(self,startStep=None,endStep=None):
         if self.history["value"]=={}: return []
         aList=[]

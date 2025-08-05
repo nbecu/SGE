@@ -1,21 +1,32 @@
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from PyQt5.QtWidgets import QInputDialog
+
 
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
     def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None):#,setControllerContextualMenu=False,setOnController=True):
+        #todo il manque le setControllerContextualMenu et le create_several_at_each_click venant de la branche  MTZC-fev-2025
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay)#,setControllerContextualMenu)
         self.dictAttributs=dictAttributs
         if nameToDisplay is None: self.name="Create "+str(self.targetEntDef.entityName)
         else: self.name=nameToDisplay
         self.actionType="Create"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef.entityType() == 'Cell')
+        self.create_several_at_each_click=create_several_at_each_click
 
 
     def executeAction(self, aTargetEntity):
-        return self.targetEntDef.newAgentOnCell(aTargetEntity,self.dictAttributs)
+        nbOfAgents = 1 if not self.create_several_at_each_click else self.numberOfAgentsToCreate()
+        listOfNewAgents = [self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs) for _ in range(nbOfAgents)]
+        return listOfNewAgents[0] if len(listOfNewAgents) == 1 else listOfNewAgents or None
 
+    def numberOfAgentsToCreate(self):
+        number, ok = QInputDialog.getInt(None, f"Create {self.targetEntDef.entityName}", "Number to create:", 1, 1)
+        if ok:
+            return number
+        return 0
 
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:
@@ -26,7 +37,9 @@ class SGCreate(SGAbstractAction):
                 aList = []
                 for aAtt, aValue in self.dictAttributs.items():
                     aColor = self.targetEntDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
-                    aList.append(SGLegendItem(aControlPanel,'symbol','create('+aAtt+'='+str(aValue)+')',self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
+                    
+                    #todo Modifs pour MTZC pour que ce soit plus simple
+                    aList.append(SGLegendItem(aControlPanel,'symbol',str(aValue),self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
                 return aList
 
 

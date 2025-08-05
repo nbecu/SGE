@@ -54,30 +54,83 @@ class SGPlayer(AttributeAndValueFunctionalities):
                          self.model.layoutOfModel.getNumberOfAnElement(self.controlPanel), self.controlPanel.startYBase)
         else:
             pos = self.model.layoutOfModel.foundInLayout(self.controlPanel)
-            self.controlPanel.move(self.controlPanel.startXBase+20 *
-                         pos[0], self.controlPanel.startYBase+20*pos[1])
+            self.controlPanel.move( self.controlPanel.startXBase + 20 * pos[0],
+                                    self.controlPanel.startYBase + 20 * pos[1])
         self.model.applyAutomaticLayout()
         return self.controlPanel
 
     # To handle attributesAndValues
     # setter
-    def setValue(self,aAttribut,aValue):
+    def setValue(self,aAttribut,valueToSet):
         """
         Sets the value of an attribut
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be set
         """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        self.saveValueInHistory(aAttribut,aValue)
         self.dictAttributes[aAttribut]=aValue
+        self.saveValueInHistory(aAttribut,aValue)
+        # self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+        # self.model.update()
         return True
 
     def getListOfStepsData(self,startStep=None,endStep=None):
         aList=self.getListOfUntagedStepsData(startStep,endStep)
         return [{**{'playerName': self.name}, **aStepData} for aStepData in aList]
 
+    def getStatsOfGameActions(self):
+        stats = []
+                
+        currentRound = self.model.timeManager.currentRoundNumber
+        currentPhase = self.model.timeManager.currentPhaseNumber
+        nbPhases = self.model.timeManager.numberOfPhases()
+
+        # D'abord traiter l'étape d'initialisation (0,0)
+        step_actions = {
+            'player_name': self.name,
+            'round': 0,
+            'phase': 0,
+            'actions_performed': [
+                {
+                    'action_id': action.id,
+                    'action_type': action.name,
+                    'usage_count': len([p for p in action.history["performed"] if p[0] == 0 and p[1] == 0])
+                }
+                for action in self.gameActions
+                # if any(p[0] == 0 and p[1] == 0 for p in action.history["performed"])
+            ]
+        }
+        stats.append(step_actions)
+        
+        # Ensuite parcourir tous les rounds (à partir de 1)
+        for round_num in range(1, currentRound + 1):
+            # Pour chaque round, parcourir toutes les phases (à partir de 1)
+            for phase_num in range(1, nbPhases + 1):
+                if round_num == currentRound and phase_num > currentPhase: continue
+                step_actions = {
+                    'player_name': self.name,
+                    'round': round_num,
+                    'phase': phase_num,
+                    'actions_performed': [
+                        {
+                            'action_id': action.id,
+                            'action_type': action.name,
+                            'usage_count': len([p for p in action.history["performed"] if p[0] == round_num and p[1] == phase_num])
+                        }
+                        for action in self.gameActions
+                        # if any(p[0] == round_num and p[1] == phase_num for p in action.history["performed"])
+                    ]
+                }
+                if step_actions['actions_performed']:
+                    stats.append(step_actions)
+        return stats
+        # return [{**{'playerName': self.name}, **aStepData} for aStepData in aList]
 
     def addWatcher(self,aIndicator):
         if aIndicator.attribute is None:
@@ -142,4 +195,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
             self.gameActions.append(aGameAction)
         return aGameAction
 
+    def hasActionsToUse(self):
+        for action in self.gameActions:
+            if action.canBeUsed():
+                return True
+        return False
     

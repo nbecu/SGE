@@ -27,7 +27,7 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 # For SGModifyAction it is possible to specify setControllerContextualMenu=True to set the controller on the entity on right clic
-Player1.addGameAction(myModel.newModifyAction('Cell',{"landUse":"grass"},3))
+Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 UpdateTest=myModel.newModifyAction(Sheeps,{"health":"good"},setControllerContextualMenu=True)
 Player1.addGameAction(UpdateTest)
 UpdateTest2=myModel.newModifyAction(Sheeps,{"health":"bad"},setControllerContextualMenu=True)

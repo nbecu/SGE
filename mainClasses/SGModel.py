@@ -44,6 +44,7 @@ from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGTextBox import *
 from mainClasses.SGLabel import *
+from mainClasses.SGButton import*
 from mainClasses.SGTimeLabel import *
 from mainClasses.SGTimeManager import *
 from mainClasses.SGUserSelector import *
@@ -209,7 +210,7 @@ class SGModel(QMainWindow):
         if self.currentPlayer is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustWidgetsPosition)
+        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
         
     def hasDefinedPositionGameSpace(self):
         return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
@@ -417,7 +418,7 @@ class SGModel(QMainWindow):
         menu = QMenu(self)
 
         option1 = QAction("LayoutCheck", self)
-        option1.triggered.connect(self.adjustWidgetsPosition) #todo Pourquoi lancer cette méthode ici ???
+        option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
                                         #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
         menu.addAction(option1)
 
@@ -429,9 +430,10 @@ class SGModel(QMainWindow):
         # Update window title with the number of the round and number of the phase
         if self.isTimeDisplayedInWindowTitle :
             if self.timeManager.numberOfPhases() == 1:
-                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}"
+                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}"
             else:
-                title = f"{self.windowTitle_prefix} - Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+
             self.setWindowTitle(title) 
 
 
@@ -441,7 +443,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name="",backGroundImage=None,defaultCellImage=None):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None):
         """
         Create a grid that contains cells
 
@@ -458,25 +460,31 @@ class SGModel(QMainWindow):
         Returns:
             aCellDef: the cellDef that defines the cells that have been placed on a grid
         """
+        # process the name if not defined by the user. The name has to be uniquer, because it is used to reference the CellDef and the associated grid
+        if name is None:
+            name = f'grid{str(self.numberOfGrids()+1)}'
+            if name in self.gameSpaces:
+                name = name + 'bis'
         # Create a grid
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
 
         # Create a CellDef populate the grid with it
-        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage)
+        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage,name)
         aGrid.cellDef =aCellDef
 
         self.gameSpaces[name] = aGrid
 
         # Realocation of the position thanks to the layout
         aGrid.globalPosition()
+        self.applyAutomaticLayout()
         return aCellDef
     
-    def newCellsFromGrid(self,grid,defaultCellImage):
-        CellDef = SGCellDef(grid, grid.cellShape,grid.size,defaultColor=Qt.white,entDefAttributesAndValues=None,defaultCellImage=defaultCellImage)
+    def newCellsFromGrid(self,grid,defaultCellImage,entityName):
+        CellDef = SGCellDef(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,entityName=entityName,defaultCellImage=defaultCellImage)
         self.cellOfGrids[grid.id] = CellDef
-        for lin in range(1, grid.rows + 1):
+        for row in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
-                CellDef.newCell(col, lin)
+                CellDef.newCell(col, row)
         return CellDef
 
     # To get the CellDef corresponding to a Grid
@@ -498,6 +506,12 @@ class SGModel(QMainWindow):
         for entDef in self.cellOfGrids.values():
             aList.extend(entDef.entities)
         return aList
+    
+    def numberOfCellDef(self):
+        return len(self.cellOfGrids)
+    
+    def numberOfGrids(self):
+        return self.numberOfCellDef()
 
     def getAllEntities(self):
         # send back the cells of all the grids and the agents of all the species
@@ -528,11 +542,11 @@ class SGModel(QMainWindow):
         newPos = self.layoutOfModel.addGameSpace(aVoid)
         aVoid.setStartXBase(newPos[0])
         aVoid.setStartYBase(newPos[1])
-        aVoid.move(aVoid.getStartXBase(), aVoid.getStartYBase())
+        aVoid.move(aVoid.startXBase, aVoid.startYBase)
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):#, grid=None):
+    def newLegend(self, name='Legend', showAgentsWithNoAtt=False, addDeleteButton=True):#, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
@@ -544,7 +558,7 @@ class SGModel(QMainWindow):
         """
         # selectedSymbologies=self.getAllCheckedSymbologies(grid)
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt, addDeleteButton)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
@@ -624,7 +638,16 @@ class SGModel(QMainWindow):
     def getEntityDef(self, entityName):
         if isinstance(entityName,SGEntityDef):
             return entityName
-        return next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+        return self.getEntityDefByName(entityName)
+    
+    def getEntityDefByName(self, entityName):
+        entityDef = next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+        
+        if entityDef is None:
+            existing_entities = [entDef.entityName for entDef in self.getEntitiesDef()]
+            raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
+        
+        return entityDef
 
     #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
     def getSGEntity_withIdentfier(self, aIdentificationDict):
@@ -673,6 +696,8 @@ class SGModel(QMainWindow):
     
     def checkAndUpdateWatchers(self):
         for entDef in self.getEntitiesDef():
+            entDef.updateAllWatchers()
+        for aPlayer in self.getEntitiesDef():
             entDef.updateAllWatchers()
     
     def getAgentsPrivateID(self):
@@ -739,6 +764,9 @@ class SGModel(QMainWindow):
         self.users.append(player.name)
         return player
 
+    def getAllPlayers(self):
+        return list(self.players.values())
+        
     def getPlayer(self, playerName):
         if playerName == "Admin":
             return playerName
@@ -842,17 +870,27 @@ class SGModel(QMainWindow):
         return aTextBox
     
     # To create a Text Box
-    def newLabel(self, label, position, textStyle_specs="", borderStyle_specs="",backgroundColor_specs=""):
+    def newLabel(self, text, position, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
         """Display a text at a given position
 
         Args:
             text (str): The text to display.
             position (tuple): Coordinates (x, y) of the position of the text.
+            textStyle_specs (str, optional): CSS-like specifications for the text style (font, size, color, etc.).
+            borderStyle_specs (str, optional): CSS-like specifications for the border style (size, color, type).
+            backgroundColor_specs (str, optional): CSS-like specifications for the background color.
+            alignement (str, optional): Text alignment. Options include "Left", "Right", "HCenter", "Top", "Bottom", "VCenter", "Center", "Justify".
+            fixedWidth (float, optional): Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long.
+            fixedHeight (float, optional): Fixed height of the widget in pixels. If specified, the widget will have a fixed height and will not resize.
+
+        Returns:
+            SGLabel: An instance of SGLabel with the specified properties.
         """
-        aLabel = SGLabel(self, label, position, textStyle_specs, borderStyle_specs, backgroundColor_specs)
+        aLabel = SGLabel(self, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
+        aLabel.move(position[0], position[1])
         return aLabel
 
-    def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", border_style="solid", border_size=0, border_color=None, background_color=None):
+    def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", alignement= "Left", border_style="solid", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):
         """Display a text at a given position and allow setting the style of the text, border, and background.
 
         Args:
@@ -864,10 +902,13 @@ class SGModel(QMainWindow):
             text_decoration (str, optional): Text decoration style. Options include "none", "underline", "overline", "line-through", "blink".
             font_weight (str, optional): Font weight. Options include "normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900".
             font_style (str, optional): Font style. Options include "normal", "italic", "oblique".
+            alignement (str, optional): Text alignment. Options include "Left", "Right, "HCenter", "Top", "Bottom", "VCenter", "Center", "Justify".
             border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
             border_size (int, optional): Border size in pixels.
             border_color (str, optional): Same options as color.
             background_color (str, optional): Same options as color.
+            fixedWidth (float, optional): Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long.
+            fixedHeight (float, optional): Fixed height of the widget in pixels.
         """
         # Create the text style
         text_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
@@ -879,8 +920,128 @@ class SGModel(QMainWindow):
         background_specs = f"background-color: {background_color};"
         
         # Call the newLabel method with the created styles
-        aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs)
+        aLabel = self.newLabel(text, position, text_specs, border_specs, background_specs, alignement, fixedWidth, fixedHeight)
         return aLabel
+    
+    # To create a Push Button
+    def newButton(self, method, text, position, 
+                    background_color='white',
+                    background_image=None,
+                    border_size=1,
+                    border_color='lightgray',
+                    border_style='solid',
+                    border_radius=5,
+                    text_color=None,
+                    font_family=None,
+                    font_size=None,
+                    font_weight=None,
+                    min_width=None,
+                    min_height=None,
+                    padding=2,
+                    hover_text_color= None,
+                    hover_background_color= '#c6eff7',
+                    hover_border_color= '#6bd8ed',
+                    pressed_color=None,
+                    disabled_color=None):
+        """Display a button with customizable style.
+
+        Args:
+            method (lambda function): Method to execute when button is pressed (should be encapsulated in a lambda function)
+            text (str): Text of the button
+            position (tuple): Coordinates (x, y) of the button position
+            background_color (str, optional): Background color. Can be name (e.g., "red"), hex (#FF0000), RGB (rgb(127,12,0)) or RGBA
+            background_image (str, optional): Path to background image
+            border_size (int, optional): Border size in pixels
+            border_color (str, optional): Border color. Same format as background_color
+            border_style (str, optional): Border style. Options include "solid", "dotted", "dashed", "double", "groove", "ridge", "inset".
+            border_radius (int, optional): Border radius in pixels for rounded corners
+            text_color (str, optional): Text color. Same format as background_color
+            font_family (str, optional): Font family (e.g., "Arial", "Times New Roman", "Helvetica")
+            font_size (int, optional): Font size in pixels
+            font_weight (str, optional): Font weight ("normal", "bold", "100" to "900")
+            min_width (int, optional): Minimum button width in pixels
+            min_height (int, optional): Minimum button height in pixels
+            padding (int, optional): Internal padding in pixels
+            hover_color (str, optional): Background color on hover. Same format as background_color
+            pressed_color (str, optional): Background color when pressed. Same format as background_color
+            disabled_color (str, optional): Background color when disabled. Same format as background_color
+        """
+        #  # Create the text style
+        # textStyle_specs = ';'.join(filter(None, [
+        #     f"font-family: {font}" if font is not None else None,
+        #     f"font-size: {size}px" if size is not None else None,
+        #     f"color: {color}" if color is not None else None,
+        #     # f"text-decoration: {text_decoration}" if text_decoration is not None else None,
+        #     f"font-weight: {font_weight}" if font_weight is not None else None,
+        #     f"font-style: {font_style}" if font_style is not None else None
+        # ])) + ';'
+        # # textStyle_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
+        # # Create the border style
+        # borderStyle_specs = ';'.join(filter(None, [
+        #     f"border: {border_size}px {border_style} {border_color}" if all(x is not None for x in [border_size, border_style, border_color]) else None
+        # ])) + ';'
+        # # borderStyle_specs = f"border: {border_size}px {border_style} {border_color};"        
+        # # Create the background style
+        # backgroundColor_specs = f"background-color: {background_color};"
+
+        # aButton = SGButton(self, method, text)
+        
+        aButton = SGButton(self, method, text,
+                        background_color=background_color,
+                        background_image=background_image,
+                        border_size=border_size,
+                        border_style=border_style,
+                        border_color=border_color,
+                        border_radius=border_radius,
+                        text_color=text_color,
+                        font_family=font_family,
+                        font_size=font_size,
+                        font_weight=font_weight,
+                        min_width=min_width,
+                        min_height=min_height,
+                        padding=padding,
+                        hover_text_color= hover_text_color,
+                        hover_background_color= hover_background_color,
+                        hover_border_color= hover_border_color,
+                        pressed_color=pressed_color,
+                        disabled_color=disabled_color)
+        # aButton = SGButton(self, method, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, fixedWidth, fixedHeight)
+        aButton.move(position[0], position[1])
+        return aButton
+    
+
+    def set_gameSpaces_draggability(self, all_elements=None, include=None, exclude=None, value=True):
+        """
+        Met à jour l'état de "draggability" des éléments.
+        
+        :param all_elements: Si True, applique la valeur à tous les éléments.
+        :param include: Liste des éléments spécifiques à modifier.
+        :param exclude: Liste des éléments à exclure.
+        :param value: Valeur à appliquer (True ou False).
+        """
+        all_game_spaces = self.gameSpaces.values()
+
+
+        # Initialiser la liste des éléments à modifier
+        elements_to_change = set()
+
+        # Ajouter tous les éléments si all_elements est True
+        if all_elements:
+            elements_to_change.update(all_game_spaces)
+
+        # Ajouter les éléments spécifiés dans include
+        if include:
+            elements_to_change.update(include)
+
+        # Exclure les éléments spécifiés dans exclude
+        if exclude:
+            elements_to_change.difference_update(exclude)
+
+        # Mettre à jour la "draggability" pour les éléments sélectionnés
+        for element in elements_to_change:
+            element.setDraggability(value)
+
+#****************************************************
 
 
 
@@ -891,19 +1052,19 @@ class SGModel(QMainWindow):
         for aTextBox in TextBoxes:
             print(str(aTextBox.id)+' : '+str(aTextBox.history))
 
-    def newDashBoard(self, title='DashBoard', borderColor=Qt.black, backgroundColor=Qt.transparent, textColor=Qt.black):
-        """
+    def newDashBoard(self, title=None, borderColor=Qt.black, borderSize=1, backgroundColor=QColor(230, 230, 230), textColor=Qt.black, layout ='vertical'):
+        """  Qt.lightGray
         Create the score board of the game
 
         Args:
         title (str) : title of the widget (default:"Phases&Rounds")
         backgroundColor (Qt Color) : color of the background (default : Qt.transparent)
-        borderColor (Qt Color) : color of the border (default : Qt.black)
+        borderColor (Qt Color, default very light gray) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
         aDashBoard = SGDashBoard(
-            self, title, borderColor, backgroundColor, textColor)
-        self.gameSpaces[title] = aDashBoard
+            self, title, borderColor, borderSize, backgroundColor, textColor, layout)
+        self.gameSpaces[aDashBoard.id] = aDashBoard
         # Realocation of the position thanks to the layout
         aDashBoard.globalPosition()
         self.applyAutomaticLayout()
@@ -985,18 +1146,20 @@ class SGModel(QMainWindow):
         return gameSpaces
     
     # To apply the layout to all the current game spaces
-    def applyAutomaticLayout(self):
+    def applyAutomaticLayout(self): #todo basculer ce code dans les classes de layout
         self.layoutOfModel.ordered()
+        aGap = self.layoutOfModel.gapBetweenGameSpaces
         for aGameSpace in (element for element in self.gameSpaces.values() if not element.isPositionDefineByModeler()):
             if self.typeOfLayout == "vertical":
-                aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase +
-                                                20*self.layoutOfModel.getNumberOfaGameSpace(aGameSpace))
+                aGameSpace.move(aGameSpace.startXBase,
+                                aGameSpace.startYBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)))
             elif (self.typeOfLayout == "horizontal"):
-                aGameSpace.move(aGameSpace.startXBase+20*self.layoutOfModel.getNumberOfaGameSpace(
-                    aGameSpace), aGameSpace.startYBase)
+                aGameSpace.move( aGameSpace.startXBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)),
+                                         aGameSpace.startYBase)
             else:
                 pos = self.layoutOfModel.foundInLayout(aGameSpace)
-                aGameSpace.move(aGameSpace.startXBase+20*pos[0], aGameSpace.startYBase+20*pos[1])
+                aGameSpace.move( aGameSpace.startXBase + (aGap * pos[0]),
+                                 aGameSpace.startYBase + (aGap * pos[1]))
                 
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
@@ -1004,13 +1167,13 @@ class SGModel(QMainWindow):
             return True
         return False
     
-    def adjustWidgetsPosition(self):
+    def adjustGamespacesPosition(self):
         for name,aGameSpace in self.gameSpaces.items():
             for otherName,otherElement in self.gameSpaces.items():
                 while self.checkLayoutIntersection(name,aGameSpace,otherName,otherElement):
                     if aGameSpace.areaCalc() <= otherElement.areaCalc():
                         local_pos=aGameSpace.pos()
-                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10)
+                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10) #todo Ce code créé un décalage vertical meme lorsque qu'il n'y a pas de superposition
                     else:
                         local_pos=otherElement.pos()
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)
@@ -1141,6 +1304,7 @@ class SGModel(QMainWindow):
     # Game mechanics function
 
     def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None):
+        #todo il manque le create_several_at_each_click venant de la branche  MTZC-fev-2025for_merge
         """
         Add a Create GameAction to the game.
 
@@ -1154,6 +1318,7 @@ class SGModel(QMainWindow):
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         if aNumber == "infinite": aNumber = 9999999
         return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay)
+        #todo il manque le create_several_at_each_click venant de la branche  MTZC-fev-2025for_merge
 
     def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
@@ -1205,10 +1370,15 @@ class SGModel(QMainWindow):
         Args:
         - an ObjectType : a Entity
         - """
-
+        #Case for action on a Entity
         aClassDef = self.getEntityDef(anObjectType)
-        if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        if setControllerContextualMenu: aClassDef.updateMenu=True
+        # if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if aClassDef is not None and setControllerContextualMenu:
+            aClassDef.updateMenu=True
+
+        #Case for action on the model
+        if anObjectType is None or anObjectType ==self: aClassDef = self
+
         if aNumber == "infinite": aNumber = 9999999
         return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
     # -----------------------------------------------------------
@@ -1481,5 +1651,14 @@ class SGModel(QMainWindow):
             else: raise ValueError('No other possible choices')
 
         self.actionsFromBrokerToBeExecuted=[]
+
+    def getEntityDefByName(self, entityName):
+        entityDef = next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+        
+        if entityDef is None:
+            existing_entities = [entDef.entityName for entDef in self.getEntitiesDef()]
+            raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
+        
+        return entityDef
 
 

@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Create a empty ControlPanel")
+myModel=SGModel(860,700, windowTitle="Set random entities")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2,name='mygrid')
 Cell.setEntities("landUse","grass")

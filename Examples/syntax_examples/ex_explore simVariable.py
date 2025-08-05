@@ -24,6 +24,6 @@ dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnSimVariable(score1)
 dashboard.addIndicatorOnSimVariable(score2)
 
-myModel.newTimeLabel()
+myModel.newTimeLabel('Test')
 myModel.launch() 
 sys.exit(monApp.exec_())

@@ -13,8 +13,10 @@ from mainClasses.gameAction.SGCreate import SGCreate
 class SGLegend(SGGameSpace):
     def __init__(self, parent,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
-       
-    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
+        # self.heightOfLabels= 25 #added for CarbonPolis
+        self.heightOfLabels= 20 #added for CarbonPolis
+
+    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,addDeleteButton=True,borderColor=Qt.black):
         self.id=legendName
         self.model=model
         self.playerName=playerName
@@ -23,7 +25,7 @@ class SGLegend(SGGameSpace):
         self.isActive=True
         self.selected = None # To handle the selection of an item in the legend
         self.borderColor=borderColor
-        self.haveADeleteButton=False
+        self.haveADeleteButton=addDeleteButton
         self.updateWithSymbologies(listOfSymbologies)
         return self
 
@@ -42,7 +44,8 @@ class SGLegend(SGGameSpace):
         self.clearAllLegendItems()
         self.listOfSymbologies=listOfSymbologies
         self.posYOfItems = 0
-        anItem=SGLegendItem(self,'Title1',self.id) 
+        anItem=SGLegendItem(self,'Title1',self.id)
+        self.legendItems.append(anItem)
         for entDef, aDictOfSymbology in self.listOfSymbologies.items():
             anItem=SGLegendItem(self,'Title2',entDef.entityName)
             self.legendItems.append(anItem)
@@ -67,12 +70,16 @@ class SGLegend(SGGameSpace):
                 for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
                     anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
                     self.legendItems.append(anItem)
-        anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
-        self.legendItems.append(anItem)
+        if self.haveADeleteButton :
+            anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
+            self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
+            anItem.adjustSize()  #NEW
             anItem.show()
-        self.setMinimumSize(self.getSizeXGlobal(),10)
+        self.adjustSize()
+        # self.setMinimumSize(self.getSizeXGlobal(),10)
+        self.setMinimumSize(self.getSizeX_fromAllWidgets(),10)
 
     def showLegendItem(self, typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors):
         item_key=aAttribut +' '+ str(aValue)
@@ -98,8 +105,16 @@ class SGLegend(SGGameSpace):
         lMax= sorted(listOfLengths,reverse=True)[0]
         return lMax*12+10
     
+    def getSizeX_fromAllWidgets(self):
+        if self.legendItems:  # Vérifier si la liste n'est pas vide
+            max_size_item = max(self.legendItems, key=lambda item: item.geometry().size().width())
+            max_width = max_size_item.geometry().size().width()
+        else:
+            max_width = 30  # Ou une autre valeur par défaut
+        return max_width + 10
+    
     def getSizeYGlobal(self):
-        return 25*(len(self.legendItems)+1)
+        return (self.heightOfLabels)*(len(self.legendItems)+1)
     
     #Funtion to handle the zoom
     def zoomIn(self):
@@ -116,13 +131,15 @@ class SGLegend(SGGameSpace):
             painter = QPainter() 
             painter.begin(self)
             if self.isActive:
-                painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
             else:
                 painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
             painter.setPen(QPen(self.borderColor,1))
             #Draw the corner of the Legend
-            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+            # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+            # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+            self.setMinimumSize(self.getSizeX_fromAllWidgets(), self.getSizeYGlobal()+3)
+            painter.drawRect(0,0,self.getSizeX_fromAllWidgets()-1, self.getSizeYGlobal())     
 
 
             painter.end()

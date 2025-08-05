@@ -19,7 +19,7 @@ class SGActivate(SGAbstractAction):
     def executeAction(self,aTargetEntity,serverUpdate=True):
         method = self.method
         try:
-            gameScript = self.logFromModeleur(sys.argv[0])
+            gameScript = self.logFromModeler(sys.argv[0])
             if hasattr(gameScript, method):
                 func = getattr(gameScript, method)
                 if callable(func):
@@ -32,7 +32,7 @@ class SGActivate(SGAbstractAction):
         except FileNotFoundError as e:
             print(e)
     
-    def logFromModeleur(self, fileName):
+    def logFromModeler(self, fileName):
         # Import the method by name from game file
         spec=importlib.util.spec_from_file_location("GameFile",fileName)
         module=importlib.util.module_from_spec(spec)

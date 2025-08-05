@@ -10,7 +10,7 @@ monApp = QtWidgets.QApplication([])
 # STEP1 Model
 
 myModel = SGModel(
-    1800, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
+    1100, 900, x=5, windowTitle="dev project : Rehab Game", typeOfLayout="grid")
 
 
 # STEP2 Grid and Cells
@@ -51,8 +51,8 @@ Player1 = myModel.newPlayer("Player 1")
 createA1=myModel.newCreateAction(Workers, aNumber=20)
 Player1.addGameAction(createA1)
 Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
-Player1.addGameAction(myModel.newDeleteAction('Cell', "infinite"))
-Player1.addGameAction(myModel.newModifyAction('Cell', {"Resource": 3}, 3))
+Player1.addGameAction(myModel.newDeleteAction(Cell, "infinite"))
+Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
@@ -60,17 +60,15 @@ Player1ControlPanel = Player1.newControlPanel(
 Player2 = myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.newCreateAction(Birds,aNumber=4))
 Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
-Player2.addGameAction(myModel.newModifyAction(
-    "Cell", {"ProtectionLevel": "Reserve"}, 3))
-Player2.addGameAction(myModel.newModifyAction(
-    "Cell", {"ProtectionLevel": "Free"}))
+Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))
+Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
 # STEP5 Time management
-myModel.timeManager.newGamePhase('Phase 1', [Player1, Player2])
-myModel.timeManager.newGamePhase('Phase 2', [Player1, Player2])
+myModel.timeManager.newGamePhase('Phase 1', [Player2])
+myModel.timeManager.newGamePhase('Phase 2', [Player1])
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 myModel.setCurrentPlayer('Player 1')
 

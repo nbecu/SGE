@@ -170,9 +170,7 @@ class SGAgent(SGEntity):
             ])
             region = QRegion(points)
         return region
-
-
-
+   
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
         self.size=round(self.size+(zoomFactor*10))

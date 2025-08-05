@@ -3,10 +3,10 @@ from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
+from mainClasses.SGIndicator import SGIndicator
 import numpy as np
-from collections import Counter
+from collections import Counter, defaultdict
 import random
-
 # Définition de SGEntityDef
 class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultShapeColor):
@@ -23,6 +23,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.povBorderColorAndWidth = {}
         self.shapeColorClassif = {}  # Classif will replace pov
         self.borderColorClassif = {}  # Classif will replace pov
+        
+        #Define variables to handle the history 
+        self.history={}
+        self.history["value"]=defaultdict(list)
         self.watchers = {}
         self.IDincr = 0
         self.entities = []
@@ -51,7 +55,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.watchers[aAtt].append(aIndicator)
 
     def updateWatchersOnAttribute(self,aAtt):
-        for watcher in self.watchers.get(aAtt,[]):
+        watchers_with_condition_on_entities = [item for sublist in self.watchers.values() for item in sublist if item.conditionsOnEntities]  # Filtrage des éléments
+        watchers_of_the_changed_attribute = self.watchers.get(aAtt,[])
+        for watcher in (watchers_of_the_changed_attribute + watchers_with_condition_on_entities):
             watcher.checkAndUpdate()
 
     def updateWatchersOnAllAttributes(self):
@@ -209,8 +215,23 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.listOfStepStats.append(aData)
 
 
+    # To handle the info to be displayed in a contextual menu on entitis
+    def setAttributeValueToDisplayInContextualMenu(self,aAttribut,aLabel=None):
+        aDict={}
+        aDict['att']=aAttribut
+        aDict['label']= (aLabel if aLabel is not None else aAttribut)
+        self.attributesToDisplayInContextualMenu.append(aDict)
+    
+    # # To handle the attrobutes concerned by the contextual update menu
+    # def setAttributesConcernedByUpdateMenu(self,aAttribut,aLabel=None):
+    #     self.updateMenu=True
+    #     aDict={}
+    #     aDict['att']=aAttribut
+    #     aDict['label']= (aLabel if aLabel is not None else aAttribut)
+    #     self.attributesToDisplayInUpdateMenu.append(aDict)
 
 # ********************************************************    
+#* METHODS USED BY THE MODELER
 
 # to get the entity matching a Id or at a specified coordinates
     def getEntity(self, x, y=None):
@@ -306,7 +327,27 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         return self.getRandomEntities(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
 
 
-# To handle POV and placing on entity
+################
+
+# To handle entDefAttributesAndValues
+    # setter
+    ## THIS METHOD IS COMMENTED BECAUSE IT IS ALREADY DEFINED IN AttributeAndValueFunctionalities 
+    # def setValue(self,aAttribut,aValue):
+    #     """
+    #     Sets the value of an attribut
+    #     Args:
+    #         aAttribut (str): Name of the attribute
+    #         aValue (str): Value to be set
+    #     """
+
+    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
+    #     #self.saveHistoryValue()
+    #     #print("name self : ", self.entities)
+    #     self.dictAttributes[aAttribut]=aValue
+    #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
+    #     return True
+
+    
 
     # To define a value for all entities
     def setEntities(self, aAttribute, aValue, condition=None):
@@ -432,7 +473,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for ent in self.entities[:]:
             self.deleteEntity(ent)
 
-    # Indicators
+################
+    # INDICATORS
+
     # to get the nb of entities
     def nbOfEntities(self):
         return len(self.getEntities())
@@ -441,39 +484,167 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     def nb_withValue(self, att, value):
         return len(self.getEntities_withValue(att, value))
     
-    # To handle entDefAttributesAndValues
-    # setter
-    def setValue(self,aAttribut,aValue):
+    def metricOnEntities(self, metric, attribute, value=None):
         """
-        Sets the value of an attribut
+        Get metrics for all entities.
         Args:
-            aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
+            metric (str): The metric to use for statistical evaluation. Possible values include:
+                - 'sumAtt': Sum of the specified attribute values.
+                - 'avgAtt': Average of the specified attribute values.
+                - 'minAtt': Minimum value of the specified attribute.
+                - 'maxAtt': Maximum value of the specified attribute.
+                - 'nbWithLess': Count of entities with attribute values less than the specified value.
+                - 'nbWithMore': Count of entities with attribute values greater than the specified value.
+                - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
+            attribute (str): The attribute to evaluate.
+            value (optional): The value to compare against for certain metrics.
+        Returns:
+            float or int: The calculated metric for all entities.
         """
+        return SGIndicator.metricOn(self.getEntities(), metric, attribute, value)
 
-        if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-        #self.saveHistoryValue()
-        #print("name self : ", self.entities)
-        self.dictAttributes[aAttribut]=aValue
-        self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-        return True
+    def metricOnEntitiesWithValue(self, attributeForSelection, valueForSelection, metric, attribute, value=None):
+        """
+        Get metrics for entities that have a specific attribute value.
 
-    # To handle the info to be displayed in a contextual menu on entitis
-    def setAttributeValueToDisplayInContextualMenu(self,aAttribut,aLabel=None):
-        aDict={}
-        aDict['att']=aAttribut
-        aDict['label']= (aLabel if aLabel is not None else aAttribut)
-        self.attributesToDisplayInContextualMenu.append(aDict)
+        Args:
+            attributeForSelection (str): The attribute used to filter entities for selection.
+            valueForSelection: The value that the specified attribute must match for the entities to be included.
+            metric (str): The metric to use for statistical evaluation. Possible values include:
+                - 'sumAtt': Sum of the specified attribute values.
+                - 'avgAtt': Average of the specified attribute values.
+                - 'minAtt': Minimum value of the specified attribute.
+                - 'maxAtt': Maximum value of the specified attribute.
+                - 'nbWithLess': Count of entities with attribute values less than the specified value.
+                - 'nbWithMore': Count of entities with attribute values greater than the specified value.
+                - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
+            attribute (str): The attribute to evaluate.
+            value: The value to compare against.
+        Returns:
+            float or int: The calculated metric for entities with the specified value.
+        """
+        entities_with_value = self.getEntities_withValue(attributeForSelection, valueForSelection)
+        return SGIndicator.metricOn(entities_with_value, metric, attribute, value)
+
+    def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):
+        """
+        Get metrics for entities that do not have a specific attribute value.
+        Args:
+            attributeForSelection (str): The attribute used to filter entities for selection.
+            valueForSelection: The value that the specified attribute must not match for the entities to be included.
+            metric (str): The metric to use for statistical evaluation. Possible values include:
+                - 'sumAtt': Sum of the specified attribute values.
+                - 'avgAtt': Average of the specified attribute values.
+                - 'minAtt': Minimum value of the specified attribute.
+                - 'maxAtt': Maximum value of the specified attribute.
+                - 'nbWithLess': Count of entities with attribute values less than the specified value.
+                - 'nbWithMore': Count of entities with attribute values greater than the specified value.
+                - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
+            attribute (str): The attribute to evaluate.
+            value: The value to compare against.
+        Returns:
+            float or int: The calculated metric for entities without the specified value.
+        """
+        entities_with_value_not = self.getEntities_withValueNot(attributeForSelection, valueForSelection)
+        return SGIndicator.metricOn(entities_with_value_not, metric, attribute, value)
     
-    # # To handle the attrobutes concerned by the contextual update menu
-    # def setAttributesConcernedByUpdateMenu(self,aAttribut,aLabel=None):
-    #     self.updateMenu=True
-    #     aDict={}
-    #     aDict['att']=aAttribut
-    #     aDict['label']= (aLabel if aLabel is not None else aAttribut)
-    #     self.attributesToDisplayInUpdateMenu.append(aDict)
-    
+
+    # def metricOn(cls, listOfEntities, metric, attribute, value):
+    #     """
+    #     Calculate a value based on the specified metric, attribute, and value for a given list of entities.
+
+    #     Args:
+    #         listOfEntities (list): The list of entities to process.
+    #         metric (str): The metric to use for statistical evaluation. Possible values include:
+    #             - 'nb': Count of entities whose specified attribute is equal to the specified value.
+    #             - 'sumAtt': Sum of the specified attribute values.
+    #             - 'avgAtt': Average of the specified attribute values.
+    #             - 'minAtt': Minimum value of the specified attribute.
+    #             - 'maxAtt': Maximum value of the specified attribute.
+    #             - 'nbWithLess': Count of entities with attribute values less than the specified value.
+    #             - 'nbWithMore': Count of entities with attribute values greater than the specified value.
+    #             - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
+    #         attribute (str): The attribute to evaluate.
+    #         value (optional): The value to compare against for certain metrics.
+
+    #     Returns:
+    #         float or int: The calculated value based on the s
+
+# metricOn
+
 # ********************************************************    
+
+# Définition de SGCellDef
+class SGCellDef(SGEntityDef):
+    def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, entityName='Cell', defaultCellImage=None):
+        super().__init__(grid.model, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+        self.grid = grid
+        self.deletedCells = []
+        self.defaultImage = defaultCellImage
+
+    def newCell(self, x, y):
+        ent = SGCell(self, x, y, self.defaultImage)
+        self.entities.append(ent)
+        ent.show()
+
+    def setCell(self, x, y, aAttribute, aValue):
+        ent = self.getCell(x, y).setValue(aAttribute, aValue)
+        return ent
+
+    def getCell(self, x, y=None):
+        if isinstance(y, int):
+            if x < 0 or y < 0:
+                return None
+            aId = self.cellIdFromCoords(x, y)
+        else:
+            aId = x
+        return next(filter(lambda ent: ent.id == aId, self.entities), None)
+
+    def cellIdFromCoords(self, x, y):
+        if x < 0 or y < 0:
+            return None
+        return x + (self.grid.columns * (y - 1))
+
+    # Return the cell at specified coordinates
+    def getEntity(self, x, y=None):
+        return self.getCell(x, y)
+
+    def getEntities_withRow(self, aRowNumber):
+        return self.grid.getCells_withRow(aRowNumber)
+
+    def getEntities_withColumn(self, aColumnNumber):
+        return self.grid.getCells_withColumn(aColumnNumber)
+
+    def cellIdFromCoords(self,x,y):
+        if x < 0 or y < 0 : return None
+        return x + (self.grid.columns * (y -1))
+
+    def deleteEntity(self, aCell):
+        """
+        Delete a given cell
+        args:
+            aCell (instance): the cell to de deleted
+        """
+        if len(aCell.agents) !=0:
+            aCell.deleteAllAgents()
+        self.deletedCells.append(aCell)
+        aCell.isDisplay = False
+        self.entities.remove(aCell)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aCell.update()
+
+    def reviveThisCell(self, aCell):
+        self.entities.append(aCell)
+        aCell.isDisplay = True
+        self.deletedCells.remove(aCell)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        aCell.update()
+        
+
+# ********************************************************    
+
 
 class SGAgentDef(SGEntityDef):
     def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None):
@@ -589,72 +760,5 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnAllAttributes()
         #aAgent.update()
 
+    
 
-# Définition de SGCellDef
-class SGCellDef(SGEntityDef):
-    def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, entityName='Cell', defaultCellImage=None):
-        super().__init__(grid.model, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor)
-        self.grid = grid
-        self.deletedCells = []
-        self.defaultImage = defaultCellImage
-
-    def newCell(self, x, y):
-        ent = SGCell(self, x, y, self.defaultImage)
-        self.entities.append(ent)
-        ent.show()
-
-    def setCell(self, x, y, aAttribute, aValue):
-        ent = self.getCell(x, y).setValue(aAttribute, aValue)
-        return ent
-
-    def getCell(self, x, y=None):
-        if isinstance(y, int):
-            if x < 0 or y < 0:
-                return None
-            aId = self.cellIdFromCoords(x, y)
-        else:
-            aId = x
-        return next(filter(lambda ent: ent.id == aId, self.entities), None)
-
-    def cellIdFromCoords(self, x, y):
-        if x < 0 or y < 0:
-            return None
-        return x + (self.grid.columns * (y - 1))
-
-    # Return the cell at specified coordinates
-    def getEntity(self, x, y=None):
-        return self.getCell(x, y)
-
-    def getEntities_withRow(self, aRowNumber):
-        return self.grid.getCells_withRow(aRowNumber)
-
-    def getEntities_withColumn(self, aColumnNumber):
-        return self.grid.getCells_withColumn(aColumnNumber)
-
-    def cellIdFromCoords(self,x,y):
-        if x < 0 or y < 0 : return None
-        return x + (self.grid.columns * (y -1))
-
-    def deleteEntity(self, aCell):
-        """
-        Delete a given cell
-        args:
-            aCell (instance): the cell to de deleted
-        """
-        if len(aCell.agents) !=0:
-            aCell.deleteAllAgents()
-        self.deletedCells.append(aCell)
-        aCell.isDisplay = False
-        self.entities.remove(aCell)
-        self.updateWatchersOnPop()
-        self.updateWatchersOnAllAttributes()
-        aCell.update()
-
-    def reviveThisCell(self, aCell):
-        self.entities.append(aCell)
-        aCell.isDisplay = True
-        self.deletedCells.remove(aCell)
-        self.updateWatchersOnPop()
-        self.updateWatchersOnAllAttributes()
-        aCell.update()
-        

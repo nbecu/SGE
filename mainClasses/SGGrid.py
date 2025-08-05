@@ -41,18 +41,21 @@ class SGGrid(SGGameSpace):
         if self.backgroundImage != None:
             rect = QRect(0, 0, self.width(), self.height())
             painter.drawPixmap(rect, self.backgroundImage)
-
         else:
-            painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
+            # painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            if self.isActive:
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            else:
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue_whenDisactivated(), self.gs_aspect.getBrushPattern_whenDisactivated()))
+        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+2*self.frameMargin,
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
-            painter.drawRect(0,0,self.minimumWidth()-1,self.minimumHeight()-1)
         elif (self.cellShape == "hexagonal"):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1+self.size/2+1.5*self.frameMargin),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 2*self.frameMargin))
-            painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
+        painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()
 
     # Funtion to handle the zoom

@@ -79,6 +79,14 @@ class SGEndGameCondition(QtWidgets.QWidget):
             if self.logicalTests(valueToCheck, self.method, self.objective):
                 self.checkStatus = True
                 return
+        if self.calcType == "onLambda":
+            if callable(self.method):
+                if self.method():
+                    self.checkStatus = True
+                    return
+            else:
+                print("Error, method is not callable")
+                return
 
     def logicalTests(self, valueToCheck, logicalTest, objective):
         if logicalTest == 'equal':

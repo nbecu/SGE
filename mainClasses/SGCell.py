@@ -219,8 +219,8 @@ class SGCell(SGEntity):
         anAgent.cell=None
     
     # To show a menu
-    def show_menu(self, point):
-        pass
+    # def show_menu(self, point):
+    #     pass
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use  

@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from mainClasses.SGAspect import *
 
 
             
@@ -14,11 +15,34 @@ class SGGameSpace(QtWidgets.QWidget):
         self.startXBase=startXBase
         self.startYBase=startYBase
         self.isDraggable = isDraggable
-        self.backgroundColor = backgroundColor
+        self.isActive = True
         self.forceDisplay = forceDisplay
         self.rightMargin = 9
         self.verticalGapBetweenLabels = 5
+        self.gs_aspect = SGAspect.baseBorder()
+        self.gs_aspect.background_color = backgroundColor
+        self.title1_aspect = SGAspect.title1()
+        self.title2_aspect = SGAspect.title2()
+        self.title3_aspect = SGAspect.title3()
+        self.text1_aspect = SGAspect.text1()
+        self.text2_aspect = SGAspect.text2()
+        self.text3_aspect = SGAspect.text3()
+        # Assign the unique ID to the instance
+        self.id = self.__class__.nextId()
         
+
+    @classmethod
+    def nextId(cls):
+        """
+        Generates the next unique identifier for this type of GameSpace.
+        
+        Returns:
+            str: A unique identifier in the form 'TypeGameSpace#N'
+        """
+        if not hasattr(cls, '_nextId'):
+            cls._nextId = 0
+        cls._nextId += 1
+        return f"{cls.__name__}#{cls._nextId}"
                
     #Funtion to have the global size of a gameSpace  
     def getSizeXGlobal(self):
@@ -39,13 +63,7 @@ class SGGameSpace(QtWidgets.QWidget):
         pass
     
     
-    #The getter and setter
-    def getStartXBase(self):
-        return self.startXBase
-    
-    def getStartYBase(self):
-        return self.startYBase
-    
+    #The setters
     def setStartXBase(self,number):
         self.startXBase = number
     
@@ -117,10 +135,6 @@ class SGGameSpace(QtWidgets.QWidget):
     def setDraggability(self,aBoolean):
         self.isDraggable=aBoolean
         
-    #Funtion to have the global size of a gameSpace  
-    def setColor(self,aColor):
-        self.backgroundColor=aColor
-        
         
     #Function to change the order in the layout
     def setInPosition(self,x,y):
@@ -135,8 +149,8 @@ class SGGameSpace(QtWidgets.QWidget):
         Permits to move a GameSpace at a specific coordinate based on the left upper corner
 
         Args:
-            x (int) : x-axis corrdinate in pixels
-            y (int) : y-axis corrdinate in pixels
+            x (int) : x-axis coordinate in pixels
+            y (int) : y-axis coordinate in pixels
         """
         if y is None :
             if not isinstance(x, tuple):
@@ -153,5 +167,24 @@ class SGGameSpace(QtWidgets.QWidget):
                 raise ValueError('The y value is too high or negative')
         else:
             raise ValueError('The x value is too high or negative')
+    
+    #Function to set the color of the background of the gameSpace 
+    def setColor(self,aColor):
+        self.gs_aspect.background_color=aColor
         
+        
+    def setTitlesAndTextsColor(self, textColor):
+        self.setTitlesColor(textColor)
+        self.setTextsColor(textColor)
+
+    # Application de textColor à chaque titre
+    def setTitlesColor(self, textColor):
+        for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect]:
+            aspect.color = textColor  
+
+    # Application de textColor à chaque texte
+    def setTextsColor(self, textColor):
+        for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+            aspect.color = textColor 
+
     

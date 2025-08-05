@@ -1,22 +1,19 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from mainClasses.layout.SGAbstractLayout import SGAbstractLayout
+
 
 
 #Class that manage the grid layout
-class SGGridLayout():
+class SGGridLayout(SGAbstractLayout):
     def __init__(self,x,y):
-        self.count=0
+        super().__init__()
         self.x=x
         self.y=y
         #Init of the grid
-        self.GameSpaces=[]
         for i in range(self.y):
             self.GameSpaces.append([])
         
-    
-    #Return the number of element
-    def getNumberOfElement(self):
-        return self.count
     
     #Add a game space to the layout and return the basic position
     def addGameSpace(self,aGameSpace):
@@ -26,13 +23,14 @@ class SGGridLayout():
         if len(aListe)<self.x and self.foundInLayout(aGameSpace) is None:
             aGameSpace.posXInLayout=len(aListe)
             aListe.append(aGameSpace)
+        else: raise ValueError('gameSpace could not be added')
         size=size=self.calculateSize(aGameSpace)
         return size
     
     #Calculate the space needed for a GameSpaces involving the others
     def calculateSize(self,aGameSpace):
-        sizeX=20
-        sizeY=30    #30 instead of 20 to leave space at top because of menuBar
+        sizeX=0
+        sizeY=0    
         found= self.foundInLayout(aGameSpace)
         colonneTrouve=found[0]
         ligneTrouve=found[1]
@@ -44,7 +42,7 @@ class SGGridLayout():
         for i in range(self.x):
             if i<colonneTrouve :
                 sizeX=sizeX+self.GameSpaces[i][ligneTrouve].getSizeXGlobal()
-        return (sizeX,sizeY)
+        return (sizeX + self.leftMargin , sizeY + self.topMargin)
     
     #Found in layout a gameSpace
     def foundInLayout(self,aGameSpace):
@@ -84,8 +82,8 @@ class SGGridLayout():
         for aList in self.GameSpaces :
             for anElement in aList :
                 size=self.calculateSize(anElement)
-                anElement.startXBase=size[0]
-                anElement.startYBase=size[1]
+                anElement.setStartXBase(size[0])
+                anElement.setStartYBase(size[1])
                 
                 
     #To have the maximum value of the item displayed into the layout           

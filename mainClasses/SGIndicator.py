@@ -4,13 +4,11 @@ from PyQt5.QtCore import *
 
 from mainClasses.SGSimulationVariable import SGSimulationVariable
 
-
    
 #Class who is responsible of indicator creation 
-class SGIndicator(QtWidgets.QWidget):
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True):
-        super().__init__(parent)
-        #Basic initialize
+class SGIndicator():
+    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities):
+    # def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,displayName=True,conditionsOnEntities=[]):
         self.dashboard=parent
         self.method=method
         if self.method=="thresoldToLogicOp":
@@ -29,26 +27,26 @@ class SGIndicator(QtWidgets.QWidget):
         self.color=color
         self.logicOp=logicOp
         self.isDisplay=isDisplay
+        self.displayName=displayName
         self.displayRefresh=displayRefresh
         self.timeConditions=onTimeConditions 
-        self.memory=[]
+        self.conditionsOnEntities=conditionsOnEntities
         self.initUI()
         
 
     def initUI(self):
-        self.indicatorLayout = QtWidgets.QHBoxLayout()
         calcValue=self.byMethod()
         self.result=calcValue
         self.setName()
-        self.label = QtWidgets.QTextEdit(self.name + str(calcValue))
-        self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.label.setReadOnly(True)
+        self.label = QtWidgets.QLabel(self.name + str(calcValue))
         color = QColor(self.color)
         color_string = f"color: {color.name()};"
         self.label.setStyleSheet(color_string+"border: none;background-color: transparent;")
-        self.indicatorLayout.addWidget(self.label)
 
     def setName(self):
+        if not self.displayName:
+            self.name = ''
+            return
         if self.name is not None:
             self.name = self.name + ' : '
             return 
@@ -70,32 +68,35 @@ class SGIndicator(QtWidgets.QWidget):
     def checkAndUpdate(self):
         if self.getUpdatePermission():
             self.updateText()
-        
+
     def updateText(self):
         newCalc=self.byMethod()
         self.result=newCalc
         newText= self.name + str(self.result)
-        self.label.setPlainText(newText)
-        self.dashboard.model.timeManager.updateEndGame()
-    
-    def updateTextByValue(self,aValue):
-        self.result=aValue
-        newText=self.name + str(self.result)
-        self.label.setPlainText(newText)
-        self.dashboard.model.timeManager.updateEndGame()
-    
-    def updateByMqtt(self,newValue):
-        self.result=newValue
-        newText= self.name + str(newValue)
-        self.label.setPlainText(newText)
+        self.label.setText(newText)
+        # ajout pour gérer le size
+        self.label.setFixedWidth(self.label.fontMetrics().boundingRect(self.label.text()).width()+5)
+        self.label.setFixedHeight(self.label.fontMetrics().boundingRect(self.label.text()).height())
+        self.label.adjustSize()
+        # self.label.update()
+
         self.dashboard.model.timeManager.updateEndGame()
 
     def setResult(self, aValue):
         """Function to configure a score in an Indicator"""
         self.result=aValue
-        self.label.setPlainText(self.name + str(self.result))
+        self.label.setText(self.name + str(self.result))
+        # ajout pour gérer le size
+        self.label.setFixedWidth(self.label.fontMetrics().boundingRect(self.label.text()).width()+5)
+        self.label.setFixedHeight(self.label.fontMetrics().boundingRect(self.label.text()).height())
+        self.label.adjustSize()
+        # self.setMinimumSize(self.geometry().size())
+
         if isinstance(self.listOfEntDef,SGSimulationVariable):
-            self.listOfEntDef.value=aValue
+            self.listOfEntDef.setValue_silently(aValue)
+
+        self.dashboard.model.timeManager.updateEndGame()
+
     
     def getUpdatePermission(self):
         if self.displayRefresh=='instantaneous':
@@ -160,43 +161,41 @@ class SGIndicator(QtWidgets.QWidget):
             res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(currentRoundNumber))
         return res
 
-    def getSizeXGlobal(self):
-        return 150+len(self.name)*5
     
     def getListOfEntities(self):
-        return [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  #This list comprehension expression concatenates the list of entities of all specified EntDef    
+        listOfAllEntities = [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  
+        if self.conditionsOnEntities:
+            entitiesSatisfyingConditions = []
+            for aEnt in listOfAllEntities:
+                for aCondition in self.conditionsOnEntities:
+                    if aCondition(aEnt): entitiesSatisfyingConditions.append(aEnt)
+            return entitiesSatisfyingConditions
+        return listOfAllEntities
+    
+    
     
     def byMethod(self):
-        calcValue=0.0
-        counter=0
-        
-        if self.method =='nb':
+        if self.method == 'nb':
             if self.attribute is not None and self.value is not None:
                 listEntities = self.getListOfEntities()
-                filteredList=[entity for entity in listEntities if entity.value(self.attribute)==self.value]
-                return len(filteredList)
+                return SGIndicator.metricOn(listEntities, 'nb', self.attribute, self.value)
             else:
                 listEntities = self.getListOfEntities()
-                return len(listEntities)
-        
-        elif self.method in ["sumAtt","avgAtt","minAtt","maxAtt","nbWithLess","nbWithMore","nbEqualTo"]:
-            listEntities = self.getListOfEntities()
-            listOfValues = [aEnt.value(self.attribute) for aEnt in listEntities]
-            if self.method == 'sumAtt': return sum(listOfValues)
-            if self.method == 'avgAtt': return round(sum(listOfValues) / len(listOfValues),2)
-            if self.method == 'minAtt': return min(listOfValues)
-            if self.method == 'maxAtt': return max(listOfValues)
-            if self.method == 'nbWithLess': return len([x for x in listOfValues if x < self.value])
-            if self.method == 'nbWithMore': return len([x for x in listOfValues if x > self.value])
-            if self.method == 'nbEqualTo': return len([x for x in listOfValues if x == self.value])
+                return SGIndicator.metricOn(listEntities, 'nb')
 
+        elif self.method in ["sumAtt", "avgAtt", "minAtt", "maxAtt", "nbWithLess", "nbWithMore", "nbEqualTo"]:
+            listEntities = self.getListOfEntities()
+            return SGIndicator.metricOn(listEntities, self.method, self.attribute, self.value)
+      
         elif self.method=="simVar":
             return self.simVar.value
         
         elif self.method =="display":
             return self.entity.value(self.attribute)
+        
         elif self.method=="separator":
             return "---------------"
+        
         elif self.method=="thresoldToLogicOp":
             if self.logicOp =="greater":
                 if self.entity.value(self.attribute) > self.threshold:
@@ -221,6 +220,57 @@ class SGIndicator(QtWidgets.QWidget):
 
     def getMethods(self):
         print(self.methods)
+
+    @classmethod
+    def metricOn(cls, listOfEntities, metric, attribute=None, value=None):
+        """
+        Calculate a value based on the specified metric, attribute, and value for a given list of entities.
+
+        Args:
+            listOfEntities (list): The list of entities to process.
+            metric (str): The metric to use for statistical evaluation. Possible values include:
+                - 'nb': Count of entities whose specified attribute is equal to the specified value.
+                - 'sumAtt': Sum of the specified attribute values.
+                - 'avgAtt': Average of the specified attribute values.
+                - 'minAtt': Minimum value of the specified attribute.
+                - 'maxAtt': Maximum value of the specified attribute.
+                - 'nbWithLess': Count of entities with attribute values less than the specified value.
+                - 'nbWithMore': Count of entities with attribute values greater than the specified value.
+                - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
+            attribute (str): The attribute to evaluate.
+            value (optional): The value to compare against for certain metrics.
+
+        Returns:
+            float or int: The calculated value based on the specified metric.
+        """
+        calcValue = 0.0
+        counter = 0
+        
+        if metric == 'nb':
+            if attribute is not None and value is not None:
+                filteredList = [entity for entity in listOfEntities if entity.value(attribute) == value]
+                return len(filteredList)
+            else:
+                return len(listOfEntities)
+        
+        elif metric in ["sumAtt", "avgAtt", "minAtt", "maxAtt", "nbWithLess", "nbWithMore", "nbEqualTo"]:
+            listOfValues = [aEnt.value(attribute) for aEnt in listOfEntities]
+            if metric == 'sumAtt':
+                return sum(listOfValues)
+            if metric == 'avgAtt':
+                return round(sum(listOfValues) / len(listOfValues), 2) if listOfValues else 0
+            if metric == 'minAtt':
+                return min(listOfValues) if listOfValues else 0
+            if metric == 'maxAtt':
+                return max(listOfValues) if listOfValues else 0
+            if metric == 'nbWithLess':
+                return len([x for x in listOfValues if x < value])
+            if metric == 'nbWithMore':
+                return len([x for x in listOfValues if x > value])
+            if metric == 'nbEqualTo':
+                return len([x for x in listOfValues if x == value])
+        else:
+            raise ValueError(f"Invalid metric: '{metric}'. Please provide a valid metric.")
 
 
             

@@ -71,9 +71,8 @@ class SGUserSelector(SGGameSpace):
     def getAuthorizedPlayers(self):
         if self.model.timeManager.isInitialization():
             return self.model.users
-        phase = self.model.timeManager.phases[self.model.phaseNumber()-1]
-        authorizedPlayers = phase.authorizedPlayers
-        return authorizedPlayers
+        phase = self.model.timeManager.getCurrentPhase()
+        return phase.getAuthorizedPlayers()
 
     # Funtion to have the global size of a gameSpace
     def getSizeXGlobal(self):
@@ -87,7 +86,9 @@ class SGUserSelector(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
+        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
+
         # Draw the corner of the US
         self.setMinimumSize(self.getSizeXGlobal()+15, self.getSizeYGlobal()+10)
         painter.drawRect(0, 0, self.getSizeXGlobal(), self.getSizeYGlobal())

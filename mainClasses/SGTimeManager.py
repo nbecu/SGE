@@ -1,5 +1,4 @@
-from mainClasses.SGTimePhase import SGTimePhase
-from mainClasses.SGTimePhase import SGModelPhase
+from mainClasses.SGTimePhase import *
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -59,63 +58,8 @@ class SGTimeManager():
         for aGraph in self.model.openedGraphs:
             aGraph.toolbar.refresh_data()
 
-        if self.getCurrentPhase().autoForwardOn:
-            if self.getCurrentPhase().messageAutoForward:
-                # a encapsuler ds une méthode
-                msg_box = QMessageBox(self.model)
-                msg_box.setIcon(QMessageBox.Information)
-                msg_box.setWindowTitle("SGE Time Manager Message")
-                if isinstance(self.getCurrentPhase().messageAutoForward,str):
-                    aText = self.getCurrentPhase().messageAutoForward
-                else:
-                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isItTheLastPhase() else ("the next phase: '"+self.getNextPhase().name+"'")) 
-                msg_box.setText(aText)
-                msg_box.setStandardButtons(QMessageBox.Ok)
-                msg_box.setDefaultButton(QMessageBox.Ok)
-                msg_box.exec_()
-            self.nextPhase()
-
-
-    """                    #reset GameActions count
-                    for action in self.model.getAllGameActions():
-                        action.reset()
-                    self.currentPhase = 1
-                
-
-                thePhase = self.phases[self.currentPhase]
-                # check conditions for the phase
-                doThePhase = True
-                if self.currentPhase == 1 and self.numberOfPhases() > 1:
-                    self.currentRound += 1
-                    if self.model.myTimeLabel is not None:
-                        self.model.myTimeLabel.updateTimeLabel()
-                    if self.model.userSelector is not None:
-                        self.model.userSelector.updateUI(QHBoxLayout())
-
-                # execute the actions of the phase
-                if doThePhase:
-                    # We can execute the actions
-                    #TODO déplacer l'execution de la phase coté TimePhase
-                    if len(thePhase.modelActions) != 0:
-                        for aAction in thePhase.modelActions:
-                            if callable(aAction):
-                                aAction()  # this command executes aAction
-                            elif isinstance(aAction, SGModelAction):
-                                aAction.execute()
-                    #textbox update
-                    thePhase.notifyNewText()
-                    #watchers update
-                    self.model.checkAndUpdateWatchers()
-                    #mqtt update
-        #The instructions below have been commented temporarily to test a new process for broker msg  
-                    # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                    #     self.model.publishEntitiesState()
-                    for aGraph in self.model.openedGraphs:
-                        aGraph.toolbar.refresh_data()
-
-
-                else:
-                    self.nextPhase()"""
+        # La phase gère elle-même son passage automatique
+        self.getCurrentPhase().handleAutoForward()
 
     def isItTheLastPhase(self):
         return (self.currentPhaseNumber + 1) > self.numberOfPhases() 
@@ -160,19 +104,24 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newGamePhase(self, name, activePlayers):
+    def newGamePhase(self, name, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, messageAutoForward=True, showMessageBoxAtStart=False):
         """
         To add a Game Phase in a round.
 
         args:
             name (str): Name displayed on the TimeLabel
             activePlayers : List of plays concerned about the phase (default:all)
+            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+            autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
+            messageAutoForward (bool): Whether to show a message when automatically forwarding to the next phase
+            showMessageBoxAtStart (bool): Whether to show a message box at the start of the phase
         """
-        #modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
-        modelActions=[]
         if activePlayers == None:
             activePlayers = self.model.users
-        aPhase = SGTimePhase(self, name, activePlayers, modelActions)
+        aPhase = SGGamePhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
+                           autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
+                           messageAutoForward=messageAutoForward,
+                           showMessageBoxAtStart=showMessageBoxAtStart)
         self.phases = self.phases + [aPhase]
         return aPhase
 

@@ -22,11 +22,11 @@ theFirstLegend=myModel.newLegend()
 
 GameRounds=myModel.newTimeLabel('Rounds&Phases')
 
-DashBoard=myModel.newDashBoard('Les Scores','withButton',borderColor=Qt.black,)
+DashBoard=myModel.newDashBoard('Les Scores')
 
 scoreB=myModel.newSimVariable('Score Biodiv',0,Qt.GlobalColor.darkGreen)
 
-DashBoard.addIndicator_Nb('Cell','landUse',"forest","Taille de la foret",(Qt.blue))
+DashBoard.addIndicator_Nb(Cell,'landUse',"forest","Taille de la foret",(Qt.blue))
 DashBoard.addIndicatorOnSimVariable(scoreB)
 
 

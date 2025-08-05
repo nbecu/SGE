@@ -30,9 +30,11 @@ class SGModify(SGAbstractAction):
                 if isinstance(aColor,dict):
                     borderColorAndWidth = aColor
                     aColor =  self.targetEntDef.defaultShapeColor
-                    aList.append(SGLegendItem(aControlPanel,'symbol',aAtt+'='+str(aValue),self.targetEntDef,aColor,aAtt,aValue,isBorderItem = True, borderColorAndWidth = borderColorAndWidth , gameAction=self))
+                    #todo Modifs pour MTZC pour que ce soit plus simple
+                    aList.append(SGLegendItem(aControlPanel,'symbol',str(aValue),self.targetEntDef,aColor,aAtt,aValue,isBorderItem = True, borderColorAndWidth = borderColorAndWidth , gameAction=self))
                 # If not, its a shape color
                 else:
-                    aList.append(SGLegendItem(aControlPanel,'symbol',aAtt+'='+str(aValue),self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
+                    #todo Modifs pour MTZC pour que ce soit plus simple
+                    aList.append(SGLegendItem(aControlPanel,'symbol',str(aValue),self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
 
             return aList

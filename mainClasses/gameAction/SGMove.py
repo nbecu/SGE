@@ -1,6 +1,6 @@
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
-from mainClasses.SGTimePhase import SGTimePhase,SGModelPhase
+from mainClasses.SGTimePhase import *
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
@@ -24,11 +24,16 @@ class SGMove(SGAbstractAction):
                 aFeedbackTarget = self.chooseFeedbackTargetAmong([aMovingEntity,aDestinationEntity,aOriginEntity])
                 if self.checkFeedbackAuhorization(aFeedbackTarget):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
+            else : resFeedback = None
             self.incNbUsed()
+            self.savePerformedActionInHistory(aTargetEntity, aMovingEntity, resFeedback)
+
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity,aDestinationEntity)
-            return aMovingEntity if not self.feedbacks else [aMovingEntity,resFeedback]
-        else:
-            return False
+
+            self.model.timeManager.getCurrentPhase().handleAutoForward()
+            #commented because unsued - return aMovingEntity if not self.feedbacks else [aMovingEntity,resFeedback]
+        # else:
+        #     return False
 
     def checkAuthorization(self,aTargetEntity,aDestinationEntity=None):
         if aDestinationEntity is not None:
@@ -37,7 +42,7 @@ class SGMove(SGAbstractAction):
                 return True
             if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
                 return False
-            if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGTimePhase):#If this is a TimePhase, as default players can do actions
+            if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGGamePhase):#If this is a GamePhase, as default players can do actions
                 player=self.model.getPlayer(self.model.currentPlayer)
                 if player in self.model.timeManager.phases[self.model.phaseNumber()-1].authorizedPlayers:
                     res = True
