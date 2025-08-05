@@ -1,58 +1,69 @@
-from PyQt5.QtSvg import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import (QAction,QMenu,QMainWindow,QMessageBox)
-from PyQt5 import QtWidgets
-
-from mainClasses.SGGraphCircular import SGGraphCircular
-from mainClasses.SGGraphLinear import SGGraphLinear
-from mainClasses.SGTestGetData import SGTestGetData
-from mainClasses.SGGraphWindow import SGGraphWindow
-from mainClasses.SGGraphController import SGGraphController
-from mainClasses.layout.SGVerticalLayout import*
-from mainClasses.layout.SGHorizontalLayout import*
-from mainClasses.layout.SGGridLayout import*
-from mainClasses.gameAction.SGMove import*
-from mainClasses.gameAction.SGDelete import*
-from mainClasses.gameAction.SGModify import*
-from mainClasses.gameAction.SGCreate import*
-from mainClasses.gameAction.SGActivate import*
-from mainClasses.SGAgent import*
-from mainClasses.SGCell import*
-from mainClasses.SGControlPanel import*
-from mainClasses.SGDashBoard import*
-from mainClasses.SGEndGameRule import*
-from mainClasses.SGEntity import*
-from mainClasses.SGEntityDef import*
-from mainClasses.SGGrid import*
-from mainClasses.SGLegend import*
-from mainClasses.SGModelAction import*
-from mainClasses.SGPlayer import*
-from mainClasses.SGSimulationVariable import*
-from mainClasses.SGTextBox import*
-from mainClasses.SGLabel import*
-from mainClasses.SGTimeLabel import*
-from mainClasses.SGTimeManager import*
-from mainClasses.SGUserSelector import*
-from mainClasses.SGVoid import*
-from mainClasses.SGDataRecorder import*
-from mainClasses.SGProgressGauge import*
+# --- Standard library imports ---
+import json
+import queue
+import re
+import sys
+import threading
+import uuid
 from email.policy import default
 from logging.config import listen
-import sys
 from pathlib import Path
-from pyrsistent import s
-from screeninfo import get_monitors
-from paho.mqtt import client as mqtt_client
-import threading
-import queue
-import uuid
-import re
-import json
 
-
+# Ensure the current file's directory is in sys.path for local imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+# --- Third-party imports ---
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtSvg import *
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox
+from PyQt5 import QtWidgets
+from paho.mqtt import client as mqtt_client
+from pyrsistent import s
+from screeninfo import get_monitors
+
+# --- Project imports ---
+from mainClasses.SGAgent import *
+from mainClasses.SGCell import *
+from mainClasses.SGControlPanel import *
+from mainClasses.SGDashBoard import *
+from mainClasses.SGDataRecorder import *
+from mainClasses.SGEndGameRule import *
+from mainClasses.SGEntity import *
+from mainClasses.SGEntityDef import *
+from mainClasses.SGGraphController import SGGraphController
+from mainClasses.SGGraphLinear import SGGraphLinear
+from mainClasses.SGGraphCircular import SGGraphCircular
+from mainClasses.SGGraphWindow import SGGraphWindow
+from mainClasses.SGGrid import *
+from mainClasses.SGLegend import *
+from mainClasses.SGModelAction import *
+from mainClasses.SGPlayer import *
+from mainClasses.SGProgressGauge import *
+from mainClasses.SGSimulationVariable import *
+from mainClasses.SGTestGetData import SGTestGetData
+from mainClasses.SGTextBox import *
+from mainClasses.SGLabel import *
+from mainClasses.SGTimeLabel import *
+from mainClasses.SGTimeManager import *
+from mainClasses.SGUserSelector import *
+from mainClasses.SGVoid import *
+from mainClasses.layout.SGGridLayout import *
+from mainClasses.layout.SGHorizontalLayout import *
+from mainClasses.layout.SGVerticalLayout import *
+from mainClasses.gameAction.SGActivate import *
+from mainClasses.gameAction.SGCreate import *
+from mainClasses.gameAction.SGDelete import *
+from mainClasses.gameAction.SGModify import *
+from mainClasses.gameAction.SGMove import *
+
+
+# By default, use a relative path based on the project structure
+path_icon = str(Path(__file__).parent.parent / 'icon')
+
+# Alternative method: uncomment the following line to use an absolute path
+# Example of absolute path: '/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/'
+# path_icon = '/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/'
 
 # Mother class of all the SGE System
 class SGModel(QMainWindow):
@@ -220,33 +231,33 @@ class SGModel(QMainWindow):
     
     # Create the menu of the menu
     def createMenu(self):
-        #aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &play", self)
+        #aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
         #aAction.triggered.connect(self.nextTurn)
         #self.menuBar().addAction(aAction)
 
-        self.startGame = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/play.png"), " &Step")
+        self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
 
         self.menuBar().addSeparator()
 
-        aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/zoomPlus.png"), " &zoomPlus", self)
+        aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
         aAction.triggered.connect(self.zoomPlusModel)
         self.menuBar().addAction(aAction)
 
-        aAction = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/zoomLess.png"), " &zoomLess", self)
+        aAction = QAction(QIcon(f"{path_icon}/zoomLess.png"), " &zoomLess", self)
         aAction .triggered.connect(self.zoomLessModel)
         self.menuBar().addAction(aAction)
 
-        aAction  = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/zoomToFit.png"), " &zoomToFit", self)
+        aAction  = QAction(QIcon(f"{path_icon}/zoomToFit.png"), " &zoomToFit", self)
         aAction .triggered.connect(self.zoomFitModel)
         self.menuBar().addAction(aAction)
 
         self.menuBar().addSeparator()
 
-        self.symbologyMenu = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/symbology.png"), "&Symbology")
+        self.symbologyMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
-        self.settingsMenu = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/settings.png"), " &Settings")
+        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
 
         self.createGraphMenu()
 
@@ -254,44 +265,44 @@ class SGModel(QMainWindow):
     # Create all the action related to the menu
 
     def createGraphMenu(self):
-        self.chooseGraph = self.menuBar().addMenu(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_dashboards.png"), "&openChooseGraph")
+        self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&openChooseGraph")
         # Submenu linear
-        actionLinearDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_linear.png'), 'Diagramme Linéaire', self)
+        actionLinearDiagram = QAction(QIcon(f'{path_icon}/icon_linear.png'), 'Diagramme Linéaire', self)
         actionLinearDiagram.triggered.connect(self.openLinearGraph)
         self.chooseGraph.addAction(actionLinearDiagram)
 
-        actionHistogramDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_histogram.png'), 'Histogramme', self)
+        actionHistogramDiagram = QAction(QIcon(f'{path_icon}/icon_histogram.png'), 'Histogramme', self)
         actionHistogramDiagram.triggered.connect(self.openHistoGraph)
         self.chooseGraph.addAction(actionHistogramDiagram)
 
-        actionCircularDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_circular.jpg'), 'Diagramme Circulaire', self)
+        actionCircularDiagram = QAction(QIcon(f'{path_icon}/icon_circular.jpg'), 'Diagramme Circulaire', self)
         actionCircularDiagram.triggered.connect(self.openCircularGraph)
         self.chooseGraph.addAction(actionCircularDiagram)
 
-        actionStackPlotDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
+        actionStackPlotDiagram = QAction(QIcon(f'{path_icon}/icon_stackplot.jpg'), 'Diagramme Stack Plot', self)
         actionStackPlotDiagram.triggered.connect(self.openStackPlotGraph)
         self.chooseGraph.addAction(actionStackPlotDiagram)
 
-        actionOtherDiagram = QAction(QIcon('/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/graph.png'), 'Autres Représentations', self)
+        actionOtherDiagram = QAction(QIcon(f'{path_icon}/graph.png'), 'Autres Représentations', self)
         actionOtherDiagram.triggered.connect(self.openOtherGraph)
         self.chooseGraph.addAction(actionOtherDiagram)
 
 
     def createAction(self):
-        self.save = QAction(QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/save.png"), " &save", self)
+        self.save = QAction(QIcon(f"{path_icon}/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
         self.save.triggered.connect(self.saveTheGame)
 
         self.backward = QAction(
-            QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/backwardArrow.png"), " &backward", self)
+            QIcon(f"{path_icon}/backwardArrow.png"), " &backward", self)
         self.backward.triggered.connect(self.backwardAction)
 
         self.forward = QAction(
-            QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/forwardArrow.png"), " &forward", self)
+            QIcon(f"{path_icon}/forwardArrow.png"), " &forward", self)
         self.forward.triggered.connect(self.forwardAction)
 
         self.inspect = QAction(
-            QIcon("/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/inspect.png"), " &inspectAll", self)
+            QIcon(f"{path_icon}/inspect.png"), " &inspectAll", self)
         self.inspect.triggered.connect(self.inspectAll)
 
     # Zoom
