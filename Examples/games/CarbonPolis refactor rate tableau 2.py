@@ -500,8 +500,8 @@ myModel.setCurrentPlayer("Player")
 #********************************************************************
 
 myModel.displayTimeInWindowTitle()
-modelPhase1=myModel.timeManager.newModelPhase([lambda: initDebutTour()],autoForwardOn=True,messageAutoForward=False)
-gamePhase2=myModel.timeManager.newGamePhase("Jouer",[Player],showMessageBoxAtStart=False)
+modelPhase1=myModel.timeManager.newModelPhase([lambda: initDebutTour()],auto_forward=True,message_auto_forward=False)
+gamePhase2=myModel.timeManager.newGamePhase("Jouer",[Player],show_message_box_at_start=False)
 modelPhase3=myModel.timeManager.newModelPhase([lambda: updateActions1(),lambda: updateActions3(),lambda: calcSequestrationTot(),lambda: calcCumulDE()],name='Bilan du tour')
 
 

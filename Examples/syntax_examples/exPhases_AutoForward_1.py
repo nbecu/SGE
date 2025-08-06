@@ -32,7 +32,7 @@ Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=
 myModel.timeManager.newGamePhase('Game Phase 1', [Player1])
 p2= myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')
 # comment or not
-p2.autoForwardOn=True 
+p2.auto_forward=True 
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
@@ -45,7 +45,7 @@ aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 #Choose one or the other
 # myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2')
-myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',autoForwardOn=True)
+myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',auto_forward=True)
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)

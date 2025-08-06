@@ -658,8 +658,8 @@ eventPopUp=myModel.newModelAction(lambda: execEvent(), lambda: myModel.timeManag
 eventPopUp2= myModel.newModelAction(lambda: execFirstEvent(), lambda: myModel.timeManager.currentRoundNumber == 1)
 Embuissonnement=myModel.newModelAction([lambda: Buisson.newAgentsAtRandom(3,Plateau,condition= lambda aCell: aCell.value("zone")=="Roches")])
 EventPhase=myModel.timeManager.newModelPhase([eventPopUp,eventPopUp2,Embuissonnement], name="Évènements")
-EventPhase.autoForwardOn=True
-EventPhase.messageAutoForward=False
+EventPhase.auto_forward=True
+EventPhase.message_auto_forward=False
 
 #PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
 GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur,Elu,Habitant,Naturaliste,Tourisme])
@@ -670,8 +670,8 @@ GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
 ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson,resetHexagones,resetCubes],name="Résolution de l'année en cours")
-ModelPhase.autoForwardOn=True
-ModelPhase.messageAutoForward=False
+ModelPhase.auto_forward=True
+ModelPhase.message_auto_forward=False
 
 # crée l'objet qui affiche les tours de jeu
 aTimeLabel = myModel.newTimeLabel()

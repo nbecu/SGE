@@ -131,7 +131,7 @@ def reset():
         navire.setValue("lastIncitationValue","neutre")
 
 
-PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',autoForwardOn=True)
+PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',auto_forward=True)
 
 GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
 GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")

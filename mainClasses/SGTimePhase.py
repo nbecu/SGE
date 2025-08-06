@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 
 class SGTimePhase():
-    def __init__(self, timeManager, name, modelActions=[], showMessageBoxAtStart=False, messageAutoForward=True):
+    def __init__(self, timeManager, name, modelActions=[], show_message_box_at_start=False, message_auto_forward=True):
         self.timeManager = timeManager
         self.name = name
         self.observers = {}
@@ -16,9 +16,9 @@ class SGTimePhase():
             self.modelActions = modelActions
         else:
             raise ValueError("Syntax error of actions")
-        self._autoForwardOn = False
-        self.showMessageBoxAtStart = showMessageBoxAtStart
-        self.messageAutoForward = messageAutoForward
+        self.auto_forward = False
+        self.show_message_box_at_start = show_message_box_at_start
+        self.message_auto_forward = message_auto_forward
 
 
 # -----------------------------------------------------------------------------------------
@@ -41,9 +41,9 @@ class SGTimePhase():
 
     def execPhase(self):
         #proceed with optional message box at the start of the phase
-        if self.showMessageBoxAtStart:
-            if isinstance(self.showMessageBoxAtStart,str):
-                aText = self.showMessageBoxAtStart
+        if self.show_message_box_at_start:
+            if isinstance(self.show_message_box_at_start,str):
+                aText = self.show_message_box_at_start
             else:
                 aText = "The phase '"+self.name+"' starts"
             msg_box = QMessageBox(self.timeManager.model)
@@ -75,14 +75,14 @@ class SGTimePhase():
         self.notifyNewText()
 
     def showEndPhaseMessage(self):
-        """Affiche le message de fin de phase si messageAutoForward est activé"""
-        if self.messageAutoForward:
+        """Affiche le message de fin de phase si message_auto_forward est activé"""
+        if self.message_auto_forward:
             msg_box = QMessageBox(self.timeManager.model)
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setWindowTitle("SGE Time Manager Message")
             
-            if isinstance(self.messageAutoForward, str):
-                aText = self.messageAutoForward
+            if isinstance(self.message_auto_forward, str):
+                aText = self.message_auto_forward
             else:
                 is_last = self.timeManager.isItTheLastPhase()
                 if is_last:
@@ -98,15 +98,15 @@ class SGTimePhase():
 
     def shouldForwardAutomatically(self):
         """Détermine si la phase doit passer automatiquement à la suivante"""
-        return self._autoForwardOn
+        return self.auto_forward
 
     def setAutoForward(self, value):
         """Active ou désactive le passage automatique à la phase suivante"""
-        self._autoForwardOn = value
+        self.auto_forward = value
 
     def finalizePhase(self):
         """Exécute les actions nécessaires à la fin d'une phase"""
-        if self.messageAutoForward:
+        if self.message_auto_forward:
             self.showEndPhaseMessage()
         
         # Les sous-classes peuvent surcharger cette méthode pour ajouter
@@ -120,17 +120,17 @@ class SGTimePhase():
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], name='', autoForwardOn=False, messageAutoForward=True, showMessageBoxAtStart=False):
-        super().__init__(timeManager, name, modelActions=modelActions, showMessageBoxAtStart=showMessageBoxAtStart, messageAutoForward=messageAutoForward)
-        self.setAutoForward(autoForwardOn)
+    def __init__(self, timeManager, modelActions=[], name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):
+        super().__init__(timeManager, name, modelActions=modelActions, show_message_box_at_start=show_message_box_at_start, message_auto_forward=message_auto_forward)
+        self.setAutoForward(auto_forward)
     
     def getAuthorizedPlayers(self):
         return []
 
 
 class SGGamePhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], autoForwardWhenAllActionsUsed=False, messageAutoForward=True, showMessageBoxAtStart=False):
-        super().__init__(timeManager, name, modelActions=modelActions, showMessageBoxAtStart=showMessageBoxAtStart, messageAutoForward=messageAutoForward)
+    def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+        super().__init__(timeManager, name, modelActions=modelActions, show_message_box_at_start=show_message_box_at_start, message_auto_forward=message_auto_forward)
         self._authorizedPlayers = authorizedPlayers if authorizedPlayers else []
         self.authorizedPlayers = self._authorizedPlayers
         self.autoForwardWhenAllActionsUsed = autoForwardWhenAllActionsUsed
@@ -174,7 +174,7 @@ class SGGamePhase(SGTimePhase):
 
     def shouldForwardAutomatically(self):
         """Détermine si la phase doit passer automatiquement à la suivante"""
-        if self._autoForwardOn:
+        if self.auto_forward:
             return True
         if self.autoForwardWhenAllActionsUsed:
             return self.hasAllPlayersUsedAllActions()

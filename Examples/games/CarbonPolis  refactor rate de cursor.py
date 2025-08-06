@@ -267,13 +267,13 @@ class CarbonPolisGame:
         
         self.modelPhase1 = self.myModel.timeManager.newModelPhase(
             [lambda: self.init_debut_tour()],
-            autoForwardOn=True,
-            messageAutoForward=False
+            auto_forward=True,
+            message_auto_forward=False
         )
         self.gamePhase2 = self.myModel.timeManager.newGamePhase(
             "Jouer",
             [self.Player],
-            showMessageBoxAtStart=False
+            show_message_box_at_start=False
         )
         self.modelPhase3 = self.myModel.timeManager.newModelPhase(
             [

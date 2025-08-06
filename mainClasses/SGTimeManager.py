@@ -104,7 +104,7 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newGamePhase(self, name, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, messageAutoForward=True, showMessageBoxAtStart=False):
+    def newGamePhase(self, name, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         To add a Game Phase in a round.
 
@@ -113,28 +113,40 @@ class SGTimeManager():
             activePlayers : List of plays concerned about the phase (default:all)
             modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
             autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
-            messageAutoForward (bool): Whether to show a message when automatically forwarding to the next phase
-            showMessageBoxAtStart (bool): Whether to show a message box at the start of the phase
+            message_auto_forward (bool): Whether to show a message when automatically forwarding to the next phase
+            show_message_box_at_start (bool): Whether to show a message box at the start of the phase
         """
         if activePlayers == None:
             activePlayers = self.model.users
         aPhase = SGGamePhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
                            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
-                           messageAutoForward=messageAutoForward,
-                           showMessageBoxAtStart=showMessageBoxAtStart)
+                           message_auto_forward=message_auto_forward,
+                           show_message_box_at_start=show_message_box_at_start)
         self.phases = self.phases + [aPhase]
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
-    def newModelPhase(self, actions=[], condition=[], name='',autoForwardOn=False,messageAutoForward=True,showMessageBoxAtStart=False):
+    def newModelPhase(self,actions=None,condition=None, name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):
         """
-        To add a round phase during which the model will execute some actions (add, delete, move...)
-        args:
-            actions (lambda function): Actions the model performs during the phase (add, delete, move...)
-            condition (lambda function): Actions are performed only if the condition returns true  
-            name (str): Name displayed on the TimeLabel
-            autoForwardOn (bool) : if True, this phase will be automatically executed (default:False)
+        Add a phase during which the model will automatically execute actions.
+
+        Args:
+            actions (SGModelAction, lambda function, or list of SGModelAction/lambda function, optional):
+                The action(s) to be executed during the phase. Can be a single SGModelAction, a lambda function,
+                or a list of either.
+            condition (lambda function, optional):
+                A function returning a boolean. Actions are performed only if this function returns True.
+            name (str, optional):
+                Name displayed on the TimeLabel.
+            auto_forward (bool, optional):
+                If True, this phase will be executed automatically. Default is False.
+            message_auto_forward (bool, optional):
+                If True, a message will be displayed when auto-forwarding. Default is True.
+            show_message_box_at_start (bool, optional):
+                If True, a message box will be shown at the start of the phase. Default is False.
         """
+        if actions is None:
+            actions = []
         modelActions = []
         if isinstance(actions, (SGModelAction,SGModelAction_OnEntities)):
             actions.addCondition(condition)
@@ -158,7 +170,7 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,autoForwardOn=autoForwardOn,messageAutoForward=messageAutoForward,showMessageBoxAtStart=showMessageBoxAtStart)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,auto_forward=auto_forward,message_auto_forward=message_auto_forward,show_message_box_at_start=show_message_box_at_start)
         self.phases = self.phases + [aPhase]
         return aPhase
 

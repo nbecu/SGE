@@ -33,8 +33,8 @@ Player2.addGameAction(myModel.newModifyAction(Cell, {"state": "O"}, 1))
 Player1.newControlPanel("Joueur 1",showAgentsWithNoAtt=True)
 Player2.newControlPanel("Joueur 2",showAgentsWithNoAtt=True)
 # Gestion des tours
-myModel.timeManager.newGamePhase("Tour de Joueur 1", [Player1],autoForwardWhenAllActionsUsed=True,messageAutoForward=False)
-myModel.timeManager.newGamePhase("Tour de Joueur 2", [Player2],autoForwardWhenAllActionsUsed=True,messageAutoForward=False)
+myModel.timeManager.newGamePhase("Tour de Joueur 1", [Player1],autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+myModel.timeManager.newGamePhase("Tour de Joueur 2", [Player2],autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
 
 #
 userSelector=myModel.newUserSelector()
