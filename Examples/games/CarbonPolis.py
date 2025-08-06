@@ -12,7 +12,7 @@ myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=7,y=7)
     
 #********************************************************************
 
-nbJoueurs = 5 #Entre 5 et 8
+nbJoueurs = 8 #Entre 5 et 8
 
 # Def des joueurs
 joueurs_potentiels = {
@@ -500,7 +500,7 @@ cases.displayBorderPov("bords")
 ############################ Gestion des types d'occupation du sol special (qui ne sont pas indiqué sur la carte au début mais qui ont une surface initiale)
 
 surfaceCorrespondantAuPotentielAccueilInitial ={
-    'marais salee' : 16,
+    'marais salee' : 6,
     'marais salant' : 4,
     
     'marais saumatre d''Huyez' : 8 ,
