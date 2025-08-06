@@ -37,7 +37,7 @@ coutBonusAmenage = {
 }[nbJoueurs]
 
 #OLD(initial)  ordreZHs = ['marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'vasiere nue',  'herbier', 'champs agricoles', 'plage', 'port industriel', 'pres sales', 'marais doux agricole', 'port plaisance', 'foret', 'marais salant',]
-ordreZHs = ['champs agricoles','marais doux agricole', 'marais doux', 'marais saumatre', 'marais saumatre d''Huyez', 'marais salee', 'oestricole', 'marais salant', 'pres sales', 'vasiere nue', 'herbier', "demi-herbier", 'plage', 'port plaisance', 'port industriel', 'foret', 'vasiere nue Diop', "mer", "vide"]
+ordreZHs = ['champs agricoles','marais doux agricole', 'marais doux', 'marais saumatre', 'marais salee', 'oestricole', 'marais salant', 'pres sales', 'herbier', "demi-herbier", 'vasiere nue', 'plage', 'port plaisance', 'port industriel', 'foret', 'vasiere nue Diop', 'marais saumatre d''Huyez', "mer", "vide"]
 
 # # Définition des zones avec leurs caractéristiques
 ZHs = {
@@ -116,9 +116,9 @@ ZHs = {
         "couleur": QColor(137, 56, 173, 150),
         "potentiel accueil actions1": {5: 15, 6: 17, 7: 19, 8: 21}[nbJoueurs],
         "cases actions2": [
-            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
-            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "ovin", "effet economie": 1, "effet sequestration": 1},
+            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
+            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
             {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
             *([{"type_action2": "tourisme", "effet economie": 4, "effet sequestration": -2} if nbJoueurs >= 8 else None])
         ],
@@ -146,14 +146,13 @@ ZHs = {
         "couleur": QColor(100, 200, 180, 150), #QColor(0, 255, 0, 120),
         "potentiel accueil actions1": {5: 8, 6: 10, 7: 13, 8: 15}[nbJoueurs],   # VALEURS Identiques à Pré salés
         "cases actions2": [
-            # {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
-            # {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
-            # {"type_action2": "coquillage", "effet economie": 1, "effet sequestration": 0} 
+            # Vide car les premieres actions 2 sauf dans les cases en plus
         ],
         "cases actions2 en plus": [
-            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
-            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "coquillage", "effet economie": 1, "effet sequestration": 0},
+            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
+            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
+            
             {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "tourisme", "effet economie": 1, "effet sequestration": 0},
             {"type_action2": "coquillage", "effet economie": 1, "effet sequestration": -1},
@@ -167,7 +166,7 @@ ZHs = {
         "couleur": QColor(192, 192, 192, 120), #QColor(128, 128, 128, 120),
         "potentiel accueil actions1": {5: 4, 6: 5, 7: 6, 8: 7}[nbJoueurs],
         "cases actions2": [
-            {"type_action2": "economie conchylicole", "effet economie": 2, "effet sequestration": -1}, # TODO coquillage et economie conchylicole ont la meme illustration.
+            {"type_action2": "economie conchylicole", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "economie conchylicole", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "economie conchylicole", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "economie conchylicole", "effet economie": 2, "effet sequestration": -1},
@@ -187,12 +186,14 @@ ZHs = {
         "couleur": QColor(255, 255, 255, 200),
         "potentiel accueil actions1": {5: 4, 6: 5, 7: 6, 8: 7}[nbJoueurs], # VALEURS Identiques à Marais Oestréicoles
         "cases actions2": [
-            {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
-            {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
-            {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
-            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1}
+            # Vide car les premieres actions 2 sauf dans les cases en plus
         ],
         "cases actions2 en plus": [
+            {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
+            {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
+            {"type_action2": "saliculture", "effet economie": 1, "effet sequestration": 0},
+            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
+
             {"type_action2": "saliculture", "effet economie": 2, "effet sequestration": 0},
             {"type_action2": "saliculture", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
@@ -206,14 +207,14 @@ ZHs = {
         "couleur": QColor(0, 128, 0, 140),
         "potentiel accueil actions1": {5: 8, 6: 10, 7: 13, 8: 15}[nbJoueurs],
         "cases actions2": [
-            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
-            {"type_action2": "fauchage", "effet economie": 1, "effet sequestration": -1},
             {"type_action2": "ovin", "effet economie": 1, "effet sequestration": 0},
+            {"type_action2": "fauchage", "effet economie": 1, "effet sequestration": -1},
+            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
             *([{"type_action2": "ovin", "effet economie": 2, "effet sequestration": 0} if nbJoueurs >= 7 else None])
         ],
         "cases actions2 en plus": [
             {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
-            {"type_action2": "fauchage", "effet economie": 2, "effet sequestration": -1},
+            {"type_action2": "fauchage", "effet economie": 1, "effet sequestration": -1},
             {"type_action2": "ovin", "effet economie": 1, "effet sequestration": 0},
             {"type_action2": "fauchage", "effet economie": 1, "effet sequestration": -1},
             {"type_action2": "ovin", "effet economie": 1, "effet sequestration": 0}
@@ -225,9 +226,9 @@ ZHs = {
         "couleur": QColor(180, 150, 100, 140),
         "potentiel accueil actions1": {5: 14, 6: 17, 7: 20, 8: 23}[nbJoueurs],
         "cases actions2": [
-            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
-            {"type_action2": "navire", "effet economie": 2, "effet sequestration": -2},
             {"type_action2": "coquillage", "effet economie": 2, "effet sequestration": 0},
+            {"type_action2": "navire", "effet economie": 2, "effet sequestration": -2},
+            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},            
             *([{"type_action2": "plaisance", "effet economie": 1, "effet sequestration": -1} if nbJoueurs >= 6 else None])
         ],
         "cases actions2 en plus": [
@@ -242,7 +243,6 @@ ZHs = {
     "vasiere nue Diop": {##
         "sequestration": 7.9,
         "couleur": QColor(210, 180, 140, 120),
-        # "potentiel accueil actions1": {5: 1, 6: 1, 7: 1, 8: 1}[nbJoueurs],
         "potentiel accueil actions1": {5: 8, 6: 9, 7: 11, 8: 12}[nbJoueurs],
         "cases actions2": [
             {"type_action2": "recherche", "effet sequestration": 1, "effet economie": 0},
@@ -256,7 +256,7 @@ ZHs = {
         "couleur": QColor(0, 108, 10, 120),
     },
    "demi-herbier Diop": {##
-        "sequestration": 3.5, #environ la moitiéde la  vasière nue Diop,
+        "sequestration": 3.5, #environ la moitié de la  vasière nue Diop,
         "couleur": QColor(0, 245, 20, 40), 
     },
    "demi-herbier": {##
@@ -268,9 +268,9 @@ ZHs = {
         "couleur": QColor(0, 255, 0, 150),  #QColor(0, 128, 0, 120),
         "potentiel accueil actions1": {5: 9, 6: 11, 7: 13, 8: 15}[nbJoueurs],
         "cases actions2": [
-            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
+            {"type_action2": "tourisme", "effet economie": 2, "effet sequestration": -1},
             {"type_action2": "plaisance", "effet economie": 1, "effet sequestration": -1},
-            {"type_action2": "navire", "effet economie": 2, "effet sequestration": -1},
+            {"type_action2": "recherche", "effet economie": 1, "effet sequestration": 1},
             *([{"type_action2": "tourisme", "effet economie": 3, "effet sequestration": -3} if nbJoueurs >= 6 else None])
         ],
         "cases actions2 en plus": [
@@ -301,7 +301,7 @@ ZHs = {
             {"type_action2": "toursime", "effet economie": 1, "effet sequestration": -1},
             {"type_action2": "toursime", "effet economie": -1, "effet sequestration": -1}
         ],
-        "seuil variation actions2": 4 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
+        "seuil variation actions2": 2 #seuil de variation de la surface en hectare, déclenchant une augmentation ou une dimunition des cases actions
     },
     'port plaisance': {##
         "sequestration": 0,
@@ -708,12 +708,17 @@ Player.addGameAction(myModel.newDeleteAction(pionAction2,feedbacks=[lambda : upd
 def updateActions1():
     for aCase in casesAction1:
         aCase.setValue('frequentation',aCase.nbAgents()) 
-        if aCase.nbAgents() > aCase.value('potentiel accueil'):
-            aCase.setValue('surfrequentation',1) #0 si la capacité d'accueil n'est pas dépassé  / 1 si la cpacité d'accueil est dépassé
+        if aCase.nbAgents() > (aCase.value('potentiel accueil') * 1.25):
+            aCase.setValue('surfrequentation',1) #0 si la capacité d'accueil n'est pas dépassé  / 1 si la capacité d'accueil est dépassé de plus de 25%
             aCase.grid.gs_aspect.border_color='red'
+            aCase.grid.gs_aspect.border_size=6
+            aCase.grid.update()
+
+        elif aCase.nbAgents() > aCase.value('potentiel accueil'):
+            aCase.setValue('surfrequentation',0.5) #0 si la capacité d'accueil n'est pas dépassé  / 0.5 si la capacité d'accueil est dépassé de moins de 25%
+            aCase.grid.gs_aspect.border_color='dark orange'
             aCase.grid.gs_aspect.border_size=4
             aCase.grid.update()
-            
 
 def updateActions2():
     totCB = 0
@@ -774,12 +779,12 @@ def initDebutTour():
                 aCase.setValue('potentiel accueil', 0)
             else:
                 # print(f"{aTypeZH}: potentielAccueil={aCase.value('potentiel accueil')}")
-                print(f"{aTypeZH}: InitialValue={aCase.getInitialValue('potentiel accueil')}")
+                # print(f"{aTypeZH}: InitialValue={aCase.getInitialValue('potentiel accueil')}")
 
                 aCase.setValue('potentiel accueil',
                            round(aCase.getInitialValue('potentiel accueil') * surfaceActuelle / surfaceInitialeDeReference))
                 
-                print(f"{aTypeZH}: surfaceInitialeDeReference={surfaceInitialeDeReference}, surfaceActuelle={surfaceActuelle}, potentielAccueil={aCase.value('potentiel accueil')}")
+                # print(f"{aTypeZH}: surfaceInitialeDeReference={surfaceInitialeDeReference}, surfaceActuelle={surfaceActuelle}, potentielAccueil={aCase.value('potentiel accueil')}")
 
     # maj des actions2
     for typeZH, zhData in ZHs.items():
@@ -793,9 +798,8 @@ def initDebutTour():
         #     print(f"Type ZH: {typeZH}, Surface Actuelle: {surfaceActuelle}")
         #     print(f"AVANT Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent_action2')}")
         
+        # Première boucle pour gérer l'ajout de Cases Action 2. Cas où surfaceActuelle >= surfaceDuSeuilPrécédent_action2 + seuilVariation
         while surfaceActuelle >= pZH[typeZH].value("surfaceDuSeuilPrécédent_action2") + seuilVariation:
-            # Si surfaceActuelle >= surfaceDuSeuilPrécédent_action2
-            # alors on ajoute des actions
             pZH[typeZH].incValue("surfaceDuSeuilPrécédent_action2", seuilVariation)
             if ZHs[typeZH]['Actions2 en plus'] == []: break # sort de la boucle, si il n'y a plus de case actions2 en plus
             casesEnPlus = ZHs[typeZH]['Actions2 en plus'][0]
@@ -804,11 +808,12 @@ def initDebutTour():
             # casesEnPlus.gs_aspect.border_color='red'
             # casesEnPlus.gs_aspect.border_size=4
                  
-        # Deuxième boucle while pour gérer le cas où surfaceActuelle <= (surfaceDuSeuilPrécédent_action2 + seuilVariation)
+        # Deuxième boucle while pour gérer la suppression de Cases Action 2. Cas où surfaceActuelle <= (surfaceDuSeuilPrécédent_action2 + seuilVariation)
         while (pZH[typeZH].value("surfaceDuSeuilPrécédent_action2") - surfaceActuelle) >= seuilVariation:
             pZH[typeZH].decValue("surfaceDuSeuilPrécédent_action2", seuilVariation)
             casesActions2_actives = pZH[typeZH].getEntities_withValue("type", "action2")
-            if casesActions2_actives == []: break # sort de la boucle, si il n'y a plus de case actions2 à enlever
+            if surfaceActuelle == 0 and casesActions2_actives == []:  break # sort de la boucle, si il n'y a plus de case actions2 à enlever
+            if surfaceActuelle > 0 and len(casesActions2_actives) == 1: break # sort de la boucle si il reste de la superficie et que la liste contient un élément 
             # Récupérer la dernière case à enlever
             caseX = casesActions2_actives[-1] #récupère la dernière case action2 active
             pZH[typeZH].deleteEntity(caseX)
@@ -850,7 +855,7 @@ modelPhase3=myModel.timeManager.newModelPhase([lambda: updateActions1(),lambda: 
 
 #********************************************************************
 # Dashboard des scores obtenus
-DashBoardInd=myModel.newDashBoard("Suivi des indicateurs")
+DashBoardInd=myModel.newDashBoard("Suivi d'indicateurs ")
 DashBoardInd.addIndicatorOnSimVariable(sequestrationZH)
 DashBoardInd.addSeparator()                                  
 DashBoardInd.addIndicatorOnSimVariable(ptCB)
@@ -860,7 +865,7 @@ DashBoardInd.addIndicatorOnSimVariable(sequestrationTot)
 DashBoardInd.addSeparator()
 DashBoardInd.addIndicatorOnSimVariable(ptDE)
 DashBoardInd.addIndicatorOnSimVariable(cumulDE)
-DashBoardInd.moveToCoords(1510,725)
+DashBoardInd.moveToCoords(1175,705)
 #********************************************************************
 
 # Dashboard des surfaces des ZH
@@ -892,11 +897,11 @@ DashBoardSurfaces.moveToCoords(1510,30)
 nbBonusAmenage = myModel.newSimVariable(' Bonus déjà utilisés   ',0)
 dashBonus = myModel.newDashBoard(backgroundColor='#afe3d7', borderColor='transparent')
 dashBonus.addIndicatorOnSimVariable(nbBonusAmenage)
-dashBonus.moveToCoords(1070,852)
+dashBonus.moveToCoords(1020,802)
 myModel.newButton(
     (lambda: bonusAmenagemet()),
     f"Bonus 10ha \nd'aménagement ({coutBonusAmenage} DE)",
-    (1070,800),
+    (1020,750),
     padding=10,
     background_color='#afe3d7'
 )
@@ -909,14 +914,14 @@ def ajoutDE():
     if ok:
         cumulDE.incValue(number)
         
-
 myModel.newButton(
     (lambda: ajoutDE()),
-    f"Ajouter/Retrancher des points DE)",
-    (1070,882),
+    f"Ajout/Retrait des points DE)",
+    (1020,832),
     padding=8,
     background_color='#afe3d7'
 )
+
 
 #********************************************************************
  #TEST AJOUT VALUER DS LES PLATEAUX
