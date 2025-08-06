@@ -644,7 +644,7 @@ def resetHexagones():
     for aHex in hexagones.getEntities():
         if aHex.cell.grid.id!="Pioche" and aHex.value("placed")==False:
             destinationCell=pioche.getEntity(6,1)
-            aHex.moveTo(pioche,destinationCell)
+            aHex.moveTo(destinationCell)
             nbHexReset=+1
     print(f"{nbHexReset} hexagones ont été remis dans la pioche.")
 
