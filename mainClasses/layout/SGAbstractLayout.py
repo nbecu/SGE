@@ -8,9 +8,9 @@ class SGAbstractLayout():
     def __init__(self):
         self.count=0
         self.GameSpaces=[]
-        self.topMargin = 23 #23 pixels to leave space at top because of menuBar
+        self.topMargin = 26 #25 pixels for the height of the menuBar + 1 pixels to leave a very thin margin at top
         self.leftMargin = 1 #1 pixel to leave a very thin margin at left
-        self.gapBetweenGameSpaces = 20 #10 pixels to leave a margin between 2 gamespaces
+        self.gapBetweenGameSpaces = 20 #20 pixels to leave a margin between 2 gamespaces
     
     #Return the number of element
     def getNumberOfElement(self):

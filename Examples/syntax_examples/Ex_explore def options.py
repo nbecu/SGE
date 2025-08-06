@@ -46,7 +46,7 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 Player1 = myModel.newPlayer("Harvesters")
 Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
 Player1.addGameAction(myModel.newDeleteAction(Workers))
-Player1.addGameAction(myModel.newModifyAction('Cell', {"Resource": 3}, 3))
+Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 1))
 Player1ControlPanel = Player1.newControlPanel(showAgentsWithNoAtt=True)
 
@@ -121,8 +121,8 @@ TextBox = myModel.newTextBox(
     title='Info', textToWrite="Welcome to ReHab game !")
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
-i1 = DashBoard.addIndicator('Cell',"sum",  attribute='Resource',color=Qt.black)
-i2 = DashBoard.addIndicator('Cell',"avg",  attribute='Resource',color=Qt.black)
+i1 = DashBoard.addIndicator(Cell,"sum",  attribute='Resource',color=Qt.black)
+i2 = DashBoard.addIndicator(Cell,"avg",  attribute='Resource',color=Qt.black)
 
 
 

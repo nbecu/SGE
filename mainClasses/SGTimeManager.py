@@ -20,7 +20,7 @@ class SGTimeManager():
     # To increment the time of the game
     def nextPhase(self):
         if self.numberOfPhases() == 0:
-            print('warning : should we handle the case when there is no phases defined ?')
+            # TODO: should we handle differently the case when there is no phases defined ?
             return
         
         # Record the data of the step in dataRecorded
