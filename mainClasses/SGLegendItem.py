@@ -71,6 +71,12 @@ class SGLegendItem(QtWidgets.QWidget):
             #Square cell
             if(self.shape=="square") :   
                 painter.drawRect(0, 0, 20, 20)
+                if self.type == 'delete':
+                    # draw a red cross inside
+                    pen = QPen(Qt.red, 2)
+                    painter.setPen(pen)
+                    painter.drawLine(5, 5, 15, 15)
+                    painter.drawLine(15, 5, 5, 15)
             #agent
             elif self.shape=="circleAgent":
                 painter.drawEllipse(0, 0, 20, 20)
