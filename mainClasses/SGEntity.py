@@ -37,12 +37,15 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
         self.dictAttributes={}
         if thisAgentAttributesAndValues is None : thisAgentAttributesAndValues={}
+        
         for aAtt, aDefaultValue in self.classDef.attributesDefaultValues.items():
             if not aAtt in thisAgentAttributesAndValues.keys():
                 thisAgentAttributesAndValues[aAtt]=aDefaultValue
         for aAtt, valueToSet in thisAgentAttributesAndValues.items():
             if callable(valueToSet):
-                self.setValue(aAtt,valueToSet())
+                aValue= valueToSet()
+                print(aValue)
+                self.setValue(aAtt,aValue)
             else:
                 self.setValue(aAtt,valueToSet)
 

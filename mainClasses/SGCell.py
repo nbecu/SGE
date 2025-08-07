@@ -162,14 +162,20 @@ class SGCell(SGEntity):
         if not isinstance(aAgent,SGEntity):
             return
         
-        currentPlayer=self.model.getPlayer(self.model.currentPlayer)
-        moveActions=currentPlayer.getMoveActionsOn(aAgent)
+        aActiveLegend = self.model.getSelectedLegend() 
+        aLegendItem = self.model.getSelectedLegendItem()
+        if aActiveLegend is None or aActiveLegend.isAdminLegend(): 
+            aAgent.moveTo(self)
+        elif aLegendItem is None : None #Exit the method
+        else :
+            currentPlayer=self.model.getPlayer(self.model.currentPlayer)
+            moveActions=currentPlayer.getMoveActionsOn(aAgent)
 
-        for aMoveAction in moveActions:
-            if aMoveAction.checkAuthorization(aAgent,self):
-                aMoveAction.perform_with(aAgent,self)
-                e.setDropAction(Qt.MoveAction)
-                aAgent.dragging = False
+            for aMoveAction in moveActions:
+                if aMoveAction.checkAuthorization(aAgent,self):
+                    aMoveAction.perform_with(aAgent,self)
+                    e.setDropAction(Qt.MoveAction)
+                    aAgent.dragging = False
 
         # Le code ci-dessous est la version précédente de la méthode dropEvent. Il est conservé pour référence
         # e.accept()

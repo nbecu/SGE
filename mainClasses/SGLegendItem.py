@@ -92,16 +92,16 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.drawRect(5, 0, 10, 20)
             elif self.shape=="triangleAgent1": 
                 points = QPolygon([
-                QPoint(20,7),
-                QPoint(15,17),
-                QPoint(25,17)
+                QPoint(10,5),
+                QPoint(5,15),
+                QPoint(15,15)
                 ])
                 painter.drawPolygon(points)
             elif self.shape=="triangleAgent2": 
                 points = QPolygon([           
-                QPoint(25,7),
-                QPoint(15,7),
-                QPoint(20,17)
+                QPoint(15,5),
+                QPoint(5,5),
+                QPoint(10,15)
                 ])
                 painter.drawPolygon(points)
             elif self.shape=="arrowAgent1": 

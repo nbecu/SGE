@@ -46,25 +46,25 @@ class SGAgent(SGEntity):
         y = self.yPos
         if self.isDisplay==True:
             if(agentShape=="circleAgent"):
-                self.setGeometry(x,y,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size,self.size)
                 painter.drawEllipse(0,0,self.size,self.size)
             elif agentShape=="squareAgent":
-                self.setGeometry(x,y,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size,self.size)
                 painter.drawRect(0,0,self.size,self.size)
             elif agentShape=="ellipseAgent1": 
-                self.setGeometry(x,y,self.size*2+1,self.size+1)
-                painter.drawEllipse(0,0,self.size*2,self.size)
+                self.setGeometry(x,y,self.size,round(self.size/2))
+                painter.drawEllipse(0,0,self.size,round(self.size/2))
             elif agentShape=="ellipseAgent2": 
-                self.setGeometry(x,y,self.size+1,self.size*2+1)
-                painter.drawEllipse(0,0,self.size,self.size*2)
+                self.setGeometry(x,y,round(self.size/2),self.size)
+                painter.drawEllipse(0,0,round(self.size/2),self.size)
             elif agentShape=="rectAgent1": 
-                self.setGeometry(x,y,self.size*2+1,self.size+1)
-                painter.drawRect(0,0,self.size*2,self.size)
+                self.setGeometry(x,y,self.size,round(self.size/2))
+                painter.drawRect(0,0,self.size,round(self.size/2))
             elif agentShape=="rectAgent2": 
-                self.setGeometry(x,y,self.size+1,self.size*2+1)
-                painter.drawRect(0,0,self.size,self.size*2)
+                self.setGeometry(x,y,round(self.size/2),self.size)
+                painter.drawRect(0,0,round(self.size/2),self.size)
             elif agentShape=="triangleAgent1": 
-                self.setGeometry(x,y,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size,self.size)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
                 QPoint(0,self.size),
@@ -72,7 +72,7 @@ class SGAgent(SGEntity):
                 ])
                 painter.drawPolygon(points)
             elif agentShape=="triangleAgent2": 
-                self.setGeometry(x,y,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size,self.size)
                 points = QPolygon([
                 QPoint(0,0),
                 QPoint(self.size,0),
@@ -80,7 +80,7 @@ class SGAgent(SGEntity):
                 ])
                 painter.drawPolygon(points)
             elif agentShape=="arrowAgent1": 
-                self.setGeometry(x,y,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size,self.size)
                 points = QPolygon([
                 QPoint(round(self.size/2),0),
                 QPoint(0,self.size),
@@ -89,7 +89,7 @@ class SGAgent(SGEntity):
                 ])
                 painter.drawPolygon(points)
             elif agentShape=="arrowAgent2": 
-                self.setGeometry(x,y,self.size+1,self.size+1)
+                self.setGeometry(x,y,self.size,self.size)
                 points = QPolygon([
                 QPoint(0,0),
                 QPoint(round(self.size/2),round(self.size/3)),
@@ -98,7 +98,7 @@ class SGAgent(SGEntity):
                 ])
                 painter.drawPolygon(points)
             elif agentShape == "hexagonAgent":
-                self.setGeometry(x, y, self.size+1, self.size+1)
+                self.setGeometry(x, y, self.size, self.size)
                 side = self.size / 2
                 height = round(side * (3 ** 0.5))+10  # Hauteur de l'hexagone équilatéral
                 points = QPolygon([
@@ -118,15 +118,15 @@ class SGAgent(SGEntity):
         if(agentShape=="circleAgent"):
             region = QRegion(0, 0, self.size, self.size, QRegion.Ellipse)
         elif agentShape=="squareAgent":
-            region = QRegion(0, 0, self.size+1, self.size+1)
+            region = QRegion(0, 0, self.size, self.size)
         elif agentShape=="ellipseAgent1": 
-            region = QRegion(0,0,self.size*2,self.size)
+            region = QRegion(0,0,self.size,round(self.size/2))
         elif agentShape=="ellipseAgent2": 
-            region = QRegion(0,0,self.size,self.size*2)
+            region = QRegion(0,0,round(self.size/2),self.size)
         elif agentShape=="rectAgent1": 
-            region = QRegion(0,0,self.size*2,self.size)
+            region = QRegion(0,0,self.size,round(self.size/2))
         elif agentShape=="rectAgent2": 
-            region = QRegion(0,0,self.size,self.size*2)
+            region = QRegion(0,0,round(self.size/2),self.size)
         elif agentShape=="triangleAgent1": 
             points = QPolygon([
             QPoint(round(self.size/2),0),
@@ -171,6 +171,7 @@ class SGAgent(SGEntity):
             region = QRegion(points)
         return region
    
+   
    #Funtion to handle the zoomIn
     def zoomIn(self,zoomFactor):
         self.size=round(self.size+(zoomFactor*10))
@@ -184,14 +185,20 @@ class SGAgent(SGEntity):
     def getRandomX(self):        
         maxSize=self.cell.size
         originPoint=self.cell.pos()
-        x = random.randint(originPoint.x()+5,originPoint.x()+maxSize-10)
+        if self.classDef.shape in ["ellipseAgent2","rectAgent2"]: 
+            x = random.randint(originPoint.x(),originPoint.x()+maxSize-round(self.size/2))
+        else:
+            x = random.randint(originPoint.x(),originPoint.x()+maxSize-self.size)
         return x
         
     
     def getRandomY(self): 
         maxSize=self.cell.size
         originPoint=self.cell.pos()
-        y = random.randint(originPoint.y()+5,originPoint.y()+maxSize-10)
+        if self.classDef.shape in ["ellipseAgent1","rectAgent1"]: 
+            y = random.randint(originPoint.y(),originPoint.y()+maxSize-round(self.size/2))
+        else:
+            y = random.randint(originPoint.y(),originPoint.y()+maxSize-self.size)
         return y
     
     def getPositionInEntity(self):
