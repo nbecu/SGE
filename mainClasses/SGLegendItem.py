@@ -128,7 +128,6 @@ class SGLegendItem(QtWidgets.QWidget):
             
             if self.type =="None":
                 aFont=QFont("Verdana",10, underline=True)
-                aFont.setUnderline(True)
                 painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
             elif self.type =="Title1":
                 aFont = QFont()
@@ -144,7 +143,7 @@ class SGLegendItem(QtWidgets.QWidget):
             else :
                 font = QFont("Verdana",8)
                 painter.drawTextAutoSized(30, 3, self.text, font, Qt.AlignLeft)
-            # self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
+            self.setMinimumSize(self.legend.getSizeXGlobal()-40,10)
             self.move(10,self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
             painter.end()
             
