@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.SGUtils import SGUtils
+from mainClasses.SGExtensions import *
 
 
 #Class who is responsible of creation legend item 
