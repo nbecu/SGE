@@ -17,7 +17,7 @@ class SGLegend(SGGameSpace):
         self.heightOfLabels= 20 #added for CarbonPolis
 
     def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,addDeleteButton=True,borderColor=Qt.black):
-        self.id=legendName
+        self.id=legendName #todo should be removed as it is managed by the superclass
         self.model=model
         self.playerName=playerName
         self.showAgents=showAgents

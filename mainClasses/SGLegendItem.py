@@ -70,20 +70,20 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.shape=="square") :   
-                painter.drawRect(10, 0, 20, 20)
+                painter.drawRect(0, 0, 20, 20)
             #agent
             elif self.shape=="circleAgent":
-                painter.drawEllipse(10, 0, 20, 20)
+                painter.drawEllipse(0, 0, 20, 20)
             elif self.shape=="squareAgent":
-                painter.drawRect(10, 0, 20, 20)
+                painter.drawRect(0, 0, 20, 20)
             elif self.shape=="ellipseAgent1":
-                painter.drawEllipse(10, 5, 20, 10)
+                painter.drawEllipse(0, 5, 20, 10)
             elif self.shape=="ellipseAgent2":
-                painter.drawEllipse(15, 0, 10, 20)
+                painter.drawEllipse(5, 0, 10, 20)
             elif self.shape=="rectAgent1":
-                painter.drawRect(10, 5, 20, 10)
+                painter.drawRect(0, 5, 20, 10)
             elif self.shape=="rectAgent2":
-                painter.drawRect(15, 0, 10, 20)
+                painter.drawRect(5, 0, 10, 20)
             elif self.shape=="triangleAgent1": 
                 points = QPolygon([
                 QPoint(20,7),
@@ -127,32 +127,24 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.drawPolygon(points)
             
             if self.type =="None":
-                aFont=QFont("Verdana",10)
+                aFont=QFont("Verdana",10, underline=True)
                 aFont.setUnderline(True)
-                painter.setFont(aFont)
-                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+                painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
             elif self.type =="Title1":
                 aFont = QFont()
                 aFont.setBold(True)
                 aFont.setPixelSize(14)
-                painter.setFont(aFont)
-                painter.drawText(QRect(15,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+                painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
             elif self.type =="Title2":
                 aFont=QFont("Verdana",10)
-                painter.setFont(aFont)
-                painter.drawText(QRect(10,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+                painter.drawTextAutoSized(10, 0, self.text, aFont, Qt.AlignLeft)
             elif self.type =='delete':
-                painter.setFont(QFont("Verdana",8))
-                painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+                aFont = QFont("Verdana",8)
+                painter.drawTextAutoSized(30, 3, self.text, aFont, Qt.AlignLeft)
             else :
                 font = QFont("Verdana",8)
-                painter.setFont(font)
-                padding_width = 50  # marge à gauche (40) + marge à droite (10)
-                padding_height = 6  # petite marge verticale
-                text_width, text_height = SGUtils.compute_text_size(self.text, font, padding_width, padding_height)
-                painter.drawText(QRectF(40,3,text_width-40,text_height), Qt.AlignLeft, self.text)
-                self.setMinimumSize(text_width, text_height)
-            self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
+                painter.drawTextAutoSized(30, 3, self.text, font, Qt.AlignLeft)
+            # self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
             self.move(10,self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
             painter.end()
             
