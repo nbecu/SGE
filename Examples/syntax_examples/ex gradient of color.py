@@ -38,12 +38,12 @@ def interpolate_color(value_min, value_max, color_min, color_max, a_value):
 aDict={}
 for aVal in list(range(0,110,10)):
     aDict[aVal]=interpolate_color(0,100,Qt.red,Qt.blue,aVal) 
-Sheeps.newPov("Sheeps -> Health","health",aDict)
+Sheeps.newPov("Health","health",aDict)
 
 aDict={}
 for aVal in list(range(0,110,10)):
     aDict[aVal]=interpolate_color(0,100,Qt.yellow,QColor.fromRgb(1,80,32),aVal) 
-Sheeps.newPov("Sheeps -> Hunger","hunger",aDict)
+Sheeps.newPov("Hunger","hunger",aDict)
 
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":70,"hunger":20})
 Sheeps.newAgentsAtRandom(10,Cell)

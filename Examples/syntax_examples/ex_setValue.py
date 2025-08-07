@@ -16,8 +16,8 @@ Cell.newPov("ICanSeeSchrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"fores
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,1)
 

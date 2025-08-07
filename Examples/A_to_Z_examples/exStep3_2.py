@@ -20,8 +20,8 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 # Here is an example with numerical values
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10),"hunger":(lambda: random.randint(0,10)*10)})
-Sheeps.newPov("Sheeps -> Health","health",{"100":Qt.blue,"90":Qt.blue,"80":Qt.blue,"70":Qt.blue,"60":Qt.blue,"50":Qt.blue,"40":Qt.red,"30":Qt.red,"20":Qt.red,"10":Qt.red,"0":Qt.red})
-Sheeps.newPov("Sheeps -> Hunger","hunger",{"100":Qt.green,"90":Qt.green,"80":Qt.green,"70":Qt.green,"60":Qt.green,"50":Qt.green,"40":Qt.yellow,"30":Qt.yellow,"20":Qt.yellow,"10":Qt.yellow,"0":Qt.yellow})
+Sheeps.newPov("Health","health",{"100":Qt.blue,"90":Qt.blue,"80":Qt.blue,"70":Qt.blue,"60":Qt.blue,"50":Qt.blue,"40":Qt.red,"30":Qt.red,"20":Qt.red,"10":Qt.red,"0":Qt.red})
+Sheeps.newPov("Hunger","hunger",{"100":Qt.green,"90":Qt.green,"80":Qt.green,"70":Qt.green,"60":Qt.green,"50":Qt.green,"40":Qt.yellow,"30":Qt.yellow,"20":Qt.yellow,"10":Qt.yellow,"0":Qt.yellow})
 
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"70","hunger":"20"})
 m2=Sheeps.newAgentAtCoords(Cell,None,None)

@@ -22,10 +22,11 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 # You can add a dict of attributs with values (optionnal).
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.setDefaultValues({"health":{"good","bad"},"hunger":{"good","bad"}})
+#todo le système de defaultValues ne fonctionne plus
 
 # For each attribute, you can set up points of view with colors :
-Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 # You can now create agents from its species and place them on a particular cell, or random by giving None values and
 # give them attributes with values :
