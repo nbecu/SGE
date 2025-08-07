@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(700,600, windowTitle="rearrange location of the game space")
+myModel=SGModel(700,600, windowTitle="rearrange location of the game spaces")
 
 Cell = myModel.newCellsOnGrid(10, 10, "square", size=50)
 Cell.grid.moveToCoords(110,26)
