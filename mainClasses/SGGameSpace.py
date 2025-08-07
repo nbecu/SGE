@@ -114,7 +114,6 @@ class SGGameSpace(QtWidgets.QWidget):
         drag.setHotSpot(e.pos() - self.pos())
 
         xclic, yclic = getPos(e)
-        left, up = getCPos(self)
         xC, yC = toCenter(self)
 
         drag.exec_(Qt.MoveAction)

@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from mainClasses.SGUtils import SGUtils
 
 
 #Class who is responsible of creation legend item 
@@ -141,11 +142,16 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setFont(aFont)
                 painter.drawText(QRect(10,0,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
             elif self.type =='delete':
-                painter.setFont(QFont("Verdana",10))
-                painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
-            else :
                 painter.setFont(QFont("Verdana",8))
                 painter.drawText(QRect(40,3,self.legend.getSizeXGlobal()-50,20), Qt.AlignLeft, self.text)
+            else :
+                font = QFont("Verdana",8)
+                painter.setFont(font)
+                padding_width = 50  # marge à gauche (40) + marge à droite (10)
+                padding_height = 6  # petite marge verticale
+                text_width, text_height = SGUtils.compute_text_size(self.text, font, padding_width, padding_height)
+                painter.drawText(QRectF(40,3,text_width-40,text_height), Qt.AlignLeft, self.text)
+                self.setMinimumSize(text_width, text_height)
             self.setMinimumSize(self.legend.getSizeXGlobal()-50,10)
             self.move(10,self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
             painter.end()
