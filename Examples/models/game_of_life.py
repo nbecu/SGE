@@ -6,6 +6,7 @@ from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(520,545, windowTitle="Game of Life from Conway")
+myModel.displayTimeInWindowTitle()
 
 
 

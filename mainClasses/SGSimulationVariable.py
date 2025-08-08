@@ -12,6 +12,7 @@ class SGSimulationVariable():
         self.name=name
         self.color=color
         self.isDisplay=isDisplay
+        self.value=None
         self.watchers=[]
         self.history=[]
         if callable(initValue):
@@ -19,21 +20,22 @@ class SGSimulationVariable():
         else:
             self.setValue(initValue)
 
-    def getValue(self):
-        """
-        Return the value of the simulation variable
-        Can use '.value' instead
-        """
-        return self.value    
 
-    def setValue(self, newValue):
+    def setValue(self, valueToSet):
         """
         Sets the value of the simulation variable
         Args:
-            newValue: The new value to assign to the simulation variable.
+            valueToSet: The new value to assign to the simulation variable. If a value is callable, it will be invoked and its return value will be used
         """
-        self.value = newValue
-        self.saveValueInHistory(newValue)     
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
+        
+        if self.value == aValue: return False #The simVariable has already this value
+
+        self.value = aValue
+        self.saveValueInHistory(aValue)     
         for watcher in self.watchers:
             watcher.checkAndUpdate()
     
@@ -43,26 +45,45 @@ class SGSimulationVariable():
         Args:
             newValue: The new value to assign to the simulation variable.
         """
-        self.value=newValue
-        self.saveValueInHistory(newValue)
+        if callable(newValue):
+            aValue = newValue()
+        else:
+            aValue = newValue
+        self.value=aValue
+        self.saveValueInHistory(aValue)
 
-    def saveValueInHistory(self,aValue):
-        self.history.append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])
 
-    def incValue(self,aValue=1,max=None):
+    def getValue(self):
+        """
+        Return the value of the simulation variable
+        Can use '.value' instead
+        """
+        return self.value    
+
+    def incValue(self,valueToSet=1,max=None):
         """
         Increase the value with an additional value
         Args:
             aValue (str): Value to be added to the current value of the attribute
-        """       
+        """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet  
+
         self.setValue(self.value+aValue if max is None else min(self.value+aValue,max))
 
-    def decValue(self,aValue=1,min=None):
+    def decValue(self,valueToSet=1,min=None):
         """
         Decrease the value with an additional value
         Args:
             aValue (str): Value to be subtracted to the current value of the attribute
-        """       
+        """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet  
+        
         self.setValue(self.value-aValue if min is None else max(self.value-aValue,min))
 
     def calcValue(self,aLambdaFunction):
@@ -76,6 +97,11 @@ class SGSimulationVariable():
             result = aLambdaFunction(self.value)
             self.setValue(result)
         else: raise ValueError ('calcValue works with a lambda function')
+
+
+    def saveValueInHistory(self,aValue):
+        self.history.append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])
+
 
     def addWatcher(self,aIndicator):
         self.watchers.append(aIndicator)

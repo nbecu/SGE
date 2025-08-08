@@ -79,13 +79,17 @@ class AttributeAndValueFunctionalities():
         # if max is not None: newValue = min(newValue,max)    
         # self.setValue(aAttribut,newValue)
 
-    def decValue(self,aAttribut,aValue=1,min=None):
+    def decValue(self,aAttribut,valueToSet=1,min=None):
         """
         Decrease the value of an attribut with an additional value
         Args:
             aAttribut (str): Name of the attribute
             aValue (str): Value to be subtracted to the current value of the attribute
         """
+        if callable(valueToSet):
+            aValue = valueToSet()
+        else:
+            aValue = valueToSet
 
         if isinstance(self.value(aAttribut), numbers.Number) and isinstance(aValue, numbers.Number):
             self.setValue(aAttribut,(self.value(aAttribut)-aValue if min is None else max(self.value(aAttribut)-aValue,min)))
