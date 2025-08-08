@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Add a TextBox")
+myModel=SGModel(950,520, windowTitle="Add a TextBox")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=45, gap=2)
 Cell.setEntities("landUse","grass")
@@ -42,17 +42,20 @@ Sheeps.newPov("Health","health",aDict)
 m1=Sheeps.newAgentAtCoords(Cell,1,1)
 m2=Sheeps.newAgentAtCoords(Cell,5,1)
 
-theFirstLegend=myModel.newLegend()
+theFirstLegend=myModel.newLegend(addDeleteButton=False)
 
 
 Player1=myModel.newPlayer("Player 1",{"Percentage of grass":0})
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 Player2=myModel.newPlayer("Player 2",{"Sheeps in good health":0})
 Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1")
-Player2Legend=Player2.newControlPanel("Actions du Joueur 2")
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
+Player2ControlPanel=Player2.newControlPanel("Actions du Joueur 2")
+
+Player2ControlPanel.moveToCoords(600,100)
 
 userSelector=myModel.newUserSelector()
+userSelector.moveToCoords(600,180)
 
 
 myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
@@ -78,8 +81,10 @@ def eat(aSheep):
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
+GameRounds.moveToCoords(650,250)
 
 DashBoard = myModel.newDashBoard('Indicators !!',borderColor=Qt.black, textColor=Qt.black)
+DashBoard.moveToCoords(600,350)
 
 score1= myModel.newSimVariable("Global Score:",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1)
@@ -102,6 +107,7 @@ endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Score equal to 90")
 endGameRule.showEndGameConditions()
+endGameRule.moveToCoords(600,450)
 
 
 myModel.setCurrentPlayer("Player1")

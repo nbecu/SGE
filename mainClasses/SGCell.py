@@ -9,8 +9,8 @@ class SGCell(SGEntity):
         super().__init__(classDef.grid,classDef,classDef.defaultsize,attributesAndValues=None)
         #Basic initialize
         self.grid=classDef.grid
-        self.xPos=x
-        self.yPos=y
+        self.xCoord=x
+        self.yCoord=y
         self.gap=self.grid.gap
         #Save the basic value for the zoom (temporary)
         self.saveGap=self.gap
@@ -31,7 +31,7 @@ class SGCell(SGEntity):
         self.customContextMenuRequested.connect(self.show_menu)
         
     def getId(self):
-        return "cell"+str(self.xPos)+"-"+str(self.yPos)
+        return "cell"+str(self.xCoord)+"-"+str(self.yCoord)
     
     def paintEvent(self,event):
         painter = QPainter()
@@ -52,8 +52,8 @@ class SGCell(SGEntity):
             painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
             self.startXBase=self.grid.frameMargin
             self.startYBase=self.grid.frameMargin
-            self.startX=int(self.startXBase+(self.xPos -1)*(self.size+self.gap)+self.gap) 
-            self.startY=int(self.startYBase+(self.yPos -1)*(self.size+self.gap)+self.gap)
+            self.startX=int(self.startXBase+(self.xCoord -1)*(self.size+self.gap)+self.gap) 
+            self.startY=int(self.startYBase+(self.yCoord -1)*(self.size+self.gap)+self.gap)
             if (self.shape=="hexagonal"):
                 self.startY=self.startY+self.size/4
             #Base of the gameBoard
@@ -72,10 +72,10 @@ class SGCell(SGEntity):
                     QPoint(0, int(self.size/4))              
                 ])
                 painter.drawPolygon(points)
-                if(self.yPos%2!=0):
-                    self.move(self.startX , int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
+                if(self.yCoord%2!=0):
+                    self.move(self.startX , int(self.startY-self.size/2*self.yCoord +(self.gap/10+self.size/4)*self.yCoord))
                 else:
-                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yPos +(self.gap/10+self.size/4)*self.yPos))
+                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yCoord +(self.gap/10+self.size/4)*self.yCoord))
                         
         painter.end()
     
@@ -259,14 +259,14 @@ class SGCell(SGEntity):
     #To get the neighbor cells
     def getNeighborCells(self,rule='moore'):
         neighbors = []
-        for i in range(self.xPos - 1, self.xPos + 2):
-            for j in range(self.yPos - 1, self.yPos + 2):
-                if i == self.xPos and j == self.yPos:
+        for i in range(self.xCoord - 1, self.xCoord + 2):
+            for j in range(self.yCoord - 1, self.yCoord + 2):
+                if i == self.xCoord and j == self.yCoord:
                     continue
                 if rule=="moore":
                     c = self.classDef.getCell(i, j)
                 elif rule=='neumann':
-                    if (i == self.xPos or j == self.yPos) and (i != self.xPos or j != self.yPos):
+                    if (i == self.xCoord or j == self.yCoord) and (i != self.xCoord or j != self.yCoord):
                         c = self.classDef.getCell(i,j)
                     else:
                         c = None
@@ -279,13 +279,13 @@ class SGCell(SGEntity):
         
     #To get the neighbor cell at cardinal
     def getNeighborN(self):
-        return self.classDef.getCell(self.xPos,self.yPos-1)
+        return self.classDef.getCell(self.xCoord,self.yCoord-1)
     def getNeighborS(self):
-        return self.classDef.getCell(self.xPos,self.yPos+1)
+        return self.classDef.getCell(self.xCoord,self.yCoord+1)
     def getNeighborE(self):
-        return self.classDef.getCell(self.xPos+1,self.yPos)
+        return self.classDef.getCell(self.xCoord+1,self.yCoord)
     def getNeighborW(self):
-        return self.classDef.getCell(self.xPos-1,self.yPosPos)        
+        return self.classDef.getCell(self.xCoord-1,self.yCoordPos)        
             
     #Delete all agents on the cell
     def deleteAllAgents(self):

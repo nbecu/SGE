@@ -177,7 +177,7 @@ class SGGrid(SGGameSpace):
         args:
             columnNumber (int): column number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.xPos== columnNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.xCoord== columnNumber]
         
 
   # Return the cells at a specified row
@@ -187,6 +187,6 @@ class SGGrid(SGGameSpace):
         args:
             rowNumber (int): row number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.yPos== rowNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.yCoord== rowNumber]
 
     

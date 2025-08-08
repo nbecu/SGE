@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(500,300, windowTitle="Add agents to your simulation/game")
+myModel=SGModel(500,300, windowTitle="Add agents - define default random values of agents")
 
 Cell=myModel.newCellsOnGrid(6,4,"square",gap=2,size=40)
 
@@ -17,20 +17,25 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 
 # In SGE a "type" of agent is called a species.
 # To create a species, it needs : a name and a shape 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
+Sheeps=myModel.newAgentSpecies("Sheeps","rectAgent1")
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 
-# You can now create agents from the species you created and and place them at specific coordinates
-Sheeps.newAgentAtCoords(xCoord=4,yCoord=1)
+# Default values can initialized randomly
+Sheeps.setDefaultValues_randomChoice({"health":["good","bad"],"hunger":["good","bad"]})
 
-# The method allows you to write newAgentAtCoords(2,1), eventhough xCoord and yCoord are not the first arguments
-Sheeps.newAgentAtCoords(1,2)
+#you can also have some attributes set randomy, and others not
+# Sheeps.setDefaultValues_randomChoice({"health":"bad","hunger":["good","bad"]})
 
-# you can also create multiple agents at once using newAgentsAtCoords()
-Sheeps.newAgentsAtCoords(3,(5,4))
+
+
+Sheeps.newAgentsAtRandom(10)
+
+# For each attribute, you need to set up at least one point of view with its colors :
+Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 
 
 Legend=myModel.newLegend()
-
 myModel.launch() 
+
 sys.exit(monApp.exec_())

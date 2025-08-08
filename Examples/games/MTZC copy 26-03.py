@@ -452,9 +452,9 @@ cases_preservees = {
 }
 # Balayage de toutes les cases
 for aCase in cases.getEntities():
-    if (aCase.xPos,aCase.yPos) in cases_preservees:
-        aCase.setValue("surface", cases_preservees[(aCase.xPos, aCase.yPos)][0])  # Définir la valeur de surface
-        aCase.setValue("typeZH", cases_preservees[(aCase.xPos, aCase.yPos)][1])  # Définir la valeur de TYPEzh
+    if (aCase.xCoord,aCase.yCoord) in cases_preservees:
+        aCase.setValue("surface", cases_preservees[(aCase.xCoord, aCase.yCoord)][0])  # Définir la valeur de surface
+        aCase.setValue("typeZH", cases_preservees[(aCase.xCoord, aCase.yCoord)][1])  # Définir la valeur de TYPEzh
     else:
         try:
             cases.deleteEntity(aCase)

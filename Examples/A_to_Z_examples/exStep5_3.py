@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your ModelActions")
 
-Cell=myModel.newCellsOnGrid(10,10,"square",size=50, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -26,7 +26,7 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 

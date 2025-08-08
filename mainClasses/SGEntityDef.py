@@ -4,6 +4,7 @@ from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
+from mainClasses.SGExtensions import *
 import numpy as np
 from collections import Counter, defaultdict
 import random
@@ -100,6 +101,97 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for att, defValue in aDictOfAttributesAndValues.items():
             self.attributesDefaultValues[att] = defValue
 
+    def setDefaultValues_randomChoice(self, mapping):
+        """
+        Convenience helper: set default values where each entry can be a scalar, a callable,
+        or a list/tuple of choices. If a value is a list/tuple, it is converted to a lambda
+        that returns random.choice(value).
+        
+        Example:
+            setDefaultValues_randomChoice({
+                "health": ["good", "bad"],
+                "hunger": ("good", "bad"),
+                "speed": 3
+            })
+        is equivalent to:
+            setDefaultValues({
+                "health": lambda: random.choice(["good", "bad"]),
+                "hunger": lambda: random.choice(("good", "bad")),
+                "speed": 3
+            })
+        """
+        import random
+        prepared = {}
+        for att, val in mapping.items():
+            if isinstance(val, (list, tuple)):
+                prepared[att] = (lambda choices=tuple(val): (lambda: random.choice(choices)))()
+            else:
+                prepared[att] = val
+        self.setDefaultValues(prepared)
+
+    def setDefaultValues_randomNumeric(self, mapping):
+        """
+        Convenience helper: set default numeric values from concise specs.
+        Supported specs per attribute:
+          - (min, max) of ints  -> lambda: random.randint(min, max)
+          - (min, max) of floats-> lambda: random.uniform(min, max)
+          - range(start, stop[, step]) -> lambda: random.randrange(start, stop+step, step)  [stop is INCLUSIVE]
+          - {"uniform": (a, b)} -> lambda: random.uniform(a, b)
+          - {"randint": (a, b)} -> lambda: random.randint(a, b)
+          - {"normal": (mu, sigma)} or {"gauss": (mu, sigma)} -> lambda: random.gauss(mu, sigma)
+          - {"choice": [v1, v2, ...]} -> lambda: random.choice([...])
+        Any other value is forwarded as-is (including already-callable values).
+
+        Example:
+            setDefaultValues_randomNumeric({
+                "age": (10, 18),              # randint 10..18
+                "speed": (0.5, 2.0),          # uniform 0.5..2.0
+                "index": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)
+                "height": {"normal": (170, 10)},
+                "state": {"choice": ["A", "B", "C"]},
+            })
+        """
+        import random
+        import numbers
+        prepared = {}
+        for att, spec in mapping.items():
+            # range() → make stop inclusive by adding one step
+            if isinstance(spec, range):
+                start, stop, step = spec.start, spec.stop, spec.step
+                if step == 0:
+                    prepared[att] = spec
+                else:
+                    inclusive_stop = stop + step
+                    prepared[att] = (lambda a=start, b=inclusive_stop, c=step: (lambda: random.randrange(a, b, c)))()
+            # tuple/list of 2 -> randint or uniform
+            elif isinstance(spec, (list, tuple)) and len(spec) == 2:
+                lo, hi = spec[0], spec[1]
+                if isinstance(lo, numbers.Integral) and isinstance(hi, numbers.Integral):
+                    prepared[att] = (lambda a=int(lo), b=int(hi): (lambda: random.randint(a, b)))()
+                elif isinstance(lo, numbers.Real) and isinstance(hi, numbers.Real):
+                    prepared[att] = (lambda a=float(lo), b=float(hi): (lambda: random.uniform(a, b)))()
+                else:
+                    prepared[att] = spec
+            # dict distribution spec
+            elif isinstance(spec, dict) and len(spec) == 1:
+                name, params = next(iter(spec.items()))
+                if name == "uniform" and isinstance(params, (list, tuple)) and len(params) == 2:
+                    a, b = float(params[0]), float(params[1])
+                    prepared[att] = (lambda x=a, y=b: (lambda: random.uniform(x, y)))()
+                elif name in ("randint", "randrange") and isinstance(params, (list, tuple)) and len(params) >= 2:
+                    a, b = int(params[0]), int(params[1])
+                    prepared[att] = (lambda x=a, y=b: (lambda: random.randint(x, y)))()
+                elif name in ("gauss", "normal") and isinstance(params, (list, tuple)) and len(params) == 2:
+                    mu, sigma = float(params[0]), float(params[1])
+                    prepared[att] = (lambda m=mu, s=sigma: (lambda: random.gauss(m, s)))()
+                elif name == "choice" and isinstance(params, (list, tuple)):
+                    choices = tuple(params)
+                    prepared[att] = (lambda ch=choices: (lambda: random.choice(ch)))()
+                else:
+                    prepared[att] = spec
+            else:
+                prepared[att] = spec
+        self.setDefaultValues(prepared)
 
 
     #To set up a POV
@@ -654,6 +746,7 @@ class SGAgentDef(SGEntityDef):
         self.popupImage = popupImage
 
     def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None):
+        if aCell == None : return
         if image is None:
             image = self.defaultImage
         if popupImage is None:
@@ -664,53 +757,6 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnAllAttributes()
         aAgent.show()
         return aAgent
-
-
-    def newAgentAtCoords(self, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None,image=None,popupImage=None):
-        """
-        Create a new Agent in the associated species.
-
-        Args:
-            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
-            ValueX (int) : Column position in grid (Default=Random)
-            ValueY (int) : Row position in grid (Default=Random)
-        Return:
-            a agent
-        """
-        aCellDef = self.model.getCellDef(cellDef_or_grid)
-        aGrid = self.model.getGrid(cellDef_or_grid)
-        if xCoord == None: xCoord = random.randint(1, aGrid.columns)
-        if yCoord == None: yCoord = random.randint(1, aGrid.rows)
-        locationCell = aCellDef.getCell(xCoord, yCoord)
-        return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImage)
-
-    def newAgentAtRandom(self, cellDef_or_grid, attributesAndValues=None,condition=None):
-        """
-        Create a new Agent in the associated species a place it on a random cell.
-        Args:
-            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
-        Return:
-            a agent
-            """
-        aCellDef = self.model.getCellDef(cellDef_or_grid)
-        locationCell=aCellDef.getRandomEntity(condition=condition)
-        return self.newAgentOnCell(locationCell, attributesAndValues)
-
-    def newAgentsAtRandom(self, aNumber, cellDef_or_grid, attributesAndValues=None,condition=None):
-        """
-        Create a number of Agents in the associated species and place them on random cells.
-        Args:
-            aNumber(int) : number of agents to be created
-            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
-        Return:
-            a list of agents
-            """
-        aCellDef = self.model.getCellDef(cellDef_or_grid)
-        locationCells=aCellDef.getRandomEntities(aNumber, condition=condition)
-        alist =[]
-        for aCell in locationCells:
-            alist.append(self.newAgentOnCell(aCell, attributesAndValues))
-        return alist
     
     def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):
         """
@@ -725,20 +771,154 @@ class SGAgentDef(SGEntityDef):
         for n in range(nbAgents):
             self.newAgentOnCell(aCell,attributesAndValues)
 
-    def newAgentsAtCoords(self, nbAgents, cellDef_or_grid, xCoord=None, yCoord=None, attributesAndValues=None):
+
+
+    def newAgentAtCoords(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None,image=None,popupImage=None):
+        """
+        Create a new Agent in the associated species.
+
+        Args:
+            cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
+            ValueX (int) : Column position in grid (Default=Random)
+            ValueY (int) : Row position in grid (Default=Random)
+        Flexible calling patterns (backward compatible):
+            - newAgentAtCoords(x, y, ...)
+            - newAgentAtCoords((x, y), ...)
+            - newAgentAtCoords(cellDef_or_grid, x, y, ...)
+        Return:
+            a agent
+        """
+        # Normalize arguments to support calls like newAgentAtCoords(3,3) or newAgentAtCoords((3,3))
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
+            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+            cellDef_or_grid = None
+        elif isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
+            # Called as newAgentAtCoords(x, y, ...)
+            xCoord, yCoord = cellDef_or_grid, xCoord
+            cellDef_or_grid = None
+        elif isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
+            # Called as newAgentAtCoords(cellDef_or_grid, (x, y), ...)
+            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+
+        # Normalize argument cellDef_or_grid to support calls like newAgentAtCoords(Cell,3,3) or newAgentAtCoords(3,3) or newAgentAtCoords(aGrid,3,3)
+        if not cellDef_or_grid:
+            aCellDef = first_value(self.model.cellOfGrids,None)
+        else: 
+            aCellDef = self.model.getCellDef(cellDef_or_grid)
+        if aCellDef == None : return
+        aGrid = self.model.getGrid(aCellDef)
+
+
+        if xCoord == None: xCoord = random.randint(1, aGrid.columns)
+        if yCoord == None: yCoord = random.randint(1, aGrid.rows)
+        locationCell = aCellDef.getCell(xCoord, yCoord)
+        return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImage)
+
+    def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None):
         """
         Create a specific number of new Agents in the associated species.
 
         Args:
-            nbAgents (int) : number of Agents 
-            cellDef_or_grid (instance) : the cellDef or grid you want your agent in
-            ValueX (int) : Column position in grid (Default=Random)
-            ValueY (int) : Row position in grid (Default=Random)
+            nbAgents (int): number of Agents
+            cellDef_or_grid (instance, optional): the cellDef or grid you want your agent in. If None, the first cellDef/grid is used
+            xCoord (int, optional): Column position in grid (1..columns)
+            yCoord (int, optional): Row position in grid (1..rows)
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+        Flexible calling patterns (backward compatible):
+            - newAgentsAtCoords(7)
+            - newAgentsAtCoords(7, {"health":"good"})
+            - newAgentsAtCoords(7, 3, 3)
+            - newAgentsAtCoords(7, (3, 3))
+            - newAgentsAtCoords(7, cellDef_or_grid, 3, 3)
+            - newAgentsAtCoords(7, cellDef_or_grid, (3, 3))
+            - newAgentsAtCoords(7, 3, 3, {"health":"good"})
+            - newAgentsAtCoords(7, cellDef_or_grid, 3, 3, {"health":"good"})
         Return:
             agents
         """
+        # Normalize attributes dict as second positional arg
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None and xCoord is None and yCoord is None:
+            attributesAndValues = cellDef_or_grid
+            cellDef_or_grid = None
+        # Normalize coordinate tuple passed as second arg
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
+            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+            cellDef_or_grid = None
+        # Normalize when called as newAgentsAtCoords(7, x, y, ...)
+        if isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
+            xCoord, yCoord = cellDef_or_grid, xCoord
+            cellDef_or_grid = None
+        # Normalize when coordinates are provided as a tuple in xCoord
+        if isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
+            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+        
         for n in range(nbAgents):
-            self.newAgentAtCoords(cellDef_or_grid,xCoord,yCoord,attributesAndValues)
+            self.newAgentAtCoords(cellDef_or_grid, xCoord, yCoord, attributesAndValues)
+
+    def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):
+        """
+        Create a new Agent in the associated species a place it on a random cell.
+        Args:
+            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+        Flexible calling patterns (backward compatible):
+            - newAgentAtRandom()
+            - newAgentAtRandom({"health":"good"})
+            - newAgentAtRandom(cellDef_or_grid)
+            - newAgentAtRandom(cellDef_or_grid, {"health":"good"})
+        Return:
+            a agent
+            """
+        # Normalize dict passed as first arg
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None:
+            attributesAndValues = cellDef_or_grid
+            cellDef_or_grid = None
+        # Normalize argument cellDef_or_grid to support calls like newAgentAtRandom(Cell) or newAgentAtRandom() or newAgentAtRandom(aGrid)
+        if not cellDef_or_grid:
+            aCellDef = first_value(self.model.cellOfGrids,None)
+        else: 
+            aCellDef = self.model.getCellDef(cellDef_or_grid)
+        if aCellDef == None : return
+
+        locationCell=aCellDef.getRandomEntity(condition=condition)
+        return self.newAgentOnCell(locationCell, attributesAndValues)
+
+    def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):
+        """
+        Create a number of Agents in the associated species and place them on random cells.
+        Args:
+            aNumber(int) : number of agents to be created
+            cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+        Flexible calling patterns (backward compatible):
+            - newAgentsAtRandom(7)
+            - newAgentsAtRandom(7, {"health":"good", "hunger":"bad"})
+            - newAgentsAtRandom(7, cellDef_or_grid)
+            - newAgentsAtRandom(7, cellDef_or_grid, attributesAndValues)
+        Return:
+            a list of agents
+            """ 
+        
+        # Normalize arguments to support calls like newAgentsAtRandom(7) or newAgentsAtRandom(7, {..})
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None:
+            attributesAndValues = cellDef_or_grid
+            cellDef_or_grid = None
+            
+        # Normalize argument cellDef_or_grid to support calls like newAgentAtRandom(Cell) or newAgentAtRandom() or newAgentAtRandom(aGrid)
+        if not cellDef_or_grid:
+            aCellDef = first_value(self.model.cellOfGrids,None)
+        else: 
+            aCellDef = self.model.getCellDef(cellDef_or_grid)
+        if aCellDef == None : return
+        
+        locationCells=aCellDef.getRandomEntities(aNumber, condition=condition)
+        alist =[]
+        for aCell in locationCells:
+            alist.append(self.newAgentOnCell(aCell, attributesAndValues))
+        return alist
+    
+    
+    
 
 
     # To randomly move all agents

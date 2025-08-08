@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Add a DashBoard")
 
-Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -26,7 +26,7 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
@@ -49,7 +49,7 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 # The DashBoard is a widget which permits to create scores.
 # Each score is defined by the word indicator.
 # You have several methods to calculate indicators like : sum, average, max, min... you can find the complete list by searching the function or by reading the documentation
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
+DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black,title='Scores')
 i1 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
 # Be careful ! Your value needs to be integrers or float to be logical tested. Only number functions for string values.
 

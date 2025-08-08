@@ -44,7 +44,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         for aAtt, valueToSet in thisAgentAttributesAndValues.items():
             if callable(valueToSet):
                 aValue= valueToSet()
-                print(aValue)
                 self.setValue(aAtt,aValue)
             else:
                 self.setValue(aAtt,valueToSet)

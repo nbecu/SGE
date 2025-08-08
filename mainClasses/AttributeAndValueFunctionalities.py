@@ -18,7 +18,7 @@ class AttributeAndValueFunctionalities():
         Sets the value of an attribut
         Args:
             aAttribut (str): Name of the attribute
-            aValue (str): Value to be set
+            aValue (str): Value to be set. If a value is callable, it will be invoked and its return value will be used
         """
         if callable(valueToSet):
             aValue = valueToSet()
@@ -34,6 +34,15 @@ class AttributeAndValueFunctionalities():
             self.update()
         return True
     
+    def setValues(self,dictOfAttributesAndValues):
+        """
+        Set multiple attribute values at once.
+        Args:
+            dictOfAttributesAndValues (dict): mapping of attribute names to values (or callables).
+        """
+        for att,value in dictOfAttributesAndValues.items():
+            self.setValue(att,value)
+
     def value(self,att):
         """
         Return the value of a cell Attribut

@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="EndGame Conditions and Scores")
 
-Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -26,7 +26,7 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
@@ -42,16 +42,17 @@ aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot
 
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 
+
 myModel.timeManager.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
+DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black,title='Scores')
 score1= myModel.newSimVariable("Score",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1) 
 i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
 # Here is the way to add feedback on score on ModelAction
-aModelAction4.addFeedback(lambda: score1.incValue(5))
+aModelAction4.addFeedback(lambda: score1.incValue(30))
 myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
 
 

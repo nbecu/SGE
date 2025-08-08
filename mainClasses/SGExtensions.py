@@ -36,3 +36,43 @@ def drawTextAutoSized(self, aleft, atop, text, font=None, align=0, padding_width
 
 # Attach the method to QPainter for direct usage everywhere in the project
 QPainter.drawTextAutoSized = drawTextAutoSized
+
+# Utilities
+
+def first_value(d, default=None):
+    """
+    Return the first value of a dictionary according to insertion order.
+    - Does not materialize a list (O(1) extra memory).
+    - Returns `default` if the dictionary is empty.
+
+    :param d: dictionary to read from
+    :param default: value to return if dict is empty (default: None)
+    :return: the first value or `default` if empty
+    """
+    return next(iter(d.values()), default)
+
+
+def first_key(d, default=None):
+    """
+    Return the first key of a dictionary according to insertion order.
+    - O(1) extra memory.
+    - Returns `default` if the dictionary is empty.
+
+    :param d: dictionary to read from
+    :param default: value to return if dict is empty (default: None)
+    :return: the first key or `default` if empty
+    """
+    return next(iter(d), default)
+
+
+def first_item(d, default=None):
+    """
+    Return the first (key, value) pair of a dictionary according to insertion order.
+    - O(1) extra memory.
+    - Returns `default` if the dictionary is empty.
+
+    :param d: dictionary to read from
+    :param default: value to return if dict is empty (default: None)
+    :return: the first (key, value) tuple or `default` if empty
+    """
+    return next(iter(d.items()), default)

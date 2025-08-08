@@ -42,8 +42,8 @@ class SGAgent(SGEntity):
         penColorAndWidth = self.getBorderColorAndWidth()
         painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
         agentShape = self.classDef.shape
-        x = self.xPos
-        y = self.yPos
+        x = self.xCoord
+        y = self.yCoord
         if self.isDisplay==True:
             if(agentShape=="circleAgent"):
                 self.setGeometry(x,y,self.size,self.size)
@@ -205,28 +205,28 @@ class SGAgent(SGEntity):
         maxSize=self.cell.size
         originPoint=self.cell.pos()
         if self.classDef.locationInEntity=="random":
-            self.xPos=self.getRandomX()
-            self.yPos=self.getRandomY()
+            self.xCoord=self.getRandomX()
+            self.yCoord=self.getRandomY()
             return
         if self.classDef.locationInEntity=="topRight":
-            self.xPos=originPoint.x()+maxSize-10
-            self.yPos=originPoint.y()+5
+            self.xCoord=originPoint.x()+maxSize-10
+            self.yCoord=originPoint.y()+5
             return
         if self.classDef.locationInEntity=="topLeft":
-            self.xPos=originPoint.x()+5
-            self.yPos=originPoint.y()+5
+            self.xCoord=originPoint.x()+5
+            self.yCoord=originPoint.y()+5
             return
         if self.classDef.locationInEntity=="bottomLeft":
-            self.xPos=originPoint.x()+5
-            self.yPos=originPoint.y()+maxSize-10
+            self.xCoord=originPoint.x()+5
+            self.yCoord=originPoint.y()+maxSize-10
             return
         if self.classDef.locationInEntity=="bottomRight":
-            self.xPos=originPoint.x()+maxSize-10
-            self.yPos=originPoint.y()+maxSize-10
+            self.xCoord=originPoint.x()+maxSize-10
+            self.yCoord=originPoint.y()+maxSize-10
             return
         if self.classDef.locationInEntity=="center":
-            self.xPos=originPoint.x()+int(maxSize/2)-int(self.size/2)
-            self.yPos=originPoint.y()+int(maxSize/2)-int(self.size/2)
+            self.xCoord=originPoint.x()+int(maxSize/2)-int(self.size/2)
+            self.yCoord=originPoint.y()+int(maxSize/2)-int(self.size/2)
             return
         else:
             raise ValueError("Error in entry for locationInEntity")

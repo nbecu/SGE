@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
-Cell=myModel.newCellsOnGrid(6,6,"square",gap=2)
+Cell=myModel.newCellsOnGrid(6,6,"square",size=60,gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -18,8 +18,8 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 
 # You can put numerical values or string values.
 # Here is an example with numerical values
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10),"hunger":(lambda: random.randint(0,10)*10)})
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent2",defaultSize=25)
+Sheeps.setDefaultValues_randomNumeric({"health": range(0, 100, 10), "hunger": range(0, 100, 10)})
 
 # define color gradients for both attributes
 health_colors = {
@@ -53,7 +53,7 @@ Sheeps.newPov("Hunger","hunger",hunger_colors)
 
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":70,"hunger":20})
 m2=Sheeps.newAgentAtCoords(Cell,None,None)
-Sheeps.newAgentsAtRandom(5,Cell)
+Sheeps.newAgentsAtRandom(10,Cell)
 
 
 

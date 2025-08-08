@@ -36,7 +36,7 @@ UpdateTest3=myModel.newModifyAction(Sheeps,{"hunger":"good"},setControllerContex
 Player1.addGameAction(UpdateTest3)
 UpdateTest4=myModel.newModifyAction(Sheeps,{"hunger":"bad"},setControllerContextualMenu=True)
 Player1.addGameAction(UpdateTest4)
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 userSelector=myModel.newUserSelector()
 
