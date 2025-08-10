@@ -30,7 +30,7 @@ myModel.newButton((lambda: button2Clicked()),'Click me 2',(150,110),
                 hover_text_color='red',
                 hover_background_color='blue'
                   )
-myModel.newButton((lambda: button2Clicked()),'Click me 2',(70,140))
+myModel.newButton((lambda: button2Clicked()),'Click me 1',(70,140))
 
 def button2Clicked():
     print(20)

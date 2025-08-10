@@ -14,7 +14,7 @@ class SGActivate(SGAbstractAction):
             self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         else:
-            if aNameToDisplay is None :self.name="ActivateAction "+ "model"
+            if aNameToDisplay is None :self.name="ActivateAction"
             else: self.name=aNameToDisplay
             self.actionType="Activate"
         self.method=method
@@ -22,6 +22,10 @@ class SGActivate(SGAbstractAction):
 
     def executeAction(self,aTargetEntity,serverUpdate=True):
         method = self.method
+        if callable(method):
+            method()
+            return
+
         try:
             gameScript = self.logFromModeler(sys.argv[0])
             if hasattr(gameScript, method):

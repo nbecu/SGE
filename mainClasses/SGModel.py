@@ -1363,13 +1363,14 @@ class SGModel(QMainWindow):
         if aNumber == "infinite": aNumber = 9999999
         return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
-    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
         """Add a ActivateAction to the game
         Args:
         - an ObjectType : a Entity
         - """
         #Case for action on the model
-        if anObjectType is None or anObjectType ==self: aClassDef = self
+        if anObjectType is None or anObjectType ==self:
+            aClassDef = self
         else:
             #Case for action on a Entity
             aClassDef = self.getEntityDef(anObjectType)
@@ -1378,7 +1379,12 @@ class SGModel(QMainWindow):
             aClassDef.updateMenu=True
 
         if aNumber == "infinite": aNumber = 9999999
-        return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+
+        if setControllerButton:
+            buttonCoord = setControllerButton
+            self.newButton(aActivateAction, aActivateAction.name, buttonCoord)
+        return aActivateAction
     # -----------------------------------------------------------
     # Getter
 

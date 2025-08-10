@@ -28,9 +28,10 @@ aPhase.addAction(resetScoreAction)
 
 gamePhase = myModel.timeManager.newGamePhase('Game phase',[player_Clara])
 
-ActivateHexagone=myModel.newActivateAction(myModel,"printTest",setControllerContextualMenu=True)
+activatePrint=myModel.newActivateAction(None,lambda : printTest(),setControllerButton=(250,100),aNameToDisplay="print test")
+activatePrint=myModel.newActivateAction(None,lambda : printTest(),setControllerContextualMenu=True)
 # ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
-player_Clara.addGameAction(ActivateHexagone)
+player_Clara.addGameAction(activatePrint)
 
 
 def printTest():
