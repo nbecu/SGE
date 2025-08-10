@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SGE"
+version = "0.3.0"
+description = "Simulation/Game Editor"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Nicolas Becu" },
+  { name = "Marine Regien" },
+  { name = "Alexis Ossant" }
+]
+dependencies = []
+
+[tool.setuptools]
+packages = ["SGE"]
+
+[tool.setuptools.package-dir]
+SGE = "."
+
+

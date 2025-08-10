@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(520,545, windowTitle="Game of Life from Conway")
@@ -36,9 +35,9 @@ def calculateNextState(aCell):
     #stores the result in a buffer in order to execute the new state action, asynchronously
     aCell.setValue("bufferState", nextState)
 
-## Model actions 
-modelAction1 = myModel.newModelAction_onCells(lambda aCell: calculateNextState(aCell))
-modelAction2 = myModel.newModelAction_onCells(lambda aCell:  aCell.setValue("state", aCell.value("bufferState")))
+## Create model actions on Cells 
+modelAction1 = Cells.newModelAction(calculateNextState)
+modelAction2 = Cells.newModelAction(copyValue("bufferState", "state"))
 
 ## adds the model actions into a model phase
 myModel.timeManager.newModelPhase([modelAction1, modelAction2])

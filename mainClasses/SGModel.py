@@ -924,7 +924,7 @@ class SGModel(QMainWindow):
         return aLabel
     
     # To create a Push Button
-    def newButton(self, method, text, position, 
+    def newButton(self, method, text, position,
                     background_color='white',
                     background_image=None,
                     border_size=1,
@@ -944,9 +944,10 @@ class SGModel(QMainWindow):
                     pressed_color=None,
                     disabled_color=None):
         """Display a button with customizable style.
-
         Args:
-            method (lambda function): Method to execute when button is pressed (should be encapsulated in a lambda function)
+            method (lambda function | SGAbstractAction ): Method to execute when button is pressed 
+                - lambda function : une fonction/méthode appelée telle quelle
+                - SGAbstractAction: l'action est exécutée via perform_with
             text (str): Text of the button
             position (tuple): Coordinates (x, y) of the button position
             background_color (str, optional): Background color. Can be name (e.g., "red"), hex (#FF0000), RGB (rgb(127,12,0)) or RGBA
@@ -966,6 +967,8 @@ class SGModel(QMainWindow):
             pressed_color (str, optional): Background color when pressed. Same format as background_color
             disabled_color (str, optional): Background color when disabled. Same format as background_color
         """
+
+
         #  # Create the text style
         # textStyle_specs = ';'.join(filter(None, [
         #     f"font-family: {font}" if font is not None else None,
@@ -984,8 +987,6 @@ class SGModel(QMainWindow):
         # # Create the background style
         # backgroundColor_specs = f"background-color: {background_color};"
 
-        # aButton = SGButton(self, method, text)
-        
         aButton = SGButton(self, method, text,
                         background_color=background_color,
                         background_image=background_image,

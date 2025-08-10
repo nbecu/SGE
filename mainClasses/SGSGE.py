@@ -7,7 +7,21 @@ from mainClasses.SGCell import SGCell
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtCore import QPoint
+from random import randint
 import random
 import pandas as pd
 import ast as ast
 import math as math
+
+# Helpers available to modelers when importing * from this module
+def copyValue(source_att, target_att):
+    """Construit une action (callable) qui copiera la valeur d'un attribut vers un autre sur une entité.
+
+    Usage côté front-end:
+        Cells.newModelAction(copyValue("bufferState", "state"))
+    """
+    def _action(aEntity):
+        aEntity.copyValue(source_att, target_att)
+    return _action

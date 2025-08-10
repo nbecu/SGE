@@ -108,6 +108,20 @@ class AttributeAndValueFunctionalities():
             self.setValue(aAttribut, result)
         else: raise ValueError ('calcValue works with a lambda function')
 
+    def copyValue(self, source_att, target_att):
+        """
+        Copy the value of an attribut (source_att), in another attribute (target_att)
+        Args:
+            source_att (str): Name of the attribute copied
+            target_att  (str): Name of the attribute set
+        """
+        if not hasattr(self, 'dictAttributes') or source_att not in self.dictAttributes:
+            obj_id = getattr(self, 'privateID', None) or getattr(self, 'id', None) or '<SGObject>'
+            raise ValueError(f'copyValue: attribute "{source_att}" does not exist on {obj_id}')
+        self.setValue(target_att, self.value(source_att))
+        
+
+
     def saveValueInHistory(self,aAttribute,aValue):
         self.history["value"][aAttribute].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])
   

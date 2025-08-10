@@ -4,6 +4,7 @@ from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
+from mainClasses.SGModelAction import SGModelAction_OnEntities
 from mainClasses.SGExtensions import *
 import numpy as np
 from collections import Counter, defaultdict
@@ -348,6 +349,24 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         if condition is None: return self.entities[:]
         return [ent for ent in self.entities if condition(ent)]
 
+    # -----------------------------
+    # Model actions scoped on this EntityDef
+    def newModelAction(self, actions=None, conditions=None, feedbacks=None):
+        """Crée un SGModelAction_OnEntities ciblant les entités de cette définition.
+
+        Args:
+            actions (callable | list[callable]): action(s) de signature action(aEntity)
+            conditions (callable | list[callable]): condition(s) de signature condition(aEntity)
+            feedbacks (callable | list[callable] | SGModelAction): feedback(s)
+        """
+        actions = actions or []
+        conditions = conditions or []
+        feedbacks = feedbacks or []
+        model_action = SGModelAction_OnEntities(self.model, actions, conditions, feedbacks, (lambda: self.getEntities()))
+        self.model.id_modelActions += 1
+        model_action.id = self.model.id_modelActions
+        return model_action
+
 # to get all entities with a certain value
     def getEntities_withValue(self, att, val):
         return list(filter(lambda ent: ent.value(att)==val, self.entities))
@@ -565,6 +584,18 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for ent in self.entities[:]:
             self.deleteEntity(ent)
 
+    # To copy a value from one attribute to another
+    def copyEntitiesValue(self,  source_att, target_att,  condition=None):
+        """
+        Copy the value of an attribut (source_att) of the entities, in another attribute (target_att) of the entities
+        Args:
+            source_att (str): Name of the attribute copied
+            target_att  (str): Name of the attribute set
+            condition (lambda function): a condition on the entity can be used to select only some entities
+        """
+        for ent in self.getEntities(condition):
+            ent.copyValue(source_att, target_att)
+
 ################
     # INDICATORS
 
@@ -757,6 +788,7 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnAllAttributes()
         aAgent.show()
         return aAgent
+
     
     def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):
         """
@@ -916,15 +948,13 @@ class SGAgentDef(SGEntityDef):
         for aCell in locationCells:
             alist.append(self.newAgentOnCell(aCell, attributesAndValues))
         return alist
-    
-    
-    
 
 
     # To randomly move all agents
     def moveRandomly(self, numberOfMovement=1):
         for aAgent in self.entities[:]: # Need to iterate on a copy of the entities list, because , due to the moveByRecreating, the entities list changes during the loop
             aAgent.moveAgent(numberOfMovement=numberOfMovement)
+
 
 
     def deleteEntity(self, aAgent):
