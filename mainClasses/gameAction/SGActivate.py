@@ -13,6 +13,10 @@ class SGActivate(SGAbstractAction):
             self.actionType="Activate"
             self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
+        else:
+            if aNameToDisplay is None :self.name="ActivateAction "+ "model"
+            else: self.name=aNameToDisplay
+            self.actionType="Activate"
         self.method=method
     
 

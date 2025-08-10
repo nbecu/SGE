@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtCore import QPoint
 from random import randint
 import random
+from tkinter import simpledialog
 import pandas as pd
 import ast as ast
 import math as math

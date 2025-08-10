@@ -1365,18 +1365,17 @@ class SGModel(QMainWindow):
 
     def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """Add a ActivateAction to the game
-        
         Args:
         - an ObjectType : a Entity
         - """
-        #Case for action on a Entity
-        aClassDef = self.getEntityDef(anObjectType)
-        # if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        if aClassDef is not None and setControllerContextualMenu:
-            aClassDef.updateMenu=True
-
         #Case for action on the model
         if anObjectType is None or anObjectType ==self: aClassDef = self
+        else:
+            #Case for action on a Entity
+            aClassDef = self.getEntityDef(anObjectType)
+        # if aClassDef is None : raise ValueError('Wrong format of entityDef')
+        if isinstance(aClassDef,SGEntityDef) and setControllerContextualMenu:
+            aClassDef.updateMenu=True
 
         if aNumber == "infinite": aNumber = 9999999
         return SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
@@ -1659,5 +1658,6 @@ class SGModel(QMainWindow):
             raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
         
         return entityDef
+    
 
 

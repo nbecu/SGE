@@ -2,13 +2,10 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-import random
 
 monApp = QtWidgets.QApplication([])
 
-
 myModel = SGModel(280, 230)
-
 
 score=myModel.newSimVariable('Score',0, Qt.blue)
 dash=myModel.newDashBoard()
@@ -23,7 +20,6 @@ myModel.newButton((lambda: score.setValue(0)),'Reset',(80,150))
 myModel.newButton((lambda: addGivenValue()),'Add "x"',(80,180))
 
 
-from tkinter import simpledialog
 def addGivenValue():
     userDefinedValue = simpledialog.askinteger("Input", "Enter a value between 1 and 100:",  
                                              minvalue=1, maxvalue=100)

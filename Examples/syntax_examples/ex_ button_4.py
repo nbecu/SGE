@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-import random
 
 monApp = QtWidgets.QApplication([])
 
@@ -25,6 +24,7 @@ gameAction_add10 =myModel.newActivateAction(None,"add10")
 def add10():
     score.incValue(10)
 player_Salim.addGameAction(gameAction_add10)
+
 myModel.newButton(gameAction_add10,'Add 10',(80,110))
 
 gamePhase = myModel.timeManager.newGamePhase('Game phase',[player_Salim])

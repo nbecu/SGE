@@ -28,10 +28,13 @@ aPhase.addAction(resetScoreAction)
 
 gamePhase = myModel.timeManager.newGamePhase('Game phase',[player_Clara])
 
-ActivateHexagone=myModel.newActivateAction(myModel,"execeffetActivableJauge",setControllerContextualMenu=True)
+ActivateHexagone=myModel.newActivateAction(myModel,"printTest",setControllerContextualMenu=True)
 # ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
 player_Clara.addGameAction(ActivateHexagone)
 
+
+def printTest():
+    print('This is a print test')
 
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnEntity(player_Clara,'foo')
