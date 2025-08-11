@@ -443,7 +443,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None,neighborhood='moore'):
         """
         Create a grid that contains cells
 
@@ -466,7 +466,7 @@ class SGModel(QMainWindow):
             if name in self.gameSpaces:
                 name = name + 'bis'
         # Create a grid
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage,neighborhood)
 
         # Create a CellDef populate the grid with it
         aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage,name)

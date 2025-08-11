@@ -398,7 +398,7 @@ class SGAgent(SGEntity):
             aGrid=originCell.grid
 
             if method == "random":
-                neighbors=originCell.getNeighborCells(aGrid.rule)
+                neighbors=originCell.getNeighborCells(aGrid.neighborhood )
                 newCell=random.choice(neighbors)
 
             if method == "cell" or cellID is not None:
@@ -424,63 +424,58 @@ class SGAgent(SGEntity):
         return self.id
     
     def getPrivateId(self):
-        return self.privateID 
+        return self.privateID
     
-    def getNeighborAgents(self,rule='moore',aSpecies=None):
-        neighbors=[]
-        if rule=="moore":
-            neighborCells=self.cell.getNeighborCells()
-        elif rule=='neumann':
-            neighborCells=self.cell.getNeighborCells(rule='neumann')
-        else:
-            print('Error in rule specification')
-        
-        neighbors=[aCell.agents for aCell in neighborCells]
+    def getNeighborCells(self,neighborhood=None):
+        return self.cell.getNeighborCells(neighborhood)
+    
+    def getNeighborAgents(self,aSpecies=None,neighborhood=None):
+                
+        neighborAgents=[]        
+        neighborAgents=[aCell.agents for aCell in self.getNeighborCells(neighborhood)]
         
         if aSpecies:
-            return self.sortBySpecies(aSpecies,neighbors)
-        return neighbors
+            return self.filterBySpecies(aSpecies,neighborAgents)
+        return neighborAgents
     
-    def sortBySpecies(self,aSpecies,agents):
-        sortedAgents=[]
+    def filterBySpecies(self,aSpecies,agents):
+        agents=[]
         if len(agents)!=0:
             for aAgent in agents:
                 if isinstance(aAgent,list):
                     for agent in aAgent:
                         if agent.classDef == aSpecies or agent.classDef.entityName == aSpecies:
-                            sortedAgents.append(agent)
+                            agents.append(agent)
                 elif isinstance(aAgent,SGAgent):
                     if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
-                        sortedAgents.append(aAgent)
-        return sortedAgents
+                        agents.append(aAgent)
+        return agents
     
-    def nbNeighborAgents(self,rule='moore',aSpecies=None):  
-        if aSpecies:
-            return len(self.getNeighborAgents(rule,aSpecies))
-        return len(self.getNeighborAgents(rule))
+    def nbNeighborAgents(self,aSpecies=None,neighborhood=None):  
+        return len(self.getNeighborAgents(aSpecies,neighborhood))
 
     def getNeighborsN(self,aSpecies=None):
         theCell=self.cell.getNeighborN()
         if aSpecies:
-            return self.sortBySpecies(aSpecies,theCell.agents)
+            return self.filterBySpecies(aSpecies,theCell.agents)
         return theCell.agents
     
     def getNeighborsS(self,aSpecies=None):
         theCell=self.cell.getNeighborS()
         if aSpecies:
-            return self.sortBySpecies(aSpecies,theCell.agents)
+            return self.filterBySpecies(aSpecies,theCell.agents)
         return theCell.agents
     
     def getNeighborsE(self,aSpecies=None):
         theCell=self.cell.getNeighborE()
         if aSpecies:
-            return self.sortBySpecies(aSpecies,theCell.agents)
+            return self.filterBySpecies(aSpecies,theCell.agents)
         return theCell.agents
     
     def getNeighborsW(self,aSpecies=None):
         theCell=self.cell.getNeighborW()
         if aSpecies:
-            return self.sortBySpecies(aSpecies,theCell.agents)
+            return self.filterBySpecies(aSpecies,theCell.agents)
         return theCell.agents
 
     

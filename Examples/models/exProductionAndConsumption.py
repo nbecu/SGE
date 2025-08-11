@@ -61,7 +61,7 @@ Consumers.newPov("energy","energy",aDict)
 
     # Define methods
 def move(aConsumer):
-    dest = sorted(list(aConsumer.cell.getNeighborCells()),  key=lambda x:x.value('energy'))[-1]
+    dest = sorted(list(aConsumer.getNeighborCells()),  key=lambda x:x.value('energy'))[-1]
     return aConsumer.moveTo(dest)
 
 def moveAndConsume(aConsumer):

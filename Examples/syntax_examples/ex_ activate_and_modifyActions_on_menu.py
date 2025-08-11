@@ -92,8 +92,5 @@ endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(i1, "equal", 90, name="Score equal to 90")
 endGameRule.showEndGameConditions()
 
-# myModel.launch() 
-# sys.exit(monApp.exec_())
-if __name__ == '__main__':
-    myModel.launch()
-    sys.exit(monApp.exec_())
+myModel.launch() 
+sys.exit(monApp.exec_())

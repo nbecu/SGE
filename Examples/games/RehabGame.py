@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
+    700, 500, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')
@@ -34,6 +34,8 @@ Cell.newPov("biomass", "biomass", {
 Cell.newBorderPov("Parc info", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
+Cell.displayBorderPov('Parc info')
+
 harvesters = myModel.newAgentSpecies(
     "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}})
 harvesters.setDefaultValue('harvest',0)
@@ -48,18 +50,17 @@ Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, default
 
 
 Clans = myModel.newPlayer("Clan")
-Clans.addGameAction(myModel.newCreateAction(harvesters, 20))
+Clans.addGameAction(myModel.newCreateAction(harvesters, aNumber=20))
 
-# Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
+Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
 
 Parc = myModel.newPlayer("Parc")
 
-# Parc.addGameAction(myModel.newModifyAction(
-#     "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-#     ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
-# Parc.addGameAction(myModel.newModifyAction(
-#     "Cell", "infinite", {"ProtectionLevel": "Free"}))
-# Player2ControlPanel = Parc.newControlPanel()
+Parc.addGameAction(myModel.newModifyAction(
+    Cell, {"ProtectionLevel": "Reserve"}, conditions = [lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
+Parc.addGameAction(myModel.newModifyAction(
+    Cell, {"ProtectionLevel": "Free"}))
+Player2ControlPanel = Parc.newControlPanel()
 
 
 firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')
@@ -77,9 +78,9 @@ myModel.timeManager.newModelPhase(myModel.newModelAction_onAgents('Bird',lambda 
 
 def reproduce(aBird):
     if aBird.cell.nbAgents('harvesters') == 0 :
-        listQuietNeighbours = [aCell for aCell in aBird.cell.getNeighborCells() if aCell.nbAgents('harvesters') == 0 ]
+        listQuietNeighbours = [aCell for aCell in aBird.getNeighborCells() if aCell.nbAgents('harvesters') == 0 ]
         nbQuietNeighbours = len(listQuietNeighbours)
-        ratioQuietness = float(nbQuietNeighbours / len(aBird.cell.getNeighborCells()))
+        ratioQuietness = float(nbQuietNeighbours / len(aBird.getNeighborCells()))
         if (ratioQuietness > 0.5) & (ratioQuietness < 0.8) : aBird.setValue('nb reproduction',1)
         elif ratioQuietness >= 0.8 : aBird.setValue('nb reproduction',2)
     for i in range(aBird.value('nb reproduction')):

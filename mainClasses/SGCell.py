@@ -257,15 +257,16 @@ class SGCell(SGEntity):
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     
     #To get the neighbor cells
-    def getNeighborCells(self,rule='moore'):
+    def getNeighborCells(self,neighborhood = None):
+        if neighborhood == None : neighborhood = self.grid.neighborhood
         neighbors = []
         for i in range(self.xCoord - 1, self.xCoord + 2):
             for j in range(self.yCoord - 1, self.yCoord + 2):
                 if i == self.xCoord and j == self.yCoord:
                     continue
-                if rule=="moore":
+                if neighborhood =="moore":
                     c = self.classDef.getCell(i, j)
-                elif rule=='neumann':
+                elif neighborhood =='neumann':
                     if (i == self.xCoord or j == self.yCoord) and (i != self.xCoord or j != self.yCoord):
                         c = self.classDef.getCell(i,j)
                     else:

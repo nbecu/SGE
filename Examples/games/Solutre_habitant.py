@@ -6,7 +6,6 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
-# localLink="/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE"
 localLink="."
 #* --------------------------
 #* Lecture des data
@@ -399,7 +398,7 @@ def createPlayerCommuneGA():
     MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
     GameActionsList.append(MoveHexagone)
     # Action pour valider le placement d'un hexagone
-    ValiderMoveHexagone=myModel.newActivateAction(hexagones, 'execeffetInstantaneJauge',setControllerContextualMenu=True,aNameToDisplay="Valider le placement")
+    ValiderMoveHexagone=myModel.newActivateAction(hexagones, lambda aHex : execeffetInstantaneJauge(aHex),setControllerContextualMenu=True,aNameToDisplay="Valider le placement")
     ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
     ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
     ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
@@ -411,7 +410,7 @@ def createPlayerCommuneGA():
     MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
     GameActionsList.append(MovePioche)
     # Action pour activer un hexagone
-    ActivateHexagone=myModel.newActivateAction(hexagones,"execeffetActivableJauge",setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
+    ActivateHexagone=myModel.newActivateAction(hexagones,lambda aHex : execeffetActivableJauge(aHex),setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
     ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
     ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
     ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
@@ -565,10 +564,10 @@ def execeffetActivableTouriste(aTourist):
 def checkAdjacence(aHex):
     """Permet de vérifier si un hexagone est placé à côté d'un autre hexagone en fonction des besoins"""
     if aHex.value("conditionAdjacence") is not None:
-        listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
+        listOfNeighbours=aHex.getNeighborCells()
         nbNeighbour=0
         for aNeighbourHex in listOfNeighbours:
-            if aHex.value("conditionAdjacence") == aNeighbourHex.value("joueur").name: 
+            if aHex.value("conditionAdjacence") == aNeighbourHex.value("zone"): 
                 if aHex.value("nbAdjacence") == 1: return True
                 else:
                     nbNeighbour=+1
@@ -804,9 +803,8 @@ def placeInitHexagones():
                 n=+1
                 
 
-if __name__ == '__main__':
-    customLayout()
-    placeInitHexagones()
-    myModel.launch()
-    # myModel.launch_withMQTT("Instantaneous")
-    sys.exit(monApp.exec_())
+customLayout()
+placeInitHexagones()
+myModel.launch()
+# myModel.launch_withMQTT("Instantaneous")
+sys.exit(monApp.exec_())
