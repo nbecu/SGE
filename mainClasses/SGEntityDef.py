@@ -35,7 +35,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.initAttributes(entDefAttributesAndValues)
         self.listOfStepStats = []
         self.attributesToDisplayInContextualMenu = []
-        self.updateMenu = False
+        # self.updateMenu = False #todo this is useless
         self.attributesToDisplayInUpdateMenu = []
 
     def nextId(self):
@@ -310,12 +310,13 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 
     # To handle the info to be displayed in a contextual menu on entitis
     def setAttributeValueToDisplayInContextualMenu(self,aAttribut,aLabel=None):
+        # todo add a check that aAttribut exists (in case of miss spelling) 
         aDict={}
         aDict['att']=aAttribut
         aDict['label']= (aLabel if aLabel is not None else aAttribut)
         self.attributesToDisplayInContextualMenu.append(aDict)
     
-    # # To handle the attrobutes concerned by the contextual update menu
+    # # To handle the attributes concerned by the contextual update menu
     # def setAttributesConcernedByUpdateMenu(self,aAttribut,aLabel=None):
     #     self.updateMenu=True
     #     aDict={}

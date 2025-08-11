@@ -7,7 +7,7 @@ monApp=QtWidgets.QApplication([])
 
 
 
-#TODO Cett exemple ne fonctionne pas. Il n'a jamais été fini. Il faut le supprimer
+#TODO Cet exemple est en cours.
 
 myModel=SGModel(400,400)
 myModel.displayTimeInWindowTitle()
@@ -21,16 +21,18 @@ player_Clara = myModel.newPlayer('Clara',attributesAndValues={'foo':5})
 player_Clara.setValue('Clara score',0)
 myModel.setCurrentPlayer('Clara')
 
-aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara score',3)), name='Model phase')
 
-resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara score',0)),(lambda: myModel.roundNumber()%4==0))
-aPhase.addAction(resetScoreAction)
 
-PlayPhase = myModel.timeManager.newPlayPhase('Game phase',[player_Clara])
+PlayPhase = myModel.timeManager.newPlayPhase('Play phase',[player_Clara])
 
-activatePrint=myModel.newActivateAction(None,lambda : printTest(),setControllerButton=(250,100),aNameToDisplay="print test")
-activatePrint=myModel.newActivateAction(None,lambda : printTest(),setControllerContextualMenu=True)
-# ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
+myModel.newActivateAction(None,
+                                        lambda : printTest(),
+                                        setControllerButton=(250,100),
+                                        aNameToDisplay="print test")
+
+activatePrint=myModel.newActivateAction(None,
+                                        lambda : printTest(),
+                                        setControllerContextualMenu=True)
 player_Clara.addGameAction(activatePrint)
 
 

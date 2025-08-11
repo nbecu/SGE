@@ -9,12 +9,15 @@ class SGModify(SGAbstractAction):
         self.entityDef=entDef
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
         self.value = self.dictNewValues[self.att]  # Get associate value
-        result = self.att + " " + str(self.value)
-        if nameToDisplay is None:self.name="ModifyAction "+result
-        else: self.name=nameToDisplay 
+        if nameToDisplay is None:
+            # self.name="ModifyAction "+ self.att + " " + str(self.value)
+            self.name=f"{self.att}->{self.value}"
+        else:
+            self.name=nameToDisplay 
         self.actionType="Modify"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
         self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
+        self.addCondition(lambda aTargetEntity: aTargetEntity.value(self.att) != self.value)
    
 
     def executeAction(self, aTargetEntity):

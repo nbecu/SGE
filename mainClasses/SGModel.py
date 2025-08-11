@@ -767,11 +767,22 @@ class SGModel(QMainWindow):
     def getAllPlayers(self):
         return list(self.players.values())
         
-    def getPlayer(self, playerName):
-        if playerName == "Admin":
-            return playerName
+    def getPlayer(self, aUserName):
+        if aUserName is None:
+            raise ValueError('Username cannot be None')
+        if aUserName == "Admin":
+            return aUserName
+        if isinstance(aUserName,SGPlayer):
+            return aUserName
+        if aUserName in self.players:
+            return self.players[aUserName]
         else:
-            return self.players[playerName]
+            raise ValueError(f'No Player named {aUserName} exists')
+            
+    def getCurrentPlayer(self):
+        if not self.currentPlayer:
+            raise ValueError('Current player is not defined')
+        return self.getPlayer(self.currentPlayer)
         
     def getPlayers(self):
         """
@@ -790,6 +801,8 @@ class SGModel(QMainWindow):
             playerName (str): predefined playerName
 
         """
+        if isinstance(aUserName,SGPlayer):
+           aUserName = aUserName.name 
         if aUserName in self.getUsersName():
             self.currentPlayer = aUserName
             #update the userSelector interface
@@ -1375,8 +1388,9 @@ class SGModel(QMainWindow):
             #Case for action on a Entity
             aClassDef = self.getEntityDef(anObjectType)
         # if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        if isinstance(aClassDef,SGEntityDef) and setControllerContextualMenu:
-            aClassDef.updateMenu=True
+        # todo these 2 lines are useless
+        # if isinstance(aClassDef,SGEntityDef) and setControllerContextualMenu:
+        #     aClassDef.updateMenu=True
 
         if aNumber == "infinite": aNumber = 9999999
         aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)

@@ -194,6 +194,15 @@ class SGPlayer(AttributeAndValueFunctionalities):
         if isinstance(aGameAction,SGAbstractAction):
             self.gameActions.append(aGameAction)
         return aGameAction
+    
+    def addGameActions(self, actions):
+        if isinstance(actions,SGAbstractAction):
+            self.addGameAction(actions)
+        elif isinstance(actions,list):
+            for aAction in actions:
+                self.addGameAction(aAction)
+        else:
+            raise ValueError("wrong format")
 
     def hasActionsToUse(self):
         for action in self.gameActions:

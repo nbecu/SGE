@@ -23,7 +23,14 @@ class SGActivate(SGAbstractAction):
     def executeAction(self,aTargetEntity,serverUpdate=True):
         method = self.method
         if callable(method):
-            method()
+            #count the number of arguments
+            nbArguments = method.__code__.co_argcount
+            if nbArguments == 0:
+                method() #execute the method with no arguments
+            elif nbArguments == 1:
+                method(aTargetEntity)
+            else:
+                raise ValueError('the callable method as several arguments')
             return
 
         try:

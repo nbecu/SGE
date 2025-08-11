@@ -262,8 +262,9 @@ class SGAgent(SGEntity):
                 if  authorisation :
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
                     # self.update()
-        if event.button() == Qt.RightButton:
-            self.contextMenu=True
+        # todo j'ai retiré ce hack destiné à  gerer la superposition entre context menu et le tooltip
+        # if event.button() == Qt.RightButton:
+        #     self.contextMenu=True
 
             
     #To handle the drag of the agent

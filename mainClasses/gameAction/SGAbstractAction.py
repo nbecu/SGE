@@ -41,6 +41,7 @@ class SGAbstractAction():
 
 
     def perform_with(self,aTargetEntity,serverUpdate=True): #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
+        # print(f"action {self.name} is performed")
         if self.checkAuthorization(aTargetEntity):
             resAction = self.executeAction(aTargetEntity)
             if self.feedbacks:
@@ -68,7 +69,7 @@ class SGAbstractAction():
             # TODO add a facultative permission 
             return False
         if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGPlayPhase):#If this is a PlayPhase, as default players can do actions
-            player=self.model.getPlayer(self.model.currentPlayer)
+            player=self.model.getCurrentPlayer()
             if player in self.model.timeManager.phases[self.model.phaseNumber()-1].authorizedPlayers:
                 res = True
             else:

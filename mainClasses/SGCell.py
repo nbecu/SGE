@@ -168,7 +168,7 @@ class SGCell(SGEntity):
             aAgent.moveTo(self)
         elif aLegendItem is None : None #Exit the method
         else :
-            currentPlayer=self.model.getPlayer(self.model.currentPlayer)
+            currentPlayer=self.model.getCurrentPlayer()
             moveActions=currentPlayer.getMoveActionsOn(aAgent)
 
             for aMoveAction in moveActions:

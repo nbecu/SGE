@@ -1,0 +1,99 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from mainClasses.SGSGE import *
+monApp=QtWidgets.QApplication([])
+
+myModel=SGModel(860,700, windowTitle="Trigger actions with contextual Menu")
+
+Cell=myModel.newCellsOnGrid(5,5,"square",size=60, gap=2)
+Cell.setEntities("landUse","grass")
+Cell.setEntities_withColumn("landUse","forest",1)
+Cell.setEntities_withColumn("landUse","forest",2)
+Cell.setRandomEntities("landUse","short grass",10)
+Cell.newPov("base","landUse",{"grass":Qt.green,"short grass":Qt.yellow,"forest":Qt.darkGreen})
+
+Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",defaultSize=30)
+Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Hunger","hunger",{'low':Qt.green,'high':Qt.yellow})
+Sheeps.setAttributeValueToDisplayInContextualMenu('health')
+Sheeps.setAttributeValueToDisplayInContextualMenu('hunger')
+
+Sheeps.setDefaultValues({"health":"bad","hunger":"low"})
+m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"high"})
+m2=Sheeps.newAgentAtCoords(Cell,5,2)
+
+theFirstLegend=myModel.newLegend()
+
+aTextBox = myModel.newTextBox('',title='Shout box')
+
+
+Player1=myModel.newPlayer("Player 1")
+myModel.setCurrentPlayer('Admin') #Tester voir ce qui se passe si ce n'est pas defini
+
+# By default the game actions are controlled (trigger) through the controlPanel
+Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
+
+# For SGModifyAction it is possible to specify setControllerContextualMenu=True to control (trigger) the action through a right clic (contextual menu)
+# when setControllerContextualMenu is True, the action is not controlled anymore though the controlPanel
+Player1.addGameActions([
+    myModel.newModifyAction(Sheeps,{"health":"good"},setControllerContextualMenu=True),
+    myModel.newModifyAction(Sheeps,{"health":"bad"},setControllerContextualMenu=True),
+    myModel.newModifyAction(Sheeps,{"hunger":"low"},setControllerContextualMenu=True),
+    myModel.newModifyAction(Sheeps,{"hunger":"high"},setControllerContextualMenu=True)])
+
+# Same applies for ActivateAction
+Player1.addGameActions([
+        myModel.newActivateAction(Sheeps,lambda aSheep: aSheep.moveAgent(),setControllerContextualMenu=True,aNameToDisplay='moveAgent (call move of SGAgent)')
+        ,
+        myModel.newActivateAction(Sheeps,lambda aSheep: eat(aSheep),setControllerContextualMenu=True,aNameToDisplay='eat (call custom method on agent)')
+        ,
+        myModel.newActivateAction(Sheeps,lambda : shout(),setControllerContextualMenu=True,aNameToDisplay='shout (call custom method in script)')
+        ])
+
+def eat(aSheep):
+    if aSheep.cell.value('landUse') == 'grass':
+        aSheep.setValue('health','good')
+        aSheep.setValue('hunger','low')
+        aSheep.cell.setValue('landUse','short grass')
+    else: 
+        aTextBox.addText('cannot eat here')
+def shout():
+    aTextBox.addText('meh!!!')
+
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+userSelector=myModel.newUserSelector()
+
+myModel.timeManager.newPlayPhase('Phase 1', [Player1])
+# aModelAction5=myModel.newModelAction(lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"))
+# myModel.timeManager.newModelPhase(aModelAction5)
+myModel.timeManager.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
+
+# aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
+# aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "short grass" and x.value("landUse") != "forest"  )))
+# aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "short grass") ))
+
+# aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
+# aModelAction4.addCondition(lambda: myModel.roundNumber()==3) 
+
+# myModel.timeManager.newModelPhase(aModelAction2)
+
+GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
+
+DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
+score1= myModel.newSimVariable("Score",0)
+i1 = DashBoard.addIndicatorOnSimVariable(score1) 
+i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
+# aModelAction4.addFeedback(lambda: score1.incValue(5))
+# myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
+
+
+endGameRule = myModel.newEndGameRule(numberRequired=1)
+endGameRule.addEndGameCondition_onIndicator(i1, "equal", 90, name="Score equal to 90")
+endGameRule.showEndGameConditions()
+
+# myModel.launch() 
+# sys.exit(monApp.exec_())
+if __name__ == '__main__':
+    myModel.launch()
+    sys.exit(monApp.exec_())

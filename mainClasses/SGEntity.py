@@ -134,39 +134,42 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.customContextMenuRequested.connect(self.show_menu)
     
     def show_menu(self, point):
-        self.contextMenu=True
+        # self.contextMenu=True
         menu = QMenu(self)
-        options=[]
-
-        player=self.model.getPlayer(self.model.currentPlayer)
-        if player == "Admin":
-            return
-        actions = player.getAllGameActionsOn(self)
-        for aAction in actions:
-            if aAction.setControllerContextualMenu:
-                    if aAction.checkAuthorization(self):
-                        gear=QAction(aAction.name,self)
-                        gear.setCheckable(False)
-                        menu.addAction(gear)
-                        options.append(gear)
 
         for anItem in self.classDef.attributesToDisplayInContextualMenu:
             aAtt = anItem['att']
             aLabel = anItem['label']
             aValue = self.value(aAtt)
-            text = aLabel  + ": "+str(aValue)
+            text = aLabel  + "="+str(aValue)
             option = QAction(text, self)
             menu.addAction(option)
 
-        if self.rect().contains(point):
-            action=menu.exec_(self.mapToGlobal(point))
-            if action in options:
-                self.showGearMenu(action.text())
-        self.contextMenu=False 
+        # options=[]
+
+        player=self.model.getCurrentPlayer()
+        if not player == "Admin":        
+            actions = player.getAllGameActionsOn(self)
+            for aAction in actions:
+                if aAction.setControllerContextualMenu:
+                        if aAction.checkAuthorization(self):
+                            aMenuAction=QAction(aAction.name,self)
+                            aMenuAction.setCheckable(False)
+                            aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self))
+                            menu.addAction(aMenuAction)
+                            # options.append(gear)
+
+
+        if not menu.isEmpty() and self.rect().contains(point):
+            menu.exec_(self.mapToGlobal(point))
+        #     if action in options:
+        #         self.showGearMenu(action.text())
+        
+        # self.contextMenu=False #todo Ce hack devrait etre retiré
 
     def showGearMenu(self,aText):
         # Get the actions from the player
-        player=self.model.getPlayer(self.model.currentPlayer)
+        player=self.model.getCurrentPlayer()
         if player == "Admin":
             return
         actions = player.getAllGameActionsOn(self)
@@ -211,6 +214,44 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                                 self.contextMenu=False
                                 return
                 
+                # OLD SCRIPT FOR MODIFY MENU
+                # if aAction.actionType == "Modify":
+                # #* Case of a ModifyAction:
+                #     # Filter the actions by the concerned attribute
+                #     displayedNames=[]
+                #     displayedValues=[]
+                #     att=aAction.att
+                #     for anAnotherAction in actions:
+                #         if att == anAnotherAction.att and aAction.entityDef == anAnotherAction.entityDef:
+                #             displayedNames.append(anAnotherAction.name)
+                #             displayedValues.append(anAnotherAction.value)
+                #     # # The first value is the current value
+                #     current_value = self.value(att)
+                #     default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
+                #     action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
+
+                #     if ok and action:
+                #         self.last_selected_option = action
+                #         self.showPopup(action)
+                #         # ModifyAction excecution:
+                #         name="ModifyAction "+att+" "+action
+                #         for anAction in actions:
+                #             if anAction.value==action:
+                #                 anAction.perform_with(self)
+                #                 self.contextMenu=False
+                #                 return
+        
+                # elif aAction.actionType == "Activate":
+                #     #* Case of a ActivateAction:
+                #     name=None
+                #     reply=self.confirmAction()
+                #     if reply==QMessageBox.Yes:
+                #         for anAction in actions:
+                #             if aText==anAction.name:
+                #                 anAction.perform_with(self)
+                #                 self.contextMenu=False
+                #                 return
+                            
                 elif aAction.actionType == "Delete":
                     #* Case of a DeleteAction:
                     name=None

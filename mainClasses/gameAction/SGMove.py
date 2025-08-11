@@ -43,7 +43,7 @@ class SGMove(SGAbstractAction):
             if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
                 return False
             if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGPlayPhase):#If this is a PlayPhase, as default players can do actions
-                player=self.model.getPlayer(self.model.currentPlayer)
+                player=self.model.getCurrentPlayer()
                 if player in self.model.timeManager.phases[self.model.phaseNumber()-1].authorizedPlayers:
                     res = True
                 else:
