@@ -29,7 +29,7 @@ Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 
-p1=myModel.timeManager.newGamePhase('Game Phase 1', [Player1])
+p1=myModel.timeManager.newPlayPhase('Game Phase 1', [Player1])
 p1.show_message_box_at_start="New round. You can play!"
 
 p2= myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')

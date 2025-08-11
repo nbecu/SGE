@@ -58,7 +58,7 @@ userSelector=myModel.newUserSelector()
 userSelector.moveToCoords(600,180)
 
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
+myModel.timeManager.newPlayPhase('Phase 1', [Player1,Player2])
 myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))

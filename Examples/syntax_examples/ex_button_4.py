@@ -27,7 +27,7 @@ player_Salim.addGameAction(gameAction_add10)
 
 myModel.newButton(gameAction_add10,'Add 10',(80,110))
 
-gamePhase = myModel.timeManager.newGamePhase('Game phase',[player_Salim])
+PlayPhase = myModel.timeManager.newPlayPhase('Game phase',[player_Salim])
 
 # This implementation should be avoided, as the actions won't be taken into account in a distributed simulation between multiple computers
 # Instead, use gameActions in buttons, so that it will be taken into account on distributed computers

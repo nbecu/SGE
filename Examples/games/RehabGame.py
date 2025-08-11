@@ -67,8 +67,8 @@ firstPhase.addAction(lambda: harvesters.setEntities('harvest',0))
 settleAction= myModel.newModelAction_onCells(lambda cell: cell.newAgentHere(Bird),(lambda cell: cell.value('biomass')>=2))
 firstPhase.addAction(settleAction)
 
-myModel.timeManager.newGamePhase('Parc actions', [Parc])
-myModel.timeManager.newGamePhase('Clans actions', [Clans])
+myModel.timeManager.newPlayPhase('Parc actions', [Parc])
+myModel.timeManager.newPlayPhase('Clans actions', [Clans])
 
 myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)),name='harvest updated')
 

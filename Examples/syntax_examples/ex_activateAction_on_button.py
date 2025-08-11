@@ -26,7 +26,7 @@ aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara
 resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara score',0)),(lambda: myModel.roundNumber()%4==0))
 aPhase.addAction(resetScoreAction)
 
-gamePhase = myModel.timeManager.newGamePhase('Game phase',[player_Clara])
+PlayPhase = myModel.timeManager.newPlayPhase('Game phase',[player_Clara])
 
 activatePrint=myModel.newActivateAction(None,lambda : printTest(),setControllerButton=(250,100),aNameToDisplay="print test")
 activatePrint=myModel.newActivateAction(None,lambda : printTest(),setControllerContextualMenu=True)

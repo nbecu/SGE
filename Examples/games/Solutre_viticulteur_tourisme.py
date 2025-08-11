@@ -662,10 +662,10 @@ EventPhase.auto_forward=True
 EventPhase.message_auto_forward=False
 
 #PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
-GamePhase=myModel.timeManager.newGamePhase("Phase 1 : Aménager le territoire",[Viticulteur,Elu,Habitant,Naturaliste,Tourisme])
+PlayPhase=myModel.timeManager.newPlayPhase("Phase 1 : Aménager le territoire",[Viticulteur,Elu,Habitant,Naturaliste,Tourisme])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
-GamePhase2=myModel.timeManager.newGamePhase("Phase 2 : Placement des touristes",[Viticulteur,Tourisme])
+PlayPhase2=myModel.timeManager.newPlayPhase("Phase 2 : Placement des touristes",[Viticulteur,Tourisme])
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])

@@ -44,10 +44,10 @@ Player1.addGameAction(myModel.newMoveAction(Navire, 'infinite'))
 
 theTextBox=myModel.newTextBox("Premier tour ! Place les bateaux pour pêcher !","Comment jouer ?")
 
-InitPhase=myModel.timeManager.newGamePhase("Début du jeu, le joueur peut jouer",Player1)
+InitPhase=myModel.timeManager.newPlayPhase("Début du jeu, le joueur peut jouer",Player1)
 
-GamePhase=myModel.timeManager.newGamePhase("Le joueur peut jouer",Player1)
-GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
+PlayPhase=myModel.timeManager.newPlayPhase("Le joueur peut jouer",Player1)
+PlayPhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 
 DashBoard=myModel.newDashBoard()

@@ -133,8 +133,8 @@ def reset():
 
 PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',auto_forward=True)
 
-GamePhase=myModel.timeManager.newGamePhase("Les joueurs peuvent jouer",[Player1,Player2])
-GamePhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
+PlayPhase=myModel.timeManager.newPlayPhase("Les joueurs peuvent jouer",[Player1,Player2])
+PlayPhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionFeedback=myModel.newModelAction(lambda: feedbackPêche())

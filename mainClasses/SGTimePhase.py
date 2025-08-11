@@ -128,7 +128,7 @@ class SGModelPhase(SGTimePhase):
         return []
 
 
-class SGGamePhase(SGTimePhase):
+class SGPlayPhase(SGTimePhase):
     def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         super().__init__(timeManager, name, modelActions=modelActions, show_message_box_at_start=show_message_box_at_start, message_auto_forward=message_auto_forward)
         self._authorizedPlayers = authorizedPlayers if authorizedPlayers else []

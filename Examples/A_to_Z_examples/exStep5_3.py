@@ -31,10 +31,10 @@ Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWith
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1])
+myModel.timeManager.newPlayPhase('Phase 1', [Player1])
 myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
-# You also can, with the same scheme as GamePhase, first create ModelActions and place them after on a ModelPhase
+# You also can, with the same scheme as PlayPhase, first create ModelActions and place them after on a ModelPhase
 # MODEL ACTIONS CREATION
     # 3 POSSIBLE WAYS
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))

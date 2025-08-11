@@ -104,7 +104,7 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newGamePhase(self, name, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def newPlayPhase(self, name, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         To add a Game Phase in a round.
 
@@ -118,7 +118,7 @@ class SGTimeManager():
         """
         if activePlayers == None:
             activePlayers = self.model.users
-        aPhase = SGGamePhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
+        aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
                            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
                            message_auto_forward=message_auto_forward,
                            show_message_box_at_start=show_message_box_at_start)

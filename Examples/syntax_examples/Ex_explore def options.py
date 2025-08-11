@@ -59,7 +59,7 @@ Player2.addGameAction(myModel.newModifyAction(
     "Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel()
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
+myModel.timeManager.newPlayPhase('Phase 1', [Player1,Player2])
 harvestWhenOneHarvester=myModel.newModelAction(lambda: harvest3())
 myModel.timeManager.newModelPhase(harvestWhenOneHarvester)
 

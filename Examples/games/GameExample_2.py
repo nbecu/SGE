@@ -67,8 +67,8 @@ Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithN
 userSelector=myModel.newUserSelector()
 
 # STEP5 Time management
-myModel.timeManager.newGamePhase('Phase 1', [Player2])
-myModel.timeManager.newGamePhase('Phase 2', [Player1])
+myModel.timeManager.newPlayPhase('Phase 1', [Player2])
+myModel.timeManager.newPlayPhase('Phase 2', [Player1])
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 myModel.setCurrentPlayer('Player 1')
 

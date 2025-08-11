@@ -42,7 +42,7 @@ Player2.addGameAction(myModel.newModifyAction("Cell", {"ProtectionLevel": "Reser
 Player2.addGameAction(myModel.newModifyAction("Cell", {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
+myModel.timeManager.newPlayPhase('Phase 1', [Player1,Player2])
 myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") not in [0,1] )))
 myModel.timeManager.newModelPhase(aModelAction2)
