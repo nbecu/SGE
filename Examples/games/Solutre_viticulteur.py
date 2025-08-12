@@ -199,18 +199,18 @@ indQualiteVie=DashBoardInd.addIndicatorOnSimVariable(qualiteVie)
 indAttractivite=DashBoardInd.addIndicatorOnSimVariable(attractivite)
 indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 
-#* On peut également afficher les valeurs des variables de simulation par des jauges : 
-# celles ci sont mises à jour automatiquement lorsqu'une variable de simulation est modifiée et peuvent contenir
-# des valeurs seuils qui déclenchent des actions
-jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-2)
-jaugeEnv=myModel.newProgressGauge(environnement,"Environnement",10,-2)
-jaugeAtt=myModel.newProgressGauge(attractivite,"Attractivité",10,-2)
-
-# Ici on définit les valeurs de la jauge en fonction des valeurs de la variable de simulation
+#* --------------------------
+#* Jauges des indicateurs
+#* -------------------------- 
+# #* On affiche les valeurs des variables de simulation par des jauges : 
+# celles ci sont mises à jour automatiquement lorsqu'une variable de simulation est modifiée
+# les jauges peuvent avoir des valeurs seuils qui déclenchent des actions
+# les valeurs de la jauge peuvent etre mappé (ajusté) aux valeurs de la variable de simulation
 dictOfMappedValues={"-2":0,"-1":8,"0":17,"1":25,"2":33,"3":42,"4":50,"5":58,"6":67,"7":75,"8":83,"9":92,"10":100}
-jaugeAtt.setDictOfMappedValues(dictOfMappedValues)
-jaugeQDV.setDictOfMappedValues(dictOfMappedValues)
-jaugeEnv.setDictOfMappedValues(dictOfMappedValues)
+# declaration des jauges (progressGauge)
+jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-2,dictOfMappedValues)
+jaugeEnv=myModel.newProgressGauge(environnement,"Environnement",10,-2,dictOfMappedValues)
+jaugeAtt=myModel.newProgressGauge(attractivite,"Attractivité",10,-2,dictOfMappedValues)
 
 # déclaration des variables de simulation qui vont contenir les bonus des jauges
 bonusVin=myModel.newSimVariable("Bonus vin",0)
@@ -319,8 +319,7 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     conditionAdjacence=ligneHexInst["conditionAdjacence"].values[0] if isinstance(ligneHexInst["conditionAdjacence"].values[0], str) else None
     nbAdjacence=ligneHexInst["nbAdjacence"].values[0] if not math.isnan(ligneHexInst["nbAdjacence"].values[0]) else 1
     conditionFeedbackAdjacence=ligneHexInst["conditionFeedbackAdjacence"].values[0] if isinstance(ligneHexInst["conditionFeedbackAdjacence"].values[0], str) else None
-    feedbackAdjacenceAttractivité=ligneHexInst["feedbackAdjacenceAttractivité"].values[0] if not math.isnan(ligneHexInst["nbAdjacence"].values[0]) else 0
-
+    feedbackAdjacenceAttractivité=ligneHexInst["feedbackAdjacenceAttractivité"].values[0] if not math.isnan(ligneHexInst["feedbackAdjacenceAttractivité"].values[0]) else 0
 
     image = localLink + ligneHexInst["image recto"].values[0].lstrip(".") if isinstance(ligneHexInst["image recto"].values[0], str) else None
     
@@ -567,23 +566,26 @@ def checkAdjacence(aHex):
     """Permet de vérifier si un hexagone est placé à côté d'un autre hexagone en fonction des besoins"""
     if aHex.value("conditionAdjacence") is not None:
         listOfNeighbours=aHex.getNeighborCells()
-        nbNeighbour=0
-        for aNeighbourHex in listOfNeighbours:
-            if aHex.value("conditionAdjacence") == aNeighbourHex.value("zone"): 
+        nbMatchingNeighbour = 0
+        for aNeighbourCell in listOfNeighbours:
+            aNeighbourHex = aNeighbourCell.getFirstAgentOfSpecie(hexagones)
+            if aHex.value("conditionAdjacence") == aNeighbourCell.value("zone"): 
                 if aHex.value("nbAdjacence") == 1: return True
                 else:
-                    nbNeighbour=+1
-                    if aHex.value("nbAdjacence") == nbNeighbour:
+                    nbMatchingNeighbour += 1
+                    if aHex.value("nbAdjacence") == nbMatchingNeighbour:
                         return True
-            elif aHex.value("conditionAdjacence") in ["Service public","Espace de démocratie"]:
-                for jauge, value in aNeighbourHex.value("effetActivableJauge").items():
-                    if jauge.name == aHex.value("conditionAdjacence"): return True
-            elif aHex.value("conditionAdjacence") in ["vinBio","vin"]:
-                for ressource, value in aNeighbourHex.value("effetRessourcesAct").items():
-                    for aRessource in aHex.value("effetRessourcesAct").items():
-                        if ressource == "Sous": return True
-                        if aRessource[0].name == ressource.name: return True
-            elif aHex.value("conditionAdjacence") == "coutTouriste" and aNeighbourHex.value("coutTouriste")>0: return True
+            elif aNeighbourHex is not None:
+                if aHex.value("conditionAdjacence") in ["Service public","Espace de démocratie"]:
+                    
+                    for jauge, value in aNeighbourHex.value("effetActivableJauge").items():
+                        if jauge.name == aHex.value("conditionAdjacence"): return True
+                elif aHex.value("conditionAdjacence") in ["vinBio","vin"]:
+                    for ressource, value in aNeighbourHex.value("effetRessourcesAct").items():
+                        for aRessource in aHex.value("effetRessourcesAct").items():
+                            if ressource == "Sous": return True
+                            if aRessource[0].name == ressource.name: return True
+                elif aHex.value("conditionAdjacence") == "coutTouriste" and aNeighbourHex.value("coutTouriste")>0: return True
     else: return True
 
 def adjacenceFeedback(aHex):
@@ -768,21 +770,21 @@ createInitHexagones()
 
 def customLayout():
     """Crée le layout personnalisé du jeu"""
-    Plateau.grid.moveToCoords(440,130)
-    VillageNord.grid.moveToCoords(30,130)
-    VillageEst.grid.moveToCoords(1180,400)
-    VillageSud.grid.moveToCoords(30,380)
-    pioche.grid.moveToCoords(400,730)
-    reserve.grid.moveToCoords(135,765)
-    DashBoardInd.moveToCoords(1180,130)
-    DashBoard.moveToCoords(1390,130)
-    DashBoardRessources.moveToCoords(1640,130)
-    DashBoardPlayer.moveToCoords(1500,730)
+    Plateau.grid.moveToCoords(440,200)
+    VillageNord.grid.moveToCoords(30,200)
+    VillageEst.grid.moveToCoords(1180,368)
+    VillageSud.grid.moveToCoords(30,450)
+    pioche.grid.moveToCoords(480,750)
+    reserve.grid.moveToCoords(1330,695)
+    DashBoard.moveToCoords(1230,40)
+    DashBoardRessources.moveToCoords(1400,40)
+    DashBoardInd.moveToCoords(1580,40)
+    DashBoardPlayer.moveToCoords(1485,695)
     aTimeLabel.moveToCoords(30,40)
-    jaugeQDV.moveToCoords(250,48)
-    jaugeEnv.moveToCoords(250,98)
-    jaugeAtt.moveToCoords(250,148)
-    objectif.moveToCoords(1065,730)
+    jaugeQDV.moveToCoords(245,40)
+    jaugeEnv.moveToCoords(920,40)
+    jaugeAtt.moveToCoords(575,40)
+    objectif.moveToCoords(1160,695)
 
 def placeInitHexagones():
     """Place les hexagones initiaux sur le plateau"""
@@ -794,7 +796,6 @@ def placeInitHexagones():
                 aHex.setValue("placed",True)
                 aHex.moveTo(Plateau.getCell(8,4))
                 
-                print(f"Vigne du plateau placé: {aHex.value('placed')}")
             if aHex.value("nom")=="Caveau du plateau":
                 aHex.setValue("placed",True)
                 aHex.moveTo(Plateau.getCell(8,5))

@@ -29,16 +29,14 @@ class SGAgent(SGEntity):
         painter = QPainter() 
         painter.begin(self)
         region = self.getRegion()
-        image=self.getImage()
-        if self.defaultImage != None:
-            rect, scaledImage = self.rescaleImage(self.defaultImage)
-            painter.setClipRegion(region)
-            painter.drawPixmap(rect, scaledImage)
-        elif image != None:
+        painter.setClipRegion(region)
+        image = self.defaultImage if self.defaultImage is not None else self.getImage()
+        if image is not None:
+            if image.width() ==0 or image.height == 0 : raise ValueError(f'Image size is not valid for {self.privateID}')
             rect, scaledImage = self.rescaleImage(image)
-            painter.setClipRegion(region)
             painter.drawPixmap(rect, scaledImage)
-        else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
+        else :
+            painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
         penColorAndWidth = self.getBorderColorAndWidth()
         painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
         agentShape = self.classDef.shape

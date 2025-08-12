@@ -95,13 +95,19 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         if aPovDef is None: return None
         aAtt=list(aPovDef.keys())[0]
         aDictOfValueAndImage=list(aPovDef.values())[0]
-        aImage = aDictOfValueAndImage.get(self.value(aAtt))
-        return aImage if aImage is not None and isinstance(aImage,QPixmap) else None
+        aImage = aDictOfValueAndImage.get(self.value(aAtt))     
+
+        if aImage is not None and isinstance(aImage,QPixmap):
+            return aImage 
+        else:
+            return None
     
     def rescaleImage(self, image):
+        
         imageWidth = image.width()
         imageHeight = image.height()
 
+        if imageWidth ==0 or imageHeight == 0 : raise ValueError('Image size is not valid')
         # entityWidth = self.width() #could use self.size, instead
         # entityHeight = self.height()  
         entityWidth = self.size
