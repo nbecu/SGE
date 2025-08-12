@@ -429,7 +429,7 @@ def createTourismeSpecificGA():
     # Action pour placer un touriste
     PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
     PlaceTouriste.addCondition(lambda: checkIsThereTouristes())
-    PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHébergement(aTargetCell))
+    PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHebergement(aTargetCell))
     PlaceTouriste.addFeedback(lambda: decTouristes())
     PlaceTouriste.addFeedback(lambda aTourist: execeffetActivableTouriste(aTourist))
     TourismeSpecificActions.append(PlaceTouriste)
@@ -439,9 +439,7 @@ TourismeSpecificActions = createTourismeSpecificGA()
 
 def checkIfAHexIsHere(aTargetCell):
     """Permet de vérifier si une tuile hexagone est déjà présente sur une cellule de plateau"""
-    hexa=aTargetCell.getAgents(specie="Hexagone")
-    if len(hexa) != 0: return False
-    else: return True
+    return aTargetCell.isEmpty(specie="Hexagone")
 
 def execeffetInstantaneJauge(aHex):
     """Détaille les actions réalisées au placement d'un hexagone"""
@@ -535,17 +533,18 @@ def decCubesBuisson():
     player=myModel.getPlayer(myModel.currentPlayer)
     player.decValue("nbCubes")
 
-def checkIsThereTouristes():
+def checkIsThereTouristes(): # todo cette verification est inutile a priori
     """Permet de vérifier si des touristes sont présents dans la réserve"""
     if touriste.value >= 1: return True
     else: return False
 
-def checkIsHébergement(aTargetCell):
-    """Permet de vérifier si une cellule est un hébergement pour les touristes"""
-    hexa=aTargetCell.getAgents(specie="Hexagone")
-    for aHex in hexa:
-        if aHex.value("coutTouriste") !=0: return True
-        else: return False
+def checkIsHebergement(aTargetCell):
+    """Permet de vérifier si l'emplacement permet d'acceuillir un touriste supplémentaire"""
+    nbTouristesHere=aTargetCell.nbAgents(Touriste)
+    aHex=aTargetCell.getFirstAgentOfSpecie(hexagones)
+    if aHex is not None:
+        if aHex.value("coutTouriste") > nbTouristesHere : return True
+    return False
 
 def decTouristes():
     """Permet de mettre à jour le nombre de touristes après leur placement"""
@@ -700,14 +699,11 @@ def selectPlayer(aPlayerName, aObjectifCardName="random"):
 
     createPlayerHex(aPlayerName,hexagones,data_inst,data_act)
 
-    if aPlayerName=="Tourisme":
-        actions=GameActionsList+TourismeSpecificActions
-    elif aPlayerName=="ViticulteurTourisme":
-        actions=GameActionsList+TourismeSpecificActions
-    else: actions=GameActionsList
-
-    for action in actions:
+    for action in GameActionsList:
         player.addGameAction(action)
+   
+    for action in TourismeSpecificActions:
+        Tourisme.addGameAction(action)
 
     return objectif, aDashboard
 

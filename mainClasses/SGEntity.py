@@ -30,8 +30,7 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         self.highlightEffect = None
         self.isHighlighted = False
         # set the contextual and gameAction controller
-        self.initMenu()
-        self.contextMenu=False
+        self.init_contextMenu()
 
     
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
@@ -135,12 +134,11 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     #     self.isHighlighted = not self.isHighlighted
 
     # Handle the contextual menu and GameAction controller
-    def initMenu(self):
+    def init_contextMenu(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_menu)
+        self.customContextMenuRequested.connect(self.show_contextMenu)
     
-    def show_menu(self, point):
-        # self.contextMenu=True
+    def show_contextMenu(self, point):
         menu = QMenu(self)
 
         for anItem in self.classDef.attributesToDisplayInContextualMenu:
@@ -150,8 +148,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
             text = aLabel  + "="+str(aValue)
             option = QAction(text, self)
             menu.addAction(option)
-
-        # options=[]
 
         player=self.model.getCurrentPlayer()
         if not player == "Admin":        
@@ -163,133 +159,12 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
                             aMenuAction.setCheckable(False)
                             aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self))
                             menu.addAction(aMenuAction)
-                            # options.append(gear)
 
 
         if not menu.isEmpty() and self.rect().contains(point):
             menu.exec_(self.mapToGlobal(point))
-        #     if action in options:
-        #         self.showGearMenu(action.text())
-        
-        # self.contextMenu=False #todo Ce hack devrait etre retiré
-
-    def showGearMenu(self,aText):
-        # Get the actions from the player
-        player=self.model.getCurrentPlayer()
-        if player == "Admin":
-            return
-        actions = player.getAllGameActionsOn(self)
-
-
-        for aAction in actions:
-            if aText == aAction.name:
-                if aAction.actionType == "Modify":
-                #* Case of a ModifyAction:
-                    # Filter the actions by the concerned attribute
-                    displayedNames=[]
-                    displayedValues=[]
-                    att=aAction.att
-                    for anAnotherAction in actions:
-                        if att == anAnotherAction.att and aAction.entityDef == anAnotherAction.entityDef:
-                            displayedNames.append(anAnotherAction.name)
-                            displayedValues.append(anAnotherAction.value)
-                    # # The first value is the current value
-                    current_value = self.value(att)
-                    default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
-                    action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
-
-                    if ok and action:
-                        self.last_selected_option = action
-                        self.showPopup(action)
-                        # ModifyAction excecution:
-                        name="ModifyAction "+att+" "+action
-                        for anAction in actions:
-                            if anAction.value==action:
-                                anAction.perform_with(self)
-                                self.contextMenu=False
-                                return
-        
-                elif aAction.actionType == "Activate":
-                    #* Case of a ActivateAction:
-                    name=None
-                    reply=self.confirmAction()
-                    if reply==QMessageBox.Yes:
-                        for anAction in actions:
-                            if aText==anAction.name:
-                                anAction.perform_with(self)
-                                self.contextMenu=False
-                                return
-                
-                # OLD SCRIPT FOR MODIFY MENU
-                # if aAction.actionType == "Modify":
-                # #* Case of a ModifyAction:
-                #     # Filter the actions by the concerned attribute
-                #     displayedNames=[]
-                #     displayedValues=[]
-                #     att=aAction.att
-                #     for anAnotherAction in actions:
-                #         if att == anAnotherAction.att and aAction.entityDef == anAnotherAction.entityDef:
-                #             displayedNames.append(anAnotherAction.name)
-                #             displayedValues.append(anAnotherAction.value)
-                #     # # The first value is the current value
-                #     current_value = self.value(att)
-                #     default_index = displayedValues.index(current_value) if current_value in displayedValues else 0
-                #     action, ok = QInputDialog.getItem(self, 'Modify Action Selector','Select a NEW Value for '+att, displayedValues)#, default_index, False)
-
-                #     if ok and action:
-                #         self.last_selected_option = action
-                #         self.showPopup(action)
-                #         # ModifyAction excecution:
-                #         name="ModifyAction "+att+" "+action
-                #         for anAction in actions:
-                #             if anAction.value==action:
-                #                 anAction.perform_with(self)
-                #                 self.contextMenu=False
-                #                 return
-        
-                # elif aAction.actionType == "Activate":
-                #     #* Case of a ActivateAction:
-                #     name=None
-                #     reply=self.confirmAction()
-                #     if reply==QMessageBox.Yes:
-                #         for anAction in actions:
-                #             if aText==anAction.name:
-                #                 anAction.perform_with(self)
-                #                 self.contextMenu=False
-                #                 return
-                            
-                elif aAction.actionType == "Delete":
-                    #* Case of a DeleteAction:
-                    name=None
-                    reply=self.confirmDelete()
-                    if reply==QMessageBox.Yes:
-                        for anAction in actions:
-                            if aText==anAction.name:
-                                anAction.perform_with(self)
-                                self.contextMenu=False
-                                return
-
-    def confirmAction(self):
-        # confirmation popup
-        reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the activation?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        return reply
-    
-    def confirmDelete(self):
-        # confirmation popup
-        reply = QMessageBox.question(self, 'Confirm?', "Do you want to confirm the deletion?",QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        return reply
 
     
-    def showPopup(self, selected_option):
-        QMessageBox.information(self, 'Option selected', f'You chose : {selected_option}', QMessageBox.Ok)
-    
-    
-    def getRandomXY(self):
-        x = 0
-        maxSize=self.cell.size
-        x = random.randint(1,maxSize-1)
-        return x
-
     def getObjectIdentiferForJsonDumps(self):
         dict ={}
         dict['entityName']=self.classDef.entityName
@@ -314,27 +189,6 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
     def isDeleted(self):
         return not self.isDisplay
 
-    #To handle the attributs and values
-    # Should check how to manage this method with the one of the superclass AttributeAndValueFunctinalities
-    # def setValue(self,aAttribut,valueToSet):
-    #     """
-    #     Sets the value of an attribut
-    #     Args:
-    #         aAttribut (str): Name of the attribute
-    #         aValue (str): Value to be set
-    #     """
-    #     if callable(valueToSet):
-    #         aValue = valueToSet()
-    #     else:
-    #         aValue = valueToSet
-    #     # if self.model.roundNumber()!=0 and not aAttribut in self.dictAttributes: raise ValueError("Not such an attribute") ## Instrtcuion commented because agentRecreatedWhen Moving need to pass over this condition
-    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-    #     self.dictAttributes[aAttribut]=aValue
-    #     self.saveValueInHistory(aAttribut,aValue)
-    #     self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the wole pop of entities
-    #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-    #     self.update()
-    #     return True
 
     #To perform action --> Check if this method is used or not
     def doAction(self, aLambdaFunction):

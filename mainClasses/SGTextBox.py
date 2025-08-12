@@ -52,7 +52,7 @@ class SGTextBox(SGGameSpace):
         self.setLayout(layout)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_menu)
+        self.customContextMenuRequested.connect(self.show_contextMenu)
         self.history.append(self.textEdit.toPlainText())
 
     # Function to have the global size of a gameSpace
@@ -80,7 +80,8 @@ class SGTextBox(SGGameSpace):
 
         painter.end()
 
-    def show_menu(self, point):
+    # contextual menu (opened on a right click)
+    def show_contextMenu(self, point):
         menu = QMenu(self)
 
         option1 = QAction("Inspect", self)

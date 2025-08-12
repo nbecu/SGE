@@ -21,14 +21,10 @@ class SGCell(SGEntity):
         #We allow the drops for the agents
         self.setAcceptDrops(True)
         self.agents=[]
-        self.initUI()
 
         self.defaultImage=defaultImage
 
     
-    def initUI(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_menu)
         
     def getId(self):
         return "cell"+str(self.xCoord)+"-"+str(self.yCoord)
@@ -162,13 +158,12 @@ class SGCell(SGEntity):
         if not isinstance(aAgent,SGEntity):
             return
         
-        aActiveLegend = self.model.getSelectedLegend() 
-        aLegendItem = self.model.getSelectedLegendItem()
-        if aActiveLegend is None or aActiveLegend.isAdminLegend(): 
+        currentPlayer=self.model.getCurrentPlayer()
+        
+        if currentPlayer == 'Admin':
             aAgent.moveTo(self)
-        elif aLegendItem is None : None #Exit the method
+        
         else :
-            currentPlayer=self.model.getCurrentPlayer()
             moveActions=currentPlayer.getMoveActionsOn(aAgent)
 
             for aMoveAction in moveActions:
@@ -227,9 +222,7 @@ class SGCell(SGEntity):
         self.agents.remove(anAgent)
         anAgent.cell=None
     
-    # To show a menu
-    # def show_menu(self, point):
-    #     pass
+
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use  

@@ -18,7 +18,7 @@ class SGAgent(SGEntity):
         else: raise ValueError('This case is not handeled')
         self.getPositionInEntity()
         self.last_selected_option=None
-        # self.initMenu()
+
         self.defaultImage=defaultImage
         self.popupImage=popupImage
         self.dragging = False
@@ -260,9 +260,7 @@ class SGAgent(SGEntity):
                 if  authorisation :
                     self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
                     # self.update()
-        # todo j'ai retiré ce hack destiné à  gerer la superposition entre context menu et le tooltip
-        # if event.button() == Qt.RightButton:
-        #     self.contextMenu=True
+
 
             
     #To handle the drag of the agent
@@ -300,8 +298,6 @@ class SGAgent(SGEntity):
 
     def enterEvent(self, event):
         if self.dragging:
-            return
-        if self.contextMenu:
             return
 
         if self.popupImage:

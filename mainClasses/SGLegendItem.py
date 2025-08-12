@@ -29,15 +29,15 @@ class SGLegendItem(QtWidgets.QWidget):
             self.color= self.classDef.defaultShapeColor
         self.remainNumber=int
         self.gameAction= gameAction
-        self.initUI()
+        self.init_contextMenu()
 
     
-    def initUI(self):
+    def init_contextMenu(self):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_menu)
+        self.customContextMenuRequested.connect(self.show_contextMenu)
 
-    # To show a menu
-    def show_menu(self, point):
+    # To show a contextual menu (open on a right clic)
+    def show_contextMenu(self, point):
         if self.gameAction is None: return
         menu = QMenu(self)
         number=self.gameAction.getNbRemainingActions()
