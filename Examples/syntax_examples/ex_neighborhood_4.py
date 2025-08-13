@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(500, 350, windowTitle="Hexagonal grid - moore (6 neighbors) - closed boundaries")
+myModel = SGModel(500, 350, windowTitle="Neighborhood Hexagonal grid - moore (6 neighbors) - closed boundaries")
 
 # Hexagonal grid: neighborhood='moore' => 6 neighbors
 Cell = myModel.newCellsOnGrid(8, 5, "hexagonal", gap=0, size=40, neighborhood='moore', boundaries='closed')
