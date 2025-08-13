@@ -17,8 +17,8 @@ class SGTimeLabel(SGGameSpace):
         self.textTitle  = title
         self.displayTitle = self.textTitle is not None
         self.displayRoundNumber = True
-        self.displayPhaseNumber = self.timeManager.numberOfPhases() > 2
-        self.displayPhaseName = self.timeManager.numberOfPhases() > 2
+        self.displayPhaseNumber = self.timeManager.numberOfPhases() >= 2
+        self.displayPhaseName = self.timeManager.numberOfPhases() >= 2
 
         self.initLabels()
 

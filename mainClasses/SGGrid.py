@@ -17,7 +17,7 @@ class SGGrid(SGGameSpace):
         self.gap = gap
         self.size = size
         self.moveable = moveable
-        self.neighborhood = 'moore'
+        self.neighborhood = neighborhood
         self.countPaintEvent=0
         self.frameMargin = 8
 

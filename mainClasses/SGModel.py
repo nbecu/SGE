@@ -457,6 +457,11 @@ class SGModel(QMainWindow):
             color (a color, optional): background color of the grid . Defaults to Qt.gray.
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
             name (st): name of the grid.
+            backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
+            defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.
+            neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore
+                - "moore": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).
+                - "neumann": Von Neumann neighborhood (4 neighbors for square cells) , 3 or 4 for hexagonal cells, depending on orientation).
 
         Returns:
             aCellDef: the cellDef that defines the cells that have been placed on a grid
@@ -469,8 +474,8 @@ class SGModel(QMainWindow):
         # Create a grid
         aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage,neighborhood)
 
-        # Create a CellDef populate the grid with it
-        aCellDef = self.newCellsFromGrid(aGrid,defaultCellImage,name)
+        # Create a CellDef and populate the grid with cells from the newly created CellDef
+        aCellDef = self.generateCellsForGrid(aGrid,defaultCellImage,name)
         aGrid.cellDef =aCellDef
 
         self.gameSpaces[name] = aGrid
@@ -480,7 +485,7 @@ class SGModel(QMainWindow):
         self.applyAutomaticLayout()
         return aCellDef
     
-    def newCellsFromGrid(self,grid,defaultCellImage,entityName):
+    def generateCellsForGrid(self,grid,defaultCellImage,entityName):
         CellDef = SGCellDef(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,entityName=entityName,defaultCellImage=defaultCellImage)
         self.cellOfGrids[grid.id] = CellDef
         for row in range(1, grid.rows + 1):
@@ -851,7 +856,8 @@ class SGModel(QMainWindow):
     # To create a Time Label
     def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         """
-        Create the visual time board of the game
+        Create the visual time board of the game.
+        
         Args:
         title (str) : name of the widget (default:None)
         backgroundColor (Qt Color) : color of the background (default : Qt.white)

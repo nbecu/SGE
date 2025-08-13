@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Trigger actions with contextual Menu")
 
-Cell=myModel.newCellsOnGrid(5,5,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(5,5,"square",size=60, gap=2,neighborhood="neumann")
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)

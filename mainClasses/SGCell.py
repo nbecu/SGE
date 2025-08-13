@@ -275,7 +275,7 @@ class SGCell(SGEntity):
                     else:
                         c = None
                 else:
-                    print('Error in rule specification')
+                    print('Error in neighborhood specification')
                     break
                 if c is not None:
                     neighbors.append(c)
