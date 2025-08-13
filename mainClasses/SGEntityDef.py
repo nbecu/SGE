@@ -715,14 +715,6 @@ class SGCellDef(SGEntityDef):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)
         return ent
 
-    # def getCell(self, x, y=None):
-    #     if isinstance(y, int):
-    #         if x < 0 or y < 0:
-    #             return None
-    #         aId = self.cellIdFromCoords(x, y)
-    #     else:
-    #         aId = x
-    #     return next(filter(lambda ent: ent.id == aId, self.entities), None)
     
     def getCell(self, x, y=None):
         """

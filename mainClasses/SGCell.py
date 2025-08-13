@@ -1,6 +1,7 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
+import random
 # from mainClasses.gameAction.SGMove import SGMove
    
 #Class who is responsible of the declaration a cell
@@ -240,15 +241,15 @@ class SGCell(SGEntity):
         return  len(listAgts)
  
     def isEmpty(self,specie=None):
-        return self.hasAgents(specie)
+        return not self.hasAgents(specie)
     
     def hasAgents(self,specie=None):
-        return self.nbAgents(specie) == 0
+        return self.nbAgents(specie) > 0
 
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
         from mainClasses.SGEntityDef import SGAgentDef # Import local pour éviter l'import circulaire
-        if isinstance(nameOfSpecie,SGAgentDef): nameOfSpecie = nameOfSpecie.entityName 
+        if isinstance(nameOfSpecie,SGAgentDef): nameOfSpecie = nameOfSpecie.entityName
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     
     #To get the agent of a particular type
@@ -260,17 +261,17 @@ class SGCell(SGEntity):
         
     
     #To get the neighbor cells
-    def getNeighborCells(self, neighborhood=None,condition = None):
+    def getNeighborCells(self, condition = None, neighborhood=None):
         """
         Get the neighboring cells of the current cell.
 
         Args:
+            condition (lambda function, optional): a condition that cells must respect to be return by this method 
             neighborhood ("moore", "neumann", optional):
                 Type of neighborhood to use.
                 - "moore": Includes diagonals (8 neighbors for square grid, 6 for hexagonal grid).
                 - "neumann": Only orthogonal neighbors (4 neighbors for square grid; 3 or 4 for hexagonal grid depending on orientation).
                 Defaults to the grid's `neighborhood` attribute.
-            condition (lambda function, optional): a condition that cells must respect to be return by this method 
 
         Returns:
             list: A list of neighboring cells (may be fewer if `boundary_condition` is "closed" and the cell is on an edge, or if a condition is defined).
@@ -324,92 +325,193 @@ class SGCell(SGEntity):
         if condition is None:
             return neighbors
         else:
-            [aCell for aCell in neighbors if condition(aCell)]
-
-
-    # def getNeighborCells(self,neighborhood = None, boundaries=None):
-    #     if neighborhood is None : neighborhood = self.grid.neighborhood
-    #     boundary_condition = boundaries if boundaries is not None else self.grid.boundary_condition
-    #     neighbors = []
-    #     rows = self.grid.rows
-    #     columns = self.grid.columns
-    #     for i in range(self.xCoord - 1, self.xCoord + 2):
-    #         for j in range(self.yCoord - 1, self.yCoord + 2):
-    #             # Skip the cell itself
-    #             if i == self.xCoord and j == self.yCoord:
-    #                 continue
-    #             # Handle boundary conditions
-    #             if boundary_condition == "open":  # wrap-around (toroidal)
-    #                 ii = i % columns   # X axis = column index
-    #                 jj = j % rows      # Y axis = row index
-    #             elif boundary_condition == "closed":  # no wrap-around
-    #                 if i < 0 or i >= columns or j < 0 or j >= rows:
-    #                     continue
-    #                 ii, jj = i, j
-    #             else:
-    #                 raise ValueError(f"Invalid boundary condition: {boundary_condition}")
-
-    #             # Determine neighbors according to neighborhood type
-    #             if neighborhood == "moore":
-    #                 c = self.classDef.getCell(ii, jj)
-    #             elif neighborhood == "neumann":
-    #                 # Neighbor if aligned horizontally or vertically, but not the cell itself
-    #                 if (ii == self.xCoord or jj == self.yCoord) and not (ii == self.xCoord and jj == self.yCoord):
-    #                     c = self.classDef.getCell(ii, jj)
-    #                 else:
-    #                     c = None
-    #             else:
-    #                 raise ValueError(f"Invalid neighborhood type: {neighborhood}")
-
-    #             if c is not None:
-    #                 neighbors.append(c)
-
-
-        # for i in range(self.xCoord - 1, self.xCoord + 2):
-        #     for j in range(self.yCoord - 1, self.yCoord + 2):
-        #         if i == self.xCoord and j == self.yCoord:
-        #             continue
-        #         # Apply boundary condition
-        #         x, y = i, j
-        #         if boundary_condition == 'closed':
-        #             x = i % cols
-        #             y = j % rows
-        #         # Skip if out of bounds and boundary is open
-        #         if boundary_condition == 'open':
-        #             if x < 0 or x >= cols or y < 0 or y >= rows:
-        #                 continue
-        #         # Apply neighborhood rule
-        #         if neighborhood == "moore":
-        #             c = self.classDef.getCell(x, y)
-        #         elif neighborhood == "neumann":
-        #             if (x == self.xCoord or y == self.yCoord) and (x != self.xCoord or y != self.yCoord):
-        #                 c = self.classDef.getCell(x, y)
-        #             else:
-        #                 c = None
-        #         else:
-        #             print('Error in neighborhood specification')
-        #             return []
-
-        #         if c is not None:
-        #             neighbors.append(c)
-        # for i in range(self.xCoord - 1, self.xCoord + 2):
-        #     for j in range(self.yCoord - 1, self.yCoord + 2):
-        #         if i == self.xCoord and j == self.yCoord:
-        #             continue
-        #         if neighborhood =="moore":
-        #             c = self.classDef.getCell(i, j)
-        #         elif neighborhood =='neumann':
-        #             if (i == self.xCoord or j == self.yCoord) and (i != self.xCoord or j != self.yCoord):
-        #                 c = self.classDef.getCell(i,j)
-        #             else:
-        #                 c = None
-        #         else:
-        #             print('Error in neighborhood specification')
-        #             break
-        #         if c is not None:
-        #             neighbors.append(c)
-        return neighbors
+            return [aCell for aCell in neighbors if condition(aCell)]
         
+
+    def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):
+        """
+        Get all neighbor cells within a given radius according to the grid's neighborhood type.
+
+        Args:
+            max_distance (int, optional): 
+                Maximum distance (radius) from the current cell to search for neighbors. Defaults to 1.
+            conditions (list[callable] | None, optional): 
+                A list of lambda functions, each taking a Cell as argument and returning True 
+                if the cell should be included. All conditions must be satisfied. 
+                If None or empty, all valid neighbors are returned.
+            neighborhood ("moore", "neumann", optional):
+                Type of neighborhood to use.
+                - "moore": Includes diagonals (8 neighbors for square grid, 6 for hexagonal grid).
+                - "neumann": Only orthogonal neighbors (4 neighbors for square grid; 3 or 4 for hexagonal grid depending on orientation).
+                Defaults to the grid's `neighborhood` attribute.
+
+        Returns:
+            list[SGCell]: List of matching neighbor cells (excluding self).
+        """
+        grid = self.grid
+        if neighborhood is None:
+            neighborhood = grid.neighborhood  # "moore" or "neumann"
+        boundary_condition = grid.boundary_condition
+
+        if conditions is None:
+            conditions = []
+        elif not isinstance(conditions, (list, tuple)):
+            conditions = [conditions]  # Allow a single callable to be passed
+
+        results = []
+        for dx in range(-max_distance, max_distance + 1):
+            for dy in range(-max_distance, max_distance + 1):
+                # Skip self
+                if dx == 0 and dy == 0:
+                    continue
+
+                # Apply neighborhood rules
+                if neighborhood == "neumann" and abs(dx) + abs(dy) > max_distance:
+                    continue  # Neumann: only orthogonal moves allowed within radius
+
+                if neighborhood == "moore" and max(abs(dx), abs(dy)) > max_distance:
+                    continue  # Moore: Chebyshev distance rule
+
+                nx = self.xCoord + dx
+                ny = self.yCoord + dy
+
+                # Handle closed boundaries
+                if boundary_condition == "closed":
+                    if nx < 1 or nx > grid.columns or ny < 1 or ny > grid.rows:
+                        continue
+
+                # Handle open boundaries (wrap-around)
+                if boundary_condition == "open":
+                    nx = ((nx - 1) % grid.columns) + 1
+                    ny = ((ny - 1) % grid.rows) + 1
+
+                neighbor = self.classDef.getCell(nx, ny)
+                if neighbor is not None:
+                    if all(cond(neighbor) for cond in conditions):
+                        results.append(neighbor)
+
+        return results
+
+
+
+    def distanceTo(self, otherCell):
+        """
+        Compute Euclidean distance to another cell.
+
+        Args:
+            otherCell (SGCell): The target cell.
+
+        Returns:
+            float: Euclidean distance between the two cells.
+        """
+        dx = self.xCoord - otherCell.xCoord
+        dy = self.yCoord - otherCell.yCoord
+        return (dx * dx + dy * dy) ** 0.5
+
+
+    def getClosestNeighborMatching(self, max_distance=1, conditions=None, neighborhood=None):
+        """
+        Get the closest cell within a given radius that matches all given conditions.
+
+        Args:
+            max_distance (int, optional): 
+                Maximum distance (radius) from the current cell to search for neighbors. Defaults to 1.
+            conditions (list[callable] | callable | None, optional): 
+                A list of lambda functions (or a single lambda) that each take a Cell as argument 
+                and return True if the cell should be considered valid.
+                All conditions must be satisfied.
+            neighborhood ("moore", "neumann", optional):
+                Type of neighborhood to use.
+                Defaults to the grid's `neighborhood` attribute.
+
+        Returns:
+            SGCell | None: The closest matching cell, or None if no match found.
+        """
+        # Normalize conditions to always be a list
+        if conditions is None:
+            conditions = []
+        elif not isinstance(conditions, (list, tuple)):
+            conditions = [conditions]
+
+        # Get all matching cells within the specified radius
+        matching_cells = self.getNeighborCells_inRadius(
+            max_distance=max_distance,
+            conditions=conditions,
+            neighborhood=neighborhood
+        )
+
+        if not matching_cells:
+            return None
+
+        # Return the cell with the smallest distance to self
+        return min(matching_cells, key=lambda cell: self.distanceTo(cell))
+
+
+    def getClosestAgentMatching(self, agentSpecie, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
+        """
+        Find the closest neighboring cell within a given radius that contains at least one agent 
+        of a given species and meets optional conditions on both the agent and the cell.
+
+        Args:
+            agentSpecie (str | SGAgentDef): 
+                The species of the agent to search for.
+            max_distance (int, optional): 
+                Maximum search radius. Defaults to 1.
+            conditions_on_agent (list[callable], optional): 
+                A list of lambda functions that each take an agent as argument and return True if valid.
+                All conditions must be satisfied for the agent to be valid.
+            conditions_on_cell (list[callable], optional): 
+                A list of lambda functions that each take a cell as argument and return True if valid.
+                All conditions must be satisfied for the cell to be valid.
+            return_all (bool, optional):
+                If True, returns all matching agents on the closest cell. 
+                If False (default), returns one random matching agent.
+
+        Returns:
+            SGAgent | list[SGAgent] | None:
+                - If return_all=False → a single agent (randomly chosen) that matches the conditions.
+                - If return_all=True → a list of matching agents.
+                - None if no match found.
+        """
+        # Step 1: Get neighbor cells that match cell conditions
+        matching_cells = self.getNeighborCells_inRadius(
+            max_distance=max_distance,
+            conditions=conditions_on_cell
+        )
+
+        # Step 2: Keep only cells that have agents of the given species
+        matching_cells = [cell for cell in matching_cells if cell.hasAgents(agentSpecie)]
+
+        # Step 3: If there are agent conditions, filter cells that have at least one matching agent
+        if conditions_on_agent:
+            def agent_satisfies_conditions(agent):
+                return all(cond(agent) for cond in conditions_on_agent)
+            matching_cells = [
+                cell for cell in matching_cells 
+                if any(agent_satisfies_conditions(agent) for agent in cell.getAgents(agentSpecie))
+            ]
+
+        # Step 4: If no cells remain, return None
+        if not matching_cells:
+            return None
+
+        # Step 5: Find the closest cell by distance
+        closest_cell = min(matching_cells, key=lambda cell: self.distanceTo(cell))
+
+        # Step 6: Return agent(s) on the closest cell
+        matching_agents = closest_cell.getAgents(agentSpecie)
+        if conditions_on_agent:
+            matching_agents = [agent for agent in matching_agents if all(cond(agent) for cond in conditions_on_agent)]
+
+        if not matching_agents:
+            return None
+
+        if return_all:
+            return matching_agents
+        else:
+            return random.choice(matching_agents)
+
+
     #To get the neighbor cell at cardinal
     def getNeighborN(self):
         return self.classDef.getCell(self.xCoord,self.yCoord-1)

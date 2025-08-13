@@ -5,6 +5,7 @@ from PyQt5.QtGui import QCursor
 
 import random
 from mainClasses.SGEntity import SGEntity
+from mainClasses.SGCell import SGCell
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
@@ -381,6 +382,7 @@ class SGAgent(SGEntity):
             numberOfMovement (int): number of movement in one action
             condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
         """
+        if numberOfMovement > 1 : raise ValueError('SGE currently has an issue with multiple movements at a step of an agent. Do not use numberOfMovement for the time being')
         for i in range(numberOfMovement):
 
             if i>0:
@@ -393,8 +395,8 @@ class SGAgent(SGEntity):
             aGrid=originCell.grid
 
             if method == "random":
-                neighbors=originCell.getNeighborCells(condition)
-                newCell=random.choice(neighbors)
+                neighbors=originCell.getNeighborCells(condition=condition)
+                newCell=random.choice(neighbors) if neighbors else None
 
             if method == "cell" or cellID is not None:
                 newCell=aGrid.getCell_withId(cellID)
@@ -428,24 +430,140 @@ class SGAgent(SGEntity):
             condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
         """
         self.moveAgent(numberOfMovement=numberOfMovement,condition=condition)
-                    
+
+    def moveTowards(self, target, condition=None):
+        """
+        Move the agent one step towards a target cell or another agent.
+
+        Args:
+            target (Agent | Cell | tuple[int,int]): 
+                - Another agent object
+                - A cell object
+                - A tuple (x, y) for target coordinates
+            condition (callable, optional): A lambda function that takes a Cell as argument and returns True 
+                if the agent can move there.
+        """
+        # Determine the target cell
+        if isinstance(target, SGAgent):  # Target is an agent
+            target_cell = target.cell
+        elif isinstance(target, SGCell):  # Target is a Cell
+            target_cell = target
+        elif isinstance(target, tuple) and len(target) == 2:  # Coordinates (x, y)
+            target_cell = self.cell.grid.getCell(target)
+        else:
+            raise ValueError("Invalid target type for moveTowards()")
+
+        # Get neighbors that satisfy the condition
+        neighbors = self.cell.getNeighborCells(condition=condition)
+        if not neighbors:
+            return  # No possible move
+
+        # Select the neighbor closest to the target cell
+        def dist(c1, c2):
+            dx = c1.xCoord - c2.xCoord
+            dy = c1.yCoord - c2.yCoord
+            return (dx*dx + dy*dy) ** 0.5  # Euclidean distance
+
+        best_cell = min(neighbors, key=lambda n: dist(n, target_cell))
+        self.moveTo(best_cell)
+
     def getId(self):
         return self.id
     
     def getPrivateId(self):
         return self.privateID
     
+    def getAgentsHere(self, specie=None):
+        """
+        Get all agents in the same cell as this agent.
+
+        Args:
+            specie (str | None): If specified, only agents of this specie are returned.
+
+        Returns:
+            list[SGAgent]: Agents in the same cell.
+        """
+        if self.cell is None:
+            return []
+        return self.cell.getAgents(specie)
+
+    def nbAgentsHere(self, specie=None):
+        """
+        Get the number of agents in the same cell as this agent.
+
+        Args:
+            specie (str | None): If specified, only agents of this specie are counted.
+
+        Returns:
+            int: Number of matching agents in the same cell.
+        """
+        if self.cell is None:
+            return 0
+        return self.cell.nbAgents(specie)
+
+    def hasAgentsHere(self, specie=None):
+        """
+        Check if the cell containing this agent has at least one agent.
+
+        Args:
+            specie (str | None): If specified, check only for agents of this specie.
+
+        Returns:
+            bool: True if at least one matching agent is in the same cell, False otherwise.
+        """
+        if self.cell is None:
+            return False
+        return self.cell.hasAgents(specie)
+    
     def getNeighborCells(self,neighborhood=None):
-        return self.cell.getNeighborCells(neighborhood)
+        return self.cell.getNeighborCells(neighborhood=neighborhood)
     
     def getNeighborAgents(self,aSpecies=None,neighborhood=None):
                 
         neighborAgents=[]        
-        neighborAgents=[aCell.agents for aCell in self.getNeighborCells(neighborhood)]
+        neighborAgents=[aCell.agents for aCell in self.getNeighborCells(neighborhood=neighborhood)]
         
         if aSpecies:
             return self.filterBySpecies(aSpecies,neighborAgents)
         return neighborAgents
+    
+    def getClosestAgentMatching(self, agentSpecie, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
+        """
+        Find the closest neighboring agent of a given species from this agent's position,
+        with optional filtering conditions on the target agent and the target cell.
+
+        This method is a wrapper for SGCell.getClosestAgentMatching().
+
+        Args:
+            agentSpecie (str | SGAgentDef): 
+                The species of the agent to search for.
+            max_distance (int, optional): 
+                Maximum search radius. Defaults to 1.
+            conditions_on_agent (list[callable], optional): 
+                A list of lambda functions that each take an agent as argument and return True if valid.
+                All conditions must be satisfied for the agent to be valid.
+            conditions_on_cell (list[callable], optional): 
+                A list of lambda functions that each take a cell as argument and return True if valid.
+                All conditions must be satisfied for the cell to be valid.
+            return_all (bool, optional):
+                If True, returns all matching agents on the closest cell. 
+                If False (default), returns one random matching agent.
+
+        Returns:
+            SGAgent | list[SGAgent] | None:
+                - If return_all=False → a single agent (randomly chosen) that matches the conditions.
+                - If return_all=True → a list of matching agents.
+                - None if no match found.
+        """
+        
+        return self.cell.getClosestAgentMatching(
+            agentSpecie=agentSpecie,
+            max_distance=max_distance,
+            conditions_on_agent=conditions_on_agent,
+            conditions_on_cell=conditions_on_cell,
+            return_all=return_all
+        )
+
     
     def filterBySpecies(self,aSpecies,agents):
         agents=[]
