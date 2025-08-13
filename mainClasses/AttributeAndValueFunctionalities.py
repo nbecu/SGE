@@ -120,7 +120,14 @@ class AttributeAndValueFunctionalities():
             raise ValueError(f'copyValue: attribute "{source_att}" does not exist on {obj_id}')
         self.setValue(target_att, self.value(source_att))
         
-
+    def isValue(self,attribut_to_test,value_to_test):
+        """
+        Tests if the the value of an attribut if equal to a value
+        Args:
+            attribut_to_test (str): Name of the attribute
+            value_to_test (str): Value to be set. If a value is callable, it will be invoked and its return value will be used
+        """
+        return self.getValue(attribut_to_test) == value_to_test
 
     def saveValueInHistory(self,aAttribute,aValue):
         self.history["value"][aAttribute].append([self.model.timeManager.currentRoundNumber,self.model.timeManager.currentPhaseNumber,aValue])

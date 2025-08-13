@@ -57,6 +57,10 @@ def check_victory():
 
 endGameRule.addEndGameCondition_onLambda(lambda: check_victory(), name="Victoire")
 
+#affichage des phases de jeu
+time_label = myModel.newTimeLabel()
+time_label.moveToCoords(390,300)
+
 # Lancement du jeu
 myModel.setCurrentPlayer("Joueur 1")
 myModel.launch()

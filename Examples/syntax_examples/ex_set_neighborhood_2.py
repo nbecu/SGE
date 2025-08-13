@@ -5,10 +5,10 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(400,260, windowTitle="Set neighborhood - moore (8 neighbors) and open boundaries")
+myModel=SGModel(400,260, windowTitle="Set neighborhood - neumann (4 neighbors) and closed boundaries")
 
-# by default a grid has open boundaries and type of neighborhood is moore (8 neighbors)"
-Cell=myModel.newCellsOnGrid(7,4,"square",gap=0,size=50) #
+# To change neighborhood and boundaries settings, you can pass new values in arguments of the grid or of newCellsOnGrid()"
+Cell=myModel.newCellsOnGrid(7,4,"square",gap=0,size=50,neighborhood='neumann',boundaries='closed')
 
 Cell.setEntities("landForm","plain")
 Cell.setEntities_withColumn("landForm","mountain",1)

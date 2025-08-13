@@ -338,7 +338,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             y (int):  row number
         """
         if isinstance(y, int):
-            if x < 0 or y < 0 : return None
+            if x < 1 or y < 1 : return None
             aId= self.grid.cellIdFromCoords(x,y)
         else:
             aId=x
@@ -715,19 +715,57 @@ class SGCellDef(SGEntityDef):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)
         return ent
 
+    # def getCell(self, x, y=None):
+    #     if isinstance(y, int):
+    #         if x < 0 or y < 0:
+    #             return None
+    #         aId = self.cellIdFromCoords(x, y)
+    #     else:
+    #         aId = x
+    #     return next(filter(lambda ent: ent.id == aId, self.entities), None)
+    
     def getCell(self, x, y=None):
+        """
+        Retrieve a cell object from the grid.
+
+        Args:
+            x (int, tuple, list, or cell ID):
+                - If int and `y` is provided: interpreted as the column index (1-indexed).
+                - If tuple or list of two ints: interpreted as (column, row) coordinates (1-indexed).
+                - If int and `y` is None: interpreted directly as a cell ID.
+            y (int, optional):
+                Row index (1-indexed). Only used if `x` is an int representing a column.
+
+        Returns:
+            object or None: The cell object if found within the grid boundaries, otherwise None.
+
+        Notes:
+            - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows.
+            - If coordinates are outside this range, returns None.
+            - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).
+        """
+        # Allow passing coordinates as a tuple or list: getCell((col, row))
+        if isinstance(x, (tuple, list)) and len(x) == 2 and y is None:
+            x, y = x
+
         if isinstance(y, int):
-            if x < 0 or y < 0:
+            # Return None if outside the grid (1-indexed coordinates)
+            if x < 1 or x > self.grid.columns or y < 1 or y > self.grid.rows:
                 return None
             aId = self.cellIdFromCoords(x, y)
         else:
+            # Here 'x' is treated as the cell ID directly
             aId = x
-        return next(filter(lambda ent: ent.id == aId, self.entities), None)
+
+        return next((ent for ent in self.entities if ent.id == aId), None)
+
 
     def cellIdFromCoords(self, x, y):
-        if x < 0 or y < 0:
+        if x < 1 or y < 1:
             return None
-        return x + (self.grid.columns * (y - 1))
+        return (x - 1) + self.grid.columns * (y - 1)
+        # return x + (self.grid.columns * (y - 1))
+
 
     # Return the cell at specified coordinates
     def getEntity(self, x, y=None):
@@ -952,9 +990,16 @@ class SGAgentDef(SGEntityDef):
 
 
     # To randomly move all agents
-    def moveRandomly(self, numberOfMovement=1):
+    def moveRandomly(self, numberOfMovement=1,condition=None):
+        """
+        All agents of the species move randomly.
+
+        args:
+            numberOfMovement (int): number of movements in one action
+            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
+        """
         for aAgent in self.entities[:]: # Need to iterate on a copy of the entities list, because , due to the moveByRecreating, the entities list changes during the loop
-            aAgent.moveAgent(numberOfMovement=numberOfMovement)
+            aAgent.moveAgent(numberOfMovement=numberOfMovement,condition=condition)
 
 
 

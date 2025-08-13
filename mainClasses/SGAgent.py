@@ -370,15 +370,16 @@ class SGAgent(SGEntity):
             self.deleteLater()
         return theAgent
 
-    def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1):
+    def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1,condition=None):
         """
-        Model action to move an Agent.
+        An agent moves.
 
         args:
             method (str): random, cell, cardinal
             direction (str): if cardinal; North, South, West, East
             cellID (str): if cell; cellx-y
-            numberOfMouvement (int): number of movement in one action
+            numberOfMovement (int): number of movement in one action
+            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
         """
         for i in range(numberOfMovement):
 
@@ -392,11 +393,13 @@ class SGAgent(SGEntity):
             aGrid=originCell.grid
 
             if method == "random":
-                neighbors=originCell.getNeighborCells(aGrid.neighborhood )
+                neighbors=originCell.getNeighborCells(condition)
                 newCell=random.choice(neighbors)
 
             if method == "cell" or cellID is not None:
                 newCell=aGrid.getCell_withId(cellID)
+                if not condition(newCell):
+                    newCell = None
 
             if method == "cardinal" or direction is not None:
                 if direction =="North":
@@ -407,12 +410,24 @@ class SGAgent(SGEntity):
                     newCell=originCell.getNeighborE()
                 if direction =="West":
                     newCell=originCell.getNeighborW()
-            
+                if not condition(newCell):
+                    newCell = None
+
             if newCell is None:
                 pass
             else:
                 theAgent = self.moveTo(newCell)
         pass
+
+    def moveRandomly(self,numberOfMovement=1,condition=None):
+        """
+        An agent moves randomly in his direct neighborhood.
+        
+        args:
+            numberOfMovement (int): number of movement in one action
+            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
+        """
+        self.moveAgent(numberOfMovement=numberOfMovement,condition=condition)
                     
     def getId(self):
         return self.id

@@ -5,7 +5,7 @@ from mainClasses.SGModel import *
 
 # Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None,neighborhood='moore'):
+    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None,neighborhood='moore',boundaries='open'):
         super().__init__(parent, 0, 60, 0, 0)
         # Basic initialize
         self.zoom = 1
@@ -18,6 +18,7 @@ class SGGrid(SGGameSpace):
         self.size = size
         self.moveable = moveable
         self.neighborhood = neighborhood
+        self.boundary_condition = boundaries
         self.countPaintEvent=0
         self.frameMargin = 8
 
@@ -156,15 +157,14 @@ class SGGrid(SGGameSpace):
 
     # Return all the cells
     def getCells(self):
-        return self.model.getCells(self)
+        return self.model.getCellDef(self).entities
 
     # Return the cell
     def getCell_withId(self, aCellID):
         return self.model.getCell(self,aCellID)
 
     def cellIdFromCoords(self,x,y):
-        if x < 0 or y < 0 : return None
-        return x + (self.columns * (y -1))
+        return self.model.getCellDef(self).cellIdFromCoords(x,y)
     
 
     def getCell_withCoords(self,x,y):

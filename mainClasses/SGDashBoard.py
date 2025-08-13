@@ -76,10 +76,10 @@ class SGDashBoard(SGGameSpace):
             entityName (str) :  aEntityDef name, or aEntityDef, of a List of EntityDef or names, or None (only for score)
             method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
             attribute (str) : concerned attribute 
-            value (str, optionnal) : concerned value
+            value (str, optional) : concerned value
             color (Qt.color) : text color
-            logicOp (str, optionnal) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
-            title (str, optionnal) : name displayed on the dashboard
+            logicOp (str, optional) : only if method = thresoldToLogicOp, logical connector in ["greater","greater or equal","equal", "less or equal","less"]
+            title (str, optional) : name displayed on the dashboard
             displayRefresh (str) : instantaneous (default) or onTimeConditions
             onTimeConditions (dict, only if displayRefresh=atSpecifiedPhase) : a type and a specifiedValue
                 'onTimeConditions' a dict with type of conditions and specified value 
@@ -178,7 +178,7 @@ class SGDashBoard(SGGameSpace):
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -193,7 +193,7 @@ class SGDashBoard(SGGameSpace):
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -208,7 +208,7 @@ class SGDashBoard(SGGameSpace):
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -223,7 +223,7 @@ class SGDashBoard(SGGameSpace):
         Args :
             entity (str) : "cell"
             attribute (str) : concerned attribute 
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -239,7 +239,7 @@ class SGDashBoard(SGGameSpace):
             entity (str) : "cell"
             attribute (str) : concerned attribute 
             value (str) : value to do the logical test
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -255,7 +255,7 @@ class SGDashBoard(SGGameSpace):
             entity (str) : "cell"
             attribute (str) : concerned attribute 
             value (str) : value to do the logical test
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -271,7 +271,7 @@ class SGDashBoard(SGGameSpace):
             entity (str) : "cell"
             attribute (str) : concerned attribute 
             value (str) : for certain methods, a value is required
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)
@@ -286,7 +286,7 @@ class SGDashBoard(SGGameSpace):
         Args :
             entity (str) : "cell" or "agent" or aAgentSpecies
             attribute (str) : concerned attribute 
-            title (str, optionnal) : name displayed on the dashboard
+            title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color
             displayRefresh (str) :
             isDisplay (bool) : display on the dashboard (default : True)

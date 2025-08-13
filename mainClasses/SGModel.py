@@ -444,7 +444,7 @@ class SGModel(QMainWindow):
 
 # For create elements
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None,neighborhood='moore'):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None,neighborhood='moore',boundaries='open'):
         """
         Create a grid that contains cells
 
@@ -459,9 +459,12 @@ class SGModel(QMainWindow):
             name (st): name of the grid.
             backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
             defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.
-            neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore
+            neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore".
                 - "moore": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).
                 - "neumann": Von Neumann neighborhood (4 neighbors for square cells) , 3 or 4 for hexagonal cells, depending on orientation).
+            boundaries ("mopen","closed"): Boundary condition of the grid. Defaults to "open".
+                - "open": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.
+                - "closed": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).
 
         Returns:
             aCellDef: the cellDef that defines the cells that have been placed on a grid
@@ -472,7 +475,7 @@ class SGModel(QMainWindow):
             if name in self.gameSpaces:
                 name = name + 'bis'
         # Create a grid
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage,neighborhood)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage,neighborhood,boundaries)
 
         # Create a CellDef and populate the grid with cells from the newly created CellDef
         aCellDef = self.generateCellsForGrid(aGrid,defaultCellImage,name)
@@ -601,8 +604,8 @@ class SGModel(QMainWindow):
             shape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
             dictAttributes (dict) : all the species attributs with all the values
             defaultSize (int) : the species shape size (Default=10)
-            locationInEntity (str, optionnal) : topRight, topLeft, center, bottomRight, bottomLeft, random 
-            defaultImage (str, optionnal) : link to image
+            locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random 
+            defaultImage (str, optional) : link to image
         Return:
             a nested dict for the species
             a species
