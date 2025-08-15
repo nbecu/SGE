@@ -15,21 +15,11 @@ ProductionUnits=myModel.newCellsOnGrid(1,2,"square",size=45, gap=2, name="Produc
 ProductionUnits.setEntities("energy",lambda: random.randint(2,4)*10)
 
     # Define pov 
-def interpolate_color(value_min, value_max, color_min, color_max, a_value):
-    # Assurez-vous que la valeur intermédiaire se trouve entre les valeurs min et max
-    a_value = max(min(a_value, value_max), value_min)
-    # convertir les color_min et color_max en  un format rgb 
-    color_min_rgb = QColor(color_min).getRgb()
-    color_max_rgb = QColor(color_max).getRgb()
-    # Interpoler les composantes RGB
-    proportion = (a_value - value_min) / (value_max - value_min)
-    aList=[]
-    for i in range(0,3):
-        aList.append(int(color_min_rgb[i] + proportion * (color_max_rgb[i] - color_min_rgb[i])))
-    return QColor(*aList)
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,QColor.fromRgb(239, 255, 232),QColor.fromRgb(1,50,32),aVal) 
+aDict = generate_color_gradient(
+    QColor.fromRgb(239, 255, 232),QColor.fromRgb(1,50,32),
+    mapping={"values": list(range(0, 100, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
 ProductionUnits.newPov("energy","energy",aDict)
 
 

@@ -78,37 +78,45 @@ def first_item(d, default=None):
     return next(iter(d.items()), default)
 
 
-def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False):
+def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False, as_ranges=False):
     """
-    Generate a list or dict of QColor objects representing a color gradient.
+    Generate a color gradient as a list of QColor objects, a dict (mapping mode), or a list of (start, end, color) ranges.
 
-    Parameters
-    ----------
-    color1 : QColor, tuple, str, int (Qt.GlobalColor)
-        First color or reference color in single-color mode.
-    color2 : QColor, tuple, str, int (Qt.GlobalColor), optional
-        Second color for two-color interpolation. If None, single-color mode is used.
-    steps : int
-        Number of colors in normal mode (ignored in mapping mode).
-    reverse_gradient : bool
-        Reverse the generated colors.
-    mapping : dict, optional
-        If provided, switches to mapping mode.
-        Expected keys:
-            - "values": list of numeric values to map
-            - "value_min": minimum possible value
-            - "value_max": maximum possible value
-    as_dict : bool
-        If True and mapping mode is used, returns a dict {value: QColor}.
+    Modes
+    -----
+    1) Basic mode (no mapping):
+       - Two colors: gradient from color1 → color2 with `steps` samples.
+       - Single color (color2 is None): gradient light → color1 → dark (never pure white/black).
+         Extremes are trimmed to keep the reference hue visible.
 
-    Returns
-    -------
-    list[QColor] or dict
-        List of QColor objects, or dict if mapping mode with as_dict=True.
+    2) Mapping mode (with `mapping`):
+       - mapping = {"values": [...], "value_min": x, "value_max": y}
+       - If two colors: each value is mapped linearly between color1 and color2.
+       - If single color: each value is mapped along light → color1 → dark.
+       - reverse_gradient flips the mapping (i.e., t → 1-t).
+
+    Output
+    ------
+    - Default: list[QColor]
+    - as_dict=True: dict {value: QColor}  (mapping mode only)
+    - as_ranges=True: list[(start, end, QColor)] with the last end = float('inf') (mapping mode only)
+      Ranges are: [vmin, v1), [v1, v2), ..., [v_last, inf)
+
+    Accepted color formats
+    ----------------------
+    QColor, color name ("red"), hex "#RRGGBB[AA]", (R,G,B) or (R,G,B,A), Qt.GlobalColor (e.g., Qt.red)
+
+    Examples
+    --------
+    generate_color_gradient("green", steps=6)
+    generate_color_gradient("red", "blue", steps=8)
+    generate_color_gradient("red", "blue", mapping={"values":[0,50,100], "value_min":0, "value_max":100}, as_dict=True)
+    generate_color_gradient("green", mapping={"values":[1,3,5], "value_min":0, "value_max":7}, as_ranges=True)
     """
     from PyQt5.QtGui import QColor
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt  # <-- important pour Qt.GlobalColor
 
+    # --- robust converter ---
     def to_qcolor(value) -> QColor:
         if isinstance(value, QColor):
             return value
@@ -120,16 +128,22 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
                 return q
         if isinstance(value, (tuple, list)):
             return QColor(*value)
+
+        # PyQt5: Qt.GlobalColor sous forme d'int (ex: Qt.red == 7)
+        # PyQt6: réelle enum; QColor(value) sait généralement le gérer aussi
         try:
             return QColor(Qt.GlobalColor(int(value)))
         except Exception:
             pass
+
+        # Dernier recours: tenter QColor(value) (QRgb/int)
         try:
             q = QColor(value)
             if q.isValid():
                 return q
         except Exception:
             pass
+
         raise TypeError(f"Unsupported color type: {type(value)} ({value!r})")
 
     color1 = to_qcolor(color1)
@@ -145,68 +159,86 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
             raise ValueError("mapping['values'] must be a list or tuple")
         if vmin is None or vmax is None:
             raise ValueError("mapping must contain 'value_min' and 'value_max'")
-
-        colors = []
-
         if color2 is not None:
-            # Two-color mapping
-            for v in values:
-                val = max(min(v, vmax), vmin)
+            colors = []
+            for v in ([vmin]+values if as_ranges else values):
+                val = max(min(v, vmax), vmin)  # clamp
                 proportion = 0.0 if vmax == vmin else (val - vmin) / (vmax - vmin)
                 r = color1.red()   + (color2.red()   - color1.red())   * proportion
                 g = color1.green() + (color2.green() - color1.green()) * proportion
                 b = color1.blue()  + (color2.blue()  - color1.blue())  * proportion
                 colors.append(QColor(int(r), int(g), int(b)))
         else:
-            # Single-color mapping (light -> color -> dark)
-            extra_steps = 256  # large for smoothness
+            #Ajoute la fonctionnalité one color with mapping mode 
+            # raise ValueError("one color with mapping mode yet to be implemented")
+            # --- One color with mapping mode ---
+            n = len(values)
+            extra_steps = n + (3 if as_ranges else 2)
             mid_index = extra_steps // 2
-            gradient_full = []
 
+            tmp_colors = []
+            # white → color1
             for i in range(mid_index):
                 r = 255 + (color1.red() - 255) * i / (mid_index - 1)
                 g = 255 + (color1.green() - 255) * i / (mid_index - 1)
                 b = 255 + (color1.blue() - 255) * i / (mid_index - 1)
-                gradient_full.append(QColor(int(r), int(g), int(b)))
+                tmp_colors.append(QColor(int(r), int(g), int(b)))
+
+            # color1 → black
             for i in range(mid_index, extra_steps):
                 r = color1.red() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
                 g = color1.green() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
                 b = color1.blue() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
-                gradient_full.append(QColor(int(r), int(g), int(b)))
+                tmp_colors.append(QColor(int(r), int(g), int(b)))
 
-            gradient_full = gradient_full[1:-1]  # remove pure white/black
-
-            for v in values:
-                val = max(min(v, vmax), vmin)
-                proportion = 0.0 if vmax == vmin else (val - vmin) / (vmax - vmin)
-                index = int(proportion * (len(gradient_full) - 1))
-                colors.append(gradient_full[index])
+            # retirer pur blanc et pur noir
+            colors = tmp_colors[1:-1]
 
         if reverse_gradient:
             colors.reverse()
 
-        return dict(zip(values, colors)) if as_dict else colors
+        # return dict(zip(values, colors)) if as_dict else colors
+        if as_dict:
+            return dict(zip(values, colors))
+        elif as_ranges:
+            # Build len(values)+1 ranges: [vmin, v1), [v1, v2), ..., [v_last, inf)
+            ranges = []
+            # prev = vmin
+            for i in range(len(values) + 1):
+                start = values[i-1] if i > 0 else 0
+                end = values[i] if i < len(values) else float('inf')
+                ranges.append((start, end, colors[i]))
+            return ranges
+        else:
+            return colors
 
-    # === NORMAL MODE ===
+    # === NORMAL MODE (le reste de ta version) ===
     if steps < 2:
         raise ValueError("Number of steps must be at least 2.")
 
     gradient = []
     if color2 is None:
+        # Single color mode – extrémités atténuées (white → color1 → black), puis on enlève pur blanc/noir
         extra_steps = steps + 2
         mid_index = extra_steps // 2
+
+        # white → color1
         for i in range(mid_index):
             r = 255 + (color1.red() - 255) * i / (mid_index - 1)
             g = 255 + (color1.green() - 255) * i / (mid_index - 1)
             b = 255 + (color1.blue() - 255) * i / (mid_index - 1)
             gradient.append(QColor(int(r), int(g), int(b)))
+
+        # color1 → black
         for i in range(mid_index, extra_steps):
             r = color1.red() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
             g = color1.green() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
             b = color1.blue() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
             gradient.append(QColor(int(r), int(g), int(b)))
-        gradient = gradient[1:-1]
+
+        gradient = gradient[1:-1]  # retire pur blanc & pur noir
     else:
+        # color1 → color2
         for i in range(steps):
             t = i / (steps - 1)
             r = color1.red()   + (color2.red()   - color1.red())   * t

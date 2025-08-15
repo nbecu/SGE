@@ -19,23 +19,14 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 #Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
 Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
 
-def interpolate_color(value_min, value_max, color_min, color_max, a_value):
-    # Assurez-vous que la valeur intermédiaire se trouve entre les valeurs min et max
-    a_value = max(min(a_value, value_max), value_min)
-    # convertir les color_min et color_max en  un format rgb 
-    color_min_rgb = QColor(color_min).getRgb()
-    color_max_rgb = QColor(color_max).getRgb()
-    # Interpoler les composantes RGB
-    proportion = (a_value - value_min) / (value_max - value_min)
-    aList=[]
-    for i in range(0,3):
-        aList.append(int(color_min_rgb[i] + proportion * (color_max_rgb[i] - color_min_rgb[i])))
-    return QColor(*aList)
 
 
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,Qt.red,Qt.blue,aVal) 
+
+aDict = generate_color_gradient(
+    Qt.red, Qt.blue,
+    mapping={"values": list(range(0, 110, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
 Sheeps.newPov("Health","health",aDict)
 
 

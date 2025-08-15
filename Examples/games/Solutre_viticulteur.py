@@ -207,21 +207,31 @@ indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 # les jauges peuvent avoir des valeurs seuils qui déclenchent des actions
 # declaration des jauges (progressGauge)
 
-jaugeQDV_thresholds_value = [1, 3, 5, 6, 7] 
-colors = generate_color_gradient("green", steps= len(jaugeQDV_thresholds_value) + 1)
+# Construire colorRanges pour que la couleur des jauges varie en fonctions des valeurs seuils déterminées dans le jeu 
+jaugeQDV_colorRanges = [
+    (0, 2,QColor.fromRgb(198, 237, 195)), 
+    (3, 20,"green"),
+    (-3, -1, QColor.fromRgb(255, 204, 203)),
+    (-10, -4, "red") ]
+jaugeAtt_colorRanges = generate_color_gradient(
+    "green",
+    mapping={"values": [1, 3, 5, 6, 7], "value_min": 0, "value_max": 7},
+    as_ranges=True)
+negativeRanges = [
+    (-3, -1, QColor.fromRgb(255, 204, 203)),
+    (-10, -4, "red") ]
+jaugeAtt_colorRanges[:0] = negativeRanges
 
-# Construire colorRanges
-jaugeQDV_colorRanges = []
-for i in range(len(jaugeQDV_thresholds_value) + 1):
-    start = jaugeQDV_thresholds_value[i-1] if i > 0 else 0
-    end = jaugeQDV_thresholds_value[i] if i < len(jaugeQDV_thresholds_value) else float('inf')
-    jaugeQDV_colorRanges.append((start, end, colors[i]))
+jaugeEnv_colorRanges = generate_color_gradient(
+    "green",
+    mapping={"values": [6, 7, 15], "value_min": 0, "value_max": 10},
+    as_ranges=True)
+jaugeEnv_colorRanges[:0] = negativeRanges
 
-jaugeQDV_colorRanges.insert(0,(-10,0,"red"))
-
+# construire les jauges, en y integrant les colorRanges
 jaugeQDV=myModel.newProgressGauge(qualiteVie,-10,10,"Qualité de vie",colorRanges=jaugeQDV_colorRanges)
-jaugeEnv=myModel.newProgressGauge(environnement,-10,10,"Environnement",)
-jaugeAtt=myModel.newProgressGauge(attractivite,-10,10,"Attractivité")
+jaugeEnv=myModel.newProgressGauge(environnement,-10,10,"Environnement",colorRanges=jaugeEnv_colorRanges)
+jaugeAtt=myModel.newProgressGauge(attractivite,-10,10,"Attractivité",colorRanges=jaugeAtt_colorRanges)
 
 # déclaration des variables de simulation qui vont contenir les bonus des jauges
 bonusVin=myModel.newSimVariable("Bonus vin",0)
