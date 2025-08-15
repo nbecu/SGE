@@ -61,10 +61,9 @@ from mainClasses.gameAction.SGMove import *
 
 # By default, use a relative path based on the project structure
 path_icon = str(Path(__file__).parent.parent / 'icon')
-
-# Alternative method: uncomment the following line to use an absolute path
-# Example of absolute path: '/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/'
-# path_icon = '/Users/dmarage/Documents/_2_RECHERCHE/_1_PROJET/1_ENCOURS/2_SOLUTRE/_2025/SGE/icon/'
+# Alternative method: uncomment the following line, and use an absolute path
+# Example of absolute path: 
+# path_icon = '/Users/.../Documents/.../SGE/icon/'
 
 # Mother class of all the SGE System
 class SGModel(QMainWindow):
@@ -995,25 +994,6 @@ class SGModel(QMainWindow):
             disabled_color (str, optional): Background color when disabled. Same format as background_color
         """
 
-
-        #  # Create the text style
-        # textStyle_specs = ';'.join(filter(None, [
-        #     f"font-family: {font}" if font is not None else None,
-        #     f"font-size: {size}px" if size is not None else None,
-        #     f"color: {color}" if color is not None else None,
-        #     # f"text-decoration: {text_decoration}" if text_decoration is not None else None,
-        #     f"font-weight: {font_weight}" if font_weight is not None else None,
-        #     f"font-style: {font_style}" if font_style is not None else None
-        # ])) + ';'
-        # # textStyle_specs = f"font-family: {font}; font-size: {size}px; color: {color}; text-decoration: {text_decoration}; font-weight: {font_weight}; font-style: {font_style};"
-        # # Create the border style
-        # borderStyle_specs = ';'.join(filter(None, [
-        #     f"border: {border_size}px {border_style} {border_color}" if all(x is not None for x in [border_size, border_style, border_color]) else None
-        # ])) + ';'
-        # # borderStyle_specs = f"border: {border_size}px {border_style} {border_color};"        
-        # # Create the background style
-        # backgroundColor_specs = f"background-color: {background_color};"
-
         aButton = SGButton(self, method, text,
                         background_color=background_color,
                         background_image=background_image,
@@ -1216,86 +1196,7 @@ class SGModel(QMainWindow):
         return aProgressGauge
 
 
-
-
-    
-    # def newProgressGauge(self, simVar, title, maximum, minimum,
-    #                  orientation="horizontal", colorRanges=None, unit='',
-    #                  borderColor=Qt.black, backgroundColor=Qt.lightGray):
-    #     """
-    #     Create and register a new ProgressGauge with advanced options.
-
-    #     Args:
-    #         simVar: The simulation variable to be monitored.
-    #         title (str): The displayed title of the gauge.
-    #         maximum (float or int): The maximum value of the gauge.
-    #         minimum (float or int): The minimum value of the gauge.
-    #         orientation (str): Either 'horizontal' or 'vertical' for gauge orientation.
-    #         colorRanges (list of tuples, optional): Each tuple is
-    #             (min_value, max_value, css_color_string) defining dynamic color rules.
-    #         unit (str): Optional unit string appended to the displayed value.
-    #         borderColor (QColor): The border color of the gauge widget.
-    #         backgroundColor (QColor): The background color of the gauge widget.
-
-    #     Returns:
-    #         SGProgressGauge: The created ProgressGauge instance.
-    #     """
-
-    #     from mainClasses.SGProgressGauge import SGProgressGauge
-
-    #     # Create the ProgressGauge
-    #     aProgressGauge = SGProgressGauge(
-    #         self,
-    #         simVar,
-    #         title,
-    #         maximum,
-    #         minimum,
-    #         orientation=orientation,
-    #         colorRanges=colorRanges,
-    #         unit=unit,
-    #         borderColor=borderColor,
-    #         backgroundColor=backgroundColor
-    #     )
-
-    #     # Register the gauge in the model
-    #     self.gameSpaces[title] = aProgressGauge
-
-    #     # Add as a watcher for automatic updates (redundant but safe)
-    #     simVar.addWatcher(aProgressGauge)
-
-    #     # Position and layout adjustments
-    #     aProgressGauge.globalPosition()
-    #     self.applyAutomaticLayout()
-
-    #     # Initial refresh
-    #     aProgressGauge.checkAndUpdate()
-
-    #     return aProgressGauge
-
-
-    # def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
-    #     aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
-    #     if dictOfMappedValues is not None:
-    #         aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
-    #     self.gameSpaces[title] = aProgressGauge
-    #     aProgressGauge.globalPosition()
-    #     self.applyAutomaticLayout()
-    #     aProgressGauge.checkAndUpdate()
-    #     return aProgressGauge
-    # def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
-    #     aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
-    #     self.gameSpaces[title] = aProgressGauge
-    #     if dictOfMappedValues is not None: aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
-    #     simVar.addWatcher(aProgressGauge)  # Ajout de l'observateur
-    #     # Realocation of the position thanks to the layout
-    #     aProgressGauge.globalPosition()
-    #     self.applyAutomaticLayout()
-    #     aProgressGauge.checkAndUpdate()
-
-    #     return aProgressGauge   
-    # ---------
 # Layout
-
     # To get a gameSpace in particular
 
     def getGameSpaceByName(self, name):

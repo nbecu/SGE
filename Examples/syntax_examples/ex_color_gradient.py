@@ -35,14 +35,18 @@ def interpolate_color(value_min, value_max, color_min, color_max, a_value):
     return QColor(*aList)
 
 
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,Qt.red,Qt.blue,aVal) 
-Sheeps.newPov("Health","health",aDict)
+aDict = generate_color_gradient(
+    Qt.red, Qt.blue,
+    mapping={"values": list(range(0, 110, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
+Sheeps.newPov("Health", "health", aDict)
 
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,Qt.yellow,QColor.fromRgb(1,80,32),aVal) 
+aDict = generate_color_gradient(
+    Qt.yellow, QColor.fromRgb(1,80,32),
+    mapping={"values": list(range(0, 110, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
 Sheeps.newPov("Hunger","hunger",aDict)
 
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":70,"hunger":20})

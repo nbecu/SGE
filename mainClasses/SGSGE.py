@@ -3,6 +3,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mainClasses.SGModel import SGModel
+from mainClasses.SGExtensions import *
 from mainClasses.SGCell import SGCell
 from PyQt5 import QtWidgets 
 from PyQt5.QtGui import *
@@ -15,6 +16,7 @@ from tkinter import simpledialog
 import pandas as pd
 import ast as ast
 import math as math
+import copy
 
 # Helpers available to modelers when importing * from this module
 def copyValue(source_att, target_att):

@@ -75,7 +75,7 @@ class SGProgressGauge(SGGameSpace):
         # Initial value update
         self.checkAndUpdate()
 
-         # ajust the size of the label according to its style font and border. Then redefine the size of the widget according to the size of the geometry of the label 
+         # adjust the size of the label according to its style font and border. Then redefine the size of the widget according to the size of the geometry of the label 
         self.adjustSize()   
         self.setFixedSize(self.geometry().size())
 
@@ -193,8 +193,7 @@ class SGProgressGauge(SGGameSpace):
         """Set the fill color of the progress bar without altering widget border/background."""
         if not isinstance(color, str):
             color = QColor(color).name()  # Convert QColor or Qt.GlobalColor to CSS string
-
-        # On ne modifie que la partie chunk
+        # just modify the chunk so that it does not alter other colors
         self.progress_bar.setStyleSheet(
             f"""
             QProgressBar::chunk {{
@@ -202,13 +201,6 @@ class SGProgressGauge(SGGameSpace):
             }}
             """
         )
-
-    # def setBarColor(self, color):
-    #     """Set the progress bar's color."""
-    #     palette = self.progress_bar.palette()
-    #     palette.setColor(QPalette.Highlight, QColor(color))
-    #     self.progress_bar.setPalette(palette)
-    #     self.progress_bar.show()
 
     def setThresholdValue(self, value, on_up=None, on_down=None):
         """Set callbacks for when the variable crosses a threshold."""

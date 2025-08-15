@@ -206,7 +206,20 @@ indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 # celles ci sont mises à jour automatiquement lorsqu'une variable de simulation est modifiée
 # les jauges peuvent avoir des valeurs seuils qui déclenchent des actions
 # declaration des jauges (progressGauge)
-jaugeQDV=myModel.newProgressGauge(qualiteVie,-10,10,"Qualité de vie",colorRanges=[(-10,0,"red"),(0,10,"green")])
+
+jaugeQDV_thresholds_value = [1, 3, 5, 6, 7] 
+colors = generate_color_gradient("green", steps= len(jaugeQDV_thresholds_value) + 1)
+
+# Construire colorRanges
+jaugeQDV_colorRanges = []
+for i in range(len(jaugeQDV_thresholds_value) + 1):
+    start = jaugeQDV_thresholds_value[i-1] if i > 0 else 0
+    end = jaugeQDV_thresholds_value[i] if i < len(jaugeQDV_thresholds_value) else float('inf')
+    jaugeQDV_colorRanges.append((start, end, colors[i]))
+
+jaugeQDV_colorRanges.insert(0,(-10,0,"red"))
+
+jaugeQDV=myModel.newProgressGauge(qualiteVie,-10,10,"Qualité de vie",colorRanges=jaugeQDV_colorRanges)
 jaugeEnv=myModel.newProgressGauge(environnement,-10,10,"Environnement",)
 jaugeAtt=myModel.newProgressGauge(attractivite,-10,10,"Attractivité")
 
