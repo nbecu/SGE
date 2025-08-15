@@ -4,38 +4,9 @@ from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush
 from mainClasses.SGGameSpace import SGGameSpace
 
 class SGProgressGauge(SGGameSpace):
-    """
-    A progress gauge widget for monitoring simulation variables.
-    This widget displays a progress bar (horizontal or vertical) that reflects the value of 
-    a linked simulation variable.
-    The gauge can also trigger callbacks when specific thresholds are crossed.
-    It supports optional titles, value labels, units, color ranges for dynamic coloring, and custom sizes. 
-
-    Args:
-        parent (QWidget): Parent widget.
-        simVar (object): a simulation variable instance
-        min_value (float or int, optional): Minimum value of the gauge. Defaults to 0.
-        max_value (float or int, optional): Maximum value of the gauge. Defaults to 100.
-        title (str, optional): Text label for the gauge. Defaults to None.
-        orientation (str, optional): "horizontal" or "vertical". Defaults to "horizontal".
-        colorRanges (list of tuple, optional): List of (min_value, max_value, color_string) for dynamic coloring. Defaults to None.
-        unit (str, optional): Unit suffix for the displayed value. Defaults to "".
-        borderColor (QColor or Qt.GlobalColor, optional): Border color of the widget. Defaults to Qt.black.
-        backgroundColor (QColor or Qt.GlobalColor, optional): Background color of the widget. Defaults to Qt.white.
-        bar_width (int, float, or str, optional): Width of the progress bar in pixels, or "fit title size" for vertical mode. Defaults to 25.
-        bar_length (int, optional): Length of the progress bar in pixels. Defaults to 180 for horizontal and 160 for vertical.
-        title_position (str, optional): "above" or "below" the gauge. Defaults to "above".
-        display_value_on_top (bool, optional): Whether to display the numeric value on top of the progress bar. Defaults to True.
-
-    Methods:
-        setThresholdValue(value, on_up=None, on_down=None):
-            Define callbacks to execute when a value threshold is crossed.
-       
-    """
     def __init__(self, parent, simVar, min_value=0, max_value=100, title = None, orientation='horizontal',
                  colorRanges=None, unit="", borderColor=Qt.black, backgroundColor=Qt.white,
                  bar_width=25,bar_length=None, title_position ='above',display_value_on_top = True):
-        
         
         # Call SGGameSpace constructor with custom background color
         super().__init__(parent, 0, 60, 0, 0, True, backgroundColor)
@@ -74,11 +45,6 @@ class SGProgressGauge(SGGameSpace):
 
         # Initial value update
         self.checkAndUpdate()
-
-         # ajust the size of the label according to its style font and border. Then redefine the size of the widget according to the size of the geometry of the label 
-        self.adjustSize()   
-        self.setFixedSize(self.geometry().size())
-
 
     def init_ui(self):
         """Initialize the progress gauge UI components."""
@@ -125,25 +91,34 @@ class SGProgressGauge(SGGameSpace):
             layout.addWidget(self.progress_bar, alignment=Qt.AlignCenter)
             if self.display_value_on_top:
                 progress_bar_layout = QVBoxLayout()
-                #Removes the margins to handle cases where the text overflows the progress bar size.
-                progress_bar_layout.setContentsMargins(0, 0, 0, 0)
+                progress_bar_layout.setContentsMargins(0, 0, 0, 0)  # Supprime les marges pour gérer le cas où le texte déborde de la taille de la progressBar
                 progress_bar_layout.addWidget(self.value_label)
                 self.progress_bar.setLayout(progress_bar_layout)
             if self.title_text is not None and self.title_position == 'below' : layout.addWidget(self.title_label)
+            # layout.addWidget(self.value_label)
+            # self.value_label.setParent(self.progress_bar)
+            # self.value_label.move(int(self.progress_bar.width()/2)-5,int(self.progress_bar.height()/2))
 
 
         else:
             vbox = QVBoxLayout()
             if self.title_text is not None and self.title_position == 'above' : vbox.addWidget(self.title_label)
-            vbox.addWidget(self.progress_bar, alignment=Qt.AlignCenter)
+            vbox.addWidget(self.progress_bar)
             if self.display_value_on_top:
                 progress_bar_layout = QVBoxLayout()
-                #Removes the margins to handle cases where the text overflows the progress bar size.
-                progress_bar_layout.setContentsMargins(0, 0, 0, 0)
+                progress_bar_layout.setContentsMargins(0, 0, 0, 0)  # Supprime les marges pour gérer le cas où le texte déborde de la taille de la progressBar
                 progress_bar_layout.addWidget(self.value_label)
                 self.progress_bar.setLayout(progress_bar_layout)       
             if self.title_text is not None and self.title_position == 'below' : vbox.addWidget(self.title_label)
             layout.addLayout(vbox)
+            
+            # vbox = QVBoxLayout()
+            # vbox.addWidget(self.label_widget)
+            # self.value_label.setParent(self.progress_bar)
+            # value_label_y_coord = int(self.progress_bar.height()/4) if self.progress_bar.height() >= 25 else 0
+            # self.value_label.move(int(self.progress_bar.width()/2),value_label_y_coord)
+            # vbox.addWidget(self.progress_bar)
+            # layout.addLayout(vbox)
 
         self.setLayout(layout)
 
@@ -181,6 +156,7 @@ class SGProgressGauge(SGGameSpace):
             for (low, high, color) in self.colorRanges:
                 if low <= val <= high:
                     self.setBarColor(color)
+                    break
 
         # Threshold callbacks
         for threshold_value, callbacks in self.thresholds.items():
@@ -189,26 +165,12 @@ class SGProgressGauge(SGGameSpace):
                 up_cb()
             elif val < threshold_value and down_cb:
                 down_cb()
+
     def setBarColor(self, color):
-        """Set the fill color of the progress bar without altering widget border/background."""
-        if not isinstance(color, str):
-            color = QColor(color).name()  # Convert QColor or Qt.GlobalColor to CSS string
-
-        # On ne modifie que la partie chunk
-        self.progress_bar.setStyleSheet(
-            f"""
-            QProgressBar::chunk {{
-                background-color: {color};
-            }}
-            """
-        )
-
-    # def setBarColor(self, color):
-    #     """Set the progress bar's color."""
-    #     palette = self.progress_bar.palette()
-    #     palette.setColor(QPalette.Highlight, QColor(color))
-    #     self.progress_bar.setPalette(palette)
-    #     self.progress_bar.show()
+        """Set the progress bar's color."""
+        palette = self.progress_bar.palette()
+        palette.setColor(QPalette.Highlight, QColor(color))
+        self.progress_bar.setPalette(palette)
 
     def setThresholdValue(self, value, on_up=None, on_down=None):
         """Set callbacks for when the variable crosses a threshold."""

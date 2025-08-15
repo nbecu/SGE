@@ -755,7 +755,7 @@ class SGModel(QMainWindow):
         """
         To add a model action which can be executed during a modelPhase
         args:
-            actions (lambda function): Actions the cell performs during the phase (add, delete, move...)
+            actions (lambda function): Actions the agent performs during the phase (add, delete, move...)
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
@@ -1150,17 +1150,149 @@ class SGModel(QMainWindow):
         msg.exec_()
         return
     
-    def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
-        aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
+    def newProgressGauge(self,simVar,minimum=0,maximum=100, title=None,orientation="horizontal",colorRanges=None,unit="",
+                         borderColor=Qt.black,backgroundColor=Qt.white,bar_width=25,bar_length=None,title_position='above',display_value_on_top=True
+    ):
+        """
+        Create a progress gauge widget for monitoring simulation variables.
+        This widget displays a progress bar (horizontal or vertical) that reflects the value of 
+        a linked simulation variable.
+        The gauge can also trigger callbacks when specific thresholds are crossed.
+        It supports optional titles, value labels, units, color ranges for dynamic coloring, and custom sizes.
+
+        Args:
+            simVar (object): The simulation variable to be monitored.
+            minimum (float or int, optional): Minimum value of the gauge. Defaults to 0.
+            maximum (float or int, optional): Maximum value of the gauge. Defaults to 100.
+            title (str, optional): The displayed title of the gauge. Defaults to None.
+            orientation (str, optional): Either 'horizontal' or 'vertical'. Defaults to 'horizontal'.
+            colorRanges (list of tuple, optional): Each tuple is 
+                (min_value, max_value, css_color_string) defining dynamic color rules.
+            unit (str, optional): Unit string to display next to the value. Defaults to "".
+            borderColor (QColor or Qt.GlobalColor, optional): The border color of the gauge widget. Defaults to Qt.black.
+            backgroundColor (QColor or Qt.GlobalColor, optional): The background color of the gauge widget. Defaults to Qt.white.
+            bar_width (int, float, or str, optional): Width of the progress bar in pixels, or "fit title size" for vertical mode. Defaults to 25.
+            bar_length (int, optional): Length of the progress bar in pixels. Defaults to 180 for horizontal and 160 for vertical.
+            title_position (str, optional): "above" or "below" the gauge. Defaults to "above".
+            display_value_on_top (bool, optional): Whether to display the numeric value on top of the progress bar. Defaults to True.
+
+        methods:
+            setThresholdValue(value, on_up=None, on_down=None):
+                Allow to define callbacks to execute when a value threshold is crossed.
+                ex. aGauge1.setThresholdValue(8, on_up= lambda: print("⚠️ Surchauffe détectée !"))
+                ex. aGauge2.setThresholdValue(2, on_down= lambda: myAgents.moveRandomly()))
+        Returns:
+            SGProgressGauge: The created SGProgressGauge instance.
+        """
+
+        # Create the ProgressGauge with same defaults as the class
+        aProgressGauge = SGProgressGauge(
+            parent=self,
+            simVar=simVar,
+            min_value=minimum,
+            max_value=maximum,
+            title=title,
+            orientation=orientation,
+            colorRanges=colorRanges,
+            unit=unit,
+            borderColor=borderColor,
+            backgroundColor=backgroundColor,
+            bar_width=bar_width,
+            bar_length=bar_length,
+            title_position=title_position,
+            display_value_on_top=display_value_on_top
+        )
+        
+        # Register the gauge in the model
         self.gameSpaces[title] = aProgressGauge
-        if dictOfMappedValues is not None: aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
-        simVar.addWatcher(aProgressGauge)  # Ajout de l'observateur
-        # Realocation of the position thanks to the layout
+
+        # Position and layout adjustments
         aProgressGauge.globalPosition()
         self.applyAutomaticLayout()
+
+        # Initial refresh
         aProgressGauge.checkAndUpdate()
 
-        return aProgressGauge   
+        return aProgressGauge
+
+
+
+
+    
+    # def newProgressGauge(self, simVar, title, maximum, minimum,
+    #                  orientation="horizontal", colorRanges=None, unit='',
+    #                  borderColor=Qt.black, backgroundColor=Qt.lightGray):
+    #     """
+    #     Create and register a new ProgressGauge with advanced options.
+
+    #     Args:
+    #         simVar: The simulation variable to be monitored.
+    #         title (str): The displayed title of the gauge.
+    #         maximum (float or int): The maximum value of the gauge.
+    #         minimum (float or int): The minimum value of the gauge.
+    #         orientation (str): Either 'horizontal' or 'vertical' for gauge orientation.
+    #         colorRanges (list of tuples, optional): Each tuple is
+    #             (min_value, max_value, css_color_string) defining dynamic color rules.
+    #         unit (str): Optional unit string appended to the displayed value.
+    #         borderColor (QColor): The border color of the gauge widget.
+    #         backgroundColor (QColor): The background color of the gauge widget.
+
+    #     Returns:
+    #         SGProgressGauge: The created ProgressGauge instance.
+    #     """
+
+    #     from mainClasses.SGProgressGauge import SGProgressGauge
+
+    #     # Create the ProgressGauge
+    #     aProgressGauge = SGProgressGauge(
+    #         self,
+    #         simVar,
+    #         title,
+    #         maximum,
+    #         minimum,
+    #         orientation=orientation,
+    #         colorRanges=colorRanges,
+    #         unit=unit,
+    #         borderColor=borderColor,
+    #         backgroundColor=backgroundColor
+    #     )
+
+    #     # Register the gauge in the model
+    #     self.gameSpaces[title] = aProgressGauge
+
+    #     # Add as a watcher for automatic updates (redundant but safe)
+    #     simVar.addWatcher(aProgressGauge)
+
+    #     # Position and layout adjustments
+    #     aProgressGauge.globalPosition()
+    #     self.applyAutomaticLayout()
+
+    #     # Initial refresh
+    #     aProgressGauge.checkAndUpdate()
+
+    #     return aProgressGauge
+
+
+    # def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+    #     aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
+    #     if dictOfMappedValues is not None:
+    #         aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
+    #     self.gameSpaces[title] = aProgressGauge
+    #     aProgressGauge.globalPosition()
+    #     self.applyAutomaticLayout()
+    #     aProgressGauge.checkAndUpdate()
+    #     return aProgressGauge
+    # def newProgressGauge(self, simVar, title, maximum, minimum, dictOfMappedValues=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+    #     aProgressGauge = SGProgressGauge(self, simVar, title, maximum, minimum, borderColor, backgroundColor)
+    #     self.gameSpaces[title] = aProgressGauge
+    #     if dictOfMappedValues is not None: aProgressGauge.setDictOfMappedValues(dictOfMappedValues)
+    #     simVar.addWatcher(aProgressGauge)  # Ajout de l'observateur
+    #     # Realocation of the position thanks to the layout
+    #     aProgressGauge.globalPosition()
+    #     self.applyAutomaticLayout()
+    #     aProgressGauge.checkAndUpdate()
+
+    #     return aProgressGauge   
     # ---------
 # Layout
 

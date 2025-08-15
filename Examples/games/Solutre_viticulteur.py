@@ -205,12 +205,10 @@ indEnvironnement=DashBoardInd.addIndicatorOnSimVariable(environnement)
 # #* On affiche les valeurs des variables de simulation par des jauges : 
 # celles ci sont mises à jour automatiquement lorsqu'une variable de simulation est modifiée
 # les jauges peuvent avoir des valeurs seuils qui déclenchent des actions
-# les valeurs de la jauge peuvent etre mappé (ajusté) aux valeurs de la variable de simulation
-dictOfMappedValues={"-2":0,"-1":8,"0":17,"1":25,"2":33,"3":42,"4":50,"5":58,"6":67,"7":75,"8":83,"9":92,"10":100}
 # declaration des jauges (progressGauge)
-jaugeQDV=myModel.newProgressGauge(qualiteVie,"Qualité de vie",10,-2,dictOfMappedValues)
-jaugeEnv=myModel.newProgressGauge(environnement,"Environnement",10,-2,dictOfMappedValues)
-jaugeAtt=myModel.newProgressGauge(attractivite,"Attractivité",10,-2,dictOfMappedValues)
+jaugeQDV=myModel.newProgressGauge(qualiteVie,-10,10,"Qualité de vie",colorRanges=[(-10,0,"red"),(0,10,"green")])
+jaugeEnv=myModel.newProgressGauge(environnement,-10,10,"Environnement",)
+jaugeAtt=myModel.newProgressGauge(attractivite,-10,10,"Attractivité")
 
 # déclaration des variables de simulation qui vont contenir les bonus des jauges
 bonusVin=myModel.newSimVariable("Bonus vin",0)

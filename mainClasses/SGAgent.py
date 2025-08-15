@@ -420,6 +420,7 @@ class SGAgent(SGEntity):
             else:
                 theAgent = self.moveTo(newCell)
         pass
+        return newCell
 
     def moveRandomly(self,numberOfMovement=1,condition=None):
         """

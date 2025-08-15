@@ -363,7 +363,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         actions = actions or []
         conditions = conditions or []
         feedbacks = feedbacks or []
-        model_action = SGModelAction_OnEntities(self.model, actions, conditions, feedbacks, (lambda: self.getEntities()))
+        model_action = SGModelAction_OnEntities(sgModel=self.model, actions=actions, conditions=conditions, feedbacks=feedbacks, entities= (lambda: self.getEntities()))
         self.model.id_modelActions += 1
         model_action.id = self.model.id_modelActions
         return model_action
