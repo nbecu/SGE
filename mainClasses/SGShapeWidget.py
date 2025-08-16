@@ -1,6 +1,11 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 import math
 
+
+""" ---------------------------------------------------------------------------
+This class is a work in progress.
+It is no used yet in SGE.
+"""
 class SGShapeWidget(QtWidgets.QWidget):
     def __init__(self, shape=None, size=None, position=(0,0), parent=None):
         super().__init__(parent)

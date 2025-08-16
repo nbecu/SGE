@@ -42,7 +42,6 @@ class SGCustomZone(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
-
         # Dessiner la bordure
         painter.setPen(QtGui.QPen(QtGui.QColor(self.border_color), self.border_size))
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
@@ -50,11 +49,13 @@ class SGCustomZone(QtWidgets.QWidget):
         # Dessiner les éléments
         for element in self.elements:
             if element[0] == "text":
-                if len(element[1]) == 3:
-                    x, y, text = element[1]
-                    print(f"Drawing text at ({x}, {y}): {text}")  # Debugging line
+                if len(element[1]) == 4:
+                    x, y, text, textColor = element[1]
+                    previous_pen = painter.pen()  # Sauvegarde le QPen entier juste avant de le modifier
                     painter.setFont(QtGui.QFont(self.text_style))
+                    painter.setPen(QtGui.QColor(textColor))  # Définit la couleur du texte
                     painter.drawText(int(x), int(y), text)
+                    painter.setPen(previous_pen)  # Rétablit le QPen précédent
                 else:
                     print(f"Unexpected element format for text: {element[1]}")
             elif element[0] == "image":
@@ -65,11 +66,11 @@ class SGCustomZone(QtWidgets.QWidget):
                     painter.drawRect(int(element[2][0]), int(element[2][1]), int(element[3][0]), int(element[3][1]))  # (x, y, width, height)
                 elif element[1] == "triangle":
                     points = [QtCore.QPoint(int(element[2][0]), int(element[2][1])),
-                              QtCore.QPoint(int(element[2][0] + element[3][0]), int(element[2][1])),
-                              QtCore.QPoint(int(element[2][0] + element[3][0] // 2), int(element[2][1] - element[3][1]))]
+                            QtCore.QPoint(int(element[2][0] + element[3][0]), int(element[2][1])),
+                            QtCore.QPoint(int(element[2][0] + element[3][0] // 2), int(element[2][1] - element[3][1]))]
                     painter.drawPolygon(QtGui.QPolygon(points))
-
         painter.end()
+
 
     def clear_elements(self):
         """Efface tous les éléments de la zone."""

@@ -12,7 +12,10 @@ from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTimeManager import*
 
 
-
+""" ---------------------------------------------------------------------------
+This class is currently under construction.
+Do not rely on its current implementation.
+"""
 class SGFormatDataHistory():
     def __init__(self, model):
         self.model = model

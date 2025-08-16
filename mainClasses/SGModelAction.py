@@ -104,8 +104,7 @@ class SGModelAction():
         self.actions = self.actions + [lambda : self.model.grid.setRandomEntities(att, value,nb)]
         return self
 
-  
-            
+              
     
 
 class SGModelAction_OnEntities(SGModelAction):

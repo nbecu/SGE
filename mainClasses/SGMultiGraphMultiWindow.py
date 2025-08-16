@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+""" ---------------------------------------------------------------------------
+This class is a work in progress.
+It is no used yet in SGE.
+"""
 class SGMultiGraphMultiWindow:
     def __init__(self):
         self.initView()

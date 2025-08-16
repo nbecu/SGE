@@ -4,6 +4,11 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
+
+""" ---------------------------------------------------------------------------
+This class is a work in progress.
+It is no used yet in SGE.
+"""
 class SGMultiGraph():
     def __init__(self):
         #super(SGMultiGraph, self).__init__()

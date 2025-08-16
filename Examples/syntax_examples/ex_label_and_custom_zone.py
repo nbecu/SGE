@@ -45,10 +45,10 @@ zone.setGeometry(350, 80, 300, 200)
 
 # Ajout d'éléments à la zone
 zone.add_text("Hello, World!", (10, 30))
-zone.add_text("texte en couleur", (10, 80),Qt.green)
+zone.add_text("Colored text", (10, 50),Qt.green)
 
 zone.add_image("icon/MTZC/bovin.png", (10, 60))
-zone.add_shape("rectangle", (10, 100), (100, 50))  # (x, y, width, height)
+zone.add_shape("rectangle", (10, 130), (100, 50))  # (x, y, width, height)
 zone.add_shape("triangle", (150, 100), (100, 50))  # (x, y, size)
 
 
