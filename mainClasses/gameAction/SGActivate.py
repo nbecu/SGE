@@ -33,21 +33,6 @@ class SGActivate(SGAbstractAction):
                 raise ValueError('the callable method as several arguments')
             return
 
-        raise ValueError('le reste de la méthode est censé etre supprimé. Pour l''execution passe ici ??')
-        try:
-            # todo Obsolete . Should delete
-            gameScript = self.logFromModeler(sys.argv[0])
-            if hasattr(gameScript, method):
-                func = getattr(gameScript, method)
-                if callable(func):
-                    func(aTargetEntity)
-                    if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
-                else:
-                    print(f"{method} n'est pas une fonction exécutable.")
-            else:
-                print(f"Fonction {method} introuvable dans le script.")
-        except FileNotFoundError as e:
-            print(e)
     
     def logFromModeler(self, fileName):
         # Import the method by name from game file
