@@ -54,12 +54,11 @@ Player1.addGameAction(Create1)
 Player1ControlPanel = Player1.newControlPanel("Actions Pêcheur")
 
 Player2= myModel.newPlayer("Gestionnaire",attributesAndValues=None)
-Update1=myModel.newModifyAction("Cell",{"incitation":"bonus"},listOfRestriction=[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
-Update2=myModel.newModifyAction("Cell",{"incitation":"malus"},listOfRestriction=[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
+Update1=myModel.newModifyAction(Cells,{"incitation":"bonus"},conditions=[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
+Update2=myModel.newModifyAction(Cells,{"incitation":"malus"},conditions=[lambda: (Cells.nb_withValue("incitation","bonus")+Cells.nb_withValue("incitation","malus"))<30])
 Player2.addGameAction(Update1)
 Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
-
 
 theTextBox=myModel.newTextBox("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?")
 
@@ -113,7 +112,7 @@ def renouvellementStock_port():
         benefBateau=0
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
-        navire.moveAgent(method='cell',cellID=10)
+        navire.moveAgent(cellID=10)
 
         
 

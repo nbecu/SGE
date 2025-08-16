@@ -32,7 +32,9 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-aModelAction5=myModel.newModelAction(lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"))
+aModelAction5=myModel.newModelAction([lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"),
+                                      lambda: Sheeps.getEntity(2).moveAgent(method="cardinal",direction="North")
+                                      ])
 myModel.timeManager.newModelPhase(aModelAction5)
 myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 

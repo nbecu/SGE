@@ -8,7 +8,7 @@ monApp = QtWidgets.QApplication([])
 
 random.seed(13)
 myModel = SGModel(
-    900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
+    900, 900, x=5, windowTitle="MQTT Example - Player 1", typeOfLayout="grid")
 
 Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,name='grid1')
 Cell.setEntities("Resource", 2)
@@ -38,8 +38,8 @@ Player1.addGameAction(myModel.newMoveAction(Workers, 5))
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", showAgentsWithNoAtt=True)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newModifyAction("Cell", {"ProtectionLevel": "Reserve"}, 3))
-Player2.addGameAction(myModel.newModifyAction("Cell", {"ProtectionLevel": "Free"}))
+Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))
+Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
 myModel.timeManager.newPlayPhase('Phase 1', [Player1,Player2])
@@ -55,9 +55,9 @@ myModel.setCurrentPlayer('Player 1')
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
-    title='Début du jeu', textToWrite="Bonjour et bienvenue dans RehabGame !")
+    title='Début du jeu', textToWrite="Welcome Player 1")
 
-TextBox.addText("J'espère que vous allez bien!!!", toTheLine=True)
+TextBox.addText("A mqtt example", toTheLine=True)
 
 globalScore=myModel.newSimVariable("Global Score",0)
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)

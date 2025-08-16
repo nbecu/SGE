@@ -13,7 +13,7 @@ myModel = SGModel(1100, 900,  windowTitle="Game example")
 
 
 # STEP2 Grid and Cells
-Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2)
+Cell = myModel.newCellsOnGrid(7, 7, "square", size=60)
 Cell.setEntities("Resource", 2)
 Cell.setEntities("ProtectionLevel", "Free")
 Cell.setRandomEntities("Resource", 3, 7)
@@ -24,7 +24,8 @@ Cell.setRandomEntities("ProtectionLevel", "Reserve", 1)
 
 
 Cell.newPov("Resource", "Resource", {3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow, 0: Qt.white})
-Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
+Cell.newBorderPovColorAndWidth("ProtectionLevel", "ProtectionLevel", {"Reserve": [Qt.magenta,5], "Free": [Qt.black,1]})
+Cell.displayBorderPov("ProtectionLevel")
 
 # STEP3 Agents
 Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", defaultColor=Qt.gray)

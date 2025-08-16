@@ -5,8 +5,10 @@ from mainClasses.SGSGE import *
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtCore import QPoint
 import random
-
 monApp=QtWidgets.QApplication([])
+
+#********************************************************************
+# Initialisation de l'application
 
 myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=7,y=7)
     
@@ -449,6 +451,7 @@ def updateSurfaceZH(typeZH):
         pZH[typeZH].incValue("surface actuelle",int(surface_demi_herbier_diop / 2))    
 
 def updateSurfaceAllZH():
+    """Met à jour la surface de toutes les ZH."""
     for typeZH in ZHs.keys():
             if typeZH in ['demi-herbier', 'mer', 'vide','pres sales Diop','demi-herbier Diop']: continue
             updateSurfaceZH(typeZH)
@@ -501,19 +504,14 @@ cases.displayBorderPov("bords")
 
 surfaceCorrespondantAuPotentielAccueilInitial ={
     'marais salee' : 6,
-    'marais salant' : 4,
-    
-    'marais saumatre d''Huyez' : 8 ,
-    
+    'marais salant' : 4,    
+    'marais saumatre d''Huyez' : 8 ,  
     # 'herbier' : 2,
-    
     'vasiere nue Diop' : 18
-
     }
 
 #********************************************************************
 # construct plateaux des zones humides 
-
 
 # Construction automatique du nouveau dictionnaire avec QPixmap
 images_action2_qpixmap = {key: QPixmap(f"./icon/MTZC/{value}") for key, value in images_action2.items()}
@@ -639,22 +637,6 @@ for i, aZHtype in enumerate(ordreZHs):
             )
 
 
-# dashboardSOLO = myModel.newDashBoard(borderSize=0, borderColor= Qt.transparent, backgroundColor=Qt.transparent)
-# dashboardSOLO.addIndicatorOnEntity(casesAction1[0],'potentiel accueil', displayName=False)
-# dashboardSOLO.moveToCoords(1080,145)
-
-        # aMonitorOnPotAC.addSeparator()                               
-        # aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil')
-        # aMonitorOnPotAC.addSeparator()
-        #         aMonitorOnPotAC.moveToCoords((posX+5,listPosY[num_col]+10))                            
-        # aMonitorOnPotAC.moveToCoords((aPZH.grid.size + 10, aPZH.grid.size))
-        # aMonitorOnPotAC.moveToCoords(posX+30,listPosY[num_col]+10)
-        # aMonitorOnPotAC.moveToCoords(aPZH.getEntity(1,1).startXBase+30,aPZH.getEntity(1,1).startYBase+10)
-        # aMonitorOnPotAC.moveToCoords(aPZH.getEntity(1,1).mapToGlobal(QPoint(0, 0)).x()+30,aPZH.getEntity(1,1).mapToGlobal(QPoint(0, 0)).y()+10)
-
-        
-
-
 #********************************************************************
 # variables de simulation
 
@@ -730,6 +712,7 @@ def updateActions2():
     ptDE.setValue(totDE)
 
 def updateActions3():
+    """Met à jour les actions pour la troisième phase."""
     updateSurfaceAllZH()
     totSequest = 0
     for aCase in cases.getEntities():
@@ -746,24 +729,21 @@ def calcCumulDE():
     cumulDE.incValue(ptDE.value)
 
 def initDebutTour():
+    """Initialise le début du tour en réinitialisant les entités et en mettant à jour les surfaces."""
     pionAction1.deleteAllEntities()
     pionAction2.deleteAllEntities()
-    #Calcul des surfaces actuelles
+    # Calcul des surfaces actuelles
     updateSurfaceAllZH()
-    #maj des cases Actions1 et des potentiels d'accueil
+    # Mise à jour des cases Actions1 et des potentiels d'accueil
     for aCase in casesAction1:
             aCase.setValue('surfrequentation',0) #0 si la potentiel d'accueil n'est pas dépassé  / 1 si la potentiel d'accueil est dépassé
             aCase.grid.gs_aspect.border_color='black'
             aCase.grid.gs_aspect.border_size=1
             aCase.grid.update()
+
             # updatePotentielAccueil
             aTypeZH = aCase.entDef().entityName
-            # if aTypeZH in surfaceCorrespondantAuPotentielAccueilInitial:    #  AJOUT A CAUSE DE MARAIS SALEE / HERBIER / MARAIS SALANT, QUI N'ONT PAS DE SURFACE AU DEBUT
-            #     surfaceInitialeDeReference = surfaceCorrespondantAuPotentielAccueilInitial[aTypeZH]
-            #     print('surfaceCorrespondantAuPotentielAcceilInitial') 
-            # else:
-            #     print('surfaceInitiales[aTypeZH]')
-            #     surfaceInitialeDeReference = surfaceInitiales[aTypeZH]
+            
             surfaceInitialeDeReference = aCase.entDef().value('surfaceInitialeDeReferencePourPotentielAccueil')
 
             # updateSurfaceZH(aTypeZH)  # Mise à jour de la surface actuelle avec la fonction dédiée #INUTILE ,c'est fait au dessus
@@ -780,23 +760,15 @@ def initDebutTour():
             else:
                 # print(f"{aTypeZH}: potentielAccueil={aCase.value('potentiel accueil')}")
                 # print(f"{aTypeZH}: InitialValue={aCase.getInitialValue('potentiel accueil')}")
-
                 aCase.setValue('potentiel accueil',
-                           round(aCase.getInitialValue('potentiel accueil') * surfaceActuelle / surfaceInitialeDeReference))
-                
+                           round(aCase.getInitialValue('potentiel accueil') * surfaceActuelle / surfaceInitialeDeReference))                
                 # print(f"{aTypeZH}: surfaceInitialeDeReference={surfaceInitialeDeReference}, surfaceActuelle={surfaceActuelle}, potentielAccueil={aCase.value('potentiel accueil')}")
 
-    # maj des actions2
+    # Mise à jour des actions2
     for typeZH, zhData in ZHs.items():
         if typeZH in ['demi-herbier', 'mer', 'vide','pres sales Diop','demi-herbier Diop']: continue
         surfaceActuelle = pZH[typeZH].value('surface actuelle')
         seuilVariation = zhData.get("seuil variation actions2", float('inf'))
-        # surfaceInitiale = pZH[typeZH].value("surface initiale")
-        # nombreDeTranchesDeSeuil_ParRapport_a_Initial = abs(surfaceActuelle - surfaceInitiale) // seuilVariation
-        # print(f"Type ZH: {typeZH}, Surface Actuelle: {surfaceActuelle}, Surface Initiale: {surfaceInitiale}, Seuil Variation: {seuilVariation}, Nombre de Tranches du Seuil: {nombreDeTranchesDeSeuil_ParRapport_a_Initial}")
-        # if typeZH in['marais doux', 'marais doux agricole']:
-        #     print(f"Type ZH: {typeZH}, Surface Actuelle: {surfaceActuelle}")
-        #     print(f"AVANT Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent_action2')}")
         
         # Première boucle pour gérer l'ajout de Cases Action 2. Cas où surfaceActuelle >= surfaceDuSeuilPrécédent_action2 + seuilVariation
         while surfaceActuelle >= pZH[typeZH].value("surfaceDuSeuilPrécédent_action2") + seuilVariation:
@@ -819,20 +791,19 @@ def initDebutTour():
             pZH[typeZH].deleteEntity(caseX)
             ZHs[typeZH]['Actions2 en plus'].insert(0, caseX)  # Ajoute caseX au début de la liste
 
-        # if typeZH in['marais doux', 'marais doux agricole']:
-        #     print(f"APRES Surface seuil précédent: {pZH[typeZH].value('surfaceDuSeuilPrécédent_action2')}")
 
-        # maj des plateaux inactifs
+        # Mise à jour des plateaux inactifs
         if pZH[typeZH].value('surface actuelle') == 0:
             pZH[typeZH].grid.isActive = False
         else:
             pZH[typeZH].grid.isActive = True
         
+    # Réinitialisation des variables de simulation
     ptCB.setValue(0)
     ptDE.setValue(0)
     perc_ptCB_sequestrationZH.setValue(0)
     sequestrationTot.setValue(sequestrationZH.getValue())
-    
+
 #********************************************************************
 
 PlayerControlPanel = Player.newControlPanel("Actions")
@@ -842,16 +813,11 @@ myModel.setCurrentPlayer("Player")
 
 #********************************************************************
 
-
 myModel.displayTimeInWindowTitle()
 modelPhase1=myModel.timeManager.newModelPhase([lambda: initDebutTour()],auto_forward=True,message_auto_forward=False)
 PlayPhase2=myModel.timeManager.newPlayPhase("Jouer",[Player],show_message_box_at_start=False)
 modelPhase3=myModel.timeManager.newModelPhase([lambda: updateActions1(),lambda: updateActions3(),lambda: calcSequestrationTot(),lambda: calcCumulDE()],name='Bilan du tour')
 
-#********************************************************************
-
-# userSelector=myModel.newUserSelector()
-# Legend=myModel.newLegend(grid="combined")
 
 #********************************************************************
 # Dashboard des scores obtenus
@@ -866,6 +832,7 @@ DashBoardInd.addSeparator()
 DashBoardInd.addIndicatorOnSimVariable(ptDE)
 DashBoardInd.addIndicatorOnSimVariable(cumulDE)
 DashBoardInd.moveToCoords(1175,705)
+
 #********************************************************************
 
 # Dashboard des surfaces des ZH
@@ -959,15 +926,20 @@ myModel.newButton(
         # aMonitorOnPotAC = myModel.newDashBoard(backgroundColor=ZHs[typeZH]["couleur"], borderColor='transparent')
         # aMonitorOnPotAC.addIndicatorOnEntity(case1,'potentiel accueil')
         # aMonitorOnPotAC.moveToCoords(1070,852)
-#********************************************************************
 
-# first calc
+
+#********************************************************************
+# lancement de méthodes de mise à jour à l'ouverture de l'application
+
 # updateSurfaceAllZH()
 updateActions3()
 # initDebutTour()
 calcSequestrationTot()
 
+
 #********************************************************************
+# lancement de l'application
+
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
 sys.exit(monApp.exec_())

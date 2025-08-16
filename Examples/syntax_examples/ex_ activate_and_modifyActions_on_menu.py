@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Trigger actions with contextual Menu")
+myModel=SGModel(700,430, windowTitle="Trigger actions with contextual Menu")
 
 Cell=myModel.newCellsOnGrid(5,5,"square",size=60, gap=2,neighborhood="neumann")
 Cell.setEntities("landUse","grass")
@@ -65,32 +65,7 @@ Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWith
 userSelector=myModel.newUserSelector()
 
 myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-# aModelAction5=myModel.newModelAction(lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"))
-# myModel.timeManager.newModelPhase(aModelAction5)
 myModel.timeManager.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
-
-# aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
-# aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "short grass" and x.value("landUse") != "forest"  )))
-# aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",3,"landUse","forest",condition=(lambda x: x.value("landUse") != "short grass") ))
-
-# aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
-# aModelAction4.addCondition(lambda: myModel.roundNumber()==3) 
-
-# myModel.timeManager.newModelPhase(aModelAction2)
-
-GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
-
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
-score1= myModel.newSimVariable("Score",0)
-i1 = DashBoard.addIndicatorOnSimVariable(score1) 
-i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
-# aModelAction4.addFeedback(lambda: score1.incValue(5))
-# myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
-
-
-endGameRule = myModel.newEndGameRule(numberRequired=1)
-endGameRule.addEndGameCondition_onIndicator(i1, "equal", 90, name="Score equal to 90")
-endGameRule.showEndGameConditions()
 
 myModel.launch() 
 sys.exit(monApp.exec_())

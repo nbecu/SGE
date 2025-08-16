@@ -400,8 +400,10 @@ class SGAgent(SGEntity):
 
             if method == "cell" or cellID is not None:
                 newCell=aGrid.getCell_withId(cellID)
-                if not condition(newCell):
-                    newCell = None
+                
+                if condition is not None:
+                    if not condition(newCell):
+                        newCell = None
 
             if method == "cardinal" or direction is not None:
                 if direction =="North":
@@ -412,8 +414,11 @@ class SGAgent(SGEntity):
                     newCell=originCell.getNeighborE()
                 if direction =="West":
                     newCell=originCell.getNeighborW()
-                if not condition(newCell):
-                    newCell = None
+                    
+                if condition is not None:
+                    if not condition(newCell):
+                        newCell = None
+                
 
             if newCell is None:
                 pass
