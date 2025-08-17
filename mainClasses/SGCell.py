@@ -153,7 +153,7 @@ class SGCell(SGEntity):
                     self.newAgentHere(aLegendItem.classDef,aDictWithValue)
         
     def dropEvent(self, e):
-        e.accept()
+        e.acceptProposedAction()
         aAgent=e.source()
 
         if not isinstance(aAgent,SGEntity):

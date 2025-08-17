@@ -23,6 +23,8 @@ class SGAgent(SGEntity):
         self.defaultImage=defaultImage
         self.popupImage=popupImage
         self.dragging = False
+
+        self.setAcceptDrops(True)
         
 
 
@@ -278,24 +280,17 @@ class SGAgent(SGEntity):
             drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
     def dragEnterEvent(self,e):
-        e.accept()
-        self.setAcceptDrops(True)
+        e.acceptProposedAction()
 
 
-    def dropEvent(self, e):
-        raise ValueError("This function shouldn't be used")
-        #TODO If this function is not used, delete it.
-        e.accept()
-        theDroppedAgent=e.source()
-        aActiveLegend = self.cell.model.getSelectedLegend() 
-        aLegendItem = self.cell.model.getSelectedLegendItem()
-        if aActiveLegend.isAdminLegend(): 
-            theDroppedAgent.moveTo(self.cell)
-        elif aLegendItem is None : None #Exit the method
-        else :
-            aLegendItem.gameAction.perform_with(theDroppedAgent,self.cell)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-        e.setDropAction(Qt.MoveAction)
-        self.dragging = False
+    def dropEvent(self, e):    
+        if isinstance(e.source(), SGAgent) and self.cell is not None:
+            # Specific case: forward the drop to the cell
+            self.cell.dropEvent(e)
+        else:
+            # Fallback: delegate the drop handling to the parent model
+            self.model.dropEvent(e)
+       
 
     def enterEvent(self, event):
         if self.dragging:
