@@ -237,6 +237,49 @@ class SGAgent(SGEntity):
             raise ValueError ('An agent which is not displayed is not necessary deleted.') 
         return not self.isDisplay
     
+    # def enterEvent(self, event):
+    # # Called when the mouse cursor enters this widget
+    # pass
+
+    # def leaveEvent(self, event):
+    #     # Called when the mouse cursor leaves this widget
+    #     pass
+
+    # def mousePressEvent(self, event):
+    #     # Called when a mouse button is pressed on this widget
+    #     # Left click   → case: if event.button() == Qt.LeftButton   - handle left click or can initiate a drag
+    #     # Right click  → case: if event.button() == Qt.RightButton  - can open context menu or custom actions
+    #     # Middle click → case: if event.button() == Qt.MiddleButton - can be used for custom actions (e.g. panning, special commands)
+    #     pass
+
+    # def mouseReleaseEvent(self, event):
+    #     # Called when a mouse button is released on this widget
+    #     # - Usually indicates the end of a normal click
+    #     # - Note: if a drag was initiated with QDrag.exec_(), this method is NOT called on the source widget
+    #     pass
+
+    # def mouseMoveEvent(self, event):
+    #     # Called when the mouse is moved while a button is pressed
+    #     # - Typically: check if event.buttons() & Qt.LeftButton to detect drag start
+    #     pass
+
+    # def dragEnterEvent(self, event):
+    #     # Called when a drag operation enters this widget
+    #     pass
+
+    # def dragMoveEvent(self, event):
+    #     # Called when a drag operation moves within this widget
+    #     pass
+
+    # def dragLeaveEvent(self, event):
+    #     # Called when a drag operation leaves this widget without dropping
+    #     pass
+
+    # def dropEvent(self, event):
+    #     # Called when a dragged object is dropped on this widget
+    #     # Retrieve the dragged source widget with: source = event.source()
+    #     pass
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
@@ -268,16 +311,42 @@ class SGAgent(SGEntity):
             
     #To handle the drag of the agent
     def mouseMoveEvent(self, e):
-    
         if e.buttons() != Qt.LeftButton:
             return
-        authorisation = True
-        if authorisation:
-            mimeData = QMimeData()
-            drag = QDrag(self)
-            drag.setMimeData(mimeData)
-            drag.setHotSpot(e.pos() - self.rect().topLeft())
-            drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+
+        # Take a snapshot of the widget (the agent)
+        pixmap = self.grab()
+
+        # Make the pixmap semi-transparent
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))  # 128 = 50% opacity
+        painter.end()
+
+        # Set the pixmap as the drag preview
+        drag.setPixmap(pixmap)
+
+        # Keep the cursor aligned with the click point
+        drag.setHotSpot(e.pos())
+
+        # Start the drag operation
+        drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
+    # def mouseMoveEvent(self, e):
+    
+    #     if e.buttons() != Qt.LeftButton:
+    #         return
+    #     authorisation = True
+    #     if authorisation:
+    #         mimeData = QMimeData()
+    #         drag = QDrag(self)
+    #         drag.setMimeData(mimeData)
+    #         drag.setHotSpot(e.pos() - self.rect().topLeft())
+    #         drag.exec_(Qt.CopyAction | Qt.MoveAction)
 
     def dragEnterEvent(self,e):
         e.acceptProposedAction()
