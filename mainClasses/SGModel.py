@@ -57,6 +57,8 @@ from mainClasses.gameAction.SGCreate import *
 from mainClasses.gameAction.SGDelete import *
 from mainClasses.gameAction.SGModify import *
 from mainClasses.gameAction.SGMove import *
+from mainClasses.SGEventHandlerGuide import *
+
 
 
 # By default, use a relative path based on the project structure
@@ -66,7 +68,7 @@ path_icon = str(Path(__file__).parent.parent / 'icon')
 # path_icon = '/Users/.../Documents/.../SGE/icon/'
 
 # Mother class of all the SGE System
-class SGModel(QMainWindow):
+class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 

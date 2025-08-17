@@ -5,9 +5,10 @@ from collections import defaultdict
 import random
 from mainClasses.AttributeAndValueFunctionalities import *
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
+from mainClasses.SGEventHandlerGuide import *
 
 # Class who is in charged of entities : cells and agents
-class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
+class SGEntity(QtWidgets.QWidget, SGEventHandlerGuide, AttributeAndValueFunctionalities):
     def __init__(self,parent,classDef,size,attributesAndValues):
         super().__init__(parent)
         self.classDef=classDef
@@ -200,3 +201,4 @@ class SGEntity(QtWidgets.QWidget,AttributeAndValueFunctionalities):
         Returns the 'entity definition' class of the entity
         """        
         return self.classDef
+    
