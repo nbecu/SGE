@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets 
-from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QMenu, QAction, QToolTip
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGExtensions import *
@@ -29,23 +29,17 @@ class SGLegendItem(QtWidgets.QWidget):
             self.color= self.classDef.defaultShapeColor
         self.remainNumber=int
         self.gameAction= gameAction
-        self.init_contextMenu()
 
+    def event(self, e):
+        # Intercept tooltip event to show the number of remaining acions for gameActions
+        if e.type() == QEvent.ToolTip:
+            if self.gameAction is not None:
+                # Dynamically update tooltip
+                text = f"Actions remaining: {self.gameAction.getNbRemainingActions()}"
+                QToolTip.showText(e.globalPos(), text, self)
+            return True  # event handled
+        return super().event(e)
     
-    def init_contextMenu(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_contextMenu)
-
-    # To show a contextual menu (open on a right clic)
-    def show_contextMenu(self, point):
-        if self.gameAction is None: return
-        menu = QMenu(self)
-        number=self.gameAction.getNbRemainingActions()
-        text= "Actions remaining : "+str(number)
-        option1 = QAction(text, self)
-        menu.addAction(option1)
-        if self.rect().contains(point) and number is not None:
-            menu.exec_(self.mapToGlobal(point))
 
     def isSelectable(self):
         #Title1 and Title2 items are not selectable
@@ -64,7 +58,7 @@ class SGLegendItem(QtWidgets.QWidget):
             painter.begin(self)
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
             if self.legend.selected == self :
-                painter.setPen(QPen(Qt.red,2));
+                painter.setPen(QPen(Qt.red,2))
             if self.isBorderItem:
                 painter.setPen(QPen(self.borderColorAndWidth['color'],self.borderColorAndWidth['width']))
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
