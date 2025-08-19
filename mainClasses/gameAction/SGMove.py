@@ -6,8 +6,7 @@ from mainClasses.SGTimePhase import *
 class SGMove(SGAbstractAction):
     def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
-        if nameToDisplay is None:self.name="Move "+str(self.targetEntDef.entityName)
-        else:self.name=nameToDisplay
+        self.nameToDisplay = nameToDisplay or "⇄ move"
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent
@@ -78,7 +77,7 @@ class SGMove(SGAbstractAction):
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:
             aColor = self.targetEntDef.defaultShapeColor
-            return [SGLegendItem(aControlPanel,'symbol','move',self.targetEntDef,aColor,gameAction=self)]
+            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,gameAction=self)]
         
     def chooseFeedbackTargetAmong(self,aListOfChoices):
         # aListOfChoices -> [aMovingEntity,aDestinationEntity,aOriginEntity,aParameterHolder,resAction]

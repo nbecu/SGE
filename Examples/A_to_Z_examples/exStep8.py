@@ -16,7 +16,6 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("pov","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-#Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
 Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
 
 
@@ -39,7 +38,7 @@ theFirstLegend=myModel.newLegend(addDeleteButton=False)
 Player1=myModel.newPlayer("Player 1",{"Percentage of grass":0})
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 Player2=myModel.newPlayer("Player 2",{"Sheeps in good health":0})
-Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
+Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":100},4))
 Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 Player2ControlPanel=Player2.newControlPanel("Actions du Joueur 2")
 

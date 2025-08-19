@@ -8,14 +8,12 @@ class SGActivate(SGAbstractAction):
     def __init__(self,entDef,method,number,conditions=[],feedBack=[],conditionOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,aNameToDisplay,setControllerContextualMenu,setOnController)
         if self.targetEntDef != "model":
-            if aNameToDisplay is None :self.name="ActivateAction "+ entDef.entityName
-            else: self.name=aNameToDisplay
+            self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ entDef.entityName)
             self.actionType="Activate"
             self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         else:
-            if aNameToDisplay is None :self.name="ActivateAction"
-            else: self.name=aNameToDisplay
+            self.nameToDisplay= aNameToDisplay or "activate"
             self.actionType="Activate"
         self.method=method
     
@@ -45,4 +43,4 @@ class SGActivate(SGAbstractAction):
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:
             aColor = self.targetEntDef.defaultShapeColor
-            return [SGLegendItem(aControlPanel,'symbol','activate',self.targetEntDef,aColor,gameAction=self)]
+            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,gameAction=self)]

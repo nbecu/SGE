@@ -6,11 +6,24 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False , create_several_at_each_click = False):
+    def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False , create_several_at_each_click = False, writeAttributeInLabel=False):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu)
         self.dictAttributs=dictAttributs
-        if nameToDisplay is None: self.name="Create "+str(self.targetEntDef.entityName)
-        else: self.name=nameToDisplay
+        if nameToDisplay is None:
+            self.nameToDisplay="+"
+            if self.dictAttributs is not None:
+                textAttributes = ' ('
+                for aAtt,aVal in self.dictAttributs.items():
+                    if writeAttributeInLabel:
+                        textAttributes = textAttributes + f'{aAtt}→{aVal},'
+                    else:
+                        textAttributes = textAttributes + f'{aVal},'
+                textAttributes = textAttributes[:-1]+')'
+                self.nameToDisplay += textAttributes
+            else:
+                self.nameToDisplay += " create"
+        else:
+            self.nameToDisplay=nameToDisplay
         self.actionType="Create"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef.entityType() == 'Cell')
         self.create_several_at_each_click=create_several_at_each_click
@@ -31,14 +44,14 @@ class SGCreate(SGAbstractAction):
         if self.setControllerContextualMenu == False:
             if self.dictAttributs is None:
                 aColor = self.targetEntDef.defaultShapeColor
-                return [SGLegendItem(aControlPanel,'symbol','create',self.targetEntDef,aColor,gameAction=self)]
+                return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,gameAction=self)]
             else:
                 aList = []
                 for aAtt, aValue in self.dictAttributs.items():
                     aColor = self.targetEntDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
                     
                     #todo Modifs pour MTZC pour que ce soit plus simple
-                    aList.append(SGLegendItem(aControlPanel,'symbol',str(aValue),self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
+                    aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
                 return aList
 
 

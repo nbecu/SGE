@@ -156,7 +156,7 @@ class SGEntity(QtWidgets.QWidget, SGEventHandlerGuide, AttributeAndValueFunction
             for aAction in actions:
                 if aAction.setControllerContextualMenu:
                         if aAction.checkAuthorization(self):
-                            aMenuAction=QAction(aAction.name,self)
+                            aMenuAction=QAction(aAction.nameToDisplay,self)
                             aMenuAction.setCheckable(False)
                             aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self))
                             menu.addAction(aMenuAction)

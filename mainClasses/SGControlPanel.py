@@ -31,7 +31,7 @@ class SGControlPanel(SGLegend):
 
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:
-            if "Move" in aGameAction.name and not aGameAction.setOnController or aGameAction.setControllerContextualMenu:
+            if "Move" == aGameAction.actionType and not aGameAction.setOnController or aGameAction.setControllerContextualMenu:
                 continue
             if lastEntDefTitle != aGameAction.targetEntDef.entityName:
                 anItem=SGLegendItem(self,'Title2',aGameAction.targetEntDef.entityName)
