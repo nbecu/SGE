@@ -30,7 +30,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.history["value"]=defaultdict(list)
         self.initAttributes(attributesAndValues)
 
-    def newControlPanel(self, title=None, showAgentsWithNoAtt=False):
+    def newControlPanel(self, title=None, showAgentsWithNoAtt=False, defaultActionSelected = None):
         """
         To create an Player Control Panel (only with the GameActions related elements)
 
@@ -40,7 +40,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         """
         if title==None: title = (self.name +' actions')
         
-        self.controlPanel=SGControlPanel.forPlayer(self,title)
+        self.controlPanel=SGControlPanel.forPlayer(self,title,defaultActionSelected=defaultActionSelected)
         self.model.gameSpaces[title] = self.controlPanel
         # Realocation of the position thanks to the layout
         newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)

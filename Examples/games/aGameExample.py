@@ -52,17 +52,16 @@ createA1=myModel.newCreateAction(Workers, aNumber=20)
 Player1.addGameAction(createA1)
 Player1.addGameAction(myModel.newDeleteAction(Workers, inf)) # can write 'infinite' or inf
 Player1.addGameAction(myModel.newDeleteAction(Cell, "infinite"))
-Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3))
+aGameAction = Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3))
 Player1.addGameAction(myModel.newMoveAction(Workers, 10))
-Player1ControlPanel = Player1.newControlPanel(
-    "Player 1 Actions", showAgentsWithNoAtt=True)
+Player1ControlPanel = Player1.newControlPanel("Player 1 Actions",defaultActionSelected=aGameAction)
 
 Player2 = myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.newCreateAction(Birds,aNumber=4))
 Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
-Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))
+aGameAction = Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))
 Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",showAgentsWithNoAtt=True)
+Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",defaultActionSelected=aGameAction)
 
 userSelector=myModel.newUserSelector()
 

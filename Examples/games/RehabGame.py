@@ -56,11 +56,11 @@ Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
 
 Parc = myModel.newPlayer("Parc")
 
-Parc.addGameAction(myModel.newModifyAction(
+aGA = Parc.addGameAction(myModel.newModifyAction(
     Cell, {"ProtectionLevel": "Reserve"}, conditions = [lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
 Parc.addGameAction(myModel.newModifyAction(
     Cell, {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Parc.newControlPanel()
+Player2ControlPanel = Parc.newControlPanel(defaultActionSelected=aGA)
 
 
 firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')

@@ -30,23 +30,28 @@ class SGTimeManager():
         isEndGame = self.checkEndGame()
         if isEndGame : return
 
-        if self.currentRoundNumber ==0:     #This case is to quit the Initialization phase at the begining of the game
+        # set the values of currentRoundNumber and currentPhaseNumber
+        ## This case is to quit the Initialization phase at the begining of the game
+        if self.currentRoundNumber ==0:     
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
-        elif self.isItTheLastPhase():    #This case is when  there is no nextphase after the current one. Therefor it is a next round
+        ## This case is when  there is no nextphase after the current one. Therefor it is a next round
+        elif self.isItTheLastPhase():    
             self.currentRoundNumber += 1
             self.currentPhaseNumber = 1
             #reset GameActions count
             for action in self.model.getAllGameActions():
                 action.reset()
-        else :                              #This case is to advance to the next phase wthin the same round
+        ## This case is to advance to the next phase wthin the same round
+        else :
             self.currentPhaseNumber += 1
         
-        # Process the widgets for this next phase/round
+        # Process the timeLabel widgets for this next phase/round
         if self.model.myTimeLabel is not None:
             self.model.myTimeLabel.updateTimeLabel()
         self.model.updateWindowTitle()
 
+        # Process the useSelector widgets for this next phase/round
         if self.model.userSelector is not None:
             self.model.userSelector.updateOnNewPhase()
 

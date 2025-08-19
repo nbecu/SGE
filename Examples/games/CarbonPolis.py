@@ -807,7 +807,7 @@ def initDebutTour():
 #********************************************************************
 
 PlayerControlPanel = Player.newControlPanel("Actions")
-PlayerControlPanel.moveToCoords(1320,30)
+PlayerControlPanel.moveToCoords(1340,30)
 
 myModel.setCurrentPlayer("Player")
 
@@ -845,7 +845,7 @@ for typeZH in ZHs.keys():
         else:
             aMetricIndicator = DashBoardSurfaces.addIndicatorOnEntity(pZH[typeZH],'surface actuelle',title=typeZH)
 
-DashBoardSurfaces.moveToCoords(1510,30)
+DashBoardSurfaces.moveToCoords(1520,30)
 
 #********************************************************************
 # Dashboard des potentiel d'accueil des ZH
@@ -864,11 +864,11 @@ DashBoardSurfaces.moveToCoords(1510,30)
 nbBonusAmenage = myModel.newSimVariable(' Bonus déjà utilisés   ',0)
 dashBonus = myModel.newDashBoard(backgroundColor='#afe3d7', borderColor='transparent')
 dashBonus.addIndicatorOnSimVariable(nbBonusAmenage)
-dashBonus.moveToCoords(1020,802)
+dashBonus.moveToCoords(1000,802)
 myModel.newButton(
     (lambda: bonusAmenagemet()),
     f"Bonus 10ha \nd'aménagement ({coutBonusAmenage} DE)",
-    (1020,750),
+    (1000,750),
     padding=10,
     background_color='#afe3d7'
 )
@@ -884,7 +884,7 @@ def ajoutDE():
 myModel.newButton(
     (lambda: ajoutDE()),
     f"Ajout/Retrait des points DE)",
-    (1020,832),
+    (1000,832),
     padding=8,
     background_color='#afe3d7'
 )

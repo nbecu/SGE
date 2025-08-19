@@ -824,8 +824,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 self.userSelector.setCheckboxesWithSelection(aUserName)
             #update the ControlPanel and adminLegend interfaces
             for aItem in self.getControlPanels()+self.getAdminLegends() :
-                aItem.isActive = (aItem.playerName == self.currentPlayer)
-                aItem.update()
+                # aItem.isActive = (aItem.playerName == self.currentPlayer)
+                aItem.setActivation(aItem.playerName == self.currentPlayer)
+                # aItem.update()
     
 
 

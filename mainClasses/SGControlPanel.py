@@ -4,24 +4,33 @@ from PyQt5.QtCore import *
 from mainClasses.SGLegend import SGLegend
 from mainClasses.SGLegendItem import SGLegendItem
 
-
 #Class who is responsible of the creation of a ControlPanel
 #A ControlPanel is an interface that permits to operate the game actions of a player
 class SGControlPanel(SGLegend):
     @classmethod
-    def forPlayer(cls, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black):
+    def forPlayer(cls, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black,defaultActionSelected=None):
         aModel=aPlayer.model
-        aInstance = cls(aModel,backgroundColor)
-        aInstance.id=panelTitle
-        aInstance.player=aPlayer
-        aInstance.playerName=aInstance.player.name
-        aInstance.legendItems=[]
-        aInstance.isActive=True
-        aInstance.selected = None # To handle the selection of an item in the legend
-        aInstance.borderColor=borderColor
-        aInstance.haveADeleteButton=False
-        aInstance.initUI_withGameActions(aInstance.player.gameActions)
-        return aInstance
+        aControlPanel = cls(aModel,backgroundColor)
+        aControlPanel.id=panelTitle
+        aControlPanel.player=aPlayer
+        aControlPanel.playerName=aControlPanel.player.name
+        aControlPanel.legendItems=[]
+        aControlPanel.isActive=False
+        aControlPanel.selected = None # To handle the selection of an item in the legend
+        aControlPanel.borderColor=borderColor
+        aControlPanel.haveADeleteButton=False
+        gameActions = aPlayer.gameActions
+        aControlPanel.initUI_withGameActions(gameActions)
+        if defaultActionSelected is not None:
+            from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+            if not isinstance(defaultActionSelected,SGAbstractAction): raise ValueError(f'defaultActionSelected should be gameAction but {defaultActionSelected} is not one')
+            aControlPanel.defaultSelection = next((item for item in aControlPanel.legendItems if item.gameAction == defaultActionSelected)
+                                                  ,None)  # None in case defaultActionSelected is not one of the game action of the controlPanel
+        elif len(aControlPanel.getLegendItemsOfGameActions()) == 1 :
+            aControlPanel.defaultSelection = aControlPanel.getLegendItemsOfGameActions()[0]
+        else:
+            aControlPanel.defaultSelection = None
+        return aControlPanel
 
 
     def initUI_withGameActions(self,gameActions):
@@ -46,6 +55,22 @@ class SGControlPanel(SGLegend):
         for anItem in self.legendItems:
             anItem.show()
         self.setMinimumSize(self.getSizeXGlobal(),10)
+
+    def getLegendItemsOfGameActions(self):
+        return [item for item in self.legendItems if item.gameAction is not None]
+
+    def setActivation(self, aBoolean):
+        previousValue = self.isActive
+        self.isActive = aBoolean
+        
+        # case when it's just beeing activated
+        if not previousValue and aBoolean and not self.selected and self.defaultSelection:
+            self.selected = self.defaultSelection
+
+        
+
+
+
 
     
     

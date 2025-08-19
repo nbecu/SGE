@@ -28,6 +28,9 @@ class SGLegend(SGGameSpace):
         self.haveADeleteButton=addDeleteButton
         self.updateWithSymbologies(listOfSymbologies)
         return self
+    
+    def setActivation(self, aBoolean):
+        self.isActive = aBoolean
 
     def isActiveAndSelected(self):
         return self.isActive and self.selected is not None
