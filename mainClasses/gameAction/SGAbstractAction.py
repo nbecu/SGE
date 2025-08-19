@@ -1,6 +1,7 @@
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 from mainClasses.SGTimePhase import *
+from math import inf
 import copy
 
 #Class who manage the game mechanics of Update
@@ -18,7 +19,8 @@ class SGAbstractAction():
         else:
             self.targetEntDef=entDef
             self.model=self.targetEntDef.model 
-        self.number=number
+        self.number = inf if number in ("infinite", None, inf) else number
+        
         self.numberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 

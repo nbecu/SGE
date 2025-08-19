@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMenu, QAction, QToolTip
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGExtensions import *
+from math import inf
 
 
 #Class who is responsible of creation legend item 
@@ -35,7 +36,11 @@ class SGLegendItem(QtWidgets.QWidget):
         if e.type() == QEvent.ToolTip:
             if self.gameAction is not None:
                 # Dynamically update tooltip
-                text = f"Actions remaining: {self.gameAction.getNbRemainingActions()}"
+                aNumber = self.gameAction.getNbRemainingActions()
+                if aNumber == inf:
+                    text = f"∞ actions"
+                else:
+                    text = f"Actions remaining: {self.gameAction.getNbRemainingActions()}"
                 QToolTip.showText(e.globalPos(), text, self)
             return True  # event handled
         return super().event(e)

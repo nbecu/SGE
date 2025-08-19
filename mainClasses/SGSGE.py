@@ -16,6 +16,7 @@ from tkinter import simpledialog
 import pandas as pd
 import ast as ast
 import math as math
+from math import inf
 import copy
 
 # Helpers available to modelers when importing * from this module

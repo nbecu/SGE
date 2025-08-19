@@ -28,7 +28,7 @@ Cell.newBorderPovColorAndWidth("ProtectionLevel", "ProtectionLevel", {"Reserve":
 Cell.displayBorderPov("ProtectionLevel")
 
 # STEP3 Agents
-Workers = myModel.newAgentSpecies("Workers", "triangleAgent1", defaultColor=Qt.gray)
+Workers = myModel.newAgentSpecies("Workers", "rectAgent1", defaultColor=Qt.gray)
 Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yellow)
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.setDefaultValues({"health":(lambda: random.choice(["good","bad"])),"hunger":(lambda: random.choice(["good","bad"]))})
@@ -50,10 +50,10 @@ globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
 Player1 = myModel.newPlayer("Player 1")
 createA1=myModel.newCreateAction(Workers, aNumber=20)
 Player1.addGameAction(createA1)
-Player1.addGameAction(myModel.newDeleteAction(Workers, "infinite"))
+Player1.addGameAction(myModel.newDeleteAction(Workers, inf)) # can write 'infinite' or inf
 Player1.addGameAction(myModel.newDeleteAction(Cell, "infinite"))
 Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3))
-Player1.addGameAction(myModel.newMoveAction(Workers, 1))
+Player1.addGameAction(myModel.newMoveAction(Workers, 10))
 Player1ControlPanel = Player1.newControlPanel(
     "Player 1 Actions", showAgentsWithNoAtt=True)
 
