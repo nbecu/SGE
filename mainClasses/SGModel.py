@@ -1442,7 +1442,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         if setControllerButton:
             buttonCoord = setControllerButton
-            self.newButton(aActivateAction, aActivateAction.name, buttonCoord)
+            self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
         return aActivateAction
     # -----------------------------------------------------------
     # Getter
