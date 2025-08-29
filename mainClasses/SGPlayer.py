@@ -4,11 +4,11 @@ from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 from collections import defaultdict
 
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGModify import SGModify
-from mainClasses.gameAction.SGMove import SGMove
-from mainClasses.gameAction.SGActivate import SGActivate
-from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from mainClasses.gameAction.SGDelete import *
+from mainClasses.gameAction.SGModify import *
+from mainClasses.gameAction.SGMove import *
+from mainClasses.gameAction.SGActivate import *
+from mainClasses.gameAction.SGAbstractAction import *
 from mainClasses.AttributeAndValueFunctionalities import *
 
 

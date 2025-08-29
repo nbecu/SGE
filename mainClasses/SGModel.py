@@ -39,6 +39,7 @@ from mainClasses.SGGrid import *
 from mainClasses.SGLegend import *
 from mainClasses.SGModelAction import *
 from mainClasses.SGPlayer import *
+from mainClasses.SGAdminPlayer import *
 from mainClasses.SGProgressGauge import *
 from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
@@ -72,7 +73,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None):
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
         """
         Declaration of a new model
 
@@ -83,7 +84,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             x (int, optional): used only for grid layout. defines the number layout grid width (default:3)
             y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
             name (str, optional): the name of the model. (default:"Simulation")
-            windowTitle (str, optional): the title of the main window of the simulation (default :"myGame")
+            windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
+            createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
         """
         super().__init__()
         # Definition the size of the window ( temporary here)
@@ -132,11 +134,21 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.numberOfZoom = 2
         # To keep in memory all the povs already displayed in the menu
         self.listOfPovsForMenu = []
+        # List of players (must be initialized before Admin creation)
+        self.players = {}
+        # Automatically create Admin as a super player (optional)
+        if createAdminPlayer:
+            self.adminPlayer = SGAdminPlayer(self)
+            self.players["Admin"] = self.adminPlayer
+            self.users = ["Admin"]
+        else:
+            self.users = []
+        # self.users = ["Admin"]
+
         # To handle the flow of time in the game
-        self.users = ["Admin"]
         self.timeManager = SGTimeManager(self)
         # List of players
-        self.players = {}
+        # self.players = {}  # Moved above
         self.currentPlayer = None
 
         self.userSelector = None
@@ -1394,6 +1406,28 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+
+    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+        """
+        Add a ModifyActionWithDialog GameAction to the game.
+        
+        Args:
+            anObjectType: an AgentSpecies or the keyword "Cell"
+            attribute (str): the attribute to modify
+            aNumber (int): number of utilisation, could use "infinite"
+            conditions (list): conditions that must be met
+            feedbacks (list): actions to execute after modification
+            conditionsOfFeedback (list): conditions for feedback execution
+            aNameToDisplay (str): custom name to display
+            setControllerContextualMenu (bool): whether to show in contextual menu
+            writeAttributeInLabel (bool): whether to show attribute in label
+        """
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None:
+            raise ValueError('Wrong format of entityDef')
+        
+        from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
+        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
 
     def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """

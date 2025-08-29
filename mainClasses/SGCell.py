@@ -1,6 +1,11 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
+# from mainClasses.gameAction.SGCreate import *  # Commented to avoid circular import
+# from mainClasses.gameAction.SGDelete import *   # Commented to avoid circular import
+# from mainClasses.gameAction.SGModify import *   # Commented to avoid circular import
+# from mainClasses.gameAction.SGMove import *     # Commented to avoid circular import
+# from mainClasses.gameAction.SGActivate import * # Commented to avoid circular import
 import random
 # from mainClasses.gameAction.SGMove import SGMove
    
@@ -118,60 +123,91 @@ class SGCell(SGEntity):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            #Something is selected
+            # Something is selected
             aLegendItem = self.model.getSelectedLegendItem()
-            if aLegendItem is None : return #Exit the method
+            if aLegendItem is None: 
+                return  # Exit the method
 
-            if aLegendItem.legend.isAdminLegend():
-                authorisation= True
-            else :
-                aLegendItem.gameAction.perform_with(self) #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-                return
-
-            if not authorisation : return #Exit the method
-        
-            #The delete Action
-            if aLegendItem.type == 'delete' :
-                if authorisation : 
-                    #We now check the feedBack of the actions if it have some
-                    """if theAction is not None:
-                        self.feedBack(theAction)"""
-                    if not self.isDeleted() :self.classDef.deleteEntity(self)
-
-            #The Replace cell and change value Action
-            elif aLegendItem.isSymbolOnCell():
-                if  authorisation :
-                    #We now check the feedBack of the actions if it have some
-                    if self.isDeleted() : self.classDef.reviveThisCell(self) 
-                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
-
-            #For agent creation on cell         
-            elif aLegendItem.isSymbolOnAgent() and self.isDisplay:
-                if  authorisation :
-                    aLegendItem.classDef
-                    aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
-                    self.newAgentHere(aLegendItem.classDef,aDictWithValue)
-        
-    def dropEvent(self, e):
-        e.acceptProposedAction()
-        aAgent=e.source()
-
-        if not isinstance(aAgent,SGEntity):
+            # Use the gameAction system for ALL players (including Admin)
+            aLegendItem.gameAction.perform_with(self)
             return
         
-        currentPlayer=self.model.getCurrentPlayer()
-        
-        if currentPlayer == 'Admin':
-            aAgent.moveTo(self)
-        
-        else :
-            moveActions=currentPlayer.getMoveActionsOn(aAgent)
+    # def mousePressEvent(self, event):
+    #     if event.button() == Qt.LeftButton:
+    #         #Something is selected
+    #         aLegendItem = self.model.getSelectedLegendItem()
+    #         if aLegendItem is None : return #Exit the method
 
-            for aMoveAction in moveActions:
-                if aMoveAction.checkAuthorization(aAgent,self):
-                    aMoveAction.perform_with(aAgent,self)
-                    e.setDropAction(Qt.MoveAction)
-                    aAgent.dragging = False
+    #         if aLegendItem.legend.isAdminLegend():
+    #             authorisation= True
+    #         else :
+    #             aLegendItem.gameAction.perform_with(self) #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+    #             return
+
+    #         if not authorisation : return #Exit the method
+        
+    #         #The delete Action
+    #         if aLegendItem.type == 'delete' :
+    #             if authorisation : 
+    #                 #We now check the feedBack of the actions if it have some
+    #                 """if theAction is not None:
+    #                     self.feedBack(theAction)"""
+    #                 if not self.isDeleted() :self.classDef.deleteEntity(self)
+
+    #         #The Replace cell and change value Action
+    #         elif aLegendItem.isSymbolOnCell():
+    #             if  authorisation :
+    #                 #We now check the feedBack of the actions if it have some
+    #                 if self.isDeleted() : self.classDef.reviveThisCell(self) 
+    #                 self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
+
+    #         #For agent creation on cell         
+    #         elif aLegendItem.isSymbolOnAgent() and self.isDisplay:
+    #             if  authorisation :
+    #                 aLegendItem.classDef
+    #                 aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
+    #                 self.newAgentHere(aLegendItem.classDef,aDictWithValue)
+        
+
+    def dropEvent(self, e):
+        e.acceptProposedAction()
+        aAgent = e.source()
+
+        if not isinstance(aAgent, SGEntity):
+            return
+        
+        currentPlayer = self.model.getCurrentPlayer()
+    
+        # Use the gameAction system for ALL players (including Admin)
+        moveActions = currentPlayer.getMoveActionsOn(aAgent)
+        for aMoveAction in moveActions:
+            if aMoveAction.checkAuthorization(aAgent, self):
+                aMoveAction.perform_with(aAgent, self)
+                e.setDropAction(Qt.MoveAction)
+                aAgent.dragging = False
+                return
+
+
+    # def dropEvent(self, e):
+    #     e.acceptProposedAction()
+    #     aAgent=e.source()
+
+    #     if not isinstance(aAgent,SGEntity):
+    #         return
+        
+    #     currentPlayer=self.model.getCurrentPlayer()
+        
+    #     if currentPlayer == 'Admin':
+    #         aAgent.moveTo(self)
+        
+    #     else :
+    #         moveActions=currentPlayer.getMoveActionsOn(aAgent)
+
+    #         for aMoveAction in moveActions:
+    #             if aMoveAction.checkAuthorization(aAgent,self):
+    #                 aMoveAction.perform_with(aAgent,self)
+    #                 e.setDropAction(Qt.MoveAction)
+    #                 aAgent.dragging = False
 
         # Le code ci-dessous est la version précédente de la méthode dropEvent. Il est conservé pour référence
         # e.accept()

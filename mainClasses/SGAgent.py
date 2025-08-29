@@ -6,6 +6,11 @@ from PyQt5.QtGui import QCursor
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCell import SGCell
+from mainClasses.gameAction.SGCreate import *
+from mainClasses.gameAction.SGDelete import *
+from mainClasses.gameAction.SGModify import *
+from mainClasses.gameAction.SGMove import *
+from mainClasses.gameAction.SGActivate import *
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
@@ -238,33 +243,47 @@ class SGAgent(SGEntity):
         return not self.isDisplay
     
 
-
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
-            #Something is selected
+            # Something is selected
             aLegendItem = self.model.getSelectedLegendItem()
-            if aLegendItem is None : return #Exit the method
+            if aLegendItem is None: 
+                return  # Exit the method
 
-            if aLegendItem.legend.isAdminLegend():
-                authorisation= True
-            else :
-                from mainClasses.gameAction.SGMove import SGMove
-                if isinstance(aLegendItem.gameAction,SGMove): return
-                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+            # Use the gameAction system for ALL players (including Admin)
+            from mainClasses.gameAction.SGMove import SGMove
+            if isinstance(aLegendItem.gameAction, SGMove): 
                 return
-            if not authorisation : return #Exit the method
+            aLegendItem.gameAction.perform_with(self)
+            return
 
-            #The delete Action
-            if aLegendItem.type == 'delete' :
-                if authorisation : 
-                    self.classDef.deleteEntity(self)
+    # def mousePressEvent(self, event):
+    #     if event.button() == Qt.LeftButton:
+    #         self.dragging = True
+    #         #Something is selected
+    #         aLegendItem = self.model.getSelectedLegendItem()
+    #         if aLegendItem is None : return #Exit the method
 
-            #The  change value on agent
-            elif aLegendItem.isSymbolOnAgent() :
-                if  authorisation :
-                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
-                    # self.update()
+    #         if aLegendItem.legend.isAdminLegend():
+    #             authorisation= True
+    #         else :
+    #             from mainClasses.gameAction.SGMove import SGMove
+    #             if isinstance(aLegendItem.gameAction,SGMove): return
+    #             aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
+    #             return
+    #         if not authorisation : return #Exit the method
+
+    #         #The delete Action
+    #         if aLegendItem.type == 'delete' :
+    #             if authorisation : 
+    #                 self.classDef.deleteEntity(self)
+
+    #         #The  change value on agent
+    #         elif aLegendItem.isSymbolOnAgent() :
+    #             if  authorisation :
+    #                 self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
+    #                 # self.update()
 
 
             

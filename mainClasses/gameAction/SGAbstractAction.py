@@ -1,4 +1,4 @@
-from mainClasses.SGAgent import SGAgent
+# from mainClasses.SGAgent import SGAgent  # Commented to avoid circular import
 from mainClasses.SGCell import SGCell
 from mainClasses.SGTimePhase import *
 from math import inf
@@ -56,7 +56,8 @@ class SGAbstractAction():
 
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
 
-            self.model.timeManager.getCurrentPhase().handleAutoForward()
+            if not self.model.timeManager.isInitialization():
+                self.model.timeManager.getCurrentPhase().handleAutoForward()
 
             #commented because unsued -  return resAction if not self.feedbacks else [resAction,resFeedback]
         # else:

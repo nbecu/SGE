@@ -94,6 +94,67 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         # If no matches are found, retunr the default color
         return self.defaultShapeColor
 
+    def discoverAttributesAndValues(self):
+        """
+        Discovers all attributes and their possible values using multiple sources:
+        1. Existing entities (real data)
+        2. POVs (Points of View) - more specific, defined by modeler
+        3. Default values from entityDef - fallback values
+        
+        Returns:
+            dict: {attribute_name: [list_of_possible_values]}
+        """
+        discoveredAttrs = {}
+        
+        # Step 1: Scan all existing entities to discover attributes and values
+        if self.entities:
+            for entity in self.entities:
+                if hasattr(entity, 'dictAttributes'):
+                    for attr, value in entity.dictAttributes.items():
+                        if attr not in discoveredAttrs:
+                            discoveredAttrs[attr] = set()
+                        discoveredAttrs[attr].add(value)
+        
+        # Step 2: Complete with POVs (Points of View) - more specific, defined by modeler
+        if hasattr(self, 'povShapeColor'):
+            for povName, povData in self.povShapeColor.items():
+                for attribute, valueColorDict in povData.items():
+                    if attribute not in discoveredAttrs:
+                        discoveredAttrs[attribute] = set()
+                    # Add all values from POVs
+                    for value in valueColorDict.keys():
+                        discoveredAttrs[attribute].add(value)
+        
+        if hasattr(self, 'povBorderColorAndWidth'):
+            for povName, povData in self.povBorderColorAndWidth.items():
+                for attribute, valueColorWidthDict in povData.items():
+                    if attribute not in discoveredAttrs:
+                        discoveredAttrs[attribute] = set()
+                    # Add all values from border POVs
+                    for value in valueColorWidthDict.keys():
+                        discoveredAttrs[attribute].add(value)
+        
+        # Step 3: Complete with default values from entityDef - fallback values
+        if hasattr(self, 'attributesDefaultValues'):
+            for attr, defaultVal in self.attributesDefaultValues.items():
+                if attr not in discoveredAttrs:
+                    discoveredAttrs[attr] = set()
+                
+                if callable(defaultVal):
+                    # For callable defaults, only add None if no other values were discovered
+                    if len(discoveredAttrs[attr]) == 0:
+                        discoveredAttrs[attr].add(None)  # None means "any value"
+                else:
+                    # For non-callable defaults, always add the value
+                    discoveredAttrs[attr].add(defaultVal)
+        
+        # Convert sets to lists
+        result = {}
+        for attr, values in discoveredAttrs.items():
+            result[attr] = list(values)
+        
+        return result
+
     ###Definiton of the methods who the modeler will use
     def setDefaultValue(self, aAtt, aDefaultValue):
         self.attributesDefaultValues[aAtt] = aDefaultValue
