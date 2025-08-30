@@ -16,7 +16,7 @@ class SGLegend(SGGameSpace):
         # self.heightOfLabels= 25 #added for CarbonPolis
         self.heightOfLabels= 20 #added for CarbonPolis
 
-    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,addDeleteButton=True,borderColor=Qt.black):
+    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
         self.id=legendName #todo should be removed as it is managed by the superclass
         self.model=model
         self.playerName=playerName
@@ -25,7 +25,6 @@ class SGLegend(SGGameSpace):
         self.isActive=True
         self.selected = None # To handle the selection of an item in the legend
         self.borderColor=borderColor
-        self.haveADeleteButton=addDeleteButton
         self.updateWithSymbologies(listOfSymbologies)
         return self
     
@@ -34,9 +33,6 @@ class SGLegend(SGGameSpace):
 
     def isActiveAndSelected(self):
         return self.isActive and self.selected is not None
-    
-    def isAdminLegend(self):
-        return self.playerName=='Admin'
     
     def clearAllLegendItems(self):
         for aItem in self.legendItems:
@@ -73,9 +69,6 @@ class SGLegend(SGGameSpace):
                 for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
                     anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
                     self.legendItems.append(anItem)
-        if self.haveADeleteButton :
-            anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
-            self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
             anItem.adjustSize()  #NEW
@@ -101,8 +94,6 @@ class SGLegend(SGGameSpace):
     def getSizeXGlobal(self):
         listOfLengths = [len(item.text) for item in self.legendItems]
         listOfLengths.append(len(self.id))
-        if self.haveADeleteButton :
-            listOfLengths.append(len('delete'))
         if len(listOfLengths)==0:
             return 250
         lMax= sorted(listOfLengths,reverse=True)[0]
@@ -153,18 +144,10 @@ class SGLegend(SGGameSpace):
         if self.playerName in self.model.users :
             return True
     
-    def checkViability(self,text):
-        thePlayer=self.model.players[self.playerName]
-        for action in thePlayer.gameActions:
-            if isinstance(action,SGCreate) or isinstance(action,SGDelete): 
-                if action.dictAttributs is not None: # case of att+val agents WITH attribut info in Action
-                    stringAttributs = " : ".join([f"{key} : {value}" for key, value in action.dictAttributs.items()])
-                    if stringAttributs in text : 
-                        return True
-        return False
-    
-    def checkSpecie(self,item_key,items):
-        for legendItem in items:
-            if item_key in legendItem.text:
-                return False
-        return True
+
+    #obsolete function
+    # def checkSpecie(self,item_key,items):
+    #     for legendItem in items:
+    #         if item_key in legendItem.text:
+    #             return False
+    #     return True

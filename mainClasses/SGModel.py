@@ -568,7 +568,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False, addDeleteButton=True):#, grid=None):
+    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):#, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
@@ -580,7 +580,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         # selectedSymbologies=self.getAllCheckedSymbologies(grid)
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt, addDeleteButton)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
@@ -834,8 +834,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             #update the userSelector interface
             if self.userSelector is not None:
                 self.userSelector.setCheckboxesWithSelection(aUserName)
-            #update the ControlPanel and adminLegend interfaces
-            for aItem in self.getControlPanels()+self.getAdminLegends() :
+            #update the ControlPanel and adminControlPanel interfaces
+            for aItem in self.getControlPanels():
                 # aItem.isActive = (aItem.playerName == self.currentPlayerName)
                 aItem.setActivation(aItem.playerName == self.currentPlayerName)
                 # aItem.update()
@@ -1340,9 +1340,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for symbologies in self.symbologiesInSubmenus.values():
             if selectedSymbology in symbologies:
                 [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
-        for aLegend in self.getAdminLegends():
-            if isinstance(aLegend,SGControlPanel):  
-                continue
+        for aLegend in self.getLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
             # aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
@@ -1524,8 +1522,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getAdminLegend(self):
         return next((item for item in self.getLegends() if item.isAdminLegend()), None)
 
-    def getAdminLegends(self): #useful in case they are several admin legends
-        return [item for item in self.getLegends() if item.isAdminLegend()]
+    def getAdminControlPanels(self): #useful in case they are several admin control panels
+        return [item for item in self.getControlPanels() if item.isAdminLegend()]
 
     def getAdminPlayer(self):
         """Get the Admin player instance"""

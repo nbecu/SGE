@@ -67,6 +67,10 @@ class SGControlPanel(SGLegend):
     def getLegendItemsOfGameActions(self):
         return [item for item in self.legendItems if item.gameAction is not None]
 
+    def isAdminLegend(self):
+        """Check if this control panel belongs to an admin player"""
+        return hasattr(self, 'player') and hasattr(self.player, 'isAdmin') and self.player.isAdmin
+
     def setActivation(self, aBoolean):
         previousValue = self.isActive
         self.isActive = aBoolean
@@ -76,7 +80,17 @@ class SGControlPanel(SGLegend):
             self.selected = self.defaultSelection
 
         
-
+    #obsolete function
+    # def checkViability(self,text):
+    #     thePlayer=self.model.players[self.playerName]
+    #     for action in thePlayer.gameActions:
+    #         if isinstance(action,SGCreate) or isinstance(action,SGDelete): 
+    #             if action.dictAttributs is not None: # case of att+val agents WITH attribut info in Action
+    #                 stringAttributs = " : ".join([f"{key} : {value}" for key, value in action.dictAttributs.items()])
+    #                 if stringAttributs in text : 
+    #                     return True
+    #     return False
+   
 
 
 
