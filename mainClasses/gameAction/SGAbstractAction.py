@@ -146,6 +146,36 @@ class SGAbstractAction():
         return self.number-self.numberUsed
         # thePlayer.remainActions[self.name]=remainNumber
     
+    def getGraphIdentifier(self):
+        """Generate unique identifier for graphs, showing ID only when necessary"""
+        if hasattr(self.targetEntDef, 'entityName'):
+            base_name = f"{self.targetEntDef.entityName}_{self.nameToDisplay}"
+        else:
+            base_name = f"model_{self.nameToDisplay}"
+        
+        # Check if there are other actions with the same base name (static method to avoid recursion)
+        if self._hasConflictingNames(base_name):
+            return f"{base_name}_{self.id}"
+        else:
+            return base_name
+    
+    @classmethod
+    def _hasConflictingNames(cls, base_name):
+        """Static method to check for name conflicts without recursion"""
+        count = 0
+        for action in cls.instances:
+            if hasattr(action, 'targetEntDef') and hasattr(action, 'nameToDisplay'):
+                if hasattr(action.targetEntDef, 'entityName'):
+                    action_base = f"{action.targetEntDef.entityName}_{action.nameToDisplay}"
+                else:
+                    action_base = f"model_{action.nameToDisplay}"
+                
+                if action_base == base_name:
+                    count += 1
+                    if count > 1:  # More than one action with this name
+                        return True
+        return False
+    
 
   
             
