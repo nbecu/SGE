@@ -31,8 +31,18 @@ class SGCreate(SGAbstractAction):
 
 
     def executeAction(self, aTargetEntity):
-        """Create a single agent """
-        return self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs)
+        """Create a single entity """
+        # in case of agent, we create the agent on the cell
+        if self.targetEntDef.isAgentDef:
+            return self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs)
+        # in case of cell, we just revive the cell
+        elif self.targetEntDef.isCellDef:
+            if aTargetEntity.isDeleted():
+                self.targetEntDef.reviveThisCell(aTargetEntity)
+            return aTargetEntity
+        else:
+            raise ValueError(f"Error in executeAction of SGCreate for {self.targetEntDef.entityName}")
+
 
     def perform_with(self, aTargetEntity, serverUpdate=True):
         """Override perform_with to handle multiple agent creation correctly for history tracking"""
