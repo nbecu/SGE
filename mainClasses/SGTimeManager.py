@@ -123,6 +123,17 @@ class SGTimeManager():
         """
         if activePlayers == None:
             activePlayers = self.model.users
+        if 'Admin' in activePlayers:
+            # Replace 'Admin' string with the actual adminPlayer instance
+            adminPlayer = self.model.getAdminPlayer()
+            if adminPlayer:
+                # Find the index of 'Admin' and replace it with the instance
+                admin_index = activePlayers.index('Admin')
+                activePlayers[admin_index] = adminPlayer
+            else:
+                # If no adminPlayer exists, remove 'Admin' from the list
+                activePlayers.remove('Admin')
+
         aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
                            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
                            message_auto_forward=message_auto_forward,
