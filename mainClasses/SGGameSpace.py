@@ -9,6 +9,12 @@ class SGGameSpace(QtWidgets.QWidget):
     def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroundColor=Qt.gray,forceDisplay=False):
         super().__init__(parent)
         self.model=parent
+        
+        # Type identification attributes
+        self.isCellDef = False
+        self.isAgentDef = False
+        self.isAGrid = False
+
         self.posXInLayout=posXInLayout
         self.posYInLayout=posYInLayout
         self.positionDefineByModeler = None

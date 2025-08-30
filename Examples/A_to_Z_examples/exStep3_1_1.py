@@ -31,6 +31,7 @@ Sheeps.newAgentsAtCoords(3,(5,4))
 
 
 Legend=myModel.newLegend()
+myModel.displayAdminControlPanel()
 
 myModel.launch() 
 sys.exit(monApp.exec_())

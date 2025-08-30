@@ -18,6 +18,14 @@ class SGGridLayout(SGAbstractLayout):
     #Add a game space to the layout and return the basic position
     def addGameSpace(self,aGameSpace):
         self.count=self.count+1
+        
+        # Patch: Automatically resize layout if necessary
+        while self.count > (self.x * self.y):
+            if self.x <= self.y:
+                self.x += 1  # Increase width
+            else:
+                self.y += 1  # Increase height
+        
         aListe = self.GameSpaces[((self.count-1)%self.y)]
         aGameSpace.posYInLayout=((self.count-1)%self.y)
         if len(aListe)<self.x and self.foundInLayout(aGameSpace) is None:

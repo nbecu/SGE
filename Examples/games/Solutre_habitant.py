@@ -545,13 +545,13 @@ def updatesCubesActivation(aHex):
 
 def checkCubesBuisson():
     """Permet de vérifier si un joueur a assez de cubes pour réaliser supprimer un buisson"""
-    player=myModel.getPlayer(myModel.currentPlayer)
+    player=myModel.getPlayer(myModel.currentPlayerName)
     if player.value("nbCubes")>=1: return True
     else: return False
 
 def decCubesBuisson():
     """Permet de mettre à jour le nombre de cubes d'un joueur après la suppression d'un buisson"""
-    player=myModel.getPlayer(myModel.currentPlayer)
+    player=myModel.getPlayer(myModel.currentPlayerName)
     player.decValue("nbCubes")
 
 def checkIsThereTouristes(): # todo cette verification est inutile a priori
@@ -730,7 +730,7 @@ def selectPlayer(aPlayerName, aObjectifCardName="random"):
 
 def getObjectif(aCardName):
     """Choisis un objectif pour le joueur choisi par un nom"""
-    player = myModel.currentPlayer
+    player = myModel.currentPlayerName
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     objectif = objectifs_joueur[objectifs_joueur['Nom'] == aCardName]
     if not objectif.empty:
@@ -744,7 +744,7 @@ def getObjectif(aCardName):
 
 def getRandomObjectif():
     """Choisis un objectif aléatoire pour le joueur choisi"""
-    player=myModel.currentPlayer
+    player=myModel.currentPlayerName
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     if not objectifs_joueur.empty:
         objectif = objectifs_joueur.sample(n=1)
@@ -774,7 +774,7 @@ def getColorByPlayer(aPlayerName):
 
 def createInitHexagones():
     """Crée les hexagones initiaux sur le plateau"""
-    if myModel.currentPlayer != "Viticulteur":
+    if myModel.currentPlayerName != "Viticulteur":
         createHex("Vigne du plateau",hexagones,data_inst,data_act)
         createHex("Caveau du plateau",hexagones,data_inst,data_act)
     createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)

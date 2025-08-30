@@ -36,7 +36,15 @@ class SGControlPanel(SGLegend):
     def initUI_withGameActions(self,gameActions):
         self.posYOfItems = 0
         anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
-        sortedGameActions = sorted(gameActions, key=lambda x: (0, x.targetEntDef.entityName) if x.targetEntDef.entityType() == 'Cell' else (1, x.targetEntDef.entityName))
+        
+        # Filter out actions that can't be properly sorted (like model actions)
+        sortableActions = []
+        for action in gameActions:
+            if hasattr(action, 'targetEntDef') and action.targetEntDef != 'model':
+                sortableActions.append(action)
+        
+        # Sort actions by entity type and name
+        sortedGameActions = sorted(sortableActions, key=lambda x: (0, x.targetEntDef.entityName) if x.targetEntDef.entityType() == 'Cell' else (1, x.targetEntDef.entityName))
 
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:

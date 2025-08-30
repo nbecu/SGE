@@ -284,7 +284,7 @@ class SGCell(SGEntity):
 
     #To get all agents on the grid of a particular type
     def getAgentsOfSpecie(self,nameOfSpecie):
-        from mainClasses.SGEntityDef import SGAgentDef # Import local pour éviter l'import circulaire
+        from mainClasses.SGEntityDef import SGAgentDef #  local Import to avoid circuler import
         if isinstance(nameOfSpecie,SGAgentDef): nameOfSpecie = nameOfSpecie.entityName
         return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
     

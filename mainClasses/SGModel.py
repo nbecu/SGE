@@ -138,9 +138,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.players = {}
         # Automatically create Admin as a super player (optional)
         if createAdminPlayer:
-            self.adminPlayer = SGAdminPlayer(self)
-            self.players["Admin"] = self.adminPlayer
+            self.players["Admin"] = SGAdminPlayer(self)
             self.users = ["Admin"]
+            self.shouldDisplayAdminControlPanel = False
         else:
             self.users = []
         # self.users = ["Admin"]
@@ -149,7 +149,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.timeManager = SGTimeManager(self)
         # List of players
         # self.players = {}  # Moved above
-        self.currentPlayer = None
+        self.currentPlayerName = None
 
         self.userSelector = None
         self.myTimeLabel = None
@@ -220,7 +220,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def initAfterOpening(self):
         QTimer.singleShot(100, self.updateFunction)
-        if self.currentPlayer is None:
+        if self.currentPlayerName is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
             elif possibleUsers == [] : self.setCurrentPlayer('Admin')
@@ -511,7 +511,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # To get the CellDef corresponding to a Grid
     def getCellDef(self, aGrid):
-        if isinstance(aGrid,SGCellDef): return aGrid
+        if aGrid.isCellDef: return aGrid
         return self.cellOfGrids[aGrid.id]
 
 
@@ -797,7 +797,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if aUserName is None:
             raise ValueError('Username cannot be None')
         if aUserName == "Admin":
-            return aUserName
+            return self.getAdminPlayer()
         if isinstance(aUserName,SGPlayer):
             return aUserName
         if aUserName in self.players:
@@ -806,9 +806,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             raise ValueError(f'No Player named {aUserName} exists')
             
     def getCurrentPlayer(self):
-        if not self.currentPlayer:
+        if not self.currentPlayerName:
             raise ValueError('Current player is not defined')
-        return self.getPlayer(self.currentPlayer)
+        return self.getPlayer(self.currentPlayerName)
         
     def getPlayers(self):
         """
@@ -830,14 +830,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if isinstance(aUserName,SGPlayer):
            aUserName = aUserName.name 
         if aUserName in self.getUsersName():
-            self.currentPlayer = aUserName
+            self.currentPlayerName = aUserName
             #update the userSelector interface
             if self.userSelector is not None:
                 self.userSelector.setCheckboxesWithSelection(aUserName)
             #update the ControlPanel and adminLegend interfaces
             for aItem in self.getControlPanels()+self.getAdminLegends() :
-                # aItem.isActive = (aItem.playerName == self.currentPlayer)
-                aItem.setActivation(aItem.playerName == self.currentPlayer)
+                # aItem.isActive = (aItem.playerName == self.currentPlayerName)
+                aItem.setActivation(aItem.playerName == self.currentPlayerName)
                 # aItem.update()
     
 
@@ -854,7 +854,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # To select only users with a control panel
     def getUsers_withControlPanel(self):
         selection=[]
-        if self.getAdminLegend() != None:
+        if self.shouldDisplayAdminControlPanel:
             selection.append('Admin')     
         for aP in self.players.values():
             if aP.controlPanel !=  None:
@@ -1066,7 +1066,25 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
 #****************************************************
 
+    def displayAdminControlPanel(self):
+        """
+        Display the Admin Control Panel
+        """
+        self.shouldDisplayAdminControlPanel = True
+        if not self.timeManager.isInitialization():
+            self.show_adminControlPanel()
 
+
+    def show_adminControlPanel(self):
+        """
+        Private method to show the Admin Control Panel
+        """
+        adminPlayer = self.getAdminPlayer()
+        adminPlayer.createAllGameActions()
+        if adminPlayer.controlPanel is None:
+            adminPlayer.newControlPanel("Admin")
+        else:
+            adminPlayer.controlPanel.show()
 
     def deleteTextBox(self, titleOfTheTextBox):
         del self.gameSpaces[titleOfTheTextBox]
@@ -1323,6 +1341,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if selectedSymbology in symbologies:
                 [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
         for aLegend in self.getAdminLegends():
+            if isinstance(aLegend,SGControlPanel):  
+                continue
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
             # aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
@@ -1482,8 +1502,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # Getter
 
     def getGrid(self,anObject):
-        if isinstance(anObject,SGCellDef): return anObject.grid
-        elif isinstance(anObject,SGGrid): return anObject
+        if anObject.isCellDef: return anObject.grid
+        elif anObject.isAGrid: return anObject
         else: raise ValueError('Wrong object type')
 
 
@@ -1506,6 +1526,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def getAdminLegends(self): #useful in case they are several admin legends
         return [item for item in self.getLegends() if item.isAdminLegend()]
+
+    def getAdminPlayer(self):
+        """Get the Admin player instance"""
+        return self.players.get("Admin")
     
     def getSelectedLegend(self):
         return next((item for item in self.getLegends() if item.isActive), None)
@@ -1530,14 +1554,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         Launch the game.
         """
+        if self.shouldDisplayAdminControlPanel:
+            self.show_adminControlPanel()
         self.setDashboards()
         self.show()
         self.initAfterOpening()
 
-    # To open and launch the game
+    # To open and launch the game with a mqtt broker
     def launch_withMQTT(self,majType):
         """
-        Launch the game with mqtt protocol
+        Set the mqtt protocol, then launch the game
 
         Args:
             majType (str): "Phase" or "Instantaneous"
@@ -1549,9 +1575,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.majTimer.start(100)
         self.initMQTT()
         self.mqttMajType=majType
-        self.setDashboards()
-        self.show()
-        self.initAfterOpening()
+
+        self.launch()
 
     # Return all gameActions of all players
     def getAllGameActions(self):
@@ -1589,8 +1614,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             print("disconnect result code "+str(rc))
 
         print("connectMQTT")
-        self.client = mqtt_client.Client(self.currentPlayer)
-        # self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayer) # for the new version of paho possible correction
+        self.client = mqtt_client.Client(self.currentPlayerName)
+        # self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayerName) # for the new version of paho possible correction
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         self.client.on_log = on_log

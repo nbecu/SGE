@@ -20,6 +20,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
     def __init__(self, theModel, name, actions=[],attributesAndValues=None):
         self.model = theModel
         self.name = name
+        self.isAdmin = False
         self.actions = actions
         self.gameActions = []
         self.remainActions = {}
@@ -99,7 +100,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
             'actions_performed': [
                 {
                     'action_id': action.id,
-                    'action_type': action.name,
+                    'action_type': action.nameToDisplay,
                     'usage_count': len([p for p in action.history["performed"] if p[0] == 0 and p[1] == 0])
                 }
                 for action in self.gameActions
@@ -120,7 +121,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
                     'actions_performed': [
                         {
                             'action_id': action.id,
-                            'action_type': action.name,
+                            'action_type': action.nameToDisplay,
                             'usage_count': len([p for p in action.history["performed"] if p[0] == round_num and p[1] == phase_num])
                         }
                         for action in self.gameActions

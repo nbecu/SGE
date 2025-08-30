@@ -7,7 +7,7 @@ import copy
 class SGDelete(SGAbstractAction):
     def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False):#,setOnController=True):
         super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu)
-        self.nameToDisplay=nameToDisplay or "× delete"
+        self.nameToDisplay=nameToDisplay or f"× delete {self.targetEntDef.entityName}"
         self.actionType="Delete"
         self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef and not aTargetEntity.isDeleted())
 

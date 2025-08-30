@@ -30,7 +30,7 @@ Player1 = myModel.newPlayer("Player1")
 Player1.addGameAction(myModel.newModifyAction(Cell, {"type": "water"}, 3))
 
 # Maintenant que toutes les entités sont créées, créer les actions d'Admin
-adminPlayer = myModel.players["Admin"]
+adminPlayer = myModel.getAdminPlayer()
 adminPlayer.createAllGameActions()
 
 # Créer une légende Admin
@@ -47,7 +47,7 @@ print("✓ Admin player created successfully")
 
 # Test 2: Vérifier que Admin a des gameActions
 print("Test 2: Admin gameActions")
-adminPlayer = myModel.players["Admin"]
+adminPlayer = myModel.getAdminPlayer()
 assert len(adminPlayer.gameActions) > 0, "Admin should have gameActions"
 print(f"✓ Admin has {len(adminPlayer.gameActions)} gameActions")
 
@@ -64,7 +64,7 @@ print("✓ Admin has all required action types")
 # Test 4: Vérifier que Admin peut être sélectionné
 print("Test 4: Admin selection")
 myModel.setCurrentPlayer("Admin")
-assert myModel.currentPlayer == "Admin", "Admin should be selectable"
+assert myModel.currentPlayerName == "Admin", "Admin should be selectable"
 print("✓ Admin can be selected as current player")
 
 # Test 5: Vérifier que Admin peut utiliser les actions

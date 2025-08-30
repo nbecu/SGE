@@ -40,7 +40,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 if aNumber == inf:
                     text = f"∞ actions"
                 else:
-                    text = f"Actions remaining: {self.gameAction.getNbRemainingActions()}"
+                    text = f"{self.gameAction.getNbRemainingActions()} actions remaining"
                 QToolTip.showText(e.globalPos(), text, self)
             return True  # event handled
         return super().event(e)
@@ -172,7 +172,7 @@ class SGLegendItem(QtWidgets.QWidget):
     #To handle the selection of an element int the legend
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
-            if self.legend.playerName!=self.legend.model.currentPlayer:
+            if self.legend.playerName!=self.legend.model.currentPlayerName:
                 return #Exit because the currentPlayer cannot use this widget
             if not self.isSelectable():
                 return #Exit because the currentPlayer cannot use this widget

@@ -7,6 +7,8 @@ from mainClasses.SGModel import *
 class SGGrid(SGGameSpace):
     def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None,neighborhood='moore',boundaries='open'):
         super().__init__(parent, 0, 60, 0, 0)
+        # Type identification attributes
+        self.isAGrid = True
         # Basic initialize
         self.zoom = 1
         self.model = parent

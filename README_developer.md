@@ -33,6 +33,8 @@ When creating new methods or functions intended for modelers, always use the fol
 - **nb**: To obtain the number of entities, objects or instances.
 - **is**: To perform a test (returns True or False) (e.g., `isDeleted()`).
 - **do_**: To perform an action on an entity.
+- **display**: To display an element on the SGE User Interface.
+
 
 ---
 

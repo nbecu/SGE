@@ -26,6 +26,11 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.shapeColorClassif = {}  # Classif will replace pov
         self.borderColorClassif = {}  # Classif will replace pov
         
+        # Type identification attributes
+        self.isAgentDef = False
+        self.isCellDef = False
+        self.isAGrid = False
+        
         #Define variables to handle the history 
         self.history={}
         self.history["value"]=defaultdict(list)
@@ -43,8 +48,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         return self.IDincr
     
     def entityType(self):
-        if isinstance(self,SGCellDef): return 'Cell'
-        elif isinstance(self,SGAgentDef): return 'Agent'
+        if self.isCellDef: return 'Cell'
+        elif self.isAgentDef: return 'Agent'
         else: raise ValueError('Wrong or new entity type')
 
     ###Definition of the developer methods
@@ -763,6 +768,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 class SGCellDef(SGEntityDef):
     def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, entityName='Cell', defaultCellImage=None):
         super().__init__(grid.model, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+        # Type identification attribute
+        self.isCellDef = True
         self.grid = grid
         self.deletedCells = []
         self.defaultImage = defaultCellImage
@@ -864,6 +871,8 @@ class SGCellDef(SGEntityDef):
 class SGAgentDef(SGEntityDef):
     def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None):
         super().__init__(sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+        # Type identification attribute
+        self.isAgentDef = True
         self.locationInEntity = locationInEntity
         self.defaultImage = defaultImage
         self.popupImage = popupImage

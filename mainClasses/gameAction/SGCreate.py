@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QInputDialog
 
 
 
+
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
     def __init__(self,entDef,dictAttributs,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False , create_several_at_each_click = False, writeAttributeInLabel=False):
@@ -30,9 +31,20 @@ class SGCreate(SGAbstractAction):
 
 
     def executeAction(self, aTargetEntity):
-        nbOfAgents = 1 if not self.create_several_at_each_click else self.numberOfAgentsToCreate()
-        listOfNewAgents = [self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs) for _ in range(nbOfAgents)]
-        return listOfNewAgents[0] if len(listOfNewAgents) == 1 else listOfNewAgents or None
+        if self.targetEntDef.isAgentDef:
+            
+            nbOfAgents = 1 if not self.create_several_at_each_click else self.numberOfAgentsToCreate()
+            listOfNewAgents = [self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs) for _ in range(nbOfAgents)]
+            return listOfNewAgents[0] if len(listOfNewAgents) == 1 else listOfNewAgents or None
+        elif self.targetEntDef.isCellDef:
+            if aTargetEntity.isDeleted():
+                self.targetEntDef.reviveThisCell(aTargetEntity)
+            return aTargetEntity
+        else:
+            raise ValueError(f"Error in executeAction of SGCreate for {self.targetEntDef.entityName}")
+    
+    #We now check the feedBack of the actions if it have some
+    #                 if self.isDeleted() : self.classDef.reviveThisCell(self) 
 
     def numberOfAgentsToCreate(self):
         number, ok = QInputDialog.getInt(None, f"Create {self.targetEntDef.entityName}", "Number to create:", 1, 1)
