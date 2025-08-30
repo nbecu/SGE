@@ -99,7 +99,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
             'actions_performed': [
                 {
                     'action_id': action.id,
-                    'action_type': action.name,
+                    'action_type': action.getGraphIdentifier(),
                     'usage_count': len([p for p in action.history["performed"] if p[0] == 0 and p[1] == 0])
                 }
                 for action in self.gameActions
@@ -120,7 +120,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
                     'actions_performed': [
                         {
                             'action_id': action.id,
-                            'action_type': action.name,
+                            'action_type': action.getGraphIdentifier(),
                             'usage_count': len([p for p in action.history["performed"] if p[0] == round_num and p[1] == phase_num])
                         }
                         for action in self.gameActions

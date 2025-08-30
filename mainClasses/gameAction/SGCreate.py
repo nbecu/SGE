@@ -30,15 +30,50 @@ class SGCreate(SGAbstractAction):
 
 
     def executeAction(self, aTargetEntity):
-        nbOfAgents = 1 if not self.create_several_at_each_click else self.numberOfAgentsToCreate()
-        listOfNewAgents = [self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs) for _ in range(nbOfAgents)]
-        return listOfNewAgents[0] if len(listOfNewAgents) == 1 else listOfNewAgents or None
+        """Create a single agent """
+        return self.targetEntDef.newAgentOnCell(aTargetEntity, self.dictAttributs)
+
+    def perform_with(self, aTargetEntity, serverUpdate=True):
+        """Override perform_with to handle multiple agent creation correctly for history tracking"""
+        # If not creating multiple agents, use standard behavior
+        if not self.create_several_at_each_click:
+            return super().perform_with(aTargetEntity, serverUpdate)
+        
+        # Get number of agents to create
+        nbOfAgents = self.numberOfAgentsToCreate()
+        
+        # Handle case where user cancels or no actions remaining
+        if nbOfAgents is None:
+            return False
+        
+        # Execute the action for each agent using standard behavior
+        results = []
+        for _ in range(nbOfAgents):
+            result = super().perform_with(aTargetEntity, serverUpdate)
+            if result:
+                results.append(result)
+        
+        # Return the result(s) - single agent or list of agents
+        return results[0] if len(results) == 1 else results if results else False
+
 
     def numberOfAgentsToCreate(self):
-        number, ok = QInputDialog.getInt(None, f"Create {self.targetEntDef.entityName}", "Number to create:", 1, 1)
+        max_agents = self.getNbRemainingActions()
+        if max_agents <= 0:
+            return None  # No actions remaining
+        
+        # Handle infinite actions case - no upper limit in dialog
+        if max_agents == float('inf'):
+            number, ok = QInputDialog.getInt(None, f"Create {self.targetEntDef.entityName}", 
+                                            "Number to create:", 1, 1)
+        else:
+            # Finite actions - use the actual limit
+            number, ok = QInputDialog.getInt(None, f"Create {self.targetEntDef.entityName}", 
+                                            f"Number to create (max: {max_agents}):", 1, 1, max_agents)
+        
         if ok:
             return number
-        return 0
+        return None  # User cancelled
 
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:
