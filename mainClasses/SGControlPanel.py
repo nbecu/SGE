@@ -1,16 +1,16 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from mainClasses.SGLegend import SGLegend
+from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGLegendItem import SGLegendItem
 
 #Class who is responsible of the creation of a ControlPanel
 #A ControlPanel is an interface that permits to operate the game actions of a player
-class SGControlPanel(SGLegend):
-    @classmethod
+class SGControlPanel(SGGameSpace):
+    @classmethod #todo change to the normal way to create a ControlPanel
     def forPlayer(cls, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black,defaultActionSelected=None):
         aModel=aPlayer.model
-        aControlPanel = cls(aModel,backgroundColor)
+        aControlPanel = cls(aModel,0,60,0,0,backgroundColor=backgroundColor)
         aControlPanel.isLegend=False
         aControlPanel.isControlPanel=True
         aControlPanel.id=panelTitle
@@ -37,6 +37,8 @@ class SGControlPanel(SGLegend):
 
     def initUI_withGameActions(self,gameActions):
         self.posYOfItems = 0
+        self.legendItems = []
+        self.heightOfLabels = 20
         anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
         
         # Filter out actions that can't be properly sorted (like model actions)
@@ -85,6 +87,26 @@ class SGControlPanel(SGLegend):
 
     def isActiveAndSelected(self):
         return self.isActive and self.selected is not None
+
+    #Function to have the global size of a gameSpace  
+    def getSizeXGlobal(self):
+        listOfLengths = [len(item.text) for item in self.legendItems]
+        listOfLengths.append(len(self.id))
+        if len(listOfLengths)==0:
+            return 250
+        lMax= sorted(listOfLengths,reverse=True)[0]
+        return lMax*12+10
+    
+    def getSizeX_fromAllWidgets(self):
+        if self.legendItems:  # Vérifier si la liste n'est pas vide
+            max_size_item = max(self.legendItems, key=lambda item: item.geometry().size().width())
+            max_width = max_size_item.geometry().size().width()
+        else:
+            max_width = 30  # Ou une autre valeur par défaut
+        return max_width + 10
+    
+    def getSizeYGlobal(self):
+        return (self.heightOfLabels)*(len(self.legendItems)+1)
 
     #Drawing the Legend
     def paintEvent(self,event):
