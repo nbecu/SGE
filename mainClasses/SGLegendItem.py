@@ -179,13 +179,8 @@ class SGLegendItem(QtWidgets.QWidget):
         
     # Note: mousePressEvent has been moved to SGControlPanel
     # SGLegendItem in pure legends should not have controller behavior
-        
-    #To handle the drag 
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
     
-    # Note: isFromAdmin() is obsolete - use SGControlPanel.isAdminLegend() instead
+    # Note: mouseMoveEvent and isFromAdmin() are obsolete - controller behavior moved to SGControlPanel
 
 
 

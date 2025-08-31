@@ -1496,6 +1496,50 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             buttonCoord = setControllerButton
             self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
         return aActivateAction
+
+    def newPlayPhase(self, phaseName, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+        """
+        Create a new play phase for the game.
+        
+        Args:
+            phaseName (str): Name of the phase
+            activePlayers (list): List of players active in this phase. Can contain:
+                - Player instances (SGPlayer objects)
+                - Player names (str) - will be automatically converted to instances
+                - 'Admin' (str) - will be converted to the Admin player instance
+            modelActions (list, optional): Actions the model performs at the beginning of the phase (add, delete, move...)
+            autoForwardWhenAllActionsUsed (bool, optional): Whether to automatically forward to next phase when all players have used their actions
+            message_auto_forward (bool, optional): Whether to show a message when automatically forwarding to the next phase
+            show_message_box_at_start (bool, optional): Whether to show a message box at the start of the phase
+            
+        Returns:
+            The created play phase (which is an instance of SGTimePhase)
+        """
+        return self.timeManager.newPlayPhase(phaseName, activePlayers, modelActions, autoForwardWhenAllActionsUsed, message_auto_forward, show_message_box_at_start)
+
+    def newModelPhase(self, actions=None, condition=None, name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):
+        """
+        Create a new model phase for the game.
+        
+        Args:
+            actions (SGModelAction, lambda function, or list of SGModelAction/lambda function, optional):
+                The action(s) to be executed during the phase. Can be a single SGModelAction, a lambda function,
+                or a list of either.
+            condition (lambda function, optional):
+                A function returning a boolean. Actions are performed only if this function returns True.
+            name (str, optional):
+                Name displayed on the TimeLabel.
+            auto_forward (bool, optional):
+                If True, this phase will be executed automatically. Default is False.
+            message_auto_forward (bool, optional):
+                If True, a message will be displayed when auto-forwarding. Default is True.
+            show_message_box_at_start (bool, optional):
+                If True, a message box will be shown at the start of the phase. Default is False.
+            
+        Returns:
+            SGTimePhase: The created time phase
+        """
+        return self.timeManager.newModelPhase(actions, condition, name, auto_forward, message_auto_forward, show_message_box_at_start)
     # -----------------------------------------------------------
     # Getter
 

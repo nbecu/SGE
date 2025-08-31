@@ -115,7 +115,11 @@ class SGTimeManager():
 
         args:
             name (str): Name displayed on the TimeLabel
-            activePlayers : List of plays concerned about the phase (default:all)
+            activePlayers (list): List of players concerned about the phase. Can contain:
+                - Player instances (SGPlayer objects)
+                - Player names (str) - will be automatically converted to instances
+                - 'Admin' (str) - will be converted to the Admin player instance
+                - None (default:all users)
             modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
             autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
             message_auto_forward (bool): Whether to show a message when automatically forwarding to the next phase
@@ -123,16 +127,33 @@ class SGTimeManager():
         """
         if activePlayers == None:
             activePlayers = self.model.users
-        if 'Admin' in activePlayers:
-            # Replace 'Admin' string with the actual adminPlayer instance
-            adminPlayer = self.model.getAdminPlayer()
-            if adminPlayer:
-                # Find the index of 'Admin' and replace it with the instance
-                admin_index = activePlayers.index('Admin')
-                activePlayers[admin_index] = adminPlayer
+        
+        # Convert player names to player instances
+        processedPlayers = []
+        for player in activePlayers:
+            if isinstance(player, str):
+                if player == 'Admin':
+                    # Handle Admin player
+                    adminPlayer = self.model.getAdminPlayer()
+                    if adminPlayer:
+                        processedPlayers.append(adminPlayer)
+                    else:
+                        # If no adminPlayer exists, skip it
+                        continue
+                else:
+                    # Handle regular players by name
+                    try:
+                        playerInstance = self.model.getPlayer(player)
+                        processedPlayers.append(playerInstance)
+                    except ValueError:
+                        # If player not found, skip it
+                        print(f"Warning: Player '{player}' not found, skipping from active players")
+                        continue
             else:
-                # If no adminPlayer exists, remove 'Admin' from the list
-                activePlayers.remove('Admin')
+                # Already an instance, keep as is
+                processedPlayers.append(player)
+        
+        activePlayers = processedPlayers
 
         aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
                            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,

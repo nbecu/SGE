@@ -50,12 +50,51 @@ adminControlPanel = adminPlayer.newControlPanel("Admin actions")
 # UserSelector to switch between players
 userSelector=myModel.newUserSelector()
 
+# Add a play phase to test Player1 ControlPanel after initialization
+playPhase = myModel.newPlayPhase("play phase", ["Player 1", "Admin"])
+
+# Automated test: Check that Legend items are not selectable
+print("🔍 Running automated tests...")
+
+# Test 1: Check that Legend items are not selectable
+legend_items = Legend.legendItems
+legend_selectable_count = sum(1 for item in legend_items if item.isSelectable())
+print(f"   Legend items: {len(legend_items)} total, {legend_selectable_count} selectable")
+if legend_selectable_count == 0:
+    print("   ✅ Legend items are correctly NOT selectable")
+else:
+    print(f"   ❌ ERROR: {legend_selectable_count} Legend items are selectable (should be 0)")
+
+# Test 2: Check that ControlPanel items are selectable
+control_panel_items = Player1ControlPanel.getLegendItemsOfGameActions()
+control_panel_selectable_count = sum(1 for item in control_panel_items if item.isSelectable())
+print(f"   Player1 ControlPanel items: {len(control_panel_items)} total, {control_panel_selectable_count} selectable")
+if control_panel_selectable_count == len(control_panel_items):
+    print("   ✅ Player1 ControlPanel items are correctly selectable")
+else:
+    print(f"   ❌ ERROR: Only {control_panel_selectable_count}/{len(control_panel_items)} ControlPanel items are selectable")
+
+# Test 3: Check that Admin ControlPanel items are selectable
+admin_control_panel_items = adminControlPanel.getLegendItemsOfGameActions()
+admin_control_panel_selectable_count = sum(1 for item in admin_control_panel_items if item.isSelectable())
+print(f"   Admin ControlPanel items: {len(admin_control_panel_items)} total, {admin_control_panel_selectable_count} selectable")
+if admin_control_panel_selectable_count == len(admin_control_panel_items):
+    print("   ✅ Admin ControlPanel items are correctly selectable")
+else:
+    print(f"   ❌ ERROR: Only {admin_control_panel_selectable_count}/{len(admin_control_panel_items)} Admin ControlPanel items are selectable")
+
+print("")
 print("✅ Test setup completed!")
 print("📋 Test cases:")
 print("  1. Pure Legend (top) - should NOT be selectable")
-print("  2. Player1 ControlPanel - should be selectable when Player1 is current")
+print("  2. Player1 ControlPanel - should be selectable when Player1 is current (after 1 turn)")
 print("  3. Admin ControlPanel - should be selectable when Admin is current")
 print("  4. UserSelector - to switch between players")
+print("")
+print("🎮 To test Player1 ControlPanel:")
+print("  1. Click 'Next Turn' button to exit initialization phase")
+print("  2. Use UserSelector to select 'Player 1'")
+print("  3. Try clicking on Player1 ControlPanel items")
 
 myModel.launch() 
 

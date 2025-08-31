@@ -1,7 +1,11 @@
 import pytest
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from PyQt5 import QtWidgets
 from mainClasses.SGModel import SGModel
-from Examples.A_to_Z_examples.exStep2_4 import ExStep2_4  
+from examples.A_to_Z_examples.exStep3_2 import ExStep2_4  
 
 @pytest.fixture(scope="module")
 def app():
