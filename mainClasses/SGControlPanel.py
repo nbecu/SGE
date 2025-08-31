@@ -90,6 +90,38 @@ class SGControlPanel(SGLegend):
     #                 if stringAttributs in text : 
     #                     return True
     #     return False
+
+    def mousePressEvent(self, QMouseEvent):
+        """Handle mouse press events for control panel items"""
+        if QMouseEvent.button() == Qt.LeftButton:
+            # Check if current player can use this control panel
+            if self.playerName != self.model.currentPlayerName:
+                return # Exit because the currentPlayer cannot use this widget
+            
+            # Find the clicked item using childAt for more precise detection
+            clickedItem = self.childAt(QMouseEvent.pos())
+            
+            # Check if the clicked item is a SGLegendItem and is in our legendItems list
+            if clickedItem is None or not hasattr(clickedItem, 'gameAction') or clickedItem not in self.legendItems:
+                return # No valid item clicked
+            
+            # Check if the clicked item is selectable (has gameAction)
+            if not clickedItem.isSelectable():
+                return # Exit because the item is not selectable (no gameAction)
+            
+            if self.selected == clickedItem:
+                # Already selected - deselect
+                self.selected = None
+            else:
+                # Selection of an item and suppression of already selected Item
+                self.selected = clickedItem
+            self.update()
+
+    def updateWithSymbologies(self, listOfSymbologies):
+        """Override to prevent ControlPanel from changing with symbology changes"""
+        # ControlPanels should not change when symbology changes
+        # They should maintain their gameAction display
+        pass
    
 
 

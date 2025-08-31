@@ -52,17 +52,19 @@ class SGLegend(SGGameSpace):
             aShapeSymbology = aDictOfSymbology['shape']
             aBorderSymbology = aDictOfSymbology['border']
             if aShapeSymbology is None and aBorderSymbology is None:
-                #In this case, it should return the default shape Symbology
+                # Case 1: Default symbology - no POV defined, use entity's default shape color
                 anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
                 self.legendItems.append(anItem)
                 continue
             if aShapeSymbology is not None:
+                # Case 2: Shape symbology - POV for shape color, creates items for each symbol name and color
                 aAtt = list(entDef.povShapeColor[aShapeSymbology].keys())[0]
                 dictSymbolNameAndColor= list(entDef.povShapeColor[aShapeSymbology].values())[0]
                 for aSymbolName, aColor in dictSymbolNameAndColor.items():
                     anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
                     self.legendItems.append(anItem)
             if aBorderSymbology is not None:
+                # Case 3: Border symbology - POV for border color and width, creates items for each symbol name
                 aPovBorderDef = entDef.povBorderColorAndWidth.get(aBorderSymbology)
                 aAtt = list(aPovBorderDef.keys())[0]
                 dictSymbolNameAndColorAndWidth= list(aPovBorderDef.values())[0]

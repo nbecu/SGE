@@ -47,8 +47,16 @@ class SGLegendItem(QtWidgets.QWidget):
     
 
     def isSelectable(self):
-        #Title1 and Title2 items are not selectable
-        return False if self.type in ['Title1','Title2'] else True
+        # Title1 and Title2 items are not selectable
+        # For SGLegend (pure legend), items should not be selectable unless they have a gameAction
+        # For SGControlPanel (controller), items should be selectable if they have a gameAction
+        if self.type in ['Title1','Title2']:
+            return False
+        # If this is a pure legend item (no gameAction), it should not be selectable
+        if self.gameAction is None:
+            return False
+        # If this is a control panel item (has gameAction), it should be selectable
+        return True
     
     def isSymbolOnCell(self):
         return self.type == 'symbol' and self.classDef.entityType() == 'Cell'#self.shape in ["square","hexagonal"]
@@ -169,29 +177,15 @@ class SGLegendItem(QtWidgets.QWidget):
         self.gap=self.parent.gap
         self.update()
         
-    #To handle the selection of an element int the legend
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
-            if self.legend.playerName!=self.legend.model.currentPlayerName:
-                return #Exit because the currentPlayer cannot use this widget
-            if not self.isSelectable():
-                return #Exit because the currentPlayer cannot use this widget
-            if self.legend.selected==self:
-            #Already selected
-                self.legend.selected=None
-            #Selection of an item and suppresion of already selected Item
-            else :
-                self.legend.selected= self
-            self.legend.update()
+    # Note: mousePressEvent has been moved to SGControlPanel
+    # SGLegendItem in pure legends should not have controller behavior
         
     #To handle the drag 
     def mouseMoveEvent(self, e):
         if e.buttons() != Qt.LeftButton:
             return
     
-    #To test is it from the admin Legend
-    def isFromAdmin(self):
-        return self.legend.id=="adminLegend"
+    # Note: isFromAdmin() is obsolete - use SGControlPanel.isAdminLegend() instead
 
 
 
