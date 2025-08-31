@@ -25,7 +25,7 @@ def step2():
         a1.incValue('age',2)
         a2=Pawn.getEntity(2)
         a2.incValue('age')
-myModel.timeManager.newModelPhase(lambda: step2())
+myModel.newModelPhase(lambda: step2())
 
 scores = myModel.newDashBoard()
 scores.addIndicatorOnEntity(Pawn.getEntity(1),'age')

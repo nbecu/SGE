@@ -68,8 +68,16 @@ class SGAbstractAction():
     def canBeUsed(self):
         if self.model.timeManager.numberOfPhases()==0:
             return True
-        if self.model.timeManager.isInitialization() and self.model.getCurrentPlayer().isAdmin:
-            return True
+        if self.model.timeManager.isInitialization():
+            # During initialization, only Admin can use actions
+            # Check if currentPlayer is defined before accessing it
+            try:
+                currentPlayer = self.model.getCurrentPlayer()
+                return currentPlayer.isAdmin
+            except ValueError:
+                # Current player not defined yet, only Admin actions should work
+                # This is a temporary state during initialization
+                return False
         if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
             # TODO add a facultative permission 
             return False

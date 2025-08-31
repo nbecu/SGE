@@ -17,7 +17,7 @@ Pawn=myModel.newAgentSpecies(name="Pawn",shape='ellipseAgent1',entDefAttributesA
 
 Pawn.calcValue('foo',(lambda x: 2*x*x+ 5*x -14))
 
-myModel.timeManager.newModelPhase((lambda: Pawn.decValue('foo',1)))
+myModel.newModelPhase((lambda: Pawn.decValue('foo',1)))
 
 
 dashboard = myModel.newDashBoard()

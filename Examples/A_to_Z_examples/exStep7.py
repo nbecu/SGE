@@ -34,8 +34,8 @@ Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWith
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1])
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
@@ -43,7 +43,7 @@ aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","f
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: Cell.nb_withValue("landUse","forest")> 10) 
 
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
@@ -53,7 +53,7 @@ score1= myModel.newSimVariable("Global Score",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1)
 
 aModelAction4.addFeedback(lambda: score1.incValue(3))
-myModel.timeManager.newModelPhase(aModelAction4)
+myModel.newModelPhase(aModelAction4)
 
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')

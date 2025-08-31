@@ -29,8 +29,8 @@ Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 
 
-myModel.timeManager.newPlayPhase('Game Phase 1', [Player1])
-p2= myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')
+myModel.newPlayPhase('Game Phase 1', [Player1])
+p2= myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')
 # comment or not
 p2.auto_forward=True 
 
@@ -44,8 +44,8 @@ aModelAction4.addCondition(lambda: myModel.roundNumber()==3)
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 #Choose one or the other
-# myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2')
-myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',auto_forward=True)
+# myModel.newModelPhase(aModelAction2, name = 'Model Phase 2')
+myModel.newModelPhase(aModelAction2, name = 'Model Phase 2',auto_forward=True)
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)

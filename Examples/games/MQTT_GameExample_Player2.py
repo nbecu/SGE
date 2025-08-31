@@ -42,10 +42,10 @@ Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve
 Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Free"}))
 Player2ControlPanel = Player2.newControlPanel("Actions du Joueur 2")
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1,Player2])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
+myModel.newPlayPhase('Phase 1', [Player1,Player2])
+myModel.newModelPhase([lambda: Cell.setRandomEntities("Resource",3),lambda: Cell.setRandomEntities("Resource",1,3)])
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("Resource",3,2,condition=(lambda x: x.value("Resource") not in [0,1] )))
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: myModel.roundNumber()==2)
 
@@ -65,7 +65,7 @@ i1 = DashBoard.addIndicator(Cell,"sumAtt",  attribute='Resource',color=Qt.black)
 i2 = DashBoard.addIndicator(Cell,"avgAtt",  attribute='Resource',color=Qt.black)
 i3 = DashBoard.addIndicatorOnSimVariable(globalScore)
 aModelAction4.addFeedback(lambda: globalScore.incValue(5))
-myModel.timeManager.newModelPhase(aModelAction4)
+myModel.newModelPhase(aModelAction4)
 
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)

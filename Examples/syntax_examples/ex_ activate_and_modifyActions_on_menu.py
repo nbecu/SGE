@@ -64,8 +64,8 @@ def shout():
 Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
 userSelector=myModel.newUserSelector()
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
+myModel.newPlayPhase('Phase 1', [Player1])
+myModel.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
 
 myModel.launch() 
 sys.exit(monApp.exec_())

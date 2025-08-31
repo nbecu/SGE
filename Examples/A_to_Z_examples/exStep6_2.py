@@ -31,12 +31,12 @@ Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWith
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
+myModel.newPlayPhase('Phase 1', [Player1])
 aModelAction5=myModel.newModelAction([lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"),
                                       lambda: Sheeps.getEntity(2).moveAgent(method="cardinal",direction="North")
                                       ])
-myModel.timeManager.newModelPhase(aModelAction5)
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newModelPhase(aModelAction5)
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
@@ -45,7 +45,7 @@ aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 
 
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
@@ -55,7 +55,7 @@ i1 = DashBoard.addIndicatorOnSimVariable(score1)
 i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
 # Here is the way to add feedback on score on ModelAction
 aModelAction4.addFeedback(lambda: score1.incValue(30))
-myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
+myModel.newModelPhase(aModelAction4, name="Score Time!")
 
 
 # Here you can add a Widget to show the EndGame Conditions of your game

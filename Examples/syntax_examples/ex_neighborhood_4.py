@@ -18,7 +18,7 @@ Cell.newPov("base", "landForm", {"plain": Qt.green, "lac": Qt.blue, "mountain": 
 Bees = myModel.newAgentSpecies("Bees", "circleAgent", defaultSize=10, defaultColor=QColor.fromRgb(165,42,42), locationInEntity="random")
 Bees.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 p1.addAction(lambda: Bees.moveRandomly(condition=lambda cell: cell.isValue("landForm", "plain")))
 
 myModel.launch()

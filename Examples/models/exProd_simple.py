@@ -36,7 +36,7 @@ def produce(aPU):
 
 modelAction1=myModel.newModelAction_onCells(lambda aPU: produce(aPU))
 
-myModel.timeManager.newModelPhase([modelAction1])
+myModel.newModelPhase([modelAction1])
 
 
 
@@ -55,6 +55,6 @@ DashBoard.showIndicators()
 ## open the simulation
 
 # dataTest = SGTestGetData(myModel)
-# myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
+# myModel.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
 myModel.launch()
 sys.exit(monApp.exec_())

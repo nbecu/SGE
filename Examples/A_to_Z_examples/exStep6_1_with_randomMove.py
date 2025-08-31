@@ -31,8 +31,8 @@ Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWith
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-p2 = myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1])
+p2 = myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 p2.addAction(lambda : Sheeps.moveRandomly())
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
@@ -43,7 +43,7 @@ aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","
 aModelAction4.addCondition(lambda: myModel.roundNumber()==3) 
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 # The DashBoard is a widget which permits to create scores.

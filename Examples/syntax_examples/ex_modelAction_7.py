@@ -14,13 +14,13 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("mainPov","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 
 
-phase1 = myModel.timeManager.newModelPhase()
+phase1 = myModel.newModelPhase()
 phase1.addAction([lambda: Cell.setRandomEntities("landUse","shrub",3),lambda: Cell.setRandomEntities("landUse","forest")])
 
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction2 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","grass",2))
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 aModelAction2.addCondition(lambda: Cell.nb_withValue("landUse","forest") >10) 
 
 myModel.newTimeLabel()

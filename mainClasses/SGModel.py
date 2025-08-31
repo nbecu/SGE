@@ -1497,7 +1497,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
         return aActivateAction
 
-    def newPlayPhase(self, phaseName, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         Create a new play phase for the game.
         
@@ -1507,13 +1507,24 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 - Player instances (SGPlayer objects)
                 - Player names (str) - will be automatically converted to instances
                 - 'Admin' (str) - will be converted to the Admin player instance
+                - None (default:all users)
             modelActions (list, optional): Actions the model performs at the beginning of the phase (add, delete, move...)
+                - SGModelAction objects
+                - lambda functions
+                - list of SGModelAction objects or lambda functions
             autoForwardWhenAllActionsUsed (bool, optional): Whether to automatically forward to next phase when all players have used their actions
+                - False (default): the phase will not be executed automatically when all players have used their actions
+                - True: the phase will be executed automatically when all players have used their actions
             message_auto_forward (bool, optional): Whether to show a message when automatically forwarding to the next phase
+                - True (default): a message will be displayed when auto-forwarding
+                - False: no message will be displayed when auto-forwarding
             show_message_box_at_start (bool, optional): Whether to show a message box at the start of the phase
+                - False (default): no message box will be shown at the start of the phase
+                - True: a message box will be shown at the start of the phase
+                
             
         Returns:
-            The created play phase (which is an instance of SGTimePhase)
+            The created play phase (an instance of SGPlayPhase)
         """
         return self.timeManager.newPlayPhase(phaseName, activePlayers, modelActions, autoForwardWhenAllActionsUsed, message_auto_forward, show_message_box_at_start)
 

@@ -23,7 +23,7 @@ Sheeps=myModel.newAgentSpecies("Sheeps","ellipseAgent1",defaultSize=20,locationI
 
 Sheeps.newAgentsAtRandom(1, condition=lambda cell : cell.isValue('landForm','plain'))
 
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 p1.addAction(lambda : Sheeps.moveRandomly(condition=(lambda aCell : aCell.isValue('landForm','plain'))))
 
 

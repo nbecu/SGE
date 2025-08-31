@@ -31,9 +31,9 @@ Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWith
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
+myModel.newPlayPhase('Phase 1', [Player1])
 # SGE is also able to have ModelPhase : this phase includes model activities/events
-myModel.timeManager.newModelPhase(
+myModel.newModelPhase(
     [lambda: Cell.setRandomEntities("landUse","shrub",3),
     lambda: Cell.setRandomEntities("landUse","forest")] #If no number of entities is defined, it will pick 1 entity by default
     )

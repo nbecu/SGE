@@ -130,18 +130,18 @@ def reset():
         navire.setValue("lastIncitationValue","neutre")
 
 
-PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',auto_forward=True)
+PhaseReset=myModel.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',auto_forward=True)
 
-PlayPhase=myModel.timeManager.newPlayPhase("Les joueurs peuvent jouer",[Player1,Player2])
+PlayPhase=myModel.newPlayPhase("Les joueurs peuvent jouer",[Player1,Player2])
 PlayPhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionFeedback=myModel.newModelAction(lambda: feedbackPêche())
 ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port())
 
-PhasePêche=myModel.timeManager.newModelPhase([ModelActionPêche,ModelActionFeedback], name="Pêche")
+PhasePêche=myModel.newModelPhase([ModelActionPêche,ModelActionFeedback], name="Pêche")
 PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
-PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement stocks")
+PhaseRésolution=myModel.newModelPhase(ModelActionRésolution, name="Renouvellement stocks")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
 DashBoard=myModel.newDashBoard("DashBoard Pêcheur")

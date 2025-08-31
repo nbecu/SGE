@@ -40,7 +40,7 @@ modelAction1 = Cells.newModelAction(calculateNextState)
 modelAction2 = Cells.newModelAction(copyValue("bufferState", "state"))
 
 ## adds the model actions into a model phase
-myModel.timeManager.newModelPhase([modelAction1, modelAction2])
+myModel.newModelPhase([modelAction1, modelAction2])
 
 ## open the simulation
 myModel.launch()

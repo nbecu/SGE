@@ -18,7 +18,7 @@ Cell.newPov("Cell -> Global","landUse",{"grass":Qt.green,"shrub":Qt.green,"fores
 
 theFirstLegend=myModel.newLegend()
 
-myModel.timeManager.newModelPhase(  
+myModel.newModelPhase(  
     [lambda: Cell.setRandomEntities("landUse","grass",2,(lambda x: x.value("landUse") == "forest")),
     lambda: Cell.setRandomEntities("landUse","shrub",3)])
 

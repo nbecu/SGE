@@ -5,6 +5,7 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your PlayPhase")
+myModel.displayTimeInWindowTitle()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
@@ -32,7 +33,7 @@ userSelector=myModel.newUserSelector()
 
 # SGE TimeLine is organized by an infinite sequence of rounds composed of phases.
 # Here is the way to create a PlayPhase
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
+myModel.newPlayPhase('Phase 1', [Player1])
 # In this phase, Player 1 can perform his actions.
 
 myModel.launch() 

@@ -16,11 +16,11 @@ class SGLegend(SGGameSpace):
         # self.heightOfLabels= 25 #added for CarbonPolis
         self.heightOfLabels= 20 #added for CarbonPolis
 
-    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
+    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgentsWithNoAtt=False,borderColor=Qt.black):
         self.id=legendName #todo should be removed as it is managed by the superclass
         self.model=model
         self.playerName=playerName
-        self.showAgents=showAgents
+        self.showAgentsWithNoAtt=showAgentsWithNoAtt
         self.legendItems={}
         self.isActive=True
         self.selected = None # To handle the selection of an item in the legend

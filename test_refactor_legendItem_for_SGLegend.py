@@ -38,6 +38,7 @@ Legend=myModel.newLegend()
 # Test 2: Player with ControlPanel (should have controller behavior)
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},4))
+Player1.addGameAction(myModel.newCreateAction(Sheeps,{"health":"bad"}))
 Player1.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good","hunger":"good"}))
 Player1ControlPanel=Player1.newControlPanel("P1 actions")
 
@@ -83,6 +84,26 @@ if admin_control_panel_selectable_count == len(admin_control_panel_items):
 else:
     print(f"   ❌ ERROR: Only {admin_control_panel_selectable_count}/{len(admin_control_panel_items)} Admin ControlPanel items are selectable")
 
+# Test 4: Diagnose createAction problem
+print("\n🔍 Diagnosing createAction problem...")
+print(f"   Current round: {myModel.timeManager.currentRoundNumber}")
+print(f"   Is initialization: {myModel.timeManager.isInitialization()}")
+
+# Test Player1 gameActions
+player1_actions = Player1.gameActions
+print(f"   Player1 has {len(player1_actions)} gameActions")
+for i, action in enumerate(player1_actions):
+    can_use = action.canBeUsed()
+    print(f"     Action {i+1} ({action.actionType}): canBeUsed = {can_use}")
+    if action.actionType == "Create":
+        print(f"       Target entity: {action.targetEntDef.entityName}")
+        print(f"       Target entityType: {action.targetEntDef.entityType()}")
+        print(f"       Target isAgentDef: {action.targetEntDef.isAgentDef}")
+        print(f"       Target isCellDef: {action.targetEntDef.isCellDef}")
+        print(f"       Conditions count: {len(action.conditions)}")
+        for j, condition in enumerate(action.conditions):
+            print(f"         Condition {j+1}: {condition}")
+
 print("")
 print("✅ Test setup completed!")
 print("📋 Test cases:")
@@ -95,6 +116,10 @@ print("🎮 To test Player1 ControlPanel:")
 print("  1. Click 'Next Turn' button to exit initialization phase")
 print("  2. Use UserSelector to select 'Player 1'")
 print("  3. Try clicking on Player1 ControlPanel items")
+print("")
+print("💡 Expected behavior:")
+print("  - During initialization (round 0): Only Admin actions should work")
+print("  - After 'Next Turn': Player1 actions should work")
 
 myModel.launch() 
 

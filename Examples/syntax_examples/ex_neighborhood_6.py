@@ -23,7 +23,7 @@ Sheep.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 Wolf = myModel.newAgentSpecies("Wolf", "triangleAgent2", defaultSize=20, locationInEntity="center", defaultColor=Qt.red)
 Wolf.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 
 # Sheep moves randomly on plains
 p1.addAction(lambda: Sheep.moveRandomly(condition=lambda c: c.isValue("landForm", "plain")))

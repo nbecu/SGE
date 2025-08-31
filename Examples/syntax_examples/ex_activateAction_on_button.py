@@ -23,7 +23,7 @@ myModel.setCurrentPlayer('Clara')
 
 
 
-PlayPhase = myModel.timeManager.newPlayPhase('Play phase',[player_Clara])
+PlayPhase = myModel.newPlayPhase('Play phase',[player_Clara])
 
 myModel.newActivateAction(None,
                                         lambda : printTest(),

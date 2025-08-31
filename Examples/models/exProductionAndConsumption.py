@@ -153,12 +153,12 @@ modelAction6=myModel.newModelAction_onAgents("Regulator",(lambda aRegulator: eva
 modelAction7=myModel.newModelAction_onCells((lambda aCell: evaluateCell(aCell)))
 
 
-myModel.timeManager.newModelPhase([modelAction1,modelAction2,modelAction4,modelAction5,modelAction6,modelAction7])
+myModel.newModelPhase([modelAction1,modelAction2,modelAction4,modelAction5,modelAction6,modelAction7])
 
 
 # def rdCustom():
 #     if random.random() < 0.2 : score.incValue(2)
-# myModel.timeManager.newModelPhase([lambda : rdCustom()])
+# myModel.newModelPhase([lambda : rdCustom()])
 
 ## Define other interface widgets
 myModel.newLegend()
@@ -173,6 +173,6 @@ DashBoard.showIndicators()
 ## open the simulation
 
 # dataTest = SGTestGetData(myModel)
-# myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
+# myModel.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
 myModel.launch()
 sys.exit(monApp.exec_())
