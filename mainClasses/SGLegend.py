@@ -1,38 +1,29 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import true
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGLegendItem import SGLegendItem
-from mainClasses.SGGrid import SGGrid
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGCreate import SGCreate
 
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):
     def __init__(self, parent,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
+        self.isLegend=True
+        self.isControlPanel=False
         # self.heightOfLabels= 25 #added for CarbonPolis
         self.heightOfLabels= 20 #added for CarbonPolis
 
-    def initialize(self, model, legendName,listOfSymbologies,playerName,alwaysDisplayDefaultAgentSymbology=False,borderColor=Qt.black):
+    def initialize(self, model, legendName,listOfSymbologies,alwaysDisplayDefaultAgentSymbology=False,borderColor=Qt.black):
         self.id=legendName #todo should be removed as it is managed by the superclass
         self.model=model
-        self.playerName=playerName
         self.alwaysDisplayDefaultAgentSymbology=alwaysDisplayDefaultAgentSymbology
         self.legendItems={}
-        self.isActive=True
-        self.selected = None # To handle the selection of an item in the legend
         self.borderColor=borderColor
         self.updateWithSymbologies(listOfSymbologies)
         return self
     
-    def setActivation(self, aBoolean):
-        self.isActive = aBoolean
-
-    def isActiveAndSelected(self):
-        return self.isActive and self.selected is not None
     
     def clearAllLegendItems(self):
         for aItem in self.legendItems:
@@ -130,28 +121,18 @@ class SGLegend(SGGameSpace):
         
     #Drawing the Legend
     def paintEvent(self,event):
-        if self.checkDisplay():
-            painter = QPainter() 
-            painter.begin(self)
-            if self.isActive:
-                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-            else:
-                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor,1))
-            #Draw the corner of the Legend
-            # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
-            self.setMinimumSize(self.getSizeX_fromAllWidgets(), self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeX_fromAllWidgets()-1, self.getSizeYGlobal())     
+        painter = QPainter() 
+        painter.begin(self)
+        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+        painter.setPen(QPen(self.borderColor,1))
+        #Draw the corner of the Legend
+        # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+        # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+        self.setMinimumSize(self.getSizeX_fromAllWidgets(), self.getSizeYGlobal()+3)
+        painter.drawRect(0,0,self.getSizeX_fromAllWidgets()-1, self.getSizeYGlobal())
 
+        painter.end()
 
-            painter.end()
-
-        
-    #Check if it have to be displayed
-    def checkDisplay(self):
-        if self.playerName in self.model.users :
-            return True
     
 
     #obsolete function

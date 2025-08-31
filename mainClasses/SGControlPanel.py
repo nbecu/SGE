@@ -11,6 +11,8 @@ class SGControlPanel(SGLegend):
     def forPlayer(cls, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black,defaultActionSelected=None):
         aModel=aPlayer.model
         aControlPanel = cls(aModel,backgroundColor)
+        aControlPanel.isLegend=False
+        aControlPanel.isControlPanel=True
         aControlPanel.id=panelTitle
         aControlPanel.player=aPlayer
         aControlPanel.playerName=aControlPanel.player.name
@@ -71,6 +73,7 @@ class SGControlPanel(SGLegend):
         """Check if this control panel belongs to an admin player"""
         return hasattr(self, 'player') and hasattr(self.player, 'isAdmin') and self.player.isAdmin
 
+
     def setActivation(self, aBoolean):
         previousValue = self.isActive
         self.isActive = aBoolean
@@ -78,6 +81,34 @@ class SGControlPanel(SGLegend):
         # case when it's just beeing activated
         if not previousValue and aBoolean and not self.selected and self.defaultSelection:
             self.selected = self.defaultSelection
+
+
+    def isActiveAndSelected(self):
+        return self.isActive and self.selected is not None
+
+    #Drawing the Legend
+    def paintEvent(self,event):
+        if self.checkDisplay():
+            painter = QPainter() 
+            painter.begin(self)
+            if self.isActive:
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            else:
+                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
+            painter.setPen(QPen(self.borderColor,1))
+            #Draw the corner of the Legend
+            # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
+            # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+            self.setMinimumSize(self.getSizeX_fromAllWidgets(), self.getSizeYGlobal()+3)
+            painter.drawRect(0,0,self.getSizeX_fromAllWidgets()-1, self.getSizeYGlobal())
+
+            painter.end()
+
+    #Check if it have to be displayed
+    def checkDisplay(self):
+        if self.playerName in self.model.users :
+            return True
+    
 
         
     #obsolete function

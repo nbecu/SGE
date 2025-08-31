@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMenu, QAction, QToolTip
+from PyQt5.QtWidgets import QToolTip
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGExtensions import *
@@ -66,11 +66,11 @@ class SGLegendItem(QtWidgets.QWidget):
 
     #Drawing function
     def paintEvent(self,event):
-        if self.legend.checkDisplay():
+        if self.legend.isLegend or (self.legend.isControlPanel and self.legend.checkDisplay()):
             painter = QPainter() 
             painter.begin(self)
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
-            if self.legend.selected == self :
+            if self.legend.isControlPanel and self.legend.selected == self :
                 painter.setPen(QPen(Qt.red,2))
             if self.isBorderItem:
                 painter.setPen(QPen(self.borderColorAndWidth['color'],self.borderColorAndWidth['width']))
@@ -177,11 +177,6 @@ class SGLegendItem(QtWidgets.QWidget):
         self.gap=self.parent.gap
         self.update()
         
-    # Note: mousePressEvent has been moved to SGControlPanel
-    # SGLegendItem in pure legends should not have controller behavior
-    
-    # Note: mouseMoveEvent and isFromAdmin() are obsolete - controller behavior moved to SGControlPanel
-
 
 
 

@@ -580,7 +580,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         # selectedSymbologies=self.getAllCheckedSymbologies(grid)
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', alwaysDisplayDefaultAgentSymbology)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, alwaysDisplayDefaultAgentSymbology)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
@@ -1574,9 +1574,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getControlPanels(self):
         return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGControlPanel)]
 
-    def getAdminLegend(self):
-        return next((item for item in self.getLegends() if item.isAdminLegend()), None)
-
     def getAdminControlPanels(self): #useful in case they are several admin control panels
         return [item for item in self.getControlPanels() if item.isAdminLegend()]
 
@@ -1584,11 +1581,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """Get the Admin player instance"""
         return self.players.get("Admin")
     
-    def getSelectedLegend(self):
-        return next((item for item in self.getLegends() if item.isActive), None)
-
     def getSelectedLegendItem(self):
-        return next((item.selected for item in self.getLegends() if item.isActiveAndSelected()), None)
+        return next((item.selected for item in self.getControlPanels() if item.isActiveAndSelected()), None)
 
     def getGameAction_withClassAndId(self,aClassName,aId):
         return next((item for item in self.getAllGameActions() if item.__class__.__name__==aClassName and item.id==aId), None)
