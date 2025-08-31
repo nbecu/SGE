@@ -27,7 +27,7 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 

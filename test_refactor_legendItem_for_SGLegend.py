@@ -41,6 +41,7 @@ Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},4))
 Player1.addGameAction(myModel.newCreateAction(Sheeps,{"health":"bad"}))
 Player1.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good","hunger":"good"}))
 Player1ControlPanel=Player1.newControlPanel("P1 actions")
+myModel.setCurrentPlayer("Player 1")
 
 # Test 3: AdminPlayer with ControlPanel (should have controller behavior)
 # AdminPlayer is created automatically by SGModel

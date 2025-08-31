@@ -16,11 +16,11 @@ class SGLegend(SGGameSpace):
         # self.heightOfLabels= 25 #added for CarbonPolis
         self.heightOfLabels= 20 #added for CarbonPolis
 
-    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgentsWithNoAtt=False,borderColor=Qt.black):
+    def initialize(self, model, legendName,listOfSymbologies,playerName,alwaysDisplayDefaultAgentSymbology=False,borderColor=Qt.black):
         self.id=legendName #todo should be removed as it is managed by the superclass
         self.model=model
         self.playerName=playerName
-        self.showAgentsWithNoAtt=showAgentsWithNoAtt
+        self.alwaysDisplayDefaultAgentSymbology=alwaysDisplayDefaultAgentSymbology
         self.legendItems={}
         self.isActive=True
         self.selected = None # To handle the selection of an item in the legend
@@ -51,7 +51,7 @@ class SGLegend(SGGameSpace):
             # aDictOfSymbology is a dict with keys 'shape' and 'border'
             aShapeSymbology = aDictOfSymbology['shape']
             aBorderSymbology = aDictOfSymbology['border']
-            if aShapeSymbology is None and aBorderSymbology is None:
+            if aShapeSymbology is None and aBorderSymbology is None:         
                 # Case 1: Default symbology - no POV defined, use entity's default shape color
                 # This case corresponds to entities without any POV defined, showing default appearance
                 anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
@@ -60,6 +60,10 @@ class SGLegend(SGGameSpace):
             if aShapeSymbology is not None:
                 # Case 2: Shape symbology - POV for shape color, creates items for each symbol name and color
                 # This case corresponds to entities with shape-based POV (e.g., health status affecting color)
+                if self.alwaysDisplayDefaultAgentSymbology and entDef.isAgentDef:
+                    # Use default symbology for agents without attributes
+                    anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
+                    self.legendItems.append(anItem)    
                 aAtt = list(entDef.povShapeColor[aShapeSymbology].keys())[0]
                 dictSymbolNameAndColor= list(entDef.povShapeColor[aShapeSymbology].values())[0]
                 for aSymbolName, aColor in dictSymbolNameAndColor.items():

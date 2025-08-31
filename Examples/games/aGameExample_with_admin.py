@@ -46,7 +46,7 @@ aThirdSheep=Sheeps.newAgentAtCoords(Cell,3,5)
 
 
 # STEP4 Admin Players and GameActions
-# globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
+# globalLegend = myModel.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
 
 Player1 = myModel.newPlayer("Player 1")
 createA1=myModel.newCreateAction(Workers, aNumber=20)

@@ -42,7 +42,7 @@ Player1ControlPanel = Player1.newControlPanel("Player1 Actions")
 myModel.setCurrentPlayer("Player1")
 
 # Create legend
-myModel.newLegend("Test Legend", showAgentsWithNoAtt=True)
+myModel.newLegend("Test Legend", alwaysDisplayDefaultAgentSymbology=True)
 
 # Create time label
 myModel.newTimeLabel()

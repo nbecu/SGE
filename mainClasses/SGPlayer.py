@@ -31,7 +31,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.history["value"]=defaultdict(list)
         self.initAttributes(attributesAndValues)
 
-    def newControlPanel(self, title=None, showAgentsWithNoAtt=False, defaultActionSelected = None):
+    def newControlPanel(self, title=None, defaultActionSelected = None):
         """
         To create an Player Control Panel (only with the GameActions related elements)
 

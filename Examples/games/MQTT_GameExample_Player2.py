@@ -28,14 +28,14 @@ Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yello
 aWorker = Workers.newAgentAtCoords(Cell,5,2)
 
 
-globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
+globalLegend = myModel.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
 
 Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
 Player1.addGameAction(myModel.newDeleteAction(Workers))
 Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3,writeAttributeInLabel=True))
 Player1.addGameAction(myModel.newMoveAction(Workers, 5))
-Player1ControlPanel = Player1.newControlPanel("Player 1 Actions", showAgentsWithNoAtt=True)
+Player1ControlPanel = Player1.newControlPanel("Player 1 Actions")
 
 Player2 = myModel.newPlayer("Player 2")
 Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))

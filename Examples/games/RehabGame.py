@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    700, 500, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
+    750, 500, x=5, windowTitle="Rehab Game")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')
@@ -47,12 +47,12 @@ Bird.setDefaultValue('nb reproduction',0)
 
 Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
 
-
+myModel.newLegend()
 
 Clans = myModel.newPlayer("Clan")
 Clans.addGameAction(myModel.newCreateAction(harvesters, aNumber=20))
 
-Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
+Player1ControlPanel = Clans.newControlPanel()
 
 Parc = myModel.newPlayer("Parc")
 

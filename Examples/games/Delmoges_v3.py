@@ -167,7 +167,7 @@ indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",v
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus)
 
 
-Legend=myModel.newLegend(showAgentsWithNoAtt=True)
+Legend=myModel.newLegend()
 TimeLabel=myModel.newTimeLabel("Time")
 
 userSelector=myModel.newUserSelector()

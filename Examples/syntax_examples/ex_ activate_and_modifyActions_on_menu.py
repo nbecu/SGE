@@ -61,7 +61,7 @@ def eat(aSheep):
 def shout():
     aTextBox.addText('meh!!!')
 
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 userSelector=myModel.newUserSelector()
 
 myModel.newPlayPhase('Phase 1', [Player1])

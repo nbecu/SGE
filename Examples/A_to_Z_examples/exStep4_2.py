@@ -27,7 +27,7 @@ theFirstLegend=myModel.newLegend()
 # create a player
 Player1=myModel.newPlayer("Player 1")
 # create a ControlPanel for this player, according to their actions
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 
 # if you want to start the application as Player 1 :

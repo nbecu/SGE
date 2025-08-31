@@ -568,19 +568,19 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False):#, grid=None):
+    def newLegend(self, name='Legend', alwaysDisplayDefaultAgentSymbology=False):#, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
         Args:
         Name (str): name of the Legend (default : Legend)
-        showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
+        alwaysDisplayDefaultAgentSymbology (bool) : display default symbology of agent, even if agents with attribute symbologies are shown (default : False)
         grid (str) : name of the grid or None (select the first grid) or "combined"
 
         """
         # selectedSymbologies=self.getAllCheckedSymbologies(grid)
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', alwaysDisplayDefaultAgentSymbology)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()

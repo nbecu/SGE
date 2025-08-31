@@ -22,12 +22,12 @@ Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,1)
 
-theFirstLegend=myModel.newLegend(showAgentsWithNoAtt=True)
+theFirstLegend=myModel.newLegend(alwaysDisplayDefaultAgentSymbology=True)
 
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
