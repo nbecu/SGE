@@ -25,18 +25,15 @@ class TestModelViewSeparation:
     def setup_test_environment(self):
         """Configure l'environnement de test avec une grille simple"""
         # Créer une grille 3x3
-        self.grid = SGGrid(self.model, "test_grid", 3, 3, "square", 50, 5)
-        self.model.addGrid(self.grid)
-        
-        # Créer une définition de cellule
-        self.cell_def = SGCellDef(
-            self.grid, 
-            "square", 
-            50, 
-            entDefAttributesAndValues={"value": 0},
-            defaultColor="white",
-            entityName="test_cell"
+        self.cell_def = self.model.newCellsOnGrid(
+            columns=3, 
+            rows=3, 
+            format="square", 
+            size=50, 
+            gap=5, 
+            name="test_grid"
         )
+        self.grid = self.cell_def.grid
         
         # Créer une définition d'agent
         self.agent_def = SGAgentDef(
@@ -46,18 +43,16 @@ class TestModelViewSeparation:
             30,
             entDefAttributesAndValues={"health": 100, "energy": 50},
             defaultColor="blue",
-            locationInEntity="cell"
+            locationInEntity="center"
         )
         
-        # Créer des cellules
+        # Récupérer les cellules créées
         self.cells = {}
-        for x in range(1, 4):
-            for y in range(1, 4):
-                cell = self.cell_def.newEntityAtCoords(x, y)
-                self.cells[(x, y)] = cell
+        for cell in self.cell_def.entities:
+            self.cells[(cell.xCoord, cell.yCoord)] = cell
         
         # Créer un agent dans la cellule (1,1)
-        self.agent = self.agent_def.newEntityAtCoords(1, 1)
+        self.agent = self.agent_def.newAgentAtCoords(self.cell_def, 1, 1)
         
     def test_current_agent_movement(self):
         """Test le déplacement actuel d'un agent"""
