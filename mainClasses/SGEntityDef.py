@@ -779,6 +779,34 @@ class SGCellDef(SGEntityDef):
         self.entities.append(ent)
         ent.show()
 
+    def newCellWithModelView(self, x, y):
+        """
+        Create a new cell using Model-View architecture
+        
+        Args:
+            x (int): Column position in grid (1-indexed)
+            y (int): Row position in grid (1-indexed)
+            
+        Returns:
+            tuple: (cell_model, cell_view) - The cell model and view pair
+        """
+        from mainClasses.SGEntityDefFactory import SGEntityDefFactory
+        
+        # Create cell using factory
+        cell_model, cell_view = SGEntityDefFactory.newCellWithModelView(self, x, y)
+        
+        # Add to entities list (store the model)
+        self.entities.append(cell_model)
+        
+        # Update watchers
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        
+        # Show the view
+        cell_view.show()
+        
+        return cell_model, cell_view
+
     def setCell(self, x, y, aAttribute, aValue):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)
         return ent
@@ -890,6 +918,41 @@ class SGAgentDef(SGEntityDef):
         aAgent.show()
         return aAgent
 
+    def newAgentOnCellWithModelView(self, aCell, attributesAndValues=None, image=None, popupImage=None):
+        """
+        Create a new agent using Model-View architecture
+        
+        Args:
+            aCell: The cell where the agent will be placed
+            attributesAndValues: Initial attributes and values
+            image: Default image for the agent
+            popupImage: Popup image for the agent
+            
+        Returns:
+            tuple: (agent_model, agent_view) - The agent model and view pair
+        """
+        if aCell == None: 
+            return None
+            
+        from mainClasses.SGEntityDefFactory import SGEntityDefFactory
+        
+        # Create agent using factory
+        agent_model, agent_view = SGEntityDefFactory.newAgentWithModelView(
+            self, aCell, attributesAndValues, image, popupImage
+        )
+        
+        # Add to entities list (store the model)
+        self.entities.append(agent_model)
+        
+        # Update watchers
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        
+        # Show the view
+        agent_view.show()
+        
+        return agent_model, agent_view
+
     
     def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):
         """
@@ -903,6 +966,24 @@ class SGAgentDef(SGEntityDef):
         """
         for n in range(nbAgents):
             self.newAgentOnCell(aCell,attributesAndValues)
+
+    def newAgentsOnCellWithModelView(self, nbAgents, aCell, attributesAndValues=None):
+        """
+        Create a specific number of new Agents using Model-View architecture.
+        
+        Args:
+            nbAgents (int): number of Agents 
+            aCell: aCell located on a grid
+            attributesAndValues: attributes and values of the new agent
+            
+        Return:
+            list: List of tuples (agent_model, agent_view) for each created agent
+        """
+        agents = []
+        for n in range(nbAgents):
+            agent_model, agent_view = self.newAgentOnCellWithModelView(aCell, attributesAndValues)
+            agents.append((agent_model, agent_view))
+        return agents
 
 
 
@@ -947,6 +1028,57 @@ class SGAgentDef(SGEntityDef):
         locationCell = aCellDef.getCell(xCoord, yCoord)
         return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImage)
 
+    def newAgentAtCoordsWithModelView(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None, image=None, popupImage=None):
+        """
+        Create a new Agent using Model-View architecture at specified coordinates.
+
+        Args:
+            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
+            xCoord (int): Column position in grid (Default=Random)
+            yCoord (int): Row position in grid (Default=Random)
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+            image: Default image for the agent
+            popupImage: Popup image for the agent
+            
+        Flexible calling patterns (backward compatible):
+            - newAgentAtCoordsWithModelView(x, y, ...)
+            - newAgentAtCoordsWithModelView((x, y), ...)
+            - newAgentAtCoordsWithModelView(cellDef_or_grid, x, y, ...)
+            
+        Return:
+            tuple: (agent_model, agent_view) - The agent model and view pair
+        """
+        # Normalize arguments to support calls like newAgentAtCoordsWithModelView(3,3) or newAgentAtCoordsWithModelView((3,3))
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
+            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+            cellDef_or_grid = None
+        elif isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
+            # Called as newAgentAtCoordsWithModelView(x, y, ...)
+            xCoord, yCoord = cellDef_or_grid, xCoord
+            cellDef_or_grid = None
+        elif isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
+            # Called as newAgentAtCoordsWithModelView(cellDef_or_grid, (x, y), ...)
+            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+
+        # Normalize argument cellDef_or_grid to support calls like newAgentAtCoordsWithModelView(Cell,3,3) or newAgentAtCoordsWithModelView(3,3) or newAgentAtCoordsWithModelView(aGrid,3,3)
+        if not cellDef_or_grid:
+            aCellDef = first_value(self.model.cellOfGrids, None)
+        else: 
+            aCellDef = self.model.getCellDef(cellDef_or_grid)
+        if aCellDef == None: 
+            return None
+        aGrid = self.model.getGrid(aCellDef)
+
+        if xCoord == None: 
+            xCoord = random.randint(1, aGrid.columns)
+        if yCoord == None: 
+            yCoord = random.randint(1, aGrid.rows)
+        locationCell = aCellDef.getCell(xCoord, yCoord)
+        if locationCell is None:
+            return None
+            
+        return self.newAgentOnCellWithModelView(locationCell, attributesAndValues, image, popupImage)
+
     def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None):
         """
         Create a specific number of new Agents in the associated species.
@@ -988,6 +1120,53 @@ class SGAgentDef(SGEntityDef):
         for n in range(nbAgents):
             self.newAgentAtCoords(cellDef_or_grid, xCoord, yCoord, attributesAndValues)
 
+    def newAgentsAtCoordsWithModelView(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None):
+        """
+        Create a specific number of new Agents using Model-View architecture at specified coordinates.
+
+        Args:
+            nbAgents (int): number of Agents
+            cellDef_or_grid (instance, optional): the cellDef or grid you want your agent in. If None, the first cellDef/grid is used
+            xCoord (int, optional): Column position in grid (1..columns)
+            yCoord (int, optional): Row position in grid (1..rows)
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+            
+        Flexible calling patterns (backward compatible):
+            - newAgentsAtCoordsWithModelView(7)
+            - newAgentsAtCoordsWithModelView(7, {"health":"good"})
+            - newAgentsAtCoordsWithModelView(7, 3, 3)
+            - newAgentsAtCoordsWithModelView(7, (3, 3))
+            - newAgentsAtCoordsWithModelView(7, cellDef_or_grid, 3, 3)
+            - newAgentsAtCoordsWithModelView(7, cellDef_or_grid, (3, 3))
+            - newAgentsAtCoordsWithModelView(7, 3, 3, {"health":"good"})
+            - newAgentsAtCoordsWithModelView(7, cellDef_or_grid, 3, 3, {"health":"good"})
+            
+        Return:
+            list: List of tuples (agent_model, agent_view) for each created agent
+        """
+        # Normalize attributes dict as second positional arg
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None and xCoord is None and yCoord is None:
+            attributesAndValues = cellDef_or_grid
+            cellDef_or_grid = None
+        # Normalize coordinate tuple passed as second arg
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
+            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+            cellDef_or_grid = None
+        # Normalize when called as newAgentsAtCoordsWithModelView(7, x, y, ...)
+        if isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
+            xCoord, yCoord = cellDef_or_grid, xCoord
+            cellDef_or_grid = None
+        # Normalize when coordinates are provided as a tuple in xCoord
+        if isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
+            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+        
+        agents = []
+        for n in range(nbAgents):
+            agent_model, agent_view = self.newAgentAtCoordsWithModelView(cellDef_or_grid, xCoord, yCoord, attributesAndValues)
+            if agent_model is not None:  # Only add if creation was successful
+                agents.append((agent_model, agent_view))
+        return agents
+
     def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):
         """
         Create a new Agent in the associated species a place it on a random cell.
@@ -1015,6 +1194,43 @@ class SGAgentDef(SGEntityDef):
 
         locationCell=aCellDef.getRandomEntity(condition=condition)
         return self.newAgentOnCell(locationCell, attributesAndValues)
+
+    def newAgentAtRandomWithModelView(self, cellDef_or_grid=None, attributesAndValues=None, condition=None):
+        """
+        Create a new Agent using Model-View architecture and place it on a random cell.
+        
+        Args:
+            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+            condition (lambda function, optional): a condition that the destination cell should respect
+            
+        Flexible calling patterns (backward compatible):
+            - newAgentAtRandomWithModelView()
+            - newAgentAtRandomWithModelView({"health":"good"})
+            - newAgentAtRandomWithModelView(cellDef_or_grid)
+            - newAgentAtRandomWithModelView(cellDef_or_grid, {"health":"good"})
+            
+        Return:
+            tuple: (agent_model, agent_view) - The agent model and view pair
+        """
+        # Normalize dict passed as first arg
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None:
+            attributesAndValues = cellDef_or_grid
+            cellDef_or_grid = None
+            
+        # Normalize argument cellDef_or_grid to support calls like newAgentAtRandomWithModelView(Cell) or newAgentAtRandomWithModelView() or newAgentAtRandomWithModelView(aGrid)
+        if not cellDef_or_grid:
+            aCellDef = first_value(self.model.cellOfGrids, None)
+        else: 
+            aCellDef = self.model.getCellDef(cellDef_or_grid)
+        if aCellDef == None: 
+            return None
+
+        locationCell = aCellDef.getRandomEntity(condition=condition)
+        if locationCell is None or locationCell is False:
+            return None
+            
+        return self.newAgentOnCellWithModelView(locationCell, attributesAndValues)
 
     def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):
         """
@@ -1049,6 +1265,45 @@ class SGAgentDef(SGEntityDef):
         for aCell in locationCells:
             alist.append(self.newAgentOnCell(aCell, attributesAndValues))
         return alist
+
+    def newAgentsAtRandomWithModelView(self, aNumber, cellDef_or_grid=None, attributesAndValues=None, condition=None):
+        """
+        Create a number of Agents using Model-View architecture and place them on random cells.
+        
+        Args:
+            aNumber (int): number of agents to be created
+            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
+            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+            condition (lambda function, optional): a condition that the destination cell should respect
+            
+        Flexible calling patterns (backward compatible):
+            - newAgentsAtRandomWithModelView(7)
+            - newAgentsAtRandomWithModelView(7, {"health":"good", "hunger":"bad"})
+            - newAgentsAtRandomWithModelView(7, cellDef_or_grid)
+            - newAgentsAtRandomWithModelView(7, cellDef_or_grid, attributesAndValues)
+            
+        Return:
+            list: List of tuples (agent_model, agent_view) for each created agent
+        """
+        # Normalize arguments to support calls like newAgentsAtRandomWithModelView(7) or newAgentsAtRandomWithModelView(7, {..})
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None:
+            attributesAndValues = cellDef_or_grid
+            cellDef_or_grid = None
+            
+        # Normalize argument cellDef_or_grid to support calls like newAgentsAtRandomWithModelView(Cell) or newAgentsAtRandomWithModelView() or newAgentsAtRandomWithModelView(aGrid)
+        if not cellDef_or_grid:
+            aCellDef = first_value(self.model.cellOfGrids, None)
+        else: 
+            aCellDef = self.model.getCellDef(cellDef_or_grid)
+        if aCellDef == None: 
+            return []
+        
+        locationCells = aCellDef.getRandomEntities(aNumber, condition=condition)
+        agents = []
+        for aCell in locationCells:
+            agent_model, agent_view = self.newAgentOnCellWithModelView(aCell, attributesAndValues)
+            agents.append((agent_model, agent_view))
+        return agents
 
 
     # To randomly move all agents

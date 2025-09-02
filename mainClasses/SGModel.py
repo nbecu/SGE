@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -219,21 +219,28 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
     
     def initAfterOpening(self):
-        QTimer.singleShot(100, self.updateFunction)
+        # TODO: Remove updateFunction call once proper Model-View movement is implemented
+        # QTimer.singleShot(100, self.updateFunction)
         if self.currentPlayerName is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
             elif possibleUsers == [] : self.setCurrentPlayer('Admin')
         if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
         
+        # Position all agents after grid layout is applied and window is shown
+        # Use QApplication.processEvents() to ensure layouts are processed before positioning
+        QApplication.processEvents()
+        self.positionAllAgents()
+        
     def hasDefinedPositionGameSpace(self):
         return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
 
-    def updateFunction(self):
-        aList = self.getAllAgents()
-        if not aList : return False
-        for aAgent in aList:
-            aAgent.updateAgentByRecreating_it()
+    # TODO: Remove this temporary method once proper Model-View movement is implemented
+    # def updateFunction(self):
+    #     aList = self.getAllAgents()
+    #     if not aList : return False
+    #     for aAgent in aList:
+    #         aAgent.updateAgentByRecreating_it()
 
     def setDashboards(self):
         dashboards=self.getGameSpaceByClass(SGDashBoard)
@@ -499,6 +506,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Realocation of the position thanks to the layout
         aGrid.globalPosition()
         self.applyAutomaticLayout()
+        
         return aCellDef
     
     def generateCellsForGrid(self,grid,defaultCellImage,entityName):
@@ -650,6 +658,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         agentDef = self.getAgentSpecieDict(aSpecieName)
         if agentDef is None:  return None
         else: return agentDef.entities[:]
+    
+    def positionAllAgents(self):
+        """Position all agents after grid layout is applied"""
+        for agent_species in self.getAgentSpeciesDict():
+            for agent in agent_species.entities:
+                if hasattr(agent, 'view') and agent.view:
+                    # Show the agent view first
+                    agent.view.show()
+                    agent.view.raise_()  # Bring to front
+                    # Then position it
+                    agent.view.getPositionInEntity()
 
     def getAllAgents(self):
         # send back the agents of all the species
@@ -1604,6 +1623,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.shouldDisplayAdminControlPanel:
             self.show_adminControlPanel()
         self.setDashboards()
+        
         self.show()
         self.initAfterOpening()
 

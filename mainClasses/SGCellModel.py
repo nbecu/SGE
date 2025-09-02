@@ -31,6 +31,9 @@ class SGCellModel(SGEntityModel):
         
         # List of agents in this cell
         self.agents = []
+        
+        # Initialize attributes from classDef
+        self.initAttributesAndValuesWith({})
     
     def getId(self):
         """Get cell identifier"""
@@ -57,3 +60,19 @@ class SGCellModel(SGEntityModel):
     def hasAgent(self, agent):
         """Check if this cell contains a specific agent"""
         return agent in self.agents
+
+    def shouldAcceptDropFrom(self, entity):
+        """
+        Check if this cell should accept drops from the given entity
+        
+        Args:
+            entity: The entity attempting to be dropped
+            
+        Returns:
+            bool: True if the drop should be accepted, False otherwise
+        """
+        # Only accept agents, not all entities
+        has_isAgent = hasattr(entity, 'isAgent')
+        is_agent = entity.isAgent if has_isAgent else False
+        print(f"DEBUG: Entity {entity.id} - has isAgent: {has_isAgent}, isAgent: {is_agent}")
+        return has_isAgent and is_agent

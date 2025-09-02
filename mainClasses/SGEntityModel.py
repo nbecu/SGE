@@ -31,8 +31,8 @@ class SGEntityModel(AttributeAndValueFunctionalities):
         self.history["value"] = defaultdict(list)
         self.watchers = {}
         
-        # Set the attributes
-        self.initAttributesAndValuesWith(attributesAndValues)
+        # Set the attributes (will be called by child classes after view is created)
+        # self.initAttributesAndValuesWith(attributesAndValues)
         self.owner = "admin"
         
         # Reference to the view
@@ -54,13 +54,36 @@ class SGEntityModel(AttributeAndValueFunctionalities):
             else:
                 self.setValue(aAtt, valueToSet)
 
+    def readColorFromPovDef(self, aPovDef, aDefaultColor):
+        """Read color from POV definition"""
+        if aPovDef is None: 
+            return aDefaultColor
+        aAtt = list(aPovDef.keys())[0]
+        aDictOfValueAndColor = list(aPovDef.values())[0]
+        aColor = aDictOfValueAndColor.get(self.value(aAtt))
+        return aColor if aColor is not None else aDefaultColor
+
+    def readColorAndWidthFromBorderPovDef(self, aBorderPovDef, aDefaultColor, aDefaultWidth):
+        """Read color and width from border POV definition"""
+        if aBorderPovDef is None: 
+            return {'color': aDefaultColor, 'width': aDefaultWidth}
+        aAtt = list(aBorderPovDef.keys())[0]
+        aDictOfValueAndColorWidth = list(aBorderPovDef.values())[0]
+        dictColorAndWidth = aDictOfValueAndColorWidth.get(self.value(aAtt))
+        if dictColorAndWidth is None:  # Vérification si la valeur n'existe pas
+            raise ValueError(f'BorderPov cannot work because {self.privateID} has no value for attribute "{aAtt}"')
+        if not isinstance(dictColorAndWidth, dict): 
+            raise ValueError('wrong format')
+        return dictColorAndWidth
+
     def getRandomAttributValue(self, aAgentSpecies, aAtt):
         """Get random attribute value"""
-        if aAgentSpecies.dictAttributes is not None:
+        if aAgentSpecies.dictAttributes is not None and aAtt in aAgentSpecies.dictAttributes:
             values = list(aAgentSpecies.dictAttributes[aAtt])
             number = len(values)
             aRandomValue = random.randint(0, number - 1)          
-        return aRandomValue
+            return aRandomValue
+        return None
 
     def addWatcher(self, aIndicator):
         """Add a watcher for attribute changes"""

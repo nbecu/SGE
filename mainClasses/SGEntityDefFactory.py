@@ -1,0 +1,83 @@
+from mainClasses.SGEntityModel import SGEntityModel
+from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGAgentModel import SGAgentModel
+from mainClasses.SGAgent import SGAgent
+from mainClasses.SGEntityView import SGEntityView
+from mainClasses.SGCellView import SGCellView
+from mainClasses.SGAgentView import SGAgentView
+
+class SGEntityDefFactory:
+    """
+    Factory class for creating Model-View entity pairs
+    Separates entity creation logic from entity definitions
+    """
+    
+    @staticmethod
+    def newCellWithModelView(cellDef, x, y):
+        """
+        Create a cell with Model-View architecture
+        
+        Args:
+            cellDef: The cell definition
+            x: X coordinate
+            y: Y coordinate
+            
+        Returns:
+            tuple: (cell_model, cell_view)
+        """
+        # Create the cell model
+        cell_model = SGCellModel(cellDef, x, y, cellDef.defaultImage)
+        
+        # Create the cell view
+        cell_view = SGCellView(cell_model, cellDef.grid)
+        
+        # Link model and view
+        cell_model.setView(cell_view)
+        
+        return cell_model, cell_view
+    
+    @staticmethod
+    def newAgentWithModelView(agentDef, cell, attributesAndValues=None, image=None, popupImage=None):
+        """
+        Create an agent with Model-View architecture
+        
+        Args:
+            agentDef: The agent definition
+            cell: The cell where the agent will be placed
+            attributesAndValues: Initial attributes and values
+            image: Default image for the agent
+            popupImage: Popup image for the agent
+            
+        Returns:
+            tuple: (agent_model, agent_view)
+        """
+        if image is None:
+            image = agentDef.defaultImage
+        if popupImage is None:
+            popupImage = agentDef.popupImage
+            
+        # Create the agent model (using SGAgent which inherits from SGAgentModel and has isAgent=True)
+        agent_model = SGAgent(
+            cell, 
+            agentDef.defaultsize, 
+            attributesAndValues, 
+            agentDef.defaultShapeColor, 
+            agentDef, 
+            image, 
+            popupImage
+        )
+        
+        # Create the agent view with grid as parent (not cell)
+        grid_parent = cell.classDef.grid if hasattr(cell, 'classDef') and hasattr(cell.classDef, 'grid') else None
+        print(f"DEBUG Factory: Creating agent view with grid parent: {grid_parent}")
+        print(f"DEBUG Factory: Cell: {cell}, classDef: {cell.classDef if hasattr(cell, 'classDef') else 'None'}")
+        
+        agent_view = SGAgentView(agent_model, grid_parent)
+        
+        # Link model and view
+        agent_model.setView(agent_view)
+        
+        # Note: agent_view.show() will be called later in positionAllAgents()
+        print(f"DEBUG Factory: Agent view created (show() deferred)")
+        
+        return agent_model, agent_view

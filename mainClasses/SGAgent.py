@@ -6,6 +6,8 @@ from PyQt5.QtGui import QCursor
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCell import SGCell
+from mainClasses.SGAgentModel import SGAgentModel
+from mainClasses.SGAgentView import SGAgentView
 from mainClasses.gameAction.SGCreate import *
 from mainClasses.gameAction.SGDelete import *
 from mainClasses.gameAction.SGModify import *
@@ -13,359 +15,159 @@ from mainClasses.gameAction.SGMove import *
 from mainClasses.gameAction.SGActivate import *
    
 #Class who is responsible of the declaration a Agent
-class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImage):
-        aGrid = cell.grid
-        super().__init__(aGrid,classDef, size,attributesAndValues)
-        self.cell=None
-        if cell is not None:
-            self.cell = cell
-            self.cell.updateIncomingAgent(self)
-        else: raise ValueError('This case is not handeled')
-        self.getPositionInEntity()
-        self.last_selected_option=None
-
-        self.defaultImage=defaultImage
-        self.popupImage=popupImage
-        self.dragging = False
-
-        self.setAcceptDrops(True)
+class SGAgent(SGAgentModel):
+    """
+    SGAgent - Agent class for agent-based simulations
+    
+    This class now uses Model-View architecture:
+    - Inherits from SGAgentModel for data and business logic
+    - Delegates UI to SGAgentView for display and interaction
+    """
+    
+    def __init__(self, cell, size, attributesAndValues, shapeColor, classDef, defaultImage, popupImage):
+        # Initialize the model part
+        super().__init__(cell, size, attributesAndValues, shapeColor, classDef, defaultImage, popupImage)
         
+        # View will be created and linked by the factory
+        # Don't create view here to avoid duplication
+        
+        # Initialize attributes
+        self.initAttributesAndValuesWith(attributesAndValues)
+        
+        # Type identification attributes
+        self.isEntity = True
+        self.isCell = False
+        self.isAgent = True
 
+    # Legacy UI method delegation
+    def show(self):
+        """Show the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.show()
+    
+    def hide(self):
+        """Hide the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.hide()
+    
+    def update(self):
+        """Update the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.update()
+    
+    def setGeometry(self, *args, **kwargs):
+        """Set geometry of the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setGeometry(*args, **kwargs)
+    
+    def move(self, *args, **kwargs):
+        """Move the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.move(*args, **kwargs)
+    
+    def resize(self, *args, **kwargs):
+        """Resize the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.resize(*args, **kwargs)
+    
+    def setVisible(self, *args, **kwargs):
+        """Set visibility of the agent view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setVisible(*args, **kwargs)
+    
+    def isVisible(self):
+        """Check if agent view is visible"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.isVisible()
+        return False
+    
+    def rect(self):
+        """Get rectangle of the agent view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.rect()
+        return None
+    
+    def mapToGlobal(self, *args, **kwargs):
+        """Map to global coordinates"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.mapToGlobal(*args, **kwargs)
+        return None
+    
+    def setAcceptDrops(self, *args, **kwargs):
+        """Set accept drops"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setAcceptDrops(*args, **kwargs)
+    
+    def grab(self):
+        """Grab the agent view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.grab()
+        return None
 
-    def paintEvent(self,event):
-        painter = QPainter() 
-        painter.begin(self)
-        region = self.getRegion()
-        painter.setClipRegion(region)
-        image = self.defaultImage if self.defaultImage is not None else self.getImage()
-        if image is not None:
-            if image.width() ==0 or image.height == 0 : raise ValueError(f'Image size is not valid for {self.privateID}')
-            rect, scaledImage = self.rescaleImage(image)
-            painter.drawPixmap(rect, scaledImage)
-        else :
-            painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        penColorAndWidth = self.getBorderColorAndWidth()
-        painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
-        agentShape = self.classDef.shape
-        x = self.xCoord
-        y = self.yCoord
-        if self.isDisplay==True:
-            if(agentShape=="circleAgent"):
-                self.setGeometry(x,y,self.size,self.size)
-                painter.drawEllipse(0,0,self.size,self.size)
-            elif agentShape=="squareAgent":
-                self.setGeometry(x,y,self.size,self.size)
-                painter.drawRect(0,0,self.size,self.size)
-            elif agentShape=="ellipseAgent1": 
-                self.setGeometry(x,y,self.size,round(self.size/2))
-                painter.drawEllipse(0,0,self.size,round(self.size/2))
-            elif agentShape=="ellipseAgent2": 
-                self.setGeometry(x,y,round(self.size/2),self.size)
-                painter.drawEllipse(0,0,round(self.size/2),self.size)
-            elif agentShape=="rectAgent1": 
-                self.setGeometry(x,y,self.size,round(self.size/2))
-                painter.drawRect(0,0,self.size,round(self.size/2))
-            elif agentShape=="rectAgent2": 
-                self.setGeometry(x,y,round(self.size/2),self.size)
-                painter.drawRect(0,0,round(self.size/2),self.size)
-            elif agentShape=="triangleAgent1": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(round(self.size/2),0),
-                QPoint(0,self.size),
-                QPoint(self.size,  self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape=="triangleAgent2": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(0,0),
-                QPoint(self.size,0),
-                QPoint(round(self.size/2),self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape=="arrowAgent1": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(round(self.size/2),0),
-                QPoint(0,self.size),
-                QPoint(round(self.size/2),round(self.size/3)*2),
-                QPoint(self.size,  self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape=="arrowAgent2": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(0,0),
-                QPoint(round(self.size/2),round(self.size/3)),
-                QPoint(self.size,0),
-                QPoint(round(self.size/2),self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape == "hexagonAgent":
-                self.setGeometry(x, y, self.size, self.size)
-                side = self.size / 2
-                height = round(side * (3 ** 0.5))+10  # Hauteur de l'hexagone équilatéral
-                points = QPolygon([
-                    QPoint(round(self.size/2), 0),                # Sommet supérieur
-                    QPoint(self.size, round(height/4)),           # Coin supérieur droit
-                    QPoint(self.size, round(3*height/4)),         # Coin inférieur droit
-                    QPoint(round(self.size/2), height),           # Sommet inférieur
-                    QPoint(0, round(3*height/4)),                 # Coin inférieur gauche
-                    QPoint(0, round(height/4))                    # Coin supérieur gauche
-                ])
-                painter.drawPolygon(points)
-            self.show()
-            painter.end()
+    # Legacy compatibility methods that delegate to view
+    def paintEvent(self, event):
+        """Paint event - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.paintEvent(event)
     
     def getRegion(self):
-        agentShape=self.classDef.shape
-        if(agentShape=="circleAgent"):
-            region = QRegion(0, 0, self.size, self.size, QRegion.Ellipse)
-        elif agentShape=="squareAgent":
-            region = QRegion(0, 0, self.size, self.size)
-        elif agentShape=="ellipseAgent1": 
-            region = QRegion(0,0,self.size,round(self.size/2))
-        elif agentShape=="ellipseAgent2": 
-            region = QRegion(0,0,round(self.size/2),self.size)
-        elif agentShape=="rectAgent1": 
-            region = QRegion(0,0,self.size,round(self.size/2))
-        elif agentShape=="rectAgent2": 
-            region = QRegion(0,0,round(self.size/2),self.size)
-        elif agentShape=="triangleAgent1": 
-            points = QPolygon([
-            QPoint(round(self.size/2),0),
-            QPoint(0,self.size),
-            QPoint(self.size,  self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape=="triangleAgent2": 
-            points = QPolygon([
-            QPoint(0,0),
-            QPoint(self.size,0),
-            QPoint(round(self.size/2),self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape=="arrowAgent1": 
-            points = QPolygon([
-            QPoint(round(self.size/2),0),
-            QPoint(0,self.size),
-            QPoint(round(self.size/2),round(self.size/3)*2),
-            QPoint(self.size,  self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape=="arrowAgent2": 
-            points = QPolygon([
-            QPoint(0,0),
-            QPoint(round(self.size/2),round(self.size/3)),
-            QPoint(self.size,0),
-            QPoint(round(self.size/2),self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape == "hexagonAgent":  
-            side = self.size / 2
-            height = round(side * (3 ** 0.5))+10  
-            points = QPolygon([
-                QPoint(round(self.size/2), 0),        
-                QPoint(self.size, round(height/4)),           
-                QPoint(self.size, round(3*height/4)),    
-                QPoint(round(self.size/2), height),        
-                QPoint(0, round(3*height/4)),              
-                QPoint(0, round(height/4))                   
-            ])
-            region = QRegion(points)
-        return region
-   
-   
-   #Funtion to handle the zoomIn
-    def zoomIn(self,zoomFactor):
-        self.size=round(self.size+(zoomFactor*10))
-        self.update()
-
-    #Funtion to handle the zoomOut
-    def zoomOut(self,zoomFactor):
-        self.size=round(self.size-(zoomFactor*10))
-        self.update()
-            
-    def getRandomX(self):        
-        maxSize=self.cell.size
-        originPoint=self.cell.pos()
-        if self.classDef.shape in ["ellipseAgent2","rectAgent2"]: 
-            x = random.randint(originPoint.x(),originPoint.x()+maxSize-round(self.size/2))
-        else:
-            x = random.randint(originPoint.x(),originPoint.x()+maxSize-self.size)
-        return x
-        
+        """Get region - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.getRegion()
+        return None
     
-    def getRandomY(self): 
-        maxSize=self.cell.size
-        originPoint=self.cell.pos()
-        if self.classDef.shape in ["ellipseAgent1","rectAgent1"]: 
-            y = random.randint(originPoint.y(),originPoint.y()+maxSize-round(self.size/2))
-        else:
-            y = random.randint(originPoint.y(),originPoint.y()+maxSize-self.size)
-        return y
+    def mousePressEvent(self, event):
+        """Mouse press event - delegates to view"""
+        self.view.mousePressEvent(event)
+    
+    def mouseMoveEvent(self, event):
+        """Mouse move event - delegates to view"""
+        self.view.mouseMoveEvent(event)
+
+    # Model methods that are now inherited from SGAgentModel
+    # These are kept for backward compatibility but delegate to the model
+    
+    def zoomIn(self, zoomFactor):
+        """Zoom in - delegates to model"""
+        super().zoomIn(zoomFactor)
+        self.updateView()
+    
+    def zoomOut(self, zoomFactor):
+        """Zoom out - delegates to model"""
+        super().zoomOut(zoomFactor)
+        self.updateView()
+    
+    def getRandomX(self):
+        """Get random X - delegates to model"""
+        return super().getRandomX()
+    
+    def getRandomY(self):
+        """Get random Y - delegates to model"""
+        return super().getRandomY()
     
     def getPositionInEntity(self):
-        maxSize=self.cell.size
-        originPoint=self.cell.pos()
-        if self.classDef.locationInEntity=="random":
-            self.xCoord=self.getRandomX()
-            self.yCoord=self.getRandomY()
-            return
-        if self.classDef.locationInEntity=="topRight":
-            self.xCoord=originPoint.x()+maxSize-10
-            self.yCoord=originPoint.y()+5
-            return
-        if self.classDef.locationInEntity=="topLeft":
-            self.xCoord=originPoint.x()+5
-            self.yCoord=originPoint.y()+5
-            return
-        if self.classDef.locationInEntity=="bottomLeft":
-            self.xCoord=originPoint.x()+5
-            self.yCoord=originPoint.y()+maxSize-10
-            return
-        if self.classDef.locationInEntity=="bottomRight":
-            self.xCoord=originPoint.x()+maxSize-10
-            self.yCoord=originPoint.y()+maxSize-10
-            return
-        if self.classDef.locationInEntity=="center":
-            self.xCoord=originPoint.x()+int(maxSize/2)-int(self.size/2)
-            self.yCoord=originPoint.y()+int(maxSize/2)-int(self.size/2)
-            return
-        else:
-            raise ValueError("Error in entry for locationInEntity")
-
+        """Get position in entity - delegates to model"""
+        return super().getPositionInEntity()
+    
     def isDeleted(self):
-        if not self.isDisplay:
-            raise ValueError ('An agent which is not displayed is not necessary deleted.') 
-        return not self.isDisplay
+        """Check if agent is deleted - delegates to model"""
+        return super().isDeleted()
+
+    # New Model-View specific methods
+    def getView(self):
+        """Get the agent view"""
+        return self.view
     
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.dragging = True
-            # Something is selected
-            aLegendItem = self.model.getSelectedLegendItem()
-            if aLegendItem is None: 
-                return  # Exit the method
-
-            # Use the gameAction system for ALL players (including Admin)
-            from mainClasses.gameAction.SGMove import SGMove
-            if isinstance(aLegendItem.gameAction, SGMove): 
-                return
-            aLegendItem.gameAction.perform_with(self)
-            return
-
-    # def mousePressEvent(self, event):
-    #     if event.button() == Qt.LeftButton:
-    #         self.dragging = True
-    #         #Something is selected
-    #         aLegendItem = self.model.getSelectedLegendItem()
-    #         if aLegendItem is None : return #Exit the method
-
-    #         if aLegendItem.legend.isAdminLegend():
-    #             authorisation= True
-    #         else :
-    #             from mainClasses.gameAction.SGMove import SGMove
-    #             if isinstance(aLegendItem.gameAction,SGMove): return
-    #             aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-    #             return
-    #         if not authorisation : return #Exit the method
-
-    #         #The delete Action
-    #         if aLegendItem.type == 'delete' :
-    #             if authorisation : 
-    #                 self.classDef.deleteEntity(self)
-
-    #         #The  change value on agent
-    #         elif aLegendItem.isSymbolOnAgent() :
-    #             if  authorisation :
-    #                 self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
-    #                 # self.update()
-
-
-            
-    #To handle the drag of the agent
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-
-        # Take a snapshot of the widget (the agent)
-        pixmap = self.grab()
-
-        # Make the pixmap semi-transparent
-        painter = QPainter(pixmap)
-        painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
-        painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))  # 128 = 50% opacity
-        painter.end()
-
-        # Set the pixmap as the drag preview
-        drag.setPixmap(pixmap)
-
-        # Keep the cursor aligned with the click point
-        drag.setHotSpot(e.pos())
-
-        # Start the drag operation
-        drag.exec_(Qt.CopyAction | Qt.MoveAction)
-
-    # def mouseMoveEvent(self, e):
+    def setView(self, view):
+        """Set the agent view"""
+        self.view = view
+        if view:
+            view.agent_model = self
     
-    #     if e.buttons() != Qt.LeftButton:
-    #         return
-    #     authorisation = True
-    #     if authorisation:
-    #         mimeData = QMimeData()
-    #         drag = QDrag(self)
-    #         drag.setMimeData(mimeData)
-    #         drag.setHotSpot(e.pos() - self.rect().topLeft())
-    #         drag.exec_(Qt.CopyAction | Qt.MoveAction)
-
-    def dragEnterEvent(self,e):
-        e.acceptProposedAction()
-
-
-    def dropEvent(self, e):    
-        if isinstance(e.source(), SGAgent) and self.cell is not None:
-            # Specific case: forward the drop to the cell
-            self.cell.dropEvent(e)
-        else:
-            # Fallback: delegate the drop handling to the parent model
-            self.model.dropEvent(e)
-       
-
-    def enterEvent(self, event):
-        if self.dragging:
-            return
-
-        if self.popupImage:
-            # Convertir l'image en HTML pour ToolTip
-            image_html = f"<img src='{self.popupImage}' style='max-width: 200px; max-height: 200px;'>"
-            QToolTip.showText(QCursor.pos(), image_html, self)
-
-    def leaveEvent(self, event):
-        QToolTip.hideText()
-                        
-    #Apply the feedBack of a gameMechanics
-    def feedBack(self, theAction):
-        booleanForFeedback=True
-        for anCondition in theAction.conditionOfFeedBack :
-            booleanForFeedback=booleanForFeedback and anCondition(self)
-        if booleanForFeedback :
-            for aFeedback in  theAction.feedback :
-                aFeedback(self)
-
-    def addPovinMenuBar(self,nameOfPov):
-        if nameOfPov not in self.model.listOfPovsForMenu :
-            self.model.listOfPovsForMenu.append(nameOfPov)
-            anAction=QAction(" &"+nameOfPov, self)
-            self.model.povMenu.addAction(anAction)
-            anAction.triggered.connect(lambda: self.model.displayPov(nameOfPov))
+    def updateView(self):
+        """Update the agent view"""
+        if self.view:
+            self.view.update()
 
 
             
@@ -373,45 +175,77 @@ class SGAgent(SGEntity):
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-    def updateAgentByRecreating_it(self):
-        aDestinationCell = self.cell
-        self.cell.updateDepartureAgent(self)
-        self.copyOfAgentAtCoord(aDestinationCell)
-        self.deleteLater()
+# TODO: Remove these temporary methods once proper Model-View movement is implemented
+# These methods were temporary workarounds before Model-View separation
+# def updateAgentByRecreating_it(self):
+#     aDestinationCell = self.cell
+#     self.cell.updateDepartureAgent(self)
+#     self.copyOfAgentAtCoord(aDestinationCell)
+#     self.deleteLater()
 
-    # To copy an Agent to make a move
-    def copyOfAgentAtCoord(self, aCell):
-        oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImage)
-        self.classDef.IDincr -=1
-        newAgent.id = oldAgent.id
-        newAgent.history = oldAgent.history
-        newAgent.watchers = oldAgent.watchers
-        #apply correction on the watchers on this entity
-        for watchers in list(oldAgent.watchers.values()):
-            for aWatcherOnThisAgent in watchers:
-                aWatcherOnThisAgent.entity=newAgent        
-        newAgent.privateID = oldAgent.privateID
-        newAgent.isDisplay = oldAgent.isDisplay
-        newAgent.classDef.entities.remove(oldAgent)
-        newAgent.classDef.entities.append(newAgent)
-        newAgent.update()
-        newAgent.show()
-        self.update()
-        return newAgent
+# def copyOfAgentAtCoord(self, aCell):
+#     oldAgent = self
+#     newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImage)
+#     self.classDef.IDincr -=1
+#     newAgent.id = oldAgent.id
+#     newAgent.history = oldAgent.history
+#     newAgent.watchers = oldAgent.watchers
+#     #apply correction on the watchers on this entity
+#     for watchers in list(oldAgent.watchers.values()):
+#         for aWatcherOnThisAgent in watchers:
+#             aWatcherOnThisAgent.entity=newAgent        
+#     newAgent.privateID = oldAgent.privateID
+#     newAgent.isDisplay = oldAgent.isDisplay
+#     newAgent.classDef.entities.remove(oldAgent)
+#     newAgent.classDef.entities.append(newAgent)
+#     newAgent.update()
+#     newAgent.show()
+#     self.update()
+#     return newAgent
     
 
     def moveTo(self, aDestinationCell):
+        """
+        Move agent to a new cell using Model-View architecture.
+        The model moves, the view updates its position.
+        
+        Args:
+            aDestinationCell: The destination cell
+            
+        Returns:
+            self: The agent (for chaining)
+        """
+        print(f"DEBUG: moveTo called for agent {self.id} to cell {aDestinationCell.id}")
+        print(f"DEBUG: Agent current position: ({self.xCoord}, {self.yCoord})")
+        print(f"DEBUG: Destination cell position: ({aDestinationCell.xCoord}, {aDestinationCell.yCoord})")
+        
         if self.cell is None:
+            # First placement
+            print(f"DEBUG: First placement of agent {self.id}")
             self.cell = aDestinationCell
             self.cell.updateIncomingAgent(self)
-            self.update()
-            theAgent= self
-        else :
-            self.cell.updateDepartureAgent(self)
-            theAgent= self.copyOfAgentAtCoord(aDestinationCell)
-            self.deleteLater()
-        return theAgent
+            self.getPositionInEntity()  # Update position
+            self.view.getPositionInEntity()  # Force view repositioning
+            self.updateView()
+            print(f"DEBUG: Agent {self.id} placed at ({self.xCoord}, {self.yCoord})")
+            return self
+        else:
+            # Movement from one cell to another
+            print(f"DEBUG: Moving agent {self.id} from cell {self.cell.id} to cell {aDestinationCell.id}")
+            # Remove from current cell
+            self.cell.removeAgent(self)
+            
+            # Move to new cell
+            self.cell = aDestinationCell
+            self.cell.updateIncomingAgent(self)
+            
+            # Update position and view
+            self.getPositionInEntity()
+            self.view.getPositionInEntity()  # Force view repositioning
+            self.updateView()
+            
+            print(f"DEBUG: Agent {self.id} moved to ({self.xCoord}, {self.yCoord})")
+            return self
 
     def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1,condition=None):
         """
@@ -531,9 +365,7 @@ class SGAgent(SGEntity):
         Returns:
             list[SGAgent]: Agents in the same cell.
         """
-        if self.cell is None:
-            return []
-        return self.cell.getAgents(specie)
+        return super().getAgentsHere(specie)
 
     def nbAgentsHere(self, specie=None):
         """
@@ -545,9 +377,7 @@ class SGAgent(SGEntity):
         Returns:
             int: Number of matching agents in the same cell.
         """
-        if self.cell is None:
-            return 0
-        return self.cell.nbAgents(specie)
+        return super().nbAgentsHere(specie)
 
     def hasAgentsHere(self, specie=None):
         """
@@ -559,9 +389,7 @@ class SGAgent(SGEntity):
         Returns:
             bool: True if at least one matching agent is in the same cell, False otherwise.
         """
-        if self.cell is None:
-            return False
-        return self.cell.hasAgents(specie)
+        return super().hasAgentsHere(specie)
     
     def getNeighborCells(self,neighborhood=None):
         return self.cell.getNeighborCells(neighborhood=neighborhood)

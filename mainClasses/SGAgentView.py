@@ -28,34 +28,63 @@ class SGAgentView(SGEntityView):
         self.popupImage = agent_model.popupImage
         self.dragging = False
         
+        # Initialize position coordinates to avoid AttributeError
+        self.xCoord = 0
+        self.yCoord = 0
+        
         # Allow drops
         self.setAcceptDrops(True)
         
-        # Get position in entity
-        self.getPositionInEntity()
+        # Don't position immediately - wait for grid layout to be applied
+        # self.getPositionInEntity()
     
     def getPositionInEntity(self):
-        """Get the position of the agent within its cell"""
+        """Get the absolute position of the agent within its cell"""
+        # Use the agent model's current cell, not the view's cached cell
+        current_cell = self.agent_model.cell
+        
+        print(f"DEBUG: getPositionInEntity called for agent {self.agent_model.id}")
+        print(f"DEBUG: Current cell: {current_cell.id if current_cell else 'None'}")
+        print(f"DEBUG: Cell view exists: {hasattr(current_cell, 'view') and current_cell.view is not None}")
+        if hasattr(current_cell, 'view') and current_cell.view:
+            print(f"DEBUG: Cell view position: ({current_cell.view.x()}, {current_cell.view.y()})")
+        
+        # Calculate relative position within the cell
         if self.classDef.locationInEntity == "random":
-            self.xCoord = random.randint(0, self.cell.size - self.size)
-            self.yCoord = random.randint(0, self.cell.size - self.size)
+            relX = random.randint(0, current_cell.size - self.size)
+            relY = random.randint(0, current_cell.size - self.size)
         elif self.classDef.locationInEntity == "topRight":
-            self.xCoord = self.cell.size - self.size
-            self.yCoord = 0
+            relX = current_cell.size - self.size
+            relY = 0
         elif self.classDef.locationInEntity == "topLeft":
-            self.xCoord = 0
-            self.yCoord = 0
+            relX = 0
+            relY = 0
         elif self.classDef.locationInEntity == "bottomLeft":
-            self.xCoord = 0
-            self.yCoord = self.cell.size - self.size
+            relX = 0
+            relY = current_cell.size - self.size
         elif self.classDef.locationInEntity == "bottomRight":
-            self.xCoord = self.cell.size - self.size
-            self.yCoord = self.cell.size - self.size
+            relX = current_cell.size - self.size
+            relY = current_cell.size - self.size
         elif self.classDef.locationInEntity == "center":
-            self.xCoord = (self.cell.size - self.size) // 2
-            self.yCoord = (self.cell.size - self.size) // 2
+            relX = (current_cell.size - self.size) // 2
+            relY = (current_cell.size - self.size) // 2
         else:
             raise ValueError("Error in entry for locationInEntity")
+        
+        # Calculate absolute position based on cell position
+        self.xCoord = current_cell.view.x() + relX
+        self.yCoord = current_cell.view.y() + relY
+        
+        print(f"DEBUG: Agent {self.agent_model.id} calculated position: ({self.xCoord}, {self.yCoord})")
+        
+        # Update the view position
+        self.move(self.xCoord, self.yCoord)
+    
+    def updatePositionFromCell(self):
+        """Update agent position when cell moves"""
+        # Update the view's cell reference to match the model
+        self.cell = self.agent_model.cell
+        self.getPositionInEntity()
     
     def paintEvent(self, event):
         """Paint the agent"""
@@ -133,6 +162,19 @@ class SGAgentView(SGEntityView):
                     QPoint(round(self.size / 2), self.size)
                 ])
                 painter.drawPolygon(points)
+            elif(agentShape == "hexagonAgent"):
+                self.setGeometry(x, y, self.size, self.size)
+                side = self.size / 2
+                height = round(side * (3 ** 0.5)) + 10  # Hauteur de l'hexagone équilatéral
+                points = QPolygon([
+                    QPoint(round(self.size / 2), 0),                # Sommet supérieur
+                    QPoint(self.size, round(height / 4)),           # Coin supérieur droit
+                    QPoint(self.size, round(3 * height / 4)),       # Coin inférieur droit
+                    QPoint(round(self.size / 2), height),           # Sommet inférieur
+                    QPoint(0, round(3 * height / 4)),               # Coin inférieur gauche
+                    QPoint(0, round(height / 4))                     # Coin supérieur gauche
+                ])
+                painter.drawPolygon(points)
                 
         painter.end()
     
@@ -181,6 +223,89 @@ class SGAgentView(SGEntityView):
                 QPoint(round(self.size / 2), self.size)
             ])
             region = QRegion(points)
+        elif agentShape == "hexagonAgent":  
+            side = self.size / 2
+            height = round(side * (3 ** 0.5)) + 10  
+            points = QPolygon([
+                QPoint(round(self.size / 2), 0),        
+                QPoint(self.size, round(height / 4)),           
+                QPoint(self.size, round(3 * height / 4)),    
+                QPoint(round(self.size / 2), height),        
+                QPoint(0, round(3 * height / 4)),              
+                QPoint(0, round(height / 4))                   
+            ])
+            region = QRegion(points)
         else:
             region = QRegion(0, 0, self.size, self.size)
         return region
+
+    # Interaction methods
+    def mousePressEvent(self, event):
+        """Handle mouse press events"""
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            # Something is selected
+            aLegendItem = self.agent_model.model.getSelectedLegendItem()
+            if aLegendItem is None: 
+                return  # Exit the method
+
+            # Use the gameAction system for ALL players (including Admin)
+            from mainClasses.gameAction.SGMove import SGMove
+            if isinstance(aLegendItem.gameAction, SGMove): 
+                return
+            aLegendItem.gameAction.perform_with(self.agent_model)
+            return
+
+    def mouseMoveEvent(self, e):
+        """Handle mouse move events for dragging"""
+        if e.buttons() != Qt.LeftButton:
+            return
+
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+
+        # Take a snapshot of the widget (the agent)
+        pixmap = self.grab()
+
+        # Make the pixmap semi-transparent
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))  # 128 = 50% opacity
+        painter.end()
+
+        # Set the pixmap as the drag preview
+        drag.setPixmap(pixmap)
+
+        # Keep the cursor aligned with the click point
+        drag.setHotSpot(e.pos())
+
+        # Start the drag operation
+        drag.exec_(Qt.CopyAction | Qt.MoveAction)
+
+    def dragEnterEvent(self, e):
+        """Handle drag enter events"""
+        e.acceptProposedAction()
+
+    def dropEvent(self, e):    
+        """Handle drop events"""
+        if hasattr(e.source(), 'cell') and self.agent_model.cell is not None:
+            # Specific case: forward the drop to the cell
+            self.agent_model.cell.dropEvent(e)
+        else:
+            # Fallback: delegate the drop handling to the parent model
+            self.agent_model.model.dropEvent(e)
+
+    def enterEvent(self, event):
+        """Handle mouse enter events for tooltips"""
+        if self.dragging:
+            return
+
+        if self.popupImage:
+            # Convertir l'image en HTML pour ToolTip
+            image_html = f"<img src='{self.popupImage}' style='max-width: 200px; max-height: 200px;'>"
+            QToolTip.showText(QCursor.pos(), image_html, self)
+
+    def leaveEvent(self, event):
+        """Handle mouse leave events"""
+        QToolTip.hideText()

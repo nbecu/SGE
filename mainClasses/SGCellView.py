@@ -1,6 +1,7 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntityView import SGEntityView
+from mainClasses.SGEntity import SGEntity
 
 class SGCellView(SGEntityView):
     """
@@ -106,3 +107,52 @@ class SGCellView(SGEntityView):
             ])
             region = QRegion(points)
         return region
+
+    def mousePressEvent(self, event):
+        """Handle mouse press events"""
+        if event.button() == Qt.LeftButton:
+            # Something is selected
+            aLegendItem = self.cell_model.model.getSelectedLegendItem()
+            if aLegendItem is None: 
+                return  # Exit the method
+
+            # Use the gameAction system for ALL players (including Admin)
+            aLegendItem.gameAction.perform_with(self.cell_model)
+            return
+
+    def dropEvent(self, e):
+        """Handle drop events for agent movement"""
+        e.acceptProposedAction()
+        aAgent = e.source()
+
+        # Delegate type checking to the model
+        if not self.cell_model.shouldAcceptDropFrom(aAgent):
+            return
+        
+        currentPlayer = self.cell_model.model.getCurrentPlayer()
+    
+        # Get authorized move action from player
+        authorizedMoveAction = currentPlayer.getAuthorizedMoveActionForDrop(aAgent, self.cell_model)
+        
+        # Execute the move action if found
+        if authorizedMoveAction is not None:
+            authorizedMoveAction.perform_with(aAgent, self.cell_model)
+            e.setDropAction(Qt.MoveAction)
+            # TODO: Remove this line when SGAgentView is implemented
+            # The dragging state should be managed by the agent's view, not here
+            aAgent.dragging = False
+            print(f"DEBUG: Move action completed")
+            return
+        else:
+            print(f"DEBUG: No authorized move action found")
+
+    def dragEnterEvent(self, e):
+        """Handle drag enter events"""
+        # This event is called during an agent drag 
+        e.accept()
+
+    def mouseMoveEvent(self, e):
+        """Handle mouse move events to prevent cell dragging"""
+        # This method is used to prevent the drag of a cell
+        if e.buttons() != Qt.LeftButton:
+            return

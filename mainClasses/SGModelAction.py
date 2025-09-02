@@ -48,18 +48,25 @@ class SGModelAction():
         return res
     
     def execute(self):
+        print(f"DEBUG: SGModelAction.execute() called")
         if self.testConditions():
+            print(f"DEBUG: Conditions passed, executing {len(self.actions)} actions")
             allActionsDone = True
-            for aAction in self.actions:
+            for i, aAction in enumerate(self.actions):
+                print(f"DEBUG: Executing action {i+1}/{len(self.actions)}")
                 if callable(aAction):
                     test = aAction()  #this command executes aAction
+                    print(f"DEBUG: Action {i+1} returned: {test}")
                     if test == False:
                         allActionsDone = False
                 else:
                     raise ValueError("Syntax error of actions")
             if allActionsDone:
+                print(f"DEBUG: All actions done, executing {len(self.feedbacks)} feedbacks")
                 for aFeedbackAction in self.feedbacks:
                     aFeedbackAction.execute()
+        else:
+            print(f"DEBUG: Conditions failed, not executing actions")
                 
  
             
