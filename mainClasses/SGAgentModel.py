@@ -24,6 +24,11 @@ class SGAgentModel(SGEntityModel):
         """
         super().__init__(classDef, size, attributesAndValues)
         
+        # Type identification attributes
+        self.isEntity = True
+        self.isCell = False
+        self.isAgent = True
+        
         # Agent-specific properties
         self.cell = None
         if cell is not None:
@@ -172,23 +177,37 @@ class SGAgentModel(SGEntityModel):
                 newCell = random.choice(neighbors) if neighbors else None
 
             if method == "cell" or cellID is not None:
-                newCell = aGrid.getCell_withId(cellID)
+                # Parse cellID format "cellx-y" to get coordinates
+                if cellID and cellID.startswith("cell"):
+                    try:
+                        coords = cellID[4:].split("-")  # Remove "cell" prefix and split by "-"
+                        if len(coords) == 2:
+                            x, y = int(coords[0]), int(coords[1])
+                            newCell = self.cell.classDef.getCell(x, y)
+                        else:
+                            newCell = None
+                    except (ValueError, IndexError):
+                        newCell = None
+                else:
+                    newCell = aGrid.getCell_withId(cellID)
                 
-                if condition is not None:
+                if condition is not None and newCell is not None:
                     if not condition(newCell):
                         newCell = None
 
             if method == "cardinal" or direction is not None:
                 if direction == "North":
                     newCell = originCell.getNeighborN()
-                if direction == "South":
+                elif direction == "South":
                     newCell = originCell.getNeighborS()
-                if direction == "East":
+                elif direction == "East":
                     newCell = originCell.getNeighborE()
-                if direction == "West":
+                elif direction == "West":
                     newCell = originCell.getNeighborW()
+                else:
+                    newCell = None
                     
-                if condition is not None:
+                if condition is not None and newCell is not None:
                     if not condition(newCell):
                         newCell = None
 
@@ -224,10 +243,10 @@ class SGAgentModel(SGEntityModel):
         # Determine the target cell
         if hasattr(target, 'cell'):  # Target is an agent
             target_cell = target.cell
-        elif isinstance(target, SGCell):  # Target is a Cell
+        elif hasattr(target, 'isCell') and target.isCell:  # Target is a Cell
             target_cell = target
         elif isinstance(target, tuple) and len(target) == 2:  # Coordinates (x, y)
-            target_cell = self.cell.grid.getCell(target)
+            target_cell = self.cell.classDef.getCell(target[0], target[1])
         else:
             raise ValueError("Invalid target type for moveTowards()")
 

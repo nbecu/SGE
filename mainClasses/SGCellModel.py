@@ -76,3 +76,67 @@ class SGCellModel(SGEntityModel):
         is_agent = entity.isAgent if has_isAgent else False
         print(f"DEBUG: Entity {entity.id} - has isAgent: {has_isAgent}, isAgent: {is_agent}")
         return has_isAgent and is_agent
+
+    def getNeighborCells(self, condition=None):
+        """
+        Get all neighboring cells (8-directional: N, NE, E, SE, S, SW, W, NW)
+        
+        Args:
+            condition (callable, optional): A lambda function that takes a Cell as argument 
+                and returns True if the cell should be included in neighbors
+                
+        Returns:
+            list: List of neighboring SGCellModel instances
+        """
+        neighbors = []
+        
+        # Get the cell definition to access the grid
+        cell_def = self.classDef
+        
+        # Check all 8 directions
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),  # NW, N, NE
+            (0, -1),           (0, 1),    # W,     E
+            (1, -1),  (1, 0),  (1, 1)    # SW, S, SE
+        ]
+        
+        for dx, dy in directions:
+            neighbor_x = self.xCoord + dx
+            neighbor_y = self.yCoord + dy
+            
+            # Check if the neighbor coordinates are within grid bounds
+            if (1 <= neighbor_x <= cell_def.grid.columns and 
+                1 <= neighbor_y <= cell_def.grid.rows):
+                
+                # Get the neighbor cell
+                neighbor_cell = cell_def.getCell(neighbor_x, neighbor_y)
+                if neighbor_cell is not None:
+                    # Apply condition if provided
+                    if condition is None or condition(neighbor_cell):
+                        neighbors.append(neighbor_cell)
+        
+        return neighbors
+
+    def getNeighborN(self):
+        """Get neighbor cell to the North"""
+        if self.yCoord > 1:
+            return self.classDef.getCell(self.xCoord, self.yCoord - 1)
+        return None
+    
+    def getNeighborS(self):
+        """Get neighbor cell to the South"""
+        if self.yCoord < self.classDef.grid.rows:
+            return self.classDef.getCell(self.xCoord, self.yCoord + 1)
+        return None
+    
+    def getNeighborE(self):
+        """Get neighbor cell to the East"""
+        if self.xCoord < self.classDef.grid.columns:
+            return self.classDef.getCell(self.xCoord + 1, self.yCoord)
+        return None
+    
+    def getNeighborW(self):
+        """Get neighbor cell to the West"""
+        if self.xCoord > 1:
+            return self.classDef.getCell(self.xCoord - 1, self.yCoord)
+        return None

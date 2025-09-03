@@ -123,7 +123,14 @@ class SGCellView(SGEntityView):
     def dropEvent(self, e):
         """Handle drop events for agent movement"""
         e.acceptProposedAction()
-        aAgent = e.source()
+        aAgentView = e.source()
+
+        # Get the agent model from the view
+        if hasattr(aAgentView, 'agent_model'):
+            aAgent = aAgentView.agent_model
+        else:
+            # Fallback: assume it's already a model
+            aAgent = aAgentView
 
         # Delegate type checking to the model
         if not self.cell_model.shouldAcceptDropFrom(aAgent):
@@ -140,7 +147,7 @@ class SGCellView(SGEntityView):
             e.setDropAction(Qt.MoveAction)
             # TODO: Remove this line when SGAgentView is implemented
             # The dragging state should be managed by the agent's view, not here
-            aAgent.dragging = False
+            # aAgent.dragging = False
             print(f"DEBUG: Move action completed")
             return
         else:

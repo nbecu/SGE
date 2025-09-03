@@ -219,8 +219,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
     
     def initAfterOpening(self):
-        # TODO: Remove updateFunction call once proper Model-View movement is implemented
-        # QTimer.singleShot(100, self.updateFunction)
         if self.currentPlayerName is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
@@ -235,12 +233,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def hasDefinedPositionGameSpace(self):
         return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
 
-    # TODO: Remove this temporary method once proper Model-View movement is implemented
-    # def updateFunction(self):
-    #     aList = self.getAllAgents()
-    #     if not aList : return False
-    #     for aAgent in aList:
-    #         aAgent.updateAgentByRecreating_it()
 
     def setDashboards(self):
         dashboards=self.getGameSpaceByClass(SGDashBoard)

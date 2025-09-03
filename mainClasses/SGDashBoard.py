@@ -7,6 +7,7 @@ from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGEntityDef import *
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGPlayer import SGPlayer
+from mainClasses.SGCellModel import SGCellModel
 
 
 # Class who is responsible of the Legend creation
@@ -138,7 +139,7 @@ class SGDashBoard(SGGameSpace):
             displayRefresh (str, optional): Determines how the display is refreshed (e.g., "instantaneous", "onTimeConditions").
             isDisplay (bool, optional): Whether to display on the dashboard (default is True).
         """
-        if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer)): raise ValueError ('Wrong entity format')
+        if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer,SGCellModel)): raise ValueError ('Wrong entity format')
         self.entity= entity
 
         if value is None:

@@ -22,6 +22,11 @@ class SGAgentView(SGEntityView):
         super().__init__(agent_model, parent)
         self.agent_model = agent_model
         
+        # Type identification attributes
+        self.isEntity = True
+        self.isCell = False
+        self.isAgent = True
+        
         # Agent-specific properties
         self.cell = agent_model.cell
         self.defaultImage = agent_model.defaultImage
@@ -289,6 +294,9 @@ class SGAgentView(SGEntityView):
 
     def dropEvent(self, e):    
         """Handle drop events"""
+        # Reset dragging state when drop occurs
+        self.dragging = False
+        
         if hasattr(e.source(), 'cell') and self.agent_model.cell is not None:
             # Specific case: forward the drop to the cell
             self.agent_model.cell.dropEvent(e)

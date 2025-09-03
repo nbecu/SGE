@@ -948,7 +948,8 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         
-        # Show the view
+        # Position and show the agent
+        agent_view.getPositionInEntity()
         agent_view.show()
         
         return agent_model, agent_view
@@ -1324,10 +1325,22 @@ class SGAgentDef(SGEntityDef):
         """
         Delete a given agent
         args:
-            aAgent (instance): the agent to de deleted
+            aAgent (instance): the agent to be deleted
         """
-        aAgent.cell.updateDepartureAgent(aAgent)
-        aAgent.deleteLater()
+        # Remove agent from its cell using the new Model-View architecture
+        if hasattr(aAgent.cell, 'removeAgent'):
+            aAgent.cell.removeAgent(aAgent)
+        else:
+            # Fallback for old architecture
+            aAgent.cell.updateDepartureAgent(aAgent)
+        
+        # Delete the view if it exists (Model-View architecture)
+        if hasattr(aAgent, 'view') and aAgent.view:
+            aAgent.view.deleteLater()
+        else:
+            # Fallback for old architecture
+            aAgent.deleteLater()
+            
         self.entities.remove(aAgent)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()

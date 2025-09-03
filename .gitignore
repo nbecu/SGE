@@ -57,6 +57,7 @@ celerybeat-schedule
 .venv
 env/
 venv/
+venv_new/
 ENV/
 env.bak/
 venv.bak/
@@ -94,18 +95,3 @@ dmypy.json
 .Trashes
 ehthumbs.db
 Thumbs.db
-mainClasses/gameAction/__pycache__/SGCreate.cpython-310.pyc
-mainClasses/gameAction/__pycache__/SGDelete.cpython-310.pyc
-mainClasses/gameAction/__pycache__/SGMove.cpython-310.pyc
-mainClasses/layout/__pycache__/SGGridLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGHorizontalLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGVerticalLayout.cpython-310.pyc
-mainClasses/gameAction/__pycache__/SGCreate.cpython-310.pyc
-mainClasses/gameAction/__pycache__/SGDelete.cpython-310.pyc
-mainClasses/gameAction/__pycache__/SGMove.cpython-310.pyc
-mainClasses/layout/__pycache__/SGGridLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGHorizontalLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGVerticalLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGGridLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGHorizontalLayout.cpython-310.pyc
-mainClasses/layout/__pycache__/SGVerticalLayout.cpython-310.pyc

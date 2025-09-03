@@ -1,20 +1,35 @@
 from PyQt5.QtGui import *
+
 from PyQt5.QtCore import *
+
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
+
 from PyQt5.QtGui import QCursor
 
+
+
 import random
+
 from mainClasses.SGEntity import SGEntity
+
 from mainClasses.SGCell import SGCell
+
 from mainClasses.SGAgentModel import SGAgentModel
 from mainClasses.SGAgentView import SGAgentView
 from mainClasses.gameAction.SGCreate import *
+
 from mainClasses.gameAction.SGDelete import *
+
 from mainClasses.gameAction.SGModify import *
+
 from mainClasses.gameAction.SGMove import *
+
 from mainClasses.gameAction.SGActivate import *
+
    
+
 #Class who is responsible of the declaration a Agent
+
 class SGAgent(SGAgentModel):
     """
     SGAgent - Agent class for agent-based simulations
@@ -169,40 +184,8 @@ class SGAgent(SGAgentModel):
         if self.view:
             self.view.update()
 
-
-            
-
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
-
-# TODO: Remove these temporary methods once proper Model-View movement is implemented
-# These methods were temporary workarounds before Model-View separation
-# def updateAgentByRecreating_it(self):
-#     aDestinationCell = self.cell
-#     self.cell.updateDepartureAgent(self)
-#     self.copyOfAgentAtCoord(aDestinationCell)
-#     self.deleteLater()
-
-# def copyOfAgentAtCoord(self, aCell):
-#     oldAgent = self
-#     newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImage)
-#     self.classDef.IDincr -=1
-#     newAgent.id = oldAgent.id
-#     newAgent.history = oldAgent.history
-#     newAgent.watchers = oldAgent.watchers
-#     #apply correction on the watchers on this entity
-#     for watchers in list(oldAgent.watchers.values()):
-#         for aWatcherOnThisAgent in watchers:
-#             aWatcherOnThisAgent.entity=newAgent        
-#     newAgent.privateID = oldAgent.privateID
-#     newAgent.isDisplay = oldAgent.isDisplay
-#     newAgent.classDef.entities.remove(oldAgent)
-#     newAgent.classDef.entities.append(newAgent)
-#     newAgent.update()
-#     newAgent.show()
-#     self.update()
-#     return newAgent
-    
 
     def moveTo(self, aDestinationCell):
         """
@@ -275,23 +258,37 @@ class SGAgent(SGAgentModel):
                 newCell=random.choice(neighbors) if neighbors else None
 
             if method == "cell" or cellID is not None:
-                newCell=aGrid.getCell_withId(cellID)
+                # Parse cellID format "cellx-y" to get coordinates
+                if cellID and cellID.startswith("cell"):
+                    try:
+                        coords = cellID[4:].split("-")  # Remove "cell" prefix and split by "-"
+                        if len(coords) == 2:
+                            x, y = int(coords[0]), int(coords[1])
+                            newCell = self.cell.classDef.getCell(x, y)
+                        else:
+                            newCell = None
+                    except (ValueError, IndexError):
+                        newCell = None
+                else:
+                    newCell = aGrid.getCell_withId(cellID)
                 
-                if condition is not None:
+                if condition is not None and newCell is not None:
                     if not condition(newCell):
                         newCell = None
 
             if method == "cardinal" or direction is not None:
                 if direction =="North":
                     newCell=originCell.getNeighborN()
-                if direction =="South":
+                elif direction =="South":
                     newCell=originCell.getNeighborS()
-                if direction =="East":
+                elif direction =="East":
                     newCell=originCell.getNeighborE()
-                if direction =="West":
+                elif direction =="West":
                     newCell=originCell.getNeighborW()
+                else:
+                    newCell = None
                     
-                if condition is not None:
+                if condition is not None and newCell is not None:
                     if not condition(newCell):
                         newCell = None
                 
@@ -326,12 +323,12 @@ class SGAgent(SGAgentModel):
                 if the agent can move there.
         """
         # Determine the target cell
-        if isinstance(target, SGAgent):  # Target is an agent
+        if hasattr(target, 'cell'):  # Target is an agent
             target_cell = target.cell
-        elif isinstance(target, SGCell):  # Target is a Cell
+        elif hasattr(target, 'isCell') and target.isCell:  # Target is a Cell
             target_cell = target
         elif isinstance(target, tuple) and len(target) == 2:  # Coordinates (x, y)
-            target_cell = self.cell.grid.getCell(target)
+            target_cell = self.cell.classDef.getCell(target[0], target[1])
         else:
             raise ValueError("Invalid target type for moveTowards()")
 
@@ -481,11 +478,6 @@ class SGAgent(SGAgentModel):
             return self.filterBySpecies(aSpecies,theCell.agents)
         return theCell.agents
 
-    
 
-    
-    
-                
 
-        
 
