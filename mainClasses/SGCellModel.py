@@ -1,21 +1,28 @@
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from mainClasses.SGEntity import SGEntity
 from mainClasses.SGEntityModel import SGEntityModel
-
+from mainClasses.SGCellView import SGCellView
+# from mainClasses.gameAction.SGCreate import *  # Commented to avoid circular import
+# from mainClasses.gameAction.SGDelete import *   # Commented to avoid circular import
+# from mainClasses.gameAction.SGModify import *   # Commented to avoid circular import
+# from mainClasses.gameAction.SGMove import *     # Commented to avoid circular import
+# from mainClasses.gameAction.SGActivate import * # Commented to avoid circular import
+import random
+# from mainClasses.gameAction.SGMove import SGMove
+   
+#Class who is responsible of the declaration a cell
 class SGCellModel(SGEntityModel):
     """
-    Model class for SGCell - contains all data and business logic for cells
-    Separated from the view to enable Model-View architecture
+    SGCellModel - Cell model class for grid-based simulations
+    
+    This class now uses Model-View architecture:
+    - Inherits from SGEntityModel for data and business logic
+    - Delegates UI to SGCellView for display and interaction
     """
     
     def __init__(self, classDef, x, y, defaultImage):
-        """
-        Initialize the cell model
-        
-        Args:
-            classDef: The cell definition class
-            x: X coordinate
-            y: Y coordinate
-            defaultImage: Default image for the cell
-        """
+        # Initialize the model part
         super().__init__(classDef, classDef.defaultsize, attributesAndValues=None)
         
         # Cell-specific properties
@@ -34,48 +41,167 @@ class SGCellModel(SGEntityModel):
         
         # Initialize attributes from classDef
         self.initAttributesAndValuesWith({})
+        
+        # Create and link the view
+        self.view = SGCellView(self, classDef.grid)
+        self.setView(self.view)
+        
+        # Type identification attributes
+        self.isEntity = True
+        self.isCell = True
+        self.isAgent = False
+
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
+
+    # Legacy UI method delegation
+    def show(self):
+        """Show the cell view"""
+        self.view.show()
     
-    def getId(self):
-        """Get cell identifier"""
-        return "cell" + str(self.xCoord) + "-" + str(self.yCoord)
+    def hide(self):
+        """Hide the cell view"""
+        self.view.hide()
     
+    def update(self):
+        """Update the cell view"""
+        self.view.update()
+    
+    def setGeometry(self, *args, **kwargs):
+        """Set geometry of the cell view"""
+        self.view.setGeometry(*args, **kwargs)
+    
+    def move(self, *args, **kwargs):
+        """Move the cell view and update all agent positions"""
+        self.view.move(*args, **kwargs)
+        
+        # Update position of all agents in this cell
+        for agent in self.agents:
+            if hasattr(agent, 'view') and agent.view:
+                agent.view.updatePositionFromCell()
+    
+    def resize(self, *args, **kwargs):
+        """Resize the cell view"""
+        self.view.resize(*args, **kwargs)
+    
+    def setVisible(self, *args, **kwargs):
+        """Set visibility of the cell view"""
+        self.view.setVisible(*args, **kwargs)
+    
+    def isVisible(self):
+        """Check if cell view is visible"""
+        return self.view.isVisible()
+    
+    def rect(self):
+        """Get rectangle of the cell view"""
+        return self.view.rect()
+    
+    def mapFromGlobal(self, *args, **kwargs):
+        """Map from global coordinates"""
+        return self.view.mapFromGlobal(*args, **kwargs)
+    
+    def setAcceptDrops(self, *args, **kwargs):
+        """Set accept drops"""
+        self.view.setAcceptDrops(*args, **kwargs)
+
+    # Legacy compatibility methods that delegate to view
+    def paintEvent(self, event):
+        """Paint event - delegates to view"""
+        self.view.paintEvent(event)
+    
+    def getRegion(self):
+        """Get region - delegates to view"""
+        return self.view.getRegion()
+    
+    def mousePressEvent(self, event):
+        """Mouse press event - delegates to view"""
+        self.view.mousePressEvent(event)
+
+    def dropEvent(self, e):
+        """Drop event - delegates to view"""
+        self.view.dropEvent(e)
+
+    # Model-View specific methods
+    def getView(self):
+        """Get the cell view"""
+        return self.view
+    
+    def setView(self, view):
+        """Set the cell view"""
+        self.view = view
+        if view:
+            view.cell_model = self
+    
+    def updateView(self):
+        """Update the cell view"""
+        if self.view:
+            self.view.update()
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+
+    def setDisplay(self, display):
+        """Set display state and update view"""
+        self.isDisplay = display
+        if hasattr(self, 'view') and self.view:
+            self.view.update()
+
     def updateIncomingAgent(self, agent):
         """Update when an agent enters this cell"""
         if agent not in self.agents:
             self.agents.append(agent)
-    
+
     def removeAgent(self, agent):
         """Remove an agent from this cell"""
         if agent in self.agents:
             self.agents.remove(agent)
-    
-    def getAgents(self):
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+
+    def deleteAllAgents(self):
+        """Delete all agents in this cell"""
+        # Remove all agents from the cell
+        agents_to_remove = self.agents.copy()
+        for agent in agents_to_remove:
+            if hasattr(agent, 'view') and agent.view:
+                agent.view.deleteLater()
+            self.removeAgent(agent)
+
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+
+    def getId(self):
+        """Get cell identifier"""
+        return "cell" + str(self.xCoord) + "-" + str(self.yCoord)
+
+    def getAgents(self, specie=None):
         """Get all agents in this cell"""
-        return self.agents.copy()
-    
+        if specie is None:
+            return self.agents
+        
+        # Filter by species
+        return [agent for agent in self.agents if agent.classDef.entityName == specie]
+
+    def nbAgents(self, specie=None):
+        """Get number of agents in this cell"""
+        if specie is None:
+            return len(self.agents)
+        
+        # Count by species
+        return len([agent for agent in self.agents if agent.classDef.entityName == specie])
+
     def getAgentCount(self):
         """Get the number of agents in this cell"""
         return len(self.agents)
-    
-    def hasAgent(self, agent):
-        """Check if this cell contains a specific agent"""
-        return agent in self.agents
-
-    def shouldAcceptDropFrom(self, entity):
-        """
-        Check if this cell should accept drops from the given entity
-        
-        Args:
-            entity: The entity attempting to be dropped
-            
-        Returns:
-            bool: True if the drop should be accepted, False otherwise
-        """
-        # Only accept agents, not all entities
-        has_isAgent = hasattr(entity, 'isAgent')
-        is_agent = entity.isAgent if has_isAgent else False
-        print(f"DEBUG: Entity {entity.id} - has isAgent: {has_isAgent}, isAgent: {is_agent}")
-        return has_isAgent and is_agent
 
     def getNeighborCells(self, condition=None):
         """
@@ -101,42 +227,90 @@ class SGCellModel(SGEntityModel):
         ]
         
         for dx, dy in directions:
-            neighbor_x = self.xCoord + dx
-            neighbor_y = self.yCoord + dy
+            new_x = self.xCoord + dx
+            new_y = self.yCoord + dy
             
-            # Check if the neighbor coordinates are within grid bounds
-            if (1 <= neighbor_x <= cell_def.grid.columns and 
-                1 <= neighbor_y <= cell_def.grid.rows):
+            # Check if the new coordinates are within grid bounds
+            if (1 <= new_x <= cell_def.grid.columns and 
+                1 <= new_y <= cell_def.grid.rows):
                 
-                # Get the neighbor cell
-                neighbor_cell = cell_def.getCell(neighbor_x, neighbor_y)
-                if neighbor_cell is not None:
-                    # Apply condition if provided
-                    if condition is None or condition(neighbor_cell):
-                        neighbors.append(neighbor_cell)
+                neighbor_cell = cell_def.getCell(new_x, new_y)
+                
+                # Apply condition if provided
+                if condition is None or condition(neighbor_cell):
+                    neighbors.append(neighbor_cell)
         
         return neighbors
 
     def getNeighborN(self):
-        """Get neighbor cell to the North"""
-        if self.yCoord > 1:
-            return self.classDef.getCell(self.xCoord, self.yCoord - 1)
-        return None
-    
+        """Get neighbor to the North"""
+        return self.classDef.getCell(self.xCoord, self.yCoord - 1) if self.yCoord > 1 else None
+
     def getNeighborS(self):
-        """Get neighbor cell to the South"""
-        if self.yCoord < self.classDef.grid.rows:
-            return self.classDef.getCell(self.xCoord, self.yCoord + 1)
-        return None
-    
+        """Get neighbor to the South"""
+        return self.classDef.getCell(self.xCoord, self.yCoord + 1) if self.yCoord < self.classDef.grid.rows else None
+
     def getNeighborE(self):
-        """Get neighbor cell to the East"""
-        if self.xCoord < self.classDef.grid.columns:
-            return self.classDef.getCell(self.xCoord + 1, self.yCoord)
-        return None
-    
+        """Get neighbor to the East"""
+        return self.classDef.getCell(self.xCoord + 1, self.yCoord) if self.xCoord < self.classDef.grid.columns else None
+
     def getNeighborW(self):
-        """Get neighbor cell to the West"""
-        if self.xCoord > 1:
-            return self.classDef.getCell(self.xCoord - 1, self.yCoord)
-        return None
+        """Get neighbor to the West"""
+        return self.classDef.getCell(self.xCoord - 1, self.yCoord) if self.xCoord > 1 else None
+
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+
+    def hasAgent(self, agent):
+        """Check if this cell contains a specific agent"""
+        return agent in self.agents
+
+    def isEmpty(self, specie=None):
+        """Check if this cell is empty"""
+        if specie is None:
+            return len(self.agents) == 0
+        return len([agent for agent in self.agents if agent.classDef.entityName == specie]) == 0
+
+    def shouldAcceptDropFrom(self, entity):
+        """
+        Check if this cell should accept drops from the given entity
+        
+        Args:
+            entity: The entity attempting to be dropped
+            
+        Returns:
+            bool: True if the drop should be accepted, False otherwise
+        """
+        # Only accept agents, not all entities
+        has_isAgent = hasattr(entity, 'isAgent')
+        is_agent = entity.isAgent if has_isAgent else False
+        return has_isAgent and is_agent
+
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+
+    def zoomIn(self):
+        """Zoom in the cell"""
+        self.size = round(self.size + 10)
+        self.updateView()
+    
+    def zoomOut(self):
+        """Zoom out the cell"""
+        self.size = round(self.size - 10)
+        self.updateView()
+    
+    def zoomFit(self):
+        """Zoom fit the cell"""
+        self.size = self.saveSize
+        self.updateView()
+
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+
+    def convert_coordinates(self, global_pos):
+        """Convert global coordinates to cell coordinates"""
+        # Implementation depends on specific requirements
+        return global_pos

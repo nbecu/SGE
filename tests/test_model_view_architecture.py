@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication
 from mainClasses.SGModel import SGModel
 from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
 from mainClasses.SGCellModel import SGCellModel
-from mainClasses.SGAgentModel import SGAgentModel
+from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCellView import SGCellView
 from mainClasses.SGAgentView import SGAgentView
 
@@ -68,7 +68,7 @@ class TestModelViewArchitecture:
         
         # Créer un agent avec Model-View
         initial_cell = self.cells[(1, 1)]
-        self.agent_model = SGAgentModel(
+        self.agent_model = SGAgent(
             initial_cell,
             30,
             {"health": 100, "energy": 50},

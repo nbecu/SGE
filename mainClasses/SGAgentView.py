@@ -249,6 +249,7 @@ class SGAgentView(SGEntityView):
         """Handle mouse press events"""
         if event.button() == Qt.LeftButton:
             self.dragging = True
+            print(f"DEBUG: Agent {self.agent_model.id} - dragging set to True")
             # Something is selected
             aLegendItem = self.agent_model.model.getSelectedLegendItem()
             if aLegendItem is None: 
@@ -261,9 +262,19 @@ class SGAgentView(SGEntityView):
             aLegendItem.gameAction.perform_with(self.agent_model)
             return
 
+    def mouseReleaseEvent(self, event):
+        """Handle mouse release events"""
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+            print(f"DEBUG: Agent {self.agent_model.id} - dragging set to False (mouseRelease)")
+
     def mouseMoveEvent(self, e):
         """Handle mouse move events for dragging"""
         if e.buttons() != Qt.LeftButton:
+            # If no button is pressed, reset dragging state
+            if self.dragging:
+                self.dragging = False
+                print(f"DEBUG: Agent {self.agent_model.id} - dragging reset to False (no button)")
             return
 
         mimeData = QMimeData()
@@ -286,7 +297,11 @@ class SGAgentView(SGEntityView):
         drag.setHotSpot(e.pos())
 
         # Start the drag operation
-        drag.exec_(Qt.CopyAction | Qt.MoveAction)
+        result = drag.exec_(Qt.CopyAction | Qt.MoveAction)
+        
+        # Reset dragging state after drag operation completes
+        self.dragging = False
+        print(f"DEBUG: Agent {self.agent_model.id} - dragging reset to False (after drag)")
 
     def dragEnterEvent(self, e):
         """Handle drag enter events"""
@@ -296,6 +311,7 @@ class SGAgentView(SGEntityView):
         """Handle drop events"""
         # Reset dragging state when drop occurs
         self.dragging = False
+        print(f"DEBUG: Agent {self.agent_model.id} - dragging set to False (dropEvent)")
         
         if hasattr(e.source(), 'cell') and self.agent_model.cell is not None:
             # Specific case: forward the drop to the cell
@@ -306,13 +322,17 @@ class SGAgentView(SGEntityView):
 
     def enterEvent(self, event):
         """Handle mouse enter events for tooltips"""
+        print(f"DEBUG: Agent {self.agent_model.id} - enterEvent, dragging={self.dragging}")
         if self.dragging:
+            print(f"DEBUG: Agent {self.agent_model.id} - tooltip blocked by dragging")
             return
 
         if self.popupImage:
             # Convertir l'image en HTML pour ToolTip
             image_html = f"<img src='{self.popupImage}' style='max-width: 200px; max-height: 200px;'>"
             QToolTip.showText(QCursor.pos(), image_html, self)
+            print(f"DEBUG: Agent {self.agent_model.id} - showing image tooltip")
+        # No fallback - only show tooltip if popupImage exists (original behavior)
 
     def leaveEvent(self, event):
         """Handle mouse leave events"""

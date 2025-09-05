@@ -116,10 +116,15 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             
         aAtt = list(aBorderPovDef.keys())[0]
         aDictOfValueAndColorWidth = list(aBorderPovDef.values())[0]
+        
+        # Check if the attribute exists in the model
+        if not hasattr(self.entity_model, 'value') or not hasattr(self.entity_model, 'dictAttributes') or aAtt not in self.entity_model.dictAttributes:
+            return {'color': aDefaultColor, 'width': aDefaultWidth}
+            
         dictColorAndWidth = aDictOfValueAndColorWidth.get(self.entity_model.value(aAtt))
         
         if dictColorAndWidth is None:
-            raise ValueError(f'BorderPov cannot work because {self.privateID} has no value for attribute "{aAtt}"')
+            return {'color': aDefaultColor, 'width': aDefaultWidth}
         if not isinstance(dictColorAndWidth, dict): 
             raise ValueError('wrong format')
             

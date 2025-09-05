@@ -46,9 +46,19 @@ class SGCreate(SGAbstractAction):
             return result
         # in case of cell, we just revive the cell
         elif self.targetEntDef.isCellDef:
-            print(f"DEBUG: Reviving cell {aTargetEntity.id}")
-            if aTargetEntity.isDeleted():
+            # Check if this cell is in deletedCells (meaning it was deleted)
+            if aTargetEntity in self.targetEntDef.deletedCells:
                 self.targetEntDef.reviveThisCell(aTargetEntity)
+            else:
+                # Check if there's a deleted cell with the same ID
+                deleted_cell = None
+                for cell in self.targetEntDef.deletedCells:
+                    if cell.id == aTargetEntity.id:
+                        deleted_cell = cell
+                        break
+                
+                if deleted_cell:
+                    self.targetEntDef.reviveThisCell(deleted_cell)
             return aTargetEntity
         else:
             print(f"DEBUG: ERROR - Unknown entity type")

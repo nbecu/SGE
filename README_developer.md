@@ -37,7 +37,126 @@ When creating new methods or functions intended for modelers, always use the fol
 
 ---
 
-## 4. Type Identification Attributes
+## 4. Method Organization Convention
+
+### 4.1 Class Structure
+Classes should be organized with a clear separation between developer methods and modeler methods:
+
+1. **Developer Methods** (at the top of the class)
+   - Constructor (`__init__`)
+   - Internal helper methods
+   - UI delegation methods
+   - Model-View architecture methods
+   - Utility methods for developers
+
+2. **Visual Separator** (clear line with comment)
+   ```python
+   # ============================================================================
+   # MODELER METHODS
+   # ============================================================================
+   ```
+
+3. **Modeler Methods** (at the bottom of the class)
+   - Organized by type using the reserved keywords above
+
+### 4.2 Modeler Methods Organization
+Within the modeler methods section, organize methods in the following order:
+
+1. **NEW/ADD/SET Methods** (creation and modification)
+   ```python
+   # ============================================================================
+   # NEW/ADD/SET METHODS
+   # ============================================================================
+   ```
+
+2. **DELETE Methods** (removal)
+   ```python
+   # ============================================================================
+   # DELETE METHODS
+   # ============================================================================
+   ```
+
+3. **GET/NB Methods** (retrieval and counting)
+   ```python
+   # ============================================================================
+   # GET/NB METHODS
+   # ============================================================================
+   ```
+
+4. **IS/HAS Methods** (testing)
+   ```python
+   # ============================================================================
+   # IS/HAS METHODS
+   # ============================================================================
+   ```
+
+5. **DO/DISPLAY Methods** (actions, and display)
+   ```python
+   # ============================================================================
+   # DO/DISPLAY METHODS
+   # ============================================================================
+   ```
+
+6. **Other modeler methods** (other types of modele methods)
+   ```python
+   # ============================================================================
+   # OTHER MODELER METHODS
+   # ============================================================================
+   ```
+
+### 4.3 Example Structure
+```python
+class SGAgent(SGEntityModel):
+    def __init__(self, ...):
+        # Developer code
+    
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
+    
+    def show(self):
+        # UI delegation
+    
+    def updateView(self):
+        # Model-View architecture
+    
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def moveTo(self, cell):
+        # Movement method
+    
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+    
+    # (No delete methods for agents)
+    
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+    
+    def getId(self):
+        # Get agent ID
+    
+    def nbAgentsHere(self, specie=None):
+        # Count agents
+    
+    # ============================================================================
+    # IS/DO/DISPLAY METHODS
+    # ============================================================================
+    
+    # (No is/do/display methods for agents)
+```
+
+---
+
+## 5. Type Identification Attributes
 
 Use boolean attributes with the `is` prefix to identify the type of object and enable different behaviors:
 
@@ -51,7 +170,7 @@ These attributes help separate responsibilities and enable type-specific behavio
 
 ---
 
-## 5. API Ergonomics and Delegation
+## 6. API Ergonomics and Delegation
 
 ### Delegation Methods
 Prefer creating delegation methods in core classes (`SGModel`, `SGEntityDef`, `SGEntity`, `SGPlayer`) to simplify the API for modelers:
@@ -84,7 +203,7 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 6. General Recommendations
+## 7. General Recommendations
 
 - All docstrings and comments must be written in English.
 - Be consistent with naming and terminology throughout the codebase.
@@ -92,7 +211,7 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 7. Additional Information
+## 8. Additional Information
 
 For more information about SGE usage and modeling, see `README_modeler.md`.
 

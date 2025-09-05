@@ -1,6 +1,6 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.SGCell import SGCell
+from mainClasses.SGCellModel import SGCellModel
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
@@ -775,7 +775,7 @@ class SGCellDef(SGEntityDef):
         self.defaultImage = defaultCellImage
 
     def newCell(self, x, y):
-        ent = SGCell(self, x, y, self.defaultImage)
+        ent = SGCellModel(self, x, y, self.defaultImage)
         self.entities.append(ent)
         ent.show()
 
@@ -878,7 +878,12 @@ class SGCellDef(SGEntityDef):
         if len(aCell.agents) !=0:
             aCell.deleteAllAgents()
         self.deletedCells.append(aCell)
-        aCell.isDisplay = False
+        # Use the new setDisplay method to notify the view
+        if hasattr(aCell, 'setDisplay'):
+            aCell.setDisplay(False)
+        else:
+            # Fallback for old architecture
+            aCell.isDisplay = False
         self.entities.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
@@ -886,7 +891,12 @@ class SGCellDef(SGEntityDef):
 
     def reviveThisCell(self, aCell):
         self.entities.append(aCell)
-        aCell.isDisplay = True
+        # Use the new setDisplay method to notify the view
+        if hasattr(aCell, 'setDisplay'):
+            aCell.setDisplay(True)
+        else:
+            # Fallback for old architecture
+            aCell.isDisplay = True
         self.deletedCells.remove(aCell)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()

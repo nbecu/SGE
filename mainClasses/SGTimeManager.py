@@ -55,6 +55,9 @@ class SGTimeManager():
         if self.model.userSelector is not None:
             self.model.userSelector.updateOnNewPhase()
 
+        # Update control panels based on current phase type
+        self.updateControlPanelsForCurrentPhase()
+
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()
         #watchers update
@@ -65,6 +68,20 @@ class SGTimeManager():
 
         # La phase gère elle-même son passage automatique
         self.getCurrentPhase().handleAutoForward()
+
+    def updateControlPanelsForCurrentPhase(self):
+        """Update control panels activation based on current phase type"""
+        currentPhase = self.getCurrentPhase()
+        
+        # Check if we're in a model phase (no authorized players)
+        if hasattr(currentPhase, '__class__') and currentPhase.__class__.__name__ == 'SGModelPhase':
+            # In model phase, all control panels should be inactive
+            for controlPanel in self.model.getControlPanels():
+                controlPanel.setActivation(False)
+        else:
+            # In play phase, only the current player's control panel should be active
+            for controlPanel in self.model.getControlPanels():
+                controlPanel.setActivation(controlPanel.playerName == self.model.currentPlayerName)
 
     def isItTheLastPhase(self):
         return (self.currentPhaseNumber + 1) > self.numberOfPhases() 

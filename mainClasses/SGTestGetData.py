@@ -5,7 +5,7 @@ from mainClasses.SGModel import*
 from mainClasses.SGEntity import*
 from mainClasses.SGEntityDef import*
 from mainClasses.SGAgent import*
-from mainClasses.SGCell import*
+from mainClasses.SGCellModel import*
 from mainClasses.SGModelAction import*
 from mainClasses.SGPlayer import*
 from mainClasses.SGSimulationVariable import*

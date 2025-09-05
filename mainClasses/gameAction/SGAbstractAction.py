@@ -1,5 +1,5 @@
 # from mainClasses.SGAgent import SGAgent  # Commented to avoid circular import
-from mainClasses.SGCell import SGCell
+from mainClasses.SGCellModel import SGCellModel
 from mainClasses.SGTimePhase import *
 from math import inf
 import copy

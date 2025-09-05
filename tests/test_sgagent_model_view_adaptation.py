@@ -8,8 +8,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from mainClasses.SGModel import SGModel
 from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
+from mainClasses.SGEntity  import SGEntity
 from mainClasses.SGAgent import SGAgent
-from mainClasses.SGAgentModel import SGAgentModel
 from mainClasses.SGAgentView import SGAgentView
 
 class TestSGAgentModelViewAdaptation(unittest.TestCase):
@@ -37,10 +37,10 @@ class TestSGAgentModelViewAdaptation(unittest.TestCase):
         cls.test_cell = cls.grid.getCell_withCoords(1, 1)
 
     def test_sgagent_inheritance(self):
-        """Test that SGAgent inherits from SGAgentModel"""
+        """Test that SGAgent inherits from SGEntityModel"""
         agent = self.agent_def.newAgentAtCoords(self.grid, 1, 1, {"health": "good"})
         
-        self.assertIsInstance(agent, SGAgentModel)
+        self.assertIsInstance(agent, SGEntityModel)
         self.assertTrue(hasattr(agent, 'isAgent'))
         self.assertTrue(agent.isAgent)
 
@@ -71,7 +71,7 @@ class TestSGAgentModelViewAdaptation(unittest.TestCase):
         self.assertIsNotNone(agent.grab)
 
     def test_sgagent_model_methods(self):
-        """Test that SGAgent delegates model methods to SGAgentModel"""
+        """Test that SGAgent has model methods from SGEntityModel"""
         agent = self.agent_def.newAgentAtCoords(self.grid, 1, 1, {"health": "good"})
         
         # Test that model methods work

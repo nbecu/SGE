@@ -1,6 +1,5 @@
 from mainClasses.SGEntityModel import SGEntityModel
 from mainClasses.SGCellModel import SGCellModel
-from mainClasses.SGAgentModel import SGAgentModel
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGEntityView import SGEntityView
 from mainClasses.SGCellView import SGCellView
@@ -56,7 +55,7 @@ class SGEntityDefFactory:
         if popupImage is None:
             popupImage = agentDef.popupImage
             
-        # Create the agent model (using SGAgent which inherits from SGAgentModel and has isAgent=True)
+        # Create the agent model (using SGAgent which inherits from SGEntityModel and has isAgent=True)
         agent_model = SGAgent(
             cell, 
             agentDef.defaultsize, 

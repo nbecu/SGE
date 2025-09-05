@@ -45,7 +45,8 @@ class SGCellView(SGEntityView):
         region = self.getRegion()
         image = self.getImage()
         
-        if self.isDisplay == True:
+        # Check if the cell should be displayed based on the model
+        if self.cell_model.isDisplay == True:
             if self.defaultImage != None:
                 rect, scaledImage = self.rescaleImage(self.defaultImage)
                 painter.setClipRegion(region)
@@ -88,6 +89,9 @@ class SGCellView(SGEntityView):
                     self.move(self.startX, int(self.startY - self.size / 2 * self.yCoord + (self.gap / 10 + self.size / 4) * self.yCoord))
                 else:
                     self.move((self.startX + int(self.size / 2) + int(self.gap / 2)), int(self.startY - self.size / 2 * self.yCoord + (self.gap / 10 + self.size / 4) * self.yCoord))
+        else:
+            # Cell is deleted/hidden, don't draw anything
+            pass
                         
         painter.end()
     
@@ -116,6 +120,22 @@ class SGCellView(SGEntityView):
             if aLegendItem is None: 
                 return  # Exit the method
 
+            # Validate that the click is within the cell bounds
+            click_pos = event.pos()
+            
+            # Use rect() with a small tolerance to account for any offset issues
+            cell_rect = self.rect()
+            tolerance = 2  # 2 pixels tolerance
+            
+            # Check if click is within the cell boundaries with tolerance
+            if (click_pos.x() < -tolerance or click_pos.x() > cell_rect.width() + tolerance or 
+                click_pos.y() < -tolerance or click_pos.y() > cell_rect.height() + tolerance):
+                print(f"DEBUG: Click outside cell bounds ({click_pos.x()}, {click_pos.y()}) - cell rect: {cell_rect.width()}x{cell_rect.height()}")
+                return  # Exit if click is outside cell bounds
+            
+            # Note: We removed the isDisplay check to allow actions on deleted cells
+            # This allows create actions to work on deleted cells
+            
             # Use the gameAction system for ALL players (including Admin)
             aLegendItem.gameAction.perform_with(self.cell_model)
             return

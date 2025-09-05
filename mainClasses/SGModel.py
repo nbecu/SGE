@@ -24,7 +24,7 @@ from screeninfo import get_monitors
 
 # --- Project imports ---
 from mainClasses.SGAgent import *
-from mainClasses.SGCell import *
+from mainClasses.SGCellModel import *
 from mainClasses.SGControlPanel import *
 from mainClasses.SGDashBoard import *
 from mainClasses.SGDataRecorder import *
@@ -48,6 +48,7 @@ from mainClasses.SGLabel import *
 from mainClasses.SGButton import*
 from mainClasses.SGTimeLabel import *
 from mainClasses.SGTimeManager import *
+from mainClasses.SGTimePhase import *
 from mainClasses.SGUserSelector import *
 from mainClasses.SGVoid import *
 from mainClasses.layout.SGGridLayout import *
@@ -413,15 +414,31 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setWindowTitle("Warning Message")
-            msg_box.setText("A " + e.source().classDef.entityName +" cannot be moved here")
+            # Get the agent model from the view
+            agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+            msg_box.setText("A " + agent_model.classDef.entityName +" cannot be moved here")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.setDefaultButton(QMessageBox.Ok)
             msg_box.exec_()
             return
         position = e.pos()
-        position.setX(position.x()-int(e.source().getSizeXGlobal()/2))
-        position.setY(position.y()-int(e.source().getSizeYGlobal()/2))
-        e.source().move(position)
+        # Get the agent model from the view
+        agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+        
+        # Get the agent size - handle both model and view cases
+        if hasattr(agent_model, 'size') and not callable(agent_model.size):
+            # agent_model is a model with size attribute
+            agent_size = agent_model.size
+        elif hasattr(agent_model, 'size') and callable(agent_model.size):
+            # agent_model is a view with size() method
+            agent_size = agent_model.size().width()  # Use width as size
+        else:
+            # Fallback to default size
+            agent_size = 30
+        
+        position.setX(position.x()-int(agent_size/2))
+        position.setY(position.y()-int(agent_size/2))
+        agent_model.move(position)
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
@@ -653,14 +670,19 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def positionAllAgents(self):
         """Position all agents after grid layout is applied"""
+        print("DEBUG: Positioning all agents...")
         for agent_species in self.getAgentSpeciesDict():
             for agent in agent_species.entities:
                 if hasattr(agent, 'view') and agent.view:
+                    print(f"DEBUG: Positioning agent {agent.id} at cell {agent.cell.id if agent.cell else 'None'}")
                     # Show the agent view first
                     agent.view.show()
                     agent.view.raise_()  # Bring to front
                     # Then position it
                     agent.view.getPositionInEntity()
+                    # Force update to ensure positioning is applied
+                    agent.view.update()
+        print("DEBUG: All agents positioned")
 
     def getAllAgents(self):
         # send back the agents of all the species
@@ -847,9 +869,19 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 self.userSelector.setCheckboxesWithSelection(aUserName)
             #update the ControlPanel and adminControlPanel interfaces
             for aItem in self.getControlPanels():
-                # aItem.isActive = (aItem.playerName == self.currentPlayerName)
-                aItem.setActivation(aItem.playerName == self.currentPlayerName)
-                # aItem.update()
+                # Check if we're in a model phase (no authorized players)
+                # Only check phase type if phases exist and we're not in initialization
+                if hasattr(self, 'timeManager') and self.timeManager.numberOfPhases() > 0:
+                    currentPhase = self.timeManager.getCurrentPhase()
+                    if isinstance(currentPhase, SGModelPhase):
+                        # In model phase, all control panels should be inactive
+                        aItem.setActivation(False)
+                    else:
+                        # In play phase, only the current player's control panel should be active
+                        aItem.setActivation(aItem.playerName == self.currentPlayerName)
+                else:
+                    # During initialization or before phases are created, use normal logic
+                    aItem.setActivation(aItem.playerName == self.currentPlayerName)
     
 
 
