@@ -1,6 +1,6 @@
 """
 SGExtensions.py
-Ce fichier regroupe toutes les extensions de classes (Qt ou non) utilisées dans le projet.
+Ce fichier regroupe toutes les extensions de classes (Qt ou non) utilisées dans le projet, ainsi que des utils générales.
 Exemple : méthodes ajoutées dynamiquement à QPainter, QWidget, list, dict, etc.
 """
 
@@ -76,6 +76,33 @@ def first_item(d, default=None):
     :return: the first (key, value) tuple or `default` if empty
     """
     return next(iter(d.items()), default)
+
+
+def execute_callable_with_entity(callable_func, entity=None):
+    """
+    Execute a callable function with appropriate arguments based on its signature.
+    - If callable has 0 arguments: execute with no arguments
+    - If callable has 1 argument: execute with the provided entity
+    - If callable has more than 1 argument: raise ValueError
+    
+    This utility method is used by SGModelAction and SGActivate to handle
+    lambda functions with different argument counts.
+    
+    :param callable_func: The callable function to execute
+    :param entity: The entity to pass as argument (if callable expects 1 argument)
+    :raises ValueError: If callable has more than 1 argument
+    """
+    if not callable(callable_func):
+        raise TypeError("First argument must be callable")
+    
+    # Count the number of arguments
+    nbArguments = callable_func.__code__.co_argcount
+    if nbArguments == 0:
+        callable_func()  # Execute with no arguments
+    elif nbArguments == 1:
+        callable_func(entity)  # Execute with entity argument
+    else:
+        raise ValueError(f"Callable must have 0 or 1 arguments, got {nbArguments}")
 
 
 def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False, as_ranges=False):

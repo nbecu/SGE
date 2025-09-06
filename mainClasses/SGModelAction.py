@@ -130,11 +130,13 @@ class SGModelAction_OnEntities(SGModelAction):
             return self.entitiesContainer()
 
     def execute(self):
+        from mainClasses.SGExtensions import execute_callable_with_entity
+        
         for aEntity in self.getEntities():
             if self.testConditions(aEntity):
                 for aAction in self.actions:
                     if callable(aAction):
-                        aAction(aEntity)  #this command executes aAction
+                        execute_callable_with_entity(aAction, aEntity)
         for aFeedbackAction in self.feedbacks:
             aFeedbackAction.execute()
 

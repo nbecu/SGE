@@ -29,7 +29,6 @@ aTextBox = myModel.newTextBox('',title='Shout box')
 
 
 Player1=myModel.newPlayer("Player 1")
-myModel.setCurrentPlayer('Admin') #Tester voir ce qui se passe si ce n'est pas defini
 
 # By default the game actions are controlled (trigger) through the controlPanel
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))

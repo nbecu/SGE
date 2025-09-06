@@ -38,6 +38,9 @@ class SGTimePhase():
             self.modelActions.append(aModelAction)
         else :
             self.modelActions.append( self.timeManager.model.newModelAction(aModelAction) )
+    
+    def getNbActions(self):
+        return len(self.modelActions)
 
     def execPhase(self):
         #proceed with optional message box at the start of the phase

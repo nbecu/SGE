@@ -244,6 +244,15 @@ class AttributeAndValueFunctionalities():
         """
         return self.getValue(attribut_to_test) == value_to_test
 
+    def isNotValue(self, attribut_to_test, value_to_test):
+        """
+        Tests if the the value of an attribut is not equal to a value
+        Args:
+            attribut_to_test (str): Name of the attribute
+            value_to_test (str): Value to be set. If a value is callable, it will be invoked and its return value will be used
+        """
+        return self.getValue(attribut_to_test) != value_to_test
+
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
