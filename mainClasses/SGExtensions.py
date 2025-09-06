@@ -105,6 +105,22 @@ def execute_callable_with_entity(callable_func, entity=None):
         raise ValueError(f"Callable must have 0 or 1 arguments, got {nbArguments}")
 
 
+def normalize_species_name(species):
+    """
+    Normalize a species name to a string, handling both string and SGAgentDef inputs.
+    
+    This utility method extracts the entity name from SGAgentDef objects
+    or returns the string as-is for string inputs.
+    
+    :param species: Either a string species name or an SGAgentDef object
+    :return: The normalized species name as a string
+    """
+    from mainClasses.SGEntityDef import SGAgentDef
+    if isinstance(species, SGAgentDef):
+        return species.entityName
+    return species
+
+
 def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False, as_ranges=False):
     """
     Generate a color gradient as a list of QColor objects, a dict (mapping mode), or a list of (start, end, color) ranges.

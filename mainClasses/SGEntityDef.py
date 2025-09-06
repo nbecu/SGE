@@ -909,7 +909,7 @@ class SGCellDef(SGEntityDef):
         self.updateWatchersOnAllAttributes()
         aCell.update()
 
-    def reviveThisCell(self, aCell):
+    def reviveThisCell(self, aCell): #todo this is a developer method
         self.entities.append(aCell)
         # Use the new setDisplay method to notify the view
         if hasattr(aCell, 'setDisplay'):
