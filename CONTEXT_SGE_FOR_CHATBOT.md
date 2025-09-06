@@ -251,3 +251,48 @@ def createAgent(self, x, y):
     agent = SGAgent(x, y)
     return agent
 ```
+
+## 13. Lancement des applications SGE (CRITIQUE pour chatbots)
+
+### 13.1 Problèmes courants avec PowerShell
+**ATTENTION** : PowerShell Windows ne supporte pas la syntaxe `&&` comme bash.
+
+❌ **INCORRECT** :
+```powershell
+cd examples/A_to_Z_examples && python exStep1.py
+# Erreur: "Le jeton « && » n'est pas un séparateur d'instruction valide"
+```
+
+✅ **CORRECT** :
+```powershell
+cd examples/A_to_Z_examples
+python exStep1.py
+```
+
+### 13.2 Commandes de lancement recommandées
+```powershell
+# 1. Naviguer vers le répertoire des exemples
+cd examples/A_to_Z_examples
+
+# 2. Lancer l'exemple souhaité
+python exStep1.py
+python exStep3_2.py
+python exStep8.py
+```
+
+### 13.3 Gestion des applications Qt
+- **Applications SGE** : Applications Qt avec interface graphique
+- **Lancement** : Toujours en mode **foreground** (pas background)
+- **Fermeture** : L'utilisateur ferme manuellement la fenêtre
+- **Environnement** : S'assurer que l'environnement virtuel est activé
+
+### 13.4 Structure des exemples
+- **exStep1.py** : Exemple minimal (fenêtre vide)
+- **exStep3_2.py** : Grille + agents avec attributs + POV
+- **exStep8.py** : Exemple le plus avancé
+- **CarbonPolis.py** : Jeu complet dans `examples/games/`
+
+### 13.5 Messages d'erreur courants
+- **"No such file or directory"** : Vérifier le répertoire de travail
+- **"Le jeton « && » n'est pas un séparateur"** : Utiliser syntaxe PowerShell
+- **Application ne s'ouvre pas** : Lancer en foreground, pas background

@@ -11,7 +11,7 @@ from mainClasses.gameAction.SGDelete import *
 from mainClasses.gameAction.SGModify import *
 from mainClasses.gameAction.SGMove import *
 from mainClasses.gameAction.SGActivate import *
-
+   
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
     """
@@ -314,7 +314,7 @@ class SGAgent(SGEntity):
     def moveToCell(self, new_cell): #todo is this method used ? is it a model method ?
         """
         Move agent to a new cell
-        
+
         Args:
             new_cell: The new cell to move to
         """
@@ -335,7 +335,7 @@ class SGAgent(SGEntity):
     # GET/NB METHODS
     # ============================================================================
 
-    def getId(self): 
+    def getId(self):
         """Get agent ID"""
         return self.id
     
@@ -628,7 +628,7 @@ class SGAgent(SGEntity):
                     if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
                         filtered_agents.append(aAgent)
         return filtered_agents
+                
 
-
-
+        
 
