@@ -49,14 +49,33 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 - **Problèmes rencontrés** : Configuration Cursor pour détecter les tests pytest
 - **Solutions appliquées** : Création de pytest.ini, format pytest standard
 
+### 26/12/2024 - Renommage SGEntityModel → SGEntity (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Renommage de SGEntityModel en SGEntity pour harmoniser la nomenclature
+- **Contexte** : Après suppression de l'ancienne classe SGEntity, renommage de SGEntityModel pour avoir une nomenclature cohérente
+- **Fichiers concernés** :
+  - `mainClasses/SGEntityModel.py` → `mainClasses/SGEntity.py` (renommé)
+  - `mainClasses/SGAgent.py` (héritage mis à jour)
+  - `mainClasses/SGCell.py` (héritage mis à jour)
+  - `mainClasses/SGEntityFactory.py` (imports mis à jour)
+  - `mainClasses/SGDashBoard.py` (références de type mises à jour)
+  - `mainClasses/SGDataRecorder.py` (imports mis à jour)
+  - `mainClasses/SGTestGetData.py` (imports mis à jour)
+  - `mainClasses/SGModel.py` (imports mis à jour)
+  - `mainClasses/SGCellView.py` (imports mis à jour)
+  - `mainClasses/SGFormatDataHistory.py` (imports mis à jour)
+  - `tests/test_sgagent_model_view_adaptation.py` (imports mis à jour)
+  - Documentation mise à jour (README_developer.md, DEV_NOTES.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- **Résultat** : Architecture parfaitement cohérente avec SGEntity comme classe de base pour SGAgent et SGCell
+
 ### 26/12/2024 - Architecture Model-View (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
 - **Description** : Implémentation complète de l'architecture Model-View pour SGAgent, SGCell, SGEntity avec séparation claire entre logique (Model) et UI (View)
 - **Branche** : refactor/model-view-separation
 - **Contexte** : Refactoring majeur pour permettre déplacement fluide des agents sans perte d'état
 - **Fichiers concernés** : 
-  - `mainClasses/SGAgent.py` (hérite de SGEntityModel, délègue UI)
-  - `mainClasses/SGCell.py` (renommé de SGCellModel.py, hérite de SGEntityModel)
+  - `mainClasses/SGAgent.py` (hérite de SGEntity, délègue UI)
+  - `mainClasses/SGCell.py` (renommé de SGCellModel.py, hérite de SGEntity)
   - `mainClasses/SGAgentView.py` (gestion UI et interactions)
   - `mainClasses/SGCellView.py` (rendu et événements cellules)
   - `mainClasses/SGEntityFactory.py` (factory pour paires Model-View)
@@ -83,6 +102,7 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Priorité haute - Tests et validation Model-View
 - [x] Architecture Model-View implémentée et testée
 - [x] Renommage SGCellModel → SGCell pour cohérence
+- [x] Suppression SGEntity et renommage SGEntityModel → SGEntity
 - [x] Documentation README_developer.md mise à jour
 - [x] Tests avec exStep3_1_1.py, ex_move.py, exStep8.py validés
 - [ ] Tests avec modèles complexes (Solutre, CarbonPolis, etc.)
@@ -124,7 +144,7 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 - **Description** : Refactoring complet pour séparer Model et View dans SGAgent, SGCell, SGEntity
 - **Solution** : 
   1. Création de classes View : SGAgentView, SGCellView
-  2. Refactoring SGAgent pour hériter de SGEntityModel et déléguer UI
+  2. Refactoring SGAgent pour hériter de SGEntity et déléguer UI
   3. Renommage SGCellModel → SGCell pour cohérence nomenclature
   4. Factory pattern dans SGEntityFactory pour création cohérente
   5. Gestion robuste du cycle de vie des vues (show, update, repaint)

@@ -1,231 +1,136 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 from collections import defaultdict
 import random
 from mainClasses.AttributeAndValueFunctionalities import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
-from mainClasses.SGEventHandlerGuide import *
-from mainClasses.SGEntityModel import SGEntityModel
-from mainClasses.SGEntityView import SGEntityView
 
-# Class who is in charged of entities : cells and agents
-class SGEntity(SGEntityModel):
+class SGEntity(AttributeAndValueFunctionalities):
     """
     SGEntity - Base class for all entities (cells and agents)
-    
-    This class now uses Model-View architecture:
-    - Inherits from SGEntityModel for data and business logic
-    - Delegates UI to SGEntityView for display and interaction
+    Contains all data and business logic for entities
+    Separated from the view to enable Model-View architecture
     """
     
-    def __init__(self, parent, classDef, size, attributesAndValues):
-        # Initialize the model part without calling setValue during initialization
-        # to avoid calling update() before view is created
-        super().__init__(classDef, size, attributesAndValues)
+    def __init__(self, classDef, size, attributesAndValues):
+        """
+        Initialize the entity model
         
-        # Create and link the view first
-        self.view = SGEntityView(self, parent)
-        self.setView(self.view)
+        Args:
+            classDef: The entity definition class
+            size: Size of the entity
+            attributesAndValues: Initial attributes and values
+        """
+        self.classDef = classDef
+        self.id = self.classDef.nextId()
+        self.privateID = self.classDef.entityName + str(self.id)
+        self.model = self.classDef.model
+        self.shape = self.classDef.shape
+        self.size = size
+        self.borderColor = self.classDef.defaultBorderColor
+        self.isDisplay = True
         
-        # Now initialize attributes (this will call setValue which calls update)
-        self.initAttributesAndValuesWith(attributesAndValues)
+        # Define variables to handle the history 
+        self.history = {}
+        self.history["value"] = defaultdict(list)
+        self.watchers = {}
         
-        # Legacy compatibility: maintain direct access to view methods
-        # These will be removed in future versions
-        self._legacy_ui_methods = {
-            'show': self.view.show,
-            'hide': self.view.hide,
-            'update': self.view.update,
-            'setGeometry': self.view.setGeometry,
-            'move': self.view.move,
-            'resize': self.view.resize,
-            'setVisible': self.view.setVisible,
-            'isVisible': self.view.isVisible,
-            'rect': self.view.rect,
-            'mapToGlobal': self.view.mapToGlobal,
-            'setContextMenuPolicy': self.view.setContextMenuPolicy,
-            'customContextMenuRequested': self.view.customContextMenuRequested,
-        }
+        # Set the attributes (will be called by child classes after view is created)
+        # self.initAttributesAndValuesWith(attributesAndValues)
+        self.owner = "admin"
         
-        # Type identification attributes
-        self.isEntity = True
-        self.isCell = False
-        self.isAgent = False
+        # Reference to the view
+        self.view = None
+    
+    def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
+        """Initialize attributes and values"""
+        self.dictAttributes = {}
+        if thisAgentAttributesAndValues is None: 
+            thisAgentAttributesAndValues = {}
+        
+        for aAtt, aDefaultValue in self.classDef.attributesDefaultValues.items():
+            if not aAtt in thisAgentAttributesAndValues.keys():
+                thisAgentAttributesAndValues[aAtt] = aDefaultValue
+        for aAtt, valueToSet in thisAgentAttributesAndValues.items():
+            if callable(valueToSet):
+                aValue = valueToSet()
+                self.setValue(aAtt, aValue)
+            else:
+                self.setValue(aAtt, valueToSet)
 
-    # ============================================================================
-    # DEVELOPER METHODS
-    # ============================================================================
-
-    # Legacy UI method delegation
-    def show(self):
-        """Show the entity view"""
-        self.view.show()
-    
-    def hide(self):
-        """Hide the entity view"""
-        self.view.hide()
-    
-    def update(self):
-        """Update the entity view"""
-        self.view.update()
-    
-    def setGeometry(self, *args, **kwargs):
-        """Set geometry of the entity view"""
-        self.view.setGeometry(*args, **kwargs)
-    
-    def move(self, *args, **kwargs):
-        """Move the entity view"""
-        self.view.move(*args, **kwargs)
-    
-    def resize(self, *args, **kwargs):
-        """Resize the entity view"""
-        self.view.resize(*args, **kwargs)
-    
-    def setVisible(self, *args, **kwargs):
-        """Set visibility of the entity view"""
-        self.view.setVisible(*args, **kwargs)
-    
-    def isVisible(self):
-        """Check if entity view is visible"""
-        return self.view.isVisible()
-    
-    def rect(self):
-        """Get rectangle of the entity view"""
-        return self.view.rect()
-    
-    def mapToGlobal(self, *args, **kwargs):
-        """Map to global coordinates"""
-        return self.view.mapToGlobal(*args, **kwargs)
-    
-    def setContextMenuPolicy(self, *args, **kwargs):
-        """Set context menu policy"""
-        self.view.setContextMenuPolicy(*args, **kwargs)
-    
-    @property
-    def customContextMenuRequested(self):
-        """Get custom context menu requested signal"""
-        return self.view.customContextMenuRequested
-
-    # Legacy compatibility methods that delegate to view
-    def getColor(self):
-        """Get color - delegates to view"""
-        return self.view.getColor()
-    
-    def getBorderColorAndWidth(self):
-        """Get border color and width - delegates to view"""
-        return self.view.getBorderColorAndWidth()
-    
-    def getImage(self):
-        """Get image - delegates to view"""
-        return self.view.getImage()
-    
-    def rescaleImage(self, image):
-        """Rescale image - delegates to view"""
-        return self.view.rescaleImage(image)
-    
-    def init_contextMenu(self):
-        """Initialize context menu - delegates to view"""
-        self.view.init_contextMenu()
-    
-    def show_context_menu(self, point):
-        """Show context menu - delegates to view"""
-        self.view.show_context_menu(point)
-    
-    # Legacy compatibility: maintain old method name
-    def show_contextMenu(self, point):
-        """Show context menu - legacy method name"""
-        self.view.show_contextMenu(point)
-
-    # Model-View specific methods
-    def getView(self):
-        """Get the entity view"""
-        return self.view
-    
-    def setView(self, view):
-        """Set the entity view"""
-        self.view = view
-        if view:
-            view.entity_model = self
-    
-    def updateView(self):
-        """Update the entity view"""
-        if self.view:
-            self.view.update()
-
-    # Model data access methods
     def readColorFromPovDef(self, aPovDef, aDefaultColor):
-        """Read color from POV definition - delegates to model"""
-        return super().readColorFromPovDef(aPovDef, aDefaultColor)
-    
+        """Read color from POV definition"""
+        if aPovDef is None: 
+            return aDefaultColor
+        aAtt = list(aPovDef.keys())[0]
+        aDictOfValueAndColor = list(aPovDef.values())[0]
+        aColor = aDictOfValueAndColor.get(self.value(aAtt))
+        return aColor if aColor is not None else aDefaultColor
+
     def readColorAndWidthFromBorderPovDef(self, aBorderPovDef, aDefaultColor, aDefaultWidth):
-        """Read color and width from border POV definition - delegates to model"""
-        return super().readColorAndWidthFromBorderPovDef(aBorderPovDef, aDefaultColor, aDefaultWidth)
-    
-    def getObjectIdentiferForJsonDumps(self):
-        """Get object identifier for JSON dumps - delegates to model"""
-        return super().getObjectIdentiferForJsonDumps()
-    
-    def getListOfStepsData(self, startStep=None, endStep=None):
-        """Get list of steps data - delegates to model"""
-        return super().getListOfStepsData(startStep, endStep)
-
-    # Watcher management methods
-    def addWatcher(self, aIndicator):
-        """Add watcher - delegates to model"""
-        super().addWatcher(aIndicator)
-    
-    def updateWatchersOnAttribute(self, aAtt):
-        """Update watchers on attribute - delegates to model"""
-        super().updateWatchersOnAttribute(aAtt)
-
-    # ============================================================================
-    # MODELER METHODS
-    # ============================================================================
-
-    # ============================================================================
-    # NEW/ADD/SET METHODS
-    # ============================================================================
-
-    # (No specific NEW/ADD/SET methods in SGEntity - inherited from SGEntityModel)
-
-    # ============================================================================
-    # DELETE METHODS
-    # ============================================================================
-
-    # (No specific DELETE methods in SGEntity - inherited from SGEntityModel)
-
-    # ============================================================================
-    # GET/NB METHODS
-    # ============================================================================
+        """Read color and width from border POV definition"""
+        if aBorderPovDef is None: 
+            return {'color': aDefaultColor, 'width': aDefaultWidth}
+        aAtt = list(aBorderPovDef.keys())[0]
+        aDictOfValueAndColorWidth = list(aBorderPovDef.values())[0]
+        dictColorAndWidth = aDictOfValueAndColorWidth.get(self.value(aAtt))
+        if dictColorAndWidth is None:  # Vérification si la valeur n'existe pas
+            raise ValueError(f'BorderPov cannot work because {self.privateID} has no value for attribute "{aAtt}"')
+        if not isinstance(dictColorAndWidth, dict): 
+            raise ValueError('wrong format')
+        return dictColorAndWidth
 
     def getRandomAttributValue(self, aAgentSpecies, aAtt):
-        """Get random attribute value - delegates to model"""
-        return super().getRandomAttributValue(aAgentSpecies, aAtt)
-    
-    def entDef(self):
-        """Get entity definition - delegates to model"""
-        return super().entDef()
+        """Get random attribute value"""
+        if aAgentSpecies.dictAttributes is not None and aAtt in aAgentSpecies.dictAttributes:
+            values = list(aAgentSpecies.dictAttributes[aAtt])
+            number = len(values)
+            aRandomValue = random.randint(0, number - 1)          
+            return aRandomValue
+        return None
 
-    # ============================================================================
-    # IS/HAS METHODS
-    # ============================================================================
+    def addWatcher(self, aIndicator):
+        """Add a watcher for attribute changes"""
+        aAtt = aIndicator.attribute
+        if aAtt not in self.watchers.keys():
+            self.watchers[aAtt] = []
+        self.watchers[aAtt].append(aIndicator)
+
+    def updateWatchersOnAttribute(self, aAtt):
+        """Update watchers when an attribute changes"""
+        for watcher in self.watchers.get(aAtt, []):
+            watcher.checkAndUpdate()
+
+    def getListOfStepsData(self, startStep=None, endStep=None):
+        """Get list of step data"""
+        aList = self.getListOfUntagedStepsData(startStep, endStep)
+        return [{**{'entityType': self.classDef.entityType(), 'entityName': self.classDef.entityName, 'id': self.id}, **aStepData} for aStepData in aList]
 
     def isDeleted(self):
-        """Check if entity is deleted - delegates to model"""
-        return super().isDeleted()
-
-    # ============================================================================
-    # DO/DISPLAY METHODS
-    # ============================================================================
+        """Check if entity is deleted"""
+        return not self.isDisplay
 
     def doAction(self, aLambdaFunction):
-        """Do action - delegates to model"""
-        super().doAction(aLambdaFunction)
+        """Perform action on the entity"""
+        aLambdaFunction(self)
 
-    # ============================================================================
-    # OTHER MODELER METHODS
-    # ============================================================================
+    def entDef(self):
+        """Returns the 'entity definition' class of the entity"""
+        return self.classDef
 
-    # (No specific OTHER MODELER methods in SGEntity - inherited from SGEntityModel)
-    
+    def getObjectIdentiferForJsonDumps(self):
+        """Get object identifier for JSON serialization"""
+        dict = {}
+        dict['entityName'] = self.classDef.entityName
+        dict['id'] = self.id
+        return dict
+
+    def setView(self, view):
+        """Set the view for this model"""
+        self.view = view
+
+    def getView(self):
+        """Get the view for this model"""
+        return self.view
+
+    def updateView(self):
+        """Update the view when model changes"""
+        if self.view:
+            self.view.update()

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from mainClasses.SGModel import SGModel
 from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
-from mainClasses.SGEntity  import SGEntity
+from mainClasses.SGEntity import SGEntity
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGAgentView import SGAgentView
 

@@ -1,7 +1,6 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
-from mainClasses.SGEntityModel import SGEntityModel
 from mainClasses.SGCellView import SGCellView
 # from mainClasses.gameAction.SGCreate import *  # Commented to avoid circular import
 # from mainClasses.gameAction.SGDelete import *   # Commented to avoid circular import
@@ -12,12 +11,12 @@ import random
 # from mainClasses.gameAction.SGMove import SGMove
    
 #Class who is responsible of the declaration a cell
-class SGCell(SGEntityModel):
+class SGCell(SGEntity):
     """
     SGCell - Cell model class for grid-based simulations
     
     This class now uses Model-View architecture:
-    - Inherits from SGEntityModel for data and business logic
+    - Inherits from SGEntity for data and business logic
     - Delegates UI to SGCellView for display and interaction
     """
     
@@ -200,7 +199,7 @@ class SGCell(SGEntityModel):
     # NEW/ADD/SET METHODS
     # ============================================================================
 
-    # (No specific NEW/ADD/SET methods in SGCell - inherited from SGEntityModel)
+    # (No specific NEW/ADD/SET methods in SGCell - inherited from SGEntity)
 
     # ============================================================================
     # DELETE METHODS
@@ -326,10 +325,10 @@ class SGCell(SGEntityModel):
     # DO/DISPLAY METHODS
     # ============================================================================
 
-    # (No specific DO/DISPLAY methods in SGCell - inherited from SGEntityModel)
+    # (No specific DO/DISPLAY methods in SGCell - inherited from SGEntity)
 
     # ============================================================================
     # OTHER MODELER METHODS
     # ============================================================================
 
-    # (No specific OTHER MODELER methods in SGCell - inherited from SGEntityModel)
+    # (No specific OTHER MODELER methods in SGCell - inherited from SGEntity)

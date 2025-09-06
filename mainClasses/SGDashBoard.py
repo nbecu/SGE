@@ -105,7 +105,7 @@ class SGDashBoard(SGGameSpace):
             listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
         elif isinstance(entityName,list) and isinstance(entityName[0],SGEntityDef) :
             listOfEntDef = entityName
-        elif issubclass(type(entityName),SGEntity) : # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
+        elif issubclass(type(entityName), SGEntity): # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
             listOfEntDef = entityName
         else:
             raise ValueError('Wrong type')

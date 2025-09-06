@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from mainClasses.SGModel import*
-from mainClasses.SGEntity import*
+from mainClasses.SGEntity import *
 from mainClasses.SGEntityDef import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*

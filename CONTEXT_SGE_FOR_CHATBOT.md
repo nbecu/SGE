@@ -123,7 +123,7 @@ cell = entityDef.newCell(x, y)            # Crée Model + View automatiquement
 
 **Structure de classe OBLIGATOIRE** :
 ```python
-class SGAgent(SGEntityModel):
+class SGAgent(SGEntity):
     def __init__(self, ...):
         # Developer code
     

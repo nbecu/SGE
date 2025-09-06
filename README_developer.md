@@ -106,7 +106,7 @@ Within the modeler methods section, organize methods in the following order:
 
 ### 4.3 Example Structure
 ```python
-class SGAgent(SGEntityModel):
+class SGAgent(SGEntity):
     def __init__(self, ...):
         # Developer code
     

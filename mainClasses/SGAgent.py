@@ -5,7 +5,6 @@ from PyQt5.QtGui import QCursor
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCell import SGCell
-from mainClasses.SGEntityModel import SGEntityModel
 from mainClasses.SGAgentView import SGAgentView
 from mainClasses.gameAction.SGCreate import *
 from mainClasses.gameAction.SGDelete import *
@@ -14,12 +13,12 @@ from mainClasses.gameAction.SGMove import *
 from mainClasses.gameAction.SGActivate import *
 
 #Class who is responsible of the declaration a Agent
-class SGAgent(SGEntityModel):
+class SGAgent(SGEntity):
     """
     SGAgent - Agent class for agent-based simulations
     
     This class now uses Model-View architecture:
-    - Inherits from SGEntityModel for data and business logic
+    - Inherits from SGEntity for data and business logic
     - Delegates UI to SGAgentView for display and interaction
     """
     
