@@ -179,3 +179,8 @@ Tous les ordinateurs doivent être connectés au broker et utiliser le même por
 - Apparition des pions Vin / Vin Bio
 - Possibilité d'activer un hexagone 3 fois dans le même tour
 - Possibilité de choisir le nombre de ressources pour multiplier les gains (hexagone "Garde champêtre")
+- export des logs des gameActions appliquées
+- ajouter condition de pose hexagone sur cellule de buissons
+- vérifier le comptage des jetons touristes via les agents présents sur la cell des hexagones 'accueil touristes'
+- ajouter les icones des indicateurs sur le dashboard des indicateurs
+- ajouter des indicateurs des seuils de déclenchement sur les progressGauge
