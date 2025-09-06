@@ -54,7 +54,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         elif self.isAgentDef: return 'Agent'
         else: raise ValueError('Wrong or new entity type')
 
-    ###Definition of the developer methods
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
     def addWatcher(self,aIndicator):
         if aIndicator.attribute is None:
             aAtt = 'nb'
@@ -162,7 +164,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         
         return result
 
-    ###Definiton of the methods who the modeler will use
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
     def setDefaultValue(self, aAtt, aDefaultValue):
         self.attributesDefaultValues[aAtt] = aDefaultValue
     
@@ -262,8 +266,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
                 prepared[att] = spec
         self.setDefaultValues(prepared)
 
-
-    #To set up a POV
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
     def newPov(self,nameOfPov,concernedAtt,dictOfColor):
         """
         Declare a new Point of View for the Species.
@@ -319,7 +324,6 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
         self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
 
-
     def addWidthInPovDictOfColors(self,borderWidth,dictOfColor):
         dictOfColorAndWidth ={}
         for aKey, aColor in dictOfColor.items():
@@ -331,7 +335,247 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for aKey, aListOfColorAndWidth in dictOfColorAndWidth.items():
             reformatedDict[aKey] = {'color':aListOfColorAndWidth[0],'width':aListOfColorAndWidth[1]}
         return reformatedDict
-    
+
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+    def getEntity(self, x, y=None):
+        """
+        Return an entity identified by its id or its coordinates on a grid
+        arg:
+            id (int): id of the entity
+        Alternativly, can return an entity identified by its if or coordinates on a grid 
+             x (int): column number
+            y (int):  row number
+        """
+        if isinstance(y, int):
+            if x < 1 or y < 1 : return None
+            aId= self.grid.cellIdFromCoords(x,y)
+        else:
+            aId=x
+        return next(filter(lambda ent: ent.id==aId, self.entities),None)
+
+    def getEntities(self, condition=None):
+        if condition is None: return self.entities[:]
+        return [ent for ent in self.entities if condition(ent)]
+
+    def getEntities_withValue(self, att, val):
+        return list(filter(lambda ent: ent.value(att)==val, self.entities))
+
+    def getEntities_withValueNot(self, att, val):
+        return list(filter(lambda ent: ent.value(att)!=val, self.entities))
+
+    def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):
+        """
+        Return a random entity.
+        """
+        if listOfEntitiesToPickFrom == None:
+            listOfEntitiesToPickFrom = self.entities
+        if condition == None:
+            listOfEntities = listOfEntitiesToPickFrom
+        else:
+            listOfEntities = [ent for ent in listOfEntitiesToPickFrom if condition(ent)]
+        
+        return random.choice(listOfEntities) if len(listOfEntities) > 0 else False
+
+    def getRandomEntity_withValue(self, att, val, condition=None):
+        """
+        Return a random entity.
+        """
+        return self.getRandomEntity(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValue(att, val))
+
+    def getRandomEntity_withValueNot(self, att, val, condition=None):
+        """
+        Return a random entity.
+        """
+        return self.getRandomEntity(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
+
+    def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):
+        """
+        Return a specified number of random entities.
+        args:
+            aNumber (int): a number of entities to be randomly selected
+        """
+        if listOfEntitiesToPickFrom == None:
+            listOfEntitiesToPickFrom = self.entities
+        if condition == None:
+            listOfEntities = listOfEntitiesToPickFrom
+        else:
+            listOfEntities = [ent for ent in listOfEntitiesToPickFrom if condition(ent)]
+        
+        return random.sample(listOfEntities, min(aNumber,len(listOfEntities))) if len(listOfEntities) > 0 else []
+
+    def getRandomEntities_withValue(self, aNumber, att, val, condition=None):
+        """
+        Return a specified number of random Entities.
+        args:
+            aNumber (int): a number of entities to be randomly selected
+        """
+        return self.getRandomEntities(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValue(att, val))
+
+    def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):
+        """
+        Return a specified number of random Entities.
+        args:
+            aNumber (int): a number of entities to be randomly selected
+        """
+        return self.getRandomEntities(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
+
+    def nbOfEntities(self):
+        return len(self.getEntities())
+
+    def nb_withValue(self, att, value):
+        return len(self.getEntities_withValue(att, value))
+
+    # ============================================================================
+    # SET METHODS
+    # ============================================================================
+    def setEntities(self, aAttribute, aValue, condition=None):
+        """
+        Set the value of attribut value of all entities
+
+        Args:
+            aAttribute (str): Name of the attribute to set
+            aValue (str): Value to set the attribute to
+            condition (lambda function): a condition on the entity can be used to select only some entities
+        """
+        for ent in self.getEntities(condition):
+            ent.setValue(aAttribute, aValue)
+
+    def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):
+        """
+        Set the value of attribut to all entities in a specified column
+
+        Args:
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            aColumnNumber (int): a column number
+
+        """
+        for ent in self.getEntities_withColumn(aColumnNumber):
+            ent.setValue(aAttribute, aValue)
+
+    def setEntities_withRow(self, aAttribute, aValue, aRowNumber):
+        """
+        Set the value of attribut to all entities in a specified row
+
+        Args:
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            aRowNumber (int): a row number
+
+        """
+        for ent in self.getEntities_withRow(aRowNumber):
+            ent.setValue(aAttribute, aValue)
+
+    def setRandomEntity(self, aAttribute, aValue, condition=None):
+        """
+        Apply a value to a random entity
+
+        Args:
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+        """
+        self.getRandomEntity(condition=condition).setValue(aAttribute, aValue)
+
+    def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
+        """
+        To apply a value to a random entity with a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+        """
+        self.getRandomEntity_withValue(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
+
+    def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
+        """
+       To apply a value to a random entity not having a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+        """
+        self.getRandomEntity_withValueNot(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
+
+    def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):
+        """
+        Applies the same attribut value for a random number of entities
+
+        Args:
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            numberOfentities (int): number of entities
+        """
+        aList = self.getRandomEntities(numberOfentities, condition)
+        if aList == []:
+            return False
+        for ent in aList:
+            ent.setValue(aAttribute, aValue)
+
+    def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):
+        """
+        To apply a value to some random entities with a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            numberOfentities (int): number of entities
+        """
+        for ent in self.getRandomEntities_withValue(numberOfentities, conditionAtt, conditionVal, condition):
+            ent.setValue(aAttribut, aValue)
+
+    def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):
+        """
+        To apply a value to some random entities noty having a certain value
+
+        Args:
+            aAttribut (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            numberOfentities (int): number of entities
+        """
+        for ent in self.getRandomEntities_withValueNot(numberOfentities, conditionAtt, conditionVal, condition):
+            ent.setValue(aAttribut, aValue)
+
+    def copyEntitiesValue(self,  source_att, target_att,  condition=None):
+        """
+        Copy the value of an attribut (source_att) of the entities, in another attribute (target_att) of the entities
+        Args:
+            source_att (str): Name of the attribute copied
+            target_att  (str): Name of the attribute set
+            condition (lambda function): a condition on the entity can be used to select only some entities
+        """
+        for ent in self.getEntities(condition):
+            ent.copyValue(source_att, target_att)
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+    def deleteAllEntities(self):
+        """
+        Delete all entities of the species.
+        """
+        for ent in self.entities[:]:
+            self.deleteEntity(ent)
+
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+    def displayPov(self,nameOfPov):
+        """
+        Displays the symbology for the specified Point of View.
+        Args:
+            nameOfPov (str): The name of the Point of View to display.
+        """
+        self.model.checkSymbologyinMenuBar(self,nameOfPov)
+
+    def displayBorderPov(self,nameOfBorderPov):
+        """
+        Displays the border symbology for the specified Point of View.
+        Args:
+            nameOfBorderPov (str): The name of the border Point of View to display.
+        """
+        self.model.checkSymbologyinMenuBar(self,nameOfBorderPov,borderSymbology=True)
 
     def calculateAndRecordCurrentStepStats(self):        
         currentRound =self.model.roundNumber()
@@ -375,51 +619,13 @@ class SGEntityDef(AttributeAndValueFunctionalities):
                     }    
         self.listOfStepStats.append(aData)
 
-
-    # To handle the info to be displayed in a contextual menu on entitis
     def setAttributeValueToDisplayInContextualMenu(self,aAttribut,aLabel=None):
         # todo add a check that aAttribut exists (in case of miss spelling) 
         aDict={}
         aDict['att']=aAttribut
         aDict['label']= (aLabel if aLabel is not None else aAttribut)
         self.attributesToDisplayInContextualMenu.append(aDict)
-    
-    # # To handle the attributes concerned by the contextual update menu
-    # def setAttributesConcernedByUpdateMenu(self,aAttribut,aLabel=None):
-    #     self.updateMenu=True
-    #     aDict={}
-    #     aDict['att']=aAttribut
-    #     aDict['label']= (aLabel if aLabel is not None else aAttribut)
-    #     self.attributesToDisplayInUpdateMenu.append(aDict)
 
-# ********************************************************    
-#* METHODS USED BY THE MODELER
-
-# to get the entity matching a Id or at a specified coordinates
-    def getEntity(self, x, y=None):
-        """
-        Return an entity identified by its id or its coordinates on a grid
-        arg:
-            id (int): id of the entity
-        Alternativly, can return an entity identified by its if or coordinates on a grid 
-             x (int): column number
-            y (int):  row number
-        """
-        if isinstance(y, int):
-            if x < 1 or y < 1 : return None
-            aId= self.grid.cellIdFromCoords(x,y)
-        else:
-            aId=x
-        return next(filter(lambda ent: ent.id==aId, self.entities),None)
-
-# to get all entities. a condition on the entity can be used to select only some entities
-    def getEntities(self, condition=None):
-
-        if condition is None: return self.entities[:]
-        return [ent for ent in self.entities if condition(ent)]
-
-    # -----------------------------
-    # Model actions scoped on this EntityDef
     def newModelAction(self, actions=None, conditions=None, feedbacks=None):
         """Crée un SGModelAction_OnEntities ciblant les entités de cette définition.
 
@@ -436,246 +642,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         model_action.id = self.model.id_modelActions
         return model_action
 
-# to get all entities with a certain value
-    def getEntities_withValue(self, att, val):
-        return list(filter(lambda ent: ent.value(att)==val, self.entities))
-
-# to get all entities not having a certain value
-    def getEntities_withValueNot(self, att, val):
-        return list(filter(lambda ent: ent.value(att)!=val, self.entities))
-
-  # Return a random entity
-    def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):
-        """
-        Return a random entity.
-        """
-        if listOfEntitiesToPickFrom == None:
-            listOfEntitiesToPickFrom = self.entities
-        if condition == None:
-            listOfEntities = listOfEntitiesToPickFrom
-        else:
-            listOfEntities = [ent for ent in listOfEntitiesToPickFrom if condition(ent)]
-        
-        return random.choice(listOfEntities) if len(listOfEntities) > 0 else False
-
-   # Return a random entity with a certain value
-    def getRandomEntity_withValue(self, att, val, condition=None):
-        """
-        Return a random entity.
-        """
-        return self.getRandomEntity(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValue(att, val))
-
-
-  # Return a random entity not having a certain value
-    def getRandomEntity_withValueNot(self, att, val, condition=None):
-        """
-        Return a random entity.
-        """
-        return self.getRandomEntity(condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
-
-    def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):
-        """
-        Return a specified number of random entities.
-        args:
-            aNumber (int): a number of entities to be randomly selected
-        """
-        if listOfEntitiesToPickFrom == None:
-            listOfEntitiesToPickFrom = self.entities
-        if condition == None:
-            listOfEntities = listOfEntitiesToPickFrom
-        else:
-            listOfEntities = [ent for ent in listOfEntitiesToPickFrom if condition(ent)]
-        
-        return random.sample(listOfEntities, min(aNumber,len(listOfEntities))) if len(listOfEntities) > 0 else []
-
-    # Return random Entities with a certain value
-    def getRandomEntities_withValue(self, aNumber, att, val, condition=None):
-        """
-        Return a specified number of random Entities.
-        args:
-            aNumber (int): a number of entities to be randomly selected
-        """
-        return self.getRandomEntities(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValue(att, val))
-
-    # Return random Entities not having a certain value
-    def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):
-        """
-        Return a specified number of random Entities.
-        args:
-            aNumber (int): a number of entities to be randomly selected
-        """
-        return self.getRandomEntities(aNumber, condition=condition, listOfEntitiesToPickFrom=self.getEntities_withValueNot(att, val))
-
-
-################
-
-# To handle entDefAttributesAndValues
-    # setter
-    ## THIS METHOD IS COMMENTED BECAUSE IT IS ALREADY DEFINED IN AttributeAndValueFunctionalities 
-    # def setValue(self,aAttribut,aValue):
-    #     """
-    #     Sets the value of an attribut
-    #     Args:
-    #         aAttribut (str): Name of the attribute
-    #         aValue (str): Value to be set
-    #     """
-
-    #     if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
-    #     #self.saveHistoryValue()
-    #     #print("name self : ", self.entities)
-    #     self.dictAttributes[aAttribut]=aValue
-    #     self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
-    #     return True
-
-    
-
-    # To define a value for all entities
-    def setEntities(self, aAttribute, aValue, condition=None):
-        """
-        Set the value of attribut value of all entities
-
-        Args:
-            aAttribute (str): Name of the attribute to set
-            aValue (str): Value to set the attribute to
-            condition (lambda function): a condition on the entity can be used to select only some entities
-        """
-        for ent in self.getEntities(condition):
-            ent.setValue(aAttribute, aValue)
-
-    # set the value of attribut to all entities in a specified column
-    def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):
-        """
-        Set the value of attribut to all entities in a specified column
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            aColumnNumber (int): a column number
-
-        """
-        for ent in self.getEntities_withColumn(aColumnNumber):
-            ent.setValue(aAttribute, aValue)
-
-    # set the value of attribut to all entities in a specified row
-    def setEntities_withRow(self, aAttribute, aValue, aRowNumber):
-        """
-        Set the value of attribut to all entities in a specified row
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            aRowNumber (int): a row number
-
-        """
-        for ent in self.getEntities_withRow(aRowNumber):
-            ent.setValue(aAttribute, aValue)
-
-    # To apply a value to a random entity
-    def setRandomEntity(self, aAttribute, aValue, condition=None):
-        """
-        Apply a value to a random entity
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        self.getRandomEntity(condition=condition).setValue(aAttribute, aValue)
-
-    # To apply a value to a random entity with a certain value
-    def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
-        """
-        To apply a value to a random entity with a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        self.getRandomEntity_withValue(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
-
-   # To apply a value to a random entity not having a certain value
-    def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):
-        """
-       To apply a value to a random entity not having a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-        """
-        self.getRandomEntity_withValueNot(conditionAtt, conditionVal, condition).setValue(aAttribut, aValue)
-
-    # To apply a value to some random entity
-    def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):
-        """
-        Applies the same attribut value for a random number of entities
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            numberOfentities (int): number of entities
-        """
-        aList = self.getRandomEntities(numberOfentities, condition)
-        if aList == []:
-            return False
-        for ent in aList:
-            ent.setValue(aAttribute, aValue)
-
-    # To apply a value to some random entities with a certain value
-    def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):
-        """
-        To apply a value to some random entities with a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            numberOfentities (int): number of entities
-        """
-        for ent in self.getRandomEntities_withValue(numberOfentities, conditionAtt, conditionVal, condition):
-            ent.setValue(aAttribut, aValue)
-
-   # To apply a value to some random entities noty having a certain value
-    def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):
-        """
-        To apply a value to some random entities noty having a certain value
-
-        Args:
-            aAttribut (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            numberOfentities (int): number of entities
-        """
-        for ent in self.getRandomEntities_withValueNot(numberOfentities, conditionAtt, conditionVal, condition):
-            ent.setValue(aAttribut, aValue)
-   
-    # To delete all entities of a species
-    def deleteAllEntities(self):
-        """
-        Delete all entities of the species.
-        """
-        for ent in self.entities[:]:
-            self.deleteEntity(ent)
-
-    # To copy a value from one attribute to another
-    def copyEntitiesValue(self,  source_att, target_att,  condition=None):
-        """
-        Copy the value of an attribut (source_att) of the entities, in another attribute (target_att) of the entities
-        Args:
-            source_att (str): Name of the attribute copied
-            target_att  (str): Name of the attribute set
-            condition (lambda function): a condition on the entity can be used to select only some entities
-        """
-        for ent in self.getEntities(condition):
-            ent.copyValue(source_att, target_att)
-
-################
-    # INDICATORS
-
-    # to get the nb of entities
-    def nbOfEntities(self):
-        return len(self.getEntities())
-
-    # to get the nb of entities who respect certain value
-    def nb_withValue(self, att, value):
-        return len(self.getEntities_withValue(att, value))
-    
+    # ============================================================================
+    # METRIC METHODS
+    # ============================================================================
     def metricOnEntities(self, metric, attribute, value=None):
         """
         Get metrics for all entities.
@@ -739,32 +708,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         """
         entities_with_value_not = self.getEntities_withValueNot(attributeForSelection, valueForSelection)
         return SGIndicator.metricOn(entities_with_value_not, metric, attribute, value)
-    
 
-    # def metricOn(cls, listOfEntities, metric, attribute, value):
-    #     """
-    #     Calculate a value based on the specified metric, attribute, and value for a given list of entities.
-
-    #     Args:
-    #         listOfEntities (list): The list of entities to process.
-    #         metric (str): The metric to use for statistical evaluation. Possible values include:
-    #             - 'nb': Count of entities whose specified attribute is equal to the specified value.
-    #             - 'sumAtt': Sum of the specified attribute values.
-    #             - 'avgAtt': Average of the specified attribute values.
-    #             - 'minAtt': Minimum value of the specified attribute.
-    #             - 'maxAtt': Maximum value of the specified attribute.
-    #             - 'nbWithLess': Count of entities with attribute values less than the specified value.
-    #             - 'nbWithMore': Count of entities with attribute values greater than the specified value.
-    #             - 'nbEqualTo': Count of entities with attribute values equal to the specified value.
-    #         attribute (str): The attribute to evaluate.
-    #         value (optional): The value to compare against for certain metrics.
-
-    #     Returns:
-    #         float or int: The calculated value based on the s
-
-# metricOn
-
-# ********************************************************    
+    # ============================================================================
+    # SPECIALIZED CLASSES
+    # ============================================================================
 
 # Définition de SGCellDef
 class SGCellDef(SGEntityDef):
@@ -1209,59 +1156,26 @@ class SGAgentDef(SGEntityDef):
                 agents.append((agent_model, agent_view))
         return agents
 
-    def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None):
+
+    def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None, condition=None):
         """
-        Create a specific number of new Agents using Model-View architecture at specified coordinates (standard method)
+        Create a new Agent using Model-View architecture and place it on a random cell (standard method)
         
         Args:
-            nbAgents (int): number of Agents
-            cellDef_or_grid (instance, optional): the cellDef or grid you want your agent in. If None, the first cellDef/grid is used
-            xCoord (int, optional): Column position in grid (1..columns)
-            yCoord (int, optional): Row position in grid (1..rows)
+            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+            condition (lambda function, optional): a condition that the destination cell should respect
             
-        Flexible calling patterns (backward compatible):
-            - newAgentsAtCoords(7)
-            - newAgentsAtCoords(7, {"health":"good"})
-            - newAgentsAtCoords(7, 3, 3)
-            - newAgentsAtCoords(7, (3, 3))
-            - newAgentsAtCoords(7, cellDef_or_grid, 3, 3)
-            - newAgentsAtCoords(7, cellDef_or_grid, (3, 3))
-            - newAgentsAtCoords(7, 3, 3, {"health":"good"})
-            - newAgentsAtCoords(7, cellDef_or_grid, 3, 3, {"health":"good"})
-            
-        Return:
-            list: List of tuples (agent_model, agent_view) for each created agent
-        """
-        return self.newAgentsAtCoordsWithModelView(nbAgents, cellDef_or_grid, xCoord, yCoord, attributesAndValues)
-
-    def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):
-        """
-        Create a new Agent in the associated species a place it on a random cell.
-        Args:
-            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
-            attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
         Flexible calling patterns (backward compatible):
             - newAgentAtRandom()
             - newAgentAtRandom({"health":"good"})
             - newAgentAtRandom(cellDef_or_grid)
             - newAgentAtRandom(cellDef_or_grid, {"health":"good"})
+            
         Return:
-            a agent
-            """
-        # Normalize dict passed as first arg
-        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None:
-            attributesAndValues = cellDef_or_grid
-            cellDef_or_grid = None
-        # Normalize argument cellDef_or_grid to support calls like newAgentAtRandom(Cell) or newAgentAtRandom() or newAgentAtRandom(aGrid)
-        if not cellDef_or_grid:
-            aCellDef = first_value(self.model.cellOfGrids,None)
-        else: 
-            aCellDef = self.model.getCellDef(cellDef_or_grid)
-        if aCellDef == None : return
-
-        locationCell=aCellDef.getRandomEntity(condition=condition)
-        return self.newAgentOnCell(locationCell, attributesAndValues)
+            agent_model: The agent model (for modelers)
+        """
+        return self.newAgentAtRandomWithModelView(cellDef_or_grid, attributesAndValues, condition)
 
     def newAgentAtRandomWithModelView(self, cellDef_or_grid=None, attributesAndValues=None, condition=None):
         """
@@ -1320,39 +1234,26 @@ class SGAgentDef(SGEntityDef):
         """
         return self.newAgentAtRandomWithModelView(cellDef_or_grid, attributesAndValues, condition)
 
-    def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):
+    def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None, condition=None):
         """
-        Create a number of Agents in the associated species and place them on random cells.
+        Create a number of Agents using Model-View architecture and place them on random cells (standard method)
+        
         Args:
-            aNumber(int) : number of agents to be created
-            cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
+            aNumber (int): number of agents to be created
+            cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
+            condition (lambda function, optional): a condition that the destination cell should respect
+            
         Flexible calling patterns (backward compatible):
             - newAgentsAtRandom(7)
             - newAgentsAtRandom(7, {"health":"good", "hunger":"bad"})
             - newAgentsAtRandom(7, cellDef_or_grid)
             - newAgentsAtRandom(7, cellDef_or_grid, attributesAndValues)
-        Return:
-            a list of agents
-            """ 
-        
-        # Normalize arguments to support calls like newAgentsAtRandom(7) or newAgentsAtRandom(7, {..})
-        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None:
-            attributesAndValues = cellDef_or_grid
-            cellDef_or_grid = None
             
-        # Normalize argument cellDef_or_grid to support calls like newAgentAtRandom(Cell) or newAgentAtRandom() or newAgentAtRandom(aGrid)
-        if not cellDef_or_grid:
-            aCellDef = first_value(self.model.cellOfGrids,None)
-        else: 
-            aCellDef = self.model.getCellDef(cellDef_or_grid)
-        if aCellDef == None : return
-        
-        locationCells=aCellDef.getRandomEntities(aNumber, condition=condition)
-        alist =[]
-        for aCell in locationCells:
-            alist.append(self.newAgentOnCell(aCell, attributesAndValues))
-        return alist
+        Return:
+            list: List of agent models (for modelers)
+        """
+        return self.newAgentsAtRandomWithModelView(aNumber, cellDef_or_grid, attributesAndValues, condition)
 
     def newAgentsAtRandomWithModelView(self, aNumber, cellDef_or_grid=None, attributesAndValues=None, condition=None):
         """
@@ -1410,7 +1311,7 @@ class SGAgentDef(SGEntityDef):
             - newAgentsAtRandom(7, cellDef_or_grid, attributesAndValues)
             
         Return:
-            list: List of tuples (agent_model, agent_view) for each created agent
+            list: List of agent models (for modelers)
         """
         return self.newAgentsAtRandomWithModelView(aNumber, cellDef_or_grid, attributesAndValues, condition)
 
