@@ -94,26 +94,111 @@ def newModifyActionWithDialog(self, entityDef, attribute):
     # Creates a modify action that prompts user for value
 ```
 
-## 6. Recommandations générales
+## 6. Architecture Model-View (CRITIQUE - OBLIGATOIRE)
 
-- Tous les docstrings et commentaires DOIVENT être en anglais
-- Soyez cohérent avec la nomenclature et terminologie
-- En cas de doute, référez-vous au code SGE existant
+**RÈGLE ABSOLUE** : SGE utilise une architecture Model-View. Chaque entité a un Model (logique) + View (UI).
 
-## Message de démarrage pour chaque chat
+**Classes principales** :
+- `SGAgent` = Model (logique agent)
+- `SGAgentView` = View (UI agent)  
+- `SGCell` = Model (logique cellule)
+- `SGCellView` = View (UI cellule)
 
-"Merci de lire attentivement ce fichier et de suivre strictement toutes les conventions de codage SGE. 
-**IMPORTANT** : Tout le code, commentaires et docstrings doivent être en anglais. 
-Attachez également le README_developer.md et README_modeler.md pour le contexte complet."
+**INTERDICTION STRICTE** : Ne jamais créer `SGAgent(x,y)` directement. Utiliser TOUJOURS les méthodes factory.
 
-## Fichiers à toujours attacher
+**Méthodes factory obligatoires** :
+```python
+agent = entityDef.newAgentAtCoords(x, y)  # Crée Model + View automatiquement
+cell = entityDef.newCell(x, y)            # Crée Model + View automatiquement
+```
+
+**Cycle de vie Qt OBLIGATOIRE** :
+- `show()` = Rend visible + positioning correct (TOUJOURS appeler après création/déplacement)
+- `update()` = Repaint asynchrone (préféré)
+- `repaint()` = Repaint synchrone (éviter sauf cas spéciaux)
+
+**RÈGLE CRITIQUE** : Après chaque `moveTo()` ou création d'agent, appeler `agent.view.show()`
+
+## 7. Organisation des méthodes (OBLIGATOIRE)
+
+**Structure de classe OBLIGATOIRE** :
+```python
+class SGAgent(SGEntityModel):
+    def __init__(self, ...):
+        # Developer code
+    
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
+    # Méthodes internes, UI delegation, Model-View
+    
+    # ============================================================================
+    # MODELER METHODS  
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    # Création et modification
+    
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+    # Suppression
+    
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+    # Récupération et comptage
+    
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+    # Tests booléens
+    
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+    # Actions et affichage
+```
+
+**RÈGLE** : Respecter cette structure exacte dans toutes les classes SGE.
+
+## 8. Règles critiques pour chatbots
+
+**OBLIGATOIRE** :
+- Code, commentaires, docstrings = ANGLAIS UNIQUEMENT
+- Utiliser méthodes factory pour Model-View
+- Appeler `show()` après création/déplacement d'agents
+- Respecter structure organisation méthodes
+- Utiliser nomenclature cohérente (SGAgent, SGCell)
+
+**INTERDIT** :
+- Créer `SGAgent(x,y)` directement
+- Oublier `show()` après `moveTo()`
+- Écrire en français dans le code
+- Ignorer l'architecture Model-View
+
+## 9. Message de démarrage pour chaque chat
+
+"**CRITIQUE** : Lire ce fichier avant tout travail sur SGE. 
+**RÈGLES ABSOLUES** :
+1. Code/commentaires/docstrings = ANGLAIS UNIQUEMENT
+2. Architecture Model-View OBLIGATOIRE
+3. Utiliser méthodes factory (newAgentAtCoords, newCell)
+4. Appeler show() après création/déplacement d'agents
+5. Respecter structure organisation méthodes
+
+Attacher README_developer.md et README_modeler.md pour contexte complet."
+
+## 10. Fichiers à toujours attacher
 
 1. **README_developer.md** (contexte complet et détaillé)
 2. **README_modeler.md** (contexte utilisateur et architecture)
 3. **[Fichier principal sur lequel travailler]**
 4. **[Autres fichiers pertinents au contexte]**
 
-## Dépendances et environnement
+## 11. Dépendances et environnement
 
 **Requirements** :
 - Python 3.8+
@@ -130,20 +215,39 @@ Attachez également le README_developer.md et README_modeler.md pour le contexte
 - Répond à un besoin académique pour les serious games
 - Version présentée à ISAGA 2023
 
-## Exemples de bonnes pratiques
+## 12. Exemples critiques pour chatbots
 
-### ✅ Correct (anglais)
+### ✅ CORRECT - Architecture Model-View
 ```python
-def newAgentAtCoords(self, x, y):
-    """Creates a new agent at specified coordinates"""
-    agent = SGAgent(x, y)
+def createAgent(self, x, y):
+    """Creates agent with proper Model-View architecture"""
+    # Use factory method - creates both Model and View
+    agent = self.entityDef.newAgentAtCoords(x, y)
+    agent.view.show()  # CRITICAL: Always call show()
     return agent
+
+def moveAgent(self, agent, newCell):
+    """Moves agent with proper view handling"""
+    agent.moveTo(newCell)  # Handles Model-View coordination
+    agent.view.show()      # CRITICAL: Ensure proper positioning
 ```
 
-### ❌ Incorrect (français)
+### ❌ INCORRECT - Violation Model-View
 ```python
-def newAgentAtCoords(self, x, y):
-    """Crée un nouvel agent aux coordonnées spécifiées"""
+def createAgent(self, x, y):
+    """Creates agent - WRONG WAY"""
+    agent = SGAgent(x, y)  # ERROR: Missing View creation!
+    return agent
+
+def moveAgent(self, agent, newCell):
+    """Moves agent - WRONG WAY"""
+    agent.moveTo(newCell)  # ERROR: Missing show() call!
+```
+
+### ❌ INCORRECT - Français dans le code
+```python
+def createAgent(self, x, y):
+    """Crée un agent - INTERDIT"""
     agent = SGAgent(x, y)
     return agent
 ```

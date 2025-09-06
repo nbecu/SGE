@@ -156,7 +156,72 @@ class SGAgent(SGEntityModel):
 
 ---
 
-## 5. Type Identification Attributes
+## 5. Model-View Architecture
+
+### 5.1 Overview
+SGE implements a Model-View architecture to separate data/logic (Model) from UI/display (View) for core entities. This separation enables:
+- **Fluid agent movement** without losing state
+- **Better code organization** and maintainability
+- **Cleaner separation of concerns** between game logic and UI
+
+### 5.2 Core Classes
+
+#### Model Classes (Data & Logic)
+- **`SGAgent`**: Agent model containing game logic, attributes, and behavior
+- **`SGCell`**: Cell model containing cell data, agents list, and cell logic
+
+#### View Classes (UI & Display)
+- **`SGAgentView`**: Agent view handling UI rendering, mouse events, and visual interactions
+- **`SGCellView`**: Cell view handling cell rendering, click events, and visual display
+
+### 5.3 Model-View Relationship
+- Each **Model** has a corresponding **View** instance
+- Models contain the **game logic** and **data**
+- Views handle **UI rendering** and **user interactions**
+- Views delegate **game actions** back to their corresponding models
+
+### 5.4 Key Methods
+
+#### `show()` Method
+The `show()` method is crucial for proper UI display:
+- **Purpose**: Makes the widget visible and ensures proper positioning
+- **Usage**: Called after creating views or moving agents between grids
+- **Interaction**: Works with `update()` to ensure visual updates
+
+#### `update()` vs `repaint()`
+- **`update()`**: Schedules a repaint event (asynchronous, Qt event-driven)
+- **`repaint()`**: Forces immediate repaint (synchronous, blocking)
+- **Best Practice**: Use `update()` for better performance and responsiveness
+
+### 5.5 Implementation Guidelines
+
+#### Creating Model-View Pairs
+```python
+# Use factory methods for consistent creation
+agent = entityDef.newAgentAtCoords(x, y)  # Creates both model and view
+cell = entityDef.newCell(x, y)            # Creates both model and view
+```
+
+#### Moving Agents Between Grids
+```python
+# When moving agents, ensure proper view parenting
+agent.moveTo(newCell)
+# The moveTo method handles:
+# - Changing view parent to new grid
+# - Calling show() for proper positioning
+# - Processing Qt events for layout updates
+```
+
+#### View Lifecycle Management
+```python
+# Views are automatically managed by the Model-View system
+# Developers should not manually create or destroy views
+# Use the factory methods in SGEntityDefFactory
+```
+
+---
+
+## 6. Type Identification Attributes
 
 Use boolean attributes with the `is` prefix to identify the type of object and enable different behaviors:
 
@@ -170,7 +235,7 @@ These attributes help separate responsibilities and enable type-specific behavio
 
 ---
 
-## 6. API Ergonomics and Delegation
+## 7. API Ergonomics and Delegation
 
 ### Delegation Methods
 Prefer creating delegation methods in core classes (`SGModel`, `SGEntityDef`, `SGEntity`, `SGPlayer`) to simplify the API for modelers:
@@ -203,7 +268,7 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 7. General Recommendations
+## 8. General Recommendations
 
 - All docstrings and comments must be written in English.
 - Be consistent with naming and terminology throughout the codebase.
@@ -211,13 +276,13 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 8. Additional Information
+## 9. Additional Information
 
 For more information about SGE usage and modeling, see `README_modeler.md`.
 
 ---
 
-## 8. Future Plan
+## 10. Future Plan
 - [ ] Add a method `displayBorderPov` (similar to `SGEntity>displayPov`).
 - [ ] Create a POV system to manage groups of symbologies.
 - [ ] Correct the zoom.
