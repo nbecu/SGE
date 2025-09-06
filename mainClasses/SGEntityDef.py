@@ -1,6 +1,6 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
@@ -775,7 +775,7 @@ class SGCellDef(SGEntityDef):
         self.defaultImage = defaultCellImage
 
     def newCell(self, x, y):
-        ent = SGCellModel(self, x, y, self.defaultImage)
+        ent = SGCell(self, x, y, self.defaultImage)
         self.entities.append(ent)
         ent.show()
 

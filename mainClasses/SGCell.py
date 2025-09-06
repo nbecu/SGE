@@ -12,9 +12,9 @@ import random
 # from mainClasses.gameAction.SGMove import SGMove
    
 #Class who is responsible of the declaration a cell
-class SGCellModel(SGEntityModel):
+class SGCell(SGEntityModel):
     """
-    SGCellModel - Cell model class for grid-based simulations
+    SGCell - Cell model class for grid-based simulations
     
     This class now uses Model-View architecture:
     - Inherits from SGEntityModel for data and business logic
@@ -200,7 +200,7 @@ class SGCellModel(SGEntityModel):
     # NEW/ADD/SET METHODS
     # ============================================================================
 
-    # (No specific NEW/ADD/SET methods in SGCellModel - inherited from SGEntityModel)
+    # (No specific NEW/ADD/SET methods in SGCell - inherited from SGEntityModel)
 
     # ============================================================================
     # DELETE METHODS
@@ -259,7 +259,7 @@ class SGCellModel(SGEntityModel):
                 and returns True if the cell should be included in neighbors
                 
         Returns:
-            list: List of neighboring SGCellModel instances
+            list: List of neighboring SGCell instances
         """
         neighbors = []
         
@@ -326,10 +326,10 @@ class SGCellModel(SGEntityModel):
     # DO/DISPLAY METHODS
     # ============================================================================
 
-    # (No specific DO/DISPLAY methods in SGCellModel - inherited from SGEntityModel)
+    # (No specific DO/DISPLAY methods in SGCell - inherited from SGEntityModel)
 
     # ============================================================================
     # OTHER MODELER METHODS
     # ============================================================================
 
-    # (No specific OTHER MODELER methods in SGCellModel - inherited from SGEntityModel)
+    # (No specific OTHER MODELER methods in SGCell - inherited from SGEntityModel)

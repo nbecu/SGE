@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from PyQt5.QtWidgets import QApplication
 from mainClasses.SGModel import SGModel
 from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
-from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCellView import SGCellView
 from mainClasses.SGAgentView import SGAgentView
@@ -51,7 +51,7 @@ class TestModelViewArchitecture:
         self.cells = {}
         for cell in self.cell_def.entities:
             # Créer le modèle de cellule
-            cell_model = SGCellModel(
+            cell_model = SGCell(
                 self.cell_def,
                 cell.xCoord,
                 cell.yCoord,

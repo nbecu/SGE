@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 
 from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGAgent import SGAgent
-from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGCell import SGCell
 
 
 # Class who is responsible of indicator creation

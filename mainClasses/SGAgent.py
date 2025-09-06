@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, 
 from PyQt5.QtGui import QCursor
 import random
 from mainClasses.SGEntity import SGEntity
-from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGCell import SGCell
 from mainClasses.SGEntityModel import SGEntityModel
 from mainClasses.SGAgentView import SGAgentView
 from mainClasses.gameAction.SGCreate import *

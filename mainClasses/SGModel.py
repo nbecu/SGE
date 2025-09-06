@@ -24,7 +24,7 @@ from screeninfo import get_monitors
 
 # --- Project imports ---
 from mainClasses.SGAgent import *
-from mainClasses.SGCellModel import *
+from mainClasses.SGCell import *
 from mainClasses.SGControlPanel import *
 from mainClasses.SGDashBoard import *
 from mainClasses.SGDataRecorder import *

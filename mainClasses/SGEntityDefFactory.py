@@ -1,5 +1,5 @@
 from mainClasses.SGEntityModel import SGEntityModel
-from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGEntityView import SGEntityView
 from mainClasses.SGCellView import SGCellView
@@ -25,7 +25,7 @@ class SGEntityDefFactory:
             tuple: (cell_model, cell_view)
         """
         # Create the cell model
-        cell_model = SGCellModel(cellDef, x, y, cellDef.defaultImage)
+        cell_model = SGCell(cellDef, x, y, cellDef.defaultImage)
         
         # Create the cell view
         cell_view = SGCellView(cell_model, cellDef.grid)

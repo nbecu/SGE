@@ -1,7 +1,7 @@
 from mainClasses.SGLegend import SGLegend
 from mainClasses.SGControlPanel import SGControlPanel
 from mainClasses.SGAgent import SGAgent
-from mainClasses.SGCellModel import SGCellModel
+from mainClasses.SGCell import SGCell
 from collections import defaultdict
 
 from mainClasses.gameAction.SGDelete import *
