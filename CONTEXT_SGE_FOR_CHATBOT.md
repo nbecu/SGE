@@ -296,3 +296,24 @@ python exStep8.py
 - **"No such file or directory"** : Vérifier le répertoire de travail
 - **"Le jeton « && » n'est pas un séparateur"** : Utiliser syntaxe PowerShell
 - **Application ne s'ouvre pas** : Lancer en foreground, pas background
+
+### 13.6 Syntaxe PowerShell vs Bash (CRITIQUE)
+**ATTENTION** : PowerShell Windows utilise une syntaxe différente de bash/Linux.
+
+❌ **INCORRECT - Syntaxe Bash** :
+```bash
+cd examples/A_to_Z_examples && python exStep1.py
+git add . && git commit -m "message" && git push
+```
+
+✅ **CORRECT - Syntaxe PowerShell** :
+```powershell
+cd examples/A_to_Z_examples
+python exStep1.py
+
+git add .
+git commit -m "message"
+git push
+```
+
+**Règle** : En PowerShell, séparer les commandes par des retours à la ligne, pas par `&&`.
