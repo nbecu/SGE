@@ -68,8 +68,6 @@ class SGEntityDefFactory:
         
         # Create the agent view with grid as parent (not cell)
         grid_parent = cell.classDef.grid if hasattr(cell, 'classDef') and hasattr(cell.classDef, 'grid') else None
-        print(f"DEBUG Factory: Creating agent view with grid parent: {grid_parent}")
-        print(f"DEBUG Factory: Cell: {cell}, classDef: {cell.classDef if hasattr(cell, 'classDef') else 'None'}")
         
         agent_view = SGAgentView(agent_model, grid_parent)
         
@@ -77,6 +75,37 @@ class SGEntityDefFactory:
         agent_model.setView(agent_view)
         
         # Note: agent_view.show() will be called later in positionAllAgents()
-        print(f"DEBUG Factory: Agent view created (show() deferred)")
         
         return agent_model, agent_view
+    
+    @staticmethod
+    def newCell(cellDef, x, y):
+        """
+        Create a cell with Model-View architecture (standard method)
+        
+        Args:
+            cellDef: The cell definition
+            x: X coordinate
+            y: Y coordinate
+            
+        Returns:
+            tuple: (cell_model, cell_view)
+        """
+        return SGEntityDefFactory.newCellWithModelView(cellDef, x, y)
+    
+    @staticmethod
+    def newAgent(agentDef, cell, attributesAndValues=None, image=None, popupImage=None):
+        """
+        Create an agent with Model-View architecture (standard method)
+        
+        Args:
+            agentDef: The agent definition
+            cell: The cell where the agent will be placed
+            attributesAndValues: Initial attributes and values
+            image: Default image for the agent
+            popupImage: Popup image for the agent
+            
+        Returns:
+            tuple: (agent_model, agent_view)
+        """
+        return SGEntityDefFactory.newAgentWithModelView(agentDef, cell, attributesAndValues, image, popupImage)

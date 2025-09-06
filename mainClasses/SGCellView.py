@@ -130,7 +130,6 @@ class SGCellView(SGEntityView):
             # Check if click is within the cell boundaries with tolerance
             if (click_pos.x() < -tolerance or click_pos.x() > cell_rect.width() + tolerance or 
                 click_pos.y() < -tolerance or click_pos.y() > cell_rect.height() + tolerance):
-                print(f"DEBUG: Click outside cell bounds ({click_pos.x()}, {click_pos.y()}) - cell rect: {cell_rect.width()}x{cell_rect.height()}")
                 return  # Exit if click is outside cell bounds
             
             # Note: We removed the isDisplay check to allow actions on deleted cells
@@ -168,10 +167,7 @@ class SGCellView(SGEntityView):
             # TODO: Remove this line when SGAgentView is implemented
             # The dragging state should be managed by the agent's view, not here
             # aAgent.dragging = False
-            print(f"DEBUG: Move action completed")
             return
-        else:
-            print(f"DEBUG: No authorized move action found")
 
     def dragEnterEvent(self, e):
         """Handle drag enter events"""

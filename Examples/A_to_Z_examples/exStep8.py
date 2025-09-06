@@ -29,8 +29,8 @@ aDict = generate_color_gradient(
 Sheeps.newPov("Health","health",aDict)
 
 
-m1_model, m1_view = Sheeps.newAgentAtCoordsWithModelView(Cell,1,1)
-m2_model, m2_view = Sheeps.newAgentAtCoordsWithModelView(Cell,5,1)
+m1_model, m1_view = Sheeps.newAgentAtCoords(Cell,1,1)
+m2_model, m2_view = Sheeps.newAgentAtCoords(Cell,5,1)
 
 theFirstLegend=myModel.newLegend()
 

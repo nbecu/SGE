@@ -53,6 +53,10 @@ class SGEntity(SGEntityModel):
         self.isCell = False
         self.isAgent = False
 
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
+
     # Legacy UI method delegation
     def show(self):
         """Show the entity view"""
@@ -133,50 +137,7 @@ class SGEntity(SGEntityModel):
         """Show context menu - legacy method name"""
         self.view.show_contextMenu(point)
 
-    # Model methods that are now inherited from SGEntityModel
-    # These are kept for backward compatibility but delegate to the model
-    
-    def getRandomAttributValue(self, aAgentSpecies, aAtt):
-        """Get random attribute value - delegates to model"""
-        return super().getRandomAttributValue(aAgentSpecies, aAtt)
-    
-    def readColorFromPovDef(self, aPovDef, aDefaultColor):
-        """Read color from POV definition - delegates to model"""
-        return super().readColorFromPovDef(aPovDef, aDefaultColor)
-    
-    def readColorAndWidthFromBorderPovDef(self, aBorderPovDef, aDefaultColor, aDefaultWidth):
-        """Read color and width from border POV definition - delegates to model"""
-        return super().readColorAndWidthFromBorderPovDef(aBorderPovDef, aDefaultColor, aDefaultWidth)
-    
-    def getObjectIdentiferForJsonDumps(self):
-        """Get object identifier for JSON dumps - delegates to model"""
-        return super().getObjectIdentiferForJsonDumps()
-    
-    def addWatcher(self, aIndicator):
-        """Add watcher - delegates to model"""
-        super().addWatcher(aIndicator)
-    
-    def updateWatchersOnAttribute(self, aAtt):
-        """Update watchers on attribute - delegates to model"""
-        super().updateWatchersOnAttribute(aAtt)
-    
-    def getListOfStepsData(self, startStep=None, endStep=None):
-        """Get list of steps data - delegates to model"""
-        return super().getListOfStepsData(startStep, endStep)
-    
-    def isDeleted(self):
-        """Check if entity is deleted - delegates to model"""
-        return super().isDeleted()
-    
-    def doAction(self, aLambdaFunction):
-        """Do action - delegates to model"""
-        super().doAction(aLambdaFunction)
-    
-    def entDef(self):
-        """Get entity definition - delegates to model"""
-        return super().entDef()
-
-    # New Model-View specific methods
+    # Model-View specific methods
     def getView(self):
         """Get the entity view"""
         return self.view
@@ -191,4 +152,80 @@ class SGEntity(SGEntityModel):
         """Update the entity view"""
         if self.view:
             self.view.update()
+
+    # Model data access methods
+    def readColorFromPovDef(self, aPovDef, aDefaultColor):
+        """Read color from POV definition - delegates to model"""
+        return super().readColorFromPovDef(aPovDef, aDefaultColor)
+    
+    def readColorAndWidthFromBorderPovDef(self, aBorderPovDef, aDefaultColor, aDefaultWidth):
+        """Read color and width from border POV definition - delegates to model"""
+        return super().readColorAndWidthFromBorderPovDef(aBorderPovDef, aDefaultColor, aDefaultWidth)
+    
+    def getObjectIdentiferForJsonDumps(self):
+        """Get object identifier for JSON dumps - delegates to model"""
+        return super().getObjectIdentiferForJsonDumps()
+    
+    def getListOfStepsData(self, startStep=None, endStep=None):
+        """Get list of steps data - delegates to model"""
+        return super().getListOfStepsData(startStep, endStep)
+
+    # Watcher management methods
+    def addWatcher(self, aIndicator):
+        """Add watcher - delegates to model"""
+        super().addWatcher(aIndicator)
+    
+    def updateWatchersOnAttribute(self, aAtt):
+        """Update watchers on attribute - delegates to model"""
+        super().updateWatchersOnAttribute(aAtt)
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+
+    # (No specific NEW/ADD/SET methods in SGEntity - inherited from SGEntityModel)
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+
+    # (No specific DELETE methods in SGEntity - inherited from SGEntityModel)
+
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+
+    def getRandomAttributValue(self, aAgentSpecies, aAtt):
+        """Get random attribute value - delegates to model"""
+        return super().getRandomAttributValue(aAgentSpecies, aAtt)
+    
+    def entDef(self):
+        """Get entity definition - delegates to model"""
+        return super().entDef()
+
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+
+    def isDeleted(self):
+        """Check if entity is deleted - delegates to model"""
+        return super().isDeleted()
+
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+
+    def doAction(self, aLambdaFunction):
+        """Do action - delegates to model"""
+        super().doAction(aLambdaFunction)
+
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+
+    # (No specific OTHER MODELER methods in SGEntity - inherited from SGEntityModel)
     

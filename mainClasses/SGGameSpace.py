@@ -124,14 +124,19 @@ class SGGameSpace(QtWidgets.QWidget):
 
         drag.exec_(Qt.MoveAction)
 
-        leftf, upf = getCPos(self)
-        xCorr = xclic-xC
-        yCorr = yclic-yC
+        # Only move the widget if the drag was successful
+        # Check if the widget is still visible and in a valid position
+        if self.isVisible() and self.parent() is not None:
+            leftf, upf = getCPos(self)
+            xCorr = xclic-xC
+            yCorr = yclic-yC
 
-        newX = leftf-xCorr
-        newY = upf-yCorr
+            newX = leftf-xCorr
+            newY = upf-yCorr
 
-        self.move(newX, newY)
+            # Ensure the new position is within reasonable bounds
+            if newX >= 0 and newY >= 0:
+                self.move(newX, newY)
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

@@ -670,11 +670,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def positionAllAgents(self):
         """Position all agents after grid layout is applied"""
-        print("DEBUG: Positioning all agents...")
         for agent_species in self.getAgentSpeciesDict():
             for agent in agent_species.entities:
                 if hasattr(agent, 'view') and agent.view:
-                    print(f"DEBUG: Positioning agent {agent.id} at cell {agent.cell.id if agent.cell else 'None'}")
                     # Show the agent view first
                     agent.view.show()
                     agent.view.raise_()  # Bring to front
@@ -682,7 +680,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     agent.view.getPositionInEntity()
                     # Force update to ensure positioning is applied
                     agent.view.update()
-        print("DEBUG: All agents positioned")
 
     def getAllAgents(self):
         # send back the agents of all the species
@@ -868,19 +865,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if self.userSelector is not None:
                 self.userSelector.setCheckboxesWithSelection(aUserName)
             #update the ControlPanel and adminControlPanel interfaces
-            for aItem in self.getControlPanels():
-                # Check if we're in a model phase (no authorized players)
-                # Only check phase type if phases exist and we're not in initialization
-                if hasattr(self, 'timeManager') and self.timeManager.numberOfPhases() > 0:
-                    currentPhase = self.timeManager.getCurrentPhase()
-                    if isinstance(currentPhase, SGModelPhase):
-                        # In model phase, all control panels should be inactive
-                        aItem.setActivation(False)
-                    else:
-                        # In play phase, only the current player's control panel should be active
-                        aItem.setActivation(aItem.playerName == self.currentPlayerName)
-                else:
-                    # During initialization or before phases are created, use normal logic
+            # Use TimeManager's method to handle control panel activation based on phase type
+            if hasattr(self, 'timeManager') and self.timeManager.numberOfPhases() > 0:
+                self.timeManager.updateControlPanelsForCurrentPhase()
+            else:
+                # During initialization or before phases are created, use normal logic
+                for aItem in self.getControlPanels():
                     aItem.setActivation(aItem.playerName == self.currentPlayerName)
     
 

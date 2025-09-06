@@ -105,6 +105,60 @@ class SGCellModel(SGEntityModel):
         """Set accept drops"""
         self.view.setAcceptDrops(*args, **kwargs)
 
+    # Cell management methods
+    def setDisplay(self, display):
+        """Set display state and update view"""
+        self.isDisplay = display
+        if hasattr(self, 'view') and self.view:
+            self.view.update()
+
+    def updateIncomingAgent(self, agent):
+        """Update when an agent enters this cell"""
+        if agent not in self.agents:
+            self.agents.append(agent)
+
+    def removeAgent(self, agent):
+        """Remove an agent from this cell"""
+        if agent in self.agents:
+            self.agents.remove(agent)
+
+    def shouldAcceptDropFrom(self, entity):
+        """
+        Check if this cell should accept drops from the given entity
+        
+        Args:
+            entity: The entity attempting to be dropped
+            
+        Returns:
+            bool: True if the drop should be accepted, False otherwise
+        """
+        # Only accept agents, not all entities
+        has_isAgent = hasattr(entity, 'isAgent')
+        is_agent = entity.isAgent if has_isAgent else False
+        return has_isAgent and is_agent
+
+    # Zoom methods
+    def zoomIn(self):
+        """Zoom in the cell"""
+        self.size = round(self.size + 10)
+        self.updateView()
+    
+    def zoomOut(self):
+        """Zoom out the cell"""
+        self.size = round(self.size - 10)
+        self.updateView()
+    
+    def zoomFit(self):
+        """Zoom fit the cell"""
+        self.size = self.saveSize
+        self.updateView()
+
+    # Coordinate conversion methods
+    def convert_coordinates(self, global_pos):
+        """Convert global coordinates to cell coordinates"""
+        # Implementation depends on specific requirements
+        return global_pos
+
     # Legacy compatibility methods that delegate to view
     def paintEvent(self, event):
         """Paint event - delegates to view"""
@@ -146,21 +200,7 @@ class SGCellModel(SGEntityModel):
     # NEW/ADD/SET METHODS
     # ============================================================================
 
-    def setDisplay(self, display):
-        """Set display state and update view"""
-        self.isDisplay = display
-        if hasattr(self, 'view') and self.view:
-            self.view.update()
-
-    def updateIncomingAgent(self, agent):
-        """Update when an agent enters this cell"""
-        if agent not in self.agents:
-            self.agents.append(agent)
-
-    def removeAgent(self, agent):
-        """Remove an agent from this cell"""
-        if agent in self.agents:
-            self.agents.remove(agent)
+    # (No specific NEW/ADD/SET methods in SGCellModel - inherited from SGEntityModel)
 
     # ============================================================================
     # DELETE METHODS
@@ -190,6 +230,13 @@ class SGCellModel(SGEntityModel):
         
         # Filter by species
         return [agent for agent in self.agents if agent.classDef.entityName == specie]
+
+    def getFirstAgentOfSpecie(self, specie):
+        """Get the first agent of a specific species in this cell"""
+        for agent in self.agents:
+            if agent.classDef.entityName == specie:
+                return agent
+        return None
 
     def nbAgents(self, specie=None):
         """Get number of agents in this cell"""
@@ -236,9 +283,11 @@ class SGCellModel(SGEntityModel):
                 
                 neighbor_cell = cell_def.getCell(new_x, new_y)
                 
-                # Apply condition if provided
-                if condition is None or condition(neighbor_cell):
-                    neighbors.append(neighbor_cell)
+                # Only add valid cells (not None)
+                if neighbor_cell is not None:
+                    # Apply condition if provided
+                    if condition is None or condition(neighbor_cell):
+                        neighbors.append(neighbor_cell)
         
         return neighbors
 
@@ -272,45 +321,15 @@ class SGCellModel(SGEntityModel):
             return len(self.agents) == 0
         return len([agent for agent in self.agents if agent.classDef.entityName == specie]) == 0
 
-    def shouldAcceptDropFrom(self, entity):
-        """
-        Check if this cell should accept drops from the given entity
-        
-        Args:
-            entity: The entity attempting to be dropped
-            
-        Returns:
-            bool: True if the drop should be accepted, False otherwise
-        """
-        # Only accept agents, not all entities
-        has_isAgent = hasattr(entity, 'isAgent')
-        is_agent = entity.isAgent if has_isAgent else False
-        return has_isAgent and is_agent
 
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
 
-    def zoomIn(self):
-        """Zoom in the cell"""
-        self.size = round(self.size + 10)
-        self.updateView()
-    
-    def zoomOut(self):
-        """Zoom out the cell"""
-        self.size = round(self.size - 10)
-        self.updateView()
-    
-    def zoomFit(self):
-        """Zoom fit the cell"""
-        self.size = self.saveSize
-        self.updateView()
+    # (No specific DO/DISPLAY methods in SGCellModel - inherited from SGEntityModel)
 
     # ============================================================================
     # OTHER MODELER METHODS
     # ============================================================================
 
-    def convert_coordinates(self, global_pos):
-        """Convert global coordinates to cell coordinates"""
-        # Implementation depends on specific requirements
-        return global_pos
+    # (No specific OTHER MODELER methods in SGCellModel - inherited from SGEntityModel)

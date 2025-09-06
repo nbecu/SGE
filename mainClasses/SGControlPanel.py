@@ -84,6 +84,7 @@ class SGControlPanel(SGGameSpace):
         if not previousValue and aBoolean and not self.selected and self.defaultSelection:
             self.selected = self.defaultSelection
 
+        self.update()  # Force repaint to reflect the new activation state
 
     def isActiveAndSelected(self):
         return self.isActive and self.selected is not None
