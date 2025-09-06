@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(1700,800, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
+myModel=SGModel(550,450, windowTitle="A simulation/game with agents", typeOfLayout ="grid")
 
 Cell=myModel.newCellsOnGrid(6,6,"square",size=60,gap=2)
 Cell.setEntities("landUse","grass")

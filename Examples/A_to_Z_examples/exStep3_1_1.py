@@ -21,10 +21,10 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 
 # You can now create agents from the species you created and and place them at specific coordinates
-agent1, view1 = Sheeps.newAgentAtCoords(xCoord=4,yCoord=1)
+agent1 = Sheeps.newAgentAtCoords(xCoord=4,yCoord=1)
 
 # The method allows you to write newAgentAtCoords(2,1), eventhough xCoord and yCoord are not the first arguments
-agent2, view2 = Sheeps.newAgentAtCoords(1,2)
+agent2 = Sheeps.newAgentAtCoords(1,2)
 
 # you can also create multiple agents at once using newAgentsAtCoords()
 agents3 = Sheeps.newAgentsAtCoords(3,(5,4))

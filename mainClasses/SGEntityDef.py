@@ -774,10 +774,6 @@ class SGCellDef(SGEntityDef):
         self.deletedCells = []
         self.defaultImage = defaultCellImage
 
-    def newCell(self, x, y):
-        ent = SGCell(self, x, y, self.defaultImage)
-        self.entities.append(ent)
-        ent.show()
 
     def newCellWithModelView(self, x, y):
         """
@@ -820,9 +816,19 @@ class SGCellDef(SGEntityDef):
             y (int): Row position in grid (1-indexed)
             
         Returns:
-            tuple: (cell_model, cell_view) - The cell model and view pair
+            cell_model: The cell model (for modelers)
         """
-        return self.newCellWithModelView(x, y)
+        # Utiliser la méthode Model-View
+        result = self.newCellWithModelView(x, y)
+        
+        if result is None:
+            return None
+            
+        # Extraire seulement le modèle du tuple
+        cell_model, cell_view = result
+        
+        # Retourner seulement la cellule pour les modelers
+        return cell_model
     
     def getCell(self, x, y=None):
         """
@@ -928,17 +934,25 @@ class SGAgentDef(SGEntityDef):
         self.popupImage = popupImage
 
     def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None):
-        if aCell == None : return
-        if image is None:
-            image = self.defaultImage
-        if popupImage is None:
-            popupImage = self.popupImage
-        aAgent = SGAgent(aCell, self.defaultsize, attributesAndValues, self.defaultShapeColor, classDef=self, defaultImage=image, popupImage=popupImage)
-        self.entities.append(aAgent)
+        if aCell == None:
+            return None
+
+        # Utiliser la méthode Model-View
+        result = self.newAgentOnCellWithModelView(aCell, attributesAndValues, image, popupImage)
+
+        if result is None:
+            return None
+
+        # Extraire seulement le modèle du tuple
+        agent_model, agent_view = result
+
+        # Ajouter seulement le modèle à entities (pas le tuple)
+        self.entities.append(agent_model)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
-        aAgent.show()
-        return aAgent
+
+        # Retourner seulement l'agent pour les modelers
+        return agent_model
 
     def newAgentOnCellWithModelView(self, aCell, attributesAndValues=None, image=None, popupImage=None):
         """
@@ -976,20 +990,6 @@ class SGAgentDef(SGEntityDef):
         
         return agent_model, agent_view
 
-    def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None):
-        """
-        Create a new agent using Model-View architecture (standard method)
-        
-        Args:
-            aCell: The cell where the agent will be placed
-            attributesAndValues: Initial attributes and values
-            image: Default image for the agent
-            popupImage: Popup image for the agent
-            
-        Returns:
-            tuple: (agent_model, agent_view) - The agent model and view pair
-        """
-        return self.newAgentOnCellWithModelView(aCell, attributesAndValues, image, popupImage)
 
     
     def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):
@@ -1025,46 +1025,6 @@ class SGAgentDef(SGEntityDef):
 
 
 
-    def newAgentAtCoords(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None,image=None,popupImage=None):
-        """
-        Create a new Agent in the associated species.
-
-        Args:
-            cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
-            ValueX (int) : Column position in grid (Default=Random)
-            ValueY (int) : Row position in grid (Default=Random)
-        Flexible calling patterns (backward compatible):
-            - newAgentAtCoords(x, y, ...)
-            - newAgentAtCoords((x, y), ...)
-            - newAgentAtCoords(cellDef_or_grid, x, y, ...)
-        Return:
-            a agent
-        """
-        # Normalize arguments to support calls like newAgentAtCoords(3,3) or newAgentAtCoords((3,3))
-        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
-            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
-            cellDef_or_grid = None
-        elif isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
-            # Called as newAgentAtCoords(x, y, ...)
-            xCoord, yCoord = cellDef_or_grid, xCoord
-            cellDef_or_grid = None
-        elif isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
-            # Called as newAgentAtCoords(cellDef_or_grid, (x, y), ...)
-            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
-
-        # Normalize argument cellDef_or_grid to support calls like newAgentAtCoords(Cell,3,3) or newAgentAtCoords(3,3) or newAgentAtCoords(aGrid,3,3)
-        if not cellDef_or_grid:
-            aCellDef = first_value(self.model.cellOfGrids,None)
-        else: 
-            aCellDef = self.model.getCellDef(cellDef_or_grid)
-        if aCellDef == None : return
-        aGrid = self.model.getGrid(aCellDef)
-
-
-        if xCoord == None: xCoord = random.randint(1, aGrid.columns)
-        if yCoord == None: yCoord = random.randint(1, aGrid.rows)
-        locationCell = aCellDef.getCell(xCoord, yCoord)
-        return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImage)
 
     def newAgentAtCoordsWithModelView(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None, image=None, popupImage=None):
         """
@@ -1135,9 +1095,19 @@ class SGAgentDef(SGEntityDef):
             - newAgentAtCoords(cellDef_or_grid, x, y, ...)
             
         Return:
-            tuple: (agent_model, agent_view) - The agent model and view pair
+            agent_model: The agent model (for modelers)
         """
-        return self.newAgentAtCoordsWithModelView(cellDef_or_grid, xCoord, yCoord, attributesAndValues, image, popupImage)
+        # Utiliser la méthode Model-View
+        result = self.newAgentAtCoordsWithModelView(cellDef_or_grid, xCoord, yCoord, attributesAndValues, image, popupImage)
+        
+        if result is None:
+            return None
+            
+        # Extraire seulement le modèle du tuple
+        agent_model, agent_view = result
+        
+        # Retourner seulement l'agent pour les modelers
+        return agent_model
 
     def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None):
         """
@@ -1462,7 +1432,11 @@ class SGAgentDef(SGEntityDef):
         
         # Delete the view if it exists (Model-View architecture)
         if hasattr(aAgent, 'view') and aAgent.view:
-            aAgent.view.deleteLater()
+            try:
+                aAgent.view.deleteLater()
+            except RuntimeError:
+                # View already deleted, ignore the error
+                pass
         else:
             # Fallback for old architecture
             aAgent.deleteLater()

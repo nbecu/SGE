@@ -5,6 +5,8 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your ModelPhase")
+myModel.displayAdminControlPanel()
+myModel.displayTimeInWindowTitle()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")

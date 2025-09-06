@@ -6,6 +6,10 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Admin Mode")
+myModel.displayAdminControlPanel()
+# the admin's legend enables to change all the entities without restrictions
+# it will be displayed only for an Admin user.
+# By default, a model user is an Admin user
 
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
@@ -25,9 +29,6 @@ m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,1)
 
 theFirstLegend=myModel.newLegend()
-# the admin's legend enables to change all the entities without restrictions
-# it will be displayed only for an Admin user.
-# By default, a model user is an Admin user
 
 myModel.launch() 
 

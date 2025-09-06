@@ -729,18 +729,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
-    
-    def newAgent_ADMINONLY(self, aGrid, aAgtDef, ValueX, ValueY, adictAttributes, anAgentID):
-        """
-        Do not use.
-        """
-        locationCell = aGrid.getCell_withCoords(int(ValueX), int(ValueY))
-        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef,aAgtDef.defaultImage)
-        aAgent.isDisplay = True
-        aAgent.id = anAgentID
-        aAgtDef.entities.append(aAgent)
-        aAgent.show()
-        return aAgent
 
 
     def getIdFromPrivateId(self, aPrivateID, aSpeciesName):
