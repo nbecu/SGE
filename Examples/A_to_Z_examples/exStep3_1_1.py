@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(500,300, windowTitle="Add agents to your simulation/game")
+myModel=SGModel(555,350, windowTitle="Add agents to your simulation/game")
 
 Cell=myModel.newCellsOnGrid(6,4,"square",gap=2,size=40)
 
