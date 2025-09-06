@@ -346,14 +346,16 @@ class SGAgent(SGEntity):
 
     def moveTo(self, aDestinationCell):
         """
-        Move agent to a new cell using Model-View architecture.
-        The model moves, the view updates its position.
+        Move this agent to a specific cell.
+        
+        This method handles both initial placement and subsequent movements.
+        Use this method for initial agent placement or when moving to a specific cell.
         
         Args:
-            aDestinationCell: The destination cell
+            aDestinationCell: The cell where the agent should move
             
         Returns:
-            self: The agent (for chaining)
+            self: The agent (for chaining operations)
         """
         if self.cell is None:
             # First placement
@@ -401,17 +403,26 @@ class SGAgent(SGEntity):
 
     def moveAgent(self, method="random", direction=None, cellID=None, numberOfMovement=1, condition=None):
         """
-        Move the agent according to the specified method.
+        Move the agent using predefined movement patterns.
+        
+        Note: This method requires the agent to already be placed on a cell.
+        For initial placement, use moveTo() instead.
         
         Args:
-            method (str): random, cell, cardinal
-            direction (str): if cardinal; North, South, West, East
-            cellID (str): if cell; cellx-y
-            numberOfMovement (int): number of movement in one action
-            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
+            method (str): Movement method - "random", "cell", "cardinal"
+            direction (str): Direction for cardinal movement - "North", "South", "West", "East"
+            cellID (str): Target cell ID for cell movement (format: "cellx-y")
+            numberOfMovement (int): Number of movements in one action
+            condition (callable, optional): Condition function for destination cell validation
+            
+        Returns:
+            self: The agent (for chaining operations)
         """
         if numberOfMovement > 1: 
-            raise ValueError('SGE currently has an issue with multiple movements at a step of an agent. Do not use numberOfMovement for the time being')
+            # Repeat the movement numberOfMovement times with numberOfMovement=1 each time
+            for i in range(numberOfMovement):
+                self.moveAgent(method=method, direction=direction, cellID=cellID, numberOfMovement=1, condition=condition)
+            return self
         
         for i in range(numberOfMovement):
             if i > 0:
@@ -477,7 +488,7 @@ class SGAgent(SGEntity):
             numberOfMovement (int): number of movement in one action
             condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
         """
-        self.moveAgent(numberOfMovement=numberOfMovement, condition=condition)
+        self.moveAgent(method="random", numberOfMovement=numberOfMovement, condition=condition)
 
     def moveTowards(self, target, condition=None):
         """
