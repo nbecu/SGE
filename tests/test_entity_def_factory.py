@@ -1,5 +1,5 @@
 """
-Test for SGEntityDefFactory
+Test for SGEntityFactory
 Validates the factory creation of Model-View pairs
 """
 
@@ -10,10 +10,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from PyQt5.QtWidgets import QApplication
 from mainClasses.SGModel import SGModel
 from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
-from mainClasses.SGEntityDefFactory import SGEntityDefFactory
+from mainClasses.SGEntityFactory import SGEntityFactory
 
-class TestEntityDefFactory:
-    """Test class for SGEntityDefFactory"""
+class TestEntityFactory:
+    """Test class for SGEntityFactory"""
     
     def __init__(self):
         self.app = QApplication([])
@@ -49,7 +49,7 @@ class TestEntityDefFactory:
         print("=== Test cell creation with factory ===")
         
         # Create a cell using the factory
-        cell_model, cell_view = SGEntityDefFactory.newCellWithModelView(
+        cell_model, cell_view = SGEntityFactory.newCellWithModelView(
             self.cell_def, 2, 2
         )
         
@@ -80,12 +80,12 @@ class TestEntityDefFactory:
         print("\n=== Test agent creation with factory ===")
         
         # First create a cell to place the agent
-        cell_model, cell_view = SGEntityDefFactory.newCellWithModelView(
+        cell_model, cell_view = SGEntityFactory.newCellWithModelView(
             self.cell_def, 1, 1
         )
         
         # Create an agent using the factory
-        agent_model, agent_view = SGEntityDefFactory.newAgentWithModelView(
+        agent_model, agent_view = SGEntityFactory.newAgentWithModelView(
             self.agent_def,
             cell_model,
             {"health": 75, "energy": 25}
@@ -126,7 +126,7 @@ class TestEntityDefFactory:
     
     def run_all_tests(self):
         """Run all factory tests"""
-        print("🚀 Testing SGEntityDefFactory")
+        print("🚀 Testing SGEntityFactory")
         print("=" * 50)
         
         # Test cell creation
@@ -158,5 +158,5 @@ class TestEntityDefFactory:
         }
 
 if __name__ == "__main__":
-    test = TestEntityDefFactory()
+    test = TestEntityFactory()
     results = test.run_all_tests()

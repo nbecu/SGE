@@ -790,10 +790,10 @@ class SGCellDef(SGEntityDef):
         Returns:
             tuple: (cell_model, cell_view) - The cell model and view pair
         """
-        from mainClasses.SGEntityDefFactory import SGEntityDefFactory
+        from mainClasses.SGEntityFactory import SGEntityFactory
         
         # Create cell using factory
-        cell_model, cell_view = SGEntityDefFactory.newCellWithModelView(self, x, y)
+        cell_model, cell_view = SGEntityFactory.newCellWithModelView(self, x, y)
         
         # Add to entities list (store the model)
         self.entities.append(cell_model)
@@ -956,10 +956,10 @@ class SGAgentDef(SGEntityDef):
         if aCell == None: 
             return None
             
-        from mainClasses.SGEntityDefFactory import SGEntityDefFactory
+        from mainClasses.SGEntityFactory import SGEntityFactory
         
         # Create agent using factory
-        agent_model, agent_view = SGEntityDefFactory.newAgentWithModelView(
+        agent_model, agent_view = SGEntityFactory.newAgentWithModelView(
             self, aCell, attributesAndValues, image, popupImage
         )
         

@@ -216,7 +216,7 @@ agent.moveTo(newCell)
 ```python
 # Views are automatically managed by the Model-View system
 # Developers should not manually create or destroy views
-# Use the factory methods in SGEntityDefFactory
+# Use the factory methods in SGEntityFactory
 ```
 
 ---

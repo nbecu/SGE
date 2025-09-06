@@ -5,7 +5,7 @@ from mainClasses.SGEntityView import SGEntityView
 from mainClasses.SGCellView import SGCellView
 from mainClasses.SGAgentView import SGAgentView
 
-class SGEntityDefFactory:
+class SGEntityFactory:
     """
     Factory class for creating Model-View entity pairs
     Separates entity creation logic from entity definitions
@@ -91,7 +91,7 @@ class SGEntityDefFactory:
         Returns:
             tuple: (cell_model, cell_view)
         """
-        return SGEntityDefFactory.newCellWithModelView(cellDef, x, y)
+        return SGEntityFactory.newCellWithModelView(cellDef, x, y)
     
     @staticmethod
     def newAgent(agentDef, cell, attributesAndValues=None, image=None, popupImage=None):
@@ -108,4 +108,4 @@ class SGEntityDefFactory:
         Returns:
             tuple: (agent_model, agent_view)
         """
-        return SGEntityDefFactory.newAgentWithModelView(agentDef, cell, attributesAndValues, image, popupImage)
+        return SGEntityFactory.newAgentWithModelView(agentDef, cell, attributesAndValues, image, popupImage)

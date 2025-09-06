@@ -59,7 +59,7 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
   - `mainClasses/SGCell.py` (renommé de SGCellModel.py, hérite de SGEntityModel)
   - `mainClasses/SGAgentView.py` (gestion UI et interactions)
   - `mainClasses/SGCellView.py` (rendu et événements cellules)
-  - `mainClasses/SGEntityDefFactory.py` (factory pour paires Model-View)
+  - `mainClasses/SGEntityFactory.py` (factory pour paires Model-View)
   - `mainClasses/SGModel.py` (positioning et gestion phases)
   - `mainClasses/SGEntityDef.py` (méthodes standard sans suffixe WithModelView)
   - `mainClasses/SGTimeManager.py` (gestion control panels)
@@ -126,7 +126,7 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
   1. Création de classes View : SGAgentView, SGCellView
   2. Refactoring SGAgent pour hériter de SGEntityModel et déléguer UI
   3. Renommage SGCellModel → SGCell pour cohérence nomenclature
-  4. Factory pattern dans SGEntityDefFactory pour création cohérente
+  4. Factory pattern dans SGEntityFactory pour création cohérente
   5. Gestion robuste du cycle de vie des vues (show, update, repaint)
   6. Méthodes standard sans suffixe WithModelView pour API modeler
   7. Documentation complète dans README_developer.md
@@ -139,10 +139,10 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 - **Description** : Agents affichés deux fois (position correcte + position 0,0)
 - **Solution** : 
   1. Suppression création automatique de vue dans SGAgent.__init__
-  2. Délégation création vue à SGEntityDefFactory
+  2. Délégation création vue à SGEntityFactory
   3. Gestion explicite du parent des vues lors du déplacement
   4. Appel systématique de show() après positioning
-- **Fichiers modifiés** : SGAgent.py, SGEntityDefFactory.py, SGModel.py
+- **Fichiers modifiés** : SGAgent.py, SGEntityFactory.py, SGModel.py
 
 ### 26/12/2024 - Tooltips cassés après drag & drop
 - **Description** : Tooltips ne s'affichaient plus après déplacement d'agents
