@@ -134,3 +134,88 @@ class SGEntity(AttributeAndValueFunctionalities):
         """Update the view when model changes"""
         if self.view:
             self.view.update()
+
+    # ============================================================================
+    # LEGACY UI METHOD DELEGATION
+    # ============================================================================
+    
+    def show(self):
+        """Show the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.show()
+    
+    def hide(self):
+        """Hide the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.hide()
+    
+    def update(self):
+        """Update the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.update()
+    
+    def move(self, *args, **kwargs):
+        """Move the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.move(*args, **kwargs)
+    
+    def setGeometry(self, *args, **kwargs):
+        """Set geometry of the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setGeometry(*args, **kwargs)
+    
+    def resize(self, *args, **kwargs):
+        """Resize the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.resize(*args, **kwargs)
+    
+    def setVisible(self, *args, **kwargs):
+        """Set visibility of the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setVisible(*args, **kwargs)
+    
+    def isVisible(self):
+        """Check if entity view is visible"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.isVisible()
+        return False
+    
+    def rect(self):
+        """Get rectangle of the entity view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.rect()
+        return None
+    
+    def mapToGlobal(self, *args, **kwargs):
+        """Map to global coordinates"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.mapToGlobal(*args, **kwargs)
+        return None
+    
+    def setAcceptDrops(self, *args, **kwargs):
+        """Set accept drops"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setAcceptDrops(*args, **kwargs)
+    
+    def grab(self):
+        """Grab the entity view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.grab()
+        return None
+    
+    # Event delegation methods
+    def paintEvent(self, event):
+        """Paint event - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.paintEvent(event)
+    
+    def getRegion(self):
+        """Get region - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.getRegion()
+        return None
+    
+    def mousePressEvent(self, event):
+        """Mouse press event - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.mousePressEvent(event)

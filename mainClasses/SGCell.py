@@ -54,55 +54,31 @@ class SGCell(SGEntity):
     # DEVELOPER METHODS
     # ============================================================================
 
-    # Legacy UI method delegation
-    def show(self):
-        """Show the cell view"""
-        self.view.show()
-    
-    def hide(self):
-        """Hide the cell view"""
-        self.view.hide()
-    
-    def update(self):
-        """Update the cell view"""
-        self.view.update()
-    
-    def setGeometry(self, *args, **kwargs):
-        """Set geometry of the cell view"""
-        self.view.setGeometry(*args, **kwargs)
-    
+    # Special move() override for cells
     def move(self, *args, **kwargs):
         """Move the cell view and update all agent positions"""
-        self.view.move(*args, **kwargs)
+        super().move(*args, **kwargs)  # Call parent method
         
         # Update position of all agents in this cell
         for agent in self.agents:
             if hasattr(agent, 'view') and agent.view:
                 agent.view.updatePositionFromCell()
+
+    # Model-View specific methods
+    def getView(self):
+        """Get the cell view"""
+        return self.view
     
-    def resize(self, *args, **kwargs):
-        """Resize the cell view"""
-        self.view.resize(*args, **kwargs)
+    def setView(self, view):
+        """Set the cell view"""
+        self.view = view
+        if view:
+            view.cell_model = self
     
-    def setVisible(self, *args, **kwargs):
-        """Set visibility of the cell view"""
-        self.view.setVisible(*args, **kwargs)
-    
-    def isVisible(self):
-        """Check if cell view is visible"""
-        return self.view.isVisible()
-    
-    def rect(self):
-        """Get rectangle of the cell view"""
-        return self.view.rect()
-    
-    def mapFromGlobal(self, *args, **kwargs):
-        """Map from global coordinates"""
-        return self.view.mapFromGlobal(*args, **kwargs)
-    
-    def setAcceptDrops(self, *args, **kwargs):
-        """Set accept drops"""
-        self.view.setAcceptDrops(*args, **kwargs)
+    def updateView(self):
+        """Update the cell view"""
+        if self.view:
+            self.view.update()
 
     # Cell management methods
     def setDisplay(self, display):
