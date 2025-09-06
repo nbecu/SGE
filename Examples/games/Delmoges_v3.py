@@ -112,7 +112,7 @@ def renouvellementStock_port():
         benefBateau=0
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
-        navire.moveAgent(cellID=10)
+        navire.moveAgent(cellID='cell10-1')
 
         
 

@@ -257,73 +257,7 @@ class SGAgent(SGEntity):
     # NEW/ADD/SET METHODS
     # ============================================================================
 
-    def moveTo(self, aDestinationCell):
-        """
-        Move agent to a new cell using Model-View architecture.
-        The model moves, the view updates its position.
-        
-        Args:
-            aDestinationCell: The destination cell
-            
-        Returns:
-            self: The agent (for chaining)
-        """
-        if self.cell is None:
-            # First placement
-            self.cell = aDestinationCell
-            self.cell.updateIncomingAgent(self)
-            self.getPositionInEntity()  # Update position
-            if hasattr(self, 'view') and self.view is not None:
-                # Force layout recalculation before positioning
-                from PyQt5.QtWidgets import QApplication
-                QApplication.processEvents()
-                self.view.getPositionInEntity()  # Force view repositioning
-                self.view.show()  # Ensure view is visible
-                self.updateView()
-            return self
-        else:
-            # Movement from one cell to another
-            
-            # Check if moving to a different grid
-            old_grid = self.cell.classDef.grid if hasattr(self.cell, 'classDef') and hasattr(self.cell.classDef, 'grid') else None
-            new_grid = aDestinationCell.classDef.grid if hasattr(aDestinationCell, 'classDef') and hasattr(aDestinationCell.classDef, 'grid') else None
-            
-            if old_grid != new_grid and hasattr(self, 'view') and self.view is not None:
-                # Change the parent of the view to the new grid
-                self.view.setParent(new_grid)
-            
-            # Remove from current cell
-            self.cell.removeAgent(self)
-            
-            # Move to new cell
-            self.cell = aDestinationCell
-            self.cell.updateIncomingAgent(self)
-            
-            # Update position and view
-            self.getPositionInEntity()
-            if hasattr(self, 'view') and self.view is not None:
-                # Force layout recalculation before positioning
-                from PyQt5.QtWidgets import QApplication
-                QApplication.processEvents()
-                self.view.getPositionInEntity()  # Force view repositioning
-                self.view.show()  # Ensure view is visible
-                self.updateView()
-            
-            return self
-
-    def moveToCell(self, new_cell): #todo is this method used ? is it a model method ?
-        """
-        Move agent to a new cell
-
-        Args:
-            new_cell: The new cell to move to
-        """
-        if self.cell is not None:
-            self.cell.removeAgent(self)
-        
-        self.cell = new_cell
-        if new_cell is not None:
-            new_cell.updateIncomingAgent(self)
+  
 
     # ============================================================================
     # DELETE METHODS
@@ -494,6 +428,74 @@ class SGAgent(SGEntity):
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
+
+    def moveTo(self, aDestinationCell):
+        """
+        Move agent to a new cell using Model-View architecture.
+        The model moves, the view updates its position.
+        
+        Args:
+            aDestinationCell: The destination cell
+            
+        Returns:
+            self: The agent (for chaining)
+        """
+        if self.cell is None:
+            # First placement
+            self.cell = aDestinationCell
+            self.cell.updateIncomingAgent(self)
+            self.getPositionInEntity()  # Update position
+            if hasattr(self, 'view') and self.view is not None:
+                # Force layout recalculation before positioning
+                from PyQt5.QtWidgets import QApplication
+                QApplication.processEvents()
+                self.view.getPositionInEntity()  # Force view repositioning
+                self.view.show()  # Ensure view is visible
+                self.updateView()
+            return self
+        else:
+            # Movement from one cell to another
+            
+            # Check if moving to a different grid
+            old_grid = self.cell.classDef.grid if hasattr(self.cell, 'classDef') and hasattr(self.cell.classDef, 'grid') else None
+            new_grid = aDestinationCell.classDef.grid if hasattr(aDestinationCell, 'classDef') and hasattr(aDestinationCell.classDef, 'grid') else None
+            
+            if old_grid != new_grid and hasattr(self, 'view') and self.view is not None:
+                # Change the parent of the view to the new grid
+                self.view.setParent(new_grid)
+            
+            # Remove from current cell
+            self.cell.removeAgent(self)
+            
+            # Move to new cell
+            self.cell = aDestinationCell
+            self.cell.updateIncomingAgent(self)
+            
+            # Update position and view
+            self.getPositionInEntity()
+            if hasattr(self, 'view') and self.view is not None:
+                # Force layout recalculation before positioning
+                from PyQt5.QtWidgets import QApplication
+                QApplication.processEvents()
+                self.view.getPositionInEntity()  # Force view repositioning
+                self.view.show()  # Ensure view is visible
+                self.updateView()
+            
+            return self
+
+    def moveToCell(self, new_cell): #todo is this method used ? is it a model method ?
+        """
+        Move agent to a new cell
+
+        Args:
+            new_cell: The new cell to move to
+        """
+        if self.cell is not None:
+            self.cell.removeAgent(self)
+        
+        self.cell = new_cell
+        if new_cell is not None:
+            new_cell.updateIncomingAgent(self)
 
     def moveAgent(self, method="random", direction=None, cellID=None, numberOfMovement=1, condition=None):
         """
