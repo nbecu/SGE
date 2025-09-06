@@ -54,15 +54,16 @@ class SGCell(SGEntity):
     # DEVELOPER METHODS
     # ============================================================================
 
-    # Special move() override for cells
-    def move(self, *args, **kwargs):
-        """Move the cell view and update all agent positions"""
-        super().move(*args, **kwargs)  # Call parent method
+    #todo obsolete function
+    #  Special move() override for cells
+    # def move(self, *args, **kwargs):
+    #     """Move the cell view and update all agent positions"""
+    #     super().move(*args, **kwargs)  # Call parent method
         
-        # Update position of all agents in this cell
-        for agent in self.agents:
-            if hasattr(agent, 'view') and agent.view:
-                agent.view.updatePositionFromCell()
+    #     # Update position of all agents in this cell
+    #     for agent in self.agents:
+    #         if hasattr(agent, 'view') and agent.view:
+    #             agent.view.updatePositionFromCell()
 
     # Model-View specific methods
     def getView(self):

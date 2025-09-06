@@ -154,10 +154,11 @@ class SGEntity(AttributeAndValueFunctionalities):
         if hasattr(self, 'view') and self.view:
             self.view.update()
     
-    def move(self, *args, **kwargs):
-        """Move the entity view"""
-        if hasattr(self, 'view') and self.view:
-            self.view.move(*args, **kwargs)
+    #todo obsolete function
+    #  def move(self, *args, **kwargs):
+    #     """Move the entity view"""
+    #     if hasattr(self, 'view') and self.view:
+    #         self.view.move(*args, **kwargs)
     
     def setGeometry(self, *args, **kwargs):
         """Set geometry of the entity view"""

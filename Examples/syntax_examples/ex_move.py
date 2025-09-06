@@ -19,9 +19,9 @@ Cell.newPov("pov","landUse",{"grass":Qt.green,"shrub":Qt.yellow})
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 
 print("DEBUG: Creating agents...")
-m1_model, m1_view = Sheeps.newAgentAtCoords(Cell,1,1)
+m1_model = Sheeps.newAgentAtCoords(Cell,1,1)
 print(f"DEBUG: Agent m1 created with ID {m1_model.id}, position: ({m1_model.xCoord}, {m1_model.yCoord})")
-m2_model, m2_view = Sheeps.newAgentAtCoords(Cell,5,1)
+m2_model = Sheeps.newAgentAtCoords(Cell,5,1)
 print(f"DEBUG: Agent m2 created with ID {m2_model.id}, position: ({m2_model.xCoord}, {m2_model.yCoord})")
 
 aDestinationCell=Cell.getRandomEntity()

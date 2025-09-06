@@ -398,19 +398,6 @@ class SGAgent(SGEntity):
             
             return self
 
-    def moveToCell(self, new_cell): #todo is this method used ? is it a model method ?
-        """
-        Move agent to a new cell
-
-        Args:
-            new_cell: The new cell to move to
-        """
-        if self.cell is not None:
-            self.cell.removeAgent(self)
-        
-        self.cell = new_cell
-        if new_cell is not None:
-            new_cell.updateIncomingAgent(self)
 
     def moveAgent(self, method="random", direction=None, cellID=None, numberOfMovement=1, condition=None):
         """

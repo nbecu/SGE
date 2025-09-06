@@ -110,7 +110,7 @@ class TestModelViewArchitecture:
         saved_id = self.agent_model.id
         
         # Déplacer l'agent (seulement le modèle change de cellule)
-        self.agent_model.moveToCell(target_cell)
+        self.agent_model.moveTo(target_cell)
         
         # Vérifier les résultats
         print(f"\nAprès déplacement:")
@@ -149,7 +149,7 @@ class TestModelViewArchitecture:
             
             # Déplacer
             target_cell = self.cells[coords]
-            self.agent_model.moveToCell(target_cell)
+            self.agent_model.moveTo(target_cell)
             
             print(f"Déplacement {i+1}: ({coords[0]},{coords[1]}) - health={self.agent_model.value('health')}")
         
