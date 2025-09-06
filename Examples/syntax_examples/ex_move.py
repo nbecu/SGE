@@ -29,6 +29,9 @@ print(f"DEBUG: Destination cell selected: {aDestinationCell.id} at ({aDestinatio
 
 print("DEBUG: Creating model phase with move action...")
 # Use a lambda that gets a new random destination each time
+aSheep=Sheeps.getRandomEntity()
+aSheep.moveTo(Cell.getRandomEntity())
+aSheep.moveAgent(Cell.getRandomEntity())
 myModel.newModelPhase(Sheeps.newModelAction(lambda aSheep: aSheep.moveTo(Cell.getRandomEntity())))
 # Test moveRandomly now that getNeighborCells is implemented
 myModel.newModelPhase(Sheeps.newModelAction(lambda aSheep: aSheep.moveRandomly()))

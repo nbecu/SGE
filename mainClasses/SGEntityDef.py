@@ -2,6 +2,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGEntity import SGEntity
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGModelAction import SGModelAction_OnEntities
@@ -9,6 +10,7 @@ from mainClasses.SGExtensions import *
 import numpy as np
 from collections import Counter, defaultdict
 import random
+from typing import Union
 # Définition de SGEntityDef
 class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultShapeColor):
@@ -919,6 +921,16 @@ class SGCellDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         aCell.update()
+
+    def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGCell:
+        """
+        Return a random cell from this grid.
+        
+        Returns:
+            SGCell: A random cell from the list
+            bool: False if no cells found
+        """
+        return super().getRandomEntity(condition=condition, listOfEntitiesToPickFrom=listOfEntitiesToPickFrom)
         
 
 # ********************************************************    
@@ -1445,6 +1457,16 @@ class SGAgentDef(SGEntityDef):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         #aAgent.update()
+
+    def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGAgent:
+        """
+        Return a random agent from this species.
+        
+        Returns:
+            SGAgent: A random agent from the list
+            bool: False if no agents found
+        """
+        return super().getRandomEntity(condition=condition, listOfEntitiesToPickFrom=listOfEntitiesToPickFrom)
 
     
 
