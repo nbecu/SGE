@@ -252,6 +252,9 @@ class SGAgentView(SGEntityView):
             from mainClasses.gameAction.SGMove import SGMove
             if isinstance(aLegendItem.gameAction, SGMove): 
                 return
+            from mainClasses.gameAction.SGCreate  import SGCreate
+            if isinstance(aLegendItem.gameAction, SGCreate): 
+                return aLegendItem.gameAction.perform_with(self.agent_model.cell)
             aLegendItem.gameAction.perform_with(self.agent_model)
             return
 

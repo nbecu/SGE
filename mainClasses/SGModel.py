@@ -30,6 +30,7 @@ from mainClasses.SGDashBoard import *
 from mainClasses.SGDataRecorder import *
 from mainClasses.SGEndGameRule import *
 from mainClasses.SGEntity import *
+from mainClasses.SGEntityView import *
 from mainClasses.SGEntityDef import *
 from mainClasses.SGGraphController import SGGraphController
 from mainClasses.SGGraphLinear import SGGraphLinear
@@ -410,16 +411,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         e.accept()
 
     def dropEvent(self, e):
-        if isinstance(e.source(),SGEntity):
-            msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setWindowTitle("Warning Message")
-            # Get the agent model from the view
-            agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
-            msg_box.setText("A " + agent_model.classDef.entityName +" cannot be moved here")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.setDefaultButton(QMessageBox.Ok)
-            msg_box.exec_()
+        if isinstance(e.source(), (SGEntity, SGEntityView)):
+            # msg_box = QMessageBox(self)
+            # msg_box.setIcon(QMessageBox.Information)
+            # msg_box.setWindowTitle("Warning Message")
+            # # Get the agent model from the view
+            # agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+            # msg_box.setText("A " + agent_model.classDef.entityName +" cannot be moved here")
+            # msg_box.setStandardButtons(QMessageBox.Ok)
+            # msg_box.setDefaultButton(QMessageBox.Ok)
+            # msg_box.exec_()
             return
         position = e.pos()
         # Get the agent model from the view

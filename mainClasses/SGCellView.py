@@ -164,9 +164,6 @@ class SGCellView(SGEntityView):
         if authorizedMoveAction is not None:
             authorizedMoveAction.perform_with(aAgent, self.cell_model)
             e.setDropAction(Qt.MoveAction)
-            # TODO: Remove this line when SGAgentView is implemented
-            # The dragging state should be managed by the agent's view, not here
-            # aAgent.dragging = False
             return
 
     def dragEnterEvent(self, e):

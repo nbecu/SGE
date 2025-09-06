@@ -133,17 +133,6 @@ class SGControlPanel(SGGameSpace):
             return True
     
 
-        
-    #obsolete function
-    # def checkViability(self,text):
-    #     thePlayer=self.model.players[self.playerName]
-    #     for action in thePlayer.gameActions:
-    #         if isinstance(action,SGCreate) or isinstance(action,SGDelete): 
-    #             if action.dictAttributs is not None: # case of att+val agents WITH attribut info in Action
-    #                 stringAttributs = " : ".join([f"{key} : {value}" for key, value in action.dictAttributs.items()])
-    #                 if stringAttributs in text : 
-    #                     return True
-    #     return False
 
     def mousePressEvent(self, QMouseEvent):
         """Handle mouse press events for control panel items"""
