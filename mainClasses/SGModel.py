@@ -922,16 +922,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aTimeLabel
 
     # To create a Text Box
-    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box'):
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
         """
-        Create a text box
+        Create a text box with full customization options.
 
         Args:
-        textToWrite (str) : displayed text in the widget (default: "Welcome in the game!")
-        title (str) : name of the widget (default: "Text Box")
+            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
+            title (str): Name of the widget (default: "Text Box")
+            sizeX (int, optional): Manual width override for the text box
+            sizeY (int, optional): Manual height override for the text box
+            borderColor (QColor): Border color of the text box (default: Qt.black)
+            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
 
+        Returns:
+            SGTextBox: The created text box widget
         """
-        aTextBox = SGTextBox(self, textToWrite, title)
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+        """
+        Create a text box with full customization options.
+
+        Args:
+            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
+            title (str): Name of the widget (default: "Text Box")
+            sizeX (int, optional): Manual width override for the text box
+            sizeY (int, optional): Manual height override for the text box
+            borderColor (QColor): Border color of the text box (default: Qt.black)
+            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
+
+        Returns:
+            SGTextBox: The created text box widget
+        """
+        aTextBox = SGTextBox(self, textToWrite, title, sizeX, sizeY, borderColor, backgroundColor)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
         # Realocation of the position thanks to the layout

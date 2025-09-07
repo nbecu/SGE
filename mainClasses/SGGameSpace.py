@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGAspect import *
+from mainClasses.SGGameSpaceSizeManager import SGGameSpaceSizeManager
 
 
             
@@ -33,6 +34,8 @@ class SGGameSpace(QtWidgets.QWidget):
         self.text1_aspect = SGAspect.text1()
         self.text2_aspect = SGAspect.text2()
         self.text3_aspect = SGAspect.text3()
+        # Size manager for game_spaces
+        self.size_manager = SGGameSpaceSizeManager()
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
         
@@ -196,5 +199,76 @@ class SGGameSpace(QtWidgets.QWidget):
     def setTextsColor(self, textColor):
         for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.color = textColor 
+    
+    # ============================================================================
+    # SIZE MANAGEMENT METHODS
+    # ============================================================================
+    
+    def adjustSizeToContent(self, content_widgets=None, content_items=None, text_content=None):
+        """
+        Adjust game_space size to its content using the size_manager.
+        
+        Args:
+            content_widgets (list, optional): Content widgets
+            content_items (list, optional): Content items  
+            text_content (str, optional): Text content
+        """
+        self.size_manager.adjust_game_space_to_content(
+            self, content_widgets, content_items, text_content
+        )
+    
+    def calculateContentWidth(self, content_widgets=None, text_content=None):
+        """
+        Calculate necessary width for content.
+        
+        Args:
+            content_widgets (list, optional): Content widgets
+            text_content (str, optional): Text content
+            
+        Returns:
+            int: Calculated width in pixels
+        """
+        if content_widgets:
+            return self.size_manager.calculate_content_width(content_widgets)
+        elif text_content:
+            return self.size_manager.calculate_text_width(text_content)
+        else:
+            return self.size_manager.min_width
+    
+    def calculateContentHeight(self, content_items=None, text_content=None):
+        """
+        Calculate necessary height for content.
+        
+        Args:
+            content_items (list, optional): Content items
+            text_content (str, optional): Text content
+            
+        Returns:
+            int: Calculated height in pixels
+        """
+        if content_items:
+            return self.size_manager.calculate_content_height(content_items)
+        elif text_content:
+            return self.size_manager.calculate_text_height(text_content)
+        else:
+            return self.size_manager.min_height
+    
+    def setSizeManagerMargin(self, margin):
+        """
+        Set right margin of size_manager.
+        
+        Args:
+            margin (int): New margin in pixels
+        """
+        self.size_manager.set_right_margin(margin)
+    
+    def setSizeManagerVerticalGap(self, gap):
+        """
+        Set vertical spacing of size_manager.
+        
+        Args:
+            gap (int): New spacing in pixels
+        """
+        self.size_manager.set_vertical_gap(gap)
 
     

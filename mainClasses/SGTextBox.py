@@ -8,6 +8,30 @@ from mainClasses.SGGameSpace import SGGameSpace
 
 
 class SGTextBox(SGGameSpace):
+    """
+    A text display widget for SGE games that can show titles and text content.
+    
+    SGTextBox provides a flexible text display solution that automatically adapts
+    its widget type based on content length:
+    - Short texts (≤100 chars): Uses QLabel for compact display
+    - Long texts (>100 chars): Uses QTextEdit for better text handling
+    
+    Features:
+    - Dynamic sizing based on content using SGGameSpaceSizeManager
+    - Automatic layout management with QVBoxLayout
+    - Context menu support (Inspect, Close)
+    - Text history tracking
+    - Customizable styling through gs_aspect system
+    
+    Args:
+        parent: The parent widget/model
+        textToWrite (str): Initial text content to display
+        title (str): Title displayed above the text content
+        sizeX (int, optional): Manual width override
+        sizeY (int, optional): Manual height override  
+        borderColor (QColor): Border color (default: Qt.black)
+        backgroundColor (QColor): Background color (default: Qt.lightGray)
+    """
     def __init__(self, parent, textToWrite, title, sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.title = title
@@ -37,50 +61,127 @@ class SGTextBox(SGGameSpace):
         font.setBold(True)
         self.labelTitle.setFont(font)
 
-        # Create a QTextEdit
-        self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setPlainText(self.textToWrite)
-        self.textEdit.setReadOnly(True)
-        self.textEdit.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.textEdit.setStyleSheet(
-            "border: none;background-color: lightgray;")
+        # Create appropriate widget based on text length
+        if len(self.textToWrite) > 100:  # Use QTextEdit for long texts
+            self.textWidget = QtWidgets.QTextEdit()
+            self.textWidget.setPlainText(self.textToWrite)
+            self.textWidget.setReadOnly(True)
+            self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.textWidget.setStyleSheet(
+                "border: none;background-color: lightgray;")
+        else:  # Use QLabel for short texts
+            self.textWidget = QtWidgets.QLabel(self.textToWrite)
+            self.textWidget.setWordWrap(True)
+            self.textWidget.setStyleSheet(
+                "border: none;background-color: lightgray;")
+        
+        # Store reference for compatibility
+        self.textEdit = self.textWidget
 
         # Create a QVBoxLayout to hold the QTextEdit and QPushButton
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.labelTitle)
-        layout.addWidget(self.textEdit)
+        self.textLayout = QtWidgets.QVBoxLayout()
+        self.textLayout.addWidget(self.labelTitle)
+        self.textLayout.addWidget(self.textEdit)
 
         # Set the QVBoxLayout as the main layout for the widget
-        self.setLayout(layout)
+        self.setLayout(self.textLayout)
+        
+        # Adjust size after layout configuration
+        self.adjustSizeAfterLayout()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_contextMenu)
-        self.history.append(self.textEdit.toPlainText())
+        # Store text content for history
+        if hasattr(self.textEdit, 'toPlainText'):
+            self.history.append(self.textEdit.toPlainText())
+        else:
+            self.history.append(self.textEdit.text())
 
     # Function to have the global size of a gameSpace
 
     def getSizeXGlobal(self):
-        return 160
+        # Use manual size if specified
+        if self.sizeX is not None:
+            return self.sizeX
+            
+        # Use actual layout size if available
+        if hasattr(self, 'textLayout') and self.textLayout:
+            # Force layout to calculate its size
+            self.textLayout.activate()
+            size_hint = self.textLayout.sizeHint()
+            if size_hint and size_hint.isValid():
+                return max(size_hint.width() + self.size_manager.right_margin, self.size_manager.min_width)
+        
+        # Fallback: use size_manager to calculate width based on content
+        if hasattr(self, 'textEdit') and self.textEdit:
+            if hasattr(self.textEdit, 'toPlainText'):
+                text_content = self.textEdit.toPlainText()
+            else:
+                text_content = self.textEdit.text()
+            return self.calculateContentWidth(text_content=text_content)
+        return self.size_manager.min_width
 
     def getSizeYGlobal(self):
-        return 100
+        # Use manual size if specified
+        if self.sizeY is not None:
+            return self.sizeY
+            
+        # Use actual layout size if available
+        if hasattr(self, 'textLayout') and self.textLayout:
+            # Force layout to calculate its size
+            self.textLayout.activate()
+            size_hint = self.textLayout.sizeHint()
+            if size_hint and size_hint.isValid():
+                return max(size_hint.height() + self.size_manager.vertical_gap_between_labels, self.size_manager.min_height)
+        
+        # Fallback: use size_manager to calculate height based on content
+        if hasattr(self, 'textEdit') and self.textEdit:
+            if hasattr(self.textEdit, 'toPlainText'):
+                text_content = self.textEdit.toPlainText()
+            else:
+                text_content = self.textEdit.text()
+            return self.calculateContentHeight(text_content=text_content)
+        return self.size_manager.min_height
 
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
         painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-        # Draw the corner of the Legend
+        
+        # Dynamic size calculation based on actual layout
+        width = self.getSizeXGlobal()
+        height = self.getSizeYGlobal()
+        
+        # Adjust widget size to calculated content
+        self.setMinimumSize(width, height)
+        self.resize(width, height)
+        
+        # Draw the border
         if self.sizeX == None or self.sizeY == None:
-            self.setMinimumSize(self.getSizeXGlobal()+3,
-                                self.getSizeYGlobal()+3)
-            painter.drawRect(0, 0, self.getSizeXGlobal(),
-                             self.getSizeYGlobal())
-
+            painter.drawRect(0, 0, width - 1, height - 1)
         else:
+            # Use manually defined sizes
             painter.drawRect(0, 0, self.sizeX, self.sizeY)
 
         painter.end()
+    
+    def adjustSizeAfterLayout(self):
+        """
+        Adjust widget size after layout configuration.
+        """
+        if hasattr(self, 'textLayout') and self.textLayout:
+            # Force layout to calculate its size
+            self.textLayout.activate()
+            size_hint = self.textLayout.sizeHint()
+            if size_hint and size_hint.isValid():
+                # Add margins for border
+                width = size_hint.width() + self.size_manager.right_margin + self.size_manager.border_padding
+                height = size_hint.height() + self.size_manager.vertical_gap_between_labels + self.size_manager.border_padding
+                
+                # Apply calculated size
+                self.setMinimumSize(width, height)
+                self.resize(width, height)
 
     # contextual menu (opened on a right click)
     def show_contextMenu(self, point):
@@ -114,9 +215,15 @@ class SGTextBox(SGGameSpace):
         self.updateText()
 
     def updateText(self):
-        # Update the QTextEdit content
-        newText = self.textEdit.toPlainText() + self.new_text
-        self.textEdit.setPlainText(newText)
+        # Update the text widget content
+        if hasattr(self.textEdit, 'toPlainText'):
+            newText = self.textEdit.toPlainText() + self.new_text
+            self.textEdit.setPlainText(newText)
+        else:
+            newText = self.textEdit.text() + self.new_text
+            self.textEdit.setText(newText)
+        # Automatically adjust size to new content
+        self.adjustSizeToContent(text_content=newText)
         #self.history.append(self.textForHistory)
 
     def setNewText(self, text):
@@ -127,7 +234,12 @@ class SGTextBox(SGGameSpace):
             - text (str) : new text
         """
         self.new_text = text
-        self.textEdit.setPlainText(text)
+        if hasattr(self.textEdit, 'setPlainText'):
+            self.textEdit.setPlainText(text)
+        else:
+            self.textEdit.setText(text)
+        # Automatically adjust size to new content
+        self.adjustSizeToContent(text_content=text)
 
     def setTitle(self, title):
         """

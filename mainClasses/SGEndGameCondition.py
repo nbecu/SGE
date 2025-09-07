@@ -28,9 +28,13 @@ class SGEndGameCondition(QtWidgets.QWidget):
     def initUI(self):
         if self.isDisplay:
             self.conditionLayout = QtWidgets.QHBoxLayout()
-            self.label = QtWidgets.QTextEdit(self.name)
-            self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.label.setReadOnly(True)
+            # Use QLabel instead of QTextEdit for more appropriate sizing
+            self.label = QtWidgets.QLabel(self.name)
+            # Enable word wrap if text is too long
+            if len(self.name) > 50:  # Arbitrary threshold to decide on word wrapping
+                self.label.setWordWrap(True)
+            else:
+                self.label.setWordWrap(False)
             color = self.endGameRule.title1_aspect.color
             color_string = f"color: {color};"
             self.label.setStyleSheet(
@@ -53,7 +57,24 @@ class SGEndGameCondition(QtWidgets.QWidget):
             return True
 
     def getSizeXGlobal(self):
-        return 150+len(self.name)*5
+        # Calculate more appropriate size based on actual content
+        if hasattr(self, 'label') and self.label:
+            # Use size suggested by QLabel
+            size_hint = self.label.sizeHint()
+            if size_hint.isValid():
+                return size_hint.width() + 20  # Add small margin
+        # Fallback: calculation based on text length
+        return min(len(self.name) * 8 + 20, 200)  # Limit maximum size
+    
+    def getSizeYGlobal(self):
+        # Calculate appropriate height
+        if hasattr(self, 'label') and self.label:
+            # Use size suggested by QLabel
+            size_hint = self.label.sizeHint()
+            if size_hint.isValid():
+                return size_hint.height() + 10  # Add small margin
+        # Fallback: standard height for one line of text
+        return 25
 
     def byCalcType(self):
         if self.calcType == 'onIndicator':
