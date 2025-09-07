@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QCheckBox, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QCheckBox, QHBoxLayout, QVBoxLayout, QLabel
 from mainClasses.SGGameSpace import SGGameSpace
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -6,15 +6,21 @@ from sqlalchemy import true
 
 
 class SGUserSelector(SGGameSpace):
-    def __init__(self, parent, users):
+    def __init__(self, parent, users, orientation='horizontal'):
         super().__init__(parent, 0, 60, 0, 0, true)
         self.model = parent
         self.users = users
+        self.orientation = orientation  # 'horizontal' or 'vertical'
         self.id = 'userSelector'
         self.initUI()
 
     def initUI(self):
-        self.userLayout = QHBoxLayout()
+        # Create layout based on orientation
+        if self.orientation == 'vertical':
+            self.userLayout = QVBoxLayout()
+        else:  # horizontal (default)
+            self.userLayout = QHBoxLayout()
+        
         self.checkboxes = []
         title = QLabel("User Selector")
         font = QFont()
@@ -86,10 +92,14 @@ class SGUserSelector(SGGameSpace):
             if size_hint and size_hint.isValid():
                 return max(size_hint.width() + self.size_manager.right_margin, self.size_manager.min_width)
         
-        # Fallback: calculate based on number of users
+        # Fallback: calculate based on orientation and number of users
         if hasattr(self, 'users') and self.users:
-            # Estimate width based on number of users and checkbox width
-            estimated_width = len(self.users) * 80 + 150  # 80px per user + 150px for title
+            if self.orientation == 'vertical':
+                # For vertical layout, width is determined by the widest checkbox
+                estimated_width = 150  # Title width + margins
+            else:  # horizontal
+                # For horizontal layout, width is sum of all checkboxes
+                estimated_width = len(self.users) * 80 + 150  # 80px per user + 150px for title
             return max(estimated_width, self.size_manager.min_width)
         return self.size_manager.min_width
 
@@ -100,14 +110,18 @@ class SGUserSelector(SGGameSpace):
             self.userLayout.activate()
             size_hint = self.userLayout.sizeHint()
             if size_hint and size_hint.isValid():
-                # For horizontal layout, use layout height directly (no vertical gap needed)
                 return max(size_hint.height(), 25)  # Reduced minimum height
         
-        # Fallback: calculate based on checkbox height
+        # Fallback: calculate based on orientation and checkbox height
         if hasattr(self, 'checkboxes') and self.checkboxes:
-            # Use actual checkbox height if available
             checkbox_height = self.checkboxes[0].sizeHint().height() if self.checkboxes else 18
-            return max(checkbox_height, 25)  # Reduced minimum height
+            if self.orientation == 'vertical':
+                # For vertical layout, height is sum of all checkboxes + title
+                estimated_height = checkbox_height * (len(self.checkboxes) + 1) + self.size_manager.vertical_gap_between_labels * len(self.checkboxes)
+            else:  # horizontal
+                # For horizontal layout, height is single checkbox height
+                estimated_height = checkbox_height
+            return max(estimated_height, 25)  # Reduced minimum height
         # Fallback: standard checkbox height
         return 25  # Reduced from min_height
     

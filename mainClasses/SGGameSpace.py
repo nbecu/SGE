@@ -3,10 +3,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGAspect import *
 from mainClasses.SGGameSpaceSizeManager import SGGameSpaceSizeManager
+from mainClasses.SGEventHandlerGuide import *
 
 
             
-class SGGameSpace(QtWidgets.QWidget):
+class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroundColor=Qt.gray,forceDisplay=False):
         super().__init__(parent)
         self.model=parent
