@@ -184,7 +184,27 @@ moveAction = model.newMoveAction(agentDef, aNumber=10)
 activateAction = model.newActivateAction(model, aMethod="nextTurn", aNumber='infinite')
 ```
 
-### 5. Méthodes factory pour les phases de simulation
+### 5. Méthodes factory pour les variables de simulation
+```python
+# Créer une variable de simulation (pour scores, compteurs, etc.)
+simVar = model.newSimVariable(name="Score", initValue=0, color=Qt.black, isDisplay=True)
+
+# Utilisation typique avec dashboard
+score = model.newSimVariable("Player Score", 100)
+dashboard = model.newDashBoard("Scores")
+dashboard.addIndicatorOnSimVariable(score)
+
+# Utilisation avec progress gauge
+progress = model.newProgressGauge(simVar, minimum=0, maximum=100, title="Progress")
+
+# Méthodes disponibles sur les variables de simulation
+simVar.setValue(50)                    # Définir une valeur
+simVar.incValue(10)                    # Incrémenter de 10
+simVar.decValue(5)                     # Décrémenter de 5
+simVar.calcValue(lambda x: x * 1.2)   # Appliquer un calcul
+```
+
+### 6. Méthodes factory pour les phases de simulation
 ```python
 # Créer une phase de jeu (phase interactive avec joueurs)
 playPhase = model.newPlayPhase(
@@ -207,7 +227,7 @@ modelPhase.addAction(lambda: cell.setValue("type", "forest"))
 modelPhase.addAction(model.newModelAction_onCells(actions=[lambda cell: cell.doSomething()]))
 ```
 
-### 6. Méthodes factory pour les modelActions (actions spécifiques aux modelPhase)
+### 7. Méthodes factory pour les modelActions (actions spécifiques aux modelPhase)
 ```python
 # Créer une action générale
 modelAction = model.newModelAction(actions=[lambda: doSomething()])
