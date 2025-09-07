@@ -257,6 +257,9 @@ def getAdminPlayer(self):
     return self.players.get("Admin")
 ```
 
+### Utility Methods
+Utility methods are centralized in `SGExtensions.py` to avoid code duplication and provide common functionality across the codebase. When creating new utility functions, consider adding them to this module rather than duplicating code in multiple classes.
+
 ### Complex Instance Creation
 Use `new` prefix methods for creating complex instances with multiple parameters:
 

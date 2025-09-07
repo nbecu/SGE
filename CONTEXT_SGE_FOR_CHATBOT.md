@@ -172,6 +172,8 @@ class SGAgent(SGEntity):
 - Appeler `show()` après création/déplacement d'agents
 - Respecter structure organisation méthodes
 - Utiliser nomenclature cohérente (SGAgent, SGCell)
+- Distinguer moveTo() (placement initial) de moveAgent() (mouvement avec patterns)
+- Utiliser les méthodes utilitaires de SGExtensions.py pour éviter la duplication
 
 **INTERDIT** :
 - Créer `SGAgent(x,y)` directement
@@ -406,3 +408,53 @@ git push
 ```
 
 **Règle** : En PowerShell, séparer les commandes par des retours à la ligne, pas par `&&`.
+
+## 16. Méthodes de déplacement d'agents (CRITIQUE)
+
+### 16.1 Distinction moveTo() vs moveAgent()
+**RÈGLE** : Distinguer clairement les deux méthodes de déplacement.
+
+**moveTo(destinationCell)** :
+- **Usage** : Placement initial ET déplacement général
+- **Avantage** : Fonctionne même si l'agent n'est pas encore placé
+- **Exemple** : `agent.moveTo(targetCell)`
+
+**moveAgent(method, target, numberOfMovement, condition)** :
+- **Usage** : Mouvement avec patterns prédéfinis
+- **PRÉREQUIS** : Agent doit être déjà placé sur une cellule
+- **Exemple** : `agent.moveAgent(method="random")`
+
+### 16.2 Paramètre numberOfMovement
+**Fonctionnalité** : Répète le mouvement plusieurs fois en une action.
+```python
+agent.moveAgent(method="random", numberOfMovement=3)  # 3 mouvements
+```
+
+### 16.3 Paramètre condition
+**Fonctionnalité** : Mouvement conditionnel basé sur les propriétés de la cellule.
+```python
+agent.moveAgent(condition=lambda cell: cell.isNotValue("terrain", "metal"))
+```
+
+### 16.4 Erreurs courantes
+- **Oublier show()** après moveTo() → Agent invisible
+- **Utiliser moveAgent()** sur agent non placé → Erreur
+- **Confondre les deux méthodes** → Comportement inattendu
+
+## 17. Méthodes utilitaires SGExtensions.py
+
+### 17.1 Centralisation des utilitaires
+**RÈGLE** : Les méthodes utilitaires communes sont dans `SGExtensions.py`.
+
+**Méthodes disponibles** :
+- `execute_callable_with_entity(callable_func, entity=None)` : Gestion dynamique des arguments
+- `normalize_species_name(species)` : Normalisation des noms d'espèces
+
+### 17.2 Usage recommandé
+```python
+from mainClasses.SGExtensions import execute_callable_with_entity
+
+# Pour les lambdas avec 0 ou 1 argument
+execute_callable_with_entity(lambda: doSomething(), agent)
+execute_callable_with_entity(lambda a: doSomething(a), agent)
+```

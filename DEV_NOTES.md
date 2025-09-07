@@ -11,36 +11,54 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Date de dernière mise à jour : 26/12/2024
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : refactor/model-view-separation (architecture Model-View terminée)
-### Dernier chantier : Correction bugs hexagonal + améliorations API moveAgent + protection race conditions
+### Branche actuelle : main (architecture Model-View terminée et mergée)
+### Dernier chantier : Refactoring Model-View + corrections finales + documentation
 
 ---
 
 ## Travail en cours
 
-### 26/12/2024 - Correction bugs hexagonal + améliorations API (TERMINÉ)
+### 26/12/2024 - Refactoring Model-View + corrections finales + documentation (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
-- **Description** : Correction des bugs de mouvement hexagonal, standardisation des IDs, amélioration de l'API moveAgent, ajout de displayTooltip optionnel, et protection contre les race conditions
+- **Description** : Refactoring complet de l'architecture Model-View, corrections des méthodes dans SGEntityDef, résolution des bugs UI, et mise à jour de la documentation
 - **Fichiers concernés** : 
-  - `mainClasses/SGCell.py` (correction patterns voisinage hexagonal, standardisation IDs)
-  - `mainClasses/SGAgent.py` (API moveAgent unifiée avec target, auto-détection)
-  - `mainClasses/SGEntityDef.py` (displayTooltip optionnel, displayAttributeValueInContextualMenu)
-  - `mainClasses/SGCellView.py` (suppression tooltip forcé)
-  - `mainClasses/SGAgentView.py` (protection RuntimeError race conditions)
-  - `tests/test_neighborhood_hexagonal.py` (nouveau - tests voisinage hexagonal)
-  - `tests/test_neighborhood_square.py` (nouveau - tests voisinage carré)
-  - `tests/test_displayTooltip.py` (nouveau - tests tooltip)
-  - `examples/syntax_examples/ex_tooltip_simple.py` (nouveau - exemple tooltip)
-  - `examples/syntax_examples/ex_tooltip_control.py` (nouveau - contrôle tooltip)
-  - `README_modeler.md` (documentation API moveAgent)
-- **Problèmes rencontrés** : Incohérences IDs string/numeric, patterns voisinage hexagonal incorrects, race conditions Qt
+  - `mainClasses/SGEntity.py` (renommé de SGEntityModel.py, classe de base)
+  - `mainClasses/SGAgent.py` (hérite de SGEntity, délègue UI à SGAgentView)
+  - `mainClasses/SGCell.py` (renommé de SGCellModel.py, hérite de SGEntity)
+  - `mainClasses/SGAgentView.py` (gestion UI et interactions agents)
+  - `mainClasses/SGCellView.py` (rendu et événements cellules)
+  - `mainClasses/SGEntityView.py` (classe de base pour les vues)
+  - `mainClasses/SGEntityFactory.py` (renommé de SGEntityDefFactory.py, factory Model-View)
+  - `mainClasses/SGEntityDef.py` (corrections méthodes newAgentAtCoords, newCell, deleteEntity)
+  - `mainClasses/SGModel.py` (imports mis à jour, gestion phases)
+  - `mainClasses/SGTimeManager.py` (gestion control panels)
+  - `mainClasses/SGControlPanel.py` (activation visuelle avec update())
+  - `mainClasses/SGGameSpace.py` (drag & drop robuste)
+  - `mainClasses/gameAction/SGCreate.py` (création avec Model-View)
+  - `mainClasses/SGModelAction.py` (nettoyage debug prints)
+  - `examples/A_to_Z_examples/exStep3_1_1.py` (correction assignation agent)
+  - `examples/A_to_Z_examples/exStep8.py` (correction assignation agent)
+  - `examples/syntax_examples/ex_move.py` (correction assignation agent)
+  - `examples/games/CarbonPolis.py` (test validation final)
+  - `README_developer.md` (section architecture Model-View complète)
+  - `DEV_NOTES.md` (mise à jour état actuel)
+  - `CONTEXT_SGE_FOR_CHATBOT.md` (règles critiques Model-View)
+  - `tests/test_model_view_architecture.py` (imports mis à jour)
+  - `tests/test_model_view_separation.py` (imports mis à jour)
+  - `tests/test_entity_factory.py` (renommé de test_entity_def_factory.py)
+  - `tests/test_sgagent_model_view_adaptation.py` (imports mis à jour)
+- **Problèmes rencontrés** : Agents dupliqués, tooltips cassés, control panels invisibles, imports circulaires, méthodes retournant tuples au lieu de modèles, RuntimeError lors de suppression vues
 - **Solutions appliquées** : 
-  - Standardisation IDs numériques partout
-  - Correction patterns "Pointy-top hex grid with even-r offset"
-  - API moveAgent unifiée avec target (ID/coords/direction)
-  - Auto-détection méthode basée sur type target
-  - Protection try/except RuntimeError pour race conditions
-  - Tests complets hexagonal/carré ouvert/fermé
+  - Séparation claire Model/View avec délégation UI
+  - Gestion robuste du cycle de vie des vues (show, update, repaint)
+  - Factory pattern pour création cohérente des paires Model-View
+  - Nomenclature unifiée (SGCell au lieu de SGCellModel, SGEntity au lieu de SGEntityModel)
+  - Renommage SGEntityDefFactory → SGEntityFactory pour clarté
+  - Correction méthodes SGEntityDef pour retourner seulement les modèles
+  - Suppression méthodes dupliquées et obsolètes
+  - Protection RuntimeError avec try-except dans deleteEntity()
+  - Correction drag & drop avec vérifications robustes
+  - Activation visuelle control panels avec update()
 
 ### 25/08/2025 - Refactoring Admin-to-super-player (TERMINÉ)
 - **Statut** : ✅ Terminé et mergé sur main_candidate_release_august_2025
@@ -124,64 +142,63 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Prochaines étapes
 
-### Priorité haute - Tests et validation Model-View
+### Architecture Model-View - TERMINÉ ✅
+L'architecture Model-View est **complètement terminée** et validée :
 - [x] Architecture Model-View implémentée et testée
 - [x] Renommage SGCellModel → SGCell pour cohérence
 - [x] Suppression SGEntity et renommage SGEntityModel → SGEntity
+- [x] Renommage SGEntityDefFactory → SGEntityFactory
 - [x] Documentation README_developer.md mise à jour
-- [x] Tests avec exStep3_1_1.py, ex_move.py, exStep8.py validés
-- [x] Correction bugs hexagonal et standardisation IDs
-- [x] Tests voisinage hexagonal et carré complets
-- [x] Protection race conditions Qt
-- [ ] Tests avec modèles complexes (Solutre, CarbonPolis, etc.)
-- [ ] Validation performance déplacement agents
+- [x] Tests avec exStep3_1_1.py, exStep8.py, CarbonPolis.py validés
+- [x] Correction bugs UI (control panels, tooltips, drag & drop)
+- [x] Protection RuntimeError dans deleteEntity()
+- [x] API transparente pour modelers (pas de changement nécessaire)
+- [x] Nettoyage méthodes dupliquées et obsolètes
+- [x] Documentation CONTEXT_SGE_FOR_CHATBOT.md mise à jour
 
-### Priorité moyenne - Optimisations et nettoyage
-- [x] Suppression méthodes temporaires et debug prints
-- [x] Organisation méthodes selon convention (developer/modeler)
-- [x] Nettoyage imports et références obsolètes
-- [ ] Optimisation performance rendering
-- [ ] Amélioration gestion mémoire vues
-
-### Priorité basse - Documentation et exemples
-- [ ] Création exemples spécifiques Model-View
-- [ ] Documentation migration pour modelers existants
-- [ ] Guide bonnes pratiques architecture
-
-### Priorité moyenne - Tests et validation
-- [x] Créer des tests pytest pour les nouvelles fonctionnalités
-- [x] Configurer l'environnement de test (pytest.ini)
-- [ ] Améliorer la détection des tests dans Cursor/IDE
-- [ ] Ajouter des tests pour les autres fonctionnalités critiques
-
-### Priorité moyenne
-- [x] Documenter les nouvelles conventions découvertes
-- [x] Optimiser l'API ergonomique (délégations)
-- [ ] Créer des exemples pour les nouvelles fonctionnalités
-- [ ] Améliorer la documentation des tests
-
-### Priorité basse
-- [ ] Nettoyer le code obsolète identifié
-- [ ] Optimiser les performances
+### Prochaines étapes générales
+- [ ] Nouvelles fonctionnalités SGE (selon besoins futurs)
+- [ ] Optimisations performance (si nécessaire)
+- [ ] Améliorations UI/UX (selon retours utilisateurs)
+- [ ] Documentation modeler (si nouveaux besoins)
 
 ---
 
 ## Problèmes résolus
 
-### 26/12/2024 - Bugs hexagonal et race conditions (MAJOR)
-- **Description** : Correction des bugs de mouvement hexagonal, standardisation des IDs, amélioration API moveAgent, et protection contre les race conditions Qt
+### 26/12/2024 - Architecture Model-View complète (MAJOR)
+- **Description** : Refactoring complet de l'architecture Model-View avec toutes les corrections finales
 - **Solution** : 
-  1. Standardisation des IDs numériques partout (SGCell.getId(), SGEntityDef.cellIdFromCoords())
-  2. Correction des patterns de voisinage hexagonal "Pointy-top hex grid with even-r offset"
-  3. API moveAgent unifiée avec paramètre `target` (ID/coords/direction)
-  4. Auto-détection de la méthode basée sur le type de `target`
-  5. Ajout de `displayTooltip()` optionnel dans SGEntityDef
-  6. Protection `try/except RuntimeError` dans SGAgentView pour race conditions
-  7. Tests complets pour voisinage hexagonal et carré (ouvert/fermé)
-  8. Documentation mise à jour dans README_modeler.md
-- **Fichiers modifiés** : SGCell.py, SGAgent.py, SGEntityDef.py, SGCellView.py, SGAgentView.py, tests/, examples/
+  1. Implémentation complète de l'architecture Model-View pour SGAgent, SGCell, SGEntity
+  2. Renommage SGCellModel → SGCell et SGEntityModel → SGEntity pour cohérence
+  3. Renommage SGEntityDefFactory → SGEntityFactory pour clarté
+  4. Correction des méthodes SGEntityDef pour retourner seulement les modèles
+  5. Suppression des méthodes dupliquées et obsolètes
+  6. Protection RuntimeError avec try-except dans deleteEntity()
+  7. Correction des bugs UI (control panels, tooltips, drag & drop)
+  8. Gestion robuste du cycle de vie des vues Qt
+  9. Factory pattern pour création cohérente des paires Model-View
+  10. API transparente pour modelers (pas de changement nécessaire)
+  11. Documentation complète dans README_developer.md et CONTEXT_SGE_FOR_CHATBOT.md
+- **Fichiers modifiés** : 25+ fichiers principaux
 - **Chat utilisé** : Claude Sonnet 4 (Cursor)
-- **Impact** : Mouvements d'agents cohérents, API plus intuitive, protection contre les crashes
+- **Commits** : Multiple commits avec push sur main
+- **Impact** : Architecture Model-View complètement fonctionnelle, déplacement fluide des agents, API transparente
+
+### 26/12/2024 - Corrections finales Model-View (MAJOR)
+- **Description** : Corrections des méthodes SGEntityDef et résolution des bugs UI finaux
+- **Solution** : 
+  1. Correction newAgentAtCoords() pour retourner seulement le modèle (pas le tuple)
+  2. Correction newCell() pour retourner seulement le modèle (pas le tuple)
+  3. Correction newAgentOnCell() pour ajouter seulement le modèle à self.entities
+  4. Suppression des méthodes dupliquées dans SGEntityDef
+  5. Protection RuntimeError avec try-except dans deleteEntity() pour vues déjà supprimées
+  6. Correction drag & drop avec vérifications robustes dans SGGameSpace
+  7. Activation visuelle control panels avec update() dans SGControlPanel
+  8. Tests de validation avec CarbonPolis.py sans erreur
+- **Fichiers modifiés** : SGEntityDef.py, SGGameSpace.py, SGControlPanel.py, examples/
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : API cohérente pour modelers, bugs UI résolus, architecture Model-View stable
 
 ### 26/12/2024 - Architecture Model-View (MAJOR)
 - **Description** : Refactoring complet pour séparer Model et View dans SGAgent, SGCell, SGEntity
@@ -285,6 +302,26 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Décisions importantes
 
+### 26/12/2024 - Centralisation méthodes legacy UI
+- **Contexte** : Duplication des méthodes UI dans SGAgent et SGCell après architecture Model-View
+- **Décision prise** : Centraliser toutes les méthodes legacy UI dans SGEntity pour éviter la duplication
+- **Impact** : Code plus maintenable, héritage cohérent, suppression de la duplication
+
+### 26/12/2024 - Méthodes utilitaires SGExtensions
+- **Contexte** : Besoin de méthodes utilitaires communes pour éviter la duplication de code
+- **Décision prise** : Créer des méthodes utilitaires dans SGExtensions.py (execute_callable_with_entity, normalize_species_name)
+- **Impact** : Code plus réutilisable, gestion dynamique des arguments lambda, normalisation des noms d'espèces
+
+### 26/12/2024 - Documentation PowerShell vs Bash
+- **Contexte** : Problèmes récurrents avec la syntaxe PowerShell (&& non supporté)
+- **Décision prise** : Documenter explicitement les différences PowerShell vs Bash dans CONTEXT_SGE_FOR_CHATBOT.md
+- **Impact** : Évite les erreurs courantes pour les futurs chatbots
+
+### 26/12/2024 - Exemples pédagogiques de déplacement
+- **Contexte** : Besoin d'exemples clairs pour les différentes méthodes de déplacement
+- **Décision prise** : Créer ex_move_1.py (moveTo), ex_move_2.py (moveAgent), ex_move_3.py (numberOfMovement)
+- **Impact** : Documentation pratique pour les modelers, exemples complets et testés
+
 ### 26/12/2024 - API moveAgent unifiée et auto-détection
 - **Contexte** : Besoin d'unifier l'API moveAgent avec un paramètre `target` flexible
 - **Décision prise** : 
@@ -352,6 +389,26 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Conventions découvertes et documentées
 
+### 26/12/2024 - Centralisation méthodes legacy UI
+- **Convention** : Centraliser toutes les méthodes legacy UI dans SGEntity pour éviter la duplication
+- **Exemples** : show(), hide(), update(), move(), setGeometry(), resize(), etc. dans SGEntity
+- **Avantage** : Code plus maintenable, héritage cohérent, suppression de la duplication
+
+### 26/12/2024 - Méthodes utilitaires SGExtensions
+- **Convention** : Utiliser SGExtensions.py pour les méthodes utilitaires communes
+- **Exemples** : execute_callable_with_entity(), normalize_species_name()
+- **Avantage** : Code réutilisable, gestion dynamique des arguments, normalisation des noms
+
+### 26/12/2024 - Documentation PowerShell vs Bash
+- **Convention** : Documenter explicitement les différences PowerShell vs Bash pour les chatbots
+- **Exemples** : PowerShell ne supporte pas &&, utiliser des commandes séparées
+- **Avantage** : Évite les erreurs courantes pour les futurs chatbots
+
+### 26/12/2024 - Exemples pédagogiques
+- **Convention** : Créer des exemples complets et testés pour chaque fonctionnalité
+- **Exemples** : ex_move_1.py (moveTo), ex_move_2.py (moveAgent), ex_move_3.py (numberOfMovement)
+- **Avantage** : Documentation pratique pour les modelers, exemples fiables
+
 ### 26/12/2024 - Standardisation IDs numériques
 - **Convention** : Utiliser des IDs numériques partout pour cohérence
 - **Exemples** : `SGCell.getId()` retourne `x + (grid.columns * (y - 1))`
@@ -410,18 +467,18 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Chats importants
 
-### 26/12/2024 - Correction bugs hexagonal + améliorations API (MAJOR)
+### 26/12/2024 - Refactoring Model-View + améliorations méthodes de déplacement (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
-- **Sujet principal** : Correction des bugs de mouvement hexagonal, standardisation des IDs, amélioration de l'API moveAgent, et protection contre les race conditions
+- **Sujet principal** : Refactoring complet de l'architecture Model-View, amélioration des méthodes de déplacement, création d'exemples, et mise à jour de la documentation
 - **Résultats** : 
-  - Bugs hexagonal corrigés (patterns voisinage "Pointy-top hex grid with even-r offset")
-  - IDs standardisés partout (numériques)
-  - API moveAgent unifiée avec `target` et auto-détection
-  - `displayTooltip()` optionnel ajouté
-  - Protection race conditions Qt
-  - Tests complets hexagonal/carré créés
-  - Documentation README_modeler.md mise à jour
-- **Fichiers modifiés** : SGCell.py, SGAgent.py, SGEntityDef.py, SGCellView.py, SGAgentView.py, tests/, examples/
+  - Architecture Model-View refactorisée avec centralisation des méthodes legacy UI
+  - Méthodes de déplacement améliorées (moveTo vs moveAgent, numberOfMovement)
+  - Correction des patterns hexagonal selon référence Even-r offset
+  - Création d'exemples complets : ex_move_1.py, ex_move_2.py, ex_move_3.py
+  - Ajout de méthodes utilitaires dans SGExtensions.py
+  - Documentation PowerShell vs Bash dans CONTEXT_SGE_FOR_CHATBOT.md
+  - Mise à jour complète de la documentation (README_developer.md, README_modeler.md)
+- **Fichiers modifiés** : SGEntity.py, SGAgent.py, SGCell.py, SGExtensions.py, SGModelAction.py, SGActivate.py, SGEntityDef.py, examples/, tests/, documentation/
 - **Durée** : Session complète de développement
 - **Commits** : Multiple commits avec push sur refactor/model-view-separation
 
