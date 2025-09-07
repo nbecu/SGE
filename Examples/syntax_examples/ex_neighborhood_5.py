@@ -14,8 +14,9 @@ Cell.setRandomEntities("landForm", "lac", 6)
 Cell.setEntities_withColumn("landForm", "mountain", 1)
 Cell.newPov("base", "landForm", {"plain": Qt.green, "lac": Qt.blue, "mountain": Qt.darkGray})
 
-Fish = myModel.newAgentSpecies("Fish", "rectangleAgent1", defaultSize=20, locationInEntity="center")
+Fish = myModel.newAgentSpecies("Fish", "rectAgent1", defaultSize=20, locationInEntity="center")
 Fish.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "lac"))
+
 
 p1 = myModel.newModelPhase()
 # Fish can wrap-around but only move on water

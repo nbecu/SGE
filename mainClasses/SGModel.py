@@ -648,6 +648,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             a species
 
         """
+        if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"]:
+            raise ValueError(f"Invalid shape: {shape}")
         aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies

@@ -252,9 +252,98 @@ def createAgent(self, x, y):
     return agent
 ```
 
-## 13. Lancement des applications SGE (CRITIQUE pour chatbots)
+## 14. API récentes et améliorations (DÉCEMBRE 2024)
 
-### 13.1 Problèmes courants avec PowerShell
+### 14.1 API moveAgent unifiée
+**Nouvelle signature** : `moveAgent(method='random', target=None, numberOfMovement=1, condition=None)`
+
+**Types de target supportés** :
+- `int` : ID numérique de la cellule (ex: `target=5`)
+- `tuple` : Coordonnées (ex: `target=(2, 3)`)
+- `str` : Direction (ex: `target="up"`, `target="down"`, `target="left"`, `target="right"`)
+
+**Auto-détection** : Si `method='random'` et `target` fourni, la méthode est automatiquement détectée :
+- `target=int` → `method='cell'`
+- `target=tuple` → `method='cell'` 
+- `target=str` → `method='direction'`
+
+**Exemples** :
+```python
+# Movement by ID
+agent.moveAgent(target=5)
+
+# Movement by coordinates  
+agent.moveAgent(target=(2, 3))
+
+# Movement by direction
+agent.moveAgent(target="up")
+
+# Auto-detection
+agent.moveAgent(method='random', target=5)  # Automatically becomes method='cell'
+```
+
+### 14.2 Système d'IDs standardisé
+**RÈGLE** : Tous les IDs sont maintenant numériques pour cohérence.
+
+**Méthodes concernées** :
+- `SGCell.getId()` : Retourne `x + (grid.columns * (y - 1))`
+- `SGEntityDef.cellIdFromCoords(x, y)` : Retourne le même ID numérique
+
+**Avantage** : Élimination des incohérences entre string et numeric IDs.
+
+### 14.3 Tooltips optionnels
+**Nouvelle méthode** : `displayTooltip(type=None)` dans `SGEntityDef`
+
+**Types supportés** :
+- `None` ou `'none'` : Aucun tooltip (par défaut)
+- `'coords'` : Affiche `(x, y)`
+- `'id'` : Affiche `ID: {id}`
+- `'custom'` : Pour extensions futures
+
+**Exemple** :
+```python
+# No tooltip (default)
+cellDef.displayTooltip()
+
+# Show coordinates
+cellDef.displayTooltip('coords')
+
+# Show ID
+cellDef.displayTooltip('id')
+```
+
+### 14.4 Protection race conditions Qt
+**Problème** : `RuntimeError: wrapped C/C++ object deleted` lors de clics rapides sur nextTurn.
+
+**Solution** : Protection `try/except RuntimeError` dans les opérations sur vues Qt.
+
+**Pattern recommandé** :
+```python
+try:
+    self.move(self.xCoord, self.yCoord)
+except RuntimeError:
+    # Agent view has been deleted, ignore the error
+    pass
+```
+
+### 14.5 Tests de voisinage
+**Tests disponibles** :
+- `test_neighborhood_hexagonal.py` : Tests voisinage hexagonal (ouvert/fermé)
+- `test_neighborhood_square.py` : Tests voisinage carré (Moore/Neumann, ouvert/fermé)
+
+**Validation** : Patterns de voisinage corrects pour géométries complexes.
+
+### 14.6 Patterns géométriques hexagonaux
+**Type** : "Pointy-top hex grid with even-r offset"
+
+**Caractéristiques** :
+- Voisinage : 6 voisins pour `boundaries='open'` (toroidal)
+- Patterns : Correction des `valid_neighbors` pour géométrie correcte
+- Tests : Validation complète des patterns de voisinage
+
+## 15. Lancement des applications SGE (CRITIQUE pour chatbots)
+
+### 15.1 Problèmes courants avec PowerShell
 **ATTENTION** : PowerShell Windows ne supporte pas la syntaxe `&&` comme bash.
 
 ❌ **INCORRECT** :
@@ -269,7 +358,7 @@ cd examples/A_to_Z_examples
 python exStep1.py
 ```
 
-### 13.2 Commandes de lancement recommandées
+### 15.2 Commandes de lancement recommandées
 ```powershell
 # 1. Naviguer vers le répertoire des exemples
 cd examples/A_to_Z_examples
@@ -280,24 +369,24 @@ python exStep3_2.py
 python exStep8.py
 ```
 
-### 13.3 Gestion des applications Qt
+### 15.3 Gestion des applications Qt
 - **Applications SGE** : Applications Qt avec interface graphique
 - **Lancement** : Toujours en mode **foreground** (pas background)
 - **Fermeture** : L'utilisateur ferme manuellement la fenêtre
 - **Environnement** : S'assurer que l'environnement virtuel est activé
 
-### 13.4 Structure des exemples
+### 15.4 Structure des exemples
 - **exStep1.py** : Exemple minimal (fenêtre vide)
 - **exStep3_2.py** : Grille + agents avec attributs + POV
 - **exStep8.py** : Exemple le plus avancé
 - **CarbonPolis.py** : Jeu complet dans `examples/games/`
 
-### 13.5 Messages d'erreur courants
+### 15.5 Messages d'erreur courants
 - **"No such file or directory"** : Vérifier le répertoire de travail
 - **"Le jeton « && » n'est pas un séparateur"** : Utiliser syntaxe PowerShell
 - **Application ne s'ouvre pas** : Lancer en foreground, pas background
 
-### 13.6 Syntaxe PowerShell vs Bash (CRITIQUE)
+### 15.6 Syntaxe PowerShell vs Bash (CRITIQUE)
 **ATTENTION** : PowerShell Windows utilise une syntaxe différente de bash/Linux.
 
 ❌ **INCORRECT - Syntaxe Bash** :

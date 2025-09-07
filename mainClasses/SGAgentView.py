@@ -77,7 +77,11 @@ class SGAgentView(SGEntityView):
         
         
         # Update the view position
-        self.move(self.xCoord, self.yCoord)
+        try:
+            self.move(self.xCoord, self.yCoord)
+        except RuntimeError:
+            # Agent view has been deleted, ignore the error
+            pass
     
     def updatePositionFromCell(self):
         """Update agent position when cell moves"""

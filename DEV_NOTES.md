@@ -12,10 +12,35 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
 ### Branche actuelle : refactor/model-view-separation (architecture Model-View terminée)
+### Dernier chantier : Correction bugs hexagonal + améliorations API moveAgent + protection race conditions
 
 ---
 
 ## Travail en cours
+
+### 26/12/2024 - Correction bugs hexagonal + améliorations API (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Correction des bugs de mouvement hexagonal, standardisation des IDs, amélioration de l'API moveAgent, ajout de displayTooltip optionnel, et protection contre les race conditions
+- **Fichiers concernés** : 
+  - `mainClasses/SGCell.py` (correction patterns voisinage hexagonal, standardisation IDs)
+  - `mainClasses/SGAgent.py` (API moveAgent unifiée avec target, auto-détection)
+  - `mainClasses/SGEntityDef.py` (displayTooltip optionnel, displayAttributeValueInContextualMenu)
+  - `mainClasses/SGCellView.py` (suppression tooltip forcé)
+  - `mainClasses/SGAgentView.py` (protection RuntimeError race conditions)
+  - `tests/test_neighborhood_hexagonal.py` (nouveau - tests voisinage hexagonal)
+  - `tests/test_neighborhood_square.py` (nouveau - tests voisinage carré)
+  - `tests/test_displayTooltip.py` (nouveau - tests tooltip)
+  - `examples/syntax_examples/ex_tooltip_simple.py` (nouveau - exemple tooltip)
+  - `examples/syntax_examples/ex_tooltip_control.py` (nouveau - contrôle tooltip)
+  - `README_modeler.md` (documentation API moveAgent)
+- **Problèmes rencontrés** : Incohérences IDs string/numeric, patterns voisinage hexagonal incorrects, race conditions Qt
+- **Solutions appliquées** : 
+  - Standardisation IDs numériques partout
+  - Correction patterns "Pointy-top hex grid with even-r offset"
+  - API moveAgent unifiée avec target (ID/coords/direction)
+  - Auto-détection méthode basée sur type target
+  - Protection try/except RuntimeError pour race conditions
+  - Tests complets hexagonal/carré ouvert/fermé
 
 ### 25/08/2025 - Refactoring Admin-to-super-player (TERMINÉ)
 - **Statut** : ✅ Terminé et mergé sur main_candidate_release_august_2025
@@ -105,6 +130,9 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 - [x] Suppression SGEntity et renommage SGEntityModel → SGEntity
 - [x] Documentation README_developer.md mise à jour
 - [x] Tests avec exStep3_1_1.py, ex_move.py, exStep8.py validés
+- [x] Correction bugs hexagonal et standardisation IDs
+- [x] Tests voisinage hexagonal et carré complets
+- [x] Protection race conditions Qt
 - [ ] Tests avec modèles complexes (Solutre, CarbonPolis, etc.)
 - [ ] Validation performance déplacement agents
 
@@ -139,6 +167,21 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ---
 
 ## Problèmes résolus
+
+### 26/12/2024 - Bugs hexagonal et race conditions (MAJOR)
+- **Description** : Correction des bugs de mouvement hexagonal, standardisation des IDs, amélioration API moveAgent, et protection contre les race conditions Qt
+- **Solution** : 
+  1. Standardisation des IDs numériques partout (SGCell.getId(), SGEntityDef.cellIdFromCoords())
+  2. Correction des patterns de voisinage hexagonal "Pointy-top hex grid with even-r offset"
+  3. API moveAgent unifiée avec paramètre `target` (ID/coords/direction)
+  4. Auto-détection de la méthode basée sur le type de `target`
+  5. Ajout de `displayTooltip()` optionnel dans SGEntityDef
+  6. Protection `try/except RuntimeError` dans SGAgentView pour race conditions
+  7. Tests complets pour voisinage hexagonal et carré (ouvert/fermé)
+  8. Documentation mise à jour dans README_modeler.md
+- **Fichiers modifiés** : SGCell.py, SGAgent.py, SGEntityDef.py, SGCellView.py, SGAgentView.py, tests/, examples/
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : Mouvements d'agents cohérents, API plus intuitive, protection contre les crashes
 
 ### 26/12/2024 - Architecture Model-View (MAJOR)
 - **Description** : Refactoring complet pour séparer Model et View dans SGAgent, SGCell, SGEntity
@@ -242,6 +285,20 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Décisions importantes
 
+### 26/12/2024 - API moveAgent unifiée et auto-détection
+- **Contexte** : Besoin d'unifier l'API moveAgent avec un paramètre `target` flexible
+- **Décision prise** : 
+  1. Remplacer `cellID` par `target` (plus générique)
+  2. `target` accepte int (ID), tuple (coords), str (direction)
+  3. Auto-détection de la méthode basée sur le type de `target`
+  4. `method='cardinal'` → `method='direction'` (plus clair)
+- **Impact** : API plus intuitive et flexible pour les modelers
+
+### 26/12/2024 - Protection race conditions Qt
+- **Contexte** : Race conditions lors de clics rapides sur nextTurn causant RuntimeError
+- **Décision prise** : Ajouter `try/except RuntimeError` dans SGAgentView.getPositionInEntity()
+- **Impact** : Protection contre les crashes lors d'opérations concurrentes
+
 ### 26/12/2024 - Architecture Model-View
 - **Contexte** : Besoin de déplacer les agents sans perdre leur état et améliorer l'organisation du code
 - **Décision prise** : Implémentation complète de l'architecture Model-View pour SGAgent, SGCell, SGEntity
@@ -295,6 +352,21 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Conventions découvertes et documentées
 
+### 26/12/2024 - Standardisation IDs numériques
+- **Convention** : Utiliser des IDs numériques partout pour cohérence
+- **Exemples** : `SGCell.getId()` retourne `x + (grid.columns * (y - 1))`
+- **Avantage** : Cohérence entre `getId()` et `cellIdFromCoords()`, élimination des incohérences
+
+### 26/12/2024 - API moveAgent unifiée
+- **Convention** : Utiliser `target` pour tous les types de mouvement (ID/coords/direction)
+- **Exemples** : `moveAgent(target=5)`, `moveAgent(target=(2,3))`, `moveAgent(target="up")`
+- **Avantage** : API plus intuitive et flexible
+
+### 26/12/2024 - Protection race conditions Qt
+- **Convention** : Utiliser `try/except RuntimeError` pour les opérations sur vues Qt supprimées
+- **Exemples** : `try: self.move(x,y) except RuntimeError: pass`
+- **Avantage** : Protection contre les crashes lors d'opérations concurrentes
+
 ### 26/12/2024 - Architecture Model-View
 - **Convention** : Séparation claire entre Model (logique) et View (UI) pour les entités principales
 - **Exemples** : SGAgent/SGAgentView, SGCell/SGCellView
@@ -337,6 +409,21 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ---
 
 ## Chats importants
+
+### 26/12/2024 - Correction bugs hexagonal + améliorations API (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Correction des bugs de mouvement hexagonal, standardisation des IDs, amélioration de l'API moveAgent, et protection contre les race conditions
+- **Résultats** : 
+  - Bugs hexagonal corrigés (patterns voisinage "Pointy-top hex grid with even-r offset")
+  - IDs standardisés partout (numériques)
+  - API moveAgent unifiée avec `target` et auto-détection
+  - `displayTooltip()` optionnel ajouté
+  - Protection race conditions Qt
+  - Tests complets hexagonal/carré créés
+  - Documentation README_modeler.md mise à jour
+- **Fichiers modifiés** : SGCell.py, SGAgent.py, SGEntityDef.py, SGCellView.py, SGAgentView.py, tests/, examples/
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur refactor/model-view-separation
 
 ### 26/12/2024 - Architecture Model-View (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
@@ -392,6 +479,10 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ## Notes techniques
 
 ### Modifications importantes
+- 26/12/2024 : Correction bugs hexagonal + améliorations API (SGCell.py, SGAgent.py, SGEntityDef.py, tests/)
+- 26/12/2024 : Protection race conditions Qt (SGAgentView.py)
+- 26/12/2024 : Tests voisinage hexagonal et carré complets (tests/)
+- 26/12/2024 : Documentation README_modeler.md mise à jour
 - 26/12/2024 : Architecture Model-View complètement implémentée (15+ fichiers)
 - 26/12/2024 : Renommage SGCellModel → SGCell pour cohérence nomenclature
 - 26/12/2024 : Documentation README_developer.md mise à jour avec section Model-View
@@ -406,6 +497,12 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 - 25/08/2025 : Configuration pytest.ini
 
 ### Découvertes architecturales
+- 26/12/2024 : Les patterns de voisinage hexagonal "Pointy-top hex grid with even-r offset" nécessitent des corrections spécifiques
+- 26/12/2024 : La standardisation des IDs numériques élimine les incohérences entre méthodes
+- 26/12/2024 : L'API moveAgent unifiée avec `target` améliore significativement l'ergonomie
+- 26/12/2024 : L'auto-détection de méthode basée sur le type de `target` simplifie l'API
+- 26/12/2024 : La protection `try/except RuntimeError` est essentielle pour les opérations Qt concurrentes
+- 26/12/2024 : Les tests de voisinage hexagonal/carré révèlent des patterns géométriques complexes
 - 26/12/2024 : L'architecture Model-View permet un déplacement fluide des agents sans perte d'état
 - 26/12/2024 : La nomenclature cohérente (SGAgent, SGCell) améliore l'intuitivité de l'API
 - 26/12/2024 : Le factory pattern est essentiel pour la création cohérente des paires Model-View
