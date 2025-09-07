@@ -16,8 +16,8 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"short grass":Qt.yellow,"forest":
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",defaultSize=30)
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'low':Qt.green,'high':Qt.yellow})
-Sheeps.setAttributeValueToDisplayInContextualMenu('health')
-Sheeps.setAttributeValueToDisplayInContextualMenu('hunger')
+Sheeps.displayAttributeValueInContextualMenu('health')
+Sheeps.displayAttributeValueInContextualMenu('hunger')
 
 Sheeps.setDefaultValues({"health":"bad","hunger":"low"})
 m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"high"})

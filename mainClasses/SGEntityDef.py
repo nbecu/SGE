@@ -44,6 +44,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.attributesToDisplayInContextualMenu = []
         self.attributesToDisplayInUpdateMenu = []
 
+    
     def nextId(self):
         """
         Generate and return the next available ID for entities.
@@ -794,7 +795,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
 
 
 
-    def setAttributeValueToDisplayInContextualMenu(self, aAttribut, aLabel=None):
+    def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):
         """
         Set an attribute to be displayed in the contextual menu.
         
@@ -811,6 +812,45 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         aDict['att']=aAttribut
         aDict['label']= (aLabel if aLabel is not None else aAttribut)
         self.attributesToDisplayInContextualMenu.append(aDict)
+
+
+    def displayTooltip(self, type=None):    
+        """
+        Method to control the display of entity tooltips
+        
+        Args:
+            type (str): Type of tooltip to display
+                - None: Default - no tooltip displayed
+                - 'coords': Display coordinates (x, y)
+                - 'id': Display entity ID
+                - 'none': Explicitly disable tooltip
+                - 'custom': Use custom tooltip (to be implemented)
+        """
+        if type is None or type == 'none':
+            # Default or explicitly, no tooltip
+            for entity in self.entities:
+                if hasattr(entity, 'view') and entity.view:
+                    entity.view.setToolTip('')
+        elif type == 'coords':
+            for entity in self.entities:
+                if hasattr(entity, 'view') and entity.view:
+                    entity.view.setToolTip(f'{entity.getCoords()}')
+        elif type == 'id':
+            for entity in self.entities:
+                if hasattr(entity, 'view') and entity.view:
+                    entity.view.setToolTip(f'ID: {entity.getId()}')
+        elif type == 'custom':
+            # For now, keep coordinates as default
+            # This option can be extended for custom tooltips
+            for entity in self.entities:
+                if hasattr(entity, 'view') and entity.view:
+                    entity.view.setToolTip(f'({entity.xCoord}, {entity.yCoord})')
+        else:
+            # For any other unrecognized type, no tooltip
+            for entity in self.entities:
+                if hasattr(entity, 'view') and entity.view:
+                    entity.view.setToolTip('')
+
 
     def newModelAction(self, actions=None, conditions=None, feedbacks=None):
         """
