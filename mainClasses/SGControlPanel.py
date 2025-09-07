@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGLegendItem import SGLegendItem
+from mainClasses.SGAspect import SGAspect
 
 #Class who is responsible of the creation of a ControlPanel
 #A ControlPanel is an interface that permits to operate the game actions of a player
@@ -19,7 +20,11 @@ class SGControlPanel(SGGameSpace):
         aControlPanel.legendItems=[]
         aControlPanel.isActive=False
         aControlPanel.selected = None # To handle the selection of an item in the legend
-        aControlPanel.borderColor=borderColor
+        # Configure border using gs_aspect instead of self.borderColor
+        aControlPanel.gs_aspect.border_color = borderColor
+        aControlPanel.gs_aspect.border_size = 1
+        # Initialize theme aspects for different states
+        aControlPanel.inactive_aspect = SGAspect.inactive()
         aControlPanel.haveADeleteButton=False
         gameActions = aPlayer.gameActions
         aControlPanel.initUI_withGameActions(gameActions)
@@ -117,8 +122,9 @@ class SGControlPanel(SGGameSpace):
             if self.isActive:
                 painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
             else:
-                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor,1))
+                # Use inactive theme instead of hardcoded color
+                painter.setBrush(QBrush(self.inactive_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
             #Draw the corner of the Legend
             # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
             # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
@@ -165,9 +171,43 @@ class SGControlPanel(SGGameSpace):
         # ControlPanels should not change when symbology changes
         # They should maintain their gameAction display
         pass
-   
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the control panel.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the control panel.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        
+    def setInactiveThemeColor(self, color):
+        """
+        Set the inactive theme background color.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The inactive background color
+        """
+        self.inactive_aspect.background_color = color
 
 
-
+    
     
     

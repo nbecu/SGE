@@ -6,6 +6,7 @@ from sqlalchemy import true
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGEndGameCondition import SGEndGameCondition
+from mainClasses.SGAspect import SGAspect
 
 
 class SGEndGameRule(SGGameSpace):
@@ -16,9 +17,14 @@ class SGEndGameRule(SGGameSpace):
         self.id = title
         self.displayRefresh = displayRefresh
         self.isDisplay = True
-        self.borderColor = borderColor
-        self.backgroundColor = backgroundColor
-        self.textColor = textColor
+        # Configure styles using gs_aspect instead of individual attributes
+        self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = 1
+        self.gs_aspect.background_color = backgroundColor
+        # Configure text colors using the aspect system
+        self.setTitlesAndTextsColor(textColor)
+        # Initialize theme aspects for different states
+        self.success_aspect = SGAspect.success()
         self.endGameConditions = []
         self.numberRequired = numberRequired
         self.isDisplay = isDisplay
@@ -128,8 +134,8 @@ class SGEndGameRule(SGGameSpace):
         if self.checkDisplay():
             painter = QPainter()
             painter.begin(self)
-            painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor, 1))
+            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
             # Draw the corner of the DB
             self.setMinimumSize(self.getSizeXGlobal()+10,
                                 self.getSizeYGlobal()+10)
@@ -150,3 +156,56 @@ class SGEndGameRule(SGGameSpace):
 
     def getSizeYGlobal(self):
         return 150
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the end game rule.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the end game rule.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        
+    def setBackgroundColor(self, color):
+        """
+        Set the background color of the end game rule.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The background color
+        """
+        self.gs_aspect.background_color = color
+        
+    def setTextColor(self, color):
+        """
+        Set the text color of the end game rule.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The text color
+        """
+        self.setTitlesAndTextsColor(color)
+        
+    def setSuccessThemeColor(self, color):
+        """
+        Set the success theme color for completed conditions.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The success color
+        """
+        self.success_aspect.color = color

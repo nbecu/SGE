@@ -31,8 +31,8 @@ class SGEndGameCondition(QtWidgets.QWidget):
             self.label = QtWidgets.QTextEdit(self.name)
             self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             self.label.setReadOnly(True)
-            color = QColor(self.endGameRule.textColor)
-            color_string = f"color: {color.name()};"
+            color = self.endGameRule.title1_aspect.color
+            color_string = f"color: {color};"
             self.label.setStyleSheet(
                 color_string+"border: none;background-color: lightgray;")
             self.conditionLayout.addWidget(self.label)
@@ -40,8 +40,9 @@ class SGEndGameCondition(QtWidgets.QWidget):
     def updateText(self):
         self.verifStatus()
         if self.checkStatus:
-            color = QColor(Qt.darkGreen)
-            color_string = f"color: {color.name()};"
+            # Use success theme instead of hardcoded color
+            color = self.endGameRule.success_aspect.color
+            color_string = f"color: {color};"
             self.label.setStyleSheet(
                 color_string+"border: none;background-color: lightgray;")
 

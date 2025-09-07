@@ -13,7 +13,9 @@ class SGTextBox(SGGameSpace):
         self.title = title
         self.id = title
         self.model = parent
-        self.borderColor = borderColor
+        # Configure border using gs_aspect instead of self.borderColor
+        self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = 1
         self.sizeX = sizeX
         self.sizeY = sizeY
         self.y1 = 0
@@ -67,7 +69,7 @@ class SGTextBox(SGGameSpace):
         painter = QPainter()
         painter.begin(self)
         painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-        painter.setPen(QPen(self.borderColor, 1))
+        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
         # Draw the corner of the Legend
         if self.sizeX == None or self.sizeY == None:
             self.setMinimumSize(self.getSizeXGlobal()+3,
@@ -173,3 +175,29 @@ class SGTextBox(SGGameSpace):
 
     def deleteText(self):
         del self.textEdit
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the text box.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the text box.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size

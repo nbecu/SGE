@@ -81,7 +81,7 @@ i1 = DashBoard.addIndicatorOnSimVariable(score1)
 
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: Cell.nb_withValue("landUse","forest")> 10) 
-aModelAction4.addFeedback(lambda: score1.incValue(3))
+aModelAction4.addFeedback(lambda: score1.incValue(25))
 phase6 = myModel.newModelPhase(aModelAction4)
 phase6.addAction(myModel.newModelAction(lambda: Player1.setValue("Percentage of grass",Cell.nb_withValue("landUse","grass")/Cell.nbOfEntities())))
 phase6.addAction(myModel.newModelAction(lambda: Player2.setValue("Sheeps in good health",Sheeps.nb_withValue("health","good"))))
@@ -95,7 +95,7 @@ DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value
 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
-    i1, "equal", 90, name="Score equal to 90")
+    i1, "greater", 90, name="Score greater than 90")
 endGameRule.showEndGameConditions()
 endGameRule.moveToCoords(600,450)
 
