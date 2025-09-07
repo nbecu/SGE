@@ -83,6 +83,11 @@ class SGAgent(SGEntity):
         if self.view:
             self.view.update()
 
+
+    def getPrivateId(self):
+        """Get private ID"""
+        return self.privateID
+
     # Position calculation methods
     def getRandomX(self):        
         maxSize = self.cell.size
@@ -188,9 +193,10 @@ class SGAgent(SGEntity):
         """Get agent ID"""
         return self.id
     
-    def getPrivateId(self): #todo this is not a modeler method
-        """Get private ID"""
-        return self.privateID
+    def getCoords(self):
+        """Get agent coordinates"""
+        return (self.cell.xCoord, self.cell.yCoord)
+    
     
     def getCell(self):
         """Get the current cell of the agent"""
@@ -426,6 +432,7 @@ class SGAgent(SGEntity):
 
         if method == "random":
             neighbors = self.cell.getNeighborCells(condition=condition)
+            print(f"DEBUG: agent coords:{self.getCoords()} - neighbor cells coords: {[cell.getCoords() for cell in neighbors]} ")
             newCell = random.choice(neighbors) if neighbors else None
 
         if method == "cell" or cellID is not None:
