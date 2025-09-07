@@ -592,7 +592,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         """
         if isinstance(y, int):
             if x < 1 or y < 1 : return None
-            aId= self.grid.cellIdFromCoords(x,y)
+            aId= self.cellIdFromCoords(x,y)
         else:
             aId=x
         return next(filter(lambda ent: ent.id==aId, self.entities),None)
@@ -952,7 +952,7 @@ class SGCellDef(SGEntityDef):
     def cellIdFromCoords(self, x, y):
         if x < 1 or y < 1:
             return None
-        return (x - 1) + self.grid.columns * (y - 1)
+        return x + (self.grid.columns * (y - 1))
 
     
     # ============================================================================
