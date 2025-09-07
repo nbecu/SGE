@@ -11,12 +11,36 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Date de dernière mise à jour : 26/12/2024
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : main (architecture Model-View terminée et mergée)
-### Dernier chantier : Refactoring Model-View + corrections finales + documentation
+### Branche actuelle : refactor/model-view-separation (gestion de taille des gameSpaces terminée)
+### Dernier chantier : Gestion de taille des gameSpaces + SGGameSpaceSizeManager + corrections sizing
 
 ---
 
 ## Travail en cours
+
+### 26/12/2024 - Gestion de taille des gameSpaces + SGGameSpaceSizeManager (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Implémentation d'un système de gestion de taille adaptative pour les gameSpaces, création de SGGameSpaceSizeManager, et corrections des problèmes de sizing dans SGTextBox, SGEndGameRule, SGEndGameCondition, et SGUserSelector
+- **Fichiers concernés** : 
+  - `mainClasses/SGGameSpaceSizeManager.py` (nouveau - classe utilitaire pour gestion de taille)
+  - `mainClasses/SGGameSpace.py` (intégration SGGameSpaceSizeManager, méthodes utilitaires)
+  - `mainClasses/SGTextBox.py` (sizing dynamique, correction débordement widgets internes)
+  - `mainClasses/SGEndGameRule.py` (sizing dynamique basé sur layout)
+  - `mainClasses/SGEndGameCondition.py` (remplacement QTextEdit par QLabel, sizing adaptatif)
+  - `mainClasses/SGUserSelector.py` (sizing dynamique, réduction hauteur excessive)
+  - `mainClasses/SGModel.py` (amélioration factory method newTextBox)
+  - `FUTURE_PLAN.md` (mise à jour chantiers terminés)
+- **Problèmes rencontrés** : Hauteur excessive SGUserSelector, débordement widgets internes SGTextBox, taille disproportionnée SGEndGameCondition, sizing fixe non adaptatif
+- **Solutions appliquées** : 
+  - Création de SGGameSpaceSizeManager pour centraliser la logique de sizing
+  - Intégration dans SGGameSpace avec méthodes utilitaires (adjustSizeToContent, calculateContentWidth/Height)
+  - Refactoring SGTextBox pour sizing dynamique basé sur layout.sizeHint()
+  - Refactoring SGEndGameRule pour sizing adaptatif des conditions
+  - Remplacement QTextEdit par QLabel dans SGEndGameCondition avec word wrapping dynamique
+  - Réduction hauteur SGUserSelector (50px → 25px + padding réduit)
+  - Amélioration factory method newTextBox avec paramètres complets
+  - Respect des tailles manuelles (sizeX/sizeY) avec priorité sur sizing automatique
+- **Résultat** : Système de sizing adaptatif et cohérent pour tous les gameSpaces, élimination des tailles disproportionnées et débordements
 
 ### 26/12/2024 - Refactoring Model-View + corrections finales + documentation (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
@@ -142,6 +166,21 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Prochaines étapes
 
+### Gestion de taille des gameSpaces - TERMINÉ ✅
+Le système de gestion de taille adaptative est **complètement terminé** et validé :
+- [x] Création de SGGameSpaceSizeManager pour centraliser la logique de sizing
+- [x] Intégration dans SGGameSpace avec méthodes utilitaires
+- [x] Refactoring SGTextBox pour sizing dynamique basé sur layout.sizeHint()
+- [x] Refactoring SGEndGameRule pour sizing adaptatif des conditions
+- [x] Remplacement QTextEdit par QLabel dans SGEndGameCondition avec word wrapping dynamique
+- [x] Réduction hauteur SGUserSelector (50px → 25px + padding réduit)
+- [x] Amélioration factory method newTextBox avec paramètres complets
+- [x] Respect des tailles manuelles (sizeX/sizeY) avec priorité sur sizing automatique
+- [x] Correction débordement widgets internes dans SGTextBox
+- [x] Élimination des tailles disproportionnées dans SGEndGameCondition
+- [x] Tests avec exStep8.py, aGameExample.py, Delmoges_v3.py validés
+- [x] Mise à jour FUTURE_PLAN.md avec les avancées
+
 ### Architecture Model-View - TERMINÉ ✅
 L'architecture Model-View est **complètement terminée** et validée :
 - [x] Architecture Model-View implémentée et testée
@@ -161,10 +200,29 @@ L'architecture Model-View est **complètement terminée** et validée :
 - [ ] Optimisations performance (si nécessaire)
 - [ ] Améliorations UI/UX (selon retours utilisateurs)
 - [ ] Documentation modeler (si nouveaux besoins)
+- [ ] Extension SGGameSpaceSizeManager à d'autres types de widgets
+- [ ] Optimisation performance du sizing adaptatif
 
 ---
 
 ## Problèmes résolus
+
+### 26/12/2024 - Gestion de taille des gameSpaces (MAJOR)
+- **Description** : Problèmes de sizing dans les gameSpaces : hauteur excessive, débordement widgets internes, tailles disproportionnées, sizing fixe non adaptatif
+- **Solution** : 
+  1. Création de `SGGameSpaceSizeManager` pour centraliser la logique de sizing
+  2. Intégration dans `SGGameSpace` avec méthodes utilitaires (`adjustSizeToContent`, `calculateContentWidth/Height`)
+  3. Refactoring `SGTextBox` pour sizing dynamique basé sur `layout.sizeHint()`
+  4. Refactoring `SGEndGameRule` pour sizing adaptatif des conditions
+  5. Remplacement `QTextEdit` par `QLabel` dans `SGEndGameCondition` avec word wrapping dynamique
+  6. Réduction hauteur `SGUserSelector` (50px → 25px + padding réduit)
+  7. Amélioration factory method `newTextBox` avec paramètres complets
+  8. Respect des tailles manuelles (`sizeX`/`sizeY`) avec priorité sur sizing automatique
+  9. Correction débordement widgets internes dans `SGTextBox`
+  10. Élimination des tailles disproportionnées dans `SGEndGameCondition`
+- **Fichiers modifiés** : `SGGameSpaceSizeManager.py` (nouveau), `SGGameSpace.py`, `SGTextBox.py`, `SGEndGameRule.py`, `SGEndGameCondition.py`, `SGUserSelector.py`, `SGModel.py`, `FUTURE_PLAN.md`
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : Système de sizing adaptatif et cohérent pour tous les gameSpaces, élimination des problèmes de taille
 
 ### 26/12/2024 - Architecture Model-View complète (MAJOR)
 - **Description** : Refactoring complet de l'architecture Model-View avec toutes les corrections finales
@@ -302,6 +360,42 @@ L'architecture Model-View est **complètement terminée** et validée :
 
 ## Décisions importantes
 
+### 26/12/2024 - SGGameSpaceSizeManager pour centraliser la gestion de taille
+- **Contexte** : Problèmes de sizing dans les gameSpaces : hauteur excessive, débordement widgets internes, tailles disproportionnées, sizing fixe non adaptatif
+- **Décision prise** : Créer une classe dédiée `SGGameSpaceSizeManager` pour centraliser la logique de sizing, similaire à `SGAspect` pour les styles
+- **Impact** : 
+  - Centralisation de la logique de sizing dans une classe réutilisable
+  - Séparation des responsabilités (sizing vs styles)
+  - API cohérente pour tous les gameSpaces
+  - Facilité de maintenance et d'extension
+
+### 26/12/2024 - Sizing dynamique basé sur layout.sizeHint()
+- **Contexte** : Sizing fixe non adaptatif dans SGTextBox et SGEndGameRule
+- **Décision prise** : Utiliser `layout.sizeHint()` comme source principale de sizing, avec fallback sur calcul manuel
+- **Impact** : 
+  - Sizing adaptatif au contenu réel
+  - Respect des contraintes Qt
+  - Élimination des tailles disproportionnées
+  - Meilleure intégration avec le système Qt
+
+### 26/12/2024 - Remplacement QTextEdit par QLabel dans SGEndGameCondition
+- **Contexte** : Taille disproportionnée des SGEndGameCondition par rapport au texte
+- **Décision prise** : Remplacer `QTextEdit` par `QLabel` avec word wrapping dynamique basé sur la longueur du texte
+- **Impact** : 
+  - Taille adaptée au contenu texte
+  - Word wrapping intelligent (seuil à 50 caractères)
+  - Interface plus légère et performante
+  - Sizing cohérent avec les autres widgets
+
+### 26/12/2024 - Priorité des tailles manuelles sur sizing automatique
+- **Contexte** : Besoin de respecter les tailles manuelles (sizeX/sizeY) tout en gardant le sizing automatique
+- **Décision prise** : Prioriser les tailles manuelles dans `getSizeXGlobal()` et `getSizeYGlobal()` avec fallback sur sizing automatique
+- **Impact** : 
+  - Flexibilité pour les modelers (override possible)
+  - Sizing automatique par défaut
+  - API intuitive et prévisible
+  - Respect des contraintes spécifiques
+
 ### 26/12/2024 - Centralisation méthodes legacy UI
 - **Contexte** : Duplication des méthodes UI dans SGAgent et SGCell après architecture Model-View
 - **Décision prise** : Centraliser toutes les méthodes legacy UI dans SGEntity pour éviter la duplication
@@ -389,6 +483,26 @@ L'architecture Model-View est **complètement terminée** et validée :
 
 ## Conventions découvertes et documentées
 
+### 26/12/2024 - SGGameSpaceSizeManager pour centraliser la gestion de taille
+- **Convention** : Utiliser `SGGameSpaceSizeManager` pour centraliser la logique de sizing des gameSpaces
+- **Exemples** : `calculate_content_width()`, `calculate_content_height()`, `adjust_game_space_to_content()`
+- **Avantage** : Centralisation de la logique, réutilisabilité, séparation des responsabilités
+
+### 26/12/2024 - Sizing dynamique basé sur layout.sizeHint()
+- **Convention** : Prioriser `layout.sizeHint()` pour le sizing automatique avec fallback sur calcul manuel
+- **Exemples** : `getSizeXGlobal()` et `getSizeYGlobal()` utilisent `sizeHint()` en premier
+- **Avantage** : Sizing adaptatif au contenu réel, respect des contraintes Qt
+
+### 26/12/2024 - Priorité des tailles manuelles sur sizing automatique
+- **Convention** : Respecter les tailles manuelles (`sizeX`/`sizeY`) avec priorité sur sizing automatique
+- **Exemples** : `if self.sizeX: return self.sizeX` avant `return self.calculateContentWidth()`
+- **Avantage** : Flexibilité pour les modelers, sizing automatique par défaut
+
+### 26/12/2024 - Word wrapping dynamique basé sur longueur de texte
+- **Convention** : Utiliser des seuils de longueur pour activer/désactiver le word wrapping
+- **Exemples** : `setWordWrap(len(text) > 50)` dans SGEndGameCondition
+- **Avantage** : Interface adaptée au contenu, sizing optimal
+
 ### 26/12/2024 - Centralisation méthodes legacy UI
 - **Convention** : Centraliser toutes les méthodes legacy UI dans SGEntity pour éviter la duplication
 - **Exemples** : show(), hide(), update(), move(), setGeometry(), resize(), etc. dans SGEntity
@@ -467,6 +581,24 @@ L'architecture Model-View est **complètement terminée** et validée :
 
 ## Chats importants
 
+### 26/12/2024 - Gestion de taille des gameSpaces + SGGameSpaceSizeManager (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Implémentation d'un système de gestion de taille adaptative pour les gameSpaces, création de SGGameSpaceSizeManager, et corrections des problèmes de sizing
+- **Résultats** : 
+  - Création de `SGGameSpaceSizeManager` pour centraliser la logique de sizing
+  - Intégration dans `SGGameSpace` avec méthodes utilitaires
+  - Refactoring `SGTextBox` pour sizing dynamique basé sur `layout.sizeHint()`
+  - Refactoring `SGEndGameRule` pour sizing adaptatif des conditions
+  - Remplacement `QTextEdit` par `QLabel` dans `SGEndGameCondition` avec word wrapping dynamique
+  - Réduction hauteur `SGUserSelector` (50px → 25px + padding réduit)
+  - Amélioration factory method `newTextBox` avec paramètres complets
+  - Respect des tailles manuelles (`sizeX`/`sizeY`) avec priorité sur sizing automatique
+  - Correction débordement widgets internes dans `SGTextBox`
+  - Élimination des tailles disproportionnées dans `SGEndGameCondition`
+- **Fichiers modifiés** : `SGGameSpaceSizeManager.py` (nouveau), `SGGameSpace.py`, `SGTextBox.py`, `SGEndGameRule.py`, `SGEndGameCondition.py`, `SGUserSelector.py`, `SGModel.py`, `FUTURE_PLAN.md`
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur refactor/model-view-separation
+
 ### 26/12/2024 - Refactoring Model-View + améliorations méthodes de déplacement (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
 - **Sujet principal** : Refactoring complet de l'architecture Model-View, amélioration des méthodes de déplacement, création d'exemples, et mise à jour de la documentation
@@ -536,6 +668,7 @@ L'architecture Model-View est **complètement terminée** et validée :
 ## Notes techniques
 
 ### Modifications importantes
+- 26/12/2024 : Gestion de taille des gameSpaces + SGGameSpaceSizeManager (SGGameSpaceSizeManager.py nouveau, SGGameSpace.py, SGTextBox.py, SGEndGameRule.py, SGEndGameCondition.py, SGUserSelector.py, SGModel.py)
 - 26/12/2024 : Correction bugs hexagonal + améliorations API (SGCell.py, SGAgent.py, SGEntityDef.py, tests/)
 - 26/12/2024 : Protection race conditions Qt (SGAgentView.py)
 - 26/12/2024 : Tests voisinage hexagonal et carré complets (tests/)
@@ -554,6 +687,11 @@ L'architecture Model-View est **complètement terminée** et validée :
 - 25/08/2025 : Configuration pytest.ini
 
 ### Découvertes architecturales
+- 26/12/2024 : Le système de sizing adaptatif nécessite une classe dédiée `SGGameSpaceSizeManager` pour centraliser la logique
+- 26/12/2024 : L'utilisation de `layout.sizeHint()` est plus fiable que le calcul manuel pour le sizing automatique
+- 26/12/2024 : Le remplacement de `QTextEdit` par `QLabel` améliore significativement les performances et le sizing
+- 26/12/2024 : La priorité des tailles manuelles sur sizing automatique offre la flexibilité nécessaire aux modelers
+- 26/12/2024 : Le word wrapping dynamique basé sur la longueur du texte optimise l'affichage
 - 26/12/2024 : Les patterns de voisinage hexagonal "Pointy-top hex grid with even-r offset" nécessitent des corrections spécifiques
 - 26/12/2024 : La standardisation des IDs numériques élimine les incohérences entre méthodes
 - 26/12/2024 : L'API moveAgent unifiée avec `target` améliore significativement l'ergonomie
@@ -573,6 +711,10 @@ L'architecture Model-View est **complètement terminée** et validée :
 - 25/08/2025 : Les tests pytest standard facilitent la maintenance et la validation
 
 ### Questions en suspens
+- Comment optimiser la performance du sizing adaptatif avec SGGameSpaceSizeManager ?
+- Faut-il étendre SGGameSpaceSizeManager à d'autres types de widgets ?
+- Comment gérer la migration des gameSpaces existants vers le nouveau système de sizing ?
+- Faut-il créer d'autres exemples pour les nouvelles fonctionnalités de sizing ?
 - Comment optimiser la performance du déplacement d'agents avec l'architecture Model-View ?
 - Faut-il créer d'autres exemples pour les nouvelles fonctionnalités Model-View ?
 - Comment gérer la migration des modèles existants vers la nouvelle architecture ?
