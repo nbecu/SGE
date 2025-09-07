@@ -18,8 +18,8 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"bad"})
-m2=Sheeps.newAgentAtCoords(Cell,5,2)
+m1=Sheeps.newAgentAtCoords(Cell,4,4,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell,5,4)
 
 theFirstLegend=myModel.newLegend()
 
@@ -32,8 +32,8 @@ userSelector=myModel.newUserSelector()
 
 
 myModel.newPlayPhase('Phase 1', [Player1])
-aModelAction5=myModel.newModelAction([lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"),
-                                      lambda: Sheeps.getEntity(2).moveAgent(method="cardinal",direction="North")
+aModelAction5=myModel.newModelAction([lambda: Sheeps.getEntity(1).moveAgent(method="direction",target="down"),
+                                      lambda: Sheeps.getEntity(2).moveAgent(method="direction",target="up")
                                       ])
 myModel.newModelPhase(aModelAction5)
 myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])

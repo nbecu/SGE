@@ -405,7 +405,7 @@ class SGAgent(SGEntity):
                 self.updateView()
             
             return self
-    def moveAgent(self, method="random", direction=None, target=None, numberOfMovement=1, condition=None):
+    def moveAgent(self, method='random', target=None, numberOfMovement=1, condition=None):
         """
         Move the agent using predefined movement patterns.
         
@@ -413,19 +413,27 @@ class SGAgent(SGEntity):
         For initial placement, use moveTo() instead.
         
         Args:
-            method (str): Movement method - "random", "cell", "cardinal"
-            direction (str): Direction for cardinal movement - "North", "South", "West", "East"
-            target (int or tuple): Target cell - numeric ID (int) or coordinates (x, y) tuple for cell movement
+            method (str): Movement method
+                - "random" (default)
+                - "cell" (default when target is defined)
+                    -used with target as numeric ID (int), coordinates (x, y) tuple
+                - "direction" (default when target is defined)
+                    -used with target as direction string ("up", "down", "left", "right")
             numberOfMovement (int): Number of movements in one action
             condition (callable, optional): Condition function for destination cell validation
             
         Returns:
             self: The agent (for chaining operations)
         """
+        if method=='random' and target is not None:
+            if isinstance(target, tuple) or isinstance(target, int): method="cell"
+            elif target and target.lower() in ["up", "down", "left", "right"]: method="direction"
+            else: raise ValueError("Invalid target type for moveAgent()")
+
         if numberOfMovement > 1: 
             # Repeat the movement numberOfMovement times with numberOfMovement=1 each time
             for i in range(numberOfMovement):
-                self.moveAgent(method=method, direction=direction, target=target, numberOfMovement=1, condition=condition)
+                self.moveAgent(method=method, target=target, numberOfMovement=1, condition=condition)
             return self
 
         aGrid = self.cell.grid
@@ -434,7 +442,7 @@ class SGAgent(SGEntity):
             neighbors = self.cell.getNeighborCells(condition=condition)
             newCell = random.choice(neighbors) if neighbors else None
 
-        if method == "cell" or target is not None:
+        elif method == "cell" and target is not None:
             # target can be either a numeric ID or coordinates (x, y)
             if isinstance(target, tuple) and len(target) == 2:
                 # target is coordinates (x, y)
@@ -448,21 +456,26 @@ class SGAgent(SGEntity):
                 if not condition(newCell):
                     newCell = None
 
-        if method == "cardinal" or direction is not None:
-            if direction == "North":
-                newCell = self.cell.getNeighborN()
-            elif direction == "South":
-                newCell = self.cell.getNeighborS()
-            elif direction == "East":
-                newCell = self.cell.getNeighborE()
-            elif direction == "West":
-                newCell = self.cell.getNeighborW()
-            else:
-                newCell = None
-                
-            if condition is not None and newCell is not None:
-                if not condition(newCell):
+        elif method == "direction" and target is not None:
+            # target must be a direction string for direction movement
+            if target and target.lower() in ["up", "down", "left", "right"]:
+                direction_lower = target.lower()
+                if direction_lower == "up":
+                    newCell = self.cell.getNeighborN()
+                elif direction_lower == "down":
+                    newCell = self.cell.getNeighborS()
+                elif direction_lower == "left":
+                    newCell = self.cell.getNeighborE()
+                elif direction_lower == "right":
+                    newCell = self.cell.getNeighborW()
+                else:
                     newCell = None
+        else:
+            newCell = None
+                
+        if condition is not None and newCell is not None:
+            if not condition(newCell):
+                newCell = None
 
         if newCell is None:
             pass

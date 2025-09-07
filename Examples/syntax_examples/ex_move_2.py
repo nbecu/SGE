@@ -29,8 +29,8 @@ Robots.setDefaultValues({"move_type": "random"})
 # Create POV for movement types with different colors
 Robots.newPov("MovementType", "move_type", {
     "random": Qt.red,           # Red for random movement
-    "cardinal N": Qt.blue,       # Blue for cardinal North movement
-    "cardinal S": Qt.darkBlue,   # Dark blue for cardinal South movement
+    "direction N": Qt.blue,       # Blue for direction North movement
+    "direction S": Qt.darkBlue,   # Dark blue for direction South movement
     "cell": Qt.magenta,         # Magenta for cell-specific movement
     "towards": Qt.darkYellow,   # Dark yellow for towards movement
     "randomly": Qt.cyan,        # Cyan for randomly movement
@@ -41,9 +41,9 @@ Robots.newPov("MovementType", "move_type", {
 # Agent 1: Random movement
 agent_random = Robots.newAgentAtCoords(Cell, 1, 1, {"move_type": "random"})
 
-# Agent 2: Cardinal movement (North/South)
-agent_cardinal_N = Robots.newAgentAtCoords(Cell, 6, 10, {"move_type": "cardinal N"})
-agent_cardinal_S = Robots.newAgentAtCoords(Cell, 6, 1, {"move_type": "cardinal S"})
+# Agent 2: direction movement (North/South)
+agent_direction_N = Robots.newAgentAtCoords(Cell, 6, 10, {"move_type": "direction N"})
+agent_direction_S = Robots.newAgentAtCoords(Cell, 6, 1, {"move_type": "direction S"})
 
 # Agent 3: Cell-specific movement
 agent_cell = Robots.newAgentAtCoords(Cell, 1, 5, {"move_type": "cell"})
@@ -69,14 +69,14 @@ aModelPhase.addAction(myModel.newModelAction(
     lambda : agent_random.moveAgent(method="random") ))
 
 
-# Cardinal movement for agent_cardinal_N (North)
+# direction movement for agent_direction_N (North)
 aModelPhase.addAction(myModel.newModelAction(
-    lambda: agent_cardinal_N.moveAgent(direction="North")
+    lambda: agent_direction_N.moveAgent(target="up")
 ))
 
-# Cardinal movement for agent_cardinal_S (South)
+# direction movement for agent_direction_S (South)
 aModelPhase.addAction(myModel.newModelAction(
-    lambda: agent_cardinal_S.moveAgent(direction="South")
+    lambda: agent_direction_S.moveAgent(target="down")
 ))
 
 # Cell-specific movement for agent_cell (to cell 6-6) - Syntax 1: explicit method

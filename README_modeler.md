@@ -24,12 +24,39 @@ SGE provides two main methods for moving agents:
 - **Usage**: Can be used immediately after agent creation
 - **Example**: `agent.moveTo(targetCell)`
 
-### `moveAgent(method, direction, target, condition)`
+### `moveAgent(method, target, numberOfMovement, condition)`
 - **Purpose**: Move agent using predefined movement patterns
 - **Handles**: Movement only (agent must already be placed)
 - **Usage**: Requires agent to be already on a cell
-- **Methods**: `"random"`, `"cardinal"`, `"cell"`
-- **Example**: `agent.moveAgent(method="random", condition=lambda cell: cell.isNotValue("terrain", "metal"))`
+
+#### Movement Methods:
+
+**1. Random Movement:**
+```python
+agent.moveAgent()  # Random movement to any neighbor
+agent.moveAgent(condition=lambda cell: cell.isNotValue("terrain", "metal"))
+```
+
+**2. Cell Movement:**
+```python
+agent.moveAgent(target=53)        # Move to cell with ID 53
+agent.moveAgent(target=(5, 7))   # Move to cell at coordinates (5, 7)
+```
+
+**3. Direction Movement:**
+```python
+agent.moveAgent(target="up")      # Move north
+agent.moveAgent(target="down")    # Move south
+agent.moveAgent(target="left")    # Move west
+agent.moveAgent(target="right")   # Move east
+```
+
+**4. Auto-detection (when method='random'):**
+```python
+agent.moveAgent(target=53)        # Auto-detects as cell movement
+agent.moveAgent(target=(5, 7))   # Auto-detects as cell movement
+agent.moveAgent(target="up")     # Auto-detects as direction movement
+```
 
 **Important**: Use `moveTo()` for initial placement, `moveAgent()` for subsequent movements.
 

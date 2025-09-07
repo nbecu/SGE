@@ -30,7 +30,7 @@ Robots.setDefaultValues({"move_type": "random"})
 Robots.newPov("MovementType", "move_type", {
     "single": Qt.red,           # Red for single movement
     "double": Qt.darkRed,      # Dark red for double movement
-    "double_cardinal": Qt.blue, # Blue for double cardinal movement
+    "double_north": Qt.blue, # Blue for double direction movement
     "quadruple_randomly": Qt.cyan # Cyan for quadruple randomly movement
 })
 
@@ -41,8 +41,8 @@ robot_single = Robots.newAgentAtCoords(Cell, 2, 2, {"move_type": "single"})
 # Robot 2: double random movement
 robot_double = Robots.newAgentAtCoords(Cell, 6, 2, {"move_type": "double"})
 
-# Robot 3: Double cardinal movement (North)
-robot_double_cardinal = Robots.newAgentAtCoords(Cell, 2, 6, {"move_type": "double_cardinal"})
+# Robot 3: Double direction movement (North)
+robot_double_direction = Robots.newAgentAtCoords(Cell, 2, 6, {"move_type": "double_direction"})
 
 # Robot 4: Quadruple randomly movement
 robot_quadruple_randomly = Robots.newAgentAtCoords(Cell, 6, 6, {"move_type": "quadruple_randomly"})
@@ -64,9 +64,9 @@ aModelPhase.addAction(myModel.newModelAction(
     lambda: robot_double.moveAgent(method="random", numberOfMovement=2)
 ))
 
-# Double cardinal movement for robot_double_cardinal (North)
+# Double direction movement for robot_double_direction (North)
 aModelPhase.addAction(myModel.newModelAction(
-    lambda: robot_double_cardinal.moveAgent(method="cardinal", direction="North", numberOfMovement=2)
+    lambda: robot_double_direction.moveAgent(method="direction", target="up", numberOfMovement=2)
 ))
 
 # Quadruple randomly movement for robot_quadruple_randomly
