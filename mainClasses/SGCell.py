@@ -334,8 +334,6 @@ class SGCell(SGEntity):
                         # For hexagonal Moore: 6 neighbors (not 8 like square)
                         # First determine the hexagonal neighbor pattern
                         if self.yCoord % 2 == 0:  # Even row
-                            # INCORRECT -> valid_neighbors = [(-1,-1), (-1,0), (0,-1), (0,1), (1,0), (1,1)]
-                            # INCORRECT -> valid_neighbors = [(1,-1), (-1,0), (0,-1), (0,1), (1,0), (1,1)]
                             valid_neighbors = [(-1,0), (0,-1), (1,-1), (1,0), (1,1), (0,1)]
                             # (-1,0) - left
                             # (0,-1) - top-left
@@ -345,7 +343,6 @@ class SGCell(SGEntity):
                             # (0,1) - bottom-left
 
                         else:  # Odd row
-                            # INCORRECT -> valid_neighbors = [(-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0)]
                             valid_neighbors = [(-1,0), (-1,-1), (0,-1), (1,0), (0,1), (-1,1)]
                             # (-1,0) - left
                             # (-1,-1) - top-left
@@ -354,7 +351,6 @@ class SGCell(SGEntity):
                             # (0,1) - bottom-left
                             # (-1,1) - bottom-right
 
-                        
                         # Check if this is a valid hexagonal neighbor
                         dx = i - self.xCoord
                         dy = j - self.yCoord
@@ -393,7 +389,6 @@ class SGCell(SGEntity):
         if condition is None:
             return neighbors
         else:
-            print(f"DEBUG: cell coords:{self.getCoords()} - neighbors before condition: n={len(neighbors)} - coords: {[cell.getCoords() for cell in neighbors]}")
             return [aCell for aCell in neighbors if condition(aCell)]
 
     def getNeighborN(self):

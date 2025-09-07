@@ -131,17 +131,18 @@ def test_hexagonal_neighborhood_closed():
     print("\n=== Testing Neighbor Counts by Cell Position ===")
     
     # Test specific cells for neighbor count with closed boundaries
+    # Updated expectations based on corrected hexagonal patterns (Pointy-top hex grid with even-r offset)
     test_cases = [
         # (x, y, expected_count, description)
         (4, 4, 6, "Center cell"),
         (1, 1, 2, "Corner cell (top-left)"),
         (8, 1, 3, "Corner cell (top-right)"),
-        (1, 7, 3, "Corner cell (bottom-left)"),
-        (8, 7, 2, "Corner cell (bottom-right)"),
+        (1, 7, 2, "Corner cell (bottom-left)"),  # Updated: was 3, now 2
+        (8, 7, 3, "Corner cell (bottom-right)"),  # Updated: was 2, now 3
         (4, 1, 4, "Top edge cell"),
         (4, 7, 4, "Bottom edge cell"),
-        (1, 4, 4, "Left edge cell"),
-        (8, 4, 4, "Right edge cell"),
+        (1, 4, 5, "Left edge cell"),  # Updated: was 4, now 5
+        (8, 4, 3, "Right edge cell"),  # Updated: was 4, now 3
     ]
     
     all_tests_passed = True

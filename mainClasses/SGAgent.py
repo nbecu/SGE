@@ -432,7 +432,6 @@ class SGAgent(SGEntity):
 
         if method == "random":
             neighbors = self.cell.getNeighborCells(condition=condition)
-            # print(f"DEBUG: agent coords:{self.getCoords()} - neighbor cells n={len(neighbors)} - coords: {[cell.getCoords() for cell in neighbors]} ")
             newCell = random.choice(neighbors) if neighbors else None
 
         if method == "cell" or cellID is not None:
@@ -473,7 +472,6 @@ class SGAgent(SGEntity):
         if newCell is None:
             pass
         else:
-            print(f"DEBUG: moveAgent (agent {self.id}): origin cell: {self.cell.getCoords()}, newCell: {newCell.getCoords()}")
             theAgent = self.moveTo(newCell)
             
         return newCell
