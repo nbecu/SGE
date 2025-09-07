@@ -34,6 +34,17 @@ class SGTimePhase():
         self.nextStepAction = nextStepAction
 
     def addAction(self, aModelAction):
+        """
+        Add a model action to this phase.
+        
+        Args:
+            aModelAction (SGModelAction or callable): The action to add to the phase.
+                - If SGModelAction: Adds the action directly to the phase
+                - If callable (lambda function): Converts it to SGModelAction first
+        
+        Returns:
+            None: The action is added to the phase's modelActions list
+        """
         if isinstance(aModelAction,SGModelAction):
             self.modelActions.append(aModelAction)
         else :

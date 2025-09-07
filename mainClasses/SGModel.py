@@ -1425,7 +1425,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return self.timeManager
 
     # -----------------------------------------------------------
-    # Game mechanics function
+    # Game actions function
 
     def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
         """

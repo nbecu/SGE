@@ -106,11 +106,122 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 **INTERDICTION STRICTE** : Ne jamais créer `SGAgent(x,y)` directement. Utiliser TOUJOURS les méthodes factory.
 
-**Méthodes factory obligatoires** :
+**Hiérarchie des méthodes factory dans SGE** :
+
+SGE utilise plusieurs niveaux de méthodes factory selon le type d'élément à créer :
+
+### 1. Méthodes factory pour les définitions d'entités (EntityDef)
 ```python
-agent = entityDef.newAgentAtCoords(x, y)  # Crée Model + View automatiquement
-cell = entityDef.newCell(x, y)            # Crée Model + View automatiquement
+# Créer une définition de cellules + grille (gameSpace)
+cellDef = model.newCellsOnGrid(columns=10, rows=10, format="square", size=30)
+# Particularité : crée à la fois les entités ET une grille (gameSpace)
+
+# Créer une définition d'agents (espèce)
+agentDef = model.newAgentSpecies("Sheeps", "circleAgent", defaultColor=Qt.gray)
 ```
+
+### 2. Méthodes factory pour les instances d'entités (Model-View)
+```python
+# Créer des instances d'agents (Model + View automatiquement)
+agent = agentDef.newAgentAtCoords(x, y)  # Crée Model + View automatiquement
+agent = agentDef.newAgentOnCell(cell)    # Alternative avec cellule
+
+# Créer des instances de cellules (Model + View automatiquement)  
+cell = cellDef.newCell(x, y)            # Crée Model + View automatiquement
+```
+
+### 3. Méthodes factory pour les gameSpaces (widgets d'interface)
+```python
+# Créer une légende (widget d'affichage)
+legend = model.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
+
+# Créer un sélecteur d'utilisateur (widget de contrôle)
+userSelector = model.newUserSelector()
+
+# Créer un tableau de bord (widget de scores et indicateurs)
+dashBoard = model.newDashBoard(title="Scores", borderColor=Qt.black, textColor=Qt.black)
+
+# Créer une jauge de progression (widget de monitoring)
+progressGauge = model.newProgressGauge(simVar, minimum=0, maximum=100, title="Progress")
+
+# Créer un affichage de temps (widget temporel)
+timeLabel = model.newTimeLabel("Game Time", backgroundColor=Qt.white, textColor=Qt.black)
+
+# Créer des règles de fin de jeu (widget de conditions)
+endGameRule = model.newEndGameRule(title="EndGame Rules", numberRequired=1)
+
+# Créer une boîte de texte (widget d'affichage de texte)
+textBox = model.newTextBox("Welcome to the game!", title="Instructions")
+
+# Créer un label simple (widget de texte basique)
+label = model.newLabel("Score: 100", position=(100, 50), textStyle_specs="font-size: 14px; color: blue")
+
+# Créer un label stylisé (widget de texte avancé)
+label_stylised = model.newLabel_stylised("Title", position=(200, 100), font="Arial", size=16, color="red", font_weight="bold")
+
+# Créer un panneau de contrôle (widget d'actions de jeu - appelé par un joueur)
+controlPanel = player.newControlPanel("Player Actions", defaultActionSelected=gameAction)
+```
+
+### 4. Méthodes factory pour les joueurs et leurs gameActions
+```python
+# Le joueur Admin est créé automatiquement
+adminPlayer = model.getAdminPlayer()
+
+# Créer un joueur
+player = model.newPlayer("Player 1")
+
+# Ajouter des gameActions à un joueur
+player.addGameAction(gameAction)        # Ajouter une action
+player.addGameActions([action1, action2])  # Ajouter plusieurs actions
+
+# Méthodes factory pour créer des gameActions
+createAction = model.newCreateAction(agentDef, dictAttributes={"health": "good"}, aNumber=5)
+modifyAction = model.newModifyAction(cellDef, dictAttributes={"landUse": "forest"}, aNumber='infinite')
+modifyActionWithDialog = model.newModifyActionWithDialog(cellDef, "landUse", aNumber='infinite')
+deleteAction = model.newDeleteAction(agentDef, aNumber=3)
+moveAction = model.newMoveAction(agentDef, aNumber=10)
+activateAction = model.newActivateAction(model, aMethod="nextTurn", aNumber='infinite')
+```
+
+### 5. Méthodes factory pour les phases de simulation
+```python
+# Créer une phase de jeu (phase interactive avec joueurs)
+playPhase = model.newPlayPhase(
+    phaseName="Player Turn", 
+    activePlayers=["Player 1", "Admin"], 
+    modelActions=[lambda: print("Phase started")],
+    autoForwardWhenAllActionsUsed=True
+)
+
+# Créer une phase de modèle (phase automatique sans interaction joueur)
+modelPhase = model.newModelPhase(
+    actions=[lambda: agent.moveAgent(method="random")],
+    condition=lambda: model.roundNumber() > 5,
+    name="Automatic Movement",
+    auto_forward=True
+)
+
+# Ajouter des actions supplémentaires à une phase existante
+modelPhase.addAction(lambda: cell.setValue("type", "forest"))
+modelPhase.addAction(model.newModelAction_onCells(actions=[lambda cell: cell.doSomething()]))
+```
+
+### 6. Méthodes factory pour les modelActions (actions spécifiques aux modelPhase)
+```python
+# Créer une action générale
+modelAction = model.newModelAction(actions=[lambda: doSomething()])
+
+# Créer une action sur toutes les cellules
+cellAction = model.newModelAction_onCells(actions=[lambda cell: cell.doSomething()])
+
+# Créer une action sur une espèce d'agents
+agentAction = model.newModelAction_onAgents("Sheeps", actions=[lambda agent: agent.moveAgent()])
+
+# Créer une action depuis une EntityDef
+entityAction = cellDef.newModelAction(actions=[lambda entity: entity.doSomething()])
+```
+
 
 **Cycle de vie Qt OBLIGATOIRE** :
 - `show()` = Rend visible + positioning correct (TOUJOURS appeler après création/déplacement)
@@ -458,3 +569,107 @@ from mainClasses.SGExtensions import execute_callable_with_entity
 execute_callable_with_entity(lambda: doSomething(), agent)
 execute_callable_with_entity(lambda a: doSomething(a), agent)
 ```
+
+## 18. Gestion des chantiers avec FUTURE_PLAN.md (CRITIQUE pour chatbots)
+
+### 18.1 Rôle du FUTURE_PLAN.md
+**FUTURE_PLAN.md** est le **système centralisé de référencement des chantiers** pour SGE. Ce fichier doit être **TOUJOURS** consulté et mis à jour par les chatbots.
+
+### 18.2 Obligations pour les chatbots
+
+**AVANT tout travail de développement** :
+- ✅ **Consulter FUTURE_PLAN.md** pour comprendre les priorités
+- ✅ **Identifier les chantiers liés** au travail demandé
+- ✅ **Proposer des améliorations** basées sur les items du plan
+
+**PENDANT le développement** :
+- ✅ **Référencer les items** du FUTURE_PLAN.md dans les discussions
+- ✅ **Identifier les dépendances** entre chantiers
+- ✅ **Suggérer des optimisations** basées sur le plan
+
+**APRÈS le développement** :
+- ✅ **Mettre à jour FUTURE_PLAN.md** avec les avancées
+- ✅ **Marquer les items terminés** dans "Completed Items"
+- ✅ **Ajouter les nouvelles idées** qui émergent
+
+### 18.3 Structure du FUTURE_PLAN.md
+
+**Sections principales** :
+- **Current Development Items** : Chantiers organisés par catégories
+- **Completed Items** : Chantiers terminés (à mettre à jour)
+- **Notes** : Informations contextuelles
+
+**Catégories de chantiers** :
+- **Core Architecture & Framework** : Refactoring, conventions
+- **User Interface & Display** : Améliorations UI/UX
+- **POV System & Visual Elements** : Système de points de vue
+- **Graphs & Analytics Interface** : Interface des graphiques
+- **Simulation Management & Data** : Gestion des simulations
+- **Multiplayer & Configuration** : Fonctionnalités multijoueurs
+- **New Entities & Features** : Nouvelles entités
+- **Documentation & Tools** : Outils de documentation
+
+### 18.4 Workflow recommandé pour chatbots
+
+**1. Analyse initiale** :
+```markdown
+# Consulter FUTURE_PLAN.md
+# Identifier les chantiers liés au travail demandé
+# Proposer une approche basée sur les priorités du plan
+```
+
+**2. Développement guidé** :
+```markdown
+# Référencer les items du plan dans les discussions
+# Expliquer comment le travail s'inscrit dans la roadmap
+# Suggérer des améliorations connexes
+```
+
+**3. Mise à jour post-développement** :
+```markdown
+# Déplacer les items terminés vers "Completed Items"
+# Ajouter les nouvelles idées qui émergent
+# Mettre à jour les descriptions si nécessaire
+```
+
+### 18.5 Exemples d'utilisation
+
+**Exemple 1 - Développement guidé** :
+```
+User: "Je veux améliorer le système de zoom"
+Chatbot: "D'après FUTURE_PLAN.md, le zoom est dans 'User Interface & Display'. 
+         Je vois aussi 'Correct the zoom' dans les items. 
+         Cela s'inscrit dans l'amélioration générale de l'interface utilisateur."
+```
+
+**Exemple 2 - Mise à jour post-développement** :
+```
+# Après avoir terminé un chantier
+# Déplacer l'item de "Current Development Items" vers "Completed Items"
+# Ajouter la date et les détails de l'implémentation
+```
+
+### 18.6 Règles critiques
+
+**OBLIGATOIRE** :
+- ✅ Toujours consulter FUTURE_PLAN.md avant de commencer
+- ✅ Référencer les items du plan dans les discussions
+- ✅ Mettre à jour le plan après chaque développement
+- ✅ Respecter l'organisation par catégories
+
+**INTERDIT** :
+- ❌ Ignorer le FUTURE_PLAN.md
+- ❌ Travailler sans référence au plan
+- ❌ Oublier de mettre à jour les avancées
+- ❌ Créer des chantiers sans les référencer
+
+### 18.7 Message de démarrage pour chaque chat
+
+"**CRITIQUE** : Consulter FUTURE_PLAN.md avant tout travail sur SGE.
+**OBLIGATIONS** :
+1. Analyser les chantiers liés au travail demandé
+2. Guider le développement selon les priorités du plan
+3. Mettre à jour FUTURE_PLAN.md après chaque avancée
+4. Référencer les items du plan dans les discussions
+
+FUTURE_PLAN.md est le système centralisé de référencement des chantiers SGE."
