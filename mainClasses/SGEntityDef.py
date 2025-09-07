@@ -430,31 +430,6 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for ent in self.getEntities(condition):
             ent.setValue(aAttribute, aValue)
 
-    def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):
-        """
-        Set the value of attribut to all entities in a specified column
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            aColumnNumber (int): a column number
-
-        """
-        for ent in self.getEntities_withColumn(aColumnNumber):
-            ent.setValue(aAttribute, aValue)
-
-    def setEntities_withRow(self, aAttribute, aValue, aRowNumber):
-        """
-        Set the value of attribut to all entities in a specified row
-
-        Args:
-            aAttribute (str): Name of the attribute to set.
-            aValue (str): Value to set the attribute to
-            aRowNumber (int): a row number
-
-        """
-        for ent in self.getEntities_withRow(aRowNumber):
-            ent.setValue(aAttribute, aValue)
 
     def setRandomEntity(self, aAttribute, aValue, condition=None):
         """
@@ -525,16 +500,44 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         for ent in self.getRandomEntities_withValueNot(numberOfentities, conditionAtt, conditionVal, condition):
             ent.setValue(aAttribut, aValue)
 
-    def copyEntitiesValue(self,  source_att, target_att,  condition=None):
+    def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):
         """
-        Copy the value of an attribut (source_att) of the entities, in another attribute (target_att) of the entities
+        Set the value of attribut to all entities in a specified column
+
+        Args:
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            aColumnNumber (int): a column number
+
+        """
+        for ent in self.getEntities_withColumn(aColumnNumber):
+            ent.setValue(aAttribute, aValue)
+
+    def setEntities_withRow(self, aAttribute, aValue, aRowNumber):
+        """
+        Set the value of attribut to all entities in a specified row
+
+        Args:
+            aAttribute (str): Name of the attribute to set.
+            aValue (str): Value to set the attribute to
+            aRowNumber (int): a row number
+
+        """
+        for ent in self.getEntities_withRow(aRowNumber):
+            ent.setValue(aAttribute, aValue)
+
+    def copyValue_forAllEntities(self,  source_att, target_att,  condition=None):
+        """
+        Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.
         Args:
             source_att (str): Name of the attribute copied
             target_att  (str): Name of the attribute set
-            condition (lambda function): a condition on the entity can be used to select only some entities
+            condition (lambda function, optional): a condition on the entity can be used to select only some entities
         """
         for ent in self.getEntities(condition):
             ent.copyValue(source_att, target_att)
+
+    #todo could be interesting to add a method to copy value of one entity to another entity (or to entities compliant with a condition)
 
     # ============================================================================
     def newPov(self,nameOfPov,concernedAtt,dictOfColor):
@@ -545,7 +548,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             self (Species object): aSpecies
             nameOfPov (str): name of POV, will appear in the interface
             concernedAtt (str): name of the attribut concerned by the declaration
-            DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
+            dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
             
         """
         self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
@@ -907,6 +910,28 @@ class SGCellDef(SGEntityDef):
         self.deletedCells = []
         self.defaultImage = defaultCellImage
 
+    def newCell(self, x, y):
+        """
+        Create a new cell using Model-View architecture (standard method)
+        
+        Args:
+            x (int): Column position in grid (1-indexed)
+            y (int): Row position in grid (1-indexed)
+            
+        Returns:
+            cell_model: The cell model (for modelers)
+        """
+        # Utiliser la méthode Model-View
+        result = self.newCellWithModelView(x, y)
+        
+        if result is None:
+            return None
+            
+        # Extraire seulement le modèle du tuple
+        cell_model, cell_view = result
+        
+        # Retourner seulement la cellule pour les modelers
+        return cell_model
 
     def newCellWithModelView(self, x, y):
         """
@@ -936,7 +961,7 @@ class SGCellDef(SGEntityDef):
         
         return cell_model, cell_view
 
-    def reviveThisCell(self, aCell): #todo this is a developer method
+    def reviveThisCell(self, aCell):
         self.entities.append(aCell)
         # Use the new setDisplay method to notify the view
         if hasattr(aCell, 'setDisplay'):
@@ -962,28 +987,7 @@ class SGCellDef(SGEntityDef):
     # NEW/ADD/SET METHODS
     # ============================================================================
     
-    def newCell(self, x, y):
-        """
-        Create a new cell using Model-View architecture (standard method)
-        
-        Args:
-            x (int): Column position in grid (1-indexed)
-            y (int): Row position in grid (1-indexed)
-            
-        Returns:
-            cell_model: The cell model (for modelers)
-        """
-        # Utiliser la méthode Model-View
-        result = self.newCellWithModelView(x, y)
-        
-        if result is None:
-            return None
-            
-        # Extraire seulement le modèle du tuple
-        cell_model, cell_view = result
-        
-        # Retourner seulement la cellule pour les modelers
-        return cell_model
+    
 
     def setCell(self, x, y, aAttribute, aValue):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)

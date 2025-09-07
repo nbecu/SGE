@@ -79,7 +79,7 @@ class SGEntityFactory:
         return agent_model, agent_view
     
     @staticmethod
-    def newCell(cellDef, x, y):
+    def newCell(cellDef, x, y): #todo this method is not used anymore. Consider removing it.
         """
         Create a cell with Model-View architecture (standard method)
         
@@ -93,19 +93,4 @@ class SGEntityFactory:
         """
         return SGEntityFactory.newCellWithModelView(cellDef, x, y)
     
-    @staticmethod
-    def newAgent(agentDef, cell, attributesAndValues=None, image=None, popupImage=None):
-        """
-        Create an agent with Model-View architecture (standard method)
-        
-        Args:
-            agentDef: The agent definition
-            cell: The cell where the agent will be placed
-            attributesAndValues: Initial attributes and values
-            image: Default image for the agent
-            popupImage: Popup image for the agent
-            
-        Returns:
-            tuple: (agent_model, agent_view)
-        """
-        return SGEntityFactory.newAgentWithModelView(agentDef, cell, attributesAndValues, image, popupImage)
+    

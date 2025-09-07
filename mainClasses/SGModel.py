@@ -32,11 +32,11 @@ from mainClasses.SGEndGameRule import *
 from mainClasses.SGEntity import *
 from mainClasses.SGEntityView import *
 from mainClasses.SGEntityDef import *
+from mainClasses.SGGrid import *
 from mainClasses.SGGraphController import SGGraphController
 from mainClasses.SGGraphLinear import SGGraphLinear
 from mainClasses.SGGraphCircular import SGGraphCircular
 from mainClasses.SGGraphWindow import SGGraphWindow
-from mainClasses.SGGrid import *
 from mainClasses.SGLegend import *
 from mainClasses.SGModelAction import *
 from mainClasses.SGPlayer import *

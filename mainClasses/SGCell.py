@@ -266,6 +266,7 @@ class SGCell(SGEntity):
 
 
     def getNeighborCells(self, condition=None, neighborhood=None):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn and SGCellDef.getEntities_withRow are delegated to it.
         """
         Get the neighboring cells of the current cell.
 
@@ -365,22 +366,27 @@ class SGCell(SGEntity):
             return [aCell for aCell in neighbors if condition(aCell)]
 
     def getNeighborN(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """Get neighbor to the North"""
         return self.classDef.getCell(self.xCoord, self.yCoord - 1) if self.yCoord > 1 else None
 
     def getNeighborS(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """Get neighbor to the South"""
         return self.classDef.getCell(self.xCoord, self.yCoord + 1) if self.yCoord < self.classDef.grid.rows else None
 
     def getNeighborE(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn delegates to it.
         """Get neighbor to the East"""
         return self.classDef.getCell(self.xCoord + 1, self.yCoord) if self.xCoord < self.classDef.grid.columns else None
 
     def getNeighborW(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn delegates to it.
         """Get neighbor to the West"""
         return self.classDef.getCell(self.xCoord - 1, self.yCoord) if self.xCoord > 1 else None
 
     def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """
         Get all neighbor cells within a given radius according to the grid's neighborhood type.
 
@@ -447,6 +453,7 @@ class SGCell(SGEntity):
 
 
     def distanceTo(self, otherCell):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """
         Compute Euclidean distance to another cell.
 
