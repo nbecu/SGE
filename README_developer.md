@@ -286,14 +286,6 @@ For more information about SGE usage and modeling, see `README_modeler.md`.
 ---
 
 ## 10. Future Plan
-- [ ] Add a method `displayBorderPov` (similar to `SGEntity>displayPov`).
-- [ ] Create a POV system to manage groups of symbologies.
-- [ ] Correct the zoom.
-- [ ] Unify font style sheets for `SGEndGameRule`.
-- [ ] Add a modeler style sheet config methods for `gameSpaces` who don't have yet.
-- [ ] Main window auto resize.
-- [ ] Refactor auto resize of text spacings in `gameSpaces` (using geometry).
-- [ ] New `gameAction`: activate.
-- [ ] Rename Update `gameAction` to Modify.
-- [ ] Unify definition of `setValue` for the different classes.
-- [ ] Create a recuperation system for simulation status with `updateAtMaj` functions.
+
+For the complete list of planned improvements and features, see [FUTURE_PLAN.md](FUTURE_PLAN.md).
+

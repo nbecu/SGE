@@ -1,3 +1,4 @@
+# Imports
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
@@ -11,7 +12,8 @@ import numpy as np
 from collections import Counter, defaultdict
 import random
 from typing import Union
-# Définition de SGEntityDef
+
+# Definition of SGEntityDef
 class SGEntityDef(AttributeAndValueFunctionalities):
     def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultShapeColor):
         self.model = sgModel
