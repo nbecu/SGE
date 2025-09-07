@@ -804,10 +804,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             aLabel (str, optional): Custom label for the attribute (defaults to attribute name)
        
         """
-        # Check that the attribute exists in dictAttributes
-        if aAttribut not in self.dictAttributes:
-            raise ValueError(f"Attribute '{aAttribut}' does not exist in dictAttributes. Available attributes: {list(self.dictAttributes.keys())}")
-        
+
         aDict={}
         aDict['att']=aAttribut
         aDict['label']= (aLabel if aLabel is not None else aAttribut)

@@ -670,7 +670,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # send back the specie dict (specie definition dict) that corresponds to aSpecieName
         return self.agentSpecies.get(aSpecieName)
 
-    def getAgentsOfSpecie(self, aSpecieName):
+    def getAgentsOfSpecie(self, aSpecieName) -> list[SGAgent]:
         agentDef = self.getAgentSpecieDict(aSpecieName)
         if agentDef is None:  return None
         else: return agentDef.entities[:]

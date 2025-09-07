@@ -86,7 +86,7 @@ class SGGrid(SGGameSpace):
         self.update()
         for cell in self.getCells():
             for agent in cell.getAgents(): 
-                agent.moveAgent(cellID=agent.cell.id)               
+                agent.moveAgent(target=agent.cell.getId())               
         
 
     # To handle the drag of the grid
@@ -163,8 +163,8 @@ class SGGrid(SGGameSpace):
         return self.model.getCellDef(self).entities
 
     # Return the cell
-    def getCell_withId(self, aCellID):
-        return self.model.getCell(self,aCellID)
+    def getCell_withId(self, cell_id):
+        return self.model.getCell(self,cell_id)
 
     def cellIdFromCoords(self,x,y):
         return self.model.getCellDef(self).cellIdFromCoords(x,y)

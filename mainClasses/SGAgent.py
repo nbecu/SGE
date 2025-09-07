@@ -405,7 +405,7 @@ class SGAgent(SGEntity):
                 self.updateView()
             
             return self
-    def moveAgent(self, method="random", direction=None, cellID=None, numberOfMovement=1, condition=None):
+    def moveAgent(self, method="random", direction=None, target=None, numberOfMovement=1, condition=None):
         """
         Move the agent using predefined movement patterns.
         
@@ -415,7 +415,7 @@ class SGAgent(SGEntity):
         Args:
             method (str): Movement method - "random", "cell", "cardinal"
             direction (str): Direction for cardinal movement - "North", "South", "West", "East"
-            cellID (str): Target cell ID for cell movement (format: "cellx-y")
+            target (int or tuple): Target cell - numeric ID (int) or coordinates (x, y) tuple for cell movement
             numberOfMovement (int): Number of movements in one action
             condition (callable, optional): Condition function for destination cell validation
             
@@ -425,7 +425,7 @@ class SGAgent(SGEntity):
         if numberOfMovement > 1: 
             # Repeat the movement numberOfMovement times with numberOfMovement=1 each time
             for i in range(numberOfMovement):
-                self.moveAgent(method=method, direction=direction, cellID=cellID, numberOfMovement=1, condition=condition)
+                self.moveAgent(method=method, direction=direction, target=target, numberOfMovement=1, condition=condition)
             return self
 
         aGrid = self.cell.grid
@@ -434,20 +434,15 @@ class SGAgent(SGEntity):
             neighbors = self.cell.getNeighborCells(condition=condition)
             newCell = random.choice(neighbors) if neighbors else None
 
-        if method == "cell" or cellID is not None:
-            # Parse cellID format "cellx-y" to get coordinates
-            if cellID and cellID.startswith("cell"):
-                try:
-                    coords = cellID[4:].split("-")  # Remove "cell" prefix and split by "-"
-                    if len(coords) == 2:
-                        x, y = int(coords[0]), int(coords[1])
-                        newCell = self.cell.classDef.getCell(x, y)
-                    else:
-                        newCell = None
-                except (ValueError, IndexError):
-                    newCell = None
+        if method == "cell" or target is not None:
+            # target can be either a numeric ID or coordinates (x, y)
+            if isinstance(target, tuple) and len(target) == 2:
+                # target is coordinates (x, y)
+                x, y = target
+                newCell = self.cell.classDef.getCell(x, y)
             else:
-                newCell = aGrid.getCell_withId(cellID)
+                # target is a numeric ID
+                newCell = aGrid.getCell_withId(target)
             
             if condition is not None and newCell is not None:
                 if not condition(newCell):

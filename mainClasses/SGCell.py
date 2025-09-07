@@ -208,7 +208,7 @@ class SGCell(SGEntity):
     # GET/NB METHODS
     # ============================================================================
 
-    def getId(self): #todo vérifier tout les appels à cette méthode
+    def getId(self):
         """Get cell identifier using numeric ID consistent with cellIdFromCoords"""
         return self.xCoord + (self.grid.columns * (self.yCoord - 1))
     

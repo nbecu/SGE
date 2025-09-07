@@ -34,9 +34,6 @@ class SGCellView(SGEntityView):
         # Allow drops for agents
         self.setAcceptDrops(True)
     
-    def getId(self):
-        """Get cell identifier"""
-        return "cell" + str(self.xCoord) + "-" + str(self.yCoord)
     
     def paintEvent(self, event):
         """Paint the cell"""

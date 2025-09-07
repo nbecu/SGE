@@ -81,12 +81,12 @@ aModelPhase.addAction(myModel.newModelAction(
 
 # Cell-specific movement for agent_cell (to cell 6-6) - Syntax 1: explicit method
 aModelPhase.addAction(myModel.newModelAction(
-    lambda: agent_cell.moveAgent(method="cell", cellID="cell6-6")
+    lambda: agent_cell.moveAgent(method="cell", target=(6,6))
 ))
 
 # Cell-specific movement for agent_cell (to cell 3-3) - Syntax 2: automatic method detection
 aModelPhase.addAction(myModel.newModelAction(
-    lambda: agent_cell.moveAgent(cellID="cell3-3")
+    lambda: agent_cell.moveAgent(target=(3,3))
 ))
 
 # Towards movement for agent_towards (moves towards agent_random)

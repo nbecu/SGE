@@ -24,7 +24,7 @@ SGE provides two main methods for moving agents:
 - **Usage**: Can be used immediately after agent creation
 - **Example**: `agent.moveTo(targetCell)`
 
-### `moveAgent(method, direction, cellID, condition)`
+### `moveAgent(method, direction, target, condition)`
 - **Purpose**: Move agent using predefined movement patterns
 - **Handles**: Movement only (agent must already be placed)
 - **Usage**: Requires agent to be already on a cell
