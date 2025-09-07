@@ -29,7 +29,7 @@ Robots.setDefaultValues({"move_type": "random"})
 # Create POV for movement types with different colors
 Robots.newPov("MovementType", "move_type", {
     "single": Qt.red,           # Red for single movement
-    "triple": Qt.darkRed,      # Dark red for triple movement
+    "double": Qt.darkRed,      # Dark red for double movement
     "double_cardinal": Qt.blue, # Blue for double cardinal movement
     "quadruple_randomly": Qt.cyan # Cyan for quadruple randomly movement
 })
@@ -38,8 +38,8 @@ Robots.newPov("MovementType", "move_type", {
 # Robot 1: Single random movement
 robot_single = Robots.newAgentAtCoords(Cell, 2, 2, {"move_type": "single"})
 
-# Robot 2: Triple random movement
-robot_triple = Robots.newAgentAtCoords(Cell, 6, 2, {"move_type": "triple"})
+# Robot 2: double random movement
+robot_double = Robots.newAgentAtCoords(Cell, 6, 2, {"move_type": "double"})
 
 # Robot 3: Double cardinal movement (North)
 robot_double_cardinal = Robots.newAgentAtCoords(Cell, 2, 6, {"move_type": "double_cardinal"})
@@ -59,9 +59,9 @@ aModelPhase.addAction(myModel.newModelAction(
     lambda: robot_single.moveAgent(method="random", numberOfMovement=1)
 ))
 
-# Triple random movement for robot_triple
+# double random movement for robot_double
 aModelPhase.addAction(myModel.newModelAction(
-    lambda: robot_triple.moveAgent(method="random", numberOfMovement=3)
+    lambda: robot_double.moveAgent(method="random", numberOfMovement=2)
 ))
 
 # Double cardinal movement for robot_double_cardinal (North)

@@ -1386,11 +1386,6 @@ class SGAgentDef(SGEntityDef):
         # Extraire seulement le modèle du tuple
         agent_model, agent_view = result
 
-        # Ajouter seulement le modèle à entities (pas le tuple)
-        self.entities.append(agent_model)
-        self.updateWatchersOnPop()
-        self.updateWatchersOnAllAttributes()
-
         # Retourner seulement l'agent pour les modelers
         return agent_model
 
@@ -1692,5 +1687,6 @@ class SGAgentDef(SGEntityDef):
             numberOfMovement (int): number of movements in one action
             condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
         """
+        
         for aAgent in self.entities[:]: # Need to iterate on a copy of the entities list, because , due to the moveByRecreating, the entities list changes during the loop
             aAgent.moveAgent(numberOfMovement=numberOfMovement,condition=condition)

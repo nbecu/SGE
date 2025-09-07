@@ -399,8 +399,6 @@ class SGAgent(SGEntity):
                 self.updateView()
             
             return self
-
-
     def moveAgent(self, method="random", direction=None, cellID=None, numberOfMovement=1, condition=None):
         """
         Move the agent using predefined movement patterns.
@@ -423,62 +421,56 @@ class SGAgent(SGEntity):
             for i in range(numberOfMovement):
                 self.moveAgent(method=method, direction=direction, cellID=cellID, numberOfMovement=1, condition=condition)
             return self
-        
-        for i in range(numberOfMovement):
-            if i > 0:
-                oldAgent = theAgent
-                originCell = oldAgent.cell
-            else:
-                oldAgent = self
-                originCell = self.cell
 
-            aGrid = originCell.grid
+        aGrid = self.cell.grid
 
-            if method == "random":
-                neighbors = originCell.getNeighborCells(condition=condition)
-                newCell = random.choice(neighbors) if neighbors else None
+        if method == "random":
+            neighbors = self.cell.getNeighborCells(condition=condition)
+            newCell = random.choice(neighbors) if neighbors else None
 
-            if method == "cell" or cellID is not None:
-                # Parse cellID format "cellx-y" to get coordinates
-                if cellID and cellID.startswith("cell"):
-                    try:
-                        coords = cellID[4:].split("-")  # Remove "cell" prefix and split by "-"
-                        if len(coords) == 2:
-                            x, y = int(coords[0]), int(coords[1])
-                            newCell = self.cell.classDef.getCell(x, y)
-                        else:
-                            newCell = None
-                    except (ValueError, IndexError):
+        if method == "cell" or cellID is not None:
+            # Parse cellID format "cellx-y" to get coordinates
+            if cellID and cellID.startswith("cell"):
+                try:
+                    coords = cellID[4:].split("-")  # Remove "cell" prefix and split by "-"
+                    if len(coords) == 2:
+                        x, y = int(coords[0]), int(coords[1])
+                        newCell = self.cell.classDef.getCell(x, y)
+                    else:
                         newCell = None
-                else:
-                    newCell = aGrid.getCell_withId(cellID)
-                
-                if condition is not None and newCell is not None:
-                    if not condition(newCell):
-                        newCell = None
-
-            if method == "cardinal" or direction is not None:
-                if direction == "North":
-                    newCell = originCell.getNeighborN()
-                elif direction == "South":
-                    newCell = originCell.getNeighborS()
-                elif direction == "East":
-                    newCell = originCell.getNeighborE()
-                elif direction == "West":
-                    newCell = originCell.getNeighborW()
-                else:
+                except (ValueError, IndexError):
                     newCell = None
-                    
-                if condition is not None and newCell is not None:
-                    if not condition(newCell):
-                        newCell = None
-
-            if newCell is None:
-                pass
             else:
-                theAgent = self.moveTo(newCell)
-        
+                newCell = aGrid.getCell_withId(cellID)
+            
+            if condition is not None and newCell is not None:
+                if not condition(newCell):
+                    newCell = None
+
+        if method == "cardinal" or direction is not None:
+            if direction == "North":
+                newCell = self.cell.getNeighborN()
+            elif direction == "South":
+                newCell = self.cell.getNeighborS()
+            elif direction == "East":
+                newCell = self.cell.getNeighborE()
+            elif direction == "West":
+                newCell = self.cell.getNeighborW()
+            else:
+                newCell = None
+                
+            if condition is not None and newCell is not None:
+                if not condition(newCell):
+                    newCell = None
+
+        if newCell is None:
+            pass
+        else:
+            print(f"DEBUG: moveAgent (agent {self.id}): origin cell: {self.cell.getCoords()}, newCell: {newCell.getCoords()}")
+            theAgent = self.moveTo(newCell)
+            
         return newCell
+
 
     def moveRandomly(self, numberOfMovement=1, condition=None):
         """

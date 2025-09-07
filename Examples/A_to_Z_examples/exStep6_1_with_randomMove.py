@@ -18,8 +18,8 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
-m2=Sheeps.newAgentAtCoords(Cell,5,1)
+m1=Sheeps.newAgentAtCoords(Cell,3,2,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell,5,6)
 
 theFirstLegend=myModel.newLegend()
 

@@ -211,6 +211,10 @@ class SGCell(SGEntity):
     def getId(self):
         """Get cell identifier"""
         return f"cell{self.xCoord}-{self.yCoord}"
+    
+    def getCoords(self):
+        """Get cell coordinates"""
+        return (self.xCoord, self.yCoord)
 
     def getAgents(self, nameOfSpecie=None):
         """

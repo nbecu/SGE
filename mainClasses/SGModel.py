@@ -623,7 +623,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.applyAutomaticLayout()
             return userSelector
         else:
-            print('You need to add players to the game')
+            print(  f"The userSelector was not created because: \n"
+                    f"  - nb of players : {len(self.players)} ({[player.name for player in self.players.values()]}). \n"
+                    f"  - nb of users with control panel: {len(self.getUsers_withControlPanel())} ({[userName for userName in self.getUsers_withControlPanel()]}). \n"
+                    f"  - you need to add more users with control panel for the userSelector to be created"
+                )
 
     # To create a New kind of agents
     def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",defaultImage=None):

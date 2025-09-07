@@ -67,7 +67,6 @@ class SGModelAction():
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
 
-
     def addModelAction(self,aAction):
         if callable(aAction):
             self.actions = self.actions + [aAction]
