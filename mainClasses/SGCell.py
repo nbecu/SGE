@@ -208,9 +208,9 @@ class SGCell(SGEntity):
     # GET/NB METHODS
     # ============================================================================
 
-    def getId(self):
-        """Get cell identifier"""
-        return f"cell{self.xCoord}-{self.yCoord}"
+    def getId(self): #todo vérifier tout les appels à cette méthode
+        """Get cell identifier using numeric ID consistent with cellIdFromCoords"""
+        return self.xCoord + (self.grid.columns * (self.yCoord - 1))
     
     def getCoords(self):
         """Get cell coordinates"""
@@ -329,21 +329,47 @@ class SGCell(SGEntity):
                     else:
                         raise ValueError(f"Invalid neighborhood type: {neighborhood}")
                 elif cellShape == "hexagonal":
+                    #NOTE: The hexagonal grid is "Pointy-top hex grid with even-r offset".
                     if neighborhood == "moore":
                         # For hexagonal Moore: 6 neighbors (not 8 like square)
-                        # Hexagonal neighbors are determined by the offset pattern
-                        dx = ii - self.xCoord
-                        dy = jj - self.yCoord
-                        # Hexagonal Moore neighbors: 6 directions (not 8)
-                        # Pattern: (-1,-1), (-1,0), (0,-1), (0,1), (1,0), (1,1) for even rows
-                        # Pattern: (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0) for odd rows
+                        # First determine the hexagonal neighbor pattern
                         if self.yCoord % 2 == 0:  # Even row
-                            valid_neighbors = [(-1,-1), (-1,0), (0,-1), (0,1), (1,0), (1,1)]
+                            # INCORRECT -> valid_neighbors = [(-1,-1), (-1,0), (0,-1), (0,1), (1,0), (1,1)]
+                            # INCORRECT -> valid_neighbors = [(1,-1), (-1,0), (0,-1), (0,1), (1,0), (1,1)]
+                            valid_neighbors = [(-1,0), (0,-1), (1,-1), (1,0), (1,1), (0,1)]
+                            # (-1,0) - left
+                            # (0,-1) - top-left
+                            # (1,-1) - top-right
+                            # (1,0) - right
+                            # (1,1) - bottom-right
+                            # (0,1) - bottom-left
+
                         else:  # Odd row
-                            valid_neighbors = [(-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0)]
+                            # INCORRECT -> valid_neighbors = [(-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0)]
+                            valid_neighbors = [(-1,0), (-1,-1), (0,-1), (1,0), (0,1), (-1,1)]
+                            # (-1,0) - left
+                            # (-1,-1) - top-left
+                            # (0,-1) - top-right
+                            # (1,0) - right
+                            # (0,1) - bottom-left
+                            # (-1,1) - bottom-right
+
+                        
+                        # Check if this is a valid hexagonal neighbor
+                        dx = i - self.xCoord
+                        dy = j - self.yCoord
                         
                         if (dx, dy) in valid_neighbors:
-                            aCell = self.classDef.getCell(ii, jj)
+                            # Apply boundary conditions
+                            if boundary_condition == "open":
+                                # Simple toroidal wrap-around for hexagonal grids
+                                ii = ((i - 1) % columns) + 1
+                                jj = ((j - 1) % rows) + 1
+                                aCell = self.classDef.getCell(ii, jj)
+                            else:  # closed boundaries
+                                if i < 1 or i > columns or j < 1 or j > rows:
+                                    continue
+                                aCell = self.classDef.getCell(i, j)
                     elif neighborhood == "neumann":
                         # For hexagonal Neumann: 3 neighbors (orthogonal only)
                         dx = ii - self.xCoord
@@ -367,6 +393,7 @@ class SGCell(SGEntity):
         if condition is None:
             return neighbors
         else:
+            print(f"DEBUG: cell coords:{self.getCoords()} - neighbors before condition: n={len(neighbors)} - coords: {[cell.getCoords() for cell in neighbors]}")
             return [aCell for aCell in neighbors if condition(aCell)]
 
     def getNeighborN(self):

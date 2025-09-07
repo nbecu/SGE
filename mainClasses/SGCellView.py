@@ -24,6 +24,7 @@ class SGCellView(SGEntityView):
         self.grid = cell_model.grid
         self.xCoord = cell_model.xCoord
         self.yCoord = cell_model.yCoord
+        self.setToolTip(f'({self.xCoord}, {self.yCoord})')
         self.gap = cell_model.gap
         self.saveGap = cell_model.saveGap
         self.saveSize = cell_model.saveSize

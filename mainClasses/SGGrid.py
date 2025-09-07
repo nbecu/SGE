@@ -57,6 +57,7 @@ class SGGrid(SGGameSpace):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+2*self.frameMargin,
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
         elif (self.cellShape == "hexagonal"):
+            #Note: The hexagonal grid is "Pointy-top hex grid with even-r offset".
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1+self.size/2+1.5*self.frameMargin),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 2*self.frameMargin))
         painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()

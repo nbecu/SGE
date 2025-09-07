@@ -481,7 +481,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         Args:
             columns (int): number of columns (width).
             rows (int): number of rows (height).
-            format ("square", "hexagonal"): shape of the cells. Defaults to "square".
+            format ("square", "hexagonal"): shape of the cells.
+                - Defaults to "square".
+                - Note that the hexagonal grid is "Pointy-top hex grid with even-r offset".
             size (int, optional): size of the cells. Defaults to 30.
             gap (int, optional): gap size between cells. Defaults to 0.
             color (a color, optional): background color of the grid . Defaults to Qt.gray.
