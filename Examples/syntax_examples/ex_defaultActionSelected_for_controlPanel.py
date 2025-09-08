@@ -54,7 +54,7 @@ controlPanel = player1.newControlPanel(
 )
 
 # Create a game phase
-myModel.timeManager.newPlayPhase('Main Phase', [player1])
+myModel.newPlayPhase('Main Phase', [player1])
 
 # Add explanatory label
 myModel.newLabel_stylised(

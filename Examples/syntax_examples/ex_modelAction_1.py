@@ -20,7 +20,7 @@ theFirstLegend=myModel.newLegend()
 
 
 
-myModel.timeManager.newModelPhase(
+myModel.newModelPhase(
     [
     lambda: Cell.setRandomEntities("landUse","forest"),
     lambda: Cell.setRandomEntities("landUse","shrub",3)]

@@ -26,13 +26,13 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1])
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 # You also can, with the same scheme as PlayPhase, first create ModelActions and place them after on a ModelPhase
 # MODEL ACTIONS CREATION
@@ -49,7 +49,7 @@ aModelAction4.addCondition(lambda: myModel.roundNumber()==3)
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 # Don't forget to add your Actions to a ModelPhase!
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 
 
 myModel.launch() 

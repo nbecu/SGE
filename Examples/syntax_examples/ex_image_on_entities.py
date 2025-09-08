@@ -49,9 +49,9 @@ AgentsB.newAgentAtCoords(CellsHex, 2, 2, {"category": "cat_2"})
 
 
 ####################
-# aLegend=myModel.newLegend(addDeleteButton = False)
+# aLegend=myModel.newLegend()
 
-myModel.timeManager.newModelPhase([lambda: AgentsA.moveRandomly(),lambda: AgentsB.moveRandomly()])
+myModel.newModelPhase([lambda: AgentsA.moveRandomly(),lambda: AgentsB.moveRandomly()])
 myModel.launch() 
 
 sys.exit(monApp.exec_())

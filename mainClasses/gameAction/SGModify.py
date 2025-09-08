@@ -1,5 +1,6 @@
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from PyQt5.QtWidgets import QInputDialog 
 
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
@@ -41,3 +42,26 @@ class SGModify(SGAbstractAction):
                     aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
 
             return aList
+
+# SGModifyActionWithDialog is a apecial ModifyAction that opens a dialog to ask for the value to use
+class SGModifyActionWithDialog(SGModify):
+    """Special ModifyAction that opens a dialog to ask for the value to use"""
+    
+    def __init__(self, entityDef, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+        # Initialize with a placeholder value to avoid IndexError
+        placeholder_dict = {attribute: "placeholder"}
+        super().__init__(entityDef, placeholder_dict, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
+        self.dynamicAttribute = attribute
+        self.nameToDisplay = f"Modify {attribute} (ask value)"
+        
+    def executeAction(self, aTargetEntity):
+        """Override to show dialog and get value from user"""
+        # Show input dialog to get the value
+        value, ok = QInputDialog.getText(None, f"Modify {self.dynamicAttribute}", 
+                                        f"Enter new value for {self.dynamicAttribute}:")
+        
+        if ok and value:
+            # Set the value directly
+            aTargetEntity.setValue(self.dynamicAttribute, value)
+            return aTargetEntity
+        return aTargetEntity

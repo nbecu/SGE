@@ -16,8 +16,8 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"short grass":Qt.yellow,"forest":
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",defaultSize=30)
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'low':Qt.green,'high':Qt.yellow})
-Sheeps.setAttributeValueToDisplayInContextualMenu('health')
-Sheeps.setAttributeValueToDisplayInContextualMenu('hunger')
+Sheeps.displayAttributeValueInContextualMenu('health')
+Sheeps.displayAttributeValueInContextualMenu('hunger')
 
 Sheeps.setDefaultValues({"health":"bad","hunger":"low"})
 m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"high"})
@@ -29,7 +29,6 @@ aTextBox = myModel.newTextBox('',title='Shout box')
 
 
 Player1=myModel.newPlayer("Player 1")
-myModel.setCurrentPlayer('Admin') #Tester voir ce qui se passe si ce n'est pas defini
 
 # By default the game actions are controlled (trigger) through the controlPanel
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
@@ -61,11 +60,11 @@ def eat(aSheep):
 def shout():
     aTextBox.addText('meh!!!')
 
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 userSelector=myModel.newUserSelector()
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
+myModel.newPlayPhase('Phase 1', [Player1])
+myModel.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)
 
 myModel.launch() 
 sys.exit(monApp.exec_())

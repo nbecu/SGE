@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    700, 500, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
+    750, 500, x=5, windowTitle="Rehab Game")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')
@@ -47,12 +47,12 @@ Bird.setDefaultValue('nb reproduction',0)
 
 Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
 
-
+myModel.newLegend()
 
 Clans = myModel.newPlayer("Clan")
 Clans.addGameAction(myModel.newCreateAction(harvesters, aNumber=20))
 
-Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
+Player1ControlPanel = Clans.newControlPanel()
 
 Parc = myModel.newPlayer("Parc")
 
@@ -63,17 +63,17 @@ Parc.addGameAction(myModel.newModifyAction(
 Player2ControlPanel = Parc.newControlPanel(defaultActionSelected=aGA)
 
 
-firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')
+firstPhase = myModel.newModelPhase(name='Birds Settle')
 firstPhase.addAction(lambda: harvesters.setEntities('harvest',0))
 settleAction= myModel.newModelAction_onCells(lambda cell: cell.newAgentHere(Bird),(lambda cell: cell.value('biomass')>=2))
 firstPhase.addAction(settleAction)
 
-myModel.timeManager.newPlayPhase('Parc actions', [Parc])
-myModel.timeManager.newPlayPhase('Clans actions', [Clans])
+myModel.newPlayPhase('Parc actions', [Parc])
+myModel.newPlayPhase('Clans actions', [Clans])
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)),name='harvest updated')
+myModel.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)),name='harvest updated')
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onAgents('Bird',lambda bird: reproduce(bird)),name='Bird reproduction')
+myModel.newModelPhase(myModel.newModelAction_onAgents('Bird',lambda bird: reproduce(bird)),name='Bird reproduction')
 
 
 def reproduce(aBird):
@@ -86,8 +86,8 @@ def reproduce(aBird):
     for i in range(aBird.value('nb reproduction')):
         aBird.cell.newAgentHere(Chick)
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='biomass updated')
-myModel.timeManager.newModelPhase(lambda : myModel.deleteAllAgents(),name='gameboard cleared')
+myModel.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='biomass updated')
+myModel.newModelPhase(lambda : myModel.deleteAllAgents(),name='gameboard cleared')
 
 
 def updateNoHarvestPeriod(cell):

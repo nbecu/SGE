@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(500,300, windowTitle="Add agents to your simulation/game")
+myModel=SGModel(555,350, windowTitle="Add agents to your simulation/game")
 
 Cell=myModel.newCellsOnGrid(6,4,"square",gap=2,size=40)
 
@@ -21,16 +21,18 @@ Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 
 # You can now create agents from the species you created and and place them at specific coordinates
-Sheeps.newAgentAtCoords(xCoord=4,yCoord=1)
+agent1 = Sheeps.newAgentAtCoords(xCoord=4,yCoord=1)
 
 # The method allows you to write newAgentAtCoords(2,1), eventhough xCoord and yCoord are not the first arguments
-Sheeps.newAgentAtCoords(1,2)
+agent2 = Sheeps.newAgentAtCoords(1,2)
 
 # you can also create multiple agents at once using newAgentsAtCoords()
-Sheeps.newAgentsAtCoords(3,(5,4))
+agents3 = Sheeps.newAgentsAtCoords(3,(5,4))
+
 
 
 Legend=myModel.newLegend()
+myModel.displayAdminControlPanel()
 
 myModel.launch() 
 sys.exit(monApp.exec_())

@@ -14,6 +14,52 @@ SGE is like a puzzle, all the pieces are already here, you just need to give it 
 
 ![image](https://github.com/nbecu/SGE/assets/119414220/888f6d78-5434-4b70-8969-0b1e971a4b8e)
 
+## Agent Movement Methods
+
+SGE provides two main methods for moving agents:
+
+### `moveTo(destinationCell)`
+- **Purpose**: Move agent to a specific cell
+- **Handles**: Both initial placement and movement
+- **Usage**: Can be used immediately after agent creation
+- **Example**: `agent.moveTo(targetCell)`
+
+### `moveAgent(method, target, numberOfMovement, condition)`
+- **Purpose**: Move agent using predefined movement patterns
+- **Handles**: Movement only (agent must already be placed)
+- **Usage**: Requires agent to be already on a cell
+
+#### Movement Methods:
+
+**1. Random Movement:**
+```python
+agent.moveAgent()  # Random movement to any neighbor
+agent.moveAgent(condition=lambda cell: cell.isNotValue("terrain", "metal"))
+```
+
+**2. Cell Movement:**
+```python
+agent.moveAgent(target=53)        # Move to cell with ID 53
+agent.moveAgent(target=(5, 7))   # Move to cell at coordinates (5, 7)
+```
+
+**3. Direction Movement:**
+```python
+agent.moveAgent(target="up")      # Move north
+agent.moveAgent(target="down")    # Move south
+agent.moveAgent(target="left")    # Move west
+agent.moveAgent(target="right")   # Move east
+```
+
+**4. Auto-detection (when method='random'):**
+```python
+agent.moveAgent(target=53)        # Auto-detects as cell movement
+agent.moveAgent(target=(5, 7))   # Auto-detects as cell movement
+agent.moveAgent(target="up")     # Auto-detects as direction movement
+```
+
+**Important**: Use `moveTo()` for initial placement, `moveAgent()` for subsequent movements.
+
 ## Folder hierarchy
 - Examples
   - example1.0.py

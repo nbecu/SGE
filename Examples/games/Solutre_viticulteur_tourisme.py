@@ -547,13 +547,13 @@ def updatesCubesActivation(aHex):
 
 def checkCubesBuisson():
     """Permet de vérifier si un joueur a assez de cubes pour réaliser supprimer un buisson"""
-    player=myModel.getPlayer(myModel.currentPlayer)
+    player=myModel.getPlayer(myModel.currentPlayerName)
     if player.value("nbCubes")>=1: return True
     else: return False
 
 def decCubesBuisson():
     """Permet de mettre à jour le nombre de cubes d'un joueur après la suppression d'un buisson"""
-    player=myModel.getPlayer(myModel.currentPlayer)
+    player=myModel.getPlayer(myModel.currentPlayerName)
     player.decValue("nbCubes")
 
 def checkIsThereTouristes(): # todo cette verification est inutile a priori
@@ -681,19 +681,19 @@ def resetCubes():
 eventPopUp=myModel.newModelAction(lambda: execEvent(), lambda: myModel.timeManager.currentRoundNumber > 1)
 eventPopUp2= myModel.newModelAction(lambda: execFirstEvent(), lambda: myModel.timeManager.currentRoundNumber == 1)
 Embuissonnement=myModel.newModelAction([lambda: Buisson.newAgentsAtRandom(3,Plateau,condition= lambda aCell: aCell.value("zone")=="Roches")])
-EventPhase=myModel.timeManager.newModelPhase([eventPopUp,eventPopUp2,Embuissonnement], name="Évènements")
+EventPhase=myModel.newModelPhase([eventPopUp,eventPopUp2,Embuissonnement], name="Évènements")
 EventPhase.auto_forward=True
 EventPhase.message_auto_forward=False
 
 #PHASE 2 : Aménagement du territoire = tous les joueurs peuvent jouer (placer et activer des hexagones)
-PlayPhase=myModel.timeManager.newPlayPhase("Phase 1 : Aménager le territoire",[Viticulteur])
+PlayPhase=myModel.newPlayPhase("Phase 1 : Aménager le territoire",[Viticulteur])
 
 #PHASE 3 : Gestion des touristes = seul le joueur Pro du Tourisme peut jouer
-PlayPhase2=myModel.timeManager.newPlayPhase("Phase 2 : Placement des touristes",[Tourisme])
+PlayPhase2=myModel.newPlayPhase("Phase 2 : Placement des touristes",[Tourisme])
 
 #PHASE 4 : Résolution de l'année = 
 unActivatePlateau=myModel.newModelAction([lambda: hexagones.setEntities("Activation",False)])
-ModelPhase=myModel.timeManager.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson,resetHexagones,resetCubes],name="Résolution de l'année en cours")
+ModelPhase=myModel.newModelPhase([unActivatePlateau,checkTouriste,checkBuisson,resetHexagones,resetCubes],name="Résolution de l'année en cours")
 ModelPhase.auto_forward=True
 ModelPhase.message_auto_forward=False
 
@@ -732,7 +732,7 @@ def selectPlayer(aPlayerName, aObjectifCardName="random"):
 
 def getObjectif(aCardName):
     """Choisis un objectif pour le joueur choisi par un nom"""
-    player = myModel.currentPlayer
+    player = myModel.currentPlayerName
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     objectif = objectifs_joueur[objectifs_joueur['Nom'] == aCardName]
     if not objectif.empty:
@@ -746,7 +746,7 @@ def getObjectif(aCardName):
 
 def getRandomObjectif():
     """Choisis un objectif aléatoire pour le joueur choisi"""
-    player=myModel.currentPlayer
+    player=myModel.currentPlayerName
     objectifs_joueur = data_objectifs[data_objectifs['Joueur'] == player]
     if not objectifs_joueur.empty:
         objectif = objectifs_joueur.sample(n=1)
@@ -776,7 +776,7 @@ def getColorByPlayer(aPlayerName):
 
 def createInitHexagones():
     """Crée les hexagones initiaux sur le plateau"""
-    if myModel.currentPlayer != "Viticulteur":
+    if myModel.currentPlayerName != "Viticulteur":
         createHex("Vigne du plateau",hexagones,data_inst,data_act)
         createHex("Caveau du plateau",hexagones,data_inst,data_act)
     createHex("Chambre d'hôtes du plateau",hexagones,data_inst,data_act)

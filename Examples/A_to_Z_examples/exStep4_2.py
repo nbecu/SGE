@@ -5,6 +5,7 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create a empty ControlPanel")
+myModel.displayAdminControlPanel()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2,name='mygrid')
 Cell.setEntities("landUse","grass")
@@ -27,7 +28,7 @@ theFirstLegend=myModel.newLegend()
 # create a player
 Player1=myModel.newPlayer("Player 1")
 # create a ControlPanel for this player, according to their actions
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 
 # if you want to start the application as Player 1 :

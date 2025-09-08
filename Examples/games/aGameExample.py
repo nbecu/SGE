@@ -45,7 +45,7 @@ aThirdSheep=Sheeps.newAgentAtCoords(Cell,3,5)
 
 
 # STEP4 Admin Players and GameActions
-globalLegend = myModel.newLegend("Global Legend", showAgentsWithNoAtt=True)
+globalLegend = myModel.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
 
 Player1 = myModel.newPlayer("Player 1")
 createA1=myModel.newCreateAction(Workers, aNumber=20)
@@ -66,8 +66,8 @@ Player2ControlPanel = Player2.newControlPanel("Player 2 Actions",defaultActionSe
 userSelector=myModel.newUserSelector()
 
 # STEP5 Time management
-myModel.timeManager.newPlayPhase('Player 1 to play', [Player1])
-myModel.timeManager.newPlayPhase('Your turn player 2', [Player2])
+myModel.newPlayPhase('Player 1 to play', [Player1])
+myModel.newPlayPhase('Your turn player 2', [Player2])
 GameRounds = myModel.newTimeLabel(None, Qt.white, Qt.black, Qt.black)
 # GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 myModel.setCurrentPlayer('Player 1')
@@ -84,9 +84,9 @@ i5 = DashBoard.addIndicatorOnSimVariable(score1)
 
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
-    i1, "equal", 90, name="Resource equal to 90")
+    i1, "greater", 100, name="Resource greater than 100")
 endGameRule.addEndGameCondition_onEntity(
-    Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=Cell.grid)
+    Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell(1-5) Resource is greater than 2",aGrid=Cell.grid)
 endGameRule.showEndGameConditions()
 
 # STEP7 TextBox

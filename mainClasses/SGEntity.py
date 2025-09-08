@@ -1,204 +1,222 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 from collections import defaultdict
 import random
 from mainClasses.AttributeAndValueFunctionalities import *
-from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout
-from mainClasses.SGEventHandlerGuide import *
 
-# Class who is in charged of entities : cells and agents
-class SGEntity(QtWidgets.QWidget, SGEventHandlerGuide, AttributeAndValueFunctionalities):
-    def __init__(self,parent,classDef,size,attributesAndValues):
-        super().__init__(parent)
-        self.classDef=classDef
-        self.id=self.classDef.nextId()
-        self.privateID = self.classDef.entityName+str(self.id)
-        self.model=self.classDef.model
-        self.shape= self.classDef.shape
-        self.size=size
-        self.borderColor=self.classDef.defaultBorderColor
-        self.isDisplay=True
-        #Define variables to handle the history 
-        self.history={}
-        self.history["value"]=defaultdict(list)
-        # self.list_history = []
-        self.watchers={}
-        #Set the attributes
-        self.initAttributesAndValuesWith(attributesAndValues)
-        self.owner="admin"
-        # define highlighting
-        self.highlightEffect = None
-        self.isHighlighted = False
-        # set the contextual and gameAction controller
-        self.init_contextMenu()
-
+class SGEntity(AttributeAndValueFunctionalities):
+    """
+    SGEntity - Base class for all entities (cells and agents)
+    Contains all data and business logic for entities
+    Separated from the view to enable Model-View architecture
+    """
+    
+    def __init__(self, classDef, size, attributesAndValues):
+        """
+        Initialize the entity model
+        
+        Args:
+            classDef: The entity definition class
+            size: Size of the entity
+            attributesAndValues: Initial attributes and values
+        """
+        self.classDef = classDef
+        self.id = self.classDef.nextId()
+        self.privateID = self.classDef.entityName + str(self.id)
+        self.model = self.classDef.model
+        self.shape = self.classDef.shape
+        self.size = size
+        self.borderColor = self.classDef.defaultBorderColor
+        self.isDisplay = True
+        
+        # Define variables to handle the history 
+        self.history = {}
+        self.history["value"] = defaultdict(list)
+        self.watchers = {}
+        
+        # Set the attributes (will be called by child classes after view is created)
+        # self.initAttributesAndValuesWith(attributesAndValues)
+        self.owner = "admin"
+        
+        # Reference to the view
+        self.view = None
     
     def initAttributesAndValuesWith(self, thisAgentAttributesAndValues):
-        self.dictAttributes={}
-        if thisAgentAttributesAndValues is None : thisAgentAttributesAndValues={}
+        """Initialize attributes and values"""
+        self.dictAttributes = {}
+        if thisAgentAttributesAndValues is None: 
+            thisAgentAttributesAndValues = {}
         
         for aAtt, aDefaultValue in self.classDef.attributesDefaultValues.items():
             if not aAtt in thisAgentAttributesAndValues.keys():
-                thisAgentAttributesAndValues[aAtt]=aDefaultValue
+                thisAgentAttributesAndValues[aAtt] = aDefaultValue
         for aAtt, valueToSet in thisAgentAttributesAndValues.items():
             if callable(valueToSet):
-                aValue= valueToSet()
-                self.setValue(aAtt,aValue)
+                aValue = valueToSet()
+                self.setValue(aAtt, aValue)
             else:
-                self.setValue(aAtt,valueToSet)
+                self.setValue(aAtt, valueToSet)
 
-    def getRandomAttributValue(self,aAgentSpecies,aAtt):
-        if aAgentSpecies.dictAttributes is not None:
-            values = list(aAgentSpecies.dictAttributes[aAtt])
-            number=len(values)
-            aRandomValue=random.randint(0,number-1)          
-        return aRandomValue
-
-
-    def readColorFromPovDef(self,aPovDef,aDefaultColor):
-        if aPovDef is None: return aDefaultColor
-        aAtt=list(aPovDef.keys())[0]
-        aDictOfValueAndColor=list(aPovDef.values())[0]
+    def readColorFromPovDef(self, aPovDef, aDefaultColor):
+        """Read color from POV definition"""
+        if aPovDef is None: 
+            return aDefaultColor
+        aAtt = list(aPovDef.keys())[0]
+        aDictOfValueAndColor = list(aPovDef.values())[0]
         aColor = aDictOfValueAndColor.get(self.value(aAtt))
         return aColor if aColor is not None else aDefaultColor
 
-    def readColorAndWidthFromBorderPovDef(self,aBorderPovDef,aDefaultColor,aDefaultWidth):
-        if aBorderPovDef is None: return {'color':aDefaultColor,'width':aDefaultWidth}
-        aAtt=list(aBorderPovDef.keys())[0]
-        aDictOfValueAndColorWidth=list(aBorderPovDef.values())[0]
+    def readColorAndWidthFromBorderPovDef(self, aBorderPovDef, aDefaultColor, aDefaultWidth):
+        """Read color and width from border POV definition"""
+        if aBorderPovDef is None: 
+            return {'color': aDefaultColor, 'width': aDefaultWidth}
+        aAtt = list(aBorderPovDef.keys())[0]
+        aDictOfValueAndColorWidth = list(aBorderPovDef.values())[0]
         dictColorAndWidth = aDictOfValueAndColorWidth.get(self.value(aAtt))
         if dictColorAndWidth is None:  # Vérification si la valeur n'existe pas
             raise ValueError(f'BorderPov cannot work because {self.privateID} has no value for attribute "{aAtt}"')
-        if not isinstance(dictColorAndWidth,dict): raise ValueError('wrong format')
+        if not isinstance(dictColorAndWidth, dict): 
+            raise ValueError('wrong format')
         return dictColorAndWidth
 
-    def getColor(self):
-        if self.isDisplay==False: return Qt.transparent
-        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
-        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
-        aDefaultColor= self.classDef.defaultShapeColor
-        return self.readColorFromPovDef(aPovDef,aDefaultColor)
+    def getRandomAttributValue(self, aAgentSpecies, aAtt):
+        """Get random attribute value"""
+        if aAgentSpecies.dictAttributes is not None and aAtt in aAgentSpecies.dictAttributes:
+            values = list(aAgentSpecies.dictAttributes[aAtt])
+            number = len(values)
+            aRandomValue = random.randint(0, number - 1)          
+            return aRandomValue
+        return None
 
-    def getBorderColorAndWidth(self):
-        if self.isDisplay==False: return Qt.transparent
-        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName, borderSymbology=True)
-        aBorderPovDef = self.classDef.povBorderColorAndWidth.get(aChoosenPov)
-        aDefaultColor= self.classDef.defaultBorderColor
-        aDefaultWidth=self.classDef.defaultBorderWidth
-        return self.readColorAndWidthFromBorderPovDef(aBorderPovDef,aDefaultColor,aDefaultWidth)
-    
-    def getImage(self):
-        if self.isDisplay==False: return None
-        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
-        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
-        if aPovDef is None: return None
-        aAtt=list(aPovDef.keys())[0]
-        aDictOfValueAndImage=list(aPovDef.values())[0]
-        aImage = aDictOfValueAndImage.get(self.value(aAtt))     
-
-        if aImage is not None and isinstance(aImage,QPixmap):
-            return aImage 
-        else:
-            return None
-    
-    def rescaleImage(self, image):
-        
-        imageWidth = image.width()
-        imageHeight = image.height()
-
-        if imageWidth ==0 or imageHeight == 0 : raise ValueError('Image size is not valid')
-        # entityWidth = self.width() #could use self.size, instead
-        # entityHeight = self.height()  
-        entityWidth = self.size
-        entityHeight = self.size
-
-        if (imageHeight / imageWidth) < (entityHeight / entityWidth):
-            scaled_image = image.scaledToHeight(entityHeight, Qt.SmoothTransformation)
-        else:
-            scaled_image = image.scaledToWidth(entityWidth, Qt.SmoothTransformation)
-        # Calculer le rectangle cible pour le dessin
-        x_offset = (entityWidth - scaled_image.width()) // 2
-        y_offset = (entityHeight - scaled_image.height()) // 2
-        target_rect = QRect(x_offset, y_offset, scaled_image.width(), scaled_image.height())
-
-        return target_rect, scaled_image
-   
-    # def toggleHighlight(self):
-    #     if self.isHighlighted:
-    #         self.setGraphicsEffect(None)
-    #     else:
-    #         self.highlightEffect = QtWidgets.QGraphicsColorizeEffect()
-    #         self.highlightEffect.setColor(QColor("yellow"))
-    #         self.setGraphicsEffect(self.highlightEffect)
-        
-    #     self.isHighlighted = not self.isHighlighted
-
-    # Handle the contextual menu and GameAction controller
-    def init_contextMenu(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_contextMenu)
-    
-    def show_contextMenu(self, point):
-        menu = QMenu(self)
-
-        for anItem in self.classDef.attributesToDisplayInContextualMenu:
-            aAtt = anItem['att']
-            aLabel = anItem['label']
-            aValue = self.value(aAtt)
-            text = aLabel  + "="+str(aValue)
-            option = QAction(text, self)
-            menu.addAction(option)
-
-        player=self.model.getCurrentPlayer()
-        if not player == "Admin":        
-            actions = player.getAllGameActionsOn(self)
-            for aAction in actions:
-                if aAction.setControllerContextualMenu:
-                        if aAction.checkAuthorization(self):
-                            aMenuAction=QAction(aAction.nameToDisplay,self)
-                            aMenuAction.setCheckable(False)
-                            aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self))
-                            menu.addAction(aMenuAction)
-
-
-        if not menu.isEmpty() and self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
-
-    
-    def getObjectIdentiferForJsonDumps(self):
-        dict ={}
-        dict['entityName']=self.classDef.entityName
-        dict['id']=self.id
-        return dict
-    
-    def addWatcher(self,aIndicator):
+    def addWatcher(self, aIndicator):
+        """Add a watcher for attribute changes"""
         aAtt = aIndicator.attribute
         if aAtt not in self.watchers.keys():
-            self.watchers[aAtt]=[]
+            self.watchers[aAtt] = []
         self.watchers[aAtt].append(aIndicator)
 
-    def updateWatchersOnAttribute(self,aAtt):
-        for watcher in self.watchers.get(aAtt,[]):
+    def updateWatchersOnAttribute(self, aAtt):
+        """Update watchers when an attribute changes"""
+        for watcher in self.watchers.get(aAtt, []):
             watcher.checkAndUpdate()
 
-    def getListOfStepsData(self,startStep=None,endStep=None):
-        aList=self.getListOfUntagedStepsData(startStep,endStep)
-        return [{**{'entityType': self.classDef.entityType(),'entityName': self.classDef.entityName,'id': self.id},**aStepData} for aStepData in aList]
+    def getListOfStepsData(self, startStep=None, endStep=None):
+        """Get list of step data"""
+        aList = self.getListOfUntagedStepsData(startStep, endStep)
+        return [{**{'entityType': self.classDef.entityType(), 'entityName': self.classDef.entityName, 'id': self.id}, **aStepData} for aStepData in aList]
 
-    
     def isDeleted(self):
+        """Check if entity is deleted"""
         return not self.isDisplay
 
-
-    #To perform action --> Check if this method is used or not
     def doAction(self, aLambdaFunction):
+        """Perform action on the entity"""
         aLambdaFunction(self)
 
-
     def entDef(self):
-        """
-        Returns the 'entity definition' class of the entity
-        """        
+        """Returns the 'entity definition' class of the entity"""
         return self.classDef
+
+    def getObjectIdentiferForJsonDumps(self):
+        """Get object identifier for JSON serialization"""
+        dict = {}
+        dict['entityName'] = self.classDef.entityName
+        dict['id'] = self.id
+        return dict
+
+    def setView(self, view):
+        """Set the view for this model"""
+        self.view = view
+
+    def getView(self):
+        """Get the view for this model"""
+        return self.view
+
+    def updateView(self):
+        """Update the view when model changes"""
+        if self.view:
+            self.view.update()
+
+    # ============================================================================
+    # LEGACY UI METHOD DELEGATION
+    # ============================================================================
     
+    def show(self):
+        """Show the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.show()
+    
+    def hide(self):
+        """Hide the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.hide()
+    
+    def update(self):
+        """Update the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.update()
+    
+    #todo obsolete function
+    #  def move(self, *args, **kwargs):
+    #     """Move the entity view"""
+    #     if hasattr(self, 'view') and self.view:
+    #         self.view.move(*args, **kwargs)
+    
+    def setGeometry(self, *args, **kwargs):
+        """Set geometry of the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setGeometry(*args, **kwargs)
+    
+    def resize(self, *args, **kwargs):
+        """Resize the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.resize(*args, **kwargs)
+    
+    def setVisible(self, *args, **kwargs):
+        """Set visibility of the entity view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setVisible(*args, **kwargs)
+    
+    def isVisible(self):
+        """Check if entity view is visible"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.isVisible()
+        return False
+    
+    def rect(self):
+        """Get rectangle of the entity view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.rect()
+        return None
+    
+    def mapToGlobal(self, *args, **kwargs):
+        """Map to global coordinates"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.mapToGlobal(*args, **kwargs)
+        return None
+    
+    def setAcceptDrops(self, *args, **kwargs):
+        """Set accept drops"""
+        if hasattr(self, 'view') and self.view:
+            self.view.setAcceptDrops(*args, **kwargs)
+    
+    def grab(self):
+        """Grab the entity view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.grab()
+        return None
+    
+    # Event delegation methods
+    def paintEvent(self, event):
+        """Paint event - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.paintEvent(event)
+    
+    def getRegion(self):
+        """Get region - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            return self.view.getRegion()
+        return None
+    
+    def mousePressEvent(self, event):
+        """Mouse press event - delegates to view"""
+        if hasattr(self, 'view') and self.view:
+            self.view.mousePressEvent(event)

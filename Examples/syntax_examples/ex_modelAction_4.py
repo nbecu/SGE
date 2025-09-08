@@ -38,7 +38,7 @@ aModelAction4=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","s
 aModelAction4.addFeedback(lambda: scoreB.incValue(5)) 
 
 # ADDING MODEL ACTIONS TO THE PHASES
-myModel.timeManager.newModelPhase(aModelAction4)
+myModel.newModelPhase(aModelAction4)
 
 
 

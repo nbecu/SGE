@@ -18,21 +18,21 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
-m2=Sheeps.newAgentAtCoords(Cell,5,1)
+m1=Sheeps.newAgentAtCoords(Cell,3,2,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell,5,6)
 
 theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-p2 = myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1])
+p2 = myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 p2.addAction(lambda : Sheeps.moveRandomly())
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
@@ -43,7 +43,7 @@ aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","
 aModelAction4.addCondition(lambda: myModel.roundNumber()==3) 
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
 # The DashBoard is a widget which permits to create scores.

@@ -5,6 +5,8 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your PlayPhase")
+myModel.displayAdminControlPanel()
+myModel.displayTimeInWindowTitle()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
@@ -26,14 +28,14 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
 # SGE TimeLine is organized by an infinite sequence of rounds composed of phases.
 # Here is the way to create a PlayPhase
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-# In this phase, Player 1 can perform his actions.
+myModel.newPlayPhase('Phase 1')
+# During a play phase, authorized players can perform their actions.
 
 myModel.launch() 
 

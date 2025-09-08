@@ -48,8 +48,10 @@ class SGProgressGauge(SGGameSpace):
         self.orientation = orientation
         self.colorRanges = colorRanges or []
         self.thresholds = {}
-        self.borderColor = borderColor
-        self.backgroundColor = backgroundColor
+        # Configure styles using gs_aspect instead of individual attributes
+        self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = 2
+        self.gs_aspect.background_color = backgroundColor
         self.bar_width = bar_width if isinstance(bar_width,(int, float)) else None
         if bar_width == 'fit title size' and self.orientation == 'vertical' :
             if self.title_text is None : raise ValueError ('bar_width cannot be fit title size, if the title is None')
@@ -111,7 +113,7 @@ class SGProgressGauge(SGGameSpace):
 
         # Apply background color to the widget
         palette = self.progress_bar.palette()
-        palette.setColor(QPalette.Base, QColor(self.backgroundColor))
+        palette.setColor(QPalette.Base, self.gs_aspect.getBackgroundColorValue())
         self.progress_bar.setPalette(palette)
 
         # Value label
@@ -152,8 +154,8 @@ class SGProgressGauge(SGGameSpace):
         super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        pen = QPen(QColor(self.borderColor))
-        pen.setWidth(2)
+        pen = QPen(self.gs_aspect.getBorderColorValue())
+        pen.setWidth(self.gs_aspect.getBorderSize())
         painter.setPen(pen)
         painter.setBrush(QBrush(Qt.NoBrush))
         painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
@@ -213,3 +215,42 @@ class SGProgressGauge(SGGameSpace):
     def getSizeYGlobal(self):
         """Return the global Y size of the gauge."""
         return self.height()
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the progress gauge.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the progress gauge.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        
+    def setBackgroundColor(self, color):
+        """
+        Set the background color of the progress gauge.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The background color
+        """
+        self.gs_aspect.background_color = color
+        # Update the progress bar palette
+        palette = self.progress_bar.palette()
+        palette.setColor(QPalette.Base, self.gs_aspect.getBackgroundColorValue())
+        self.progress_bar.setPalette(palette)

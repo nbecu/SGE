@@ -2,13 +2,21 @@ from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGAspect import *
+from mainClasses.SGGameSpaceSizeManager import SGGameSpaceSizeManager
+from mainClasses.SGEventHandlerGuide import *
 
 
             
-class SGGameSpace(QtWidgets.QWidget):
+class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     def __init__(self,parent,startXBase,startYBase,posXInLayout,posYInLayout,isDraggable=True,backgroundColor=Qt.gray,forceDisplay=False):
         super().__init__(parent)
         self.model=parent
+        
+        # Type identification attributes
+        self.isCellDef = False
+        self.isAgentDef = False
+        self.isAGrid = False
+
         self.posXInLayout=posXInLayout
         self.posYInLayout=posYInLayout
         self.positionDefineByModeler = None
@@ -17,6 +25,11 @@ class SGGameSpace(QtWidgets.QWidget):
         self.isDraggable = isDraggable
         self.isActive = True
         self.forceDisplay = forceDisplay
+        
+        # Enable drag and drop functionality
+        self.setAcceptDrops(True)
+        self.drag_start_position = None
+        self.dragging = False
         self.rightMargin = 9
         self.verticalGapBetweenLabels = 5
         self.gs_aspect = SGAspect.baseBorder()
@@ -27,6 +40,8 @@ class SGGameSpace(QtWidgets.QWidget):
         self.text1_aspect = SGAspect.text1()
         self.text2_aspect = SGAspect.text2()
         self.text3_aspect = SGAspect.text3()
+        # Size manager for game_spaces
+        self.size_manager = SGGameSpaceSizeManager()
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
         
@@ -84,48 +99,58 @@ class SGGameSpace(QtWidgets.QWidget):
         self.setStartXBase(newPos[0])
         self.setStartYBase(newPos[1])
 
-    def mouseMoveEvent(self, e):
+    def mousePressEvent(self, event):
+        """
+        Handle mouse press events for drag initiation.
+        """
+        if event.button() == Qt.LeftButton and self.isDraggable:
+            # Store the initial click position relative to the widget
+            self.drag_start_position = event.pos()
+            self.dragging = True
+        else:
+            self.dragging = False
 
-        if e.buttons() != Qt.LeftButton:
+    def mouseReleaseEvent(self, event):
+        """
+        Handle mouse release events to end drag operation.
+        """
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+
+    def mouseMoveEvent(self, event):
+        """
+        Handle mouse move events for dragging gameSpaces.
+        """
+        # Only proceed if left button is pressed and widget is draggable
+        if not (event.buttons() == Qt.LeftButton and self.isDraggable and self.dragging):
             return
 
-        # To get the clic position in GameSpace
-        def getPos(e):
-            clic = QMouseEvent.windowPos(e)
-            xclic = int(clic.x())
-            yclic = int(clic.y())
-            return xclic, yclic
+        # Check if we've moved enough to start a drag operation
+        # Calculate distance moved
+        distance = (event.pos() - self.drag_start_position).manhattanLength()
+        if distance < QtWidgets.QApplication.startDragDistance():
+            return
 
-        # To get the coordinate of the grid upleft corner in GameSpace
-        def getCPos(self):
-            left = self.x()
-            up = self.y()
-            return left, up
+        # Get the global mouse position
+        global_mouse_pos = QtWidgets.QApplication.desktop().cursor().pos()
+        
+        # Convert to parent coordinates
+        if self.parent():
+            parent_pos = self.parent().mapFromGlobal(global_mouse_pos)
+            
+            # Calculate new position accounting for the click offset
+            new_x = parent_pos.x() - self.drag_start_position.x()
+            new_y = parent_pos.y() - self.drag_start_position.y()
+            
+            # Move the widget
+            self.move(new_x, new_y)
+            
+            # Update the gameSpace's base position
+            self.setStartXBase(new_x)
+            self.setStartYBase(new_y)
 
-        # To convert the upleft corner to center coordinates
-        def toCenter(self):
-            xC = self.x()+int(self.width()/2)
-            yC = self.y()+int(self.height()/2)
-            return xC, yC
+        # Don't reset dragging here - keep it true for continuous movement
 
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.pos())
-
-        xclic, yclic = getPos(e)
-        xC, yC = toCenter(self)
-
-        drag.exec_(Qt.MoveAction)
-
-        leftf, upf = getCPos(self)
-        xCorr = xclic-xC
-        yCorr = yclic-yC
-
-        newX = leftf-xCorr
-        newY = upf-yCorr
-
-        self.move(newX, newY)
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
@@ -185,5 +210,76 @@ class SGGameSpace(QtWidgets.QWidget):
     def setTextsColor(self, textColor):
         for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.color = textColor 
+    
+    # ============================================================================
+    # SIZE MANAGEMENT METHODS
+    # ============================================================================
+    
+    def adjustSizeToContent(self, content_widgets=None, content_items=None, text_content=None):
+        """
+        Adjust game_space size to its content using the size_manager.
+        
+        Args:
+            content_widgets (list, optional): Content widgets
+            content_items (list, optional): Content items  
+            text_content (str, optional): Text content
+        """
+        self.size_manager.adjust_game_space_to_content(
+            self, content_widgets, content_items, text_content
+        )
+    
+    def calculateContentWidth(self, content_widgets=None, text_content=None):
+        """
+        Calculate necessary width for content.
+        
+        Args:
+            content_widgets (list, optional): Content widgets
+            text_content (str, optional): Text content
+            
+        Returns:
+            int: Calculated width in pixels
+        """
+        if content_widgets:
+            return self.size_manager.calculate_content_width(content_widgets)
+        elif text_content:
+            return self.size_manager.calculate_text_width(text_content)
+        else:
+            return self.size_manager.min_width
+    
+    def calculateContentHeight(self, content_items=None, text_content=None):
+        """
+        Calculate necessary height for content.
+        
+        Args:
+            content_items (list, optional): Content items
+            text_content (str, optional): Text content
+            
+        Returns:
+            int: Calculated height in pixels
+        """
+        if content_items:
+            return self.size_manager.calculate_content_height(content_items)
+        elif text_content:
+            return self.size_manager.calculate_text_height(text_content)
+        else:
+            return self.size_manager.min_height
+    
+    def setSizeManagerMargin(self, margin):
+        """
+        Set right margin of size_manager.
+        
+        Args:
+            margin (int): New margin in pixels
+        """
+        self.size_manager.set_right_margin(margin)
+    
+    def setSizeManagerVerticalGap(self, gap):
+        """
+        Set vertical spacing of size_manager.
+        
+        Args:
+            gap (int): New spacing in pixels
+        """
+        self.size_manager.set_vertical_gap(gap)
 
     

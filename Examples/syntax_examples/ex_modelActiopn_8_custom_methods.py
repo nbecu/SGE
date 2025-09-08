@@ -37,12 +37,12 @@ Workers.setDefaultValue('total harvest',0)
 
 
 #modelAction - workers arrive
-myModel.timeManager.newModelPhase(lambda: Workers.newAgentsAtRandom(5),name= 'Agents arrive')
+myModel.newModelPhase(lambda: Workers.newAgentsAtRandom(5),name= 'Agents arrive')
 
 
 #Custom method for modelAction - Example 1
 harvestWhenOneHarvester=myModel.newModelAction(lambda: harvest1())
-myModel.timeManager.newModelPhase(harvestWhenOneHarvester,name='modelAction: harvest1()')
+myModel.newModelPhase(harvestWhenOneHarvester,name='modelAction: harvest1()')
 
 def harvest1():
     for cell in myModel.getCells():
@@ -52,7 +52,7 @@ def harvest1():
             cell.decValue('Resource',aQt)
 
 #Custom method for modelAction - Example 2
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: harvest2(cell)),name='modelAction_onCells: harvest2(cell)')
+myModel.newModelPhase(myModel.newModelAction_onCells(lambda cell: harvest2(cell)),name='modelAction_onCells: harvest2(cell)')
 
 def harvest2(cell):
     if cell.nbAgents()==1:
@@ -84,7 +84,7 @@ def harvest1_bis(): #this is an alternative to harvest1()
                 cell.decValue('Resource',1)
 
 #modelAction - workers leave
-myModel.timeManager.newModelPhase(lambda: Workers.deleteAllEntities(),name= 'Agents leave')
+myModel.newModelPhase(lambda: Workers.deleteAllEntities(),name= 'Agents leave')
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.red)

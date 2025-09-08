@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMenu, QAction, QToolTip
+from PyQt5.QtWidgets import QToolTip
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGExtensions import *
@@ -40,15 +40,23 @@ class SGLegendItem(QtWidgets.QWidget):
                 if aNumber == inf:
                     text = f"∞ actions"
                 else:
-                    text = f"Actions remaining: {self.gameAction.getNbRemainingActions()}"
+                    text = f"{self.gameAction.getNbRemainingActions()} actions remaining"
                 QToolTip.showText(e.globalPos(), text, self)
             return True  # event handled
         return super().event(e)
     
 
     def isSelectable(self):
-        #Title1 and Title2 items are not selectable
-        return False if self.type in ['Title1','Title2'] else True
+        # Title1 and Title2 items are not selectable
+        # For SGLegend (pure legend), items should not be selectable unless they have a gameAction
+        # For SGControlPanel (controller), items should be selectable if they have a gameAction
+        if self.type in ['Title1','Title2']:
+            return False
+        # If this is a pure legend item (no gameAction), it should not be selectable
+        if self.gameAction is None:
+            return False
+        # If this is a control panel item (has gameAction), it should be selectable
+        return True
     
     def isSymbolOnCell(self):
         return self.type == 'symbol' and self.classDef.entityType() == 'Cell'#self.shape in ["square","hexagonal"]
@@ -58,11 +66,11 @@ class SGLegendItem(QtWidgets.QWidget):
 
     #Drawing function
     def paintEvent(self,event):
-        if self.legend.checkDisplay():
+        if self.legend.isLegend or (self.legend.isControlPanel and self.legend.checkDisplay()):
             painter = QPainter() 
             painter.begin(self)
             painter.setBrush(QBrush(self.color, Qt.SolidPattern))
-            if self.legend.selected == self :
+            if self.legend.isControlPanel and self.legend.selected == self :
                 painter.setPen(QPen(Qt.red,2))
             if self.isBorderItem:
                 painter.setPen(QPen(self.borderColorAndWidth['color'],self.borderColorAndWidth['width']))
@@ -169,30 +177,6 @@ class SGLegendItem(QtWidgets.QWidget):
         self.gap=self.parent.gap
         self.update()
         
-    #To handle the selection of an element int the legend
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
-            if self.legend.playerName!=self.legend.model.currentPlayer:
-                return #Exit because the currentPlayer cannot use this widget
-            if not self.isSelectable():
-                return #Exit because the currentPlayer cannot use this widget
-            if self.legend.selected==self:
-            #Already selected
-                self.legend.selected=None
-            #Selection of an item and suppresion of already selected Item
-            else :
-                self.legend.selected= self
-            self.legend.update()
-        
-    #To handle the drag 
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-    
-    #To test is it from the admin Legend
-    def isFromAdmin(self):
-        return self.legend.id=="adminLegend"
-
 
 
 

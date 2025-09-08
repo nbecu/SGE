@@ -7,6 +7,7 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your GameActions")
+myModel.displayAdminControlPanel()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
@@ -29,7 +30,7 @@ Player1=myModel.newPlayer("Player 1")
 # you can add GameAction to your Player here.
 # This is a Update Action : the player can update 3 cells to landUse grass
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},4))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 

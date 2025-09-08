@@ -5,6 +5,8 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Create your ModelPhase")
+myModel.displayAdminControlPanel()
+myModel.displayTimeInWindowTitle()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
@@ -26,14 +28,14 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
+myModel.newPlayPhase('Phase 1', [Player1])
 # SGE is also able to have ModelPhase : this phase includes model activities/events
-myModel.timeManager.newModelPhase(
+myModel.newModelPhase(
     [lambda: Cell.setRandomEntities("landUse","shrub",3),
     lambda: Cell.setRandomEntities("landUse","forest")] #If no number of entities is defined, it will pick 1 entity by default
     )

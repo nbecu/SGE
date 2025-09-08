@@ -23,7 +23,7 @@ Turtle.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 Rabbit = myModel.newAgentSpecies("Rabbit", "ellipseAgent1", defaultSize=15, locationInEntity="center", defaultColor=Qt.white)
 Rabbit.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 # Slow turtle
 p1.addAction(lambda: Turtle.moveRandomly(numberOfMovement=1, condition=lambda c: c.isValue("landForm", "plain")))
 # Fast rabbit

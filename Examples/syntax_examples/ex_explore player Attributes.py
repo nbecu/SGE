@@ -17,7 +17,7 @@ player_Clara = myModel.newPlayer('Clara',attributesAndValues={'foo':5})
 player_Clara.setValue('Clara score',0)
 
 
-aPhase = myModel.timeManager.newModelPhase((lambda: player_Clara.incValue('Clara score',3)))
+aPhase = myModel.newModelPhase((lambda: player_Clara.incValue('Clara score',3)))
 
 resetScoreAction=myModel.newModelAction((lambda : player_Clara.setValue('Clara score',0)),(lambda: myModel.roundNumber()%4==0))
 aPhase.addAction(resetScoreAction)

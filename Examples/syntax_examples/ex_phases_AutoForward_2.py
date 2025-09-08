@@ -26,11 +26,11 @@ theFirstLegend=myModel.newLegend()
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 
-myModel.timeManager.newPlayPhase('Game Phase 1', [Player1])
-p2= myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')
+myModel.newPlayPhase('Game Phase 1', [Player1])
+p2= myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)], name = 'Model Phase 1')
 # comment or not
 p2.auto_forward=True 
 p2.message_auto_forward=False
@@ -45,8 +45,8 @@ aModelAction4.addCondition(lambda: myModel.roundNumber()==3)
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
 #Choose one or the other
-# myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2')
-myModel.timeManager.newModelPhase(aModelAction2, name = 'Model Phase 2',auto_forward=True,message_auto_forward="The land use has evolve. Continue to next turn")
+# myModel.newModelPhase(aModelAction2, name = 'Model Phase 2')
+myModel.newModelPhase(aModelAction2, name = 'Model Phase 2',auto_forward=True,message_auto_forward="The land use has evolve. Continue to next turn")
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)

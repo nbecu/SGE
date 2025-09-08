@@ -37,8 +37,8 @@ Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv
 Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":2.75E-5,"txCapture_Merlu":3.76E-5,"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})#,"Invisibility":"True"})
 
-Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
-Navire.setAttributeValueToDisplayInContextualMenu("Quantité_pêchée_Sole",'Sole pêché')
+Navire.displayAttributeValueInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
+Navire.displayAttributeValueInContextualMenu("Quantité_pêchée_Sole",'Sole pêché')
 
 EspècesHalieutiques=[Soles,Merlus]
 
@@ -60,7 +60,7 @@ Player2.addGameAction(Update1)
 Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
 
-theTextBox=myModel.newTextBox("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?")
+theTextBox=myModel.newTextBox("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?",sizeX=220)
 
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
@@ -112,7 +112,7 @@ def renouvellementStock_port():
         benefBateau=0
         navire.setValue('Quantité_pêchée_Merlu',0)
         navire.setValue('Quantité_pêchée_Sole',0)
-        navire.moveAgent(cellID=10)
+        navire.moveAgent(target=10) #equivalent to navire.moveAgent(method="cell",target=10)
 
         
 
@@ -130,18 +130,18 @@ def reset():
         navire.setValue("lastIncitationValue","neutre")
 
 
-PhaseReset=myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',auto_forward=True)
+PhaseReset=myModel.newModelPhase(myModel.newModelAction(lambda: reset()), name = 'Init du tour',auto_forward=True)
 
-PlayPhase=myModel.timeManager.newPlayPhase("Les joueurs peuvent jouer",[Player1,Player2])
+PlayPhase=myModel.newPlayPhase("Les joueurs peuvent jouer",[Player1,Player2])
 PlayPhase.setTextBoxText(theTextBox,"Place les bateaux à l'endroit où ils doivent pêcher")
 
 ModelActionPêche=myModel.newModelAction_onCells(lambda cell: pêche(cell))
 ModelActionFeedback=myModel.newModelAction(lambda: feedbackPêche())
 ModelActionRésolution=myModel.newModelAction(lambda : renouvellementStock_port())
 
-PhasePêche=myModel.timeManager.newModelPhase([ModelActionPêche,ModelActionFeedback], name="Pêche")
+PhasePêche=myModel.newModelPhase([ModelActionPêche,ModelActionFeedback], name="Pêche")
 PhasePêche.setTextBoxText(theTextBox,"Pêche en cours")
-PhaseRésolution=myModel.timeManager.newModelPhase(ModelActionRésolution, name="Renouvellement stocks")
+PhaseRésolution=myModel.newModelPhase(ModelActionRésolution, name="Renouvellement stocks")
 PhaseRésolution.setTextBoxText(theTextBox,"Résolution en cours")
 
 DashBoard=myModel.newDashBoard("DashBoard Pêcheur")
@@ -167,7 +167,7 @@ indNbMalus=DashBoard2.addIndicator(Navire,"nb",attribute="lastIncitationValue",v
 indBenefice=DashBoard2.addIndicatorOnSimVariable(revenuMalus)
 
 
-Legend=myModel.newLegend(showAgentsWithNoAtt=True)
+Legend=myModel.newLegend()
 TimeLabel=myModel.newTimeLabel("Time")
 
 userSelector=myModel.newUserSelector()

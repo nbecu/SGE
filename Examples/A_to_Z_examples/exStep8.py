@@ -29,10 +29,10 @@ aDict = generate_color_gradient(
 Sheeps.newPov("Health","health",aDict)
 
 
-m1=Sheeps.newAgentAtCoords(Cell,1,1)
-m2=Sheeps.newAgentAtCoords(Cell,5,1)
+m1_model = Sheeps.newAgentAtCoords(Cell,1,1)
+m2_model = Sheeps.newAgentAtCoords(Cell,5,1)
 
-theFirstLegend=myModel.newLegend(addDeleteButton=False)
+theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1",{"Percentage of grass":0})
@@ -48,14 +48,14 @@ userSelector=myModel.newUserSelector()
 userSelector.moveToCoords(600,180)
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1,Player2])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1,Player2])
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 
-myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: Sheeps.moveRandomly()))
-myModel.timeManager.newModelPhase(myModel.newModelAction_onAgents('Sheeps',lambda aSheep: eat(aSheep)))
+myModel.newModelPhase(myModel.newModelAction(lambda: Sheeps.moveRandomly()))
+myModel.newModelPhase(myModel.newModelAction_onAgents('Sheeps',lambda aSheep: eat(aSheep)))
 
 def eat(aSheep):
     if aSheep.cell.value('landUse') == "forest":
@@ -81,13 +81,13 @@ i1 = DashBoard.addIndicatorOnSimVariable(score1)
 
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: Cell.nb_withValue("landUse","forest")> 10) 
-aModelAction4.addFeedback(lambda: score1.incValue(3))
-phase6 = myModel.timeManager.newModelPhase(aModelAction4)
+aModelAction4.addFeedback(lambda: score1.incValue(25))
+phase6 = myModel.newModelPhase(aModelAction4)
 phase6.addAction(myModel.newModelAction(lambda: Player1.setValue("Percentage of grass",Cell.nb_withValue("landUse","grass")/Cell.nbOfEntities())))
 phase6.addAction(myModel.newModelAction(lambda: Player2.setValue("Sheeps in good health",Sheeps.nb_withValue("health","good"))))
 
 # dataTest = SGTestGetData(myModel)
-# myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
+# myModel.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
 
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')
@@ -95,7 +95,7 @@ DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value
 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
-    i1, "equal", 90, name="Score equal to 90")
+    i1, "greater", 90, name="Score greater than 90")
 endGameRule.showEndGameConditions()
 endGameRule.moveToCoords(600,450)
 

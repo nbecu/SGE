@@ -6,6 +6,7 @@ from sqlalchemy import true
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGEndGameCondition import SGEndGameCondition
+from mainClasses.SGAspect import SGAspect
 
 
 class SGEndGameRule(SGGameSpace):
@@ -16,9 +17,14 @@ class SGEndGameRule(SGGameSpace):
         self.id = title
         self.displayRefresh = displayRefresh
         self.isDisplay = True
-        self.borderColor = borderColor
-        self.backgroundColor = backgroundColor
-        self.textColor = textColor
+        # Configure styles using gs_aspect instead of individual attributes
+        self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = 1
+        self.gs_aspect.background_color = backgroundColor
+        # Configure text colors using the aspect system
+        self.setTitlesAndTextsColor(textColor)
+        # Initialize theme aspects for different states
+        self.success_aspect = SGAspect.success()
         self.endGameConditions = []
         self.numberRequired = numberRequired
         self.isDisplay = isDisplay
@@ -50,6 +56,8 @@ class SGEndGameRule(SGGameSpace):
                 layout.addWidget(self.button)
 
             self.setLayout(layout)
+            # Adjust size after layout configuration
+            self.adjustSizeAfterLayout()
             self.show()
 
     # To add a condition to end the game
@@ -69,6 +77,8 @@ class SGEndGameRule(SGGameSpace):
                                         attribut=None, color=color, calcType="onIndicator", isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
+        # Automatically adjust size after adding a condition
+        self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
     def addEndGameCondition_onEntity(self, aEntity, attribute, logicalTest, objective, name="Entity based condition",speciesName=None, aGrid=None, color=Qt.black, isDisplay=True):
         """Create an EndGame Condition with an Entity
@@ -89,6 +99,8 @@ class SGEndGameRule(SGGameSpace):
                                         attribut=attribute, color=color, calcType="onEntity", isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
+        # Automatically adjust size after adding a condition
+        self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
 
     def addEndGameCondition_onGameRound(self, logicalTest, objective, name="Game round condition", color=Qt.black, isDisplay=True):
@@ -106,6 +118,8 @@ class SGEndGameRule(SGGameSpace):
                                         attribut=None, color=color, calcType="onGameRound", isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
+        # Automatically adjust size after adding a condition
+        self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
    
 
@@ -123,18 +137,26 @@ class SGEndGameRule(SGGameSpace):
                                         attribut=None, color=color, calcType="onLambda", isDisplay=isDisplay)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
+        # Automatically adjust size after adding a condition
+        self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
     def paintEvent(self, event):
         if self.checkDisplay():
             painter = QPainter()
             painter.begin(self)
-            painter.setBrush(QBrush(self.backgroundColor, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor, 1))
+            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
+            
+            # Dynamic size calculation based on actual layout
+            width = self.getSizeXGlobal()
+            height = self.getSizeYGlobal()
+            
+            # Adjust widget size to calculated content
+            self.setMinimumSize(width, height)
+            self.resize(width, height)
+            
             # Draw the corner of the DB
-            self.setMinimumSize(self.getSizeXGlobal()+10,
-                                self.getSizeYGlobal()+10)
-            painter.drawRect(0, 0, self.getSizeXGlobal(),
-                             self.getSizeYGlobal())
+            painter.drawRect(0, 0, width - 1, height - 1)
 
             painter.end()
 
@@ -143,10 +165,102 @@ class SGEndGameRule(SGGameSpace):
             return True
         else:
             return False
+    
+    def adjustSizeAfterLayout(self):
+        """
+        Adjust widget size after layout configuration.
+        """
+        if hasattr(self, 'layout') and self.layout:
+            # Force layout to calculate its size
+            self.layout.activate()
+            size_hint = self.layout.sizeHint()
+            if size_hint.isValid():
+                # Add margins for border
+                width = size_hint.width() + self.size_manager.right_margin + self.size_manager.border_padding
+                height = size_hint.height() + self.size_manager.vertical_gap_between_labels + self.size_manager.border_padding
+                
+                # Apply calculated size
+                self.setMinimumSize(width, height)
+                self.resize(width, height)
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):
-        return 150
+        # Use actual layout size if available
+        if hasattr(self, 'layout') and self.layout:
+            # Force layout to calculate its size
+            self.layout.activate()
+            size_hint = self.layout.sizeHint()
+            if size_hint.isValid():
+                return max(size_hint.width() + self.size_manager.right_margin, self.size_manager.min_width)
+        
+        # Fallback: calculation based on content
+        if hasattr(self, 'endGameConditions') and self.endGameConditions:
+            return self.calculateContentWidth(content_widgets=self.endGameConditions)
+        return self.size_manager.min_width
 
     def getSizeYGlobal(self):
-        return 150
+        # Use actual layout size if available
+        if hasattr(self, 'layout') and self.layout:
+            # Force layout to calculate its size
+            self.layout.activate()
+            size_hint = self.layout.sizeHint()
+            if size_hint.isValid():
+                return max(size_hint.height() + self.size_manager.vertical_gap_between_labels, self.size_manager.min_height)
+        
+        # Fallback: calculation based on content
+        if hasattr(self, 'endGameConditions') and self.endGameConditions:
+            return self.calculateContentHeight(content_items=self.endGameConditions)
+        return self.size_manager.min_height
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the end game rule.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the end game rule.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        
+    def setBackgroundColor(self, color):
+        """
+        Set the background color of the end game rule.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The background color
+        """
+        self.gs_aspect.background_color = color
+        
+    def setTextColor(self, color):
+        """
+        Set the text color of the end game rule.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The text color
+        """
+        self.setTitlesAndTextsColor(color)
+        
+    def setSuccessThemeColor(self, color):
+        """
+        Set the success theme color for completed conditions.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The success color
+        """
+        self.success_aspect.color = color

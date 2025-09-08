@@ -28,7 +28,7 @@ Sheep.newAgentsAtRandom(5, condition=lambda c: c.isValue("landForm", "plain"))
 Wolf.newAgentsAtRandom(1,  condition=lambda c: c.isValue("landForm", "plain"))
 
 # Time phase
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 
 # Sheep wander randomly but only on plains
 p1.addAction(lambda: Sheep.moveRandomly(condition=lambda c: c.isValue("landForm", "plain")))

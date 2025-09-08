@@ -2,505 +2,211 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
 from PyQt5.QtGui import QCursor
-
 import random
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCell import SGCell
+from mainClasses.SGAgentView import SGAgentView
+from mainClasses.gameAction.SGCreate import *
+from mainClasses.gameAction.SGDelete import *
+from mainClasses.gameAction.SGModify import *
+from mainClasses.gameAction.SGMove import *
+from mainClasses.gameAction.SGActivate import *
    
 #Class who is responsible of the declaration a Agent
 class SGAgent(SGEntity):
-    def __init__(self,cell,size,attributesAndValues,shapeColor,classDef,defaultImage,popupImage):
-        aGrid = cell.grid
-        super().__init__(aGrid,classDef, size,attributesAndValues)
-        self.cell=None
+    """
+    SGAgent - Agent class for agent-based simulations
+    
+    This class now uses Model-View architecture:
+    - Inherits from SGEntity for data and business logic
+    - Delegates UI to SGAgentView for display and interaction
+    """
+    
+    def __init__(self, cell, size, attributesAndValues, shapeColor, classDef, defaultImage, popupImage):
+        """
+        Initialize the agent
+        
+        Args:
+            cell: The cell where the agent is located
+            size: Size of the agent
+            attributesAndValues: Initial attributes and values
+            shapeColor: Shape color
+            classDef: The agent definition class
+            defaultImage: Default image for the agent
+            popupImage: Popup image for the agent
+        """
+        super().__init__(classDef, size, attributesAndValues)
+        
+        # Type identification attributes
+        self.isEntity = True
+        self.isCell = False
+        self.isAgent = True
+        
+        # Agent-specific properties
+        self.cell = None
         if cell is not None:
             self.cell = cell
             self.cell.updateIncomingAgent(self)
-        else: raise ValueError('This case is not handeled')
-        self.getPositionInEntity()
-        self.last_selected_option=None
-
-        self.defaultImage=defaultImage
-        self.popupImage=popupImage
-        self.dragging = False
-
-        self.setAcceptDrops(True)
-        
-
-
-    def paintEvent(self,event):
-        painter = QPainter() 
-        painter.begin(self)
-        region = self.getRegion()
-        painter.setClipRegion(region)
-        image = self.defaultImage if self.defaultImage is not None else self.getImage()
-        if image is not None:
-            if image.width() ==0 or image.height == 0 : raise ValueError(f'Image size is not valid for {self.privateID}')
-            rect, scaledImage = self.rescaleImage(image)
-            painter.drawPixmap(rect, scaledImage)
-        else :
-            painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-        penColorAndWidth = self.getBorderColorAndWidth()
-        painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
-        agentShape = self.classDef.shape
-        x = self.xCoord
-        y = self.yCoord
-        if self.isDisplay==True:
-            if(agentShape=="circleAgent"):
-                self.setGeometry(x,y,self.size,self.size)
-                painter.drawEllipse(0,0,self.size,self.size)
-            elif agentShape=="squareAgent":
-                self.setGeometry(x,y,self.size,self.size)
-                painter.drawRect(0,0,self.size,self.size)
-            elif agentShape=="ellipseAgent1": 
-                self.setGeometry(x,y,self.size,round(self.size/2))
-                painter.drawEllipse(0,0,self.size,round(self.size/2))
-            elif agentShape=="ellipseAgent2": 
-                self.setGeometry(x,y,round(self.size/2),self.size)
-                painter.drawEllipse(0,0,round(self.size/2),self.size)
-            elif agentShape=="rectAgent1": 
-                self.setGeometry(x,y,self.size,round(self.size/2))
-                painter.drawRect(0,0,self.size,round(self.size/2))
-            elif agentShape=="rectAgent2": 
-                self.setGeometry(x,y,round(self.size/2),self.size)
-                painter.drawRect(0,0,round(self.size/2),self.size)
-            elif agentShape=="triangleAgent1": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(round(self.size/2),0),
-                QPoint(0,self.size),
-                QPoint(self.size,  self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape=="triangleAgent2": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(0,0),
-                QPoint(self.size,0),
-                QPoint(round(self.size/2),self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape=="arrowAgent1": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(round(self.size/2),0),
-                QPoint(0,self.size),
-                QPoint(round(self.size/2),round(self.size/3)*2),
-                QPoint(self.size,  self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape=="arrowAgent2": 
-                self.setGeometry(x,y,self.size,self.size)
-                points = QPolygon([
-                QPoint(0,0),
-                QPoint(round(self.size/2),round(self.size/3)),
-                QPoint(self.size,0),
-                QPoint(round(self.size/2),self.size)
-                ])
-                painter.drawPolygon(points)
-            elif agentShape == "hexagonAgent":
-                self.setGeometry(x, y, self.size, self.size)
-                side = self.size / 2
-                height = round(side * (3 ** 0.5))+10  # Hauteur de l'hexagone équilatéral
-                points = QPolygon([
-                    QPoint(round(self.size/2), 0),                # Sommet supérieur
-                    QPoint(self.size, round(height/4)),           # Coin supérieur droit
-                    QPoint(self.size, round(3*height/4)),         # Coin inférieur droit
-                    QPoint(round(self.size/2), height),           # Sommet inférieur
-                    QPoint(0, round(3*height/4)),                 # Coin inférieur gauche
-                    QPoint(0, round(height/4))                    # Coin supérieur gauche
-                ])
-                painter.drawPolygon(points)
-            self.show()
-            painter.end()
-    
-    def getRegion(self):
-        agentShape=self.classDef.shape
-        if(agentShape=="circleAgent"):
-            region = QRegion(0, 0, self.size, self.size, QRegion.Ellipse)
-        elif agentShape=="squareAgent":
-            region = QRegion(0, 0, self.size, self.size)
-        elif agentShape=="ellipseAgent1": 
-            region = QRegion(0,0,self.size,round(self.size/2))
-        elif agentShape=="ellipseAgent2": 
-            region = QRegion(0,0,round(self.size/2),self.size)
-        elif agentShape=="rectAgent1": 
-            region = QRegion(0,0,self.size,round(self.size/2))
-        elif agentShape=="rectAgent2": 
-            region = QRegion(0,0,round(self.size/2),self.size)
-        elif agentShape=="triangleAgent1": 
-            points = QPolygon([
-            QPoint(round(self.size/2),0),
-            QPoint(0,self.size),
-            QPoint(self.size,  self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape=="triangleAgent2": 
-            points = QPolygon([
-            QPoint(0,0),
-            QPoint(self.size,0),
-            QPoint(round(self.size/2),self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape=="arrowAgent1": 
-            points = QPolygon([
-            QPoint(round(self.size/2),0),
-            QPoint(0,self.size),
-            QPoint(round(self.size/2),round(self.size/3)*2),
-            QPoint(self.size,  self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape=="arrowAgent2": 
-            points = QPolygon([
-            QPoint(0,0),
-            QPoint(round(self.size/2),round(self.size/3)),
-            QPoint(self.size,0),
-            QPoint(round(self.size/2),self.size)
-            ])
-            region = QRegion(points)
-        elif agentShape == "hexagonAgent":  
-            side = self.size / 2
-            height = round(side * (3 ** 0.5))+10  
-            points = QPolygon([
-                QPoint(round(self.size/2), 0),        
-                QPoint(self.size, round(height/4)),           
-                QPoint(self.size, round(3*height/4)),    
-                QPoint(round(self.size/2), height),        
-                QPoint(0, round(3*height/4)),              
-                QPoint(0, round(height/4))                   
-            ])
-            region = QRegion(points)
-        return region
-   
-   
-   #Funtion to handle the zoomIn
-    def zoomIn(self,zoomFactor):
-        self.size=round(self.size+(zoomFactor*10))
-        self.update()
-
-    #Funtion to handle the zoomOut
-    def zoomOut(self,zoomFactor):
-        self.size=round(self.size-(zoomFactor*10))
-        self.update()
+        else: 
+            raise ValueError('This case is not handled')
             
-    def getRandomX(self):        
-        maxSize=self.cell.size
-        originPoint=self.cell.pos()
-        if self.classDef.shape in ["ellipseAgent2","rectAgent2"]: 
-            x = random.randint(originPoint.x(),originPoint.x()+maxSize-round(self.size/2))
-        else:
-            x = random.randint(originPoint.x(),originPoint.x()+maxSize-self.size)
-        return x
+        self.defaultImage = defaultImage
+        self.popupImage = popupImage
+        self.last_selected_option = None
         
+        # Initialize position
+        self.getPositionInEntity()
+        
+        # Initialize attributes
+        self.initAttributesAndValuesWith(attributesAndValues)
+        
+        # View will be created and linked by the factory
+        # Don't create view here to avoid duplication
+
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
+
+    # Model-View specific methods
+    def getView(self):
+        """Get the agent view"""
+        return self.view
+    
+    def setView(self, view):
+        """Set the agent view"""
+        self.view = view
+        if view:
+            view.agent_model = self
+    
+    def updateView(self):
+        """Update the agent view"""
+        if self.view:
+            self.view.update()
+
+
+    def getPrivateId(self):
+        """Get private ID"""
+        return self.privateID
+
+    # Position calculation methods
+    def getRandomX(self):        
+        maxSize = self.cell.size
+        # Use cell coordinates instead of pos()
+        startX = self.cell.startXBase + (self.cell.xCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
+        if self.classDef.shape in ["ellipseAgent2","rectAgent2"]: 
+            x = random.randint(startX, startX + maxSize - round(self.size/2))
+        else:
+            x = random.randint(startX, startX + maxSize - self.size)
+        return x
     
     def getRandomY(self): 
-        maxSize=self.cell.size
-        originPoint=self.cell.pos()
+        maxSize = self.cell.size
+        # Use cell coordinates instead of pos()
+        startY = self.cell.startYBase + (self.cell.yCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
         if self.classDef.shape in ["ellipseAgent1","rectAgent1"]: 
-            y = random.randint(originPoint.y(),originPoint.y()+maxSize-round(self.size/2))
+            y = random.randint(startY, startY + maxSize - round(self.size/2))
         else:
-            y = random.randint(originPoint.y(),originPoint.y()+maxSize-self.size)
+            y = random.randint(startY, startY + maxSize - self.size)
         return y
     
     def getPositionInEntity(self):
-        maxSize=self.cell.size
-        originPoint=self.cell.pos()
-        if self.classDef.locationInEntity=="random":
-            self.xCoord=self.getRandomX()
-            self.yCoord=self.getRandomY()
+        maxSize = self.cell.size
+        # Use cell coordinates instead of pos()
+        startX = self.cell.startXBase + (self.cell.xCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
+        startY = self.cell.startYBase + (self.cell.yCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
+        
+        if self.classDef.locationInEntity == "random":
+            self.xCoord = self.getRandomX()
+            self.yCoord = self.getRandomY()
             return
-        if self.classDef.locationInEntity=="topRight":
-            self.xCoord=originPoint.x()+maxSize-10
-            self.yCoord=originPoint.y()+5
+        if self.classDef.locationInEntity == "topRight":
+            self.xCoord = startX + maxSize - 10
+            self.yCoord = startY + 5
             return
-        if self.classDef.locationInEntity=="topLeft":
-            self.xCoord=originPoint.x()+5
-            self.yCoord=originPoint.y()+5
+        if self.classDef.locationInEntity == "topLeft":
+            self.xCoord = startX + 5
+            self.yCoord = startY + 5
             return
-        if self.classDef.locationInEntity=="bottomLeft":
-            self.xCoord=originPoint.x()+5
-            self.yCoord=originPoint.y()+maxSize-10
+        if self.classDef.locationInEntity == "bottomLeft":
+            self.xCoord = startX + 5
+            self.yCoord = startY + maxSize - 10
             return
-        if self.classDef.locationInEntity=="bottomRight":
-            self.xCoord=originPoint.x()+maxSize-10
-            self.yCoord=originPoint.y()+maxSize-10
+        if self.classDef.locationInEntity == "bottomRight":
+            self.xCoord = startX + maxSize - 10
+            self.yCoord = startY + maxSize - 10
             return
-        if self.classDef.locationInEntity=="center":
-            self.xCoord=originPoint.x()+int(maxSize/2)-int(self.size/2)
-            self.yCoord=originPoint.y()+int(maxSize/2)-int(self.size/2)
+        if self.classDef.locationInEntity == "center":
+            self.xCoord = startX + int(maxSize/2) - int(self.size/2)
+            self.yCoord = startY + int(maxSize/2) - int(self.size/2)
             return
         else:
             raise ValueError("Error in entry for locationInEntity")
 
-    def isDeleted(self):
-        if not self.isDisplay:
-            raise ValueError ('An agent which is not displayed is not necessary deleted.') 
-        return not self.isDisplay
+    # Zoom methods
+    def zoomIn(self, zoomFactor):
+        """Zoom in the agent"""
+        self.size = round(self.size + (zoomFactor * 10))
     
+    def zoomOut(self, zoomFactor):
+        """Zoom out the agent"""
+        self.size = round(self.size - (zoomFactor * 10))
 
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.dragging = True
-            #Something is selected
-            aLegendItem = self.model.getSelectedLegendItem()
-            if aLegendItem is None : return #Exit the method
-
-            if aLegendItem.legend.isAdminLegend():
-                authorisation= True
-            else :
-                from mainClasses.gameAction.SGMove import SGMove
-                if isinstance(aLegendItem.gameAction,SGMove): return
-                aLegendItem.gameAction.perform_with(self)  #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-                return
-            if not authorisation : return #Exit the method
-
-            #The delete Action
-            if aLegendItem.type == 'delete' :
-                if authorisation : 
-                    self.classDef.deleteEntity(self)
-
-            #The  change value on agent
-            elif aLegendItem.isSymbolOnAgent() :
-                if  authorisation :
-                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
-                    # self.update()
-
-
-            
-    #To handle the drag of the agent
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.LeftButton:
-            return
-
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-
-        # Take a snapshot of the widget (the agent)
-        pixmap = self.grab()
-
-        # Make the pixmap semi-transparent
-        painter = QPainter(pixmap)
-        painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
-        painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))  # 128 = 50% opacity
-        painter.end()
-
-        # Set the pixmap as the drag preview
-        drag.setPixmap(pixmap)
-
-        # Keep the cursor aligned with the click point
-        drag.setHotSpot(e.pos())
-
-        # Start the drag operation
-        drag.exec_(Qt.CopyAction | Qt.MoveAction)
-
-    # def mouseMoveEvent(self, e):
-    
-    #     if e.buttons() != Qt.LeftButton:
-    #         return
-    #     authorisation = True
-    #     if authorisation:
-    #         mimeData = QMimeData()
-    #         drag = QDrag(self)
-    #         drag.setMimeData(mimeData)
-    #         drag.setHotSpot(e.pos() - self.rect().topLeft())
-    #         drag.exec_(Qt.CopyAction | Qt.MoveAction)
-
-    def dragEnterEvent(self,e):
-        e.acceptProposedAction()
-
-
-    def dropEvent(self, e):    
-        if isinstance(e.source(), SGAgent) and self.cell is not None:
-            # Specific case: forward the drop to the cell
-            self.cell.dropEvent(e)
-        else:
-            # Fallback: delegate the drop handling to the parent model
-            self.model.dropEvent(e)
-       
-
-    def enterEvent(self, event):
-        if self.dragging:
-            return
-
-        if self.popupImage:
-            # Convertir l'image en HTML pour ToolTip
-            image_html = f"<img src='{self.popupImage}' style='max-width: 200px; max-height: 200px;'>"
-            QToolTip.showText(QCursor.pos(), image_html, self)
-
-    def leaveEvent(self, event):
-        QToolTip.hideText()
-                        
-    #Apply the feedBack of a gameMechanics
+    # Feedback methods
     def feedBack(self, theAction):
-        booleanForFeedback=True
-        for anCondition in theAction.conditionOfFeedBack :
-            booleanForFeedback=booleanForFeedback and anCondition(self)
-        if booleanForFeedback :
-            for aFeedback in  theAction.feedback :
+        """Apply feedback from a game mechanics action"""
+        booleanForFeedback = True
+        for anCondition in theAction.conditionOfFeedBack:
+            booleanForFeedback = booleanForFeedback and anCondition(self)
+        if booleanForFeedback:
+            for aFeedback in theAction.feedback:
                 aFeedback(self)
 
-    def addPovinMenuBar(self,nameOfPov):
-        if nameOfPov not in self.model.listOfPovsForMenu :
+    def addPovinMenuBar(self, nameOfPov):
+        """Add POV to menu bar"""
+        if nameOfPov not in self.model.listOfPovsForMenu:
             self.model.listOfPovsForMenu.append(nameOfPov)
-            anAction=QAction(" &"+nameOfPov, self)
+            anAction = QAction(" &" + nameOfPov, self)
             self.model.povMenu.addAction(anAction)
             anAction.triggered.connect(lambda: self.model.displayPov(nameOfPov))
 
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
 
-            
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
 
-#-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use
+  
 
-    def updateAgentByRecreating_it(self):
-        aDestinationCell = self.cell
-        self.cell.updateDepartureAgent(self)
-        self.copyOfAgentAtCoord(aDestinationCell)
-        self.deleteLater()
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
 
-    # To copy an Agent to make a move
-    def copyOfAgentAtCoord(self, aCell):
-        oldAgent = self
-        newAgent = SGAgent(aCell, oldAgent.size,oldAgent.dictAttributes,oldAgent.classDef.povShapeColor,oldAgent.classDef,oldAgent.defaultImage,oldAgent.popupImage)
-        self.classDef.IDincr -=1
-        newAgent.id = oldAgent.id
-        newAgent.history = oldAgent.history
-        newAgent.watchers = oldAgent.watchers
-        #apply correction on the watchers on this entity
-        for watchers in list(oldAgent.watchers.values()):
-            for aWatcherOnThisAgent in watchers:
-                aWatcherOnThisAgent.entity=newAgent        
-        newAgent.privateID = oldAgent.privateID
-        newAgent.isDisplay = oldAgent.isDisplay
-        newAgent.classDef.entities.remove(oldAgent)
-        newAgent.classDef.entities.append(newAgent)
-        newAgent.update()
-        newAgent.show()
-        self.update()
-        return newAgent
-    
+    # (No delete methods specific to agents in this class)
 
-    def moveTo(self, aDestinationCell):
-        if self.cell is None:
-            self.cell = aDestinationCell
-            self.cell.updateIncomingAgent(self)
-            self.update()
-            theAgent= self
-        else :
-            self.cell.updateDepartureAgent(self)
-            theAgent= self.copyOfAgentAtCoord(aDestinationCell)
-            self.deleteLater()
-        return theAgent
-
-    def moveAgent(self,method="random",direction=None,cellID=None,numberOfMovement=1,condition=None):
-        """
-        An agent moves.
-
-        args:
-            method (str): random, cell, cardinal
-            direction (str): if cardinal; North, South, West, East
-            cellID (str): if cell; cellx-y
-            numberOfMovement (int): number of movement in one action
-            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
-        """
-        if numberOfMovement > 1 : raise ValueError('SGE currently has an issue with multiple movements at a step of an agent. Do not use numberOfMovement for the time being')
-        for i in range(numberOfMovement):
-
-            if i>0:
-                oldAgent=theAgent
-                originCell=oldAgent.cell
-            else:
-                oldAgent=self
-                originCell=self.cell
-
-            aGrid=originCell.grid
-
-            if method == "random":
-                neighbors=originCell.getNeighborCells(condition=condition)
-                newCell=random.choice(neighbors) if neighbors else None
-
-            if method == "cell" or cellID is not None:
-                newCell=aGrid.getCell_withId(cellID)
-                
-                if condition is not None:
-                    if not condition(newCell):
-                        newCell = None
-
-            if method == "cardinal" or direction is not None:
-                if direction =="North":
-                    newCell=originCell.getNeighborN()
-                if direction =="South":
-                    newCell=originCell.getNeighborS()
-                if direction =="East":
-                    newCell=originCell.getNeighborE()
-                if direction =="West":
-                    newCell=originCell.getNeighborW()
-                    
-                if condition is not None:
-                    if not condition(newCell):
-                        newCell = None
-                
-
-            if newCell is None:
-                pass
-            else:
-                theAgent = self.moveTo(newCell)
-        pass
-        return newCell
-
-    def moveRandomly(self,numberOfMovement=1,condition=None):
-        """
-        An agent moves randomly in his direct neighborhood.
-        
-        args:
-            numberOfMovement (int): number of movement in one action
-            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
-        """
-        self.moveAgent(numberOfMovement=numberOfMovement,condition=condition)
-
-    def moveTowards(self, target, condition=None):
-        """
-        Move the agent one step towards a target cell or another agent.
-
-        Args:
-            target (Agent | Cell | tuple[int,int]): 
-                - Another agent object
-                - A cell object
-                - A tuple (x, y) for target coordinates
-            condition (callable, optional): A lambda function that takes a Cell as argument and returns True 
-                if the agent can move there.
-        """
-        # Determine the target cell
-        if isinstance(target, SGAgent):  # Target is an agent
-            target_cell = target.cell
-        elif isinstance(target, SGCell):  # Target is a Cell
-            target_cell = target
-        elif isinstance(target, tuple) and len(target) == 2:  # Coordinates (x, y)
-            target_cell = self.cell.grid.getCell(target)
-        else:
-            raise ValueError("Invalid target type for moveTowards()")
-
-        # Get neighbors that satisfy the condition
-        neighbors = self.cell.getNeighborCells(condition=condition)
-        if not neighbors:
-            return  # No possible move
-
-        # Select the neighbor closest to the target cell
-        def dist(c1, c2):
-            dx = c1.xCoord - c2.xCoord
-            dy = c1.yCoord - c2.yCoord
-            return (dx*dx + dy*dy) ** 0.5  # Euclidean distance
-
-        best_cell = min(neighbors, key=lambda n: dist(n, target_cell))
-        self.moveTo(best_cell)
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
 
     def getId(self):
+        """Get agent ID"""
         return self.id
     
-    def getPrivateId(self):
-        return self.privateID
+    def getCoords(self):
+        """Get agent coordinates"""
+        return (self.cell.xCoord, self.cell.yCoord)
+    
+    
+    def getCell(self):
+        """Get the current cell of the agent"""
+        return self.cell
+    
+    def getCellCoordinates(self):
+        """Get the coordinates of the current cell"""
+        if self.cell:
+            return (self.cell.xCoord, self.cell.yCoord)
+        return None
     
     def getAgentsHere(self, specie=None):
         """
@@ -514,7 +220,13 @@ class SGAgent(SGEntity):
         """
         if self.cell is None:
             return []
-        return self.cell.getAgents(specie)
+        
+        agents = self.cell.getAgents()
+        if specie is None:
+            return agents
+        
+        # Filter by species
+        return [agent for agent in agents if agent.classDef.entityName == specie]
 
     def nbAgentsHere(self, specie=None):
         """
@@ -528,32 +240,19 @@ class SGAgent(SGEntity):
         """
         if self.cell is None:
             return 0
-        return self.cell.nbAgents(specie)
+        return len(self.getAgentsHere(specie))
 
-    def hasAgentsHere(self, specie=None):
-        """
-        Check if the cell containing this agent has at least one agent.
-
-        Args:
-            specie (str | None): If specified, check only for agents of this specie.
-
-        Returns:
-            bool: True if at least one matching agent is in the same cell, False otherwise.
-        """
-        if self.cell is None:
-            return False
-        return self.cell.hasAgents(specie)
+    def getNeighborCells(self, neighborhood=None):
+        """Get neighbor cells"""
+        return self.cell.getNeighborCells(condition=neighborhood)
     
-    def getNeighborCells(self,neighborhood=None):
-        return self.cell.getNeighborCells(neighborhood=neighborhood)
-    
-    def getNeighborAgents(self,aSpecies=None,neighborhood=None):
-                
-        neighborAgents=[]        
-        neighborAgents=[aCell.agents for aCell in self.getNeighborCells(neighborhood=neighborhood)]
+    def getNeighborAgents(self, aSpecies=None, neighborhood=None):
+        """Get neighbor agents"""
+        neighborAgents = []        
+        neighborAgents = [aCell.agents for aCell in self.getNeighborCells(neighborhood=neighborhood)]
         
         if aSpecies:
-            return self.filterBySpecies(aSpecies,neighborAgents)
+            return self.filterBySpecies(aSpecies, neighborAgents)
         return neighborAgents
     
     def getClosestAgentMatching(self, agentSpecie, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
@@ -593,51 +292,262 @@ class SGAgent(SGEntity):
             return_all=return_all
         )
 
+    def nbNeighborAgents(self, aSpecies=None, neighborhood=None):  
+        """Get number of neighbor agents"""
+        return len(self.getNeighborAgents(aSpecies, neighborhood))
+
+    def getNeighborsN(self, aSpecies=None):
+        """Get neighbors to the North"""
+        theCell = self.cell.getNeighborN()
+        if aSpecies:
+            return self.filterBySpecies(aSpecies, theCell.agents)
+        return theCell.agents
     
-    def filterBySpecies(self,aSpecies,agents):
-        agents=[]
-        if len(agents)!=0:
+    def getNeighborsS(self, aSpecies=None):
+        """Get neighbors to the South"""
+        theCell = self.cell.getNeighborS()
+        if aSpecies:
+            return self.filterBySpecies(aSpecies, theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsE(self, aSpecies=None):
+        """Get neighbors to the East"""
+        theCell = self.cell.getNeighborE()
+        if aSpecies:
+            return self.filterBySpecies(aSpecies, theCell.agents)
+        return theCell.agents
+    
+    def getNeighborsW(self, aSpecies=None):
+        """Get neighbors to the West"""
+        theCell = self.cell.getNeighborW()
+        if aSpecies:
+            return self.filterBySpecies(aSpecies, theCell.agents)
+        return theCell.agents
+
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+
+    def isInCell(self, cell):
+        """Check if agent is in a specific cell"""
+        return self.cell == cell
+
+    def hasAgentsHere(self, specie=None):
+        """
+        Check if the cell containing this agent has at least one agent.
+
+        Args:
+            specie (str | None): If specified, check only for agents of this specie.
+
+        Returns:
+            bool: True if at least one matching agent is in the same cell, False otherwise.
+        """
+        if self.cell is None:
+            return False
+        return len(self.getAgentsHere(specie)) > 0
+
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+
+    def moveTo(self, aDestinationCell):
+        """
+        Move this agent to a specific cell.
+        
+        This method handles both initial placement and subsequent movements.
+        Use this method for initial agent placement or when moving to a specific cell.
+        
+        Args:
+            aDestinationCell: The cell where the agent should move
+            
+        Returns:
+            self: The agent (for chaining operations)
+        """
+        if self.cell is None:
+            # First placement
+            self.cell = aDestinationCell
+            self.cell.updateIncomingAgent(self)
+            self.getPositionInEntity()  # Update position
+            if hasattr(self, 'view') and self.view is not None:
+                # Force layout recalculation before positioning
+                from PyQt5.QtWidgets import QApplication
+                QApplication.processEvents()
+                self.view.getPositionInEntity()  # Force view repositioning
+                self.view.show()  # Ensure view is visible
+                self.updateView()
+            return self
+        else:
+            # Movement from one cell to another
+            
+            # Check if moving to a different grid
+            old_grid = self.cell.classDef.grid if hasattr(self.cell, 'classDef') and hasattr(self.cell.classDef, 'grid') else None
+            new_grid = aDestinationCell.classDef.grid if hasattr(aDestinationCell, 'classDef') and hasattr(aDestinationCell.classDef, 'grid') else None
+            
+            if old_grid != new_grid and hasattr(self, 'view') and self.view is not None:
+                # Change the parent of the view to the new grid
+                self.view.setParent(new_grid)
+            
+            # Remove from current cell
+            self.cell.removeAgent(self)
+            
+            # Move to new cell
+            self.cell = aDestinationCell
+            self.cell.updateIncomingAgent(self)
+            
+            # Update position and view
+            self.getPositionInEntity()
+            if hasattr(self, 'view') and self.view is not None:
+                # Force layout recalculation before positioning
+                from PyQt5.QtWidgets import QApplication
+                QApplication.processEvents()
+                self.view.getPositionInEntity()  # Force view repositioning
+                self.view.show()  # Ensure view is visible
+                self.updateView()
+            
+            return self
+    def moveAgent(self, method='random', target=None, numberOfMovement=1, condition=None):
+        """
+        Move the agent using predefined movement patterns.
+        
+        Note: This method requires the agent to already be placed on a cell.
+        For initial placement, use moveTo() instead.
+        
+        Args:
+            method (str): Movement method
+                - "random" (default)
+                - "cell" (default when target is defined)
+                    -used with target as numeric ID (int), coordinates (x, y) tuple
+                - "direction" (default when target is defined)
+                    -used with target as direction string ("up", "down", "left", "right")
+            numberOfMovement (int): Number of movements in one action
+            condition (callable, optional): Condition function for destination cell validation
+            
+        Returns:
+            self: The agent (for chaining operations)
+        """
+        if method=='random' and target is not None:
+            if isinstance(target, tuple) or isinstance(target, int): method="cell"
+            elif target and target.lower() in ["up", "down", "left", "right"]: method="direction"
+            else: raise ValueError("Invalid target type for moveAgent()")
+
+        if numberOfMovement > 1: 
+            # Repeat the movement numberOfMovement times with numberOfMovement=1 each time
+            for i in range(numberOfMovement):
+                self.moveAgent(method=method, target=target, numberOfMovement=1, condition=condition)
+            return self
+
+        aGrid = self.cell.grid
+
+        if method == "random":
+            neighbors = self.cell.getNeighborCells(condition=condition)
+            newCell = random.choice(neighbors) if neighbors else None
+
+        elif method == "cell" and target is not None:
+            # target can be either a numeric ID or coordinates (x, y)
+            if isinstance(target, tuple) and len(target) == 2:
+                # target is coordinates (x, y)
+                x, y = target
+                newCell = self.cell.classDef.getCell(x, y)
+            else:
+                # target is a numeric ID
+                newCell = aGrid.getCell_withId(target)
+            
+            if condition is not None and newCell is not None:
+                if not condition(newCell):
+                    newCell = None
+
+        elif method == "direction" and target is not None:
+            # target must be a direction string for direction movement
+            if target and target.lower() in ["up", "down", "left", "right"]:
+                direction_lower = target.lower()
+                if direction_lower == "up":
+                    newCell = self.cell.getNeighborN()
+                elif direction_lower == "down":
+                    newCell = self.cell.getNeighborS()
+                elif direction_lower == "left":
+                    newCell = self.cell.getNeighborE()
+                elif direction_lower == "right":
+                    newCell = self.cell.getNeighborW()
+                else:
+                    newCell = None
+        else:
+            newCell = None
+                
+        if condition is not None and newCell is not None:
+            if not condition(newCell):
+                newCell = None
+
+        if newCell is None:
+            pass
+        else:
+            theAgent = self.moveTo(newCell)
+            
+        return newCell
+
+
+    def moveRandomly(self, numberOfMovement=1, condition=None):
+        """
+        An agent moves randomly in his direct neighborhood.
+        
+        Args:
+            numberOfMovement (int): number of movement in one action
+            condition (lambda function, optional): a condition that the destination cell should respect for the agent to move
+        """
+        self.moveAgent(method="random", numberOfMovement=numberOfMovement, condition=condition)
+
+    def moveTowards(self, target, condition=None):
+        """
+        Move the agent one step towards a target cell or another agent.
+
+        Args:
+            target (Agent | Cell | tuple[int,int]): 
+                - Another agent object
+                - A cell object
+                - A tuple (x, y) for target coordinates
+            condition (callable, optional): A lambda function that takes a Cell as argument and returns True 
+                if the agent can move there.
+        """
+        # Determine the target cell
+        if hasattr(target, 'cell'):  # Target is an agent
+            target_cell = target.cell
+        elif hasattr(target, 'isCell') and target.isCell:  # Target is a Cell
+            target_cell = target
+        elif isinstance(target, tuple) and len(target) == 2:  # Coordinates (x, y)
+            target_cell = self.cell.classDef.getCell(target[0], target[1])
+        else:
+            raise ValueError("Invalid target type for moveTowards()")
+
+        # Get neighbors that satisfy the condition
+        neighbors = self.cell.getNeighborCells(condition=condition)
+        if not neighbors:
+            return  # No possible move
+
+        # Select the neighbor closest to the target cell
+        def dist(c1, c2):
+            dx = c1.xCoord - c2.xCoord
+            dy = c1.yCoord - c2.yCoord
+            return (dx*dx + dy*dy) ** 0.5  # Euclidean distance
+
+        best_cell = min(neighbors, key=lambda n: dist(n, target_cell))
+        self.moveTo(best_cell)
+
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+
+    def filterBySpecies(self, aSpecies, agents): #todo est ce que cette méthode ne devrait pas plutôt etre dans SGExtensions.py ?
+        """Filter agents by species"""
+        filtered_agents = []
+        if len(agents) != 0:
             for aAgent in agents:
-                if isinstance(aAgent,list):
+                if isinstance(aAgent, list):
                     for agent in aAgent:
                         if agent.classDef == aSpecies or agent.classDef.entityName == aSpecies:
-                            agents.append(agent)
-                elif isinstance(aAgent,SGAgent):
+                            filtered_agents.append(agent)
+                elif hasattr(aAgent, 'classDef'):  # Check if it's an agent
                     if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
-                        agents.append(aAgent)
-        return agents
-    
-    def nbNeighborAgents(self,aSpecies=None,neighborhood=None):  
-        return len(self.getNeighborAgents(aSpecies,neighborhood))
-
-    def getNeighborsN(self,aSpecies=None):
-        theCell=self.cell.getNeighborN()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies,theCell.agents)
-        return theCell.agents
-    
-    def getNeighborsS(self,aSpecies=None):
-        theCell=self.cell.getNeighborS()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies,theCell.agents)
-        return theCell.agents
-    
-    def getNeighborsE(self,aSpecies=None):
-        theCell=self.cell.getNeighborE()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies,theCell.agents)
-        return theCell.agents
-    
-    def getNeighborsW(self,aSpecies=None):
-        theCell=self.cell.getNeighborW()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies,theCell.agents)
-        return theCell.agents
-
-    
-
-    
-    
+                        filtered_agents.append(aAgent)
+        return filtered_agents
                 
 
         

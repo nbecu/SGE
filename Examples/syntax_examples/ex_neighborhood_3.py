@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(400,260, windowTitle="Set neighborhood - neumann (4 neighbors) and closed boundaries")
+myModel=SGModel(400,260, windowTitle="Set neighborhood (4 neighbors, closed boundaries) move only on plain")
 
 # To change neighborhood and boundaries settings, you can pass new values in arguments of the grid or of newCellsOnGrid()"
 Cell=myModel.newCellsOnGrid(7,4,"square",gap=0,size=50,neighborhood='neumann',boundaries='closed')
@@ -23,7 +23,7 @@ Sheeps=myModel.newAgentSpecies("Sheeps","ellipseAgent1",defaultSize=20,locationI
 
 Sheeps.newAgentsAtRandom(1, condition=lambda cell : cell.isValue('landForm','plain'))
 
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 p1.addAction(lambda : Sheeps.moveRandomly(condition=(lambda aCell : aCell.isValue('landForm','plain'))))
 
 

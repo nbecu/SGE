@@ -55,6 +55,9 @@ class SGTimeManager():
         if self.model.userSelector is not None:
             self.model.userSelector.updateOnNewPhase()
 
+        # Update control panels based on current phase type
+        self.updateControlPanelsForCurrentPhase()
+
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()
         #watchers update
@@ -65,6 +68,20 @@ class SGTimeManager():
 
         # La phase gère elle-même son passage automatique
         self.getCurrentPhase().handleAutoForward()
+
+    def updateControlPanelsForCurrentPhase(self):
+        """Update control panels activation based on current phase type"""
+        currentPhase = self.getCurrentPhase()
+        
+        # Check if we're in a model phase (no authorized players)
+        if hasattr(currentPhase, '__class__') and currentPhase.__class__.__name__ == 'SGModelPhase':
+            # In model phase, all control panels should be inactive
+            for controlPanel in self.model.getControlPanels():
+                controlPanel.setActivation(False)
+        else:
+            # In play phase, only the current player's control panel should be active
+            for controlPanel in self.model.getControlPanels():
+                controlPanel.setActivation(controlPanel.playerName == self.model.currentPlayerName)
 
     def isItTheLastPhase(self):
         return (self.currentPhaseNumber + 1) > self.numberOfPhases() 
@@ -109,13 +126,17 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newPlayPhase(self, name, activePlayers, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def newPlayPhase(self, name, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         To add a Game Phase in a round.
 
         args:
             name (str): Name displayed on the TimeLabel
-            activePlayers : List of plays concerned about the phase (default:all)
+            activePlayers (list): List of players concerned about the phase. Can contain:
+                - Player instances (SGPlayer objects)
+                - Player names (str) - will be automatically converted to instances
+                - 'Admin' (str) - will be converted to the Admin player instance
+                - None (default:all users)
             modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
             autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
             message_auto_forward (bool): Whether to show a message when automatically forwarding to the next phase
@@ -123,6 +144,34 @@ class SGTimeManager():
         """
         if activePlayers == None:
             activePlayers = self.model.users
+        
+        # Convert player names to player instances
+        processedPlayers = []
+        for player in activePlayers:
+            if isinstance(player, str):
+                if player == 'Admin':
+                    # Handle Admin player
+                    adminPlayer = self.model.getAdminPlayer()
+                    if adminPlayer:
+                        processedPlayers.append(adminPlayer)
+                    else:
+                        # If no adminPlayer exists, skip it
+                        continue
+                else:
+                    # Handle regular players by name
+                    try:
+                        playerInstance = self.model.getPlayer(player)
+                        processedPlayers.append(playerInstance)
+                    except ValueError:
+                        # If player not found, skip it
+                        print(f"Warning: Player '{player}' not found, skipping from active players")
+                        continue
+            else:
+                # Already an instance, keep as is
+                processedPlayers.append(player)
+        
+        activePlayers = processedPlayers
+
         aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
                            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
                            message_auto_forward=message_auto_forward,

@@ -92,6 +92,22 @@ class SGAspect():
         instance.font_style = 'italic'
         return instance  # Retourne l'instance configurée
 
+    @classmethod
+    def success(cls):
+        """Theme for success state (e.g., completed conditions)"""
+        instance = cls()
+        instance.color = 'darkgreen'
+        instance.font_weight = 'bold'
+        return instance
+
+    @classmethod
+    def inactive(cls):
+        """Theme for inactive state (e.g., disabled control panels)"""
+        instance = cls()
+        instance.background_color = 'darkgray'
+        instance.color = 'gray'
+        return instance
+
     # Méthodes pour obtenir les paramètres
     def getFont(self):
         return self.font

@@ -22,7 +22,7 @@ Cell.newPov("base","cover",{"empty":Qt.white,"building":Qt.blue,"road":Qt.lightG
 Cars=myModel.newAgentSpecies("car","circleAgent",defaultSize=10, locationInEntity="center")
 Cars.newAgentsAtRandom(2,condition= lambda cell : cell.isValue('cover','road'))
 
-p1 = myModel.timeManager.newModelPhase()
+p1 = myModel.newModelPhase()
 carsMove = Cars.newModelAction(actions = lambda car : processMove(car))
 p1.addAction(carsMove)
 

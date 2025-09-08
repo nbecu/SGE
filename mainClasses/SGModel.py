@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -30,15 +30,17 @@ from mainClasses.SGDashBoard import *
 from mainClasses.SGDataRecorder import *
 from mainClasses.SGEndGameRule import *
 from mainClasses.SGEntity import *
+from mainClasses.SGEntityView import *
 from mainClasses.SGEntityDef import *
+from mainClasses.SGGrid import *
 from mainClasses.SGGraphController import SGGraphController
 from mainClasses.SGGraphLinear import SGGraphLinear
 from mainClasses.SGGraphCircular import SGGraphCircular
 from mainClasses.SGGraphWindow import SGGraphWindow
-from mainClasses.SGGrid import *
 from mainClasses.SGLegend import *
 from mainClasses.SGModelAction import *
 from mainClasses.SGPlayer import *
+from mainClasses.SGAdminPlayer import *
 from mainClasses.SGProgressGauge import *
 from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
@@ -47,6 +49,7 @@ from mainClasses.SGLabel import *
 from mainClasses.SGButton import*
 from mainClasses.SGTimeLabel import *
 from mainClasses.SGTimeManager import *
+from mainClasses.SGTimePhase import *
 from mainClasses.SGUserSelector import *
 from mainClasses.SGVoid import *
 from mainClasses.layout.SGGridLayout import *
@@ -72,7 +75,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None):
+    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
         """
         Declaration of a new model
 
@@ -83,7 +86,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             x (int, optional): used only for grid layout. defines the number layout grid width (default:3)
             y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
             name (str, optional): the name of the model. (default:"Simulation")
-            windowTitle (str, optional): the title of the main window of the simulation (default :"myGame")
+            windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
+            createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
         """
         super().__init__()
         # Definition the size of the window ( temporary here)
@@ -132,12 +136,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.numberOfZoom = 2
         # To keep in memory all the povs already displayed in the menu
         self.listOfPovsForMenu = []
+        # List of players (must be initialized before Admin creation)
+        self.players = {}
+        # Automatically create Admin as a super player (optional)
+        if createAdminPlayer:
+            self.players["Admin"] = SGAdminPlayer(self)
+            self.users = ["Admin"]
+            self.shouldDisplayAdminControlPanel = False
+        else:
+            self.users = []
+        # self.users = ["Admin"]
+
         # To handle the flow of time in the game
-        self.users = ["Admin"]
         self.timeManager = SGTimeManager(self)
         # List of players
-        self.players = {}
-        self.currentPlayer = None
+        # self.players = {}  # Moved above
+        self.currentPlayerName = None
 
         self.userSelector = None
         self.myTimeLabel = None
@@ -207,21 +221,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
     
     def initAfterOpening(self):
-        QTimer.singleShot(100, self.updateFunction)
-        if self.currentPlayer is None:
+        if self.currentPlayerName is None:
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
             elif possibleUsers == [] : self.setCurrentPlayer('Admin')
         if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
         
+        # Position all agents after grid layout is applied and window is shown
+        # Use QApplication.processEvents() to ensure layouts are processed before positioning
+        QApplication.processEvents()
+        self.positionAllAgents()
+        
     def hasDefinedPositionGameSpace(self):
         return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
 
-    def updateFunction(self):
-        aList = self.getAllAgents()
-        if not aList : return False
-        for aAgent in aList:
-            aAgent.updateAgentByRecreating_it()
 
     def setDashboards(self):
         dashboards=self.getGameSpaceByClass(SGDashBoard)
@@ -398,19 +411,35 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         e.accept()
 
     def dropEvent(self, e):
-        if isinstance(e.source(),SGEntity):
-            msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setWindowTitle("Warning Message")
-            msg_box.setText("A " + e.source().classDef.entityName +" cannot be moved here")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.setDefaultButton(QMessageBox.Ok)
-            msg_box.exec_()
+        if isinstance(e.source(), (SGEntity, SGEntityView)):
+            # msg_box = QMessageBox(self)
+            # msg_box.setIcon(QMessageBox.Information)
+            # msg_box.setWindowTitle("Warning Message")
+            # # Get the agent model from the view
+            # agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+            # msg_box.setText("A " + agent_model.classDef.entityName +" cannot be moved here")
+            # msg_box.setStandardButtons(QMessageBox.Ok)
+            # msg_box.setDefaultButton(QMessageBox.Ok)
+            # msg_box.exec_()
             return
         position = e.pos()
-        position.setX(position.x()-int(e.source().getSizeXGlobal()/2))
-        position.setY(position.y()-int(e.source().getSizeYGlobal()/2))
-        e.source().move(position)
+        # Get the agent model from the view
+        agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+        
+        # Get the agent size - handle both model and view cases
+        if hasattr(agent_model, 'size') and not callable(agent_model.size):
+            # agent_model is a model with size attribute
+            agent_size = agent_model.size
+        elif hasattr(agent_model, 'size') and callable(agent_model.size):
+            # agent_model is a view with size() method
+            agent_size = agent_model.size().width()  # Use width as size
+        else:
+            # Fallback to default size
+            agent_size = 30
+        
+        position.setX(position.x()-int(agent_size/2))
+        position.setY(position.y()-int(agent_size/2))
+        agent_model.move(position)
 
         e.setDropAction(Qt.MoveAction)
         e.accept()
@@ -452,7 +481,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         Args:
             columns (int): number of columns (width).
             rows (int): number of rows (height).
-            format ("square", "hexagonal"): shape of the cells. Defaults to "square".
+            format ("square", "hexagonal"): shape of the cells.
+                - Defaults to "square".
+                - Note that the hexagonal grid is "Pointy-top hex grid with even-r offset".
             size (int, optional): size of the cells. Defaults to 30.
             gap (int, optional): gap size between cells. Defaults to 0.
             color (a color, optional): background color of the grid . Defaults to Qt.gray.
@@ -487,6 +518,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Realocation of the position thanks to the layout
         aGrid.globalPosition()
         self.applyAutomaticLayout()
+        
         return aCellDef
     
     def generateCellsForGrid(self,grid,defaultCellImage,entityName):
@@ -499,7 +531,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # To get the CellDef corresponding to a Grid
     def getCellDef(self, aGrid):
-        if isinstance(aGrid,SGCellDef): return aGrid
+        if aGrid.isCellDef: return aGrid
         return self.cellOfGrids[aGrid.id]
 
 
@@ -556,35 +588,36 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aVoid
 
     # To create a Legend
-    def newLegend(self, name='Legend', showAgentsWithNoAtt=False, addDeleteButton=True):#, grid=None):
+    def newLegend(self, name='Legend', alwaysDisplayDefaultAgentSymbology=False):#, grid=None):
         """
         To create an Admin Legend (with all the cell and agent values)
 
         Args:
         Name (str): name of the Legend (default : Legend)
-        showAgentsWithNoAtt (bool) : display of non attribute dependant agents (default : False)
+        alwaysDisplayDefaultAgentSymbology (bool) : display default symbology of agent, even if agents with attribute symbologies are shown (default : False)
         grid (str) : name of the grid or None (select the first grid) or "combined"
 
         """
         # selectedSymbologies=self.getAllCheckedSymbologies(grid)
         selectedSymbologies=self.getAllCheckedSymbologies()
-        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, 'Admin', showAgentsWithNoAtt, addDeleteButton)
+        aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, alwaysDisplayDefaultAgentSymbology)
         self.gameSpaces[name] = aLegend
         # Realocation of the position thanks to the layout
         aLegend.globalPosition()
         self.applyAutomaticLayout()
         return aLegend
     
-    def newUserSelector(self, customListOfUsers=None):
+    def newUserSelector(self, customListOfUsers=None, orientation='horizontal'):
         """
         To create a User Selector in your game. Functions automatically with the players declared in your model.
         
         Args:
             customListOfUsers(list, optional) : a custom list of users to be used instead of the automatic list generated by the model.
+            orientation(str, optional) : layout orientation - 'horizontal' (default) or 'vertical'.
         """
         if customListOfUsers or (len(self.getUsers_withControlPanel()) > 1 and len(self.players) > 0):
             usersList = customListOfUsers if customListOfUsers else self.getUsers_withControlPanel()
-            userSelector = SGUserSelector(self, usersList)
+            userSelector = SGUserSelector(self, usersList, orientation)
             # userSelector = SGUserSelector(self, self.getUsers_withControlPanel())
             self.userSelector = userSelector
             self.gameSpaces["userSelector"] = userSelector
@@ -593,7 +626,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.applyAutomaticLayout()
             return userSelector
         else:
-            print('You need to add players to the game')
+            print(  f"The userSelector was not created because: \n"
+                    f"  - nb of players : {len(self.players)} ({[player.name for player in self.players.values()]}). \n"
+                    f"  - nb of users with control panel: {len(self.getUsers_withControlPanel())} ({[userName for userName in self.getUsers_withControlPanel()]}). \n"
+                    f"  - you need to add more users with control panel for the userSelector to be created"
+                )
 
     # To create a New kind of agents
     def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",defaultImage=None):
@@ -612,6 +649,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             a species
 
         """
+        if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"]:
+            raise ValueError(f"Invalid shape: {shape}")
         aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
         self.agentSpecies[name]=aAgentSpecies
         return aAgentSpecies
@@ -634,10 +673,23 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # send back the specie dict (specie definition dict) that corresponds to aSpecieName
         return self.agentSpecies.get(aSpecieName)
 
-    def getAgentsOfSpecie(self, aSpecieName):
+    def getAgentsOfSpecie(self, aSpecieName) -> list[SGAgent]:
         agentDef = self.getAgentSpecieDict(aSpecieName)
         if agentDef is None:  return None
         else: return agentDef.entities[:]
+    
+    def positionAllAgents(self):
+        """Position all agents after grid layout is applied"""
+        for agent_species in self.getAgentSpeciesDict():
+            for agent in agent_species.entities:
+                if hasattr(agent, 'view') and agent.view:
+                    # Show the agent view first
+                    agent.view.show()
+                    agent.view.raise_()  # Bring to front
+                    # Then position it
+                    agent.view.getPositionInEntity()
+                    # Force update to ensure positioning is applied
+                    agent.view.update()
 
     def getAllAgents(self):
         # send back the agents of all the species
@@ -687,18 +739,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def updateIDmemory(self, aSpecies):
         aSpecies.memoryID = aSpecies.memoryID+1
-    
-    def newAgent_ADMINONLY(self, aGrid, aAgtDef, ValueX, ValueY, adictAttributes, anAgentID):
-        """
-        Do not use.
-        """
-        locationCell = aGrid.getCell_withCoords(int(ValueX), int(ValueY))
-        aAgent = SGAgent(locationCell, aAgtDef.defaultsize,adictAttributes, aAgtDef.defaultShapeColor, aAgtDef,aAgtDef.defaultImage)
-        aAgent.isDisplay = True
-        aAgent.id = anAgentID
-        aAgtDef.entities.append(aAgent)
-        aAgent.show()
-        return aAgent
 
 
     def getIdFromPrivateId(self, aPrivateID, aSpeciesName):
@@ -785,7 +825,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if aUserName is None:
             raise ValueError('Username cannot be None')
         if aUserName == "Admin":
-            return aUserName
+            return self.getAdminPlayer()
         if isinstance(aUserName,SGPlayer):
             return aUserName
         if aUserName in self.players:
@@ -794,9 +834,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             raise ValueError(f'No Player named {aUserName} exists')
             
     def getCurrentPlayer(self):
-        if not self.currentPlayer:
+        if not self.currentPlayerName:
             raise ValueError('Current player is not defined')
-        return self.getPlayer(self.currentPlayer)
+        return self.getPlayer(self.currentPlayerName)
         
     def getPlayers(self):
         """
@@ -818,15 +858,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if isinstance(aUserName,SGPlayer):
            aUserName = aUserName.name 
         if aUserName in self.getUsersName():
-            self.currentPlayer = aUserName
+            self.currentPlayerName = aUserName
             #update the userSelector interface
             if self.userSelector is not None:
                 self.userSelector.setCheckboxesWithSelection(aUserName)
-            #update the ControlPanel and adminLegend interfaces
-            for aItem in self.getControlPanels()+self.getAdminLegends() :
-                # aItem.isActive = (aItem.playerName == self.currentPlayer)
-                aItem.setActivation(aItem.playerName == self.currentPlayer)
-                # aItem.update()
+            #update the ControlPanel and adminControlPanel interfaces
+            # Use TimeManager's method to handle control panel activation based on phase type
+            if hasattr(self, 'timeManager') and self.timeManager.numberOfPhases() > 0:
+                self.timeManager.updateControlPanelsForCurrentPhase()
+            else:
+                # During initialization or before phases are created, use normal logic
+                for aItem in self.getControlPanels():
+                    aItem.setActivation(aItem.playerName == self.currentPlayerName)
     
 
 
@@ -842,7 +885,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # To select only users with a control panel
     def getUsers_withControlPanel(self):
         selection=[]
-        if self.getAdminLegend() != None:
+        if self.shouldDisplayAdminControlPanel:
             selection.append('Admin')     
         for aP in self.players.values():
             if aP.controlPanel !=  None:
@@ -880,16 +923,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aTimeLabel
 
     # To create a Text Box
-    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box'):
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
         """
-        Create a text box
+        Create a text box with full customization options.
 
         Args:
-        textToWrite (str) : displayed text in the widget (default: "Welcome in the game!")
-        title (str) : name of the widget (default: "Text Box")
+            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
+            title (str): Name of the widget (default: "Text Box")
+            sizeX (int, optional): Manual width override for the text box
+            sizeY (int, optional): Manual height override for the text box
+            borderColor (QColor): Border color of the text box (default: Qt.black)
+            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
 
+        Returns:
+            SGTextBox: The created text box widget
         """
-        aTextBox = SGTextBox(self, textToWrite, title)
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+        """
+        Create a text box with full customization options.
+
+        Args:
+            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
+            title (str): Name of the widget (default: "Text Box")
+            sizeX (int, optional): Manual width override for the text box
+            sizeY (int, optional): Manual height override for the text box
+            borderColor (QColor): Border color of the text box (default: Qt.black)
+            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
+
+        Returns:
+            SGTextBox: The created text box widget
+        """
+        aTextBox = SGTextBox(self, textToWrite, title, sizeX, sizeY, borderColor, backgroundColor)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
         # Realocation of the position thanks to the layout
@@ -1054,7 +1118,25 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
 #****************************************************
 
+    def displayAdminControlPanel(self):
+        """
+        Display the Admin Control Panel
+        """
+        self.shouldDisplayAdminControlPanel = True
+        if not self.timeManager.isInitialization():
+            self.show_adminControlPanel()
 
+
+    def show_adminControlPanel(self):
+        """
+        Private method to show the Admin Control Panel
+        """
+        adminPlayer = self.getAdminPlayer()
+        adminPlayer.createAllGameActions()
+        if adminPlayer.controlPanel is None:
+            adminPlayer.newControlPanel("Admin")
+        else:
+            adminPlayer.controlPanel.show()
 
     def deleteTextBox(self, titleOfTheTextBox):
         del self.gameSpaces[titleOfTheTextBox]
@@ -1310,7 +1392,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for symbologies in self.symbologiesInSubmenus.values():
             if selectedSymbology in symbologies:
                 [aSymbology.setChecked(False) for aSymbology in symbologies if aSymbology is not selectedSymbology]
-        for aLegend in self.getAdminLegends():
+        for aLegend in self.getLegends():
             aLegend.updateWithSymbologies(self.getAllCheckedSymbologies())
             # aLegend.updateWithSymbologies(self.getAllCheckedSymbologies(aLegend.grid.id))
         self.update() #update all the interface display
@@ -1365,7 +1447,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return self.timeManager
 
     # -----------------------------------------------------------
-    # Game mechanics function
+    # Game actions function
 
     def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
         """
@@ -1394,6 +1476,28 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
         return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+
+    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+        """
+        Add a ModifyActionWithDialog GameAction to the game.
+        
+        Args:
+            anObjectType: an AgentSpecies or the keyword "Cell"
+            attribute (str): the attribute to modify
+            aNumber (int): number of utilisation, could use "infinite"
+            conditions (list): conditions that must be met
+            feedbacks (list): actions to execute after modification
+            conditionsOfFeedback (list): conditions for feedback execution
+            aNameToDisplay (str): custom name to display
+            setControllerContextualMenu (bool): whether to show in contextual menu
+            writeAttributeInLabel (bool): whether to show attribute in label
+        """
+        aClassDef = self.getEntityDef(anObjectType)
+        if aClassDef is None:
+            raise ValueError('Wrong format of entityDef')
+        
+        from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
+        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
 
     def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
@@ -1444,12 +1548,67 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             buttonCoord = setControllerButton
             self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
         return aActivateAction
+
+    def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+        """
+        Create a new play phase for the game.
+        
+        Args:
+            phaseName (str): Name of the phase
+            activePlayers (list): List of players active in this phase. Can contain:
+                - Player instances (SGPlayer objects)
+                - Player names (str) - will be automatically converted to instances
+                - 'Admin' (str) - will be converted to the Admin player instance
+                - None (default:all users)
+            modelActions (list, optional): Actions the model performs at the beginning of the phase (add, delete, move...)
+                - SGModelAction objects
+                - lambda functions
+                - list of SGModelAction objects or lambda functions
+            autoForwardWhenAllActionsUsed (bool, optional): Whether to automatically forward to next phase when all players have used their actions
+                - False (default): the phase will not be executed automatically when all players have used their actions
+                - True: the phase will be executed automatically when all players have used their actions
+            message_auto_forward (bool, optional): Whether to show a message when automatically forwarding to the next phase
+                - True (default): a message will be displayed when auto-forwarding
+                - False: no message will be displayed when auto-forwarding
+            show_message_box_at_start (bool, optional): Whether to show a message box at the start of the phase
+                - False (default): no message box will be shown at the start of the phase
+                - True: a message box will be shown at the start of the phase
+                
+            
+        Returns:
+            The created play phase (an instance of SGPlayPhase)
+        """
+        return self.timeManager.newPlayPhase(phaseName, activePlayers, modelActions, autoForwardWhenAllActionsUsed, message_auto_forward, show_message_box_at_start)
+
+    def newModelPhase(self, actions=None, condition=None, name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):
+        """
+        Create a new model phase for the game.
+        
+        Args:
+            actions (SGModelAction, lambda function, or list of SGModelAction/lambda function, optional):
+                The action(s) to be executed during the phase. Can be a single SGModelAction, a lambda function,
+                or a list of either.
+            condition (lambda function, optional):
+                A function returning a boolean. Actions are performed only if this function returns True.
+            name (str, optional):
+                Name displayed on the TimeLabel.
+            auto_forward (bool, optional):
+                If True, this phase will be executed automatically. Default is False.
+            message_auto_forward (bool, optional):
+                If True, a message will be displayed when auto-forwarding. Default is True.
+            show_message_box_at_start (bool, optional):
+                If True, a message box will be shown at the start of the phase. Default is False.
+            
+        Returns:
+            SGTimePhase: The created time phase
+        """
+        return self.timeManager.newModelPhase(actions, condition, name, auto_forward, message_auto_forward, show_message_box_at_start)
     # -----------------------------------------------------------
     # Getter
 
     def getGrid(self,anObject):
-        if isinstance(anObject,SGCellDef): return anObject.grid
-        elif isinstance(anObject,SGGrid): return anObject
+        if anObject.isCellDef: return anObject.grid
+        elif anObject.isAGrid: return anObject
         else: raise ValueError('Wrong object type')
 
 
@@ -1467,17 +1626,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getControlPanels(self):
         return[aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGControlPanel)]
 
-    def getAdminLegend(self):
-        return next((item for item in self.getLegends() if item.isAdminLegend()), None)
+    def getAdminControlPanels(self): #useful in case they are several admin control panels
+        return [item for item in self.getControlPanels() if item.isAdminLegend()]
 
-    def getAdminLegends(self): #useful in case they are several admin legends
-        return [item for item in self.getLegends() if item.isAdminLegend()]
+    def getAdminPlayer(self):
+        """Get the Admin player instance"""
+        return self.players.get("Admin")
     
-    def getSelectedLegend(self):
-        return next((item for item in self.getLegends() if item.isActive), None)
-
     def getSelectedLegendItem(self):
-        return next((item.selected for item in self.getLegends() if item.isActiveAndSelected()), None)
+        return next((item.selected for item in self.getControlPanels() if item.isActiveAndSelected()), None)
 
     def getGameAction_withClassAndId(self,aClassName,aId):
         return next((item for item in self.getAllGameActions() if item.__class__.__name__==aClassName and item.id==aId), None)
@@ -1496,14 +1653,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         Launch the game.
         """
+        if self.shouldDisplayAdminControlPanel:
+            self.show_adminControlPanel()
         self.setDashboards()
+        
         self.show()
         self.initAfterOpening()
 
-    # To open and launch the game
+    # To open and launch the game with a mqtt broker
     def launch_withMQTT(self,majType):
         """
-        Launch the game with mqtt protocol
+        Set the mqtt protocol, then launch the game
 
         Args:
             majType (str): "Phase" or "Instantaneous"
@@ -1515,9 +1675,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.majTimer.start(100)
         self.initMQTT()
         self.mqttMajType=majType
-        self.setDashboards()
-        self.show()
-        self.initAfterOpening()
+
+        self.launch()
 
     # Return all gameActions of all players
     def getAllGameActions(self):
@@ -1555,8 +1714,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             print("disconnect result code "+str(rc))
 
         print("connectMQTT")
-        self.client = mqtt_client.Client(self.currentPlayer)
-        # self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayer) # for the new version of paho possible correction
+        self.client = mqtt_client.Client(self.currentPlayerName)
+        # self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayerName) # for the new version of paho possible correction
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         self.client.on_log = on_log

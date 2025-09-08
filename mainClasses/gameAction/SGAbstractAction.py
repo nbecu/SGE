@@ -1,4 +1,4 @@
-from mainClasses.SGAgent import SGAgent
+# from mainClasses.SGAgent import SGAgent  # Commented to avoid circular import
 from mainClasses.SGCell import SGCell
 from mainClasses.SGTimePhase import *
 from math import inf
@@ -56,7 +56,8 @@ class SGAbstractAction():
 
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity)
 
-            self.model.timeManager.getCurrentPhase().handleAutoForward()
+            if not self.model.timeManager.isInitialization():
+                self.model.timeManager.getCurrentPhase().handleAutoForward()
 
             #commented because unsued -  return resAction if not self.feedbacks else [resAction,resFeedback]
         # else:
@@ -67,6 +68,16 @@ class SGAbstractAction():
     def canBeUsed(self):
         if self.model.timeManager.numberOfPhases()==0:
             return True
+        if self.model.timeManager.isInitialization():
+            # During initialization, only Admin can use actions
+            # Check if currentPlayer is defined before accessing it
+            try:
+                currentPlayer = self.model.getCurrentPlayer()
+                return currentPlayer.isAdmin
+            except ValueError:
+                # Current player not defined yet, only Admin actions should work
+                # This is a temporary state during initialization
+                return False
         if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGModelPhase):#If this is a ModelPhase, as default players can't do actions
             # TODO add a facultative permission 
             return False

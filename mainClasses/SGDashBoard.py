@@ -7,6 +7,7 @@ from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGEntityDef import *
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGPlayer import SGPlayer
+from mainClasses.SGCell import SGCell
 
 
 # Class who is responsible of the Legend creation
@@ -104,7 +105,7 @@ class SGDashBoard(SGGameSpace):
             listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
         elif isinstance(entityName,list) and isinstance(entityName[0],SGEntityDef) :
             listOfEntDef = entityName
-        elif issubclass(type(entityName),SGEntity) : # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
+        elif issubclass(type(entityName), SGEntity): # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
             listOfEntDef = entityName
         else:
             raise ValueError('Wrong type')
@@ -138,7 +139,7 @@ class SGDashBoard(SGGameSpace):
             displayRefresh (str, optional): Determines how the display is refreshed (e.g., "instantaneous", "onTimeConditions").
             isDisplay (bool, optional): Whether to display on the dashboard (default is True).
         """
-        if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer)): raise ValueError ('Wrong entity format')
+        if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer,SGCell)): raise ValueError ('Wrong entity format')
         self.entity= entity
 
         if value is None:

@@ -7,6 +7,8 @@ from mainClasses.SGModel import *
 class SGGrid(SGGameSpace):
     def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None,neighborhood='moore',boundaries='open'):
         super().__init__(parent, 0, 60, 0, 0)
+        # Type identification attributes
+        self.isAGrid = True
         # Basic initialize
         self.zoom = 1
         self.model = parent
@@ -55,6 +57,7 @@ class SGGrid(SGGameSpace):
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+2*self.frameMargin,
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
         elif (self.cellShape == "hexagonal"):
+            #Note: The hexagonal grid is "Pointy-top hex grid with even-r offset".
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1+self.size/2+1.5*self.frameMargin),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 2*self.frameMargin))
         painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()
@@ -83,12 +86,17 @@ class SGGrid(SGGameSpace):
         self.update()
         for cell in self.getCells():
             for agent in cell.getAgents(): 
-                agent.moveAgent(cellID=agent.cell.id)               
+                agent.moveAgent(target=agent.cell.getId())               
         
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):
+        # First, try the new drag & drop implementation from SGGameSpace
+        if self.isDraggable and hasattr(self, 'dragging') and self.dragging:
+            super().mouseMoveEvent(e)
+            return
 
+        # Fallback to the old implementation if moveable is True but not draggable
         if self.moveable == False:
             return
         if e.buttons() != Qt.LeftButton:
@@ -160,8 +168,8 @@ class SGGrid(SGGameSpace):
         return self.model.getCellDef(self).entities
 
     # Return the cell
-    def getCell_withId(self, aCellID):
-        return self.model.getCell(self,aCellID)
+    def getCell_withId(self, cell_id):
+        return self.model.getCell(self,cell_id)
 
     def cellIdFromCoords(self,x,y):
         return self.model.getCellDef(self).cellIdFromCoords(x,y)

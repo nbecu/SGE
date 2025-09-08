@@ -4,11 +4,11 @@ from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 from collections import defaultdict
 
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGModify import SGModify
-from mainClasses.gameAction.SGMove import SGMove
-from mainClasses.gameAction.SGActivate import SGActivate
-from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from mainClasses.gameAction.SGDelete import *
+from mainClasses.gameAction.SGModify import *
+from mainClasses.gameAction.SGMove import *
+from mainClasses.gameAction.SGActivate import *
+from mainClasses.gameAction.SGAbstractAction import *
 from mainClasses.AttributeAndValueFunctionalities import *
 
 
@@ -20,6 +20,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
     def __init__(self, theModel, name, actions=[],attributesAndValues=None):
         self.model = theModel
         self.name = name
+        self.isAdmin = False
         self.actions = actions
         self.gameActions = []
         self.remainActions = {}
@@ -30,7 +31,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.history["value"]=defaultdict(list)
         self.initAttributes(attributesAndValues)
 
-    def newControlPanel(self, title=None, showAgentsWithNoAtt=False, defaultActionSelected = None):
+    def newControlPanel(self, title=None, defaultActionSelected = None):
         """
         To create an Player Control Panel (only with the GameActions related elements)
 
@@ -40,7 +41,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         """
         if title==None: title = (self.name +' actions')
         
-        self.controlPanel=SGControlPanel.forPlayer(self,title,defaultActionSelected=defaultActionSelected)
+        self.controlPanel=SGControlPanel(self,title,defaultActionSelected=defaultActionSelected)
         self.model.gameSpaces[title] = self.controlPanel
         # Realocation of the position thanks to the layout
         newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)
@@ -176,6 +177,27 @@ class SGPlayer(AttributeAndValueFunctionalities):
             if isinstance(aGameAction,SGMove):
                 moveActions.append(aGameAction)
         return moveActions
+
+    def getAuthorizedMoveActionForDrop(self, agent, target_cell):
+        """
+        Get the authorized move action for a drop event
+        
+        Args:
+            agent: The agent being dropped
+            target_cell: The cell where the agent is being dropped
+            
+        Returns:
+            moveAction: The first authorized move action, or None if none found
+        """
+        # Get move actions for this agent
+        moveActions = self.getMoveActionsOn(agent)
+        
+        # Find the first authorized move action
+        for aMoveAction in moveActions:
+            if aMoveAction.checkAuthorization(agent, target_cell):
+                return aMoveAction
+                
+        return None
 
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use

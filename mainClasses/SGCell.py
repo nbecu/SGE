@@ -1,267 +1,276 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
+from mainClasses.SGCellView import SGCellView
+from mainClasses.SGExtensions import *
+# from mainClasses.gameAction.SGCreate import *  # Commented to avoid circular import
+# from mainClasses.gameAction.SGDelete import *   # Commented to avoid circular import
+# from mainClasses.gameAction.SGModify import *   # Commented to avoid circular import
+# from mainClasses.gameAction.SGMove import *     # Commented to avoid circular import
+# from mainClasses.gameAction.SGActivate import * # Commented to avoid circular import
 import random
 # from mainClasses.gameAction.SGMove import SGMove
    
 #Class who is responsible of the declaration a cell
 class SGCell(SGEntity):
-    def __init__(self,classDef, x, y,defaultImage):
-        super().__init__(classDef.grid,classDef,classDef.defaultsize,attributesAndValues=None)
-        #Basic initialize
-        self.grid=classDef.grid
-        self.xCoord=x
-        self.yCoord=y
-        self.gap=self.grid.gap
-        #Save the basic value for the zoom (temporary)
-        self.saveGap=self.gap
-        self.saveSize=classDef.defaultsize
-        #We place the default pos
-        self.startXBase=self.grid.startXBase
-        self.startYBase=self.grid.startYBase
-        #We allow the drops for the agents
-        self.setAcceptDrops(True)
-        self.agents=[]
-
-        self.defaultImage=defaultImage
-
+    """
+    SGCell - Cell model class for grid-based simulations
     
+    This class now uses Model-View architecture:
+    - Inherits from SGEntity for data and business logic
+    - Delegates UI to SGCellView for display and interaction
+    """
+    
+    def __init__(self, classDef, x, y, defaultImage):
+        # Initialize the model part
+        super().__init__(classDef, classDef.defaultsize, attributesAndValues=None)
         
-    def getId(self):
-        return "cell"+str(self.xCoord)+"-"+str(self.yCoord)
-    
-    def paintEvent(self,event):
-        painter = QPainter()
-        painter.begin(self)
-        region=self.getRegion()
-        image=self.getImage()
-        if self.isDisplay==True:
-            if self.defaultImage != None:
-                rect,scaledImage = self.rescaleImage(self.defaultImage)
-                painter.setClipRegion(region)
-                painter.drawPixmap(rect, scaledImage)
-            elif image != None:
-                rect,scaledImage = self.rescaleImage(image)
-                painter.setClipRegion(region)
-                painter.drawPixmap(rect, scaledImage)
-            else : painter.setBrush(QBrush(self.getColor(), Qt.SolidPattern))
-            penColorAndWidth = self.getBorderColorAndWidth()
-            painter.setPen(QPen(penColorAndWidth['color'],penColorAndWidth['width']))
-            self.startXBase=self.grid.frameMargin
-            self.startYBase=self.grid.frameMargin
-            self.startX=int(self.startXBase+(self.xCoord -1)*(self.size+self.gap)+self.gap) 
-            self.startY=int(self.startYBase+(self.yCoord -1)*(self.size+self.gap)+self.gap)
-            if (self.shape=="hexagonal"):
-                self.startY=self.startY+self.size/4
-            #Base of the gameBoard
-            if(self.shape=="square"):
-                painter.drawRect(0,0,self.size,self.size)
-                self.setMinimumSize(self.size,self.size+1)
-                self.move(self.startX,self.startY)
-            elif(self.shape=="hexagonal"):
-                self.setMinimumSize(self.size,self.size)
-                points = QPolygon([
-                    QPoint(int(self.size/2), 0),
-                    QPoint(self.size, int(self.size/4)),
-                    QPoint(self.size, int(3*self.size/4)),
-                    QPoint(int(self.size/2), self.size),
-                    QPoint(0, int(3*self.size/4)),
-                    QPoint(0, int(self.size/4))              
-                ])
-                painter.drawPolygon(points)
-                if(self.yCoord%2!=0):
-                    self.move(self.startX , int(self.startY-self.size/2*self.yCoord +(self.gap/10+self.size/4)*self.yCoord))
-                else:
-                    self.move((self.startX+int(self.size/2)+int(self.gap/2) ), int(self.startY-self.size/2*self.yCoord +(self.gap/10+self.size/4)*self.yCoord))
-                        
-        painter.end()
-    
-    def getRegion(self):
-        cellShape=self.classDef.shape
-        if cellShape == "square":
-            region = QRegion(0,0,self.size,self.size)
-        if cellShape =="hexagonal":
-            points = QPolygon([
-                    QPoint(int(self.size/2), 0),
-                    QPoint(self.size, int(self.size/4)),
-                    QPoint(self.size, int(3*self.size/4)),
-                    QPoint(int(self.size/2), self.size),
-                    QPoint(0, int(3*self.size/4)),
-                    QPoint(0, int(self.size/4))              
-                ])
-            region=QRegion(points)
-        return region
+        # Cell-specific properties
+        self.grid = classDef.grid
+        self.xCoord = x
+        self.yCoord = y
+        self.gap = self.grid.gap
+        self.saveGap = self.gap
+        self.saveSize = classDef.defaultsize
+        self.startXBase = self.grid.startXBase
+        self.startYBase = self.grid.startYBase
+        self.defaultImage = defaultImage
+        
+        # List of agents in this cell
+        self.agents = []
+        
+        # Initialize attributes from classDef
+        self.initAttributesAndValuesWith({})
+        
+        # Create and link the view
+        self.view = SGCellView(self, classDef.grid)
+        self.setView(self.view)
+        
+        # Type identification attributes
+        self.isEntity = True
+        self.isCell = True
+        self.isAgent = False
 
+    # ============================================================================
+    # DEVELOPER METHODS
+    # ============================================================================
 
-    #Funtion to handle the zoom
+    #todo obsolete function
+    #  Special move() override for cells
+    # def move(self, *args, **kwargs):
+    #     """Move the cell view and update all agent positions"""
+    #     super().move(*args, **kwargs)  # Call parent method
+        
+    #     # Update position of all agents in this cell
+    #     for agent in self.agents:
+    #         if hasattr(agent, 'view') and agent.view:
+    #             agent.view.updatePositionFromCell()
+
+    # Model-View specific methods
+    def getView(self):
+        """Get the cell view"""
+        return self.view
+    
+    def setView(self, view):
+        """Set the cell view"""
+        self.view = view
+        if view:
+            view.cell_model = self
+    
+    def updateView(self):
+        """Update the cell view"""
+        if self.view:
+            self.view.update()
+
+    # Cell management methods
+    def setDisplay(self, display):
+        """Set display state and update view"""
+        self.isDisplay = display
+        if hasattr(self, 'view') and self.view:
+            self.view.update()
+
+    def updateIncomingAgent(self, agent):
+        """Update when an agent enters this cell"""
+        if agent not in self.agents:
+            self.agents.append(agent)
+
+    def removeAgent(self, agent):
+        """Remove an agent from this cell"""
+        if agent in self.agents:
+            self.agents.remove(agent)
+
+    def shouldAcceptDropFrom(self, entity):
+        """
+        Check if this cell should accept drops from the given entity
+        
+        Args:
+            entity: The entity attempting to be dropped
+            
+        Returns:
+            bool: True if the drop should be accepted, False otherwise
+        """
+        # Only accept agents, not all entities
+        has_isAgent = hasattr(entity, 'isAgent')
+        is_agent = entity.isAgent if has_isAgent else False
+        return has_isAgent and is_agent
+
+    # Zoom methods
     def zoomIn(self):
-        oldSize=self.size
-        self.size=self.grid.size
-        self.gap=self.grid.gap
-        self.update()
+        """Zoom in the cell"""
+        self.size = round(self.size + 10)
+        self.updateView()
     
     def zoomOut(self):
-        oldSize=self.size
-        self.size=self.grid.size
-        self.gap=self.grid.gap
-        self.update()
-        
+        """Zoom out the cell"""
+        self.size = round(self.size - 10)
+        self.updateView()
+    
     def zoomFit(self):
-        self.size=self.grid.size
-        self.gap=self.grid.gap
-        self.update()
+        """Zoom fit the cell"""
+        self.size = self.saveSize
+        self.updateView()
 
-    def convert_coordinates(self, global_pos: QPoint) -> QPoint:
-    # Convert global coordinates to local coordinates
-        local_pos = self.mapFromGlobal(global_pos)
-        return local_pos
+    # Coordinate conversion methods
+    def convert_coordinates(self, global_pos):
+        """Convert global coordinates to cell coordinates"""
+        # Implementation depends on specific requirements
+        return global_pos
 
+    # Legacy compatibility methods that delegate to view
+    def paintEvent(self, event):
+        """Paint event - delegates to view"""
+        self.view.paintEvent(event)
+    
+    def getRegion(self):
+        """Get region - delegates to view"""
+        return self.view.getRegion()
+    
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            #Something is selected
-            aLegendItem = self.model.getSelectedLegendItem()
-            if aLegendItem is None : return #Exit the method
+        """Mouse press event - delegates to view"""
+        self.view.mousePressEvent(event)
 
-            if aLegendItem.legend.isAdminLegend():
-                authorisation= True
-            else :
-                aLegendItem.gameAction.perform_with(self) #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-                return
-
-            if not authorisation : return #Exit the method
-        
-            #The delete Action
-            if aLegendItem.type == 'delete' :
-                if authorisation : 
-                    #We now check the feedBack of the actions if it have some
-                    """if theAction is not None:
-                        self.feedBack(theAction)"""
-                    if not self.isDeleted() :self.classDef.deleteEntity(self)
-
-            #The Replace cell and change value Action
-            elif aLegendItem.isSymbolOnCell():
-                if  authorisation :
-                    #We now check the feedBack of the actions if it have some
-                    if self.isDeleted() : self.classDef.reviveThisCell(self) 
-                    self.setValue(aLegendItem.nameOfAttribut,aLegendItem.valueOfAttribut)     
-
-            #For agent creation on cell         
-            elif aLegendItem.isSymbolOnAgent() and self.isDisplay:
-                if  authorisation :
-                    aLegendItem.classDef
-                    aDictWithValue ={aLegendItem.nameOfAttribut:aLegendItem.valueOfAttribut}
-                    self.newAgentHere(aLegendItem.classDef,aDictWithValue)
-        
     def dropEvent(self, e):
-        e.acceptProposedAction()
-        aAgent=e.source()
+        """Drop event - delegates to view"""
+        self.view.dropEvent(e)
 
-        if not isinstance(aAgent,SGEntity):
-            return
-        
-        currentPlayer=self.model.getCurrentPlayer()
-        
-        if currentPlayer == 'Admin':
-            aAgent.moveTo(self)
-        
-        else :
-            moveActions=currentPlayer.getMoveActionsOn(aAgent)
+    # Model-View specific methods
+    def getView(self):
+        """Get the cell view"""
+        return self.view
+    
+    def setView(self, view):
+        """Set the cell view"""
+        self.view = view
+        if view:
+            view.cell_model = self
+    
+    def updateView(self):
+        """Update the cell view"""
+        if self.view:
+            self.view.update()
 
-            for aMoveAction in moveActions:
-                if aMoveAction.checkAuthorization(aAgent,self):
-                    aMoveAction.perform_with(aAgent,self)
-                    e.setDropAction(Qt.MoveAction)
-                    aAgent.dragging = False
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
 
-        # Le code ci-dessous est la version précédente de la méthode dropEvent. Il est conservé pour référence
-        # e.accept()
-        # aAgent=e.source()
-        # aActiveLegend = self.model.getSelectedLegend() 
-        # aLegendItem = self.model.getSelectedLegendItem()
-        # if aActiveLegend is None or aActiveLegend.isAdminLegend(): 
-        #     aAgent.moveTo(self)
-        # elif aLegendItem is None : None #Exit the method
-        # else :
-        #     aLegendItem.gameAction.perform_with(aAgent,self)   #aLegendItem (aParameterHolder) is not send has arg anymore has it is not used and it complicates the updateServer
-        # e.setDropAction(Qt.MoveAction)
-        # aAgent.dragging = False
-                            
-    # To handle the drag of the grid
-    def mouseMoveEvent(self, e): #this method is used to prevent the drag of a cell
-        if e.buttons() != Qt.LeftButton:
-            return
-                                            
-    # Function to handle the drag of widget
-    def dragEnterEvent(self, e):
-        # this is event is called during an agent drag 
-        e.accept()
-       
-    #Apply the feedBack of a gameMechanics
-    def feedBack(self, theAction,theAgentForMoveGM=None):
-        booleanForFeedback=True
-        booleanForFeedbackAgent=True
-        for anCondition in theAction.conditionOfFeedBack :
-            booleanForFeedback=booleanForFeedback and anCondition(self)
-        if booleanForFeedback :
-            for aFeedback in  theAction.feedback :
-                aFeedback(self)
-        if theAgentForMoveGM is not None :
-            for anCondition in theAction.conditionOfFeedBackAgent :
-                booleanForFeedbackAgent=booleanForFeedbackAgent and anCondition(self,theAgentForMoveGM)
-            if booleanForFeedbackAgent :
-                for aFeedback in  theAction.feedbackAgent :
-                    aFeedback(theAgentForMoveGM)
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+
+    #Create agents on the cell
+    def newAgentHere(self, aAgentSpecies,adictAttributes=None):
+        """
+        Create a new Agent in the associated species.
+
+        Args:
+            aAgentSpecies (instance) : the species of your agent
+            adictAttributes to set the values
+
+        Return:
+            a new agent"""
+        return aAgentSpecies.newAgentOnCell(self,adictAttributes)
+		
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+
+    def deleteAllAgents(self):
+        """Delete all agents in this cell"""
+        # Remove all agents from the cell
+        agents_to_remove = self.agents.copy()
+        for agent in agents_to_remove:
+            if hasattr(agent, 'view') and agent.view:
+                agent.view.deleteLater()
+            self.removeAgent(agent)
+
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+
+    def getId(self):
+        """Get cell identifier using numeric ID consistent with cellIdFromCoords"""
+        return self.xCoord + (self.grid.columns * (self.yCoord - 1))
+    
+    def getCoords(self):
+        """Get cell coordinates"""
+        return (self.xCoord, self.yCoord)
+
+    def getAgents(self, nameOfSpecie=None):
+        """
+        Get all agents in this cell.
+        
+        Args:
+            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+                If None, returns all agents in the cell.
+                
+        Returns:
+            list[SGAgent]: List of agents of the specified species, or all agents if nameOfSpecie is None
+        """
+        if nameOfSpecie is None:
+            return self.agents[:]
+        
+        # Filter by species
+        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        return [agent for agent in self.agents if agent.classDef.entityName == nameOfSpecie]
+
+    def getFirstAgentOfSpecie(self, nameOfSpecie):
+        """
+        Get the first agent of a specific species in this cell.
+        
+        Args:
+            nameOfSpecie (str or SGAgentDef): The species name or SGAgentDef object
             
-                      
-            
-    #To handle the arrival of an agent on the cell (this is a private method)
-    def updateIncomingAgent(self,anAgent):
-        self.agents.append(anAgent)
-    
-    #To handle the departure of an agent of the cell (this is a private method)
-    def updateDepartureAgent(self,anAgent):
-        self.agents.remove(anAgent)
-        anAgent.cell=None
-    
+        Returns:
+            SGAgent or None: The first agent of the specified species, or None if not found
+        """
+        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        for agent in self.agents:
+            if agent.classDef.entityName == nameOfSpecie:
+                return agent
+        return None
 
-
-#-----------------------------------------------------------------------------------------
-#Definiton of the methods who the modeler will use  
-    
-    #To get all of a kind of agent on a cell 
-    def getAgents(self,specie=None):
-        if specie != None:
-            return self.getAgentsOfSpecie(specie)
-        return  self.agents[:]
-    
-    def nbAgents(self,specie=None): 
-        if specie != None:
-            listAgts = self.getAgentsOfSpecie(specie)
-        else: listAgts = self.getAgents()
-        return  len(listAgts)
- 
-    def isEmpty(self,specie=None):
-        return not self.hasAgents(specie)
-    
-    def hasAgents(self,specie=None):
-        return self.nbAgents(specie) > 0
-
-    #To get all agents on the grid of a particular type
-    def getAgentsOfSpecie(self,nameOfSpecie):
-        from mainClasses.SGEntityDef import SGAgentDef # Import local pour éviter l'import circulaire
-        if isinstance(nameOfSpecie,SGAgentDef): nameOfSpecie = nameOfSpecie.entityName
-        return [aAgt for aAgt in self.agents if aAgt.classDef.entityName == nameOfSpecie]
-    
-    #To get the agent of a particular type
-    def getFirstAgentOfSpecie(self,nameOfSpecie):
-        agents = self.getAgentsOfSpecie(nameOfSpecie)
-        if not agents:
-            return None
-        else: return agents[0]
+    def nbAgents(self, nameOfSpecie=None):
+        """
+        Get the number of agents in this cell.
         
-    
-    #To get the neighbor cells
-    def getNeighborCells(self, condition = None, neighborhood=None):
+        Args:
+            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+                If None, returns total count of all agents.
+                
+        Returns:
+            int: Number of agents of the specified species, or total count if nameOfSpecie is None
+        """
+        if nameOfSpecie is None:
+            return len(self.agents)
+        
+        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        # Count by species
+        return len(self.getAgents(nameOfSpecie))
+
+
+    def getNeighborCells(self, condition=None, neighborhood=None):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn and SGCellDef.getEntities_withRow are delegated to it.
         """
         Get the neighboring cells of the current cell.
 
@@ -286,6 +295,7 @@ class SGCell(SGEntity):
         if neighborhood is None:
             neighborhood = self.grid.neighborhood
         boundary_condition = self.grid.boundary_condition
+        cellShape = self.grid.cellShape
 
         rows = self.grid.rows
         columns = self.grid.columns
@@ -308,27 +318,101 @@ class SGCell(SGEntity):
                 else:
                     raise ValueError(f"Invalid boundary condition: {boundary_condition}")
 
-                # Determine neighbors according to neighborhood type
-                if neighborhood == "moore":
-                    c = self.classDef.getCell(ii, jj)
-                elif neighborhood == "neumann":
-                    if (ii == self.xCoord or jj == self.yCoord) and not (ii == self.xCoord and jj == self.yCoord):
-                        c = self.classDef.getCell(ii, jj)
+                # Determine neighbors according to neighborhood type and cell shape
+                aCell = None
+                if cellShape == "square":
+                    if neighborhood == "moore":
+                        aCell = self.classDef.getCell(ii, jj)
+                    elif neighborhood == "neumann":
+                        if (ii == self.xCoord or jj == self.yCoord) and not (ii == self.xCoord and jj == self.yCoord):
+                            aCell = self.classDef.getCell(ii, jj)
                     else:
-                        c = None
-                else:
-                    raise ValueError(f"Invalid neighborhood type: {neighborhood}")
+                        raise ValueError(f"Invalid neighborhood type: {neighborhood}")
+                elif cellShape == "hexagonal":
+                    #NOTE: The hexagonal grid is "Pointy-top hex grid with even-r offset".
+                    if neighborhood == "moore":
+                        # For hexagonal Moore: 6 neighbors (not 8 like square)
+                        # First determine the hexagonal neighbor pattern
+                        if self.yCoord % 2 == 0:  # Even row
+                            valid_neighbors = [(-1,0), (0,-1), (1,-1), (1,0), (1,1), (0,1)]
+                            # (-1,0) - left
+                            # (0,-1) - top-left
+                            # (1,-1) - top-right
+                            # (1,0) - right
+                            # (1,1) - bottom-right
+                            # (0,1) - bottom-left
 
-                if c is not None:
-                    neighbors.append(c)
+                        else:  # Odd row
+                            valid_neighbors = [(-1,0), (-1,-1), (0,-1), (1,0), (0,1), (-1,1)]
+                            # (-1,0) - left
+                            # (-1,-1) - top-left
+                            # (0,-1) - top-right
+                            # (1,0) - right
+                            # (0,1) - bottom-left
+                            # (-1,1) - bottom-right
+
+                        # Check if this is a valid hexagonal neighbor
+                        dx = i - self.xCoord
+                        dy = j - self.yCoord
+                        
+                        if (dx, dy) in valid_neighbors:
+                            # Apply boundary conditions
+                            if boundary_condition == "open":
+                                # Simple toroidal wrap-around for hexagonal grids
+                                ii = ((i - 1) % columns) + 1
+                                jj = ((j - 1) % rows) + 1
+                                aCell = self.classDef.getCell(ii, jj)
+                            else:  # closed boundaries
+                                if i < 1 or i > columns or j < 1 or j > rows:
+                                    continue
+                                aCell = self.classDef.getCell(i, j)
+                    elif neighborhood == "neumann":
+                        # For hexagonal Neumann: 3 neighbors (orthogonal only)
+                        dx = ii - self.xCoord
+                        dy = jj - self.yCoord
+                        # Hexagonal Neumann: only orthogonal neighbors
+                        if self.yCoord % 2 == 0:  # Even row
+                            valid_neighbors = [(-1,0), (0,-1), (0,1)]
+                        else:  # Odd row
+                            valid_neighbors = [(-1,0), (0,-1), (0,1)]
+                        
+                        if (dx, dy) in valid_neighbors:
+                            aCell = self.classDef.getCell(ii, jj)
+                    else:
+                        raise ValueError(f"Invalid neighborhood type: {neighborhood}")
+                else:
+                    raise ValueError(f"Invalid cell shape: {cellShape}")
+
+                if aCell is not None:
+                    neighbors.append(aCell)
 
         if condition is None:
             return neighbors
         else:
             return [aCell for aCell in neighbors if condition(aCell)]
-        
+
+    def getNeighborN(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
+        """Get neighbor to the North"""
+        return self.classDef.getCell(self.xCoord, self.yCoord - 1) if self.yCoord > 1 else None
+
+    def getNeighborS(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
+        """Get neighbor to the South"""
+        return self.classDef.getCell(self.xCoord, self.yCoord + 1) if self.yCoord < self.classDef.grid.rows else None
+
+    def getNeighborE(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn delegates to it.
+        """Get neighbor to the East"""
+        return self.classDef.getCell(self.xCoord + 1, self.yCoord) if self.xCoord < self.classDef.grid.columns else None
+
+    def getNeighborW(self):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn delegates to it.
+        """Get neighbor to the West"""
+        return self.classDef.getCell(self.xCoord - 1, self.yCoord) if self.xCoord > 1 else None
 
     def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """
         Get all neighbor cells within a given radius according to the grid's neighborhood type.
 
@@ -395,6 +479,7 @@ class SGCell(SGEntity):
 
 
     def distanceTo(self, otherCell):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """
         Compute Euclidean distance to another cell.
 
@@ -510,33 +595,57 @@ class SGCell(SGEntity):
             return matching_agents
         else:
             return random.choice(matching_agents)
+			
+			
+			
+			
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
 
-
-    #To get the neighbor cell at cardinal
-    def getNeighborN(self):
-        return self.classDef.getCell(self.xCoord,self.yCoord-1)
-    def getNeighborS(self):
-        return self.classDef.getCell(self.xCoord,self.yCoord+1)
-    def getNeighborE(self):
-        return self.classDef.getCell(self.xCoord+1,self.yCoord)
-    def getNeighborW(self):
-        return self.classDef.getCell(self.xCoord-1,self.yCoordPos)        
-            
-    #Delete all agents on the cell
-    def deleteAllAgents(self):
-        for agt in self.agents[:]:
-            agt.classDef.deleteEntity(agt)
-        self.update()
-
-    #Create agents on the cell
-    def newAgentHere(self, aAgentSpecies,adictAttributes=None):
+    def hasAgent(self, agent):
+        """Check if this cell contains a specific agent"""
+        return agent in self.agents
+    
+    def hasAgents(self, nameOfSpecie=None):
         """
-        Create a new Agent in the associated species.
-
+        Check if this cell contains agents of a specific species.
+        
         Args:
-            aAgentSpecies (instance) : the species of your agent
-            adictAttributes to set the values
+            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+                If None, checks if cell contains any agents.
+                
+        Returns:
+            bool: True if the cell contains agents of the specified species, False otherwise
+        """
+        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        return self.nbAgents(nameOfSpecie) > 0
 
-        Return:
-            a new agent"""
-        return aAgentSpecies.newAgentOnCell(self,adictAttributes)
+    def isEmpty(self, nameOfSpecie=None):
+        """
+        Check if this cell is empty of agents of a specific species.
+        
+        Args:
+            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+                If None, checks if cell is completely empty.
+                
+        Returns:
+            bool: True if the cell is empty of the specified species, False otherwise
+        """
+        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        return not self.hasAgents(nameOfSpecie)
+
+    
+
+
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+
+    # (No specific DO/DISPLAY methods in SGCell - inherited from SGEntity)
+
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+
+    # (No specific OTHER MODELER methods in SGCell - inherited from SGEntity)

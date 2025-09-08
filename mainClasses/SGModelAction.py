@@ -50,7 +50,7 @@ class SGModelAction():
     def execute(self):
         if self.testConditions():
             allActionsDone = True
-            for aAction in self.actions:
+            for i, aAction in enumerate(self.actions):
                 if callable(aAction):
                     test = aAction()  #this command executes aAction
                     if test == False:
@@ -66,7 +66,6 @@ class SGModelAction():
             
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
-
 
     def addModelAction(self,aAction):
         if callable(aAction):
@@ -130,11 +129,13 @@ class SGModelAction_OnEntities(SGModelAction):
             return self.entitiesContainer()
 
     def execute(self):
+        from mainClasses.SGExtensions import execute_callable_with_entity
+        
         for aEntity in self.getEntities():
             if self.testConditions(aEntity):
                 for aAction in self.actions:
                     if callable(aAction):
-                        aAction(aEntity)  #this command executes aAction
+                        execute_callable_with_entity(aAction, aEntity)
         for aFeedbackAction in self.feedbacks:
             aFeedbackAction.execute()
 

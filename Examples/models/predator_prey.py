@@ -28,7 +28,7 @@ Sheep.newAgentsAtRandom(5, condition=lambda c: c.isValue("landForm", "plain"))
 Wolf.newAgentsAtRandom(1,  condition=lambda c: c.isValue("landForm", "plain"))
 
 # Time phase
-p1 = myModel.timeManager.newModelPhase(auto_forward=True,message_auto_forward=False)
+p1 = myModel.newModelPhase(auto_forward=True,message_auto_forward=False)
 
 # Sheep wander randomly but only on plains
 p1.addAction(lambda: Sheep.moveRandomly(condition=lambda c: c.isValue("landForm", "plain")))
@@ -56,7 +56,7 @@ def wolf_hunt_step():
 p1.addAction(wolf_hunt_step)
 
 
-p2 = myModel.timeManager.newModelPhase()
+p2 = myModel.newModelPhase()
 # Wolf eat: delete the sheep which is on the same location, if it exists
 def wolf_eat_step():
     wolf = Wolf.getEntities()[0]

@@ -5,6 +5,7 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="add a TimeLabel")
+myModel.displayAdminControlPanel()
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
@@ -21,18 +22,18 @@ Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})
 m2=Sheeps.newAgentAtCoords(Cell,5,1)
 
-theFirstLegend=myModel.newLegend()
+theFirstLegend=myModel.newLegend(alwaysDisplayDefaultAgentSymbology=True)
 
 
 Player1=myModel.newPlayer("Player 1")
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newPlayPhase('Phase 1', [Player1])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1')
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
@@ -43,7 +44,7 @@ aModelAction4.addCondition(lambda: myModel.roundNumber()==3)
 
 aModelAction4.addFeedback(lambda : Cell.setRandomEntities('landUse','grass'))
 
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 
 # To display a widget with the Time information you can add a TimeLabel
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)

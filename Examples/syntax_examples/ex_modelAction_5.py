@@ -37,8 +37,8 @@ aModelAction2.addFeedback(aFeedbackAction)
 
 
 # ADDING MODEL ACTIONS TO THE PHASES
-myModel.timeManager.newModelPhase(aModelAction1, 'Model action 1')
-myModel.timeManager.newModelPhase(aModelAction2, 'Model action 2')
+myModel.newModelPhase(aModelAction1, 'Model action 1')
+myModel.newModelPhase(aModelAction2, 'Model action 2')
 
 
 
