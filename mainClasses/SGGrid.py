@@ -91,7 +91,12 @@ class SGGrid(SGGameSpace):
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):
+        # First, try the new drag & drop implementation from SGGameSpace
+        if self.isDraggable and hasattr(self, 'dragging') and self.dragging:
+            super().mouseMoveEvent(e)
+            return
 
+        # Fallback to the old implementation if moveable is True but not draggable
         if self.moveable == False:
             return
         if e.buttons() != Qt.LeftButton:

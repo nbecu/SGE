@@ -27,7 +27,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.forceDisplay = forceDisplay
         
         # Enable drag and drop functionality
-        self.setAcceptDrops(False)
+        self.setAcceptDrops(True)
         self.drag_start_position = None
         self.dragging = False
         self.rightMargin = 9
@@ -131,73 +131,26 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         if distance < QtWidgets.QApplication.startDragDistance():
             return
 
-        # Create drag operation
-        mimeData = QMimeData()
-        mimeData.setText("SGGameSpace")
+        # Get the global mouse position
+        global_mouse_pos = QtWidgets.QApplication.desktop().cursor().pos()
         
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        
-        # Create a visual representation of the widget being dragged
-        pixmap = self.grab()
-        if not pixmap.isNull():
-            # Add semi-transparent overlay to indicate dragging
-            painter = QPainter(pixmap)
-            painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
-            painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))
-            painter.end()
-            drag.setPixmap(pixmap)
-        
-        # Set the hotspot to the click position
-        drag.setHotSpot(self.drag_start_position)
-        
-        # Execute the drag operation
-        result = drag.exec_(Qt.MoveAction)
-        
-        # Reset dragging state
-        self.dragging = False
-
-    def dragEnterEvent(self, event):
-        """
-        Handle drag enter events for gameSpace drop zones.
-        """
-        if event.mimeData().hasText() and event.mimeData().text() == "SGGameSpace":
-            event.acceptProposedAction()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        """
-        Handle drop events for gameSpace positioning.
-        """
-        if event.mimeData().hasText() and event.mimeData().text() == "SGGameSpace":
-            # Get the source widget (the dragged gameSpace)
-            source_widget = event.source()
+        # Convert to parent coordinates
+        if self.parent():
+            parent_pos = self.parent().mapFromGlobal(global_mouse_pos)
             
-            if source_widget and source_widget != self:
-                # Calculate new position based on drop location
-                drop_position = event.pos()
-                
-                # Get the parent widget to calculate global position
-                if self.parent():
-                    global_pos = self.parent().mapToGlobal(drop_position)
-                    parent_pos = self.parent().mapToGlobal(self.parent().rect().topLeft())
-                    
-                    # Calculate relative position within parent
-                    new_x = global_pos.x() - parent_pos.x()
-                    new_y = global_pos.y() - parent_pos.y()
-                    
-                    # Ensure position is within reasonable bounds
-                    if new_x >= 0 and new_y >= 0:
-                        source_widget.move(new_x, new_y)
-                        
-                        # Update the gameSpace's base position
-                        source_widget.setStartXBase(new_x)
-                        source_widget.setStartYBase(new_y)
+            # Calculate new position accounting for the click offset
+            new_x = parent_pos.x() - self.drag_start_position.x()
+            new_y = parent_pos.y() - self.drag_start_position.y()
             
-            event.acceptProposedAction()
-        else:
-            event.ignore()
+            # Move the widget
+            self.move(new_x, new_y)
+            
+            # Update the gameSpace's base position
+            self.setStartXBase(new_x)
+            self.setStartYBase(new_y)
+
+        # Don't reset dragging here - keep it true for continuous movement
+
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
