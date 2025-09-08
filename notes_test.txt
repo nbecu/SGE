@@ -1,0 +1,6 @@
+Notes du test de Solutré
+===========================
+
+Bug du décompte des touristes : revoir les valeurs de déclenchement de seuil par rapport à la refonte des jauges.
+Bugs sur les hexagones qui peuvent s'activer plusieurs fois.
+Revoir le décompte des touristes, surtout quand on en gagne pendant le tour.
