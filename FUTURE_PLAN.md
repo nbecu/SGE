@@ -23,6 +23,10 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Add image support (JPG) in POV for legends and control panels
 - [ ] Add possibility to integrate image icons in dashboards and progressGauge
 
+### New Entities & Features
+- [ ] New `entity`: Tile
+- [ ] Add configurable min/max values for simulation variables
+
 ### Graphs & Analytics Interface
 - [ ] Graphs interface : improve the selection menu of graphs
 - [ ] Graphs interface : allow to hide all graphs that are flat (no value change)
@@ -39,10 +43,6 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### Multiplayer & Configuration
 - [ ] Improve model configuration management for multiplayer games
-
-### New Entities & Features
-- [ ] New `entity`: Tile
-- [ ] Add configurable min/max values for simulation variables
 
 ### Documentation & Tools
 - [ ] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide)
