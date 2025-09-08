@@ -25,6 +25,11 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.isDraggable = isDraggable
         self.isActive = True
         self.forceDisplay = forceDisplay
+        
+        # Enable drag and drop functionality
+        self.setAcceptDrops(False)
+        self.drag_start_position = None
+        self.dragging = False
         self.rightMargin = 9
         self.verticalGapBetweenLabels = 5
         self.gs_aspect = SGAspect.baseBorder()
@@ -94,53 +99,105 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.setStartXBase(newPos[0])
         self.setStartYBase(newPos[1])
 
-    def mouseMoveEvent(self, e):
+    def mousePressEvent(self, event):
+        """
+        Handle mouse press events for drag initiation.
+        """
+        if event.button() == Qt.LeftButton and self.isDraggable:
+            # Store the initial click position relative to the widget
+            self.drag_start_position = event.pos()
+            self.dragging = True
+        else:
+            self.dragging = False
 
-        if e.buttons() != Qt.LeftButton:
+    def mouseReleaseEvent(self, event):
+        """
+        Handle mouse release events to end drag operation.
+        """
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+
+    def mouseMoveEvent(self, event):
+        """
+        Handle mouse move events for dragging gameSpaces.
+        """
+        # Only proceed if left button is pressed and widget is draggable
+        if not (event.buttons() == Qt.LeftButton and self.isDraggable and self.dragging):
             return
 
-        # To get the clic position in GameSpace
-        def getPos(e):
-            clic = QMouseEvent.windowPos(e)
-            xclic = int(clic.x())
-            yclic = int(clic.y())
-            return xclic, yclic
+        # Check if we've moved enough to start a drag operation
+        # Calculate distance moved
+        distance = (event.pos() - self.drag_start_position).manhattanLength()
+        if distance < QtWidgets.QApplication.startDragDistance():
+            return
 
-        # To get the coordinate of the grid upleft corner in GameSpace
-        def getCPos(self):
-            left = self.x()
-            up = self.y()
-            return left, up
-
-        # To convert the upleft corner to center coordinates
-        def toCenter(self):
-            xC = self.x()+int(self.width()/2)
-            yC = self.y()+int(self.height()/2)
-            return xC, yC
-
+        # Create drag operation
         mimeData = QMimeData()
+        mimeData.setText("SGGameSpace")
+        
         drag = QDrag(self)
         drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.pos())
+        
+        # Create a visual representation of the widget being dragged
+        pixmap = self.grab()
+        if not pixmap.isNull():
+            # Add semi-transparent overlay to indicate dragging
+            painter = QPainter(pixmap)
+            painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+            painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))
+            painter.end()
+            drag.setPixmap(pixmap)
+        
+        # Set the hotspot to the click position
+        drag.setHotSpot(self.drag_start_position)
+        
+        # Execute the drag operation
+        result = drag.exec_(Qt.MoveAction)
+        
+        # Reset dragging state
+        self.dragging = False
 
-        xclic, yclic = getPos(e)
-        xC, yC = toCenter(self)
+    def dragEnterEvent(self, event):
+        """
+        Handle drag enter events for gameSpace drop zones.
+        """
+        if event.mimeData().hasText() and event.mimeData().text() == "SGGameSpace":
+            event.acceptProposedAction()
+        else:
+            event.ignore()
 
-        drag.exec_(Qt.MoveAction)
-
-        # Only move the widget if the drag was successful
-        # Check if the widget is still visible and in a valid position
-        if self.isVisible() and self.parent() is not None:
-            leftf, upf = getCPos(self)
-            xCorr = xclic-xC
-            yCorr = yclic-yC
-
-            newX = leftf-xCorr
-            newY = upf-yCorr
-
-            # Ensure the new position is within reasonable bounds
-            if newX >= 0 and newY >= 0:
-                self.move(newX, newY)
+    def dropEvent(self, event):
+        """
+        Handle drop events for gameSpace positioning.
+        """
+        if event.mimeData().hasText() and event.mimeData().text() == "SGGameSpace":
+            # Get the source widget (the dragged gameSpace)
+            source_widget = event.source()
+            
+            if source_widget and source_widget != self:
+                # Calculate new position based on drop location
+                drop_position = event.pos()
+                
+                # Get the parent widget to calculate global position
+                if self.parent():
+                    global_pos = self.parent().mapToGlobal(drop_position)
+                    parent_pos = self.parent().mapToGlobal(self.parent().rect().topLeft())
+                    
+                    # Calculate relative position within parent
+                    new_x = global_pos.x() - parent_pos.x()
+                    new_y = global_pos.y() - parent_pos.y()
+                    
+                    # Ensure position is within reasonable bounds
+                    if new_x >= 0 and new_y >= 0:
+                        source_widget.move(new_x, new_y)
+                        
+                        # Update the gameSpace's base position
+                        source_widget.setStartXBase(new_x)
+                        source_widget.setStartYBase(new_y)
+            
+            event.acceptProposedAction()
+        else:
+            event.ignore()
 
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use

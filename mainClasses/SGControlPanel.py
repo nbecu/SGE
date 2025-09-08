@@ -8,36 +8,70 @@ from mainClasses.SGAspect import SGAspect
 #Class who is responsible of the creation of a ControlPanel
 #A ControlPanel is an interface that permits to operate the game actions of a player
 class SGControlPanel(SGGameSpace):
-    @classmethod #todo change to the normal way to create a ControlPanel
-    def forPlayer(cls, aPlayer,panelTitle,backgroundColor=Qt.transparent,borderColor=Qt.black,defaultActionSelected=None):
-        aModel=aPlayer.model
-        aControlPanel = cls(aModel,0,60,0,0,backgroundColor=backgroundColor)
-        aControlPanel.isLegend=False
-        aControlPanel.isControlPanel=True
-        aControlPanel.id=panelTitle
-        aControlPanel.player=aPlayer
-        aControlPanel.playerName=aControlPanel.player.name
-        aControlPanel.legendItems=[]
-        aControlPanel.isActive=False
-        aControlPanel.selected = None # To handle the selection of an item in the legend
-        # Configure border using gs_aspect instead of self.borderColor
-        aControlPanel.gs_aspect.border_color = borderColor
-        aControlPanel.gs_aspect.border_size = 1
+    def __init__(self, aPlayer, panelTitle, backgroundColor=Qt.transparent, borderColor=Qt.black, defaultActionSelected=None):
+        """
+        Initialize a ControlPanel for a specific player.
+        
+        Args:
+            aPlayer: The player who owns this control panel
+            panelTitle: Title/name of the control panel
+            backgroundColor: Background color (default: transparent)
+            borderColor: Border color (default: black)
+            defaultActionSelected: Default game action to select (optional)
+        """
+        # Initialize the parent SGGameSpace
+        super().__init__(aPlayer.model, 0, 60, 0, 0, backgroundColor=backgroundColor)
+        
+        # Set control panel specific attributes
+        self.isLegend = False
+        self.isControlPanel = True
+        self.id = panelTitle
+        self.player = aPlayer
+        self.playerName = self.player.name
+        self.legendItems = []
+        self.isActive = False
+        self.selected = None  # To handle the selection of an item in the legend
+        
+        # Configure border using gs_aspect
+        self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = 1
+        
         # Initialize theme aspects for different states
-        aControlPanel.inactive_aspect = SGAspect.inactive()
-        aControlPanel.haveADeleteButton=False
+        self.inactive_aspect = SGAspect.inactive()
+        self.haveADeleteButton = False
+        
+        # Initialize UI with game actions
         gameActions = aPlayer.gameActions
-        aControlPanel.initUI_withGameActions(gameActions)
+        self.initUI_withGameActions(gameActions)
+        
+        # Handle default action selection
         if defaultActionSelected is not None:
             from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
-            if not isinstance(defaultActionSelected,SGAbstractAction): raise ValueError(f'defaultActionSelected should be gameAction but {defaultActionSelected} is not one')
-            aControlPanel.defaultSelection = next((item for item in aControlPanel.legendItems if item.gameAction == defaultActionSelected)
-                                                  ,None)  # None in case defaultActionSelected is not one of the game action of the controlPanel
-        elif len(aControlPanel.getLegendItemsOfGameActions()) == 1 :
-            aControlPanel.defaultSelection = aControlPanel.getLegendItemsOfGameActions()[0]
+            if not isinstance(defaultActionSelected, SGAbstractAction):
+                raise ValueError(f'defaultActionSelected should be gameAction but {defaultActionSelected} is not one')
+            self.defaultSelection = next((item for item in self.legendItems if item.gameAction == defaultActionSelected), None)
+        elif len(self.getLegendItemsOfGameActions()) == 1:
+            self.defaultSelection = self.getLegendItemsOfGameActions()[0]
         else:
-            aControlPanel.defaultSelection = None
-        return aControlPanel
+            self.defaultSelection = None
+
+    @classmethod
+    def forPlayer(cls, aPlayer, panelTitle, backgroundColor=Qt.transparent, borderColor=Qt.black, defaultActionSelected=None):
+        """
+        Legacy class method for backward compatibility.
+        Creates a ControlPanel using the new __init__ constructor.
+        
+        Args:
+            aPlayer: The player who owns this control panel
+            panelTitle: Title/name of the control panel
+            backgroundColor: Background color (default: transparent)
+            borderColor: Border color (default: black)
+            defaultActionSelected: Default game action to select (optional)
+            
+        Returns:
+            SGControlPanel: The created control panel instance
+        """
+        return cls(aPlayer, panelTitle, backgroundColor, borderColor, defaultActionSelected)
 
 
     def initUI_withGameActions(self,gameActions):
@@ -145,6 +179,8 @@ class SGControlPanel(SGGameSpace):
         if QMouseEvent.button() == Qt.LeftButton:
             # Check if current player can use this control panel
             if self.playerName != self.model.currentPlayerName:
+                # Still call parent for drag & drop functionality
+                super().mousePressEvent(QMouseEvent)
                 return # Exit because the currentPlayer cannot use this widget
             
             # Find the clicked item using childAt for more precise detection
@@ -152,10 +188,14 @@ class SGControlPanel(SGGameSpace):
             
             # Check if the clicked item is a SGLegendItem and is in our legendItems list
             if clickedItem is None or not hasattr(clickedItem, 'gameAction') or clickedItem not in self.legendItems:
+                # Still call parent for drag & drop functionality
+                super().mousePressEvent(QMouseEvent)
                 return # No valid item clicked
             
             # Check if the clicked item is selectable (has gameAction)
             if not clickedItem.isSelectable():
+                # Still call parent for drag & drop functionality
+                super().mousePressEvent(QMouseEvent)
                 return # Exit because the item is not selectable (no gameAction)
             
             if self.selected == clickedItem:
@@ -165,6 +205,9 @@ class SGControlPanel(SGGameSpace):
                 # Selection of an item and suppression of already selected Item
                 self.selected = clickedItem
             self.update()
+        
+        # Always call parent for drag & drop functionality
+        super().mousePressEvent(QMouseEvent)
 
     def updateWithSymbologies(self, listOfSymbologies):
         """Override to prevent ControlPanel from changing with symbology changes"""
