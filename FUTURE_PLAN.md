@@ -16,11 +16,7 @@ This document contains the planned improvements and features for the SGE (Simula
 ### User Interface & Display
 - [ ] Correct the zoom
 - [ ] Main window auto resize
-- [ ] Refactor auto resize of text spacings in `gameSpaces` (using geometry)
 - [ ] Integrate the enhanced grid layout of `gameSpaces`
-- [ ] Unify font style sheets for `SGEndGameRule`
-- [x] Add a modeler style sheet config methods for `gameSpaces` who don't have yet
-- [x] Fix widget size management for `SGEndGameRule` and `SGTextBox` (external border vs internal widget sizing)
 
 ### POV System & Visual Elements
 - [ ] Create a POV system to manage groups of symbologies
@@ -57,6 +53,7 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### User Interface & Display
 - [x] Add a modeler style sheet config methods for `gameSpaces` who don't have yet (Sept 2025)
+- [x] Unify font style sheets for `SGEndGameRule` (Sept 2025)
   - ✅ Unified all gameSpaces to use `gs_aspect` system consistently
   - ✅ Added missing `paintEvent()` methods for SGProgressGauge and SGEndGameRule
   - ✅ Implemented multi-theme system for SGEndGameCondition and SGControlPanel
@@ -65,6 +62,7 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ All gameSpaces now support: `setBorderColor()`, `setBorderSize()`, `setBackgroundColor()`, `setTextColor()`
 
 - [x] Fix widget size management for `SGEndGameRule` and `SGTextBox` (Sept 2025)
+- [x] Refactor auto resize of text spacings in `gameSpaces` (using geometry) (Sept 2025)
   - ✅ Created `SGGameSpaceSizeManager` class for dedicated size management
   - ✅ Integrated size manager into `SGGameSpace` base class
   - ✅ Fixed `SGTextBox` to dynamically adapt to text content
