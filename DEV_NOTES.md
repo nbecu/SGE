@@ -11,12 +11,37 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Date de dernière mise à jour : 26/12/2024
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : refactor/model-view-separation (gestion de taille des gameSpaces terminée)
-### Dernier chantier : Gestion de taille des gameSpaces + SGGameSpaceSizeManager + corrections sizing
+### Branche actuelle : refactor/model-view-separation (drag & drop des gameSpaces terminé)
+### Dernier chantier : Refactoring drag & drop des gameSpaces + corrections SGControlPanel + SGGrid
 
 ---
 
 ## Travail en cours
+
+### 26/12/2024 - Refactoring drag & drop des gameSpaces + corrections SGControlPanel + SGGrid (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Refactoring complet du système de drag & drop des gameSpaces, passage de QDrag à mouvement direct de la souris, corrections SGControlPanel et SGGrid pour compatibilité
+- **Fichiers concernés** : 
+  - `mainClasses/SGGameSpace.py` (refactoring drag & drop, passage QDrag → mouvement direct)
+  - `mainClasses/SGControlPanel.py` (refactoring constructeur __init__, corrections mousePressEvent)
+  - `mainClasses/SGPlayer.py` (mise à jour utilisation SGControlPanel)
+  - `mainClasses/SGGrid.py` (corrections mouseMoveEvent pour compatibilité drag & drop)
+  - `mainClasses/SGUserSelector.py` (ajout orientation verticale/horizontale)
+  - `mainClasses/SGModel.py` (ajout paramètre orientation dans newUserSelector)
+  - `examples/syntax_examples/ex_userSelector_orientation.py` (nouveau - exemple orientation)
+  - `FUTURE_PLAN.md` (mise à jour chantier drag & drop terminé)
+- **Problèmes rencontrés** : Drag & drop non intuitif avec QDrag, SGControlPanel non draggable, SGGrid incompatible avec nouveau système, hauteur excessive SGUserSelector
+- **Solutions appliquées** : 
+  - Abandon complet du système QDrag au profit d'un mouvement direct basé sur global mouse position
+  - Implémentation du comportement hotspot intuitif (point cliqué reste sous curseur)
+  - Refactoring SGControlPanel pour utiliser constructeur __init__ standard
+  - Correction SGControlPanel.mousePressEvent pour appeler super().mousePressEvent()
+  - Mise à jour SGPlayer pour utiliser nouveau constructeur SGControlPanel
+  - Correction SGGrid.mouseMoveEvent pour déléguer à super() quand isDraggable
+  - Ajout orientation verticale/horizontale dans SGUserSelector
+  - Réduction hauteur SGUserSelector (padding réduit, min_height 25px)
+  - Création exemple syntax_examples pour démonstration orientation
+- **Résultat** : Système de drag & drop fluide et intuitif pour tous les gameSpaces, comportement hotspot cohérent, SGControlPanel et SGGrid compatibles
 
 ### 26/12/2024 - Gestion de taille des gameSpaces + SGGameSpaceSizeManager (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
@@ -195,6 +220,20 @@ L'architecture Model-View est **complètement terminée** et validée :
 - [x] Nettoyage méthodes dupliquées et obsolètes
 - [x] Documentation CONTEXT_SGE_FOR_CHATBOT.md mise à jour
 
+### Refactoring drag & drop des gameSpaces - TERMINÉ ✅
+Le système de drag & drop des gameSpaces est **complètement terminé** et validé :
+- [x] Refactoring complet du système QDrag vers mouvement direct de la souris
+- [x] Implémentation du comportement hotspot intuitif (point cliqué reste sous curseur)
+- [x] Correction SGControlPanel pour utiliser constructeur __init__ standard
+- [x] Correction SGControlPanel.mousePressEvent pour compatibilité drag & drop
+- [x] Mise à jour SGPlayer pour utiliser nouveau constructeur SGControlPanel
+- [x] Correction SGGrid.mouseMoveEvent pour déléguer à super() quand isDraggable
+- [x] Ajout orientation verticale/horizontale dans SGUserSelector
+- [x] Réduction hauteur SGUserSelector (padding réduit, min_height 25px)
+- [x] Création exemple syntax_examples pour démonstration orientation
+- [x] Tests avec exStep8.py et ex_userSelector_orientation.py validés
+- [x] Mise à jour FUTURE_PLAN.md avec le chantier terminé
+
 ### Prochaines étapes générales
 - [ ] Nouvelles fonctionnalités SGE (selon besoins futurs)
 - [ ] Optimisations performance (si nécessaire)
@@ -206,6 +245,23 @@ L'architecture Model-View est **complètement terminée** et validée :
 ---
 
 ## Problèmes résolus
+
+### 26/12/2024 - Refactoring drag & drop des gameSpaces (MAJOR)
+- **Description** : Système de drag & drop non intuitif avec QDrag, SGControlPanel non draggable, SGGrid incompatible avec nouveau système, hauteur excessive SGUserSelector
+- **Solution** : 
+  1. Abandon complet du système QDrag au profit d'un mouvement direct basé sur global mouse position
+  2. Implémentation du comportement hotspot intuitif (point cliqué reste sous curseur)
+  3. Refactoring SGControlPanel pour utiliser constructeur __init__ standard
+  4. Correction SGControlPanel.mousePressEvent pour appeler super().mousePressEvent()
+  5. Mise à jour SGPlayer pour utiliser nouveau constructeur SGControlPanel
+  6. Correction SGGrid.mouseMoveEvent pour déléguer à super() quand isDraggable
+  7. Ajout orientation verticale/horizontale dans SGUserSelector
+  8. Réduction hauteur SGUserSelector (padding réduit, min_height 25px)
+  9. Création exemple syntax_examples pour démonstration orientation
+  10. Tests de validation avec exStep8.py et ex_userSelector_orientation.py
+- **Fichiers modifiés** : `SGGameSpace.py`, `SGControlPanel.py`, `SGPlayer.py`, `SGGrid.py`, `SGUserSelector.py`, `SGModel.py`, `ex_userSelector_orientation.py` (nouveau), `FUTURE_PLAN.md`
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : Système de drag & drop fluide et intuitif pour tous les gameSpaces, comportement hotspot cohérent, SGControlPanel et SGGrid compatibles
 
 ### 26/12/2024 - Gestion de taille des gameSpaces (MAJOR)
 - **Description** : Problèmes de sizing dans les gameSpaces : hauteur excessive, débordement widgets internes, tailles disproportionnées, sizing fixe non adaptatif
@@ -581,6 +637,23 @@ L'architecture Model-View est **complètement terminée** et validée :
 
 ## Chats importants
 
+### 26/12/2024 - Refactoring drag & drop des gameSpaces (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Refactoring complet du système de drag & drop des gameSpaces, passage de QDrag à mouvement direct de la souris, corrections SGControlPanel et SGGrid
+- **Résultats** : 
+  - Abandon complet du système QDrag au profit d'un mouvement direct basé sur global mouse position
+  - Implémentation du comportement hotspot intuitif (point cliqué reste sous curseur)
+  - Refactoring SGControlPanel pour utiliser constructeur __init__ standard
+  - Correction SGControlPanel.mousePressEvent pour appeler super().mousePressEvent()
+  - Mise à jour SGPlayer pour utiliser nouveau constructeur SGControlPanel
+  - Correction SGGrid.mouseMoveEvent pour déléguer à super() quand isDraggable
+  - Ajout orientation verticale/horizontale dans SGUserSelector
+  - Réduction hauteur SGUserSelector (padding réduit, min_height 25px)
+  - Création exemple syntax_examples pour démonstration orientation
+- **Fichiers modifiés** : `SGGameSpace.py`, `SGControlPanel.py`, `SGPlayer.py`, `SGGrid.py`, `SGUserSelector.py`, `SGModel.py`, `ex_userSelector_orientation.py` (nouveau), `FUTURE_PLAN.md`
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur refactor/model-view-separation
+
 ### 26/12/2024 - Gestion de taille des gameSpaces + SGGameSpaceSizeManager (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
 - **Sujet principal** : Implémentation d'un système de gestion de taille adaptative pour les gameSpaces, création de SGGameSpaceSizeManager, et corrections des problèmes de sizing
@@ -668,6 +741,7 @@ L'architecture Model-View est **complètement terminée** et validée :
 ## Notes techniques
 
 ### Modifications importantes
+- 26/12/2024 : Refactoring drag & drop des gameSpaces (SGGameSpace.py, SGControlPanel.py, SGPlayer.py, SGGrid.py, SGUserSelector.py, SGModel.py, ex_userSelector_orientation.py)
 - 26/12/2024 : Gestion de taille des gameSpaces + SGGameSpaceSizeManager (SGGameSpaceSizeManager.py nouveau, SGGameSpace.py, SGTextBox.py, SGEndGameRule.py, SGEndGameCondition.py, SGUserSelector.py, SGModel.py)
 - 26/12/2024 : Correction bugs hexagonal + améliorations API (SGCell.py, SGAgent.py, SGEntityDef.py, tests/)
 - 26/12/2024 : Protection race conditions Qt (SGAgentView.py)
@@ -687,6 +761,11 @@ L'architecture Model-View est **complètement terminée** et validée :
 - 25/08/2025 : Configuration pytest.ini
 
 ### Découvertes architecturales
+- 26/12/2024 : Le système QDrag est inadapté pour le drag & drop intuitif des gameSpaces, le mouvement direct basé sur global mouse position est plus efficace
+- 26/12/2024 : Le comportement hotspot intuitif (point cliqué reste sous curseur) nécessite un calcul précis avec drag_start_position
+- 26/12/2024 : SGControlPanel nécessite un refactoring vers constructeur __init__ standard pour compatibilité drag & drop
+- 26/12/2024 : SGGrid.mouseMoveEvent doit déléguer à super() quand isDraggable pour utiliser le nouveau système
+- 26/12/2024 : SGUserSelector bénéficie d'une orientation verticale/horizontale avec sizing adaptatif
 - 26/12/2024 : Le système de sizing adaptatif nécessite une classe dédiée `SGGameSpaceSizeManager` pour centraliser la logique
 - 26/12/2024 : L'utilisation de `layout.sizeHint()` est plus fiable que le calcul manuel pour le sizing automatique
 - 26/12/2024 : Le remplacement de `QTextEdit` par `QLabel` améliore significativement les performances et le sizing
@@ -711,6 +790,10 @@ L'architecture Model-View est **complètement terminée** et validée :
 - 25/08/2025 : Les tests pytest standard facilitent la maintenance et la validation
 
 ### Questions en suspens
+- Comment optimiser la performance du drag & drop direct pour de gros volumes de gameSpaces ?
+- Faut-il étendre le système de drag & drop à d'autres types de widgets SGE ?
+- Comment gérer la migration des gameSpaces existants vers le nouveau système de drag & drop ?
+- Faut-il créer d'autres exemples pour les nouvelles fonctionnalités de drag & drop ?
 - Comment optimiser la performance du sizing adaptatif avec SGGameSpaceSizeManager ?
 - Faut-il étendre SGGameSpaceSizeManager à d'autres types de widgets ?
 - Comment gérer la migration des gameSpaces existants vers le nouveau système de sizing ?
