@@ -106,6 +106,7 @@ class AttributeAndValueFunctionalities():
                 aDate = [aDate[0], aDate[1] + 1]
         return aList
 
+
     # Attribute access methods
     def value(self, att):
         """
@@ -114,6 +115,18 @@ class AttributeAndValueFunctionalities():
             att (str): Name of the attribute
         """
         return self.dictAttributes.get(att, None)
+
+    def hasAttribute(self, att):
+        """
+        Check if the entity has a specific attribute defined.
+        
+        Args:
+            att (str): Name of the attribute to check
+            
+        Returns:
+            bool: True if the attribute exists and has a value, False otherwise
+        """
+        return att in self.dictAttributes and self.dictAttributes[att] is not None
 
     
     # ============================================================================

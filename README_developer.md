@@ -28,7 +28,7 @@ When creating new methods or functions intended for modelers, always use the fol
 - **new**: To create a new type of entity (e.g., `newCellsOnGrid`, `newAgentSpecies`), a new entity instance (e.g., `newAgentAtCoords()`), or a new game element (e.g., `newPlayPhase()`, `newLegend`).
 - **get**: To access or retrieve an element from the simulation (e.g., `getPlayer`, `getScore`).
 - **delete**: To remove an element from the simulation (e.g., `deleteEntity`, `deleteAllAgents()`).
-- **set**: To modify the value of a parameter or property of an element (e.g., `setParameter`, `setName`, `setEntities_withColumn()`, `setDefaultValues()`).
+- **set**: To modify the value of a parameter or property of an element (e.g., `setParameter`, `setName`, `setEntities_withColumn()`, `setDefaultValues()`, `setTooltip()`).
 - **add**: To add a new element to an existing type or to add a feature to an existing element (e.g., `addAction`, `addIndicator`).
 - **nb**: To obtain the number of entities, objects or instances.
 - **is**: To perform a test (returns True or False) (e.g., `isDeleted()`).

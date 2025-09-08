@@ -46,7 +46,15 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### Documentation & Tools
 - [ ] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide)
-- [ ] Add in SGModel menu bar the possibility to choose the displayTooltip of entities
+- [x] Add in SGModel menu bar the possibility to choose the displayTooltip of entities (Dec 2024)
+  - ✅ Added tooltip selection menu in SGModel Settings
+  - ✅ Created individual tooltip submenus for each EntityDef (CellDef and AgentDef)
+  - ✅ Implemented `setTooltip()` modeler method in SGEntityDef
+  - ✅ Added support for attribute names, static text, and lambda functions
+  - ✅ Created `hasAttribute()` method in AttributeAndValueFunctionalities
+  - ✅ Removed obsolete "Custom" option from displayTooltip()
+  - ✅ Added comprehensive examples in syntax_examples/
+  - ✅ Menu dynamically updates when new EntityDefs are created
 
 
 ## Completed Items

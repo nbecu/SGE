@@ -70,22 +70,13 @@ class SGCreate(SGAbstractAction):
         
         # Execute the action for each agent using standard behavior
         results = []
-<<<<<<< HEAD
         for _ in range(nbOfAgents):
-=======
-        for i in range(nbOfAgents):
->>>>>>> refactor/model-view-separation
             result = super().perform_with(aTargetEntity, serverUpdate)
             if result:
                 results.append(result)
         
         # Return the result(s) - single agent or list of agents
-<<<<<<< HEAD
         return results[0] if len(results) == 1 else results if results else False
-=======
-        final_result = results[0] if len(results) == 1 else results if results else False
-        return final_result
->>>>>>> refactor/model-view-separation
 
 
     def numberOfAgentsToCreate(self):

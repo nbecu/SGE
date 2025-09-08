@@ -18,6 +18,26 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Travail en cours
 
+### 26/12/2024 - Système de tooltips avancé (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Implémentation d'un système de tooltips complet avec menu dynamique, tooltips personnalisés et méthode setTooltip() pour les modelers
+- **Fichiers concernés** : 
+  - `mainClasses/SGModel.py` (menu dynamique des tooltips, initBeforeShowing())
+  - `mainClasses/SGEntityDef.py` (méthode setTooltip(), displayTooltip() améliorée)
+  - `mainClasses/AttributeAndValueFunctionalities.py` (méthode hasAttribute())
+  - `examples/syntax_examples/ex_tooltip_2.py` (exemple mis à jour)
+  - `examples/syntax_examples/ex_tooltip_3.py` (nouveau exemple)
+  - `FUTURE_PLAN.md` (mise à jour chantier terminé)
+- **Problèmes rencontrés** : Menu incohérent avec doublons, tooltips statiques affichant None, timing d'initialisation
+- **Solutions appliquées** : 
+  - Refactoring menu dynamique avec sous-menus individuels par EntityDef
+  - Méthode setTooltip() pour tooltips personnalisés (attributs, texte statique, lambdas)
+  - Méthode hasAttribute() pour vérification robuste d'existence d'attributs
+  - Initialisation dans initBeforeShowing() pour timing correct
+  - Suppression option "Custom" obsolète
+  - Correction affichage tooltips statiques
+- **Résultat** : Système de tooltips complet et flexible pour les modelers, menu dynamique cohérent, exemples complets
+
 ### 26/12/2024 - Refactoring drag & drop des gameSpaces + corrections SGControlPanel + SGGrid (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
 - **Description** : Refactoring complet du système de drag & drop des gameSpaces, passage de QDrag à mouvement direct de la souris, corrections SGControlPanel et SGGrid pour compatibilité

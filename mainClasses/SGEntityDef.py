@@ -45,6 +45,9 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.listOfStepStats = []
         self.attributesToDisplayInContextualMenu = []
         self.attributesToDisplayInUpdateMenu = []
+        
+        # Custom tooltip definitions
+        self.customTooltips = {}
 
     
     def nextId(self):
@@ -432,6 +435,33 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         """
         for ent in self.getEntities(condition):
             ent.setValue(aAttribute, aValue)
+
+    def setTooltip(self, tooltipName, tooltipValue):
+        """
+        Set a custom tooltip option for entities of this definition.
+        
+        Args:
+            tooltipName (str): Name of the tooltip option (will appear in menu)
+            tooltipValue: Value to display in tooltip. Can be:
+                - str: Attribute name to display
+                - callable: Function that takes entity and returns tooltip text
+                - Any other value: Will be converted to string
+        
+        Example:
+            # Display health attribute
+            agentDef.setTooltip("Health", "health")
+            
+            # Display custom calculated value
+            agentDef.setTooltip("Status", lambda entity: f"Health: {entity.value('health')}")
+            
+            # Display static text
+            agentDef.setTooltip("Info", "Agent Information")
+        """
+        self.customTooltips[tooltipName] = tooltipValue
+        
+        # Update the tooltip menu in the model if it exists and is already initialized
+        if hasattr(self.model, 'tooltipMenu') and self.model.tooltipMenu is not None:
+            self.model.updateTooltipMenu()
 
 
     def setRandomEntity(self, aAttribute, aValue, condition=None):
@@ -823,7 +853,7 @@ class SGEntityDef(AttributeAndValueFunctionalities):
                 - 'coords': Display coordinates (x, y)
                 - 'id': Display entity ID
                 - 'none': Explicitly disable tooltip
-                - 'custom': Use custom tooltip (to be implemented)
+                - Any custom tooltip name defined via setTooltip(): Display custom tooltip
         """
         if type is None or type == 'none':
             # Default or explicitly, no tooltip
@@ -838,12 +868,30 @@ class SGEntityDef(AttributeAndValueFunctionalities):
             for entity in self.entities:
                 if hasattr(entity, 'view') and entity.view:
                     entity.view.setToolTip(f'ID: {entity.getId()}')
-        elif type == 'custom':
-            # For now, keep coordinates as default
-            # This option can be extended for custom tooltips
+        elif type in self.customTooltips:
+            # Handle custom tooltip defined by modeler
+            tooltipValue = self.customTooltips[type]
             for entity in self.entities:
                 if hasattr(entity, 'view') and entity.view:
-                    entity.view.setToolTip(f'({entity.xCoord}, {entity.yCoord})')
+                    try:
+                        if callable(tooltipValue):
+                            # Callable: function that takes entity and returns text
+                            tooltipText = tooltipValue(entity)
+                        elif isinstance(tooltipValue, str):
+                            # String: check if it's an attribute name or static text
+                            if entity.hasAttribute(tooltipValue):
+                                # It's an attribute name
+                                tooltipText = str(entity.value(tooltipValue))
+                            else:
+                                # It's static text
+                                tooltipText = tooltipValue
+                        else:
+                            # Any other value: convert to string
+                            tooltipText = str(tooltipValue)
+                        entity.view.setToolTip(tooltipText)
+                    except Exception as e:
+                        # Fallback to coordinates if custom tooltip fails
+                        entity.view.setToolTip(f'({entity.xCoord}, {entity.yCoord})')
         else:
             # For any other unrecognized type, no tooltip
             for entity in self.entities:

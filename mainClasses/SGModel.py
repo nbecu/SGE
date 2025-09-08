@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -219,6 +219,88 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         pos_souris_globale = self.mapFromGlobal(QCursor.pos())
         coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
         self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
+    
+    def createTooltipMenu(self):
+        """Create tooltip selection submenu in Settings menu"""
+        self.tooltipMenu = self.settingsMenu.addMenu("&Entity Tooltips")
+        
+        # Create tooltip options
+        tooltipOptions = [
+            ("None", "none", "No tooltips displayed"),
+            ("Coordinates", "coords", "Show entity coordinates (x, y)"),
+            ("Entity ID", "id", "Show entity ID")
+        ]
+        
+        # Get all entity definitions
+        entityDefs = self.getEntitiesDef()
+        
+        # Create submenus for each entity definition
+        for entityDef in entityDefs:
+            # Create submenu for this entity type
+            entityMenu = self.tooltipMenu.addMenu(f"&{entityDef.entityName}")
+            
+            # Create action group for exclusive selection within this entity type
+            actionGroup = QActionGroup(self)
+            actionGroup.setExclusive(True)
+            
+            # Store reference to action group for this entity
+            if not hasattr(self, 'tooltipActionGroups'):
+                self.tooltipActionGroups = {}
+            self.tooltipActionGroups[entityDef.entityName] = actionGroup
+            
+            # Create actions for each tooltip option
+            for label, tooltipType, description in tooltipOptions:
+                action = QAction(f"&{label}", self)
+                action.setCheckable(True)
+                action.setStatusTip(f"{description} for {entityDef.entityName}")
+                action.setData(tooltipType)
+                
+                # Set default selection (none)
+                if tooltipType == "none":
+                    action.setChecked(True)
+                
+                action.triggered.connect(lambda checked, e=entityDef, t=tooltipType: self.setTooltipTypeForEntity(e, t))
+                actionGroup.addAction(action)
+                entityMenu.addAction(action)
+            
+            # Add custom tooltips defined by modeler
+            for tooltipName in entityDef.customTooltips.keys():
+                action = QAction(f"&{tooltipName}", self)
+                action.setCheckable(True)
+                action.setStatusTip(f"Custom tooltip: {tooltipName} for {entityDef.entityName}")
+                action.setData(tooltipName)
+                
+                action.triggered.connect(lambda checked, e=entityDef, t=tooltipName: self.setTooltipTypeForEntity(e, t))
+                actionGroup.addAction(action)
+                entityMenu.addAction(action)
+    
+    def setTooltipTypeForEntity(self, entityDef, tooltipType):
+        """Set tooltip type for a specific entity definition"""
+        if hasattr(entityDef, 'displayTooltip'):
+            entityDef.displayTooltip(tooltipType)
+    
+    def updateTooltipMenu(self):
+        """Update tooltip menu when custom tooltips are added"""
+        # Clear existing tooltip menu
+        if hasattr(self, 'tooltipMenu'):
+            self.tooltipMenu.clear()
+            if hasattr(self, 'tooltipActionGroups'):
+                del self.tooltipActionGroups
+        
+        # Recreate the menu
+        self.createTooltipMenu()
+    
+    def initBeforeShowing(self):
+        """Initialize components that need to be ready before the window is shown"""
+        # Initialize tooltip menu with all entity definitions
+        self.updateTooltipMenu()
+        
+        # Show admin control panel if needed
+        if self.shouldDisplayAdminControlPanel:
+            self.show_adminControlPanel()
+        
+        # Set up dashboards
+        self.setDashboards()
     
     def initAfterOpening(self):
         if self.currentPlayerName is None:
@@ -1653,9 +1735,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         Launch the game.
         """
-        if self.shouldDisplayAdminControlPanel:
-            self.show_adminControlPanel()
-        self.setDashboards()
+        self.initBeforeShowing()
         
         self.show()
         self.initAfterOpening()

@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""
+Simple example of displayTooltip() usage
+"""
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from mainClasses.SGSGE import *
+
+monApp = QtWidgets.QApplication([])
+
+myModel = SGModel(400, 300, windowTitle="Tooltips - Simple Example")
+
+# Create hexagonal grid
+Cell = myModel.newCellsOnGrid(6, 6, "hexagonal", gap=0, size=40, neighborhood='moore', boundaries='closed')
+
+# Define some attributes
+Cell.setEntities("landForm", "plain")
+Cell.setRandomEntities("landForm", "mountain", 4)
+
+# Create POV
+Cell.newPov("base", "landForm", {"plain": Qt.green, "mountain": Qt.darkGray})
+
+
+# Create some agents
+Bees = myModel.newAgentSpecies("Bees", "circleAgent", defaultSize=10, defaultColor=QColor.fromRgb(165,42,42), locationInEntity="center")
+Bees.newAgentsAtRandom(2, condition=lambda c: c.isValue("landForm", "plain"))
+
+
+# Single phase to test tooltips
+p1 = myModel.newModelPhase()
+
+# Examples of displayTooltip() usage
+# Cell.displayTooltip()          # Default - no tooltip
+Cell.displayTooltip('coords')  # Display coordinates (x, y)
+# Cell.displayTooltip('id')      # Display numeric IDs
+
+# Bees.displayTooltip('id')      # Display numeric IDs
+Bees.displayTooltip('coords')  # Display coordinates (x, y)
+
+# comment and uncomment the lines above to test the different tooltip types
+
+myModel.launch()
+sys.exit(monApp.exec_())

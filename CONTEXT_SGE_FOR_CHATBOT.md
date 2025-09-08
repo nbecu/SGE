@@ -590,106 +590,17 @@ execute_callable_with_entity(lambda: doSomething(), agent)
 execute_callable_with_entity(lambda a: doSomething(a), agent)
 ```
 
-## 18. Gestion des chantiers avec FUTURE_PLAN.md (CRITIQUE pour chatbots)
+## 19. Finalisation des chantiers de développement (CRITIQUE pour chatbots)
 
-### 18.1 Rôle du FUTURE_PLAN.md
-**FUTURE_PLAN.md** est le **système centralisé de référencement des chantiers** pour SGE. Ce fichier doit être **TOUJOURS** consulté et mis à jour par les chatbots.
+### 19.1 Processus obligatoire
+**RÈGLE ABSOLUE** : Tout chantier SGE doit être finalisé selon ce processus :
 
-### 18.2 Obligations pour les chatbots
+1. **Validation** : Tester les fonctionnalités avant finalisation
+2. **Documentation** : Mettre à jour README_developer.md, README_modeler.md, si nécessaire --> demander confirmation à l'utilisateur
+3. **FUTURE_PLAN.md** : Déplacer l'item vers "Completed Items" avec date et détails
+4. **Documentation** : Mettre à jour CONTEXT_SGE_FOR_CHATBOT.md si nécessaire --> demander confirmation à l'utilisateur
+5. **DEV_NOTES.md** : Ajouter section "Travail en cours" avec statut, fichiers, problèmes, solutions
 
-**AVANT tout travail de développement** :
-- ✅ **Consulter FUTURE_PLAN.md** pour comprendre les priorités
-- ✅ **Identifier les chantiers liés** au travail demandé
-- ✅ **Proposer des améliorations** basées sur les items du plan
-
-**PENDANT le développement** :
-- ✅ **Référencer les items** du FUTURE_PLAN.md dans les discussions
-- ✅ **Identifier les dépendances** entre chantiers
-- ✅ **Suggérer des optimisations** basées sur le plan
-
-**APRÈS le développement** :
-- ✅ **Mettre à jour FUTURE_PLAN.md** avec les avancées
-- ✅ **Marquer les items terminés** dans "Completed Items"
-- ✅ **Ajouter les nouvelles idées** qui émergent
-
-### 18.3 Structure du FUTURE_PLAN.md
-
-**Sections principales** :
-- **Current Development Items** : Chantiers organisés par catégories
-- **Completed Items** : Chantiers terminés (à mettre à jour)
-- **Notes** : Informations contextuelles
-
-**Catégories de chantiers** :
-- **Core Architecture & Framework** : Refactoring, conventions
-- **User Interface & Display** : Améliorations UI/UX
-- **POV System & Visual Elements** : Système de points de vue
-- **Graphs & Analytics Interface** : Interface des graphiques
-- **Simulation Management & Data** : Gestion des simulations
-- **Multiplayer & Configuration** : Fonctionnalités multijoueurs
-- **New Entities & Features** : Nouvelles entités
-- **Documentation & Tools** : Outils de documentation
-
-### 18.4 Workflow recommandé pour chatbots
-
-**1. Analyse initiale** :
-```markdown
-# Consulter FUTURE_PLAN.md
-# Identifier les chantiers liés au travail demandé
-# Proposer une approche basée sur les priorités du plan
-```
-
-**2. Développement guidé** :
-```markdown
-# Référencer les items du plan dans les discussions
-# Expliquer comment le travail s'inscrit dans la roadmap
-# Suggérer des améliorations connexes
-```
-
-**3. Mise à jour post-développement** :
-```markdown
-# Déplacer les items terminés vers "Completed Items"
-# Ajouter les nouvelles idées qui émergent
-# Mettre à jour les descriptions si nécessaire
-```
-
-### 18.5 Exemples d'utilisation
-
-**Exemple 1 - Développement guidé** :
-```
-User: "Je veux améliorer le système de zoom"
-Chatbot: "D'après FUTURE_PLAN.md, le zoom est dans 'User Interface & Display'. 
-         Je vois aussi 'Correct the zoom' dans les items. 
-         Cela s'inscrit dans l'amélioration générale de l'interface utilisateur."
-```
-
-**Exemple 2 - Mise à jour post-développement** :
-```
-# Après avoir terminé un chantier
-# Déplacer l'item de "Current Development Items" vers "Completed Items"
-# Ajouter la date et les détails de l'implémentation
-```
-
-### 18.6 Règles critiques
-
-**OBLIGATOIRE** :
-- ✅ Toujours consulter FUTURE_PLAN.md avant de commencer
-- ✅ Référencer les items du plan dans les discussions
-- ✅ Mettre à jour le plan après chaque développement
-- ✅ Respecter l'organisation par catégories
-
-**INTERDIT** :
-- ❌ Ignorer le FUTURE_PLAN.md
-- ❌ Travailler sans référence au plan
-- ❌ Oublier de mettre à jour les avancées
-- ❌ Créer des chantiers sans les référencer
-
-### 18.7 Message de démarrage pour chaque chat
-
-"**CRITIQUE** : Consulter FUTURE_PLAN.md avant tout travail sur SGE.
-**OBLIGATIONS** :
-1. Analyser les chantiers liés au travail demandé
-2. Guider le développement selon les priorités du plan
-3. Mettre à jour FUTURE_PLAN.md après chaque avancée
-4. Référencer les items du plan dans les discussions
-
-FUTURE_PLAN.md est le système centralisé de référencement des chantiers SGE."
+### 19.2 Règles critiques
+**OBLIGATOIRE** : Finaliser selon ce processus, mettre à jour documentation, tester fonctionnalités
+**INTERDIT** : Laisser chantier sans finalisation, oublier documentation, finaliser sans validation
