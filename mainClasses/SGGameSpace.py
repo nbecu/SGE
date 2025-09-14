@@ -46,10 +46,10 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
         
-        # EGL pID system
-        self.pID = None  # Position ID for Enhanced Grid Layout
-        self._egl_pid_manual = False  # Flag for manual pID assignment
-        self._egl_pid_tooltip_enabled = False  # Flag for pID tooltip display
+        # EGL layoutOrder system
+        self.layoutOrder = None  # Position ID for Enhanced Grid Layout
+        self._egl_pid_manual = False  # Flag for manual layoutOrder assignment
+        self._egl_pid_tooltip_enabled = False  # Flag for layoutOrder tooltip display
         
 
     @classmethod
@@ -125,16 +125,16 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     
     def event(self, event):
         """
-        Handle events including tooltip display for pID
+        Handle events including tooltip display for layoutOrder
         """
         if event.type() == QEvent.ToolTip:
-            # Check if pID tooltips are enabled
+            # Check if layoutOrder tooltips are enabled
             if (hasattr(self, '_egl_pid_tooltip_enabled') and 
                 self._egl_pid_tooltip_enabled and 
-                self.pID is not None):
+                self.layoutOrder is not None):
                 
-                # Show pID tooltip
-                QToolTip.showText(event.globalPos(), f"pID: {self.pID}")
+                # Show layoutOrder tooltip
+                QToolTip.showText(event.globalPos(), f"layoutOrder: {self.layoutOrder}")
                 return True
             else:
                 # Let parent handle tooltip (for entity tooltips)
@@ -213,13 +213,13 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.positionDefineByModeler=(x,y)
                 self.move(x,y)
                 
-                # If using Enhanced Grid Layout, assign manual_position pID
+                # If using Enhanced Grid Layout, assign manual_position layoutOrder
                 if (hasattr(self.model, 'typeOfLayout') and 
                     self.model.typeOfLayout == "enhanced_grid" and
                     hasattr(self.model, 'layoutOfModel')):
-                    self.pID = "manual_position"
+                    self.layoutOrder = "manual_position"
                     self._egl_pid_manual = True
-                    print(f"Fixed position: {self.id} pID → manual_position")
+                    print(f"Fixed position: {self.id} layoutOrder → manual_position")
             else:
                 raise ValueError('The y value is too high or negative')
         else:

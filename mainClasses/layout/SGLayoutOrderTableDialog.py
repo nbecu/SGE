@@ -3,24 +3,24 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 
-class SGPIDTableDialog(QDialog):
+class SGLayoutOrderTableDialog(QDialog):
     """
-    Dialog for editing gameSpace pIDs in Enhanced Grid Layout
+    Dialog for editing gameSpace layoutOrders in Enhanced Grid Layout
     
     This dialog provides an editable table interface for managing
-    pIDs of gameSpaces in the EGL system.
+    layoutOrders of gameSpaces in the EGL system.
     """
     
     def __init__(self, model, parent=None):
         super().__init__(parent)
         self.model = model
-        self.original_pIDs = {}  # Store original pIDs for cancel functionality
+        self.original_layoutOrders = {}  # Store original layoutOrders for cancel functionality
         self.setupUI()
         self.populateTable()
         
     def setupUI(self):
         """Setup the user interface"""
-        self.setWindowTitle("Enhanced Grid Layout - pID Management")
+        self.setWindowTitle("Enhanced Grid Layout - layoutOrder Management")
         self.setModal(True)
         self.resize(600, 400)
         
@@ -29,8 +29,8 @@ class SGPIDTableDialog(QDialog):
         
         # Instructions
         instructions = QLabel(
-            "Edit the pID values to reorder gameSpaces in the Enhanced Grid Layout.\n"
-            "pID determines the column and order of gameSpaces.\n"
+            "Edit the layoutOrder values to reorder gameSpaces in the Enhanced Grid Layout.\n"
+            "layoutOrder determines the column and order of gameSpaces.\n"
             "You can also change the number of columns to reorganize the layout."
         )
         instructions.setWordWrap(True)
@@ -56,7 +56,7 @@ class SGPIDTableDialog(QDialog):
         # Table widget
         self.table = QTableWidget()
         self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["Col", "GameSpace Type", "Name", "pID"])
+        self.table.setHorizontalHeaderLabels(["Col", "GameSpace Type", "Name", "Order"])
         
         # Configure table
         self.table.setAlternatingRowColors(True)
@@ -65,12 +65,12 @@ class SGPIDTableDialog(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)  # Col
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)  # GameSpace Type
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)           # Name
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)  # pID
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)  # layoutOrder
         
         # Set column widths
         self.table.setColumnWidth(0, 60)   # Col
         self.table.setColumnWidth(1, 150)  # GameSpace Type
-        self.table.setColumnWidth(3, 80)   # pID
+        self.table.setColumnWidth(3, 80)   # layoutOrder
         
         layout.addWidget(self.table)
         
@@ -109,10 +109,10 @@ class SGPIDTableDialog(QDialog):
         self.model.layoutOfModel.widgets = [[] for _ in range(new_count)]
         self.model.layoutOfModel.column_widths = [0] * new_count
         
-        # Redistribute gameSpaces based on their pID
+        # Redistribute gameSpaces based on their layoutOrder
         for gs in self.model.gameSpaces.values():
-            if not gs.isPositionDefineByModeler() and gs.pID is not None:
-                column_index = (gs.pID - 1) % new_count
+            if not gs.isPositionDefineByModeler() and gs.layoutOrder is not None:
+                column_index = (gs.layoutOrder - 1) % new_count
                 self.model.layoutOfModel.widgets[column_index].append(gs)
         
         # Update the table to show which column each gameSpace will be in
@@ -121,7 +121,7 @@ class SGPIDTableDialog(QDialog):
     def updateColumnPreview(self):
         """Update the table to show column preview"""
         for row in range(self.table.rowCount()):
-            pid_item = self.table.item(row, 3)  # pID is now column 3
+            pid_item = self.table.item(row, 3)  # layoutOrder is now column 3
             if pid_item and pid_item.text().strip():
                 try:
                     pid = int(pid_item.text())
@@ -134,18 +134,18 @@ class SGPIDTableDialog(QDialog):
                 except ValueError:
                     pass
             else:
-                # Clear column info for empty pIDs
+                # Clear column info for empty layoutOrders
                 col_item = self.table.item(row, 0)
                 if col_item:
                     col_item.setText("")
         
     def onPIDChanged(self, item):
-        """Handle pID changes in the table"""
-        if item.column() == 3:  # pID column is now column 3
+        """Handle layoutOrder changes in the table"""
+        if item.column() == 3:  # layoutOrder column is now column 3
             self.updateColumnPreview()
         
     def populateTable(self):
-        """Populate the table with current gameSpaces and their pIDs"""
+        """Populate the table with current gameSpaces and their layoutOrders"""
         if self.model.typeOfLayout != "enhanced_grid":
             return
             
@@ -156,11 +156,11 @@ class SGPIDTableDialog(QDialog):
         self.table.setRowCount(len(gameSpaces))
         
         for row, gameSpace in enumerate(gameSpaces):
-            # Column number (calculated from pID) - Column 0
+            # Column number (calculated from layoutOrder) - Column 0
             column_number = ""
-            if gameSpace.pID is not None and isinstance(gameSpace.pID, int):
-                column_number = str((gameSpace.pID - 1) % self.model.layoutOfModel.num_columns + 1)
-            elif gameSpace.pID == "manual_position":
+            if gameSpace.layoutOrder is not None and isinstance(gameSpace.layoutOrder, int):
+                column_number = str((gameSpace.layoutOrder - 1) % self.model.layoutOfModel.num_columns + 1)
+            elif gameSpace.layoutOrder == "manual_position":
                 column_number = "Fixed"
             
             col_item = QTableWidgetItem(column_number)
@@ -181,52 +181,52 @@ class SGPIDTableDialog(QDialog):
             name_item.setBackground(QColor(240, 240, 240))
             self.table.setItem(row, 2, name_item)
             
-            # pID (editable) - Column 3
+            # layoutOrder (editable) - Column 3
             pid_display = ""
-            if gameSpace.pID == "manual_position":
+            if gameSpace.layoutOrder == "manual_position":
                 pid_display = "Fixed Position"
-            elif gameSpace.pID is not None:
-                pid_display = str(gameSpace.pID)
+            elif gameSpace.layoutOrder is not None:
+                pid_display = str(gameSpace.layoutOrder)
             
             pid_item = QTableWidgetItem(pid_display)
             pid_item.setTextAlignment(Qt.AlignCenter)
-            if gameSpace.pID == "manual_position":
+            if gameSpace.layoutOrder == "manual_position":
                 pid_item.setFlags(pid_item.flags() & ~Qt.ItemIsEditable)
                 pid_item.setBackground(QColor(240, 240, 240))
             self.table.setItem(row, 3, pid_item)
             
-            # Store original pID for cancel functionality
-            self.original_pIDs[gameSpace.id] = gameSpace.pID
+            # Store original layoutOrder for cancel functionality
+            self.original_layoutOrders[gameSpace.id] = gameSpace.layoutOrder
             
-            # Connect pID changes to update column preview (only once)
+            # Connect layoutOrder changes to update column preview (only once)
             if row == 0:  # Only connect once
                 self.table.itemChanged.connect(self.onPIDChanged)
             
     def getPIDChanges(self):
-        """Get the pID changes made in the table"""
+        """Get the layoutOrder changes made in the table"""
         changes = {}
         
         for row in range(self.table.rowCount()):
             name_item = self.table.item(row, 2)  # Name is now column 2
-            pid_item = self.table.item(row, 3)    # pID is now column 3
+            pid_item = self.table.item(row, 3)    # layoutOrder is now column 3
             
             if name_item and pid_item:
                 name = name_item.text()
                 try:
                     new_pid = int(pid_item.text()) if pid_item.text().strip() else None
-                    original_pid = self.original_pIDs.get(name)
+                    original_pid = self.original_layoutOrders.get(name)
                     
                     if new_pid != original_pid:
                         changes[name] = new_pid
                 except ValueError:
-                    # Invalid pID, will be handled by validation
+                    # Invalid layoutOrder, will be handled by validation
                     pass
                     
         return changes
         
     def validatePIDChanges(self, changes):
         """
-        Validate all pID changes together to detect conflicts
+        Validate all layoutOrder changes together to detect conflicts
         
         Args:
             changes: dict of {name: new_pid}
@@ -234,7 +234,7 @@ class SGPIDTableDialog(QDialog):
         Returns:
             tuple: (is_valid, error_message)
         """
-        # Collect all new pIDs
+        # Collect all new layoutOrders
         new_pids = []
         for name, new_pid in changes.items():
             if new_pid is not None:
@@ -242,20 +242,20 @@ class SGPIDTableDialog(QDialog):
         
         # Check for duplicates
         if len(new_pids) != len(set(new_pids)):
-            return False, "Duplicate pIDs detected. Please ensure all pIDs are unique."
+            return False, "Duplicate layoutOrders detected. Please ensure all layoutOrders are unique."
         
-        # Check for conflicts with existing pIDs (excluding the ones being changed)
+        # Check for conflicts with existing layoutOrders (excluding the ones being changed)
         existing_pids = set()
         for gs in self.model.gameSpaces.values():
             if not gs.isPositionDefineByModeler():
                 if gs.id not in changes:  # Not being modified
-                    if gs.pID is not None:
-                        existing_pids.add(gs.pID)
+                    if gs.layoutOrder is not None:
+                        existing_pids.add(gs.layoutOrder)
         
-        # Check if any new pID conflicts with existing ones
+        # Check if any new layoutOrder conflicts with existing ones
         conflicts = set(new_pids) & existing_pids
         if conflicts:
-            return False, f"pIDs {sorted(conflicts)} are already in use by other gameSpaces."
+            return False, f"layoutOrders {sorted(conflicts)} are already in use by other gameSpaces."
         
         return True, ""
     
@@ -266,7 +266,7 @@ class SGPIDTableDialog(QDialog):
         # Validate all changes together
         is_valid, error_message = self.validatePIDChanges(changes)
         if not is_valid:
-            QMessageBox.warning(self, "Invalid pIDs", error_message)
+            QMessageBox.warning(self, "Invalid layoutOrders", error_message)
             return
         
         # Apply changes to gameSpaces (now safe to apply)
@@ -281,19 +281,19 @@ class SGPIDTableDialog(QDialog):
             if gameSpace:
                 if new_pid is not None:
                     # Direct assignment without conflict checking (already validated)
-                    old_pid = gameSpace.pID
-                    gameSpace.pID = new_pid
+                    old_pid = gameSpace.layoutOrder
+                    gameSpace.layoutOrder = new_pid
                     gameSpace._egl_pid_manual = True
                     
                     # Update tracking in layout
                     if old_pid is not None:
-                        self.model.layoutOfModel.used_pIDs.discard(old_pid)
-                    self.model.layoutOfModel.used_pIDs.add(new_pid)
+                        self.model.layoutOfModel.used_layoutOrders.discard(old_pid)
+                    self.model.layoutOfModel.used_layoutOrders.add(new_pid)
                 else:
                     # Reset to auto-assignment
-                    if gameSpace.pID is not None:
-                        self.model.layoutOfModel.used_pIDs.discard(gameSpace.pID)
-                    gameSpace.pID = None
+                    if gameSpace.layoutOrder is not None:
+                        self.model.layoutOfModel.used_layoutOrders.discard(gameSpace.layoutOrder)
+                    gameSpace.layoutOrder = None
                     gameSpace._egl_pid_manual = False
                 
         # Reorder EGL layout

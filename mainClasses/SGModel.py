@@ -228,21 +228,21 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.typeOfLayout == "enhanced_grid":
             self.eglMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
             
-            # Edit pIDs action
-            editPIDsAction = QAction("&Edit pIDs...", self)
+            # Edit layoutOrders action
+            editPIDsAction = QAction("&Edit GameSpace Order...", self)
             editPIDsAction.triggered.connect(self.openPIDTableDialog)
             self.eglMenu.addAction(editPIDsAction)
             
             # Rearrange action
-            rearrangeAction = QAction("&Rearrange GameSpaces", self)
+            rearrangeAction = QAction("&Restore Grid Layout", self)
             rearrangeAction.triggered.connect(self.applyEnhancedGridLayout)
             self.eglMenu.addAction(rearrangeAction)
             
             # Separator
             self.eglMenu.addSeparator()
             
-            # Toggle pID tooltips action
-            self.pidTooltipAction = QAction("&Show pID Tooltips", self)
+            # Toggle layoutOrder tooltips action
+            self.pidTooltipAction = QAction("&Show layoutOrder Tooltips", self)
             self.pidTooltipAction.setCheckable(True)
             self.pidTooltipAction.setChecked(False)
             self.pidTooltipAction.triggered.connect(self.togglePIDTooltips)
@@ -326,7 +326,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize EGL menu if using enhanced_grid layout
         self.createEGLMenu()
         
-        # Reorganize EGL pIDs to eliminate gaps
+        # Reorganize EGL layoutOrders to eliminate gaps
         self.reorganizeEGLPIDs()
         
         
@@ -1459,19 +1459,19 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def openPIDTableDialog(self):
         """
-        Open the pID management dialog
+        Open the layoutOrder management dialog
         """
         if self.typeOfLayout == "enhanced_grid":
-            from mainClasses.layout.SGPIDTableDialog import SGPIDTableDialog
-            dialog = SGPIDTableDialog(self)
+            from mainClasses.layout.SGLayoutOrderTableDialog import SGLayoutOrderTableDialog
+            dialog = SGLayoutOrderTableDialog(self)
             dialog.exec_()
     
     def togglePIDTooltips(self, checked):
         """
-        Toggle pID tooltips for all gameSpaces
+        Toggle layoutOrder tooltips for all gameSpaces
         
         Args:
-            checked (bool): Whether to show pID tooltips
+            checked (bool): Whether to show layoutOrder tooltips
         """
         if self.typeOfLayout == "enhanced_grid":
             for gameSpace in self.gameSpaces.values():
@@ -1480,15 +1480,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     def reorganizeEGLPIDs(self):
         """
-        Reorganize pIDs to eliminate gaps while preserving order
+        Reorganize layoutOrders to eliminate gaps while preserving order
         
-        This method is called during initialization to ensure sequential pID numbering
+        This method is called during initialization to ensure sequential layoutOrder numbering
         for better column distribution in the Enhanced Grid Layout.
         """
         if self.typeOfLayout == "enhanced_grid":
-            print("Reorganizing EGL pIDs to eliminate gaps...")
+            print("Reorganizing EGL layoutOrders to eliminate gaps...")
             self.layoutOfModel.reorganizePIDsSequentially()
-            print("EGL pID reorganization completed.")
+            print("EGL layoutOrder reorganization completed.")
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):

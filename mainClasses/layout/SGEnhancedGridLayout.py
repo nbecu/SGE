@@ -25,46 +25,46 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Track column widths for proper sizing
         self.column_widths = [0] * num_columns
         
-        # EGL pID system
-        self.next_pID = 1  # Counter for auto-increment
-        self.used_pIDs = set()  # Track used pIDs for validation
+        # EGL layoutOrder system
+        self.next_layoutOrder = 1  # Counter for auto-increment
+        self.used_layoutOrders = set()  # Track used layoutOrders for validation
     
-    def assignPID(self, gameSpace, pID=None):
+    def assignPID(self, gameSpace, layoutOrder=None):
         """
-        Assign a pID to a gameSpace
+        Assign a layoutOrder to a gameSpace
         
         Args:
-            gameSpace: The gameSpace to assign pID to
-            pID: Manual pID (if None, auto-increment)
+            gameSpace: The gameSpace to assign layoutOrder to
+            layoutOrder: Manual layoutOrder (if None, auto-increment)
         """
-        if pID is None:
-            # Auto-increment: find next available pID
-            while self.next_pID in self.used_pIDs:
-                self.next_pID += 1
-            gameSpace.pID = self.next_pID
+        if layoutOrder is None:
+            # Auto-increment: find next available layoutOrder
+            while self.next_layoutOrder in self.used_layoutOrders:
+                self.next_layoutOrder += 1
+            gameSpace.layoutOrder = self.next_layoutOrder
             gameSpace._egl_pid_manual = False
         else:
-            # Manual pID: find closest available if already used
-            original_pID = pID
-            while pID in self.used_pIDs:
-                pID += 1
-            gameSpace.pID = pID
+            # Manual layoutOrder: find closest available if already used
+            original_layoutOrder = layoutOrder
+            while layoutOrder in self.used_layoutOrders:
+                layoutOrder += 1
+            gameSpace.layoutOrder = layoutOrder
             gameSpace._egl_pid_manual = True
             
-            # Inform user if pID was changed
-            if pID != original_pID:
-                print(f"Warning: pID {original_pID} already used. Assigned pID {pID} instead.")
+            # Inform user if layoutOrder was changed
+            if layoutOrder != original_layoutOrder:
+                print(f"Warning: layoutOrder {original_layoutOrder} already used. Assigned layoutOrder {layoutOrder} instead.")
         
-        self.used_pIDs.add(gameSpace.pID)
-        self.next_pID = max(self.next_pID, gameSpace.pID) + 1
+        self.used_layoutOrders.add(gameSpace.layoutOrder)
+        self.next_layoutOrder = max(self.next_layoutOrder, gameSpace.layoutOrder) + 1
     
     def removePID(self, gameSpace):
-        """Remove pID from tracking when gameSpace is removed"""
-        if gameSpace.pID is not None:
-            self.used_pIDs.discard(gameSpace.pID)
+        """Remove layoutOrder from tracking when gameSpace is removed"""
+        if gameSpace.layoutOrder is not None:
+            self.used_layoutOrders.discard(gameSpace.layoutOrder)
     
     def reorderByPID(self, model_gameSpaces=None):
-        """Reorder gameSpaces according to their pID"""
+        """Reorder gameSpaces according to their layoutOrder"""
         # Clear all columns
         for column in self.widgets:
             column.clear()
@@ -72,65 +72,65 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Use provided gameSpaces or fallback to self.GameSpaces
         gameSpaces_to_sort = model_gameSpaces if model_gameSpaces is not None else self.GameSpaces
         
-        # Sort gameSpaces by pID (ignore manual_position)
+        # Sort gameSpaces by layoutOrder (ignore manual_position)
         sorted_gameSpaces = sorted(gameSpaces_to_sort, 
-                                 key=lambda gs: gs.pID if isinstance(gs.pID, int) else 999999)
+                                 key=lambda gs: gs.layoutOrder if isinstance(gs.layoutOrder, int) else 999999)
         
-        # Reorganize according to new pID order
+        # Reorganize according to new layoutOrder order
         for gameSpace in sorted_gameSpaces:
-            if gameSpace.pID is not None and gameSpace.pID != "manual_position":
-                column_index = (gameSpace.pID - 1) % self.num_columns
+            if gameSpace.layoutOrder is not None and gameSpace.layoutOrder != "manual_position":
+                column_index = (gameSpace.layoutOrder - 1) % self.num_columns
                 self.widgets[column_index].append(gameSpace)
         
         # Recalculate positions
-        print("pIDs after reorganization:")
+        print("layoutOrders after reorganization:")
         for gs in self.GameSpaces:
-            print(f"  {gs.id}: pID = {gs.pID}")
+            print(f"  {gs.id}: layoutOrder = {gs.layoutOrder}")
         print("rearrangeWithLayoutThenReleaseLayout in reorderByPID")
         self.rearrangeWithLayoutThenReleaseLayout()
     
     def reorganizePIDsSequentially(self):
         """
-        Reorganize pIDs to eliminate gaps while preserving order
+        Reorganize layoutOrders to eliminate gaps while preserving order
         
-        This method reassigns pIDs to gameSpaces to ensure sequential numbering
+        This method reassigns layoutOrders to gameSpaces to ensure sequential numbering
         (1, 2, 3, 4...) while maintaining the relative order of gameSpaces.
         
         Example: (1, 3, 4, 9) becomes (1, 2, 3, 4)
         """
-        # Get all gameSpaces with numeric pIDs (exclude manual_position and positioned by modeler)
+        # Get all gameSpaces with numeric layoutOrders (exclude manual_position and positioned by modeler)
         gameSpaces_with_pids = []
         for gs in self.GameSpaces:
-            if isinstance(gs.pID, int) and not gs.isPositionDefineByModeler():
+            if isinstance(gs.layoutOrder, int) and not gs.isPositionDefineByModeler():
                 gameSpaces_with_pids.append(gs)
         
         if not gameSpaces_with_pids:
             return
         
-        # Sort by current pID to preserve order
-        gameSpaces_with_pids.sort(key=lambda gs: gs.pID)
+        # Sort by current layoutOrder to preserve order
+        gameSpaces_with_pids.sort(key=lambda gs: gs.layoutOrder)
         
-        # Clear used_pIDs tracking
-        self.used_pIDs.clear()
+        # Clear used_layoutOrders tracking
+        self.used_layoutOrders.clear()
         
-        # Reassign sequential pIDs starting from 1
+        # Reassign sequential layoutOrders starting from 1
         for i, gameSpace in enumerate(gameSpaces_with_pids):
             new_pid = i + 1
-            old_pid = gameSpace.pID
+            old_pid = gameSpace.layoutOrder
             
-            # Update pID
-            gameSpace.pID = new_pid
+            # Update layoutOrder
+            gameSpace.layoutOrder = new_pid
             gameSpace._egl_pid_manual = False  # Mark as auto-assigned
             
             # Update tracking
-            self.used_pIDs.add(new_pid)
+            self.used_layoutOrders.add(new_pid)
             
-            print(f"Reorganized: {gameSpace.id} pID {old_pid} → {new_pid}")
+            print(f"Reorganized: {gameSpace.id} layoutOrder {old_pid} → {new_pid}")
         
-        # Update next_pID counter
-        self.next_pID = len(gameSpaces_with_pids) + 1
+        # Update next_layoutOrder counter
+        self.next_layoutOrder = len(gameSpaces_with_pids) + 1
         
-        # Reorganize columns based on new pIDs
+        # Reorganize columns based on new layoutOrders
         self.reorderByPID()
         
         # Apply the new positions immediately
@@ -162,18 +162,18 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         
         # Check if gameSpace is positioned by modeler
         if aGameSpace.isPositionDefineByModeler():
-            # Set special pID for fixed position
-            aGameSpace.pID = "manual_position"
+            # Set special layoutOrder for fixed position
+            aGameSpace.layoutOrder = "manual_position"
             aGameSpace._egl_pid_manual = True
             # Don't add to EGL columns - it's positioned manually
             return (aGameSpace.startXBase, aGameSpace.startYBase)
         
-        # Assign pID if not already assigned (only for EGL-managed gameSpaces)
-        if aGameSpace.pID is None:
+        # Assign layoutOrder if not already assigned (only for EGL-managed gameSpaces)
+        if aGameSpace.layoutOrder is None:
             self.assignPID(aGameSpace)
         
-        # Calculate which column this gameSpace should go to based on pID
-        column_index = (aGameSpace.pID - 1) % self.num_columns
+        # Calculate which column this gameSpace should go to based on layoutOrder
+        column_index = (aGameSpace.layoutOrder - 1) % self.num_columns
         
         # Add to the appropriate column
         self.widgets[column_index].append(aGameSpace)
