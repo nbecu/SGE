@@ -474,6 +474,26 @@ except RuntimeError:
 - Patterns : Correction des `valid_neighbors` pour géométrie correcte
 - Tests : Validation complète des patterns de voisinage
 
+### 14.7 Zoom Functionality (SEPTEMBRE 2025)
+**Nouvelle fonctionnalité** : Zoom avec molette de souris sur les grilles
+
+**Caractéristiques** :
+- Zoom indépendant par grille
+- Support grilles carrées et hexagonales
+- Positionnement correct des agents pendant le zoom
+- Stratégie de recréation des AgentView pour maintenir les positions
+
+**Méthodes développeur** :
+- `SGGrid.zoomIn()` : Zoom avant
+- `SGGrid.zoomOut()` : Zoom arrière  
+- `SGGrid.setZoomLevel(factor)` : Définir niveau de zoom
+- `SGGrid.resetZoom()` : Remettre zoom par défaut
+
+**Exemples** :
+- `ex_zoom_1.py` : Grille carrée simple avec agents
+- `ex_zoom_2.py` : Multi-grilles (carrée + hexagonale)
+- `ex_zoom_3.py` : Agents avec toutes les positions possibles
+
 ## 15. Lancement des applications SGE (CRITIQUE pour chatbots)
 
 ### 15.1 Problèmes courants avec PowerShell

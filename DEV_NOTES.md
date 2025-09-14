@@ -8,15 +8,39 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## État actuel du développement
 
-### Date de dernière mise à jour : 26/12/2024
+### Date de dernière mise à jour : Septembre 2025
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : refactor/model-view-separation (drag & drop des gameSpaces terminé)
-### Dernier chantier : Refactoring drag & drop des gameSpaces + corrections SGControlPanel + SGGrid
+### Branche actuelle : zoom_feature_for_candidate_sept_2025_v2
+### Dernier chantier : Implémentation fonctionnalité de zoom pour les grilles
 
 ---
 
 ## Travail en cours
+
+### Septembre 2025 - Fonctionnalité de zoom pour les grilles (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Implémentation complète de la fonctionnalité de zoom avec molette de souris pour les grilles SGE, support des grilles carrées et hexagonales avec agents
+- **Fichiers concernés** : 
+  - `mainClasses/SGGrid.py` (zoomIn/zoomOut, wheelEvent, updateGridSize, gestion zoom indépendant)
+  - `mainClasses/SGCellView.py` (calculatePosition, correction calcul hexagonal, gestion taille dynamique)
+  - `mainClasses/SGAgentView.py` (getPositionInEntity, recréation des vues, positionnement précis)
+  - `mainClasses/SGAgent.py` (updateZoom, gestion taille agents)
+  - `examples/syntax_examples/ex_zoom_1.py` (grille carrée simple avec agents)
+  - `examples/syntax_examples/ex_zoom_2.py` (multi-grilles carrée + hexagonale)
+  - `examples/syntax_examples/ex_zoom_3.py` (agents avec toutes positions possibles)
+  - `FUTURE_PLAN.md` (ajout chantier terminé)
+  - `README_developer.md` (section zoom functionality)
+  - `CONTEXT_SGE_FOR_CHATBOT.md` (section 14.7 zoom functionality)
+- **Problèmes rencontrés** : Positionnement incorrect des agents lors du zoom, calculs hexagonaux erronés, timing des mises à jour Qt
+- **Solutions appliquées** : 
+  - Stratégie de recréation des AgentView pour maintenir les positions
+  - Correction calcul positionnement hexagonal (facteur 0.75 avec gap)
+  - Gestion explicite du timing Qt avec move() forcé des cellules
+  - Zoom indépendant par grille avec gestion des niveaux
+  - Nettoyage complet des prints de debug
+  - Exemples organisés par complexité (ex_zoom_1 à ex_zoom_3)
+- **Résultat** : Fonctionnalité de zoom complète et robuste pour tous types de grilles avec agents, documentation mise à jour
 
 ### 26/12/2024 - Système de tooltips avancé (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
@@ -211,6 +235,20 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## Prochaines étapes
 
+### Fonctionnalité de zoom - TERMINÉ ✅
+La fonctionnalité de zoom est **complètement terminée** et validée :
+- [x] Implémentation zoom avec molette de souris sur SGGrid
+- [x] Support grilles carrées et hexagonales
+- [x] Zoom indépendant par grille
+- [x] Positionnement correct des agents pendant le zoom
+- [x] Stratégie de recréation des AgentView pour maintenir les positions
+- [x] Correction calculs positionnement hexagonal
+- [x] Gestion timing Qt avec move() forcé des cellules
+- [x] Nettoyage complet des prints de debug
+- [x] Exemples organisés par complexité (ex_zoom_1.py à ex_zoom_3.py)
+- [x] Documentation mise à jour (FUTURE_PLAN.md, README_developer.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- [x] Tests validés avec tous types de grilles et agents
+
 ### Gestion de taille des gameSpaces - TERMINÉ ✅
 Le système de gestion de taille adaptative est **complètement terminé** et validé :
 - [x] Création de SGGameSpaceSizeManager pour centraliser la logique de sizing
@@ -265,6 +303,23 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 ---
 
 ## Problèmes résolus
+
+### Septembre 2025 - Fonctionnalité de zoom pour les grilles (MAJOR)
+- **Description** : Implémentation complète de la fonctionnalité de zoom avec molette de souris pour les grilles SGE
+- **Solution** : 
+  1. Ajout wheelEvent() dans SGGrid pour détecter molette de souris
+  2. Implémentation zoomIn()/zoomOut() avec gestion niveaux indépendants
+  3. Stratégie de recréation des AgentView pour maintenir positions pendant zoom
+  4. Correction calculs positionnement hexagonal (facteur 0.75 avec gap)
+  5. Gestion explicite timing Qt avec move() forcé des cellules
+  6. Méthode updateGridSize() pour synchroniser cellules et agents
+  7. Support grilles carrées et hexagonales avec agents
+  8. Nettoyage complet des prints de debug
+  9. Création exemples organisés par complexité (ex_zoom_1.py à ex_zoom_3.py)
+  10. Mise à jour documentation complète (FUTURE_PLAN.md, README_developer.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- **Fichiers modifiés** : `SGGrid.py`, `SGCellView.py`, `SGAgentView.py`, `SGAgent.py`, `ex_zoom_1.py`, `ex_zoom_2.py`, `ex_zoom_3.py`, `FUTURE_PLAN.md`, `README_developer.md`, `CONTEXT_SGE_FOR_CHATBOT.md`
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : Fonctionnalité de zoom complète et robuste pour tous types de grilles avec agents, documentation mise à jour
 
 ### 26/12/2024 - Refactoring drag & drop des gameSpaces (MAJOR)
 - **Description** : Système de drag & drop non intuitif avec QDrag, SGControlPanel non draggable, SGGrid incompatible avec nouveau système, hauteur excessive SGUserSelector
@@ -436,6 +491,32 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 
 ## Décisions importantes
 
+### Septembre 2025 - Stratégie de recréation des AgentView pour le zoom
+- **Contexte** : Positionnement incorrect des agents lors du zoom, problème de timing entre mises à jour des cellules et agents
+- **Décision prise** : Implémenter une stratégie de recréation complète des AgentView pendant le zoom
+- **Impact** : 
+  - Destruction et recréation des AgentView pour garantir positionnement correct
+  - Synchronisation parfaite entre positions des cellules et agents
+  - Gestion explicite du timing Qt avec move() forcé des cellules
+  - Maintien des positions relatives des agents (center, corners, random)
+
+### Septembre 2025 - Correction calculs positionnement hexagonal
+- **Contexte** : Erreur dans le calcul de positionnement vertical des cellules hexagonales
+- **Décision prise** : Corriger le facteur 0.75 pour inclure le gap dans le calcul
+- **Impact** : 
+  - Calcul correct : `(grid_size + grid_gap) * 0.75` au lieu de `grid_size * 0.75`
+  - Positionnement précis des cellules hexagonales
+  - Agents correctement centrés dans les hexagones
+
+### Septembre 2025 - Organisation des exemples par complexité
+- **Contexte** : Besoin d'exemples pédagogiques pour la fonctionnalité de zoom
+- **Décision prise** : Organiser les exemples du plus simple au plus complexe (ex_zoom_1.py à ex_zoom_3.py)
+- **Impact** : 
+  - ex_zoom_1.py : Grille carrée simple avec agents au centre
+  - ex_zoom_2.py : Multi-grilles (carrée + hexagonale) avec agents
+  - ex_zoom_3.py : Agents avec toutes les positions possibles
+  - Progression pédagogique claire pour les utilisateurs
+
 ### 26/12/2024 - SGGameSpaceSizeManager pour centraliser la gestion de taille
 - **Contexte** : Problèmes de sizing dans les gameSpaces : hauteur excessive, débordement widgets internes, tailles disproportionnées, sizing fixe non adaptatif
 - **Décision prise** : Créer une classe dédiée `SGGameSpaceSizeManager` pour centraliser la logique de sizing, similaire à `SGAspect` pour les styles
@@ -559,6 +640,26 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 
 ## Conventions découvertes et documentées
 
+### Septembre 2025 - Fonctionnalité de zoom avec molette de souris
+- **Convention** : Utiliser wheelEvent() pour détecter les événements de molette de souris sur les grilles
+- **Exemples** : `wheelEvent()`, `zoomIn()`, `zoomOut()`, `setZoomLevel()`, `resetZoom()`
+- **Avantage** : Zoom intuitif et fluide pour les utilisateurs
+
+### Septembre 2025 - Stratégie de recréation des AgentView
+- **Convention** : Recréer complètement les AgentView lors du zoom pour garantir le positionnement correct
+- **Exemples** : Destruction avec `setParent(None)` et `deleteLater()`, recréation avec `SGAgentView(agent, grid)`
+- **Avantage** : Synchronisation parfaite entre cellules et agents, positionnement précis
+
+### Septembre 2025 - Gestion timing Qt pour le zoom
+- **Convention** : Forcer le déplacement des cellules avec `move()` avant de recréer les agents
+- **Exemples** : `cell.view.move(cell.view.startX, cell.view.startY)` dans updateGridSize()
+- **Avantage** : Évite les problèmes de timing entre mises à jour Qt
+
+### Septembre 2025 - Calculs positionnement hexagonal
+- **Convention** : Inclure le gap dans le facteur de calcul vertical hexagonal
+- **Exemples** : `(grid_size + grid_gap) * 0.75` au lieu de `grid_size * 0.75`
+- **Avantage** : Positionnement précis des cellules hexagonales
+
 ### 26/12/2024 - SGGameSpaceSizeManager pour centraliser la gestion de taille
 - **Convention** : Utiliser `SGGameSpaceSizeManager` pour centraliser la logique de sizing des gameSpaces
 - **Exemples** : `calculate_content_width()`, `calculate_content_height()`, `adjust_game_space_to_content()`
@@ -656,6 +757,23 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 ---
 
 ## Chats importants
+
+### Septembre 2025 - Fonctionnalité de zoom pour les grilles (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Implémentation complète de la fonctionnalité de zoom avec molette de souris pour les grilles SGE
+- **Résultats** : 
+  - Ajout wheelEvent() dans SGGrid pour détecter molette de souris
+  - Implémentation zoomIn()/zoomOut() avec gestion niveaux indépendants
+  - Stratégie de recréation des AgentView pour maintenir positions pendant zoom
+  - Correction calculs positionnement hexagonal (facteur 0.75 avec gap)
+  - Gestion explicite timing Qt avec move() forcé des cellules
+  - Support grilles carrées et hexagonales avec agents
+  - Nettoyage complet des prints de debug
+  - Création exemples organisés par complexité (ex_zoom_1.py à ex_zoom_3.py)
+  - Mise à jour documentation complète (FUTURE_PLAN.md, README_developer.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- **Fichiers modifiés** : `SGGrid.py`, `SGCellView.py`, `SGAgentView.py`, `SGAgent.py`, `ex_zoom_1.py`, `ex_zoom_2.py`, `ex_zoom_3.py`, `FUTURE_PLAN.md`, `README_developer.md`, `CONTEXT_SGE_FOR_CHATBOT.md`
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur zoom_feature_for_candidate_sept_2025_v2
 
 ### 26/12/2024 - Refactoring drag & drop des gameSpaces (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
@@ -761,6 +879,11 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 ## Notes techniques
 
 ### Modifications importantes
+- Septembre 2025 : Fonctionnalité de zoom complète (SGGrid.py, SGCellView.py, SGAgentView.py, SGAgent.py, ex_zoom_1.py à ex_zoom_3.py)
+- Septembre 2025 : Correction calculs positionnement hexagonal (facteur 0.75 avec gap)
+- Septembre 2025 : Stratégie de recréation des AgentView pour zoom
+- Septembre 2025 : Nettoyage complet des prints de debug
+- Septembre 2025 : Documentation mise à jour (FUTURE_PLAN.md, README_developer.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - 26/12/2024 : Refactoring drag & drop des gameSpaces (SGGameSpace.py, SGControlPanel.py, SGPlayer.py, SGGrid.py, SGUserSelector.py, SGModel.py, ex_userSelector_orientation.py)
 - 26/12/2024 : Gestion de taille des gameSpaces + SGGameSpaceSizeManager (SGGameSpaceSizeManager.py nouveau, SGGameSpace.py, SGTextBox.py, SGEndGameRule.py, SGEndGameCondition.py, SGUserSelector.py, SGModel.py)
 - 26/12/2024 : Correction bugs hexagonal + améliorations API (SGCell.py, SGAgent.py, SGEntityDef.py, tests/)
@@ -781,6 +904,12 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 - 25/08/2025 : Configuration pytest.ini
 
 ### Découvertes architecturales
+- Septembre 2025 : La stratégie de recréation des AgentView est nécessaire pour maintenir le positionnement correct pendant le zoom
+- Septembre 2025 : Le timing Qt nécessite un déplacement forcé des cellules avec move() avant la recréation des agents
+- Septembre 2025 : Les calculs hexagonaux nécessitent d'inclure le gap dans le facteur de calcul vertical (0.75)
+- Septembre 2025 : L'organisation des exemples par complexité améliore l'expérience utilisateur
+- Septembre 2025 : Le nettoyage des prints de debug est essentiel pour la production
+- Septembre 2025 : La documentation doit être mise à jour simultanément avec le code
 - 26/12/2024 : Le système QDrag est inadapté pour le drag & drop intuitif des gameSpaces, le mouvement direct basé sur global mouse position est plus efficace
 - 26/12/2024 : Le comportement hotspot intuitif (point cliqué reste sous curseur) nécessite un calcul précis avec drag_start_position
 - 26/12/2024 : SGControlPanel nécessite un refactoring vers constructeur __init__ standard pour compatibilité drag & drop
@@ -810,6 +939,14 @@ Le système de drag & drop des gameSpaces est **complètement terminé** et vali
 - 25/08/2025 : Les tests pytest standard facilitent la maintenance et la validation
 
 ### Questions en suspens
+- Comment optimiser la performance du zoom pour de très grandes grilles ?
+- Faut-il étendre le système de zoom à d'autres types de widgets SGE ?
+- Comment gérer la migration des grilles existantes vers le nouveau système de zoom ?
+- Faut-il créer d'autres exemples pour les nouvelles fonctionnalités de zoom ?
+- Comment optimiser la stratégie de recréation des AgentView pour de gros volumes d'agents ?
+- Faut-il implémenter des raccourcis clavier pour le zoom ?
+- Comment gérer le zoom avec des grilles très complexes (multiples couches) ?
+- Faut-il ajouter des indicateurs visuels du niveau de zoom ?
 - Comment optimiser la performance du drag & drop direct pour de gros volumes de gameSpaces ?
 - Faut-il étendre le système de drag & drop à d'autres types de widgets SGE ?
 - Comment gérer la migration des gameSpaces existants vers le nouveau système de drag & drop ?

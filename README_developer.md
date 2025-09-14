@@ -219,6 +219,13 @@ agent.moveTo(newCell)
 # Use the factory methods in SGEntityFactory
 ```
 
+#### Zoom Functionality
+SGE provides built-in zoom functionality for grids:
+- **Trigger**: Mouse wheel events over grids
+- **Independent Zoom**: Each grid maintains its own zoom level
+- **Agent Positioning**: Agents are recreated during zoom to maintain proper positioning
+- **Grid Types**: Supports both square and hexagonal grids
+
 ### 5.6 Coordinate System
 
 **Important Convention**: SGE uses a 1-based coordinate system for grid cells.
