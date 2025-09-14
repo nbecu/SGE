@@ -82,8 +82,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         Args:
             width (int): width of the main window in pixels (default:1800)
             height (int): height of the main window in pixels (default:900)
-            typeOfLayout ("vertical", "horizontal" or "grid"): the type of layout used to position the different graphic elements of the simulation (default:"grid")
-            x (int, optional): used only for grid layout. defines the number layout grid width (default:3)
+            typeOfLayout ("vertical", "horizontal", "grid" or "enhanced_grid"): the type of layout used to position the different graphic elements of the simulation (default:"grid")
+            x (int, optional): used for grid and enhanced_grid layouts. defines the number of columns (default:3)
             y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
             name (str, optional): the name of the model. (default:"Simulation")
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
@@ -129,6 +129,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.layoutOfModel = SGVerticalLayout()
         elif (typeOfLayout == "horizontal"):
             self.layoutOfModel = SGHorizontalLayout()
+        elif (typeOfLayout == "enhanced_grid"):
+            from mainClasses.layout.SGEnhancedGridLayout import SGEnhancedGridLayout
+            self.layoutOfModel = SGEnhancedGridLayout(num_columns=x)
         else:
             self.layoutOfModel = SGGridLayout(x, y)
         self.isMoveToCoordsUsed = False
@@ -220,6 +223,21 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
         self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
     
+    def createEGLMenu(self):
+        """Create Enhanced Grid Layout submenu in Settings menu"""
+        if self.typeOfLayout == "enhanced_grid":
+            self.eglMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
+            
+            # Rearrange action
+            rearrangeAction = QAction("&Rearrange GameSpaces", self)
+            rearrangeAction.triggered.connect(self.applyEnhancedGridLayout)
+            self.eglMenu.addAction(rearrangeAction)
+            
+            # Reset to layout action
+            resetAction = QAction("&Reset to Layout Positions", self)
+            resetAction.triggered.connect(self.resetToEGLLayout)
+            self.eglMenu.addAction(resetAction)
+    
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
         self.tooltipMenu = self.settingsMenu.addMenu("&Entity Tooltips")
@@ -294,6 +312,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """Initialize components that need to be ready before the window is shown"""
         # Initialize tooltip menu with all entity definitions
         self.updateTooltipMenu()
+        
+        # Initialize EGL menu if using enhanced_grid layout
+        self.createEGLMenu()
         
         # Show admin control panel if needed
         if self.shouldDisplayAdminControlPanel:
@@ -1384,11 +1405,61 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             elif (self.typeOfLayout == "horizontal"):
                 aGameSpace.move( aGameSpace.startXBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)),
                                          aGameSpace.startYBase)
+            elif (self.typeOfLayout == "enhanced_grid"):
+                # EGL uses its own complete cycle
+                self.applyEnhancedGridLayout()
+                return  # Exit early as EGL handles everything
             else:
                 pos = self.layoutOfModel.foundInLayout(aGameSpace)
                 aGameSpace.move( aGameSpace.startXBase + (aGap * pos[0]),
                                  aGameSpace.startYBase + (aGap * pos[1]))
                 
+    
+    def applyEnhancedGridLayout(self):
+        """
+        Apply Enhanced Grid Layout (EGL) to all gameSpaces
+        
+        This method implements the complete EGL cycle:
+        1. Organize gameSpaces in structured layout
+        2. Record calculated positions
+        3. Release the structured layout
+        4. Allow free positioning while maintaining organization capability
+        """
+        if self.typeOfLayout == "enhanced_grid":
+            # Trigger the EGL cycle
+            self.layoutOfModel.rearrangeWithLayoutThenReleaseLayout()
+            
+            # Apply the calculated positions to gameSpaces
+            for aGameSpace in self.gameSpaces.values():
+                if not aGameSpace.isPositionDefineByModeler():
+                    # Only move gameSpaces without explicit modeler positioning
+                    if hasattr(aGameSpace, '_egl_calculated_position'):
+                        aGameSpace.move(aGameSpace._egl_calculated_position[0], 
+                                      aGameSpace._egl_calculated_position[1])
+                    else:
+                        # Fallback to standard positioning
+                        aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
+    
+    def resetToEGLLayout(self):
+        """
+        Reset all gameSpaces to their EGL calculated positions
+        
+        This method moves all gameSpaces back to their positions
+        calculated by the Enhanced Grid Layout, except those with
+        explicit modeler positioning (moveToCoords).
+        It does NOT recalculate positions, just restores saved ones.
+        """
+        if self.typeOfLayout == "enhanced_grid":
+            for aGameSpace in self.gameSpaces.values():
+                if not aGameSpace.isPositionDefineByModeler():
+                    # Only reset gameSpaces without explicit modeler positioning
+                    if hasattr(aGameSpace, '_egl_calculated_position'):
+                        # Use the saved EGL position (no recalculation)
+                        aGameSpace.move(aGameSpace._egl_calculated_position[0], 
+                                      aGameSpace._egl_calculated_position[1])
+                    else:
+                        # Fallback to base positioning
+                        aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
