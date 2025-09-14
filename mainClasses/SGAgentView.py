@@ -330,3 +330,25 @@ class SGAgentView(SGEntityView):
     def leaveEvent(self, event):
         """Handle mouse leave events"""
         QToolTip.hideText()
+    
+    # ============================================================================
+    # ZOOM METHODS
+    # ============================================================================
+    
+    def updateZoom(self, zoom_factor):
+        """
+        Update agent zoom based on zoom factor
+        """
+        # Calculate zoomed size from reference value
+        self.size = round(self.saveSize * zoom_factor)
+        self.update()
+    
+    def zoomIn(self, zoom_factor=1.1):
+        """Zoom in the agent - legacy method for compatibility"""
+        self.size = round(self.size * zoom_factor)
+        self.update()
+    
+    def zoomOut(self, zoom_factor=0.9):
+        """Zoom out the agent - legacy method for compatibility"""
+        self.size = round(self.size * zoom_factor)
+        self.update()

@@ -58,53 +58,86 @@ class SGCellView(SGEntityView):
             penColorAndWidth = self.getBorderColorAndWidth()
             painter.setPen(QPen(penColorAndWidth['color'], penColorAndWidth['width']))
             
-            self.startXBase = self.grid.frameMargin
-            self.startYBase = self.grid.frameMargin
-            self.startX = int(self.startXBase + (self.xCoord - 1) * (self.size + self.gap) + self.gap) 
-            self.startY = int(self.startYBase + (self.yCoord - 1) * (self.size + self.gap) + self.gap)
+            # Calculate position based on current zoom
+            self.calculatePosition()
             
-            if (self.shape == "hexagonal"):
-                self.startY = self.startY + self.size / 4
+            # Use current grid values for size
+            current_size = self.grid.size
                 
             # Base of the gameBoard
             if(self.shape == "square"):
-                painter.drawRect(0, 0, self.size, self.size)
-                self.setMinimumSize(self.size, self.size + 1)
+                painter.drawRect(0, 0, current_size, current_size)
+                self.setMinimumSize(current_size, current_size + 1)
                 self.move(self.startX, self.startY)
             elif(self.shape == "hexagonal"):
-                self.setMinimumSize(self.size, self.size)
+                self.setMinimumSize(current_size, current_size)
                 points = QPolygon([
-                    QPoint(int(self.size / 2), 0),
-                    QPoint(self.size, int(self.size / 4)),
-                    QPoint(self.size, int(3 * self.size / 4)),
-                    QPoint(int(self.size / 2), self.size),
-                    QPoint(0, int(3 * self.size / 4)),
-                    QPoint(0, int(self.size / 4))              
+                    QPoint(int(current_size / 2), 0),
+                    QPoint(current_size, int(current_size / 4)),
+                    QPoint(current_size, int(3 * current_size / 4)),
+                    QPoint(int(current_size / 2), current_size),
+                    QPoint(0, int(3 * current_size / 4)),
+                    QPoint(0, int(current_size / 4))              
                 ])
                 painter.drawPolygon(points)
-                if(self.yCoord % 2 != 0):
-                    self.move(self.startX, int(self.startY - self.size / 2 * self.yCoord + (self.gap / 10 + self.size / 4) * self.yCoord))
-                else:
-                    self.move((self.startX + int(self.size / 2) + int(self.gap / 2)), int(self.startY - self.size / 2 * self.yCoord + (self.gap / 10 + self.size / 4) * self.yCoord))
+                self.move(self.startX, self.startY)
         else:
             # Cell is deleted/hidden, don't draw anything
             pass
                         
         painter.end()
     
+    def calculatePosition(self):
+        """
+        Calculate cell position based on coordinates and current zoom
+        """
+        # Always use current values from grid (not cached copies)
+        grid_size = self.grid.size
+        grid_gap = self.grid.gap
+        grid_frame_margin = self.grid.frameMargin
+        
+        # Calculate base position with current zoom values
+        self.startXBase = grid_frame_margin
+        self.startYBase = grid_frame_margin
+        
+        # Calculate position for square grids
+        if self.shape == "square":
+            self.startX = int(self.startXBase + (self.xCoord - 1) * (grid_size + grid_gap) + grid_gap)
+            self.startY = int(self.startYBase + (self.yCoord - 1) * (grid_size + grid_gap) + grid_gap)
+        
+        # Calculate position for hexagonal grids
+        elif self.shape == "hexagonal":
+            # For hexagonal grids, we need to account for the offset pattern
+            # Hexagonal grids use "Pointy-top hex grid with even-r offset"
+            
+            # Base position calculation (similar to square)
+            self.startX = int(self.startXBase + (self.xCoord - 1) * (grid_size + grid_gap) + grid_gap)
+            self.startY = int(self.startYBase + (self.yCoord - 1) * (grid_size + grid_gap) + grid_gap)
+            
+            # Apply hexagonal vertical offset (hexagons are taller than they are wide)
+            # Each row is offset by 3/4 of the hexagon height
+            self.startY = int(self.startY + (self.yCoord - 1) * (grid_size * 0.75))
+            
+            # Apply hexagonal horizontal offset for even-r offset pattern
+            if self.yCoord % 2 == 0:
+                # Even rows: shift right by half a hexagon width
+                self.startX = int(self.startX + grid_size / 2)
+    
     def getRegion(self):
         """Get the region for the cell shape"""
         cellShape = self.classDef.shape
+        current_size = self.grid.size  # Use current grid size
+        
         if cellShape == "square":
-            region = QRegion(0, 0, self.size, self.size)
+            region = QRegion(0, 0, current_size, current_size)
         if cellShape == "hexagonal":
             points = QPolygon([
-                QPoint(int(self.size / 2), 0),
-                QPoint(self.size, int(self.size / 4)),
-                QPoint(self.size, int(3 * self.size / 4)),
-                QPoint(int(self.size / 2), self.size),
-                QPoint(0, int(3 * self.size / 4)),
-                QPoint(0, int(self.size / 4))              
+                QPoint(int(current_size / 2), 0),
+                QPoint(current_size, int(current_size / 4)),
+                QPoint(current_size, int(3 * current_size / 4)),
+                QPoint(int(current_size / 2), current_size),
+                QPoint(0, int(3 * current_size / 4)),
+                QPoint(0, int(current_size / 4))              
             ])
             region = QRegion(points)
         return region

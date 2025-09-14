@@ -58,35 +58,98 @@ class SGGrid(SGGameSpace):
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
         elif (self.cellShape == "hexagonal"):
             #Note: The hexagonal grid is "Pointy-top hex grid with even-r offset".
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1+self.size/2+1.5*self.frameMargin),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 2*self.frameMargin))
+            # Width: columns * size + gaps + half hexagon for offset + frame margins
+            # Height: rows * (size * 0.75) + gaps + frame margins
+            new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + self.size / 2 + 2 * self.frameMargin)
+            new_height = int(self.rows * (self.size * 0.75) + (self.rows + 1) * self.gap + 2 * self.frameMargin)
+            self.setMinimumSize(new_width, new_height)
         painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()
 
-    # Funtion to handle the zoom
-    def zoomIn(self):
-        self.zoom = self.zoom*1.1
-        self.gap = round(self.gap+(self.zoom*1))
-        self.size = round(self.size+(self.zoom*10))
-        for cell in list(self.getCells()):
-            cell.zoomIn()
-            for agent in cell.getAgents():
-                agent.zoomIn(self.zoom)
+    # ============================================================================
+    # ZOOM FUNCTIONALITY
+    # ============================================================================
+    
+    def wheelEvent(self, event):
+        """
+        Handle mouse wheel events for zoom functionality
+        """
+        # Only zoom if mouse is over this grid
+        if self.rect().contains(event.pos()):
+            # Get wheel delta (positive = up, negative = down)
+            delta = event.angleDelta().y()
+            
+            if delta > 0:
+                # Wheel up - zoom in
+                self.newZoomIn()
+            elif delta < 0:
+                # Wheel down - zoom out
+                self.newZoomOut()
+            
+            # Accept the event to prevent it from propagating
+            event.accept()
+        else:
+            # Let the event propagate if mouse is not over this grid
+            event.ignore()
+    
+    def newZoomIn(self):
+        """
+        Zoom in the grid by increasing zoom factor
+        """
+        self.zoom = min(self.zoom * 1.1, 3.0)  # Cap at 3x zoom
+        self.updateGridSize()
         self.update()
-
-    def zoomOut(self):
-        self.zoom = self.zoom*0.9
-        self.size = round(self.size-(self.zoom*10))
-        self.gap = round(self.gap-(self.zoom*1))
-        for cell in self.getCells():
-            cell.zoomOut()
-            newX=cell.x()
-            newY=cell.y()
-            for agent in cell.getAgents():
-                agent.zoomOut(self.zoom)
+    
+    def newZoomOut(self):
+        """
+        Zoom out the grid by decreasing zoom factor
+        """
+        self.zoom = max(self.zoom * 0.9, 0.3)  # Cap at 0.3x zoom
+        self.updateGridSize()
         self.update()
+    
+    def setZoomLevel(self, zoom_level):
+        """
+        Set specific zoom level
+        """
+        self.zoom = max(0.3, min(zoom_level, 3.0))  # Clamp between 0.3 and 3.0
+        self.updateGridSize()
+        self.update()
+    
+    def resetZoom(self):
+        """
+        Reset zoom to 1.0
+        """
+        self.zoom = 1.0
+        self.updateGridSize()
+        self.update()
+    
+    def updateGridSize(self):
+        """
+        Update grid size based on current zoom level
+        """
+        # Calculate zoomed size and gap from reference values
+        self.size = round(self.saveSize * self.zoom)
+        self.gap = round(self.saveGap * self.zoom)
+        
+        # Update minimum size for the grid widget
+        if self.cellShape == "square":
+            new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + 1) + 2 * self.frameMargin
+            new_height = int(self.rows * self.size + (self.rows + 1) * self.gap) + 1 + 2 * self.frameMargin
+        elif self.cellShape == "hexagonal":
+            # Width: columns * size + gaps + half hexagon for offset + frame margins
+            # Height: rows * (size * 0.75) + gaps + frame margins
+            new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + self.size / 2 + 2 * self.frameMargin)
+            new_height = int(self.rows * (self.size * 0.75) + (self.rows + 1) * self.gap + 2 * self.frameMargin)
+        
+        self.setMinimumSize(new_width, new_height)
+        
+        # Update all cells and agents
         for cell in self.getCells():
-            for agent in cell.getAgents(): 
-                agent.moveAgent(target=agent.cell.getId())               
+            # Force cell view to recalculate position
+            cell.view.update()
+            for agent in cell.getAgents():
+                agent.updateZoom(self.zoom)
         
 
     # To handle the drag of the grid
@@ -148,13 +211,13 @@ class SGGrid(SGGameSpace):
         if (self.cellShape == "square"):
             return int(self.columns*self.size+(self.columns+1)*self.gap+1)
         if (self.cellShape == "hexagonal"):
-            return int(self.columns*self.size+(self.columns+1)*self.gap+1) + int(self.size/2)
+            return int(self.columns*self.size+(self.columns+1)*self.gap+self.size/2)
 
     def getSizeYGlobal(self):
         if (self.cellShape == "square"):
             return int(self.rows*self.size+(self.rows+1)*self.gap)
         if (self.cellShape == "hexagonal"):
-            return int((self.rows+1)*(self.size/3)*2) + self.gap*2
+            return int(self.rows*(self.size*0.75)+(self.rows+1)*self.gap)
 
     # To get all the values possible for Legend
     def getValuesForLegend(self):

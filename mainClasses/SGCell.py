@@ -114,14 +114,17 @@ class SGCell(SGEntity):
         is_agent = entity.isAgent if has_isAgent else False
         return has_isAgent and is_agent
 
-    # Zoom methods
+    # ============================================================================
+    # ZOOM METHODS
+    # ============================================================================
+    
     def zoomIn(self):
-        """Zoom in the cell"""
+        """Zoom in the cell - legacy method for compatibility"""
         self.size = round(self.size + 10)
         self.updateView()
     
     def zoomOut(self):
-        """Zoom out the cell"""
+        """Zoom out the cell - legacy method for compatibility"""
         self.size = round(self.size - 10)
         self.updateView()
     
