@@ -228,28 +228,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.typeOfLayout == "enhanced_grid":
             self.eglMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
             
-            # Rearrange action
-            rearrangeAction = QAction("&Rearrange GameSpaces", self)
-            rearrangeAction.triggered.connect(self.applyEnhancedGridLayout)
-            self.eglMenu.addAction(rearrangeAction)
-            
-            # Reset to layout action
-            resetAction = QAction("&Reset to Layout Positions", self)
-            resetAction.triggered.connect(self.resetToEGLLayout)
-            self.eglMenu.addAction(resetAction)
-            
-            # Separator
-            self.eglMenu.addSeparator()
-            
-            # Reorder by pID action
-            reorderAction = QAction("&Reorder by pID", self)
-            reorderAction.triggered.connect(self.reorderEGLByPID)
-            self.eglMenu.addAction(reorderAction)
-            
             # Edit pIDs action
             editPIDsAction = QAction("&Edit pIDs...", self)
             editPIDsAction.triggered.connect(self.openPIDTableDialog)
             self.eglMenu.addAction(editPIDsAction)
+            
+            # Rearrange action
+            rearrangeAction = QAction("&Rearrange GameSpaces", self)
+            rearrangeAction.triggered.connect(self.applyEnhancedGridLayout)
+            self.eglMenu.addAction(rearrangeAction)
             
             # Separator
             self.eglMenu.addSeparator()
@@ -1469,38 +1456,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     else:
                         # Fallback to standard positioning
                         aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
-    
-    def resetToEGLLayout(self):
-        """
-        Reset all gameSpaces to their EGL calculated positions
-        
-        This method moves all gameSpaces back to their positions
-        calculated by the Enhanced Grid Layout, except those with
-        explicit modeler positioning (moveToCoords).
-        It does NOT recalculate positions, just restores saved ones.
-        """
-        if self.typeOfLayout == "enhanced_grid":
-            for aGameSpace in self.gameSpaces.values():
-                if not aGameSpace.isPositionDefineByModeler():
-                    # Only reset gameSpaces without explicit modeler positioning
-                    if hasattr(aGameSpace, '_egl_calculated_position'):
-                        # Use the saved EGL position (no recalculation)
-                        aGameSpace.move(aGameSpace._egl_calculated_position[0], 
-                                      aGameSpace._egl_calculated_position[1])
-                    else:
-                        # Fallback to base positioning
-                        aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
-    
-    def reorderEGLByPID(self):
-        """
-        Reorder gameSpaces according to their pID values
-        """
-        if self.typeOfLayout == "enhanced_grid":
-            # Get gameSpaces that are not positioned by modeler
-            gameSpaces_to_reorder = [gs for gs in self.gameSpaces.values() 
-                                   if not gs.isPositionDefineByModeler()]
-            self.layoutOfModel.reorderByPID(gameSpaces_to_reorder)
-            self.applyEnhancedGridLayout()
     
     def openPIDTableDialog(self):
         """
