@@ -160,7 +160,7 @@ class SGPIDTableDialog(QDialog):
             column_number = ""
             if gameSpace.pID is not None and isinstance(gameSpace.pID, int):
                 column_number = str((gameSpace.pID - 1) % self.model.layoutOfModel.num_columns + 1)
-            elif gameSpace.pID == "fixed_position":
+            elif gameSpace.pID == "manual_position":
                 column_number = "Fixed"
             
             col_item = QTableWidgetItem(column_number)
@@ -183,14 +183,14 @@ class SGPIDTableDialog(QDialog):
             
             # pID (editable) - Column 3
             pid_display = ""
-            if gameSpace.pID == "fixed_position":
+            if gameSpace.pID == "manual_position":
                 pid_display = "Fixed Position"
             elif gameSpace.pID is not None:
                 pid_display = str(gameSpace.pID)
             
             pid_item = QTableWidgetItem(pid_display)
             pid_item.setTextAlignment(Qt.AlignCenter)
-            if gameSpace.pID == "fixed_position":
+            if gameSpace.pID == "manual_position":
                 pid_item.setFlags(pid_item.flags() & ~Qt.ItemIsEditable)
                 pid_item.setBackground(QColor(240, 240, 240))
             self.table.setItem(row, 3, pid_item)

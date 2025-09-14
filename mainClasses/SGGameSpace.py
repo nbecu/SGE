@@ -213,13 +213,13 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.positionDefineByModeler=(x,y)
                 self.move(x,y)
                 
-                # If using Enhanced Grid Layout, assign fixed_position pID
+                # If using Enhanced Grid Layout, assign manual_position pID
                 if (hasattr(self.model, 'typeOfLayout') and 
                     self.model.typeOfLayout == "enhanced_grid" and
                     hasattr(self.model, 'layoutOfModel')):
-                    self.pID = "fixed_position"
+                    self.pID = "manual_position"
                     self._egl_pid_manual = True
-                    print(f"Fixed position: {self.id} pID → fixed_position")
+                    print(f"Fixed position: {self.id} pID → manual_position")
             else:
                 raise ValueError('The y value is too high or negative')
         else:

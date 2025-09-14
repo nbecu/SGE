@@ -72,13 +72,13 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Use provided gameSpaces or fallback to self.GameSpaces
         gameSpaces_to_sort = model_gameSpaces if model_gameSpaces is not None else self.GameSpaces
         
-        # Sort gameSpaces by pID (ignore fixed_position)
+        # Sort gameSpaces by pID (ignore manual_position)
         sorted_gameSpaces = sorted(gameSpaces_to_sort, 
                                  key=lambda gs: gs.pID if isinstance(gs.pID, int) else 999999)
         
         # Reorganize according to new pID order
         for gameSpace in sorted_gameSpaces:
-            if gameSpace.pID is not None and gameSpace.pID != "fixed_position":
+            if gameSpace.pID is not None and gameSpace.pID != "manual_position":
                 column_index = (gameSpace.pID - 1) % self.num_columns
                 self.widgets[column_index].append(gameSpace)
         
@@ -98,7 +98,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         
         Example: (1, 3, 4, 9) becomes (1, 2, 3, 4)
         """
-        # Get all gameSpaces with numeric pIDs (exclude fixed_position and positioned by modeler)
+        # Get all gameSpaces with numeric pIDs (exclude manual_position and positioned by modeler)
         gameSpaces_with_pids = []
         for gs in self.GameSpaces:
             if isinstance(gs.pID, int) and not gs.isPositionDefineByModeler():
@@ -163,7 +163,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Check if gameSpace is positioned by modeler
         if aGameSpace.isPositionDefineByModeler():
             # Set special pID for fixed position
-            aGameSpace.pID = "fixed_position"
+            aGameSpace.pID = "manual_position"
             aGameSpace._egl_pid_manual = True
             # Don't add to EGL columns - it's positioned manually
             return (aGameSpace.startXBase, aGameSpace.startYBase)
