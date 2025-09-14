@@ -78,8 +78,6 @@ class SGAgentView(SGEntityView):
             # For center, always maintain exact center regardless of sizes
             relX = (grid_size - self.size) / 2
             relY = (grid_size - self.size) / 2
-            # Debug: Print calculation details
-            print(f"  Center calc: grid_size={grid_size}, agent_size={self.size}, relX={relX}, relY={relY}")
             # Ensure we get exact center by using precise calculation
             relX = max(0, relX)  # Don't go negative
             relY = max(0, relY)  # Don't go negative
@@ -89,14 +87,9 @@ class SGAgentView(SGEntityView):
         # Always use current cell position for accurate positioning
         cell_x = current_cell.view.x()
         cell_y = current_cell.view.y()
-        print(f"  Using current cell position: x={cell_x}, y={cell_y}")
         
         self.xCoord = cell_x + round(relX)
         self.yCoord = cell_y + round(relY)
-        
-        # Debug: Print cell position and final calculation
-        print(f"  Final agent pos: x={self.xCoord}, y={self.yCoord}")
-        
         
         # Update the view position
         try:

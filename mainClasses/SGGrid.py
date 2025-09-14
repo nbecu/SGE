@@ -160,7 +160,6 @@ class SGGrid(SGGameSpace):
         # CRITICAL: Force cells to actually move to their new positions
         for cell in self.getCells():
             cell.view.move(cell.view.startX, cell.view.startY)
-            print(f"Cell moved to: x={cell.view.x()}, y={cell.view.y()}")
         
         # Now recreate agent views using CURRENT cell positions
         for cell in self.getCells():
@@ -168,9 +167,6 @@ class SGGrid(SGGameSpace):
             for agent in cell.getAgents():
                 # Update agent model zoom
                 agent.updateZoom(self.zoom)
-                
-                # Debug: Print zoom and sizes
-                print(f"Zoom: {self.zoom:.2f}, Grid size: {self.size}, Agent size: {agent.size}")
                 
                 # Destroy existing agent view immediately
                 if hasattr(agent, 'view') and agent.view:
@@ -188,11 +184,8 @@ class SGGrid(SGGameSpace):
                 # Force the new view to be visible and positioned using CURRENT cell position
                 agent_view.show()
                 current_cell_position = (cell.view.x(), cell.view.y())
-                print(f"Using CURRENT cell position: x={current_cell_position[0]}, y={current_cell_position[1]}")
                 agent_view.getPositionInEntity(current_cell_position)
                 
-                # Debug: Print final position
-                print(f"Agent final position: x={agent_view.xCoord}, y={agent_view.yCoord}")
         
 
     # To handle the drag of the grid
