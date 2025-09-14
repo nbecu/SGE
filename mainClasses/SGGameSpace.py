@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QToolTip
 from mainClasses.SGAspect import *
 from mainClasses.SGGameSpaceSizeManager import SGGameSpaceSizeManager
 from mainClasses.SGEventHandlerGuide import *
@@ -44,6 +45,11 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.size_manager = SGGameSpaceSizeManager()
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
+        
+        # EGL pID system
+        self.pID = None  # Position ID for Enhanced Grid Layout
+        self._egl_pid_manual = False  # Flag for manual pID assignment
+        self._egl_pid_tooltip_enabled = False  # Flag for pID tooltip display
         
 
     @classmethod
@@ -114,8 +120,27 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         Handle mouse release events to end drag operation.
         """
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton and self.isDraggable:
             self.dragging = False
+    
+    def event(self, event):
+        """
+        Handle events including tooltip display for pID
+        """
+        if event.type() == QEvent.ToolTip:
+            # Check if pID tooltips are enabled
+            if (hasattr(self, '_egl_pid_tooltip_enabled') and 
+                self._egl_pid_tooltip_enabled and 
+                self.pID is not None):
+                
+                # Show pID tooltip
+                QToolTip.showText(event.globalPos(), f"pID: {self.pID}")
+                return True
+            else:
+                # Let parent handle tooltip (for entity tooltips)
+                return super().event(event)
+        
+        return super().event(event)
 
     def mouseMoveEvent(self, event):
         """

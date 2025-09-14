@@ -237,6 +237,29 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             resetAction = QAction("&Reset to Layout Positions", self)
             resetAction.triggered.connect(self.resetToEGLLayout)
             self.eglMenu.addAction(resetAction)
+            
+            # Separator
+            self.eglMenu.addSeparator()
+            
+            # Reorder by pID action
+            reorderAction = QAction("&Reorder by pID", self)
+            reorderAction.triggered.connect(self.reorderEGLByPID)
+            self.eglMenu.addAction(reorderAction)
+            
+            # Edit pIDs action
+            editPIDsAction = QAction("&Edit pIDs...", self)
+            editPIDsAction.triggered.connect(self.openPIDTableDialog)
+            self.eglMenu.addAction(editPIDsAction)
+            
+            # Separator
+            self.eglMenu.addSeparator()
+            
+            # Toggle pID tooltips action
+            self.pidTooltipAction = QAction("&Show pID Tooltips", self)
+            self.pidTooltipAction.setCheckable(True)
+            self.pidTooltipAction.setChecked(False)
+            self.pidTooltipAction.triggered.connect(self.togglePIDTooltips)
+            self.eglMenu.addAction(self.pidTooltipAction)
     
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
@@ -1460,6 +1483,38 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     else:
                         # Fallback to base positioning
                         aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
+    
+    def reorderEGLByPID(self):
+        """
+        Reorder gameSpaces according to their pID values
+        """
+        if self.typeOfLayout == "enhanced_grid":
+            # Get gameSpaces that are not positioned by modeler
+            gameSpaces_to_reorder = [gs for gs in self.gameSpaces.values() 
+                                   if not gs.isPositionDefineByModeler()]
+            self.layoutOfModel.reorderByPID(gameSpaces_to_reorder)
+            self.applyEnhancedGridLayout()
+    
+    def openPIDTableDialog(self):
+        """
+        Open the pID management dialog
+        """
+        if self.typeOfLayout == "enhanced_grid":
+            from mainClasses.layout.SGPIDTableDialog import SGPIDTableDialog
+            dialog = SGPIDTableDialog(self)
+            dialog.exec_()
+    
+    def togglePIDTooltips(self, checked):
+        """
+        Toggle pID tooltips for all gameSpaces
+        
+        Args:
+            checked (bool): Whether to show pID tooltips
+        """
+        if self.typeOfLayout == "enhanced_grid":
+            for gameSpace in self.gameSpaces.values():
+                if not gameSpace.isPositionDefineByModeler():
+                    gameSpace._egl_pid_tooltip_enabled = checked
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):

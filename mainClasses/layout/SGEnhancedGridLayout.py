@@ -25,6 +25,65 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Track column widths for proper sizing
         self.column_widths = [0] * num_columns
         
+        # EGL pID system
+        self.next_pID = 1  # Counter for auto-increment
+        self.used_pIDs = set()  # Track used pIDs for validation
+    
+    def assignPID(self, gameSpace, pID=None):
+        """
+        Assign a pID to a gameSpace
+        
+        Args:
+            gameSpace: The gameSpace to assign pID to
+            pID: Manual pID (if None, auto-increment)
+        """
+        if pID is None:
+            # Auto-increment: find next available pID
+            while self.next_pID in self.used_pIDs:
+                self.next_pID += 1
+            gameSpace.pID = self.next_pID
+            gameSpace._egl_pid_manual = False
+        else:
+            # Manual pID: find closest available if already used
+            original_pID = pID
+            while pID in self.used_pIDs:
+                pID += 1
+            gameSpace.pID = pID
+            gameSpace._egl_pid_manual = True
+            
+            # Inform user if pID was changed
+            if pID != original_pID:
+                print(f"Warning: pID {original_pID} already used. Assigned pID {pID} instead.")
+        
+        self.used_pIDs.add(gameSpace.pID)
+        self.next_pID = max(self.next_pID, gameSpace.pID) + 1
+    
+    def removePID(self, gameSpace):
+        """Remove pID from tracking when gameSpace is removed"""
+        if gameSpace.pID is not None:
+            self.used_pIDs.discard(gameSpace.pID)
+    
+    def reorderByPID(self, model_gameSpaces=None):
+        """Reorder gameSpaces according to their pID"""
+        # Clear all columns
+        for column in self.widgets:
+            column.clear()
+        
+        # Use provided gameSpaces or fallback to self.GameSpaces
+        gameSpaces_to_sort = model_gameSpaces if model_gameSpaces is not None else self.GameSpaces
+        
+        # Sort gameSpaces by pID
+        sorted_gameSpaces = sorted(gameSpaces_to_sort, key=lambda gs: gs.pID or 0)
+        
+        # Reorganize according to new pID order
+        for gameSpace in sorted_gameSpaces:
+            if gameSpace.pID is not None:
+                column_index = (gameSpace.pID - 1) % self.num_columns
+                self.widgets[column_index].append(gameSpace)
+        
+        # Recalculate positions
+        self.rearrangeWithLayoutThenReleaseLayout()
+        
     def addGameSpace(self, aGameSpace):
         """
         Add a gameSpace to the layout and return the basic position
@@ -37,8 +96,12 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         """
         self.count = self.count + 1
         
-        # Calculate which column this gameSpace should go to
-        column_index = (self.count - 1) % self.num_columns
+        # Assign pID if not already assigned
+        if aGameSpace.pID is None:
+            self.assignPID(aGameSpace)
+        
+        # Calculate which column this gameSpace should go to based on pID
+        column_index = (aGameSpace.pID - 1) % self.num_columns
         
         # Add to the appropriate column
         self.widgets[column_index].append(aGameSpace)
