@@ -37,43 +37,65 @@ class SGAgentView(SGEntityView):
         self.xCoord = 0
         self.yCoord = 0
         
+        # Save reference size for zoom calculations
+        self.saveSize = self.size
+        
         # Allow drops
         self.setAcceptDrops(True)
         
         # Don't position immediately - wait for grid layout to be applied
         # self.getPositionInEntity()
     
-    def getPositionInEntity(self):
+    def getPositionInEntity(self, saved_cell_position=None):
         """Get the absolute position of the agent within its cell"""
         # Use the agent model's current cell, not the view's cached cell
         current_cell = self.agent_model.cell
         
+        # Use grid size for consistent zoom behavior (like SGCellView)
+        grid_size = current_cell.grid.size
         
-        # Calculate relative position within the cell
+        # Calculate relative position within the cell based on current grid size
         if self.classDef.locationInEntity == "random":
-            relX = random.randint(0, current_cell.size - self.size)
-            relY = random.randint(0, current_cell.size - self.size)
+            # For random, we need to maintain the same relative position
+            if not hasattr(self, '_randomX') or not hasattr(self, '_randomY'):
+                self._randomX = random.random()  # Store as 0.0 to 1.0
+                self._randomY = random.random()
+            relX = int(self._randomX * (grid_size - self.size))
+            relY = int(self._randomY * (grid_size - self.size))
         elif self.classDef.locationInEntity == "topRight":
-            relX = current_cell.size - self.size
+            relX = grid_size - self.size
             relY = 0
         elif self.classDef.locationInEntity == "topLeft":
             relX = 0
             relY = 0
         elif self.classDef.locationInEntity == "bottomLeft":
             relX = 0
-            relY = current_cell.size - self.size
+            relY = grid_size - self.size
         elif self.classDef.locationInEntity == "bottomRight":
-            relX = current_cell.size - self.size
-            relY = current_cell.size - self.size
+            relX = grid_size - self.size
+            relY = grid_size - self.size
         elif self.classDef.locationInEntity == "center":
-            relX = (current_cell.size - self.size) // 2
-            relY = (current_cell.size - self.size) // 2
+            # For center, always maintain exact center regardless of sizes
+            relX = (grid_size - self.size) / 2
+            relY = (grid_size - self.size) / 2
+            # Debug: Print calculation details
+            print(f"  Center calc: grid_size={grid_size}, agent_size={self.size}, relX={relX}, relY={relY}")
+            # Ensure we get exact center by using precise calculation
+            relX = max(0, relX)  # Don't go negative
+            relY = max(0, relY)  # Don't go negative
         else:
             raise ValueError("Error in entry for locationInEntity")
         
-        # Calculate absolute position based on cell position
-        self.xCoord = current_cell.view.x() + relX
-        self.yCoord = current_cell.view.y() + relY
+        # Always use current cell position for accurate positioning
+        cell_x = current_cell.view.x()
+        cell_y = current_cell.view.y()
+        print(f"  Using current cell position: x={cell_x}, y={cell_y}")
+        
+        self.xCoord = cell_x + round(relX)
+        self.yCoord = cell_y + round(relY)
+        
+        # Debug: Print cell position and final calculation
+        print(f"  Final agent pos: x={self.xCoord}, y={self.yCoord}")
         
         
         # Update the view position

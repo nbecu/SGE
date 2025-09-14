@@ -54,6 +54,9 @@ class SGAgent(SGEntity):
         self.popupImage = popupImage
         self.last_selected_option = None
         
+        # Save reference size for zoom calculations (like SGCell)
+        self.saveSize = size
+        
         # Initialize position
         self.getPositionInEntity()
         
@@ -142,14 +145,27 @@ class SGAgent(SGEntity):
         else:
             raise ValueError("Error in entry for locationInEntity")
 
-    # Zoom methods
+    # ============================================================================
+    # ZOOM METHODS
+    # ============================================================================
+    
+    def updateZoom(self, zoom_factor):
+        """
+        Update agent zoom based on zoom factor (like SGCell)
+        """
+        # Calculate zoomed size from reference value
+        self.size = round(self.saveSize * zoom_factor)
+        self.updateView()
+    
     def zoomIn(self, zoomFactor):
-        """Zoom in the agent"""
+        """Zoom in the agent - legacy method for compatibility"""
         self.size = round(self.size + (zoomFactor * 10))
+        self.updateView()
     
     def zoomOut(self, zoomFactor):
-        """Zoom out the agent"""
+        """Zoom out the agent - legacy method for compatibility"""
         self.size = round(self.size - (zoomFactor * 10))
+        self.updateView()
 
     # Feedback methods
     def feedBack(self, theAction):

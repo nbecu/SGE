@@ -44,12 +44,13 @@ LandCell.grid.moveToCoords(20, 250)
 # Cows.newAgentsAtRandom(2, LandCell)
 # Cows.newAgentsAtRandom(5, LandCell, condition=lambda c: c.isValue("landForm", "plain"))
 
-# Fishes = myModel.newAgentSpecies("Fish", "ellipseAgent1", defaultSize=20, defaultColor=Qt.gray)
-# Fishes.setDefaultValues_randomChoice({
-#     "species": ["Salmon", "Tuna", "Cod", "Mackerel"],
-#     "size": ["small", "medium", "large"],
-#     "swimming_depth": ["surface", "mid", "deep"]
-# })
+Fishes = myModel.newAgentSpecies("Fish", "triangleAgent1", defaultSize=10, defaultColor=Qt.gray)
+Fishes.setDefaultValues_randomChoice({
+    "species": ["Salmon", "Tuna", "Cod", "Mackerel"],
+    "size": ["small", "medium", "large"],
+    "swimming_depth": ["surface", "mid", "deep"]
+})
+Fishes.newAgentsAtRandom(2, SeaCell)
 # Fishes.newAgentsAtRandom(4, SeaCell, condition=lambda c: c.isNotValue("seascape", "littoral"))
 
 aLegend = myModel.newLegend()

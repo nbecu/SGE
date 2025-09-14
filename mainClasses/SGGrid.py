@@ -144,12 +144,55 @@ class SGGrid(SGGameSpace):
         
         self.setMinimumSize(new_width, new_height)
         
-        # Update all cells and agents
+        # Update all cells first
         for cell in self.getCells():
+            # Update cell size to match grid zoom
+            cell.size = self.size
+            cell.gap = self.gap
+            
             # Force cell view to recalculate position
+            cell.view.calculatePosition()  # Force position recalculation
             cell.view.update()
+        
+        # Force a complete repaint to ensure cells are repositioned
+        self.update()
+        
+        # CRITICAL: Force cells to actually move to their new positions
+        for cell in self.getCells():
+            cell.view.move(cell.view.startX, cell.view.startY)
+            print(f"Cell moved to: x={cell.view.x()}, y={cell.view.y()}")
+        
+        # Now recreate agent views using CURRENT cell positions
+        for cell in self.getCells():
+            # RECREATION SOLUTION: Destroy and recreate agent views
             for agent in cell.getAgents():
+                # Update agent model zoom
                 agent.updateZoom(self.zoom)
+                
+                # Debug: Print zoom and sizes
+                print(f"Zoom: {self.zoom:.2f}, Grid size: {self.size}, Agent size: {agent.size}")
+                
+                # Destroy existing agent view immediately
+                if hasattr(agent, 'view') and agent.view:
+                    agent.view.setParent(None)  # Remove from parent first
+                    agent.view.deleteLater()
+                    agent.view = None
+                
+                # Recreate agent view with current grid as parent
+                from mainClasses.SGAgentView import SGAgentView
+                agent_view = SGAgentView(agent, self)  # self = grid as parent
+                
+                # Link model and view
+                agent.setView(agent_view)
+                
+                # Force the new view to be visible and positioned using CURRENT cell position
+                agent_view.show()
+                current_cell_position = (cell.view.x(), cell.view.y())
+                print(f"Using CURRENT cell position: x={current_cell_position[0]}, y={current_cell_position[1]}")
+                agent_view.getPositionInEntity(current_cell_position)
+                
+                # Debug: Print final position
+                print(f"Agent final position: x={agent_view.xCoord}, y={agent_view.yCoord}")
         
 
     # To handle the drag of the grid
