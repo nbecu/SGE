@@ -4,7 +4,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Create your ModelPhase")
+myModel=SGModel(860,700, windowTitle="Create your ModelPhase",typeOfLayout="enhanced_grid")
 myModel.displayAdminControlPanel()
 myModel.displayTimeInWindowTitle()
 

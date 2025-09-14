@@ -31,6 +31,16 @@ class SGVerticalLayout(SGAbstractLayout):
             if maxY< anElement.getSizeYGlobal() :
                 maxY=anElement.getSizeYGlobal()
         return (maxX,maxY)
+    
+    def applyLayout(self, gameSpaces):
+        """
+        Apply vertical layout to gameSpaces
+        """
+        self.ordered()
+        aGap = self.gapBetweenGameSpaces
+        for aGameSpace in (element for element in gameSpaces if not element.isPositionDefineByModeler()):
+            aGameSpace.move(aGameSpace.startXBase,
+                           aGameSpace.startYBase + (aGap * (self.getNumberOfAnElement(aGameSpace) - 1)))
               
         
                     

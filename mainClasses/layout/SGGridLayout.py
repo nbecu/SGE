@@ -114,6 +114,17 @@ class SGGridLayout(SGAbstractLayout):
                 maxX=tempMaxX
             
         return (maxX,maxY)
+    
+    def applyLayout(self, gameSpaces):
+        """
+        Apply grid layout to gameSpaces
+        """
+        self.ordered()
+        aGap = self.gapBetweenGameSpaces
+        for aGameSpace in (element for element in gameSpaces if not element.isPositionDefineByModeler()):
+            pos = self.foundInLayout(aGameSpace)
+            aGameSpace.move(aGameSpace.startXBase + (aGap * pos[0]),
+                           aGameSpace.startYBase + (aGap * pos[1]))
             
             
         

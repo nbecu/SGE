@@ -31,5 +31,15 @@ class SGHorizontalLayout(SGAbstractLayout):
             if maxX< anElement.getSizeXGlobal() :
                 maxX=anElement.getSizeXGlobal()
         return (maxX,maxY)
+    
+    def applyLayout(self, gameSpaces):
+        """
+        Apply horizontal layout to gameSpaces
+        """
+        self.ordered()
+        aGap = self.gapBetweenGameSpaces
+        for aGameSpace in (element for element in gameSpaces if not element.isPositionDefineByModeler()):
+            aGameSpace.move(aGameSpace.startXBase + (aGap * (self.getNumberOfAnElement(aGameSpace) - 1)),
+                           aGameSpace.startYBase)
             
     

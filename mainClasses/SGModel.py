@@ -242,7 +242,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.eglMenu.addSeparator()
             
             # Toggle layoutOrder tooltips action
-            self.pidTooltipAction = QAction("&Show layoutOrder Tooltips", self)
+            self.pidTooltipAction = QAction("&Show GameSpace order tooltip", self)
             self.pidTooltipAction.setCheckable(True)
             self.pidTooltipAction.setChecked(False)
             self.pidTooltipAction.triggered.connect(self.togglePIDTooltips)
@@ -1412,23 +1412,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     
     # To apply the layout to all the current game spaces
     def applyAutomaticLayout(self): #todo basculer ce code dans les classes de layout
-        self.layoutOfModel.ordered()
-        aGap = self.layoutOfModel.gapBetweenGameSpaces
-        for aGameSpace in (element for element in self.gameSpaces.values() if not element.isPositionDefineByModeler()):
-            if self.typeOfLayout == "vertical":
-                aGameSpace.move(aGameSpace.startXBase,
-                                aGameSpace.startYBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)))
-            elif (self.typeOfLayout == "horizontal"):
-                aGameSpace.move( aGameSpace.startXBase + (aGap * (self.layoutOfModel.getNumberOfAnElement(aGameSpace) -1)),
-                                         aGameSpace.startYBase)
-            elif (self.typeOfLayout == "enhanced_grid"):
-                # EGL uses its own complete cycle
-                self.applyEnhancedGridLayout()
-                return  # Exit early as EGL handles everything
-            else:
-                pos = self.layoutOfModel.foundInLayout(aGameSpace)
-                aGameSpace.move( aGameSpace.startXBase + (aGap * pos[0]),
-                                 aGameSpace.startYBase + (aGap * pos[1]))
+        # Polymorphisme à l'exécution - chaque layout gère sa propre logique
+        self.layoutOfModel.applyLayout(self.gameSpaces.values())
                 
     
     def applyEnhancedGridLayout(self):
@@ -1475,8 +1460,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         if self.typeOfLayout == "enhanced_grid":
             for gameSpace in self.gameSpaces.values():
-                if not gameSpace.isPositionDefineByModeler():
-                    gameSpace._egl_pid_tooltip_enabled = checked
+                gameSpace._egl_pid_tooltip_enabled = checked
+                
     
     def reorganizeEGLPIDs(self):
         """

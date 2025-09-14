@@ -134,7 +134,10 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.layoutOrder is not None):
                 
                 # Show layoutOrder tooltip
-                QToolTip.showText(event.globalPos(), f"layoutOrder: {self.layoutOrder}")
+                if self.layoutOrder == "manual_position":
+                    QToolTip.showText(event.globalPos(), "Position set manually")
+                else:
+                    QToolTip.showText(event.globalPos(), f"Order: {self.layoutOrder}")
                 return True
             else:
                 # Let parent handle tooltip (for entity tooltips)

@@ -339,3 +339,36 @@ class SGEnhancedGridLayout(SGAbstractLayout):
                     return count
                 count += 1
         return count
+    
+    def applyLayout(self, gameSpaces):
+        """
+        Apply Enhanced Grid Layout to gameSpaces
+        """
+        # Trigger the EGL cycle
+        print("rearrangeWithLayoutThenReleaseLayout in applyLayout")
+        self.rearrangeWithLayoutThenReleaseLayout()
+        
+        # Apply the calculated positions to gameSpaces
+        for aGameSpace in (element for element in gameSpaces if not element.isPositionDefineByModeler()):
+            if hasattr(aGameSpace, '_egl_calculated_position'):
+                aGameSpace.move(aGameSpace._egl_calculated_position[0], 
+                              aGameSpace._egl_calculated_position[1])
+            else:
+                # Fallback to standard positioning
+                aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
+    
+    def foundInLayout(self, aGameSpace):
+        """
+        Find the position of a gameSpace in the layout
+        
+        Args:
+            aGameSpace: The gameSpace to find
+            
+        Returns:
+            tuple: (column_index, row_index) or None if not found
+        """
+        for col_idx, column in enumerate(self.widgets):
+            for row_idx, gs in enumerate(column):
+                if gs.id == aGameSpace.id:
+                    return (col_idx, row_idx)
+        return None

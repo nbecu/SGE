@@ -60,5 +60,17 @@ class SGAbstractLayout():
             if maxX< anElement.getSizeXGlobal() :
                 maxX=anElement.getSizeXGlobal()
         return (maxX,maxY)
+    
+    def applyLayout(self, gameSpaces):
+        """
+        Apply the layout to the given gameSpaces
+        
+        This method should be overridden by each layout implementation
+        to handle its specific positioning logic.
+        
+        Args:
+            gameSpaces: List of gameSpaces to position
+        """
+        raise NotImplementedError("Subclasses must implement applyLayout method")
             
     
