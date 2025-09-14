@@ -339,6 +339,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize EGL menu if using enhanced_grid layout
         self.createEGLMenu()
         
+        # Reorganize EGL pIDs to eliminate gaps
+        self.reorganizeEGLPIDs()
+        
+        
+    
+        
         # Show admin control panel if needed
         if self.shouldDisplayAdminControlPanel:
             self.show_adminControlPanel()
@@ -1450,6 +1456,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         if self.typeOfLayout == "enhanced_grid":
             # Trigger the EGL cycle
+            print("rearrangeWithLayoutThenReleaseLayout in applyEnhancedGridLayout")
             self.layoutOfModel.rearrangeWithLayoutThenReleaseLayout()
             
             # Apply the calculated positions to gameSpaces
@@ -1515,6 +1522,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             for gameSpace in self.gameSpaces.values():
                 if not gameSpace.isPositionDefineByModeler():
                     gameSpace._egl_pid_tooltip_enabled = checked
+    
+    def reorganizeEGLPIDs(self):
+        """
+        Reorganize pIDs to eliminate gaps while preserving order
+        
+        This method is called during initialization to ensure sequential pID numbering
+        for better column distribution in the Enhanced Grid Layout.
+        """
+        if self.typeOfLayout == "enhanced_grid":
+            print("Reorganizing EGL pIDs to eliminate gaps...")
+            self.layoutOfModel.reorganizePIDsSequentially()
+            print("EGL pID reorganization completed.")
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):

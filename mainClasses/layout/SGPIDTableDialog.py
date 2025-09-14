@@ -158,8 +158,10 @@ class SGPIDTableDialog(QDialog):
         for row, gameSpace in enumerate(gameSpaces):
             # Column number (calculated from pID) - Column 0
             column_number = ""
-            if gameSpace.pID is not None:
+            if gameSpace.pID is not None and isinstance(gameSpace.pID, int):
                 column_number = str((gameSpace.pID - 1) % self.model.layoutOfModel.num_columns + 1)
+            elif gameSpace.pID == "fixed_position":
+                column_number = "Fixed"
             
             col_item = QTableWidgetItem(column_number)
             col_item.setFlags(col_item.flags() & ~Qt.ItemIsEditable)
@@ -180,8 +182,17 @@ class SGPIDTableDialog(QDialog):
             self.table.setItem(row, 2, name_item)
             
             # pID (editable) - Column 3
-            pid_item = QTableWidgetItem(str(gameSpace.pID or ""))
+            pid_display = ""
+            if gameSpace.pID == "fixed_position":
+                pid_display = "Fixed Position"
+            elif gameSpace.pID is not None:
+                pid_display = str(gameSpace.pID)
+            
+            pid_item = QTableWidgetItem(pid_display)
             pid_item.setTextAlignment(Qt.AlignCenter)
+            if gameSpace.pID == "fixed_position":
+                pid_item.setFlags(pid_item.flags() & ~Qt.ItemIsEditable)
+                pid_item.setBackground(QColor(240, 240, 240))
             self.table.setItem(row, 3, pid_item)
             
             # Store original pID for cancel functionality
