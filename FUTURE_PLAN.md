@@ -16,7 +16,6 @@ This document contains the planned improvements and features for the SGE (Simula
 ### User Interface & Display
 - [ ] Correct the zoom
 - [ ] Main window auto resize
-- [ ] Integrate the enhanced grid layout of `gameSpaces`
 
 ### POV System & Visual Elements
 - [ ] Create a POV system to manage groups of symbologies
@@ -96,6 +95,15 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Added proper drag state management (dragging flag, drag_start_position)
   - ✅ Eliminated non-intuitive positioning behavior
   - ✅ All gameSpaces now support smooth, intuitive drag & drop movement
+
+- [x] Integrate the enhanced grid layout of `gameSpaces` (Sept 2025)
+  - ✅ Created `SGEnhancedGridLayout` class inheriting from `SGAbstractLayout`
+  - ✅ Added `"enhanced_grid"` as new `typeOfLayout` option in `SGModel`
+  - ✅ Implemented `layoutOrder` system for automatic column organization
+  - ✅ Added user interface for `layoutOrder` management via editable table dialog
+  - ✅ Implemented polymorphic `applyLayout()` method across all layout classes
+  - ✅ Added tooltip display for `layoutOrder` values
+  - ✅ Support for manual positioning with `moveToCoords()` override
 
 ## Notes
 

@@ -494,6 +494,25 @@ except RuntimeError:
 - `ex_zoom_2.py` : Multi-grilles (carrée + hexagonale)
 - `ex_zoom_3.py` : Agents avec toutes les positions possibles
 
+### 14.8 Enhanced Grid Layout (SEPTEMBRE 2025)
+**Nouvelle fonctionnalité** : Layout avancé pour organisation flexible des gameSpaces
+
+**Caractéristiques** :
+- Layout en colonnes décalées avec `typeOfLayout="enhanced_grid"`
+- Système `layoutOrder` pour contrôle utilisateur de l'ordre
+- Interface de gestion via menu Settings > Enhanced Grid Layout
+- Support du positionnement manuel avec `moveToCoords()`
+
+**Méthodes développeur** :
+- `SGEnhancedGridLayout.applyLayout()` : Application du layout
+- `SGEnhancedGridLayout.assignLayoutOrder()` : Attribution d'ordre
+- `SGEnhancedGridLayout.reorganizeLayoutOrdersSequentially()` : Réorganisation
+
+**Exemple** :
+```python
+model = SGModel(typeOfLayout="enhanced_grid", x=3)
+```
+
 ## 15. Lancement des applications SGE (CRITIQUE pour chatbots)
 
 ### 15.1 Problèmes courants avec PowerShell
@@ -559,6 +578,15 @@ git push
 ```
 
 **Règle** : En PowerShell, séparer les commandes par des retours à la ligne, pas par `&&`.
+
+### 15.7 Layout Management
+**RÈGLE** : Utiliser le polymorphisme pour l'application des layouts.
+
+**Méthode** : `model.layoutOfModel.applyLayout(model.gameSpaces.values())`
+
+**Types supportés** :
+- `"vertical"`, `"horizontal"`, `"grid"` : Layouts standards
+- `"enhanced_grid"` : Layout avancé avec colonnes décalées
 
 ## 16. Méthodes de déplacement d'agents (CRITIQUE)
 

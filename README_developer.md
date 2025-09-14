@@ -47,6 +47,7 @@ Classes should be organized with a clear separation between developer methods an
    - Internal helper methods
    - UI delegation methods
    - Model-View architecture methods
+   - Layout management methods
    - Utility methods for developers
 
 2. **Visual Separator** (clear line with comment)
@@ -218,6 +219,9 @@ agent.moveTo(newCell)
 # Developers should not manually create or destroy views
 # Use the factory methods in SGEntityFactory
 ```
+
+#### Layout Management
+SGE supports multiple layout systems including Enhanced Grid Layout for flexible gameSpace organization. Layout classes implement the `applyLayout()` method for polymorphic behavior.
 
 #### Zoom Functionality
 SGE provides built-in zoom functionality for grids:

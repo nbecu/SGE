@@ -46,10 +46,10 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
         
-        # EGL layoutOrder system
+        # Enhanced Grid Layout system
         self.layoutOrder = None  # Position ID for Enhanced Grid Layout
-        self._egl_pid_manual = False  # Flag for manual layoutOrder assignment
-        self._egl_pid_tooltip_enabled = False  # Flag for layoutOrder tooltip display
+        self._enhanced_grid_manual = False  # Flag for manual layoutOrder assignment
+        self._enhanced_grid_tooltip_enabled = False  # Flag for layoutOrder tooltip display
         
 
     @classmethod
@@ -129,8 +129,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         if event.type() == QEvent.ToolTip:
             # Check if layoutOrder tooltips are enabled
-            if (hasattr(self, '_egl_pid_tooltip_enabled') and 
-                self._egl_pid_tooltip_enabled and 
+            if (hasattr(self, '_enhanced_grid_tooltip_enabled') and 
+                self._enhanced_grid_tooltip_enabled and 
                 self.layoutOrder is not None):
                 
                 # Show layoutOrder tooltip
@@ -221,7 +221,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                     self.model.typeOfLayout == "enhanced_grid" and
                     hasattr(self.model, 'layoutOfModel')):
                     self.layoutOrder = "manual_position"
-                    self._egl_pid_manual = True
+                    self._enhanced_grid_manual = True
             else:
                 raise ValueError('The y value is too high or negative')
         else:

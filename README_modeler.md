@@ -60,6 +60,14 @@ agent.moveAgent(target="up")     # Auto-detects as direction movement
 
 **Important**: Use `moveTo()` for initial placement, `moveAgent()` for subsequent movements.
 
+## Layout Options
+
+SGE supports different layout types for organizing gameSpaces:
+- **`"vertical"`**, **`"horizontal"`**, **`"grid"`**: Standard layouts
+- **`"enhanced_grid"`**: Advanced layout with automatic column organization and user-controllable ordering
+
+Example: `model = SGModel(typeOfLayout="enhanced_grid", x=3)`
+
 ## Folder hierarchy
 - Examples
   - example1.0.py

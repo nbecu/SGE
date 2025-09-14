@@ -223,30 +223,30 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
         self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
     
-    def createEGLMenu(self):
+    def createEnhancedGridLayoutMenu(self):
         """Create Enhanced Grid Layout submenu in Settings menu"""
         if self.typeOfLayout == "enhanced_grid":
-            self.eglMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
+            self.enhancedGridMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
             
             # Edit layoutOrders action
             editPIDsAction = QAction("&Edit GameSpace Order...", self)
             editPIDsAction.triggered.connect(self.openPIDTableDialog)
-            self.eglMenu.addAction(editPIDsAction)
+            self.enhancedGridMenu.addAction(editPIDsAction)
             
             # Rearrange action
             rearrangeAction = QAction("&Restore Grid Layout", self)
             rearrangeAction.triggered.connect(self.applyEnhancedGridLayout)
-            self.eglMenu.addAction(rearrangeAction)
+            self.enhancedGridMenu.addAction(rearrangeAction)
             
             # Separator
-            self.eglMenu.addSeparator()
+            self.enhancedGridMenu.addSeparator()
             
             # Toggle layoutOrder tooltips action
             self.pidTooltipAction = QAction("&Show GameSpace order tooltip", self)
             self.pidTooltipAction.setCheckable(True)
             self.pidTooltipAction.setChecked(False)
             self.pidTooltipAction.triggered.connect(self.togglePIDTooltips)
-            self.eglMenu.addAction(self.pidTooltipAction)
+            self.enhancedGridMenu.addAction(self.pidTooltipAction)
     
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
@@ -323,11 +323,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize tooltip menu with all entity definitions
         self.updateTooltipMenu()
         
-        # Initialize EGL menu if using enhanced_grid layout
-        self.createEGLMenu()
+        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
+        self.createEnhancedGridLayoutMenu()
         
-        # Reorganize EGL layoutOrders to eliminate gaps
-        self.reorganizeEGLPIDs()
+        # Reorganize Enhanced Grid Layout orders to eliminate gaps
+        self.reorganizeEnhancedGridLayoutOrders()
         
         
     
@@ -1459,10 +1459,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         if self.typeOfLayout == "enhanced_grid":
             for gameSpace in self.gameSpaces.values():
-                gameSpace._egl_pid_tooltip_enabled = checked
+                gameSpace._enhanced_grid_tooltip_enabled = checked
                 
     
-    def reorganizeEGLPIDs(self):
+    def reorganizeEnhancedGridLayoutOrders(self):
         """
         Reorganize layoutOrders to eliminate gaps while preserving order
         

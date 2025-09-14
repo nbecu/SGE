@@ -25,7 +25,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Track column widths for proper sizing
         self.column_widths = [0] * num_columns
         
-        # EGL layoutOrder system
+        # Enhanced Grid Layout system
         self.next_layoutOrder = 1  # Counter for auto-increment
         self.used_layoutOrders = set()  # Track used layoutOrders for validation
     
@@ -42,14 +42,14 @@ class SGEnhancedGridLayout(SGAbstractLayout):
             while self.next_layoutOrder in self.used_layoutOrders:
                 self.next_layoutOrder += 1
             gameSpace.layoutOrder = self.next_layoutOrder
-            gameSpace._egl_pid_manual = False
+            gameSpace._enhanced_grid_manual = False
         else:
             # Manual layoutOrder: find closest available if already used
             original_layoutOrder = layoutOrder
             while layoutOrder in self.used_layoutOrders:
                 layoutOrder += 1
             gameSpace.layoutOrder = layoutOrder
-            gameSpace._egl_pid_manual = True
+            gameSpace._enhanced_grid_manual = True
             
             # Inform user if layoutOrder was changed
             if layoutOrder != original_layoutOrder:
@@ -111,7 +111,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
             
             # Update layoutOrder
             gameSpace.layoutOrder = new_pid
-            gameSpace._egl_pid_manual = False  # Mark as auto-assigned
+            gameSpace._enhanced_grid_manual = False  # Mark as auto-assigned
             
             # Update tracking
             self.used_layoutOrders.add(new_pid)
@@ -132,8 +132,8 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         for column in self.widgets:
             for gs in column:
                 if not gs.isPositionDefineByModeler():
-                    if hasattr(gs, '_egl_calculated_position'):
-                        gs.move(gs._egl_calculated_position[0], gs._egl_calculated_position[1])
+                    if hasattr(gs, '_enhanced_grid_calculated_position'):
+                        gs.move(gs._enhanced_grid_calculated_position[0], gs._enhanced_grid_calculated_position[1])
         
     def addGameSpace(self, aGameSpace):
         """
@@ -251,11 +251,11 @@ class SGEnhancedGridLayout(SGAbstractLayout):
                     gs.setStartXBase(position[0])
                     gs.setStartYBase(position[1])
                     # Record the calculated position for later use
-                    gs._egl_calculated_position = position
+                    gs._enhanced_grid_calculated_position = position
     
     def reAllocateSpace(self):
         """
-        Re-allocate space for all gameSpaces using EGL logic
+        Re-allocate space for all gameSpaces using Enhanced Grid Layout logic
         
         This method is called by the parent class ordered() method
         """
@@ -331,14 +331,14 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         """
         Apply Enhanced Grid Layout to gameSpaces
         """
-        # Trigger the EGL cycle
+        # Trigger the Enhanced Grid Layout cycle
         self.rearrangeWithLayoutThenReleaseLayout()
         
         # Apply the calculated positions to gameSpaces
         for aGameSpace in (element for element in gameSpaces if not element.isPositionDefineByModeler()):
-            if hasattr(aGameSpace, '_egl_calculated_position'):
-                aGameSpace.move(aGameSpace._egl_calculated_position[0], 
-                              aGameSpace._egl_calculated_position[1])
+            if hasattr(aGameSpace, '_enhanced_grid_calculated_position'):
+                aGameSpace.move(aGameSpace._enhanced_grid_calculated_position[0], 
+                              aGameSpace._enhanced_grid_calculated_position[1])
             else:
                 # Fallback to standard positioning
                 aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
