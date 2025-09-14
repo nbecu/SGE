@@ -222,7 +222,6 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                     hasattr(self.model, 'layoutOfModel')):
                     self.layoutOrder = "manual_position"
                     self._egl_pid_manual = True
-                    print(f"Fixed position: {self.id} layoutOrder → manual_position")
             else:
                 raise ValueError('The y value is too high or negative')
         else:

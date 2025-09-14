@@ -53,15 +53,10 @@ class SGEnhancedGridLayout(SGAbstractLayout):
             
             # Inform user if layoutOrder was changed
             if layoutOrder != original_layoutOrder:
-                print(f"Warning: layoutOrder {original_layoutOrder} already used. Assigned layoutOrder {layoutOrder} instead.")
+                pass  # layoutOrder was automatically adjusted
         
         self.used_layoutOrders.add(gameSpace.layoutOrder)
         self.next_layoutOrder = max(self.next_layoutOrder, gameSpace.layoutOrder) + 1
-    
-    def removePID(self, gameSpace):
-        """Remove layoutOrder from tracking when gameSpace is removed"""
-        if gameSpace.layoutOrder is not None:
-            self.used_layoutOrders.discard(gameSpace.layoutOrder)
     
     def reorderByPID(self, model_gameSpaces=None):
         """Reorder gameSpaces according to their layoutOrder"""
@@ -83,10 +78,6 @@ class SGEnhancedGridLayout(SGAbstractLayout):
                 self.widgets[column_index].append(gameSpace)
         
         # Recalculate positions
-        print("layoutOrders after reorganization:")
-        for gs in self.GameSpaces:
-            print(f"  {gs.id}: layoutOrder = {gs.layoutOrder}")
-        print("rearrangeWithLayoutThenReleaseLayout in reorderByPID")
         self.rearrangeWithLayoutThenReleaseLayout()
     
     def reorganizePIDsSequentially(self):
@@ -124,8 +115,6 @@ class SGEnhancedGridLayout(SGAbstractLayout):
             
             # Update tracking
             self.used_layoutOrders.add(new_pid)
-            
-            print(f"Reorganized: {gameSpace.id} layoutOrder {old_pid} → {new_pid}")
         
         # Update next_layoutOrder counter
         self.next_layoutOrder = len(gameSpaces_with_pids) + 1
@@ -145,7 +134,6 @@ class SGEnhancedGridLayout(SGAbstractLayout):
                 if not gs.isPositionDefineByModeler():
                     if hasattr(gs, '_egl_calculated_position'):
                         gs.move(gs._egl_calculated_position[0], gs._egl_calculated_position[1])
-                        print(f"Applied position to {gs.id}: {gs._egl_calculated_position}")
         
     def addGameSpace(self, aGameSpace):
         """
@@ -264,7 +252,6 @@ class SGEnhancedGridLayout(SGAbstractLayout):
                     gs.setStartYBase(position[1])
                     # Record the calculated position for later use
                     gs._egl_calculated_position = position
-                    print(f"Calculated position for {gs.id}: {position}")
     
     def reAllocateSpace(self):
         """
@@ -345,7 +332,6 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         Apply Enhanced Grid Layout to gameSpaces
         """
         # Trigger the EGL cycle
-        print("rearrangeWithLayoutThenReleaseLayout in applyLayout")
         self.rearrangeWithLayoutThenReleaseLayout()
         
         # Apply the calculated positions to gameSpaces

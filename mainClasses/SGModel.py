@@ -1428,7 +1428,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         if self.typeOfLayout == "enhanced_grid":
             # Trigger the EGL cycle
-            print("rearrangeWithLayoutThenReleaseLayout in applyEnhancedGridLayout")
             self.layoutOfModel.rearrangeWithLayoutThenReleaseLayout()
             
             # Apply the calculated positions to gameSpaces
@@ -1471,9 +1470,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for better column distribution in the Enhanced Grid Layout.
         """
         if self.typeOfLayout == "enhanced_grid":
-            print("Reorganizing EGL layoutOrders to eliminate gaps...")
             self.layoutOfModel.reorganizePIDsSequentially()
-            print("EGL layoutOrder reorganization completed.")
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):
