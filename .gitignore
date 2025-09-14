@@ -100,3 +100,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
+
+# Specific cache directories in mainClasses
+mainClasses/*/__pycache__/
+mainClasses/*/*/__pycache__/
