@@ -152,8 +152,8 @@ class TestModelViewAlternatives(unittest.TestCase):
         """Test newAgentAtCoordsWithModelView method"""
         # Create an agent at specific coordinates
         agent_model, agent_view = self.agent_def.newAgentAtCoordsWithModelView(
-            xCoord=2, 
-            yCoord=3, 
+            x=2, 
+            y=3, 
             attributesAndValues={"health": 75, "energy": 45}
         )
         
@@ -190,8 +190,8 @@ class TestModelViewAlternatives(unittest.TestCase):
         # Create multiple agents at specific coordinates
         agents = self.agent_def.newAgentsAtCoordsWithModelView(
             2, 
-            xCoord=1, 
-            yCoord=2, 
+            x=1, 
+            y=2, 
             attributesAndValues={"health": 95, "energy": 65}
         )
         
@@ -288,7 +288,7 @@ class TestModelViewAlternatives(unittest.TestCase):
     def test_error_handling_invalid_coordinates(self):
         """Test error handling when coordinates are invalid"""
         # Try to create an agent at invalid coordinates
-        result = self.agent_def.newAgentAtCoordsWithModelView(xCoord=10, yCoord=10)
+        result = self.agent_def.newAgentAtCoordsWithModelView(x=10, y=10)
         
         # Should return None instead of crashing
         self.assertIsNone(result)

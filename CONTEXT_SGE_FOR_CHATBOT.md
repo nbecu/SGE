@@ -453,7 +453,7 @@ cellDef.displayTooltip('id')
 **Pattern recommandé** :
 ```python
 try:
-    self.move(self.xCoord, self.yCoord)
+    self.move(self.x, self.y)
 except RuntimeError:
     # Agent view has been deleted, ignore the error
     pass

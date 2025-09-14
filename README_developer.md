@@ -219,6 +219,37 @@ agent.moveTo(newCell)
 # Use the factory methods in SGEntityFactory
 ```
 
+### 5.6 Coordinate System
+
+**Important Convention**: SGE uses a 1-based coordinate system for grid cells.
+
+- **xCoord and yCoord start at 1** (not 0)
+- The top-left cell is therefore **(1,1)**, not (0,0)
+- **x corresponds to column number** (horizontal position)
+- **y corresponds to row number** (vertical position)
+- This applies to **all grids** in a model (since a model can have multiple grids)
+- This applies to all grid operations, agent placement, and cell references
+
+**Parameter vs Attribute Naming**:
+- **Method parameters**: Use `x` and `y` (e.g., `newAgentAtCoords(x=1, y=1)`)
+- **Instance attributes**: Use `xCoord` and `yCoord` (e.g., `cell.xCoord`, `cell.yCoord`)
+
+```python
+# Correct usage - Method parameters use x, y
+agent = agentDef.newAgentAtCoords(x=1, y=1)  # Top-left cell (column 1, row 1)
+cell = cellDef.getCell(x=5, y=3)            # Cell at column 5, row 3
+
+# Correct usage - Instance attributes use xCoord, yCoord
+print(f"Cell coordinates: {cell.getCoords()}")  # Returns (xCoord, yCoord)
+if cell.xCoord == 5 and cell.yCoord == 3:
+    print("This is the cell at column 5, row 3")
+
+# Incorrect usage (will cause errors)
+agent = agentDef.newAgentAtCoords(x=0, y=0)  # Invalid coordinates
+```
+
+This convention is consistent throughout SGE and must be respected in all coordinate-related operations across all grids in a model.
+
 ---
 
 ## 6. Type Identification Attributes

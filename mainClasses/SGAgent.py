@@ -195,7 +195,7 @@ class SGAgent(SGEntity):
     
     def getCoords(self):
         """Get agent coordinates"""
-        return (self.cell.xCoord, self.cell.yCoord)
+        return self.cell.getCoords()
     
     
     def getCell(self):

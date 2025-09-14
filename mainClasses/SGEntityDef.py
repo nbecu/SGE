@@ -1268,14 +1268,14 @@ class SGAgentDef(SGEntityDef):
             agents.append((agent_model, agent_view))
         return agents
 
-    def newAgentAtCoordsWithModelView_OLD(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None, image=None, popupImage=None):
+    def newAgentAtCoordsWithModelView_OLD(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None, image=None, popupImage=None):
         """
         Create a new Agent using Model-View architecture at specified coordinates.
 
         Args:
             cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
-            xCoord (int): Column position in grid (Default=Random)
-            yCoord (int): Row position in grid (Default=Random)
+            x (int): Column position in grid (Default=Random)
+            y (int): Row position in grid (Default=Random)
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
             image: Default image for the agent
             popupImage: Popup image for the agent
@@ -1289,16 +1289,16 @@ class SGAgentDef(SGEntityDef):
             tuple: (agent_model, agent_view) - The agent model and view pair
         """
         # Normalize arguments to support calls like newAgentAtCoordsWithModelView(3,3) or newAgentAtCoordsWithModelView((3,3))
-        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
-            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and x is None and y is None:
+            x, y = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
             cellDef_or_grid = None
-        elif isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
+        elif isinstance(cellDef_or_grid, int) and isinstance(x, int) and y is None:
             # Called as newAgentAtCoordsWithModelView(x, y, ...)
-            xCoord, yCoord = cellDef_or_grid, xCoord
+            x, y = cellDef_or_grid, x
             cellDef_or_grid = None
-        elif isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
+        elif isinstance(x, (tuple, list)) and len(x) == 2 and y is None:
             # Called as newAgentAtCoordsWithModelView(cellDef_or_grid, (x, y), ...)
-            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+            x, y = int(x[0]), int(x[1])
 
         # Normalize argument cellDef_or_grid to support calls like newAgentAtCoordsWithModelView(Cell,3,3) or newAgentAtCoordsWithModelView(3,3) or newAgentAtCoordsWithModelView(aGrid,3,3)
         if not cellDef_or_grid:
@@ -1309,25 +1309,25 @@ class SGAgentDef(SGEntityDef):
             return None
         aGrid = self.model.getGrid(aCellDef)
 
-        if xCoord == None: 
-            xCoord = random.randint(1, aGrid.columns)
-        if yCoord == None: 
-            yCoord = random.randint(1, aGrid.rows)
-        locationCell = aCellDef.getCell(xCoord, yCoord)
+        if x == None: 
+            x = random.randint(1, aGrid.columns)
+        if y == None: 
+            y = random.randint(1, aGrid.rows)
+        locationCell = aCellDef.getCell(x, y)
         if locationCell is None:
             return None
             
         return self.newAgentOnCellWithModelView(locationCell, attributesAndValues, image, popupImage)
 
-    def newAgentsAtCoordsWithModelView_OLD(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None): #todo this method is called only by test methods. Consider removing it.
+    def newAgentsAtCoordsWithModelView_OLD(self, nbAgents, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None): #todo this method is called only by test methods. Consider removing it.
         """
         Create a specific number of new Agents using Model-View architecture at specified coordinates.
 
         Args:
             nbAgents (int): number of Agents
             cellDef_or_grid (instance, optional): the cellDef or grid you want your agent in. If None, the first cellDef/grid is used
-            xCoord (int, optional): Column position in grid (1..columns)
-            yCoord (int, optional): Row position in grid (1..rows)
+            x (int, optional): Column position in grid (1..columns)
+            y (int, optional): Row position in grid (1..rows)
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
             
         Flexible calling patterns (backward compatible):
@@ -1344,24 +1344,24 @@ class SGAgentDef(SGEntityDef):
             list: List of tuples (agent_model, agent_view) for each created agent
         """
         # Normalize attributes dict as second positional arg
-        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None and xCoord is None and yCoord is None:
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None and x is None and y is None:
             attributesAndValues = cellDef_or_grid
             cellDef_or_grid = None
         # Normalize coordinate tuple passed as second arg
-        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
-            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and x is None and y is None:
+            x, y = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
             cellDef_or_grid = None
         # Normalize when called as newAgentsAtCoordsWithModelView(7, x, y, ...)
-        if isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
-            xCoord, yCoord = cellDef_or_grid, xCoord
+        if isinstance(cellDef_or_grid, int) and isinstance(x, int) and y is None:
+            x, y = cellDef_or_grid, x
             cellDef_or_grid = None
-        # Normalize when coordinates are provided as a tuple in xCoord
-        if isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
-            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+        # Normalize when coordinates are provided as a tuple in x
+        if isinstance(x, (tuple, list)) and len(x) == 2 and y is None:
+            x, y = int(x[0]), int(x[1])
         
         agents = []
         for n in range(nbAgents):
-            agent_model, agent_view = self.newAgentAtCoordsWithModelView(cellDef_or_grid, xCoord, yCoord, attributesAndValues)
+            agent_model, agent_view = self.newAgentAtCoordsWithModelView(cellDef_or_grid, x, y, attributesAndValues)
             if agent_model is not None:  # Only add if creation was successful
                 agents.append((agent_model, agent_view))
         return agents
@@ -1492,14 +1492,14 @@ class SGAgentDef(SGEntityDef):
         for n in range(nbAgents):
             self.newAgentOnCell(aCell, attributesAndValues)
     
-    def newAgentAtCoords(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None,image=None,popupImage=None):
+    def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None):
         """
         Create a new Agent in the associated species.
 
         Args:
             cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
-            ValueX (int) : Column position in grid (Default=Random)
-            ValueY (int) : Row position in grid (Default=Random)
+            x (int) : Column position in grid (Default=Random)
+            y (int) : Row position in grid (Default=Random)
         Flexible calling patterns (backward compatible):
             - newAgentAtCoords(x, y, ...)
             - newAgentAtCoords((x, y), ...)
@@ -1508,16 +1508,16 @@ class SGAgentDef(SGEntityDef):
             a agent
         """
         # Normalize arguments to support calls like newAgentAtCoords(3,3) or newAgentAtCoords((3,3))
-        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
-            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and x is None and y is None:
+            x, y = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
             cellDef_or_grid = None
-        elif isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
+        elif isinstance(cellDef_or_grid, int) and isinstance(x, int) and y is None:
             # Called as newAgentAtCoords(x, y, ...)
-            xCoord, yCoord = cellDef_or_grid, xCoord
+            x, y = cellDef_or_grid, x
             cellDef_or_grid = None
-        elif isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
+        elif isinstance(x, (tuple, list)) and len(x) == 2 and y is None:
             # Called as newAgentAtCoords(cellDef_or_grid, (x, y), ...)
-            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+            x, y = int(x[0]), int(x[1])
 
         # Normalize argument cellDef_or_grid to support calls like newAgentAtCoords(Cell,3,3) or newAgentAtCoords(3,3) or newAgentAtCoords(aGrid,3,3)
         if not cellDef_or_grid:
@@ -1528,20 +1528,20 @@ class SGAgentDef(SGEntityDef):
         aGrid = self.model.getGrid(aCellDef)
 
 
-        if xCoord == None: xCoord = random.randint(1, aGrid.columns)
-        if yCoord == None: yCoord = random.randint(1, aGrid.rows)
-        locationCell = aCellDef.getCell(xCoord, yCoord)
+        if x == None: x = random.randint(1, aGrid.columns)
+        if y == None: y = random.randint(1, aGrid.rows)
+        locationCell = aCellDef.getCell(x, y)
         return self.newAgentOnCell(locationCell, attributesAndValues,image,popupImage)
         
 
-    def newAgentAtCoords_OLD(self, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None, image=None, popupImage=None):
+    def newAgentAtCoords_OLD(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None, image=None, popupImage=None):
         """
         Create a new Agent using Model-View architecture at specified coordinates (standard method)
         
         Args:
             cellDef_or_grid (instance): the cellDef or grid you want your agent in. If None, the first cellDef and grid will be used
-            xCoord (int): Column position in grid (Default=Random)
-            yCoord (int): Row position in grid (Default=Random)
+            x (int): Column position in grid (Default=Random)
+            y (int): Row position in grid (Default=Random)
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
             image: Default image for the agent
             popupImage: Popup image for the agent
@@ -1555,7 +1555,7 @@ class SGAgentDef(SGEntityDef):
             agent_model: The agent model (for modelers)
         """
         # Utiliser la méthode Model-View
-        result = self.newAgentAtCoordsWithModelView(cellDef_or_grid, xCoord, yCoord, attributesAndValues, image, popupImage)
+        result = self.newAgentAtCoordsWithModelView(cellDef_or_grid, x, y, attributesAndValues, image, popupImage)
         
         if result is None:
             return None
@@ -1566,15 +1566,15 @@ class SGAgentDef(SGEntityDef):
         # Retourner seulement l'agent pour les modelers
         return agent_model
 
-    def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, xCoord=None, yCoord=None, attributesAndValues=None):
+    def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None):
         """
         Create a specific number of new Agents in the associated species.
 
         Args:
             nbAgents (int): number of Agents
             cellDef_or_grid (instance, optional): the cellDef or grid you want your agent in. If None, the first cellDef/grid is used
-            xCoord (int, optional): Column position in grid (1..columns)
-            yCoord (int, optional): Row position in grid (1..rows)
+            x (int, optional): Column position in grid (1..columns)
+            y (int, optional): Row position in grid (1..rows)
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
         Flexible calling patterns (backward compatible):
             - newAgentsAtCoords(7)
@@ -1589,23 +1589,23 @@ class SGAgentDef(SGEntityDef):
             agents
         """
         # Normalize attributes dict as second positional arg
-        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None and xCoord is None and yCoord is None:
+        if isinstance(cellDef_or_grid, dict) and attributesAndValues is None and x is None and y is None:
             attributesAndValues = cellDef_or_grid
             cellDef_or_grid = None
         # Normalize coordinate tuple passed as second arg
-        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and xCoord is None and yCoord is None:
-            xCoord, yCoord = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and x is None and y is None:
+            x, y = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
             cellDef_or_grid = None
         # Normalize when called as newAgentsAtCoords(7, x, y, ...)
-        if isinstance(cellDef_or_grid, int) and isinstance(xCoord, int) and yCoord is None:
-            xCoord, yCoord = cellDef_or_grid, xCoord
+        if isinstance(cellDef_or_grid, int) and isinstance(x, int) and y is None:
+            x, y = cellDef_or_grid, x
             cellDef_or_grid = None
-        # Normalize when coordinates are provided as a tuple in xCoord
-        if isinstance(xCoord, (tuple, list)) and len(xCoord) == 2 and yCoord is None:
-            xCoord, yCoord = int(xCoord[0]), int(xCoord[1])
+        # Normalize when coordinates are provided as a tuple in x
+        if isinstance(x, (tuple, list)) and len(x) == 2 and y is None:
+            x, y = int(x[0]), int(x[1])
         
         for n in range(nbAgents):
-            self.newAgentAtCoords(cellDef_or_grid, xCoord, yCoord, attributesAndValues)
+            self.newAgentAtCoords(cellDef_or_grid, x, y, attributesAndValues)
 
     def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):
         """
