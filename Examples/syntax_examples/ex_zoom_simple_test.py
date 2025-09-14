@@ -8,7 +8,7 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(400, 300, windowTitle="Test zoom - Simple grid")
 
 # Create a simple grid
-cellDef = myModel.newCellsOnGrid(3, 3, "square", name="TestGrid", size=30, gap=5)
+cellDef = myModel.newCellsOnGrid(3, 3, "square", name="TestGrid", size=30, gap=0)
 cellDef.setEntities("type", "normal")
 
 # Create a legend

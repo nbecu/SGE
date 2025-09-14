@@ -8,7 +8,7 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(600, 400, windowTitle="Test zoom hexagonal - Focus on hexagonal grid")
 
 # Create a hexagonal grid
-hexCell = myModel.newCellsOnGrid(4, 4, "hexagonal", name="HexGrid", size=30, gap=3)
+hexCell = myModel.newCellsOnGrid(4, 6, "hexagonal", name="HexGrid", size=30, gap=0)
 hexCell.setEntities("terrain", "grass")
 hexCell.setRandomEntities("terrain", "rock", 3)
 hexCell.setRandomEntities("terrain", "water", 2)

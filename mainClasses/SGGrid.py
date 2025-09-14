@@ -58,10 +58,10 @@ class SGGrid(SGGameSpace):
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
         elif (self.cellShape == "hexagonal"):
             #Note: The hexagonal grid is "Pointy-top hex grid with even-r offset".
-            # Width: columns * size + gaps + half hexagon for offset + frame margins
-            # Height: rows * (size * 0.75) + gaps + frame margins
-            new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + self.size / 2 + 2 * self.frameMargin)
-            new_height = int(self.rows * (self.size * 0.75) + (self.rows + 1) * self.gap + 2 * self.frameMargin)
+            # Width: columns * size + columns * gap + half hexagon for offset + frame margins
+            # Height: rows * (size * 0.75) + gap + frame margins
+            new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
+            new_height = int(self.rows * (self.size * 0.75) + self.gap + 2 * self.frameMargin)
             self.setMinimumSize(new_width, new_height)
         painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()
@@ -137,10 +137,10 @@ class SGGrid(SGGameSpace):
             new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + 1) + 2 * self.frameMargin
             new_height = int(self.rows * self.size + (self.rows + 1) * self.gap) + 1 + 2 * self.frameMargin
         elif self.cellShape == "hexagonal":
-            # Width: columns * size + gaps + half hexagon for offset + frame margins
-            # Height: rows * (size * 0.75) + gaps + frame margins
-            new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + self.size / 2 + 2 * self.frameMargin)
-            new_height = int(self.rows * (self.size * 0.75) + (self.rows + 1) * self.gap + 2 * self.frameMargin)
+            # Width: columns * size + columns * gap + half hexagon for offset + frame margins
+            # Height: rows * (size * 0.75) + gap + frame margins
+            new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
+            new_height = int(self.rows * (self.size * 0.75) + self.gap + 2 * self.frameMargin)
         
         self.setMinimumSize(new_width, new_height)
         
@@ -211,13 +211,13 @@ class SGGrid(SGGameSpace):
         if (self.cellShape == "square"):
             return int(self.columns*self.size+(self.columns+1)*self.gap+1)
         if (self.cellShape == "hexagonal"):
-            return int(self.columns*self.size+(self.columns+1)*self.gap+self.size/2)
+            return int(self.columns*self.size + self.columns*self.gap + self.size/2)
 
     def getSizeYGlobal(self):
         if (self.cellShape == "square"):
             return int(self.rows*self.size+(self.rows+1)*self.gap)
         if (self.cellShape == "hexagonal"):
-            return int(self.rows*(self.size*0.75)+(self.rows+1)*self.gap)
+            return int(self.rows*(self.size*0.75) + self.gap)
 
     # To get all the values possible for Legend
     def getValuesForLegend(self):

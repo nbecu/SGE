@@ -41,6 +41,7 @@ LandCell.grid.moveToCoords(20, 250)
 #     "hunger": ["full", "hungry", "starving"],
 #     "age": ["young", "adult", "old"]
 # })
+# Cows.newAgentsAtRandom(2, LandCell)
 # Cows.newAgentsAtRandom(5, LandCell, condition=lambda c: c.isValue("landForm", "plain"))
 
 # Fishes = myModel.newAgentSpecies("Fish", "ellipseAgent1", defaultSize=20, defaultColor=Qt.gray)
