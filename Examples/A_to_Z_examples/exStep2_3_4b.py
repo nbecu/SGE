@@ -19,11 +19,13 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 Legend=myModel.newLegend()
 
 # Set layoutOrder for the grid using the setLayoutOrder method
-Cell.grid.setLayoutOrder(3)  # Set grid as second in layout
-# Legend.setLayoutOrder(1)      # Set legend as first in layout
+Cell.grid.setLayoutOrder(2)  # Set grid as second in layout
+Legend.setLayoutOrder(1)      # Set legend as first in layout
 
-print(f"Grid layoutOrder set to: {Cell.grid.layoutOrder}")
-print(f"Legend layoutOrder set to: {Legend.layoutOrder}")
+# How layoutOrder translates to columns:
+# - layoutOrder 1 → Column 0 (leftmost)
+# - layoutOrder 2 → Column 1 (rightmost, with 2 columns total)
+# In case there would be a third gameSpace set at layoutOrder 3, it would be placed in Column 0, because the layoutOrder would be 3 % 2 = 1.
 
 myModel.launch() 
 

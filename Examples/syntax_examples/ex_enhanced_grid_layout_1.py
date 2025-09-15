@@ -23,8 +23,8 @@ def main():
     
     # Create model with enhanced_grid layout
     model = SGModel(
-        width=1200, 
-        height=800, 
+        width=700, 
+        height=500, 
         typeOfLayout="enhanced_grid",  # New EGL option
         x=2,  # Number of columns
         name="Enhanced Grid Layout Test Model",

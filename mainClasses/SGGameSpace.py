@@ -99,11 +99,6 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.area = float(self.width() * self.height())
         return self.area
 
-    # global positionning function
-    def globalPosition(self):
-        newPos = self.model.layoutOfModel.addGameSpace(self)
-        self.setStartXBase(newPos[0])
-        self.setStartYBase(newPos[1])
 
     def mousePressEvent(self, event):
         """

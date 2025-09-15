@@ -300,7 +300,7 @@ class SGLayoutOrderTableDialog(QDialog):
         gameSpaces_to_reorder = [gs for gs in self.model.gameSpaces.values() 
                                if not gs.isPositionDefineByModeler()]
         self.model.layoutOfModel.reorderByLayoutOrder(gameSpaces_to_reorder)
-        self.model.applyEnhancedGridLayout()
+        self.model.applyAutomaticLayout()
         
         super().accept()
         

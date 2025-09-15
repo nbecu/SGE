@@ -191,8 +191,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbologyMenu=None #init in case no menu is created
         self.createMenu()
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_contextMenu)
+        # todo Obsolete - to delete
+        # # self.setContextMenuPolicy(Qt.CustomContextMenu) 
+        # self.customContextMenuRequested.connect(self.show_contextMenu)
 
         self.nameOfPov = "default"
 
@@ -235,7 +236,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             
             # Rearrange action
             rearrangeAction = QAction("&Restore Grid Layout", self)
-            rearrangeAction.triggered.connect(self.applyEnhancedGridLayout)
+            rearrangeAction.triggered.connect(self.applyAutomaticLayout)
             self.enhancedGridMenu.addAction(rearrangeAction)
             
             # Separator
@@ -323,8 +324,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize tooltip menu with all entity definitions
         self.updateTooltipMenu()
         
-        # Reorganize Enhanced Grid Layout orders to eliminate gaps
+        # Reorganize Enhanced Grid Layout orders to eliminate gaps, then apply the layout
         self.reorganizeEnhancedGridLayoutOrders()
+        self.applyAutomaticLayout()
         
         # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
         self.createEnhancedGridLayoutMenu()
@@ -341,7 +343,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             possibleUsers = self.getUsers_withControlPanel()
             if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
             elif possibleUsers == [] : self.setCurrentPlayer('Admin')
-        if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
+
+        #todo Obsolete - to delete
+        #  if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
         
         # Position all agents after grid layout is applied and window is shown
         # Use QApplication.processEvents() to ensure layouts are processed before positioning
@@ -561,16 +565,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         e.accept()
 
     # Contextual Menu (opened on a right click)
-    def show_contextMenu(self, point):
-        menu = QMenu(self)
+    # def show_contextMenu(self, point): #todo Obsolete - to delete
+    #     menu = QMenu(self)
 
-        option1 = QAction("LayoutCheck", self)
-        option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
-                                        #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
-        menu.addAction(option1)
+    #     option1 = QAction("LayoutCheck", self)
+    #     option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
+    #                                     #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
+    #     menu.addAction(option1)
 
-        if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
+    #     if self.rect().contains(point):
+    #         menu.exec_(self.mapToGlobal(point))
 
     # Handle window title
     def updateWindowTitle(self):
@@ -631,9 +635,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.gameSpaces[name] = aGrid
 
-        # Realocation of the position thanks to the layout
-        aGrid.globalPosition()
-        self.applyAutomaticLayout()
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aGrid)
         
         return aCellDef
     
@@ -718,9 +721,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         selectedSymbologies=self.getAllCheckedSymbologies()
         aLegend = SGLegend(self).initialize(self, name, selectedSymbologies, alwaysDisplayDefaultAgentSymbology)
         self.gameSpaces[name] = aLegend
-        # Realocation of the position thanks to the layout
-        aLegend.globalPosition()
-        self.applyAutomaticLayout()
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aLegend)
+
         return aLegend
     
     def newUserSelector(self, customListOfUsers=None, orientation='horizontal'):
@@ -737,9 +741,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # userSelector = SGUserSelector(self, self.getUsers_withControlPanel())
             self.userSelector = userSelector
             self.gameSpaces["userSelector"] = userSelector
-            # Realocation of the position thanks to the layout
-            userSelector.globalPosition()
-            self.applyAutomaticLayout()
+
+            # add the gamespace to the layout
+            self.layoutOfModel.addGameSpace(userSelector)
+           
             return userSelector
         else:
             print(  f"The userSelector was not created because: \n"
@@ -755,7 +760,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         Args:
             name (str) : the species name
-            shape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
+            shape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent")
             dictAttributes (dict) : all the species attributs with all the values
             defaultSize (int) : the species shape size (Default=10)
             locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random 
@@ -765,7 +770,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             a species
 
         """
-        if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"]:
+        if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent"]:
             raise ValueError(f"Invalid shape: {shape}")
         aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
         self.agentSpecies[name]=aAgentSpecies
@@ -1032,9 +1037,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self, title, backgroundColor, borderColor, textColor)
         self.myTimeLabel = aTimeLabel
         self.gameSpaces[title] = aTimeLabel
-        # Realocation of the position thanks to the layout
-        aTimeLabel.globalPosition()
-        self.applyAutomaticLayout()
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aTimeLabel)
 
         return aTimeLabel
 
@@ -1072,9 +1077,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aTextBox = SGTextBox(self, textToWrite, title, sizeX, sizeY, borderColor, backgroundColor)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
-        # Realocation of the position thanks to the layout
-        aTextBox.globalPosition()
-        self.applyAutomaticLayout()
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aTextBox)
 
         return aTextBox
     
@@ -1274,9 +1279,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aDashBoard = SGDashBoard(
             self, title, borderColor, borderSize, backgroundColor, textColor, layout)
         self.gameSpaces[aDashBoard.id] = aDashBoard
-        # Realocation of the position thanks to the layout
-        aDashBoard.globalPosition()
-        self.applyAutomaticLayout()
+        
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aDashBoard)
 
         return aDashBoard
 
@@ -1291,9 +1296,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aEndGameRule = SGEndGameRule(self, title, numberRequired)
         self.gameSpaces[title] = aEndGameRule
         self.endGameRule = aEndGameRule
-        # Realocation of the position thanks to the layout
-        aEndGameRule.globalPosition()
-        self.applyAutomaticLayout()
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aEndGameRule)
 
         return aEndGameRule
 
@@ -1387,9 +1392,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Register the gauge in the model
         self.gameSpaces[title] = aProgressGauge
 
-        # Position and layout adjustments
-        aProgressGauge.globalPosition()
-        self.applyAutomaticLayout()
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aProgressGauge)
 
         # Initial refresh
         aProgressGauge.checkAndUpdate()
@@ -1413,7 +1417,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layoutOfModel.applyLayout(self.gameSpaces.values())
                 
     
-    def applyEnhancedGridLayout(self):
+    def applyEnhancedGridLayout(self): #todo Obsolete - to delete
         """
         Apply Enhanced Grid Layout (EGL) to all gameSpaces
         
@@ -1474,16 +1478,23 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             return True
         return False
     
-    def adjustGamespacesPosition(self):
+    def adjustGamespacesPosition(self): #todo Obsolete - to delete
+        raise NotImplementedError("This method is obsolete and should not be used")
+        print("DEBUG adjustGamespacesPosition: Starting position adjustment")
         for name,aGameSpace in self.gameSpaces.items():
+            print(f"DEBUG adjustGamespacesPosition: Checking {name} at ({aGameSpace.x()}, {aGameSpace.y()})")
             for otherName,otherElement in self.gameSpaces.items():
                 while self.checkLayoutIntersection(name,aGameSpace,otherName,otherElement):
+                    print(f"DEBUG adjustGamespacesPosition: Intersection detected between {name} and {otherName}")
                     if aGameSpace.areaCalc() <= otherElement.areaCalc():
                         local_pos=aGameSpace.pos()
+                        print(f"DEBUG adjustGamespacesPosition: Moving {name} from ({local_pos.x()}, {local_pos.y()}) to ({local_pos.x()+10}, {local_pos.y()+10})")
                         aGameSpace.move(local_pos.x()+10,local_pos.y()+10) #todo Ce code créé un décalage vertical meme lorsque qu'il n'y a pas de superposition
                     else:
                         local_pos=otherElement.pos()
+                        print(f"DEBUG adjustGamespacesPosition: Moving {otherName} from ({local_pos.x()}, {local_pos.y()}) to ({local_pos.x()+10}, {local_pos.y()+10})")
                         otherElement.move(local_pos.x()+10,local_pos.y()+10)
+        print("DEBUG adjustGamespacesPosition: Position adjustment complete")
 
     # ------
 # Pov

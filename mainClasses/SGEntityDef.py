@@ -1080,6 +1080,21 @@ class SGCellDef(SGEntityDef):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)
         return ent
 
+    def setLayoutOrder(self, order):
+        """
+        Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.
+        
+        Args:
+            order (int or str): The layout order value. Use None for auto-assignment.
+                               Use "manual_position" for manually positioned gameSpaces.
+        
+        Example:
+            grid.setLayoutOrder(1)  # Set grid as first in layout
+            legend.setLayoutOrder(3)  # Set legend as third in layout
+            dashboard.setLayoutOrder(None)  # Reset to auto-assignment
+        """
+        self.grid.setLayoutOrder(order)
+
     # ============================================================================
     # GET METHODS
     # ============================================================================
@@ -1198,7 +1213,7 @@ class SGCellDef(SGEntityDef):
         aCell.update()
 
 
-        
+    
 
 # ********************************************************    
 
