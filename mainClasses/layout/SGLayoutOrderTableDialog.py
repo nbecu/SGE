@@ -121,11 +121,11 @@ class SGLayoutOrderTableDialog(QDialog):
     def updateColumnPreview(self):
         """Update the table to show column preview"""
         for row in range(self.table.rowCount()):
-            pid_item = self.table.item(row, 3)  # layoutOrder is now column 3
-            if pid_item and pid_item.text().strip():
+            layoutOrder_item = self.table.item(row, 3)  # layoutOrder is now column 3
+            if layoutOrder_item and layoutOrder_item.text().strip():
                 try:
-                    pid = int(pid_item.text())
-                    column = (pid - 1) % self.model.layoutOfModel.num_columns
+                    layoutOrder = int(layoutOrder_item.text())
+                    column = (layoutOrder - 1) % self.model.layoutOfModel.num_columns
                     
                     # Update the column number column (column 0)
                     col_item = self.table.item(row, 0)
@@ -139,7 +139,7 @@ class SGLayoutOrderTableDialog(QDialog):
                 if col_item:
                     col_item.setText("")
         
-    def onPIDChanged(self, item):
+    def onLayoutOrderChanged(self, item):
         """Handle layoutOrder changes in the table"""
         if item.column() == 3:  # layoutOrder column is now column 3
             self.updateColumnPreview()
@@ -182,78 +182,78 @@ class SGLayoutOrderTableDialog(QDialog):
             self.table.setItem(row, 2, name_item)
             
             # layoutOrder (editable) - Column 3
-            pid_display = ""
+            layoutOrder_display = ""
             if gameSpace.layoutOrder == "manual_position":
-                pid_display = "Fixed Position"
+                layoutOrder_display = "Fixed Position"
             elif gameSpace.layoutOrder is not None:
-                pid_display = str(gameSpace.layoutOrder)
+                layoutOrder_display = str(gameSpace.layoutOrder)
             
-            pid_item = QTableWidgetItem(pid_display)
-            pid_item.setTextAlignment(Qt.AlignCenter)
+            layoutOrder_item = QTableWidgetItem(layoutOrder_display)
+            layoutOrder_item.setTextAlignment(Qt.AlignCenter)
             if gameSpace.layoutOrder == "manual_position":
-                pid_item.setFlags(pid_item.flags() & ~Qt.ItemIsEditable)
-                pid_item.setBackground(QColor(240, 240, 240))
-            self.table.setItem(row, 3, pid_item)
+                layoutOrder_item.setFlags(layoutOrder_item.flags() & ~Qt.ItemIsEditable)
+                layoutOrder_item.setBackground(QColor(240, 240, 240))
+            self.table.setItem(row, 3, layoutOrder_item)
             
             # Store original layoutOrder for cancel functionality
             self.original_layoutOrders[gameSpace.id] = gameSpace.layoutOrder
             
             # Connect layoutOrder changes to update column preview (only once)
             if row == 0:  # Only connect once
-                self.table.itemChanged.connect(self.onPIDChanged)
+                self.table.itemChanged.connect(self.onLayoutOrderChanged)
             
-    def getPIDChanges(self):
+    def getLayoutOrderChanges(self):
         """Get the layoutOrder changes made in the table"""
         changes = {}
         
         for row in range(self.table.rowCount()):
             name_item = self.table.item(row, 2)  # Name is now column 2
-            pid_item = self.table.item(row, 3)    # layoutOrder is now column 3
+            layoutOrder_item = self.table.item(row, 3)    # layoutOrder is now column 3
             
-            if name_item and pid_item:
+            if name_item and layoutOrder_item:
                 name = name_item.text()
                 try:
-                    new_pid = int(pid_item.text()) if pid_item.text().strip() else None
-                    original_pid = self.original_layoutOrders.get(name)
+                    new_layoutOrder = int(layoutOrder_item.text()) if layoutOrder_item.text().strip() else None
+                    original_layoutOrder = self.original_layoutOrders.get(name)
                     
-                    if new_pid != original_pid:
-                        changes[name] = new_pid
+                    if new_layoutOrder != original_layoutOrder:
+                        changes[name] = new_layoutOrder
                 except ValueError:
                     # Invalid layoutOrder, will be handled by validation
                     pass
                     
         return changes
         
-    def validatePIDChanges(self, changes):
+    def validateLayoutOrderChanges(self, changes):
         """
         Validate all layoutOrder changes together to detect conflicts
         
         Args:
-            changes: dict of {name: new_pid}
+            changes: dict of {name: new_layoutOrder}
             
         Returns:
             tuple: (is_valid, error_message)
         """
         # Collect all new layoutOrders
-        new_pids = []
-        for name, new_pid in changes.items():
-            if new_pid is not None:
-                new_pids.append(new_pid)
+        new_layoutOrders = []
+        for name, new_layoutOrder in changes.items():
+            if new_layoutOrder is not None:
+                new_layoutOrders.append(new_layoutOrder)
         
         # Check for duplicates
-        if len(new_pids) != len(set(new_pids)):
+        if len(new_layoutOrders) != len(set(new_layoutOrders)):
             return False, "Duplicate layoutOrders detected. Please ensure all layoutOrders are unique."
         
         # Check for conflicts with existing layoutOrders (excluding the ones being changed)
-        existing_pids = set()
+        existing_layoutOrders = set()
         for gs in self.model.gameSpaces.values():
             if not gs.isPositionDefineByModeler():
                 if gs.id not in changes:  # Not being modified
                     if gs.layoutOrder is not None:
-                        existing_pids.add(gs.layoutOrder)
+                        existing_layoutOrders.add(gs.layoutOrder)
         
         # Check if any new layoutOrder conflicts with existing ones
-        conflicts = set(new_pids) & existing_pids
+        conflicts = set(new_layoutOrders) & existing_layoutOrders
         if conflicts:
             return False, f"layoutOrders {sorted(conflicts)} are already in use by other gameSpaces."
         
@@ -261,16 +261,16 @@ class SGLayoutOrderTableDialog(QDialog):
     
     def accept(self):
         """Apply changes and close dialog"""
-        changes = self.getPIDChanges()
+        changes = self.getLayoutOrderChanges()
         
         # Validate all changes together
-        is_valid, error_message = self.validatePIDChanges(changes)
+        is_valid, error_message = self.validateLayoutOrderChanges(changes)
         if not is_valid:
             QMessageBox.warning(self, "Invalid layoutOrders", error_message)
             return
         
         # Apply changes to gameSpaces (now safe to apply)
-        for name, new_pid in changes.items():
+        for name, new_layoutOrder in changes.items():
             # Find gameSpace by id (which is the name in the table)
             gameSpace = None
             for gs in self.model.gameSpaces.values():
@@ -279,27 +279,27 @@ class SGLayoutOrderTableDialog(QDialog):
                     break
             
             if gameSpace:
-                if new_pid is not None:
+                if new_layoutOrder is not None:
                     # Direct assignment without conflict checking (already validated)
-                    old_pid = gameSpace.layoutOrder
-                    gameSpace.layoutOrder = new_pid
-                    gameSpace._egl_pid_manual = True
+                    old_layoutOrder = gameSpace.layoutOrder
+                    gameSpace.layoutOrder = new_layoutOrder
+                    gameSpace._enhanced_grid_manual = True
                     
                     # Update tracking in layout
-                    if old_pid is not None:
-                        self.model.layoutOfModel.used_layoutOrders.discard(old_pid)
-                    self.model.layoutOfModel.used_layoutOrders.add(new_pid)
+                    if old_layoutOrder is not None:
+                        self.model.layoutOfModel.used_layoutOrders.discard(old_layoutOrder)
+                    self.model.layoutOfModel.used_layoutOrders.add(new_layoutOrder)
                 else:
                     # Reset to auto-assignment
                     if gameSpace.layoutOrder is not None:
                         self.model.layoutOfModel.used_layoutOrders.discard(gameSpace.layoutOrder)
                     gameSpace.layoutOrder = None
-                    gameSpace._egl_pid_manual = False
+                    gameSpace._enhanced_grid_manual = False
                 
         # Reorder EGL layout
         gameSpaces_to_reorder = [gs for gs in self.model.gameSpaces.values() 
                                if not gs.isPositionDefineByModeler()]
-        self.model.layoutOfModel.reorderByPID(gameSpaces_to_reorder)
+        self.model.layoutOfModel.reorderByLayoutOrder(gameSpaces_to_reorder)
         self.model.applyEnhancedGridLayout()
         
         super().accept()

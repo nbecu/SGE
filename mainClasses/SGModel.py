@@ -75,7 +75,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="grid", x=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
+    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", x=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
         """
         Declaration of a new model
 
@@ -229,9 +229,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.enhancedGridMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
             
             # Edit layoutOrders action
-            editPIDsAction = QAction("&Edit GameSpace Order...", self)
-            editPIDsAction.triggered.connect(self.openPIDTableDialog)
-            self.enhancedGridMenu.addAction(editPIDsAction)
+            editLayoutOrderAction = QAction("&Edit GameSpace Order...", self)
+            editLayoutOrderAction.triggered.connect(self.openLayoutOrderTableDialog)
+            self.enhancedGridMenu.addAction(editLayoutOrderAction)
             
             # Rearrange action
             rearrangeAction = QAction("&Restore Grid Layout", self)
@@ -242,11 +242,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.enhancedGridMenu.addSeparator()
             
             # Toggle layoutOrder tooltips action
-            self.pidTooltipAction = QAction("&Show GameSpace order tooltip", self)
-            self.pidTooltipAction.setCheckable(True)
-            self.pidTooltipAction.setChecked(False)
-            self.pidTooltipAction.triggered.connect(self.togglePIDTooltips)
-            self.enhancedGridMenu.addAction(self.pidTooltipAction)
+            self.layoutOrderTooltipAction = QAction("&Show GameSpace order tooltip", self)
+            self.layoutOrderTooltipAction.setCheckable(True)
+            self.layoutOrderTooltipAction.setChecked(False)
+            self.layoutOrderTooltipAction.triggered.connect(self.toggleLayoutOrderTooltips)
+            self.enhancedGridMenu.addAction(self.layoutOrderTooltipAction)
     
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
@@ -323,14 +323,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize tooltip menu with all entity definitions
         self.updateTooltipMenu()
         
-        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
-        self.createEnhancedGridLayoutMenu()
-        
         # Reorganize Enhanced Grid Layout orders to eliminate gaps
         self.reorganizeEnhancedGridLayoutOrders()
         
-        
-    
+        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
+        self.createEnhancedGridLayoutMenu()
         
         # Show admin control panel if needed
         if self.shouldDisplayAdminControlPanel:
@@ -1411,7 +1408,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return gameSpaces
     
     # To apply the layout to all the current game spaces
-    def applyAutomaticLayout(self): #todo basculer ce code dans les classes de layout
+    def applyAutomaticLayout(self): 
         # Polymorphisme à l'exécution - chaque layout gère sa propre logique
         self.layoutOfModel.applyLayout(self.gameSpaces.values())
                 
@@ -1441,7 +1438,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                         # Fallback to standard positioning
                         aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
     
-    def openPIDTableDialog(self):
+    def openLayoutOrderTableDialog(self):
         """
         Open the layoutOrder management dialog
         """
@@ -1450,7 +1447,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             dialog = SGLayoutOrderTableDialog(self)
             dialog.exec_()
     
-    def togglePIDTooltips(self, checked):
+    def toggleLayoutOrderTooltips(self, checked):
         """
         Toggle layoutOrder tooltips for all gameSpaces
         
@@ -1470,7 +1467,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for better column distribution in the Enhanced Grid Layout.
         """
         if self.typeOfLayout == "enhanced_grid":
-            self.layoutOfModel.reorganizePIDsSequentially()
+            self.layoutOfModel.reorganizeLayoutOrdersSequentially()
     
     def checkLayoutIntersection(self,name,element,otherName,otherElement):
         if name!=otherName and (element.geometry().intersects(otherElement.geometry()) or element.geometry().contains(otherElement.geometry())):

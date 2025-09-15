@@ -308,6 +308,43 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.size_manager.set_right_margin(margin)
     
+    def setLayoutOrder(self, order):
+        """
+        Set the layoutOrder for this gameSpace in Enhanced Grid Layout.
+        
+        Args:
+            order (int or str): The layout order value. Use None for auto-assignment.
+                               Use "manual_position" for manually positioned gameSpaces.
+        
+        Example:
+            grid.setLayoutOrder(1)  # Set grid as first in layout
+            legend.setLayoutOrder(3)  # Set legend as third in layout
+            dashboard.setLayoutOrder(None)  # Reset to auto-assignment
+        """
+        if order is None:
+            # Reset to auto-assignment
+            self.layoutOrder = None
+            self._enhanced_grid_manual = False
+        elif order == "manual_position":
+            # Mark as manually positioned
+            self.layoutOrder = "manual_position"
+            self._enhanced_grid_manual = True
+        else:
+            # Set specific layoutOrder
+            self.layoutOrder = order
+            self._enhanced_grid_manual = True
+            
+            # Update the layout's tracking if we have a model
+            if hasattr(self, 'model') and self.model and hasattr(self.model, 'layoutOfModel'):
+                if hasattr(self.model.layoutOfModel, 'used_layoutOrders'):
+                    self.model.layoutOfModel.used_layoutOrders.add(order)
+                    # Update next_layoutOrder counter
+                    if hasattr(self.model.layoutOfModel, 'next_layoutOrder'):
+                        self.model.layoutOfModel.next_layoutOrder = max(
+                            self.model.layoutOfModel.next_layoutOrder, 
+                            order + 1
+                        )
+
     def setSizeManagerVerticalGap(self, gap):
         """
         Set vertical spacing of size_manager.

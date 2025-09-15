@@ -29,7 +29,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         self.next_layoutOrder = 1  # Counter for auto-increment
         self.used_layoutOrders = set()  # Track used layoutOrders for validation
     
-    def assignPID(self, gameSpace, layoutOrder=None):
+    def assignLayoutOrder(self, gameSpace, layoutOrder=None):
         """
         Assign a layoutOrder to a gameSpace
         
@@ -58,7 +58,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         self.used_layoutOrders.add(gameSpace.layoutOrder)
         self.next_layoutOrder = max(self.next_layoutOrder, gameSpace.layoutOrder) + 1
     
-    def reorderByPID(self, model_gameSpaces=None):
+    def reorderByLayoutOrder(self, model_gameSpaces=None):
         """Reorder gameSpaces according to their layoutOrder"""
         # Clear all columns
         for column in self.widgets:
@@ -80,7 +80,7 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         # Recalculate positions
         self.rearrangeWithLayoutThenReleaseLayout()
     
-    def reorganizePIDsSequentially(self):
+    def reorganizeLayoutOrdersSequentially(self):
         """
         Reorganize layoutOrders to eliminate gaps while preserving order
         
@@ -90,37 +90,37 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         Example: (1, 3, 4, 9) becomes (1, 2, 3, 4)
         """
         # Get all gameSpaces with numeric layoutOrders (exclude manual_position and positioned by modeler)
-        gameSpaces_with_pids = []
+        gameSpaces_with_layout_orders = []
         for gs in self.GameSpaces:
             if isinstance(gs.layoutOrder, int) and not gs.isPositionDefineByModeler():
-                gameSpaces_with_pids.append(gs)
+                gameSpaces_with_layout_orders.append(gs)
         
-        if not gameSpaces_with_pids:
+        if not gameSpaces_with_layout_orders:
             return
         
         # Sort by current layoutOrder to preserve order
-        gameSpaces_with_pids.sort(key=lambda gs: gs.layoutOrder)
+        gameSpaces_with_layout_orders.sort(key=lambda gs: gs.layoutOrder)
         
         # Clear used_layoutOrders tracking
         self.used_layoutOrders.clear()
         
         # Reassign sequential layoutOrders starting from 1
-        for i, gameSpace in enumerate(gameSpaces_with_pids):
-            new_pid = i + 1
-            old_pid = gameSpace.layoutOrder
+        for i, gameSpace in enumerate(gameSpaces_with_layout_orders):
+            new_layout_order = i + 1
+            old_layout_order = gameSpace.layoutOrder
             
             # Update layoutOrder
-            gameSpace.layoutOrder = new_pid
+            gameSpace.layoutOrder = new_layout_order
             gameSpace._enhanced_grid_manual = False  # Mark as auto-assigned
             
             # Update tracking
-            self.used_layoutOrders.add(new_pid)
+            self.used_layoutOrders.add(new_layout_order)
         
         # Update next_layoutOrder counter
-        self.next_layoutOrder = len(gameSpaces_with_pids) + 1
+        self.next_layoutOrder = len(gameSpaces_with_layout_orders) + 1
         
         # Reorganize columns based on new layoutOrders
-        self.reorderByPID()
+        self.reorderByLayoutOrder()
         
         # Apply the new positions immediately
         self.applyCalculatedPositions()
@@ -152,13 +152,13 @@ class SGEnhancedGridLayout(SGAbstractLayout):
         if aGameSpace.isPositionDefineByModeler():
             # Set special layoutOrder for fixed position
             aGameSpace.layoutOrder = "manual_position"
-            aGameSpace._egl_pid_manual = True
+            aGameSpace._enhanced_grid_manual = True
             # Don't add to EGL columns - it's positioned manually
             return (aGameSpace.startXBase, aGameSpace.startYBase)
         
-        # Assign layoutOrder if not already assigned (only for EGL-managed gameSpaces)
+        # Assign layoutOrder if not already assigned (only for Enhanced Grid Layout-managed gameSpaces)
         if aGameSpace.layoutOrder is None:
-            self.assignPID(aGameSpace)
+            self.assignLayoutOrder(aGameSpace)
         
         # Calculate which column this gameSpace should go to based on layoutOrder
         column_index = (aGameSpace.layoutOrder - 1) % self.num_columns
