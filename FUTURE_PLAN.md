@@ -14,8 +14,11 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Migrate to PyQt6
 
 ### User Interface & Display
-- [ ] Correct the zoom
+- [ ] Correct the zoom model menu 
 - [ ] Main window auto resize
+- [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
+- [ ] Integrate in the Enhanced Grid layout menu the possibility to export the settings (layoutOrders and/or absolute position)
+- [ ] create a "Theme system" to apply ready-to-use sgAspect to all gameSpaces
 
 ### POV System & Visual Elements
 - [ ] Create a POV system to manage groups of symbologies
