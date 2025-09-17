@@ -240,12 +240,12 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.setTitlesColor(textColor)
         self.setTextsColor(textColor)
 
-    # Application de textColor à chaque titre
+    # Apply textColor to each title
     def setTitlesColor(self, textColor):
         for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect]:
             aspect.color = textColor  
 
-    # Application de textColor à chaque texte
+    # Apply textColor to each text
     def setTextsColor(self, textColor):
         for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.color = textColor 

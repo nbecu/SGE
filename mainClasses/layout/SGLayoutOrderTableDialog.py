@@ -390,29 +390,6 @@ class SGLayoutOrderTableDialog(QDialog):
         else:  # layoutOrder
             return "Layout Order"
     
-    def _isManuallyRepositioned(self, gameSpace):
-        """
-        Check if a gameSpace was manually moved after layoutOrder assignment.
-        
-        Args:
-            gameSpace: The gameSpace to check
-            
-        Returns:
-            bool: True if manually repositioned, False otherwise
-        """
-        if not hasattr(gameSpace, '_enhanced_grid_calculated_position'):
-            return False
-        
-        try:
-            current_pos = (gameSpace.x(), gameSpace.y())
-            calculated_pos = gameSpace._enhanced_grid_calculated_position
-            
-            # Tolerance for minor positioning differences
-            tolerance = 5
-            return (abs(current_pos[0] - calculated_pos[0]) > tolerance or 
-                    abs(current_pos[1] - calculated_pos[1]) > tolerance)
-        except:
-            return False
     
     def _createActionsWidget(self, gameSpace, row):
         """

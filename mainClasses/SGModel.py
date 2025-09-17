@@ -1425,31 +1425,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layoutOfModel.applyLayout(self.gameSpaces.values())
                 
     
-    def applyEnhancedGridLayout(self): #todo Obsolete - to delete
-        """
-        Apply Enhanced Grid Layout (EGL) to all gameSpaces
-        
-        This method implements the complete EGL cycle:
-        1. Organize gameSpaces in structured layout
-        2. Record calculated positions
-        3. Release the structured layout
-        4. Allow free positioning while maintaining organization capability
-        """
-        if self.typeOfLayout == "enhanced_grid":
-            # Trigger the EGL cycle
-            self.layoutOfModel.rearrangeWithLayoutThenReleaseLayout()
-            
-            # Apply the calculated positions to gameSpaces
-            for aGameSpace in self.gameSpaces.values():
-                if not aGameSpace.isPositionDefineByModeler():
-                    # Only move gameSpaces without explicit modeler positioning
-                    if hasattr(aGameSpace, '_egl_calculated_position'):
-                        aGameSpace.move(aGameSpace._egl_calculated_position[0], 
-                                      aGameSpace._egl_calculated_position[1])
-                    else:
-                        # Fallback to standard positioning
-                        aGameSpace.move(aGameSpace.startXBase, aGameSpace.startYBase)
-    
     def openLayoutOrderTableDialog(self):
         """
         Open the layoutOrder management dialog
