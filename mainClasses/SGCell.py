@@ -624,7 +624,7 @@ class SGCell(SGEntity):
         nameOfSpecie = normalize_species_name(nameOfSpecie)
         return self.nbAgents(nameOfSpecie) > 0
 
-    def isEmpty(self, nameOfSpecie=None):
+    def isEmpty(self, specie=None):
         """
         Check if this cell is empty of agents of a specific species.
         
@@ -635,7 +635,7 @@ class SGCell(SGEntity):
         Returns:
             bool: True if the cell is empty of the specified species, False otherwise
         """
-        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        nameOfSpecie = normalize_species_name(specie)
         return not self.hasAgents(nameOfSpecie)
 
     

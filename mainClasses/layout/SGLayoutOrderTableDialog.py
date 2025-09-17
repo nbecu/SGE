@@ -15,6 +15,10 @@ class SGLayoutOrderTableDialog(QDialog):
         super().__init__(parent)
         self.model = model
         self.original_layoutOrders = {}  # Store original layoutOrders for cancel functionality
+        
+        # OPTIMIZATION: Create cache of gameSpaces for O(1) lookup
+        self.gameSpaces_cache = {gs.id: gs for gs in self.model.gameSpaces.values()}
+        
         self.setupUI()
         self.populateTable()
         
@@ -114,7 +118,8 @@ class SGLayoutOrderTableDialog(QDialog):
         self.model.layoutOfModel.column_widths = [0] * new_count
         
         # Redistribute gameSpaces based on their layoutOrder
-        for gs in self.model.gameSpaces.values():
+        # OPTIMIZATION: Use cache instead of repeated access
+        for gs in self.gameSpaces_cache.values():
             if not gs.isPositionDefineByModeler() and gs.layoutOrder is not None:
                 column_index = (gs.layoutOrder - 1) % new_count
                 self.model.layoutOfModel.widgets[column_index].append(gs)
@@ -160,7 +165,8 @@ class SGLayoutOrderTableDialog(QDialog):
             return
             
         # Get all gameSpaces (including those positioned by modeler)
-        gameSpaces = list(self.model.gameSpaces.values())
+        # OPTIMIZATION: Use cache instead of repeated access
+        gameSpaces = list(self.gameSpaces_cache.values())
         
         self.table.setRowCount(len(gameSpaces))
         
@@ -290,8 +296,9 @@ class SGLayoutOrderTableDialog(QDialog):
             return False, "Duplicate layoutOrders detected. Please ensure all layoutOrders are unique."
         
         # Check for conflicts with existing layoutOrders (excluding the ones being changed)
+        # OPTIMIZATION: Collect existing layoutOrders in one pass using cache
         existing_layoutOrders = set()
-        for gs in self.model.gameSpaces.values():
+        for gs in self.gameSpaces_cache.values():
             if not gs.isPositionDefineByModeler():
                 if gs.id not in changes:  # Not being modified
                     if gs.layoutOrder is not None:
@@ -316,12 +323,8 @@ class SGLayoutOrderTableDialog(QDialog):
         
         # Apply changes to gameSpaces (now safe to apply)
         for name, new_layoutOrder in changes.items():
-            # Find gameSpace by id (which is the name in the table)
-            gameSpace = None
-            for gs in self.model.gameSpaces.values():
-                if gs.id == name:
-                    gameSpace = gs
-                    break
+            # OPTIMIZATION: Use cache for O(1) lookup instead of O(n) linear search
+            gameSpace = self.gameSpaces_cache.get(name)
             
             if gameSpace:
                 if new_layoutOrder is not None:
@@ -345,7 +348,8 @@ class SGLayoutOrderTableDialog(QDialog):
                     gameSpace.is_layout_repositioned = False
         
         # Ensure all gameSpaces that were switched to Absolute mode are properly persisted
-        for gameSpace in self.model.gameSpaces.values():
+        # OPTIMIZATION: Use cache instead of repeated access
+        for gameSpace in self.gameSpaces_cache.values():
             if gameSpace.layoutOrder == "manual_position":
                 # Ensure positionDefineByModeler is set for absolute mode
                 if not hasattr(gameSpace, 'positionDefineByModeler') or gameSpace.positionDefineByModeler is None:
@@ -354,13 +358,15 @@ class SGLayoutOrderTableDialog(QDialog):
                 
         # Reorder EGL layout
         # Include all gameSpaces that have a numeric layoutOrder (including those switched from manual)
-        gameSpaces_to_reorder = [gs for gs in self.model.gameSpaces.values() 
-                               if isinstance(gs.layoutOrder, int)]
+        # OPTIMIZATION: Use cache instead of repeated access
+        gameSpaces_to_reorder = [gs for gs in self.gameSpaces_cache.values() 
+                                if isinstance(gs.layoutOrder, int)]
         self.model.layoutOfModel.reorderByLayoutOrder(gameSpaces_to_reorder)
         
         # Only apply automatic layout to gameSpaces that are in layoutOrder mode (not mixed or absolute)
-        gameSpaces_for_layout = [gs for gs in self.model.gameSpaces.values() 
-                               if gs.getPositionType() == "layoutOrder"]
+        # OPTIMIZATION: Use cache instead of repeated access
+        gameSpaces_for_layout = [gs for gs in self.gameSpaces_cache.values() 
+                                if gs.getPositionType() == "layoutOrder"]
         self.model.layoutOfModel.applyLayout(gameSpaces_for_layout)
         
         super().accept()
@@ -449,7 +455,8 @@ class SGLayoutOrderTableDialog(QDialog):
             original_order = gameSpace.layoutOrder
             # Check if the original order is still available
             used_orders = set()
-            for gs in self.model.gameSpaces.values():
+            # OPTIMIZATION: Use cache instead of repeated access
+            for gs in self.gameSpaces_cache.values():
                 if gs != gameSpace and gs.layoutOrder is not None and isinstance(gs.layoutOrder, int):
                     used_orders.add(gs.layoutOrder)
             
@@ -504,7 +511,8 @@ class SGLayoutOrderTableDialog(QDialog):
         """
         # Simple heuristic: find next available layoutOrder
         used_orders = set()
-        for gs in self.model.gameSpaces.values():
+        # OPTIMIZATION: Use cache instead of repeated access
+        for gs in self.gameSpaces_cache.values():
             if gs.layoutOrder is not None and isinstance(gs.layoutOrder, int):
                 used_orders.add(gs.layoutOrder)
         
