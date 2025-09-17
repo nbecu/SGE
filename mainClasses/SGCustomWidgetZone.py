@@ -52,11 +52,10 @@ class SGCustomWidgetZone(QtWidgets.QWidget):
             if element[0] == "text":
                 if len(element[1]) == 3:
                     x, y, text = element[1]
-                    print(f"Drawing text at ({x}, {y}): {text}")  # Debugging line
                     painter.setFont(QtGui.QFont(self.text_style))
                     painter.drawText(int(x), int(y), text)
                 else:
-                    print(f"Unexpected element format for text: {element[1]}")
+                    pass  # Invalid text element format
             elif element[0] == "image":
                 pixmap = QtGui.QPixmap(element[1])
                 painter.drawPixmap(int(element[2][0]), int(element[2][1]), pixmap)  # (x, y)

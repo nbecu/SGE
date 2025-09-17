@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(700,600, typeOfLayout="enhanced_grid", x=2, windowTitle="rearrange location of the game spaces using layoutOrder")
+myModel=SGModel(700,600, typeOfLayout="enhanced_grid", nb_columns=2, windowTitle="rearrange location of the game spaces using layoutOrder")
 
 Cell = myModel.newCellsOnGrid(10, 10, "square", size=50)
 Cell.setEntities("landUse", "grass")

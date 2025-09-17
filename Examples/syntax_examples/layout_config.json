@@ -1,0 +1,58 @@
+{
+  "configurations": {
+    "test1": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 1,
+      "gameSpaces": {
+        "grid1": {
+          "layoutOrder": 1,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            26
+          ],
+          "manual_override": false
+        },
+        "Test Legend": {
+          "layoutOrder": null,
+          "position_type": "absolute",
+          "manual_position": [
+            412,
+            175
+          ],
+          "manual_override": false
+        },
+        "SGDashBoard#1": {
+          "layoutOrder": 3,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            363
+          ],
+          "manual_override": false
+        },
+        "SGProgressGauge#1": {
+          "layoutOrder": 2,
+          "position_type": "mixed",
+          "manual_position": [
+            236,
+            362
+          ],
+          "manual_override": true
+        },
+        "Instructions": {
+          "layoutOrder": 5,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            425
+          ],
+          "manual_override": false
+        }
+      },
+      "model_name": "Enhanced Grid Layout Test Model",
+      "timestamp": "2025-09-17 22:27:10",
+      "version": "1.0"
+    }
+  }
+}

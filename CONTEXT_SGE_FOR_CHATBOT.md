@@ -510,7 +510,7 @@ except RuntimeError:
 
 **Exemple** :
 ```python
-model = SGModel(typeOfLayout="enhanced_grid", x=3)
+model = SGModel(typeOfLayout="enhanced_grid", nb_columns=2)
 ```
 
 ## 15. Lancement des applications SGE (CRITIQUE pour chatbots)

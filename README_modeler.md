@@ -66,7 +66,7 @@ SGE supports different layout types for organizing gameSpaces:
 - **`"vertical"`**, **`"horizontal"`**, **`"grid"`**: Standard layouts
 - **`"enhanced_grid"`**: Advanced layout with automatic column organization and user-controllable ordering
 
-Example: `model = SGModel(typeOfLayout="enhanced_grid", x=3)`
+Example: `model = SGModel(typeOfLayout="enhanced_grid")`
 
 ## Folder hierarchy
 - Examples

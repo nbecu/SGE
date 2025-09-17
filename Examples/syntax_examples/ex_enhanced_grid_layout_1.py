@@ -26,7 +26,7 @@ def main():
         width=700, 
         height=500, 
         typeOfLayout="enhanced_grid",  # New EGL option
-        x=2,  # Number of columns
+        nb_columns=2,  # Number of columns
         name="Enhanced Grid Layout Test Model",
         windowTitle="Enhanced Grid Layout Test"
     )

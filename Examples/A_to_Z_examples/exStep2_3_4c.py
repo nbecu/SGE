@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(700,600, typeOfLayout="enhanced_grid", x=2, windowTitle="rearrange location of the game spaces using layoutOrder")
+myModel=SGModel(700,600, typeOfLayout="enhanced_grid", nb_columns=4, windowTitle="rearrange location of the game spaces using layoutOrder")
 
 Cell = myModel.newCellsOnGrid(10, 10, "square", size=50)
 Cell.setEntities("landUse", "grass")
@@ -18,13 +18,12 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 #adds a legend to the grid
 Legend=myModel.newLegend()
 
-# Set layoutOrder for the grid using the setLayoutOrder method
-# Cell.grid.setLayoutOrder(2)  # Set grid as second in layout
-# Legend.setLayoutOrder(1)      # Set legend as first in layout
-
-# It also works with the grid layoutOrder set to 3, because SGE will automatically readjust the gameSpaces layoutOrder starting from 1. 
-# With the automatic readjustment, the grid layoutOrder will be 1, and the legend layoutOrder will be 2.
-Cell.setLayoutOrder(3) # This syntax is equivalent to Cell.grid.setLayoutOrder(3)
+# You can also set a game space layoutOrder to a number greater than 1 above the previous one.
+# In this example, the legend layoutOrder is 2 because it was created second
+# And the grid  layoutOrder is 4 because it is set to 4 through the setLayoutOrder method (see below),
+# So the layout (set with nb_columns=4) will automatically add a space on the left (no layoutorder 1)
+# and a space inbetween the legend and the grid
+Cell.setLayoutOrder(4) # This syntax is equivalent to Cell.grid.setLayoutOrder(3)
 
 
 myModel.launch() 

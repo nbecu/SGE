@@ -31,6 +31,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.setAcceptDrops(True)
         self.drag_start_position = None
         self.dragging = False
+        self._drag_mode_changed = False  # Flag to track if mode was changed during current drag
         self.rightMargin = 9
         self.verticalGapBetweenLabels = 5
         self.gs_aspect = SGAspect.baseBorder()
@@ -48,7 +49,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         
         # Enhanced Grid Layout system
         self.layoutOrder = None  # Position ID for Enhanced Grid Layout
-        self._enhanced_grid_manual = False  # Flag for manual layoutOrder assignment
+        self.is_layout_repositioned = False  # Flag for manual repositioning after automatic layout
+        self._positionType = "layoutOrder"  # State: "absolute", "mixed", or "layoutOrder"
         self._enhanced_grid_tooltip_enabled = False  # Flag for layoutOrder tooltip display
         
 
@@ -117,6 +119,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         if event.button() == Qt.LeftButton and self.isDraggable:
             self.dragging = False
+            # Reset the drag mode change flag for next drag operation
+            self._drag_mode_changed = False
     
     def event(self, event):
         """
@@ -153,6 +157,12 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         distance = (event.pos() - self.drag_start_position).manhattanLength()
         if distance < QtWidgets.QApplication.startDragDistance():
             return
+
+        # Check if this is the first significant movement and we need to change mode
+        if not self._drag_mode_changed and self._positionType == "layoutOrder":
+            # GameSpace was in layoutOrder mode and is being dragged manually
+            self.setToMixed()
+            self._drag_mode_changed = True
 
         # Get the global mouse position
         global_mouse_pos = QtWidgets.QApplication.desktop().cursor().pos()
@@ -211,12 +221,11 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.positionDefineByModeler=(x,y)
                 self.move(x,y)
                 
-                # If using Enhanced Grid Layout, assign manual_position layoutOrder
+                # If using Enhanced Grid Layout, set to absolute position type
                 if (hasattr(self.model, 'typeOfLayout') and 
                     self.model.typeOfLayout == "enhanced_grid" and
                     hasattr(self.model, 'layoutOfModel')):
-                    self.layoutOrder = "manual_position"
-                    self._enhanced_grid_manual = True
+                    self.setToAbsolute()
             else:
                 raise ValueError('The y value is too high or negative')
         else:
@@ -319,26 +328,68 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         if order is None:
             # Reset to auto-assignment
             self.layoutOrder = None
-            self._enhanced_grid_manual = False
+            self._positionType = "layoutOrder"
+            self.is_layout_repositioned = False
         elif order == "manual_position":
             # Mark as manually positioned
-            self.layoutOrder = "manual_position"
-            self._enhanced_grid_manual = True
+            self.setToAbsolute()
         else:
             # Set specific layoutOrder
-            self.layoutOrder = order
-            self._enhanced_grid_manual = True
-            
-            # Update the layout's tracking if we have a model
-            if hasattr(self, 'model') and self.model and hasattr(self.model, 'layoutOfModel'):
-                if hasattr(self.model.layoutOfModel, 'used_layoutOrders'):
-                    self.model.layoutOfModel.used_layoutOrders.add(order)
-                    # Update next_layoutOrder counter
-                    if hasattr(self.model.layoutOfModel, 'next_layoutOrder'):
-                        self.model.layoutOfModel.next_layoutOrder = max(
-                            self.model.layoutOfModel.next_layoutOrder, 
-                            order + 1
-                        )
+            self.setToLayoutOrder(order)
+
+    def setToAbsolute(self):
+        """
+        Set gameSpace to absolute positioning mode.
+        """
+        self.layoutOrder = "manual_position"
+        self._positionType = "absolute"
+        self.is_layout_repositioned = False
+        self.positionDefineByModeler = [self.x(), self.y()]
+
+    def setToLayoutOrder(self, order, update_layout_tracking=True):
+        """
+        Set gameSpace to layout order positioning mode.
+        
+        Args:
+            order (int): The layout order value
+            update_layout_tracking (bool): Whether to update layout tracking (default True)
+        """
+        self.layoutOrder = order
+        self._positionType = "layoutOrder"
+        self.is_layout_repositioned = False
+        self.positionDefineByModeler = None
+        
+        # Update the layout's tracking if we have a model and tracking is enabled
+        if update_layout_tracking and hasattr(self, 'model') and self.model and hasattr(self.model, 'layoutOfModel'):
+            if hasattr(self.model.layoutOfModel, 'used_layoutOrders'):
+                self.model.layoutOfModel.used_layoutOrders.add(order)
+                # Update next_layoutOrder counter
+                if hasattr(self.model.layoutOfModel, 'next_layoutOrder'):
+                    self.model.layoutOfModel.next_layoutOrder = max(
+                        self.model.layoutOfModel.next_layoutOrder, 
+                        order + 1
+                    )
+                
+                # Trigger layout recalculation
+                if hasattr(self.model, 'applyAutomaticLayout'):
+                    self.model.layoutOfModel.reorderByLayoutOrder()
+                    self.model.applyAutomaticLayout()
+
+    def setToMixed(self):
+        """
+        Set gameSpace to mixed positioning mode (repositioned after automatic layout).
+        """
+        self._positionType = "mixed"
+        self.is_layout_repositioned = True
+
+    def getPositionType(self):
+        """
+        Get the current position type of the gameSpace.
+        
+        Returns:
+            str: "absolute", "mixed", or "layoutOrder"
+        """
+        return self._positionType
 
     def setSizeManagerVerticalGap(self, gap):
         """

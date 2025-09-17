@@ -10,7 +10,7 @@ monApp=QtWidgets.QApplication([])
 #********************************************************************
 # Initialisation de l'application
 
-myModel=SGModel(1700,1020, name="CarbonPolis", typeOfLayout ="grid", x=7,y=7)
+myModel=SGModel(1700,1020, name="CarbonPolis", nb_columns=7)
     
 #********************************************************************
 

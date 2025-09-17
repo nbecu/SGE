@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", x=100,y=100)
+myModel=SGModel(windowTitle="Solutré", typeOfLayout ="grid", nb_columns=100,y=100)
 localLink="."
 #* --------------------------
 #* Lecture des data

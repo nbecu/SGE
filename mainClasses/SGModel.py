@@ -55,6 +55,7 @@ from mainClasses.SGVoid import *
 from mainClasses.layout.SGGridLayout import *
 from mainClasses.layout.SGHorizontalLayout import *
 from mainClasses.layout.SGVerticalLayout import *
+from mainClasses.layout.SGLayoutConfigManager import SGLayoutConfigManager
 from mainClasses.gameAction.SGActivate import *
 from mainClasses.gameAction.SGCreate import *
 from mainClasses.gameAction.SGDelete import *
@@ -75,7 +76,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", x=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
+    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
         """
         Declaration of a new model
 
@@ -83,7 +84,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             width (int): width of the main window in pixels (default:1800)
             height (int): height of the main window in pixels (default:900)
             typeOfLayout ("vertical", "horizontal", "grid" or "enhanced_grid"): the type of layout used to position the different graphic elements of the simulation (default:"grid")
-            x (int, optional): used for grid and enhanced_grid layouts. defines the number of columns (default:3)
+            nb_columns (int, optional): used for grid and enhanced_grid layouts. defines the number of columns (default:3)
             y (int, optional): used only for grid layout. defines the number layout grid height (default:3)
             name (str, optional): the name of the model. (default:"Simulation")
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
@@ -131,9 +132,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.layoutOfModel = SGHorizontalLayout()
         elif (typeOfLayout == "enhanced_grid"):
             from mainClasses.layout.SGEnhancedGridLayout import SGEnhancedGridLayout
-            self.layoutOfModel = SGEnhancedGridLayout(num_columns=x)
+            self.layoutOfModel = SGEnhancedGridLayout(num_columns=nb_columns)
+            self.layoutOfModel.model = self  # Set model reference
         else:
-            self.layoutOfModel = SGGridLayout(x, y)
+            self.layoutOfModel = SGGridLayout(nb_columns, y)
         self.isMoveToCoordsUsed = False
         # To limit the number of zoom out of players
         self.numberOfZoom = 2
@@ -230,15 +232,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.enhancedGridMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
             
             # Edit layoutOrders action
-            editLayoutOrderAction = QAction("&Edit GameSpace Order...", self)
+            editLayoutOrderAction = QAction("&Edit Layout...", self)
             editLayoutOrderAction.triggered.connect(self.openLayoutOrderTableDialog)
             self.enhancedGridMenu.addAction(editLayoutOrderAction)
+                                    
+            # Save layout configuration action
+            saveConfigAction = QAction("&Save Current Layout...", self)
+            saveConfigAction.triggered.connect(self.openSaveLayoutConfigDialog)
+            self.enhancedGridMenu.addAction(saveConfigAction)
             
-            # Rearrange action
-            rearrangeAction = QAction("&Restore Grid Layout", self)
-            rearrangeAction.triggered.connect(self.applyAutomaticLayout)
-            self.enhancedGridMenu.addAction(rearrangeAction)
-            
+            # Manage layout configurations action
+            manageConfigAction = QAction("&Manage Layout Configurations...", self)
+            manageConfigAction.triggered.connect(self.openLayoutConfigManagerDialog)
+            self.enhancedGridMenu.addAction(manageConfigAction)
+
             # Separator
             self.enhancedGridMenu.addSeparator()
             
@@ -248,6 +255,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.layoutOrderTooltipAction.setChecked(False)
             self.layoutOrderTooltipAction.triggered.connect(self.toggleLayoutOrderTooltips)
             self.enhancedGridMenu.addAction(self.layoutOrderTooltipAction)
+            
     
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
@@ -325,7 +333,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.updateTooltipMenu()
         
         # Reorganize Enhanced Grid Layout orders to eliminate gaps, then apply the layout
-        self.reorganizeEnhancedGridLayoutOrders()
+        # self.reorganizeEnhancedGridLayoutOrders()
         self.applyAutomaticLayout()
         
         # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
@@ -396,9 +404,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbologiesInSubmenus = {}
         self.keyword_borderSubmenu = ' border'
 
-        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
-
         self.createGraphMenu()
+        
+        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
 
 
     # Create all the action related to the menu
@@ -1478,24 +1486,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             return True
         return False
     
-    def adjustGamespacesPosition(self): #todo Obsolete - to delete
-        raise NotImplementedError("This method is obsolete and should not be used")
-        print("DEBUG adjustGamespacesPosition: Starting position adjustment")
-        for name,aGameSpace in self.gameSpaces.items():
-            print(f"DEBUG adjustGamespacesPosition: Checking {name} at ({aGameSpace.x()}, {aGameSpace.y()})")
-            for otherName,otherElement in self.gameSpaces.items():
-                while self.checkLayoutIntersection(name,aGameSpace,otherName,otherElement):
-                    print(f"DEBUG adjustGamespacesPosition: Intersection detected between {name} and {otherName}")
-                    if aGameSpace.areaCalc() <= otherElement.areaCalc():
-                        local_pos=aGameSpace.pos()
-                        print(f"DEBUG adjustGamespacesPosition: Moving {name} from ({local_pos.x()}, {local_pos.y()}) to ({local_pos.x()+10}, {local_pos.y()+10})")
-                        aGameSpace.move(local_pos.x()+10,local_pos.y()+10) #todo Ce code créé un décalage vertical meme lorsque qu'il n'y a pas de superposition
-                    else:
-                        local_pos=otherElement.pos()
-                        print(f"DEBUG adjustGamespacesPosition: Moving {otherName} from ({local_pos.x()}, {local_pos.y()}) to ({local_pos.x()+10}, {local_pos.y()+10})")
-                        otherElement.move(local_pos.x()+10,local_pos.y()+10)
-        print("DEBUG adjustGamespacesPosition: Position adjustment complete")
-
     # ------
 # Pov
     def getSubmenuSymbology(self, submenuName):
@@ -2053,5 +2043,130 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         
         return entityDef
     
+    # ============================================================================
+    # LAYOUT CONFIGURATION METHODS
+    # ============================================================================
+    
+    def saveLayoutConfig(self, config_name=None):
+        """
+        Save current Enhanced Grid Layout configuration for reuse.
+        
+        Args:
+            config_name (str, optional): Name for the saved configuration. 
+                                       If None, opens dialog for user input.
+        
+        Example:
+            model.saveLayoutConfig()  # Opens dialog
+            model.saveLayoutConfig("my_layout")  # Direct save
+        """
+        if self.typeOfLayout != "enhanced_grid":
+            QMessageBox.warning(self, "Warning", 
+                               "Layout configuration can only be saved for Enhanced Grid Layout")
+            return False
+        
+        if config_name is None:
+            # Open dialog for user input
+            try:
+                from mainClasses.layout.SGLayoutConfigSaveDialog import SGLayoutConfigSaveDialog
+                available_configs = self.getAvailableLayoutConfigs()
+                
+                dialog = SGLayoutConfigSaveDialog(self, available_configs)
+                result = dialog.exec_()
+                
+                if result == QDialog.Accepted:
+                    config_name = dialog.getConfigName()
+                    if not config_name or config_name.strip() == "":
+                        QMessageBox.warning(self, "Warning", "Configuration name cannot be empty")
+                        return False
+                else:
+                    return False  # User cancelled
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to open save dialog: {e}")
+                return False
+        
+        config_manager = SGLayoutConfigManager(self)
+        success = config_manager.saveConfig(config_name)
+        
+        if success:
+            QMessageBox.information(self, "Success", 
+                                   f"Layout configuration '{config_name}' saved successfully")
+        else:
+            QMessageBox.critical(self, "Error", 
+                               f"Failed to save layout configuration '{config_name}'")
+        
+        return success
+    
+    def loadLayoutConfig(self, config_name):
+        """
+        Load a saved Enhanced Grid Layout configuration.
+        
+        Args:
+            config_name (str): Name of the configuration to load
+            
+        Returns:
+            bool: True if successful, False otherwise
+            
+        Example:
+            model.loadLayoutConfig("my_layout")
+            model.loadLayoutConfig("default_setup")
+        """
+        if self.typeOfLayout != "enhanced_grid":
+            QMessageBox.warning(self, "Warning", 
+                               "Layout configuration can only be loaded for Enhanced Grid Layout")
+            return False
+        
+        config_manager = SGLayoutConfigManager(self)
+        success = config_manager.loadConfig(config_name)
+        
+        if not success:
+            QMessageBox.critical(self, "Error", 
+                               f"Failed to load layout configuration '{config_name}'")
+        
+        return success
+    
+    def hasLayoutConfig(self, config_name):
+        """
+        Check if a layout configuration exists.
+        
+        Args:
+            config_name (str): Name of the configuration to check
+            
+        Returns:
+            bool: True if configuration exists, False otherwise
+            
+        Example:
+            if model.hasLayoutConfig("my_layout"):
+                model.loadLayoutConfig("my_layout")
+        """
+        config_manager = SGLayoutConfigManager(self)
+        return config_manager.configExists(config_name)
+    
+    def getAvailableLayoutConfigs(self):
+        """
+        Get list of available layout configurations.
+        
+        Returns:
+            list: List of configuration names
+            
+        Example:
+            configs = model.getAvailableLayoutConfigs()
+            print(f"Available configs: {configs}")
+        """
+        config_manager = SGLayoutConfigManager(self)
+        return config_manager.getAvailableConfigs()
+    
+    def openSaveLayoutConfigDialog(self):
+        """Open the save layout configuration dialog."""
+        self.saveLayoutConfig()  # This will open the dialog since config_name is None
+    
+    def openLayoutConfigManagerDialog(self):
+        """
+        Open the layout configuration manager dialog.
+        
+        This dialog allows users to view, rename, and delete saved configurations.
+        """
+        from mainClasses.layout.SGLayoutConfigManagerDialog import SGLayoutConfigManagerDialog
+        dialog = SGLayoutConfigManagerDialog(self)
+        dialog.exec_()
 
 

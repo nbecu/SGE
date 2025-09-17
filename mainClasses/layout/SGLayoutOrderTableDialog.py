@@ -55,8 +55,8 @@ class SGLayoutOrderTableDialog(QDialog):
         
         # Table widget
         self.table = QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["Col", "GameSpace Type", "Name", "Order"])
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(["Col", "GameSpace Type", "Name", "Position Type", "Order", "Actions"])
         
         # Configure table
         self.table.setAlternatingRowColors(True)
@@ -65,12 +65,16 @@ class SGLayoutOrderTableDialog(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)  # Col
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)  # GameSpace Type
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)           # Name
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)  # layoutOrder
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)  # Position Type
+        self.table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)  # Order
+        self.table.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeToContents)  # Actions
         
         # Set column widths
         self.table.setColumnWidth(0, 60)   # Col
         self.table.setColumnWidth(1, 150)  # GameSpace Type
-        self.table.setColumnWidth(3, 80)   # layoutOrder
+        self.table.setColumnWidth(3, 120)  # Position Type
+        self.table.setColumnWidth(4, 80)   # Order
+        self.table.setColumnWidth(5, 150) # Actions
         
         layout.addWidget(self.table)
         
@@ -121,10 +125,16 @@ class SGLayoutOrderTableDialog(QDialog):
     def updateColumnPreview(self):
         """Update the table to show column preview"""
         for row in range(self.table.rowCount()):
-            layoutOrder_item = self.table.item(row, 3)  # layoutOrder is now column 3
+            layoutOrder_item = self.table.item(row, 4)  # Order is now column 4
             if layoutOrder_item and layoutOrder_item.text().strip():
+                layoutOrder_text = layoutOrder_item.text().strip()
+                
+                # Skip "Fixed" and other non-numeric values
+                if layoutOrder_text == "Fixed" or layoutOrder_text == "":
+                    continue
+                    
                 try:
-                    layoutOrder = int(layoutOrder_item.text())
+                    layoutOrder = int(layoutOrder_text)
                     column = (layoutOrder - 1) % self.model.layoutOfModel.num_columns
                     
                     # Update the column number column (column 0)
@@ -141,7 +151,7 @@ class SGLayoutOrderTableDialog(QDialog):
         
     def onLayoutOrderChanged(self, item):
         """Handle layoutOrder changes in the table"""
-        if item.column() == 3:  # layoutOrder column is now column 3
+        if item.column() == 4:  # Order column is now column 4
             self.updateColumnPreview()
         
     def populateTable(self):
@@ -149,19 +159,27 @@ class SGLayoutOrderTableDialog(QDialog):
         if self.model.typeOfLayout != "enhanced_grid":
             return
             
-        # Get gameSpaces that are not positioned by modeler
-        gameSpaces = [gs for gs in self.model.gameSpaces.values() 
-                     if not gs.isPositionDefineByModeler()]
+        # Get all gameSpaces (including those positioned by modeler)
+        gameSpaces = list(self.model.gameSpaces.values())
         
         self.table.setRowCount(len(gameSpaces))
         
         for row, gameSpace in enumerate(gameSpaces):
+            # Initialize enhanced grid manual flag if not set
+            if not hasattr(gameSpace, 'is_layout_repositioned'):
+                if gameSpace.isPositionDefineByModeler() or gameSpace.layoutOrder == "manual_position":
+                    gameSpace.is_layout_repositioned = True
+                else:
+                    gameSpace.is_layout_repositioned = False
+            
             # Column number (calculated from layoutOrder) - Column 0
             column_number = ""
             if gameSpace.layoutOrder is not None and isinstance(gameSpace.layoutOrder, int):
                 column_number = str((gameSpace.layoutOrder - 1) % self.model.layoutOfModel.num_columns + 1)
             elif gameSpace.layoutOrder == "manual_position":
                 column_number = "Fixed"
+            elif gameSpace.isPositionDefineByModeler():
+                column_number = "Manual"
             
             col_item = QTableWidgetItem(column_number)
             col_item.setFlags(col_item.flags() & ~Qt.ItemIsEditable)
@@ -169,7 +187,7 @@ class SGLayoutOrderTableDialog(QDialog):
             col_item.setBackground(QColor(240, 240, 240))
             self.table.setItem(row, 0, col_item)
             
-            # GameSpace Type (clean, without column info) - Column 1
+            # GameSpace Type - Column 1
             type_item = QTableWidgetItem(gameSpace.__class__.__name__)
             type_item.setFlags(type_item.flags() & ~Qt.ItemIsEditable)
             type_item.setBackground(QColor(240, 240, 240))
@@ -181,19 +199,40 @@ class SGLayoutOrderTableDialog(QDialog):
             name_item.setBackground(QColor(240, 240, 240))
             self.table.setItem(row, 2, name_item)
             
-            # layoutOrder (editable) - Column 3
+            # Position Type - Column 3
+            position_type = self._detectPositionType(gameSpace)
+            position_type_item = QTableWidgetItem(position_type)
+            position_type_item.setFlags(position_type_item.flags() & ~Qt.ItemIsEditable)
+            position_type_item.setTextAlignment(Qt.AlignCenter)
+            position_type_item.setBackground(QColor(240, 240, 240))
+            
+            # Color code position types
+            if position_type == "Absolute":
+                position_type_item.setBackground(QColor(255, 200, 200))  # Light red
+            elif position_type == "Mixed":
+                position_type_item.setBackground(QColor(255, 255, 200))  # Light yellow
+            else:  # Layout Order
+                position_type_item.setBackground(QColor(200, 255, 200))  # Light green
+            
+            self.table.setItem(row, 3, position_type_item)
+            
+            # Order - Column 4
             layoutOrder_display = ""
-            if gameSpace.layoutOrder == "manual_position":
-                layoutOrder_display = "Fixed Position"
+            if position_type == "Absolute":
+                layoutOrder_display = "Fixed"
             elif gameSpace.layoutOrder is not None:
                 layoutOrder_display = str(gameSpace.layoutOrder)
             
             layoutOrder_item = QTableWidgetItem(layoutOrder_display)
             layoutOrder_item.setTextAlignment(Qt.AlignCenter)
-            if gameSpace.layoutOrder == "manual_position":
+            if position_type == "Absolute":
                 layoutOrder_item.setFlags(layoutOrder_item.flags() & ~Qt.ItemIsEditable)
                 layoutOrder_item.setBackground(QColor(240, 240, 240))
-            self.table.setItem(row, 3, layoutOrder_item)
+            self.table.setItem(row, 4, layoutOrder_item)
+            
+            # Actions - Column 5
+            actions_widget = self._createActionsWidget(gameSpace, row)
+            self.table.setCellWidget(row, 5, actions_widget)
             
             # Store original layoutOrder for cancel functionality
             self.original_layoutOrders[gameSpace.id] = gameSpace.layoutOrder
@@ -207,13 +246,19 @@ class SGLayoutOrderTableDialog(QDialog):
         changes = {}
         
         for row in range(self.table.rowCount()):
-            name_item = self.table.item(row, 2)  # Name is now column 2
-            layoutOrder_item = self.table.item(row, 3)    # layoutOrder is now column 3
+            name_item = self.table.item(row, 2)  # Name is column 2
+            layoutOrder_item = self.table.item(row, 4)    # Order is column 4
             
             if name_item and layoutOrder_item:
                 name = name_item.text()
                 try:
-                    new_layoutOrder = int(layoutOrder_item.text()) if layoutOrder_item.text().strip() else None
+                    order_text = layoutOrder_item.text().strip()
+                    if order_text == "Fixed":
+                        # GameSpace is in absolute mode, no layoutOrder change needed
+                        new_layoutOrder = None
+                    else:
+                        new_layoutOrder = int(order_text) if order_text else None
+                    
                     original_layoutOrder = self.original_layoutOrders.get(name)
                     
                     if new_layoutOrder != original_layoutOrder:
@@ -283,7 +328,10 @@ class SGLayoutOrderTableDialog(QDialog):
                     # Direct assignment without conflict checking (already validated)
                     old_layoutOrder = gameSpace.layoutOrder
                     gameSpace.layoutOrder = new_layoutOrder
-                    gameSpace._enhanced_grid_manual = True
+                    
+                    # The is_layout_repositioned flag should already be set correctly
+                    # by the switchToLayoutOrder/switchToAbsolute methods
+                    # Don't override it here
                     
                     # Update tracking in layout
                     if old_layoutOrder is not None:
@@ -294,16 +342,254 @@ class SGLayoutOrderTableDialog(QDialog):
                     if gameSpace.layoutOrder is not None:
                         self.model.layoutOfModel.used_layoutOrders.discard(gameSpace.layoutOrder)
                     gameSpace.layoutOrder = None
-                    gameSpace._enhanced_grid_manual = False
+                    gameSpace.is_layout_repositioned = False
+        
+        # Ensure all gameSpaces that were switched to Absolute mode are properly persisted
+        for gameSpace in self.model.gameSpaces.values():
+            if gameSpace.layoutOrder == "manual_position":
+                # Ensure positionDefineByModeler is set for absolute mode
+                if not hasattr(gameSpace, 'positionDefineByModeler') or gameSpace.positionDefineByModeler is None:
+                    # Set current position as the modeler-defined position
+                    gameSpace.positionDefineByModeler = [gameSpace.x(), gameSpace.y()]
                 
         # Reorder EGL layout
+        # Include all gameSpaces that have a numeric layoutOrder (including those switched from manual)
         gameSpaces_to_reorder = [gs for gs in self.model.gameSpaces.values() 
-                               if not gs.isPositionDefineByModeler()]
+                               if isinstance(gs.layoutOrder, int)]
         self.model.layoutOfModel.reorderByLayoutOrder(gameSpaces_to_reorder)
-        self.model.applyAutomaticLayout()
+        
+        # Only apply automatic layout to gameSpaces that are in layoutOrder mode (not mixed or absolute)
+        gameSpaces_for_layout = [gs for gs in self.model.gameSpaces.values() 
+                               if gs.getPositionType() == "layoutOrder"]
+        self.model.layoutOfModel.applyLayout(gameSpaces_for_layout)
         
         super().accept()
         
     def reject(self):
         """Cancel changes and close dialog"""
         super().reject()
+    
+    def _detectPositionType(self, gameSpace):
+        """
+        Get the position type of a gameSpace.
+        
+        Args:
+            gameSpace: The gameSpace to analyze
+            
+        Returns:
+            str: "Absolute", "Mixed", or "Layout Order"
+        """
+        # Use the explicit state instead of complex detection logic
+        position_type = gameSpace.getPositionType()
+        
+        # Convert to display format
+        if position_type == "absolute":
+            return "Absolute"
+        elif position_type == "mixed":
+            return "Mixed"
+        else:  # layoutOrder
+            return "Layout Order"
+    
+    def _isManuallyRepositioned(self, gameSpace):
+        """
+        Check if a gameSpace was manually moved after layoutOrder assignment.
+        
+        Args:
+            gameSpace: The gameSpace to check
+            
+        Returns:
+            bool: True if manually repositioned, False otherwise
+        """
+        if not hasattr(gameSpace, '_enhanced_grid_calculated_position'):
+            return False
+        
+        try:
+            current_pos = (gameSpace.x(), gameSpace.y())
+            calculated_pos = gameSpace._enhanced_grid_calculated_position
+            
+            # Tolerance for minor positioning differences
+            tolerance = 5
+            return (abs(current_pos[0] - calculated_pos[0]) > tolerance or 
+                    abs(current_pos[1] - calculated_pos[1]) > tolerance)
+        except:
+            return False
+    
+    def _createActionsWidget(self, gameSpace, row):
+        """
+        Create actions widget for a gameSpace.
+        
+        Args:
+            gameSpace: The gameSpace to create actions for
+            row: The table row number
+            
+        Returns:
+            QWidget: Widget containing action buttons
+        """
+        widget = QWidget()
+        layout = QHBoxLayout()
+        layout.setContentsMargins(2, 2, 2, 2)
+        
+        position_type = self._detectPositionType(gameSpace)
+        
+        if position_type == "Absolute":
+            # Show "Switch to Layout Order" button
+            switch_btn = QPushButton("To Layout Order")
+            switch_btn.setMaximumHeight(25)
+            switch_btn.clicked.connect(lambda: self.switchToLayoutOrder(gameSpace, row))
+            layout.addWidget(switch_btn)
+        elif position_type == "Layout Order":
+            # Show "Switch to Absolute" button
+            switch_btn = QPushButton("To Absolute")
+            switch_btn.setMaximumHeight(25)
+            switch_btn.clicked.connect(lambda: self.switchToAbsolute(gameSpace, row))
+            layout.addWidget(switch_btn)
+        else:  # Mixed
+            # Show both buttons
+            to_layout_btn = QPushButton("To Layout Order")
+            to_layout_btn.setMaximumHeight(25)
+            to_layout_btn.clicked.connect(lambda: self.switchToLayoutOrder(gameSpace, row))
+            
+            to_absolute_btn = QPushButton("To Absolute")
+            to_absolute_btn.setMaximumHeight(25)
+            to_absolute_btn.clicked.connect(lambda: self.switchToAbsolute(gameSpace, row))
+            
+            layout.addWidget(to_layout_btn)
+            layout.addWidget(to_absolute_btn)
+        
+        widget.setLayout(layout)
+        return widget
+    
+    def switchToLayoutOrder(self, gameSpace, row):
+        """
+        Switch a gameSpace from absolute to layoutOrder positioning.
+        
+        Args:
+            gameSpace: The gameSpace to switch
+            row: The table row number
+        """
+        # For mixed gameSpaces, try to restore their original layoutOrder
+        if gameSpace.getPositionType() == "mixed" and isinstance(gameSpace.layoutOrder, int):
+            original_order = gameSpace.layoutOrder
+            # Check if the original order is still available
+            used_orders = set()
+            for gs in self.model.gameSpaces.values():
+                if gs != gameSpace and gs.layoutOrder is not None and isinstance(gs.layoutOrder, int):
+                    used_orders.add(gs.layoutOrder)
+            
+            if original_order not in used_orders:
+                # Original order is available, restore it
+                optimal_order = original_order
+            else:
+                # Original order is taken, find next available
+                optimal_order = self._calculateOptimalLayoutOrder(gameSpace)
+        else:
+            # For absolute gameSpaces, calculate optimal layoutOrder
+            optimal_order = self._calculateOptimalLayoutOrder(gameSpace)
+        
+        # Set to layout order mode using the new method
+        gameSpace.setToLayoutOrder(optimal_order)
+        
+        # Update the table
+        self._updateTableRow(row, gameSpace)
+        
+        # Update column preview
+        self.updateColumnPreview()
+    
+    def switchToAbsolute(self, gameSpace, row):
+        """
+        Switch a gameSpace from layoutOrder to absolute positioning.
+        
+        Args:
+            gameSpace: The gameSpace to switch
+            row: The table row number
+        """
+        # Save current position
+        current_pos = (gameSpace.x(), gameSpace.y())
+        
+        # Set to absolute mode using the new method
+        gameSpace.setToAbsolute()
+        
+        # Ensure position is maintained
+        gameSpace.move(current_pos[0], current_pos[1])
+        
+        # Update the table
+        self._updateTableRow(row, gameSpace)
+    
+    def _calculateOptimalLayoutOrder(self, gameSpace):
+        """
+        Calculate optimal layoutOrder based on current position.
+        
+        Args:
+            gameSpace: The gameSpace to calculate for
+            
+        Returns:
+            int: Optimal layoutOrder
+        """
+        # Simple heuristic: find next available layoutOrder
+        used_orders = set()
+        for gs in self.model.gameSpaces.values():
+            if gs.layoutOrder is not None and isinstance(gs.layoutOrder, int):
+                used_orders.add(gs.layoutOrder)
+        
+        # Find next available order
+        order = 1
+        while order in used_orders:
+            order += 1
+        
+        return order
+    
+    def _updateTableRow(self, row, gameSpace):
+        """
+        Update a table row after position type change.
+        
+        Args:
+            row: The table row number
+            gameSpace: The gameSpace to update
+        """
+        # Update column number
+        column_number = ""
+        if gameSpace.layoutOrder is not None and isinstance(gameSpace.layoutOrder, int):
+            column_number = str((gameSpace.layoutOrder - 1) % self.model.layoutOfModel.num_columns + 1)
+        elif gameSpace.layoutOrder == "manual_position":
+            column_number = "Fixed"
+        elif gameSpace.isPositionDefineByModeler():
+            column_number = "Manual"
+        
+        col_item = self.table.item(row, 0)
+        if col_item:
+            col_item.setText(column_number)
+        
+        # Update position type
+        position_type = self._detectPositionType(gameSpace)
+        position_type_item = self.table.item(row, 3)
+        if position_type_item:
+            position_type_item.setText(position_type)
+            
+            # Update color
+            if position_type == "Absolute":
+                position_type_item.setBackground(QColor(255, 200, 200))
+            elif position_type == "Mixed":
+                position_type_item.setBackground(QColor(255, 255, 200))
+            else:
+                position_type_item.setBackground(QColor(200, 255, 200))
+        
+        # Update order
+        layoutOrder_display = ""
+        if gameSpace.layoutOrder == "manual_position":
+            layoutOrder_display = "Fixed"
+        elif gameSpace.layoutOrder is not None:
+            layoutOrder_display = str(gameSpace.layoutOrder)
+        
+        layoutOrder_item = self.table.item(row, 4)
+        if layoutOrder_item:
+            layoutOrder_item.setText(layoutOrder_display)
+            if gameSpace.layoutOrder == "manual_position" or gameSpace.isPositionDefineByModeler():
+                layoutOrder_item.setFlags(layoutOrder_item.flags() & ~Qt.ItemIsEditable)
+                layoutOrder_item.setBackground(QColor(240, 240, 240))
+            else:
+                layoutOrder_item.setFlags(layoutOrder_item.flags() | Qt.ItemIsEditable)
+                layoutOrder_item.setBackground(QColor(255, 255, 255))
+        
+        # Update actions widget
+        actions_widget = self._createActionsWidget(gameSpace, row)
+        self.table.setCellWidget(row, 5, actions_widget)
