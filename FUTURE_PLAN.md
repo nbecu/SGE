@@ -17,11 +17,10 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Correct the zoom model menu 
 - [ ] Main window auto resize
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
-- [ ] Integrate in the Enhanced Grid layout menu the possibility to export the settings (layoutOrders and/or absolute position)
-- [ ] create a "Theme system" to apply ready-to-use sgAspect to all gameSpaces
+- [ ] create a "Theme system" to apply ready-to-use sgAspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
 
 ### POV System & Visual Elements
-- [ ] Create a POV system to manage groups of symbologies
+- [ ] Create a the aspect to replace pov and create view to manage groups of symbologies
 - [ ] Add image support (JPG) in POV for legends and control panels
 - [ ] Add possibility to integrate image icons in dashboards and progressGauge
 
@@ -107,6 +106,7 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Implemented polymorphic `applyLayout()` method across all layout classes
   - ✅ Added tooltip display for `layoutOrder` values
   - ✅ Support for manual positioning with `moveToCoords()` override
+  - ✅ Integrate a menu and the possibility to export the settings (layoutOrders and/or absolute position)
 
 ## Notes
 

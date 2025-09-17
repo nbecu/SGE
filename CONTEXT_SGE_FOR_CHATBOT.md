@@ -502,11 +502,17 @@ except RuntimeError:
 - Système `layoutOrder` pour contrôle utilisateur de l'ordre
 - Interface de gestion via menu Settings > Enhanced Grid Layout
 - Support du positionnement manuel avec `moveToCoords()`
+- **Sauvegarde/chargement de configurations** : Persistance des layouts entre sessions
 
 **Méthodes développeur** :
 - `SGEnhancedGridLayout.applyLayout()` : Application du layout
 - `SGEnhancedGridLayout.assignLayoutOrder()` : Attribution d'ordre
 - `SGEnhancedGridLayout.reorganizeLayoutOrdersSequentially()` : Réorganisation
+
+**Méthodes modeler** :
+- `model.saveLayoutConfig(name)` : Sauvegarder configuration
+- `model.loadLayoutConfig(name)` : Charger configuration
+- `model.getAvailableLayoutConfigs()` : Lister configurations
 
 **Exemple** :
 ```python

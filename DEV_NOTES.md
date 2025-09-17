@@ -11,12 +11,38 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Date de dernière mise à jour : Septembre 2025
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : enhanced_gameSpaces_grid_layout_for_candidate_sept_2025
-### Dernier chantier : Intégration Enhanced Grid Layout pour les gameSpaces
+### Branche actuelle : layout_export_import_for_release_sept_25
+### Dernier chantier : Système de sauvegarde/chargement des configurations Enhanced Grid Layout
 
 ---
 
 ## Travail en cours
+
+### Septembre 2025 - Système de sauvegarde/chargement des configurations Enhanced Grid Layout (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Implémentation complète d'un système de persistance des configurations Enhanced Grid Layout permettant aux modelers de sauvegarder et recharger leurs layouts entre sessions
+- **Fichiers concernés** : 
+  - `mainClasses/layout/SGLayoutConfigManager.py` (nouveau - gestionnaire centralisé des configurations)
+  - `mainClasses/layout/SGLayoutConfigSaveDialog.py` (nouveau - dialogue de sauvegarde)
+  - `mainClasses/layout/SGLayoutConfigManagerDialog.py` (nouveau - dialogue de gestion)
+  - `mainClasses/layout/SGLayoutOrderTableDialog.py` (extension - gestion des types de position)
+  - `mainClasses/layout/SGEnhancedGridLayout.py` (méthodes exportConfiguration/importConfiguration)
+  - `mainClasses/SGGameSpace.py` (attribut _positionType, méthodes de gestion d'état)
+  - `mainClasses/SGModel.py` (API modeler, intégration UI, menu Settings)
+  - `README_modeler.md` (section Enhanced Grid Layout Configuration)
+  - `CONTEXT_SGE_FOR_CHATBOT.md` (section 14.8 Enhanced Grid Layout)
+- **Problèmes rencontrés** : Gestion des types de position (absolute/mixed/layoutOrder), persistance des états, optimisation des performances, interface utilisateur complexe
+- **Solutions appliquées** : 
+  - Introduction de l'attribut `_positionType` explicite dans SGGameSpace
+  - Méthodes `setToAbsolute()`, `setToLayoutOrder()`, `setToMixed()` pour gestion d'état
+  - Système de cache `gameSpaces_cache` pour optimisations O(1) dans SGLayoutOrderTableDialog
+  - Renommage `absolute_position` → `manual_position` dans JSON pour cohérence sémantique
+  - Filtrage des configurations par `model_name` pour isolation entre modèles
+  - Gestion automatique du passage "layoutOrder" → "mixed" lors du drag manuel
+  - Restauration intelligente des `layoutOrder` originaux pour les gameSpaces "mixed"
+  - Nettoyage complet des prints debug et méthodes obsolètes
+  - Documentation minimale et ciblée
+- **Résultat** : Système complet de persistance des configurations Enhanced Grid Layout avec API modeler intuitive, interface utilisateur robuste, et optimisations de performance
 
 ### Septembre 2025 - Intégration Enhanced Grid Layout pour les gameSpaces (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
@@ -336,6 +362,22 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 - [x] Documentation mise à jour (README_developer.md, README_modeler.md, FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - [x] Tests validés avec ex_enhanced_grid_layout_1.py
 
+### Système de sauvegarde/chargement des configurations Enhanced Grid Layout - TERMINÉ ✅
+Le système de persistance des configurations Enhanced Grid Layout est **complètement terminé** et validé :
+- [x] Création de SGLayoutConfigManager pour gestion centralisée des configurations JSON
+- [x] Implémentation des dialogues SGLayoutConfigSaveDialog et SGLayoutConfigManagerDialog
+- [x] Extension de SGLayoutOrderTableDialog pour gestion des types de position
+- [x] Méthodes exportConfiguration/importConfiguration dans SGEnhancedGridLayout
+- [x] Introduction de l'attribut _positionType explicite dans SGGameSpace
+- [x] API modeler complète (saveLayoutConfig, loadLayoutConfig, getAvailableLayoutConfigs)
+- [x] Gestion automatique des transitions entre types de position (layoutOrder → mixed → absolute)
+- [x] Optimisations de performance avec cache gameSpaces_cache pour lookups O(1)
+- [x] Filtrage des configurations par model_name pour isolation entre modèles
+- [x] Renommage absolute_position → manual_position pour cohérence sémantique
+- [x] Nettoyage complet des prints debug et méthodes obsolètes
+- [x] Documentation mise à jour (README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- [x] Tests validés avec exemples multiples et modèles complexes (CarbonPolis.py)
+
 ### Prochaines étapes générales
 - [ ] Nouvelles fonctionnalités SGE (selon besoins futurs)
 - [ ] Optimisations performance (si nécessaire)
@@ -347,6 +389,25 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 ---
 
 ## Problèmes résolus
+
+### Septembre 2025 - Système de sauvegarde/chargement des configurations Enhanced Grid Layout (MAJOR)
+- **Description** : Implémentation complète d'un système de persistance des configurations Enhanced Grid Layout avec gestion des types de position, optimisations de performance, et interface utilisateur robuste
+- **Solution** : 
+  1. Création de SGLayoutConfigManager pour gestion centralisée des configurations JSON
+  2. Implémentation des dialogues SGLayoutConfigSaveDialog et SGLayoutConfigManagerDialog
+  3. Extension de SGLayoutOrderTableDialog pour gestion des types de position (absolute/mixed/layoutOrder)
+  4. Introduction de l'attribut _positionType explicite dans SGGameSpace avec méthodes de gestion d'état
+  5. Méthodes exportConfiguration/importConfiguration dans SGEnhancedGridLayout
+  6. API modeler complète (saveLayoutConfig, loadLayoutConfig, getAvailableLayoutConfigs)
+  7. Gestion automatique des transitions entre types de position (layoutOrder → mixed lors du drag)
+  8. Optimisations de performance avec cache gameSpaces_cache pour lookups O(1)
+  9. Filtrage des configurations par model_name pour isolation entre modèles
+  10. Renommage absolute_position → manual_position pour cohérence sémantique
+  11. Nettoyage complet des prints debug et méthodes obsolètes
+  12. Documentation mise à jour avec approche minimale (README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- **Fichiers modifiés** : `SGLayoutConfigManager.py` (nouveau), `SGLayoutConfigSaveDialog.py` (nouveau), `SGLayoutConfigManagerDialog.py` (nouveau), `SGLayoutOrderTableDialog.py`, `SGEnhancedGridLayout.py`, `SGGameSpace.py`, `SGModel.py`, `README_modeler.md`, `CONTEXT_SGE_FOR_CHATBOT.md`
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : Système complet de persistance des configurations Enhanced Grid Layout avec API modeler intuitive, interface utilisateur robuste, et optimisations de performance
 
 ### Septembre 2025 - Intégration Enhanced Grid Layout pour les gameSpaces (MAJOR)
 - **Description** : Intégration complète du système Enhanced Grid Layout dans SGE avec architecture polymorphique, système layoutOrder, et interface utilisateur
@@ -552,6 +613,45 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 
 ## Décisions importantes
 
+### Septembre 2025 - Système de persistance des configurations Enhanced Grid Layout
+- **Contexte** : Besoin de permettre aux modelers de sauvegarder et recharger leurs configurations Enhanced Grid Layout entre sessions
+- **Décision prise** : Implémenter un système complet de persistance avec JSON, gestion des types de position, et API modeler intuitive
+- **Impact** : 
+  - Persistance des configurations entre sessions
+  - API modeler simple (saveLayoutConfig, loadLayoutConfig, getAvailableLayoutConfigs)
+  - Gestion robuste des types de position (absolute/mixed/layoutOrder)
+  - Optimisations de performance avec cache pour lookups O(1)
+  - Isolation des configurations par modèle
+  - Interface utilisateur complète avec dialogues de gestion
+
+### Septembre 2025 - Attribut _positionType explicite dans SGGameSpace
+- **Contexte** : Confusion dans la gestion des types de position avec détection dynamique complexe
+- **Décision prise** : Introduire un attribut _positionType explicite avec méthodes de gestion d'état
+- **Impact** : 
+  - État explicite et cohérent des gameSpaces
+  - Méthodes setToAbsolute(), setToLayoutOrder(), setToMixed() pour gestion d'état
+  - Transitions automatiques (layoutOrder → mixed lors du drag)
+  - Restauration intelligente des layoutOrder originaux
+  - Élimination de la détection dynamique complexe
+
+### Septembre 2025 - Optimisations de performance avec cache gameSpaces_cache
+- **Contexte** : Recherches linéaires répétées dans SGLayoutOrderTableDialog causant des problèmes de performance
+- **Décision prise** : Implémenter un cache gameSpaces_cache pour les lookups O(1)
+- **Impact** : 
+  - Amélioration significative des performances (lookups O(n) → O(1))
+  - Réduction des itérations répétées sur self.model.gameSpaces.values()
+  - Cache initialisé une seule fois dans __init__
+  - Optimisation de toutes les méthodes critiques (accept, validateLayoutOrderChanges, etc.)
+
+### Septembre 2025 - Renommage absolute_position → manual_position
+- **Contexte** : Terme "absolute_position" utilisé pour les types "absolute" et "mixed", créant une confusion sémantique
+- **Décision prise** : Renommer en "manual_position" pour refléter l'usage réel (positionnement manuel)
+- **Impact** : 
+  - Cohérence sémantique dans les fichiers JSON
+  - Clarification de l'usage (positionnement manuel vs automatique)
+  - Support de la rétrocompatibilité avec fallback sur "absolute_position"
+  - Documentation plus claire et intuitive
+
 ### Septembre 2025 - Architecture polymorphique pour les layouts
 - **Contexte** : Architecture non polymorphique avec logique conditionnelle dans SGModel.applyAutomaticLayout()
 - **Décision prise** : Refactoring polymorphique avec méthode applyLayout() dans SGAbstractLayout et ses sous-classes
@@ -746,6 +846,26 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 
 ## Conventions découvertes et documentées
 
+### Septembre 2025 - Système de persistance des configurations Enhanced Grid Layout
+- **Convention** : Utiliser JSON pour la persistance des configurations avec structure hiérarchique par modèle
+- **Exemples** : `layout_config.json` avec clés "configurations" et filtrage par `model_name`
+- **Avantage** : Persistance légère et lisible, isolation entre modèles, facilité de débogage
+
+### Septembre 2025 - Attribut _positionType explicite pour gestion d'état
+- **Convention** : Utiliser un attribut explicite _positionType avec méthodes de gestion d'état
+- **Exemples** : `setToAbsolute()`, `setToLayoutOrder()`, `setToMixed()`, `getPositionType()`
+- **Avantage** : État cohérent et prévisible, élimination de la détection dynamique complexe
+
+### Septembre 2025 - Cache gameSpaces_cache pour optimisations O(1)
+- **Convention** : Utiliser un cache initialisé une fois pour éviter les recherches linéaires répétées
+- **Exemples** : `self.gameSpaces_cache = {gs.id: gs for gs in self.model.gameSpaces.values()}`
+- **Avantage** : Amélioration significative des performances, réduction des itérations coûteuses
+
+### Septembre 2025 - Renommage sémantique pour clarté
+- **Convention** : Renommer les termes techniques pour refléter l'usage réel
+- **Exemples** : `absolute_position` → `manual_position`, support rétrocompatibilité
+- **Avantage** : Cohérence sémantique, documentation plus claire, interface intuitive
+
 ### Septembre 2025 - Architecture polymorphique pour les layouts
 - **Convention** : Utiliser le polymorphisme pour l'application des layouts avec méthode applyLayout() dans SGAbstractLayout
 - **Exemples** : `model.layoutOfModel.applyLayout(model.gameSpaces.values())`
@@ -883,6 +1003,26 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 ---
 
 ## Chats importants
+
+### Septembre 2025 - Système de sauvegarde/chargement des configurations Enhanced Grid Layout (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Implémentation complète d'un système de persistance des configurations Enhanced Grid Layout avec gestion des types de position, optimisations de performance, et interface utilisateur robuste
+- **Résultats** : 
+  - Création de SGLayoutConfigManager pour gestion centralisée des configurations JSON
+  - Implémentation des dialogues SGLayoutConfigSaveDialog et SGLayoutConfigManagerDialog
+  - Extension de SGLayoutOrderTableDialog pour gestion des types de position (absolute/mixed/layoutOrder)
+  - Introduction de l'attribut _positionType explicite dans SGGameSpace avec méthodes de gestion d'état
+  - Méthodes exportConfiguration/importConfiguration dans SGEnhancedGridLayout
+  - API modeler complète (saveLayoutConfig, loadLayoutConfig, getAvailableLayoutConfigs)
+  - Gestion automatique des transitions entre types de position (layoutOrder → mixed lors du drag)
+  - Optimisations de performance avec cache gameSpaces_cache pour lookups O(1)
+  - Filtrage des configurations par model_name pour isolation entre modèles
+  - Renommage absolute_position → manual_position pour cohérence sémantique
+  - Nettoyage complet des prints debug et méthodes obsolètes
+  - Documentation mise à jour avec approche minimale (README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- **Fichiers modifiés** : `SGLayoutConfigManager.py` (nouveau), `SGLayoutConfigSaveDialog.py` (nouveau), `SGLayoutConfigManagerDialog.py` (nouveau), `SGLayoutOrderTableDialog.py`, `SGEnhancedGridLayout.py`, `SGGameSpace.py`, `SGModel.py`, `README_modeler.md`, `CONTEXT_SGE_FOR_CHATBOT.md`
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur layout_export_import_for_release_sept_25
 
 ### Septembre 2025 - Intégration Enhanced Grid Layout pour les gameSpaces (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
@@ -1023,6 +1163,17 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 ## Notes techniques
 
 ### Modifications importantes
+- Septembre 2025 : Système de sauvegarde/chargement des configurations Enhanced Grid Layout complet (SGLayoutConfigManager.py, SGLayoutConfigSaveDialog.py, SGLayoutConfigManagerDialog.py)
+- Septembre 2025 : Attribut _positionType explicite dans SGGameSpace avec méthodes de gestion d'état (setToAbsolute, setToLayoutOrder, setToMixed)
+- Septembre 2025 : Optimisations de performance avec cache gameSpaces_cache pour lookups O(1) dans SGLayoutOrderTableDialog
+- Septembre 2025 : Renommage absolute_position → manual_position pour cohérence sémantique dans JSON
+- Septembre 2025 : Filtrage des configurations par model_name pour isolation entre modèles
+- Septembre 2025 : Gestion automatique des transitions entre types de position (layoutOrder → mixed lors du drag)
+- Septembre 2025 : API modeler complète (saveLayoutConfig, loadLayoutConfig, getAvailableLayoutConfigs)
+- Septembre 2025 : Extension SGLayoutOrderTableDialog pour gestion des types de position
+- Septembre 2025 : Méthodes exportConfiguration/importConfiguration dans SGEnhancedGridLayout
+- Septembre 2025 : Nettoyage complet des prints debug et méthodes obsolètes
+- Septembre 2025 : Documentation mise à jour avec approche minimale (README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - Septembre 2025 : Intégration Enhanced Grid Layout complète (SGEnhancedGridLayout.py, SGLayoutOrderTableDialog.py, polymorphisme layouts)
 - Septembre 2025 : Système layoutOrder avec validation globale et réorganisation séquentielle
 - Septembre 2025 : Support positionnement manuel avec layoutOrder="manual_position"
@@ -1030,7 +1181,6 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 - Septembre 2025 : Refactoring polymorphique avec méthode applyLayout() dans tous les layouts
 - Septembre 2025 : Interface utilisateur complète avec tableau éditable et menu Settings
 - Septembre 2025 : Tooltips intelligents avec priorité SGEntity et affichage layoutOrder
-- Septembre 2025 : Nettoyage complet des méthodes inutilisées et prints debug
 - Septembre 2025 : Documentation mise à jour avec approche minimale (README_developer.md, README_modeler.md, FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - Septembre 2025 : Fonctionnalité de zoom complète (SGGrid.py, SGCellView.py, SGAgentView.py, SGAgent.py, ex_zoom_1.py à ex_zoom_3.py)
 - Septembre 2025 : Correction calculs positionnement hexagonal (facteur 0.75 avec gap)
@@ -1057,6 +1207,12 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 - 25/08/2025 : Configuration pytest.ini
 
 ### Découvertes architecturales
+- Septembre 2025 : Le système de persistance des configurations Enhanced Grid Layout nécessite une gestion explicite des types de position avec attribut _positionType
+- Septembre 2025 : Les optimisations de performance avec cache gameSpaces_cache améliorent significativement les performances des interfaces complexes
+- Septembre 2025 : Le renommage sémantique (absolute_position → manual_position) améliore la cohérence et la compréhensibilité du code
+- Septembre 2025 : Le filtrage des configurations par model_name est essentiel pour l'isolation entre modèles
+- Septembre 2025 : La gestion automatique des transitions entre types de position (layoutOrder → mixed) améliore l'expérience utilisateur
+- Septembre 2025 : L'API modeler intuitive (saveLayoutConfig, loadLayoutConfig, getAvailableLayoutConfigs) facilite l'adoption
 - Septembre 2025 : L'architecture polymorphique avec méthode applyLayout() améliore significativement la maintenabilité et l'extensibilité des layouts
 - Septembre 2025 : Le système layoutOrder avec validation globale et réorganisation séquentielle offre un contrôle utilisateur robuste et intuitif
 - Septembre 2025 : Le support du positionnement manuel avec layoutOrder="manual_position" permet une séparation claire entre automatique et manuel
@@ -1100,6 +1256,14 @@ Le système Enhanced Grid Layout est **complètement terminé** et validé :
 - 25/08/2025 : Les tests pytest standard facilitent la maintenance et la validation
 
 ### Questions en suspens
+- Comment optimiser la performance du système de persistance pour de très grandes configurations ?
+- Faut-il étendre le système de sauvegarde/chargement à d'autres types de layouts SGE ?
+- Comment gérer la migration des configurations existantes vers le nouveau système ?
+- Faut-il créer d'autres exemples pour les nouvelles fonctionnalités de persistance ?
+- Comment optimiser la performance du cache gameSpaces_cache pour de gros volumes de gameSpaces ?
+- Faut-il implémenter des raccourcis clavier pour la gestion des configurations ?
+- Comment gérer les configurations avec des gameSpaces très complexes (multiples couches) ?
+- Faut-il ajouter des indicateurs visuels du type de position des gameSpaces ?
 - Comment optimiser la performance du zoom pour de très grandes grilles ?
 - Faut-il étendre le système de zoom à d'autres types de widgets SGE ?
 - Comment gérer la migration des grilles existantes vers le nouveau système de zoom ?

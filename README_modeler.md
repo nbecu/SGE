@@ -68,6 +68,21 @@ SGE supports different layout types for organizing gameSpaces:
 
 Example: `model = SGModel(typeOfLayout="enhanced_grid")`
 
+### Enhanced Grid Layout Configuration
+
+For Enhanced Grid Layout, you can save and load layout configurations:
+
+```python
+# Save current layout configuration
+model.saveLayoutConfig("my_layout")
+
+# Load a saved configuration
+model.loadLayoutConfig("my_layout")
+
+# Check available configurations
+configs = model.getAvailableLayoutConfigs()
+```
+
 ## Folder hierarchy
 - Examples
   - example1.0.py
