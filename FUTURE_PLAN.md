@@ -4,8 +4,6 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ## Current Development Items
 
-## Current Development Items
-
 ### Core Architecture & Framework
 - [ ] Refactor SGModel to follow the ordering convention of SGE for modeler methods
 - [ ] Unify definition of `setValue` for the different classes
@@ -20,13 +18,14 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] create a "Theme system" to apply ready-to-use sgAspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
 
 ### POV System & Visual Elements
-- [ ] Create a the aspect to replace pov and create view to manage groups of symbologies
+- [ ] Create a aspect system for entities to replace pov and create view to manage groups of symbologies
 - [ ] Add image support (JPG) in POV for legends and control panels
 - [ ] Add possibility to integrate image icons in dashboards and progressGauge
 
 ### New Entities & Features
 - [ ] New `entity`: Tile
 - [ ] Add configurable min/max values for simulation variables
+- [ ] Add a cell entity: getLastArrivedAgent
 
 ### Graphs & Analytics Interface
 - [ ] Graphs interface : improve the selection menu of graphs
