@@ -7,14 +7,6 @@ This document contains the planned improvements and features for the SGE (Simula
 ### Core Architecture & Framework
 - [ ] Refactor SGModel to follow the ordering convention of SGE for modeler methods
 - [ ] Unify definition of `setValue` for the different classes
-- [x] Rename EntDef to a name that makes more sense (Dec 2024)
-  - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType
-  - ✅ Renamed attributes: classDef → type, entityName → name
-  - ✅ Renamed methods: entityType() → category(), newAgentType() → newAgentType()
-  - ✅ Updated all imports, references, and examples
-  - ✅ Fixed ControlPanel LegendItems display issue
-  - ✅ All tests and examples working correctly
-- [ ] Rename species to a name that makes more sense
 - [ ] Migrate to PyQt6
 
 ### User Interface & Display
@@ -65,7 +57,15 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ## Completed Items
 
-### User Interface & Display
+- [x] Rename EntDef to a name that makes more sense (Dec 2024)
+  - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType
+  - ✅ Renamed attributes: classDef → type, entityName → name
+  - ✅ Renamed methods: entityType() → category(), newAgentType() → newAgentType()
+  - ✅ Updated all imports, references, and examples
+  - ✅ Fixed ControlPanel LegendItems display issue
+  - ✅ All tests and examples working correctly
+- [x] Rename species to a name that makes more sense
+
 - [x] Implement zoom functionality for grids (Sept 2025)
   - ✅ Added mouse wheel zoom support for SGGrid (zoomIn/zoomOut)
   - ✅ Implemented independent zoom levels for multiple grids
