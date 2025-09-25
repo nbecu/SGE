@@ -21,7 +21,7 @@ Cell.setEntities("type", "grass")
 Cell.newPov("Type", "type", {"grass": Qt.green, "water": Qt.blue, "forest": Qt.darkGreen})
 
 # Créer une espèce d'agents
-Sheeps = myModel.newAgentSpecies("Sheeps", "circleAgent")
+Sheeps = myModel.newAgentType("Sheeps", "circleAgent")
 Sheeps.setEntities("health", "good")
 Sheeps.newPov("Health", "health", {"good": Qt.green, "bad": Qt.red})
 

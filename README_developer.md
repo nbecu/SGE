@@ -25,7 +25,7 @@ Always use the terms **game/simulation**, **player**, **modeler**, and **develop
 
 When creating new methods or functions intended for modelers, always use the following reserved keywords as prefixes, whenever possible:
 
-- **new**: To create a new type of entity (e.g., `newCellsOnGrid`, `newAgentSpecies`), a new entity instance (e.g., `newAgentAtCoords()`), or a new game element (e.g., `newPlayPhase()`, `newLegend`).
+- **new**: To create a new type of entity (e.g., `newCellsOnGrid`, `newAgentType`), a new entity instance (e.g., `newAgentAtCoords()`), or a new game element (e.g., `newPlayPhase()`, `newLegend`).
 - **get**: To access or retrieve an element from the simulation (e.g., `getPlayer`, `getScore`).
 - **delete**: To remove an element from the simulation (e.g., `deleteEntity`, `deleteAllAgents()`).
 - **set**: To modify the value of a parameter or property of an element (e.g., `setParameter`, `setName`, `setEntities_withColumn()`, `setDefaultValues()`, `setTooltip()`).

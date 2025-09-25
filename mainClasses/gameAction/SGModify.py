@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
-    def __init__(self,type,dictNewValues,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True, writeAttributeInLabel=False):
-        super().__init__(type,number,conditions,feedBacks,conditionsOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,dictNewValues,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True, writeAttributeInLabel=False):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay,setControllerContextualMenu,setOnController)
         self.dictNewValues=dictNewValues
         self.entityDef=type
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key

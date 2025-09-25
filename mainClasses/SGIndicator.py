@@ -7,8 +7,8 @@ from mainClasses.SGSimulationVariable import SGSimulationVariable
    
 #Class who is responsible of indicator creation 
 class SGIndicator():
-    def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities):
-    # def __init__(self,parent,name,method,attribute,value,listOfEntDef,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,displayName=True,conditionsOnEntities=[]):
+    def __init__(self,parent,name,method,attribute,value,entityTypes,logicOp,color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities):
+    # def __init__(self,parent,name,method,attribute,value,entityTypes,logicOp,color=Qt.blue,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True,displayName=True,conditionsOnEntities=[]):
         self.dashboard=parent
         self.method=method
         if self.method=="thresoldToLogicOp":
@@ -16,9 +16,9 @@ class SGIndicator():
         else : 
             self.value=value
         self.methods=["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp"]
-        self.listOfEntDef=listOfEntDef
-        if self.method in ["display", "thresoldToLogicOp"]: self.entity=listOfEntDef  
-        if self.method == "simVar": self.simVar=listOfEntDef  
+        self.entityTypes=entityTypes
+        if self.method in ["display", "thresoldToLogicOp"]: self.entity=entityTypes  
+        if self.method == "simVar": self.simVar=entityTypes  
         self.result=float
         self.name=name
         self.attribute=attribute
@@ -63,7 +63,7 @@ class SGIndicator():
         self.name = aName
 
     def strOfEntitiesName(self):
-        return ",".join([entDef.name for entDef in self.listOfEntDef])
+        return ",".join([entDef.name for entDef in self.entityTypes])
 
     def checkAndUpdate(self):
         if self.getUpdatePermission():
@@ -92,8 +92,8 @@ class SGIndicator():
         self.label.adjustSize()
         # self.setMinimumSize(self.geometry().size())
 
-        if isinstance(self.listOfEntDef,SGSimulationVariable):
-            self.listOfEntDef.setValue_silently(aValue)
+        if isinstance(self.entityTypes,SGSimulationVariable):
+            self.entityTypes.setValue_silently(aValue)
 
         self.dashboard.model.timeManager.updateEndGame()
 
@@ -163,7 +163,7 @@ class SGIndicator():
 
     
     def getListOfEntities(self):
-        listOfAllEntities = [j for i in [entDef.entities for entDef in self.listOfEntDef] for j in i]  
+        listOfAllEntities = [j for i in [entDef.entities for entDef in self.entityTypes] for j in i]  
         if self.conditionsOnEntities:
             entitiesSatisfyingConditions = []
             for aEnt in listOfAllEntities:

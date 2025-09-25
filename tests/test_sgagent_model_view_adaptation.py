@@ -30,7 +30,7 @@ class TestSGAgentModelViewAdaptation(unittest.TestCase):
         cls.grid = cls.cell_def.grid
         
         # Create an agent definition
-        cls.agent_def = cls.model.newAgentSpecies("TestAgent", "circleAgent", {}, 20, "blue", 
+        cls.agent_def = cls.model.newAgentType("TestAgent", "circleAgent", {}, 20, "blue", 
                                                   "center")
         
         # Get a test cell

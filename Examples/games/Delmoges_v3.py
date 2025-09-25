@@ -32,9 +32,9 @@ Cells.newPov("Cell Type","type",{"côte":Qt.green,"mer":Qt.cyan,"grandFond":Qt.b
 Cells.newPov("Sédim","sédim",{"sable":Qt.yellow,"vase":Qt.darkGreen,"rocher":Qt.red,"côte":Qt.darkGray})
 Cells.newBorderPovColorAndWidth("Incitation","incitation", {"neutre": [Qt.black,1], "bonus": [Qt.green,4], "malus": [Qt.red,4]})
 
-Soles=myModel.newAgentSpecies("Sole","triangleAgent1",{"stock":5478,"txrenouv":1.0003,"sable":1,"vase":0.75,"rocher":0,"prix":14.6,"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
-Merlus=myModel.newAgentSpecies("Merlu","triangleAgent2",{"stock":39455,"txrenouv":1.0219,"sable":1,"vase":1,"rocher":1,"prix":3.2,"facteurTemps":6329})
-Navire=myModel.newAgentSpecies("Navire","arrowAgent1")
+Soles=myModel.newAgentType("Sole","triangleAgent1",{"stock":5478,"txrenouv":1.0003,"sable":1,"vase":0.75,"rocher":0,"prix":14.6,"facteurTemps":6329}) #valeur initiale facteur temps : 1029. Changée à 6329 pour être dans les ordres de grandeur de l'impact des captures plus importantes (baisse de 5.5% à effort de référence sur 10 ans)
+Merlus=myModel.newAgentType("Merlu","triangleAgent2",{"stock":39455,"txrenouv":1.0219,"sable":1,"vase":1,"rocher":1,"prix":3.2,"facteurTemps":6329})
+Navire=myModel.newAgentType("Navire","arrowAgent1")
 Navire.setDefaultValues({"txCapture_Sole":2.75E-5,"txCapture_Merlu":3.76E-5,"Quantité_pêchée_Merlu":0,"Quantité_pêchée_Sole":0,"PêcheCumMerlu":0,"PêcheCumSole":0,"facteurEffortMerlu":12.5,"facteurEffortSole":2.84,"lastIncitationValue":"neutre"})#,"Invisibility":"True"})
 
 Navire.displayAttributeValueInContextualMenu("Quantité_pêchée_Merlu",'Merlu pêché')
@@ -68,7 +68,7 @@ def tx_présence():
     nbNavireEquivalentEffortRefZone=len(myModel.getAgentsOfSpecie("Navire"))
     for Species in EspècesHalieutiques:
         for cell in CellsMer:
-            cell.setValue("txPrésence"+Species.entityName,Species.value(cell.value("sédim"))/(nbCellsMer*nbNavireEquivalentEffortRefZone))
+            cell.setValue("txPrésence"+Species.name,Species.value(cell.value("sédim"))/(nbCellsMer*nbNavireEquivalentEffortRefZone))
 
 def pêche(cell):
     if len(cell.agents)!=0:

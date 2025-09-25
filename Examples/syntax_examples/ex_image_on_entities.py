@@ -17,7 +17,7 @@ Cells.newPov("standard view","type",{"type1":QPixmap("./images/leaves.png"),
                                      "type2":QPixmap("./images/house2.png"),
                                      "type3":QPixmap("./images/oak-nut.png")})
 ################
-AgentsA=myModel.newAgentSpecies("Agent_A","circleAgent",defaultSize=30,locationInEntity="center")
+AgentsA=myModel.newAgentType("Agent_A","circleAgent",defaultSize=30,locationInEntity="center")
 AgentsA.setDefaultValues({"category":{"cat_1","cat_2"}})
 
 AgentsA.newPov("standard view","category",{'cat_1':QPixmap("./images/shiny-coin1.svg"),
@@ -37,7 +37,7 @@ CellsHex.newPov("standard view", "type", {"type1": QPixmap("./images/five-petall
                                            "type2": QPixmap("./images/house1.svg"),
                                            "type3": QPixmap("./images/pseudo-globe.svg")})
 #############
-AgentsB = myModel.newAgentSpecies("Agent_B", "squareAgent", defaultSize=30, locationInEntity="center")  # Agents carrés
+AgentsB = myModel.newAgentType("Agent_B", "squareAgent", defaultSize=30, locationInEntity="center")  # Agents carrés
 AgentsB.setDefaultValues({"category": {"cat_1", "cat_2"}})
 
 AgentsB.newPov("standard view", "category", {'cat_1': QPixmap("./images/horse1.svg"),

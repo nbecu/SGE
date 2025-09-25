@@ -94,29 +94,29 @@ class SGDashBoard(SGGameSpace):
         """
         self.posYOfItems = self.posYOfItems+1
         if isinstance(name,str) :
-            resEntDef = self.model.getEntityDef(name)
+            resEntDef = self.model.getEntityType(name)
             if resEntDef is None: raise ValueError('Wrong type')  
-            listOfEntDef = [resEntDef]
+            listOfEntTypes = [resEntDef]
         elif isinstance(name,SGEntityType) :
-            listOfEntDef = [name]
+            listOfEntTypes = [name]
         elif name is None :
-            listOfEntDef = None
+            listOfEntTypes = None
         elif isinstance(name,list) and isinstance(name[0],str) :
-            listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in name]
+            listOfEntTypes = [self.model.getEntityType(aEntName) for aEntName in name]
         elif isinstance(name,list) and isinstance(name[0],SGEntityType) :
-            listOfEntDef = name
+            listOfEntTypes = name
         elif issubclass(type(name), SGEntity): # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
-            listOfEntDef = name
+            listOfEntTypes = name
         else:
             raise ValueError('Wrong type')
         
-        indicator = SGIndicator(self, title, method, attribute, value, listOfEntDef, logicOp, color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities=conditionsOnEntities)
+        indicator = SGIndicator(self, title, method, attribute, value, listOfEntTypes, logicOp, color,displayRefresh,onTimeConditions,isDisplay,displayName,conditionsOnEntities=conditionsOnEntities)
         self.indicators.append(indicator)
         indicator.id = self.IDincr
         self.IDincr = +1
         if method != "separator":
-            for entDef in listOfEntDef:
-                entDef.addWatcher(indicator)
+            for type in listOfEntTypes:
+                type.addWatcher(indicator)
         return indicator
     
 

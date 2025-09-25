@@ -22,8 +22,8 @@ Cell.setRandomEntities("ProtectionLevel", "Reserve", 1)
 Cell.newPov("Resource", "Resource", {3: Qt.darkGreen, 2: Qt.green, 1: Qt.yellow, 0: Qt.white})
 Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {"Reserve": Qt.magenta, "Free": Qt.black})
 
-Workers = myModel.newAgentSpecies("Workers", "triangleAgent1")
-Birds = myModel.newAgentSpecies("Birds", "triangleAgent2", defaultColor=Qt.yellow)
+Workers = myModel.newAgentType("Workers", "triangleAgent1")
+Birds = myModel.newAgentType("Birds", "triangleAgent2", defaultColor=Qt.yellow)
 
 aWorker = Workers.newAgentAtCoords(Cell,5,2)
 

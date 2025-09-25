@@ -20,7 +20,7 @@ squareCell.newPov("base", "terrain", {
 squareCell.grid.moveToCoords(50, 50)
 
 # Create agents with center location in square grid
-SquareAgents = myModel.newAgentSpecies("SquareAgents", "triangleAgent1", defaultSize=12, defaultColor=Qt.red, locationInEntity="center")
+SquareAgents = myModel.newAgentType("SquareAgents", "triangleAgent1", defaultSize=12, defaultColor=Qt.red, locationInEntity="center")
 SquareAgents.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"],
     "hunger": ["full", "hungry", "starving"]

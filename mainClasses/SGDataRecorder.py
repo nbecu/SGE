@@ -23,13 +23,13 @@ class SGDataRecorder():
         
 
     def calculateStepStats(self):
-        for aEntDef in self.model.getEntityTypes():  
-              aEntDef.calculateAndRecordCurrentStepStats()
+        for aType in self.model.getEntityTypes():  
+              aType.calculateAndRecordCurrentStepStats()
     
     def getStats_ofEntities(self):
         aList=[]
-        for aEntDef in self.model.getEntityTypes():  
-              aList.extend(aEntDef.listOfStepStats)
+        for aType in self.model.getEntityTypes():  
+              aList.extend(aType.listOfStepStats)
         return aList
 
     def getStepsData_ofEntities(self): #todo  This method seems Obsolete
@@ -96,8 +96,8 @@ class SGDataRecorder():
         return aPhase+((aRound -1)*nbPhases)+1
 
     def getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(self,name,entityId,aRound,aPhase): #todo  This method uses 'self.stepsData_ofEntities' which seems Deprecated
-        #keys of a stepData are -> 'entityType','entityName','id','round','phase','dictAttributes'
-        res=  next((aStepData for aStepData in self.stepsData_ofEntities if name==aStepData['entityName'] and entityId==aStepData['id'] and aRound==aStepData['round'] and aPhase==aStepData['phase']), None) 
+        #keys of a stepData are -> 'category','name','id','round','phase','dictAttributes'
+        res=  next((aStepData for aStepData in self.stepsData_ofEntities if name==aStepData['name'] and entityId==aStepData['id'] and aRound==aStepData['round'] and aPhase==aStepData['phase']), None) 
         return res if None else res['dictAttributes']
 
     def getAttributeValueOfAEntityAtRoundAndPhase(self,name,entityId,aRound,aPhase,aAttribute): #todo  This method uses getDictAttributesOfAEntityAtSpecifiedRoundAndPhase, which uses 'self.stepsData_ofEntities' which seems Deprecated

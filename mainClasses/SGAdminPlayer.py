@@ -19,10 +19,10 @@ class SGAdminPlayer(SGPlayer):
     def _createAllGameActions(self):
         """Automatically creates all possible gameActions for Admin based on discovered attributes and values"""
         # Get all entities from the model
-        allEntityDefs = self.model.getEntityTypes()
+        allEntityTypes = self.model.getEntityTypes()
         
         # Create actions for each entity type
-        for entityDef in allEntityDefs:
+        for entityDef in allEntityTypes:
             # Create action
             createAction = SGCreate(entityDef, None, 'infinite')
             self.gameActions.append(createAction)

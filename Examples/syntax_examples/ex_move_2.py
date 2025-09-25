@@ -23,7 +23,7 @@ Cell.newPov("terrain", "terrain", {
 })
 
 # Create agent species with move_type attribute
-Robots = myModel.newAgentSpecies("Robots", "triangleAgent1", defaultSize=20)
+Robots = myModel.newAgentType("Robots", "triangleAgent1", defaultSize=20)
 Robots.setDefaultValues({"move_type": "random"})
 
 # Create POV for movement types with different colors

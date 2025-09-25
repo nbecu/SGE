@@ -4,8 +4,8 @@ from mainClasses.SGTimePhase import *
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
-    def __init__(self,type,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
-        super().__init__(type,number,conditions,feedBacks,conditionsOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay,setControllerContextualMenu,setOnController)
         self.nameToDisplay = nameToDisplay or "⇄ move"
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent

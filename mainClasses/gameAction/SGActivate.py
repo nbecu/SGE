@@ -5,8 +5,8 @@ import sys
 
 #Class who manage the game mechanics of Activation
 class SGActivate(SGAbstractAction):
-    def __init__(self,type,method,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
-        super().__init__(type,number,conditions,feedBacks,conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,method,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,setOnController)
         if self.targetType != "model":
             self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ entDef.name)
             self.actionType="Activate"

@@ -222,7 +222,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
                 type(dict(Counter(listOfValues)))
 
         aData = {
-                'entityType': self.category(),
+                'category': self.category(),
                 'entityName': self.name,
                 'round': currentRound,
                 'phase': currentPhase,

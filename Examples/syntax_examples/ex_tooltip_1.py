@@ -24,7 +24,7 @@ Cell.newPov("base", "landForm", {"plain": Qt.green, "mountain": Qt.darkGray})
 
 
 # Create some agents
-Bees = myModel.newAgentSpecies("Bees", "circleAgent", defaultSize=10, defaultColor=QColor.fromRgb(165,42,42), locationInEntity="center")
+Bees = myModel.newAgentType("Bees", "circleAgent", defaultSize=10, defaultColor=QColor.fromRgb(165,42,42), locationInEntity="center")
 Bees.newAgentsAtRandom(2, condition=lambda c: c.isValue("landForm", "plain"))
 
 

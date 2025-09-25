@@ -298,10 +298,10 @@ aUserSelector = myModel.newUserSelector(["Viticulteur",'Tourisme'])
 #* --------------------------
 # Création des agents : représente les pions du jeu Solutré
 # Ici nous créons les "espèces" d'agents, qui servent de modèle pour la création des pions individuels
-Touriste=myModel.newAgentSpecies("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/touriste.png"))
-Bouteille=myModel.newAgentSpecies("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/vin.png"))
-BouteilleBio=myModel.newAgentSpecies("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/vinBIO.png"))
-Buisson=myModel.newAgentSpecies("Buisson","circleAgent",defaultSize=40,defaultColor=Qt.darkGreen,locationInEntity="center")
+Touriste=myModel.newAgentType("Touriste","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/touriste.png"))
+Bouteille=myModel.newAgentType("Bouteille de vin","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/vin.png"))
+BouteilleBio=myModel.newAgentType("Bouteille de vin bio","circleAgent",defaultSize=40,defaultImage=QPixmap(localLink+"/icon/solutre/vinBIO.png"))
+Buisson=myModel.newAgentType("Buisson","circleAgent",defaultSize=40,defaultColor=Qt.darkGreen,locationInEntity="center")
 reserve=myModel.newCellsOnGrid(1,1,"square",size=120,gap=0,name="Réserve")
 reserve.getEntity(1,1).setValue("zone",True)
 reserve.newPov("Zones joueurs","zone",{True:Qt.darkGray})
@@ -398,7 +398,7 @@ def createPlayerHex(aPlayerName, species, dataInst, dataAct, dataPerm=None, mode
     for hexName in playerHex:
         createHex(hexName, species, dataInst, dataAct, dataPerm, model)
 
-hexagones=myModel.newAgentSpecies("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=80,locationInEntity="center")
+hexagones=myModel.newAgentType("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=80,locationInEntity="center")
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
 hexagones.setDefaultValue("Activation",False)
 pioche=myModel.newCellsOnGrid(6,1,"square",size=80,gap=20,name="Pioche")

@@ -21,35 +21,35 @@ squareCell.grid.moveToCoords(50, 50)
 
 # Create agents with different locations
 # Top-left agents
-TopLeftAgents = myModel.newAgentSpecies("TopLeft", "triangleAgent1", defaultSize=8, defaultColor=Qt.red, locationInEntity="topLeft")
+TopLeftAgents = myModel.newAgentType("TopLeft", "triangleAgent1", defaultSize=8, defaultColor=Qt.red, locationInEntity="topLeft")
 TopLeftAgents.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"]
 })
 TopLeftAgents.newAgentsAtRandom(3, squareCell, condition=lambda c: c.isValue("terrain", "grass"))
 
 # Top-right agents
-TopRightAgents = myModel.newAgentSpecies("TopRight", "triangleAgent1", defaultSize=8, defaultColor=Qt.blue, locationInEntity="topRight")
+TopRightAgents = myModel.newAgentType("TopRight", "triangleAgent1", defaultSize=8, defaultColor=Qt.blue, locationInEntity="topRight")
 TopRightAgents.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"]
 })
 TopRightAgents.newAgentsAtRandom(3, squareCell, condition=lambda c: c.isValue("terrain", "grass"))
 
 # Bottom-left agents
-BottomLeftAgents = myModel.newAgentSpecies("BottomLeft", "triangleAgent1", defaultSize=8, defaultColor=Qt.yellow, locationInEntity="bottomLeft")
+BottomLeftAgents = myModel.newAgentType("BottomLeft", "triangleAgent1", defaultSize=8, defaultColor=Qt.yellow, locationInEntity="bottomLeft")
 BottomLeftAgents.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"]
 })
 BottomLeftAgents.newAgentsAtRandom(3, squareCell, condition=lambda c: c.isValue("terrain", "grass"))
 
 # Bottom-right agents
-BottomRightAgents = myModel.newAgentSpecies("BottomRight", "triangleAgent1", defaultSize=8, defaultColor=Qt.magenta, locationInEntity="bottomRight")
+BottomRightAgents = myModel.newAgentType("BottomRight", "triangleAgent1", defaultSize=8, defaultColor=Qt.magenta, locationInEntity="bottomRight")
 BottomRightAgents.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"]
 })
 BottomRightAgents.newAgentsAtRandom(3, squareCell, condition=lambda c: c.isValue("terrain", "grass"))
 
 # Center agents
-CenterAgents = myModel.newAgentSpecies("Center", "triangleAgent1", defaultSize=8, defaultColor=Qt.white, locationInEntity="center")
+CenterAgents = myModel.newAgentType("Center", "triangleAgent1", defaultSize=8, defaultColor=Qt.white, locationInEntity="center")
 CenterAgents.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"]
 })

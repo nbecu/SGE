@@ -117,7 +117,7 @@ cellDef = model.newCellsOnGrid(columns=10, rows=10, format="square", size=30)
 # Particularité : crée à la fois les entités ET une grille (gameSpace)
 
 # Créer une définition d'agents (espèce)
-agentDef = model.newAgentSpecies("Sheeps", "circleAgent", defaultColor=Qt.gray)
+agentDef = model.newAgentType("Sheeps", "circleAgent", defaultColor=Qt.gray)
 ```
 
 ### 2. Méthodes factory pour les instances d'entités (Model-View)

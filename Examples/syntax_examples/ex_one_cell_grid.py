@@ -15,7 +15,7 @@ Cell.setEntities_withColumn("landUse", "forest", 1)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1")
 Sheeps.newAgentAtRandom(Cell)
 
 

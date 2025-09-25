@@ -269,12 +269,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         ]
         
         # Get all entity definitions
-        entityDefs = self.getEntityTypes()
+        entityTypes = self.getEntityTypes()
         
         # Create submenus for each entity definition
-        for entityDef in entityDefs:
+        for aType in entityTypes:
             # Create submenu for this entity type
-            entityMenu = self.tooltipMenu.addMenu(f"&{entityDef.name}")
+            entityMenu = self.tooltipMenu.addMenu(f"&{aType.name}")
             
             # Create action group for exclusive selection within this entity type
             actionGroup = QActionGroup(self)
@@ -283,31 +283,31 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Store reference to action group for this entity
             if not hasattr(self, 'tooltipActionGroups'):
                 self.tooltipActionGroups = {}
-            self.tooltipActionGroups[entityDef.name] = actionGroup
+            self.tooltipActionGroups[aType.name] = actionGroup
             
             # Create actions for each tooltip option
             for label, tooltipType, description in tooltipOptions:
                 action = QAction(f"&{label}", self)
                 action.setCheckable(True)
-                action.setStatusTip(f"{description} for {entityDef.name}")
+                action.setStatusTip(f"{description} for {aType.name}")
                 action.setData(tooltipType)
                 
                 # Set default selection (none)
                 if tooltipType == "none":
                     action.setChecked(True)
                 
-                action.triggered.connect(lambda checked, e=entityDef, t=tooltipType: self.setTooltipTypeForEntity(e, t))
+                action.triggered.connect(lambda checked, e=aType, t=tooltipType: self.setTooltipTypeForEntity(e, t))
                 actionGroup.addAction(action)
                 entityMenu.addAction(action)
             
             # Add custom tooltips defined by modeler
-            for tooltipName in entityDef.customTooltips.keys():
+            for tooltipName in aType.customTooltips.keys():
                 action = QAction(f"&{tooltipName}", self)
                 action.setCheckable(True)
-                action.setStatusTip(f"Custom tooltip: {tooltipName} for {entityDef.name}")
+                action.setStatusTip(f"Custom tooltip: {tooltipName} for {aType.name}")
                 action.setData(tooltipName)
                 
-                action.triggered.connect(lambda checked, e=entityDef, t=tooltipName: self.setTooltipTypeForEntity(e, t))
+                action.triggered.connect(lambda checked, e=aType, t=tooltipName: self.setTooltipTypeForEntity(e, t))
                 actionGroup.addAction(action)
                 entityMenu.addAction(action)
     
@@ -830,30 +830,30 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getEntityTypes(self):
         return list(self.cellTypes.values()) + list(self.agentTypes.values())
 
-    def getEntityDef(self, name):
+    def getEntityType(self, name):
         if isinstance(name,SGEntityType):
             return name
         return self.getTypeByName(name)
     
     def getTypeByName(self, name):
-        entityType = next((entType for entType in self.getEntityTypes() if entType.name == name), None)
+        category = next((aType for aType in self.getEntityTypes() if aType.name == name), None)
         
-        if entityType is None:
-            existing_entities = [entType.name for entType in self.getEntityTypes()]
+        if category is None:
+            existing_entities = [aType.name for aType in self.getEntityTypes()]
             raise ValueError(f"No EntityType found with the name '{name}'. Existing EntityTypes: {', '.join(existing_entities)}")
         
-        return entityType
+        return category
 
     #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
     def getSGEntity_withIdentfier(self, aIdentificationDict):
-        entDef = self.getEntityDef(aIdentificationDict['name'])
+        type = self.getEntityType(aIdentificationDict['name'])
         aId = aIdentificationDict['id']
-        targetEntity = entDef.getEntity(aId)
+        targetEntity = type.getEntity(aId)
         return targetEntity 
 
     #This method is used by updateServer to retrieve any type of SG object (eg. GameAction or Entity) 
     def getSGObject_withIdentifier(self, aIdentificationDict):
-        className = aIdentificationDict['entityName']
+        className = aIdentificationDict['name']
         aId = aIdentificationDict['id']
         return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
         
@@ -877,11 +877,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             return anID
         raise ValueError("Check again!")
     
-    def checkAndUpdateWatchers(self):
-        for entType in self.getEntityTypes():
-            entType.updateAllWatchers()
-        for aPlayer in self.getEntityTypes():
-            entType.updateAllWatchers()
+    def checkAndUpdateWatchers(self): 
+        for aType in self.getEntityTypes():
+            aType.updateAllWatchers()
+        # for aPlayer in self.getEntityTypes(): #Todo removed because it was a mistake (it was added begining august for no apparent reason)
+        #     aType.updateAllWatchers()
     
     def getAgentsPrivateID(self):
         agents=self.getAllAgents()
@@ -1586,7 +1586,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # -----------------------------------------------------------
     # Game actions function
 
-    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
+    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
         """
         Add a Create GameAction to the game.
 
@@ -1596,11 +1596,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aClassDef = self.getEntityDef(anObjectType)
+        aClassDef = self.getEntityType(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
+        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
         """
         Add a Modify GameAction to the game.
 
@@ -1610,11 +1610,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aClassDef = self.getEntityDef(anObjectType)
+        aClassDef = self.getEntityType(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
 
-    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
         """
         Add a ModifyActionWithDialog GameAction to the game.
         
@@ -1629,14 +1629,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             setControllerContextualMenu (bool): whether to show in contextual menu
             writeAttributeInLabel (bool): whether to show attribute in label
         """
-        aClassDef = self.getEntityDef(anObjectType)
+        aClassDef = self.getEntityType(anObjectType)
         if aClassDef is None:
             raise ValueError('Wrong format of entityDef')
         
         from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
-        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedBacks, conditionsOfFeedBack, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
+        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
 
-    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False):
+    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
         Add a Delete GameAction to the game.
 
@@ -1646,11 +1646,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aClassDef = self.getEntityDef(anObjectType)
+        aClassDef = self.getEntityType(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGDelete(aClassDef, aNumber, conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu)
+        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
-    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
+    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
         """
         Add a MoveAction to the game.
 
@@ -1659,11 +1659,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - a Number (int) : number of utilisation, could use "infinite"
         - listOfConditions (list of lambda functions) : conditions on the moving Entity
         """
-        aClassDef = self.getEntityDef(anObjectType)
+        aClassDef = self.getEntityType(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGMove(aClassDef, aNumber, conditions, feedBacks, conditionsOfFeedBack, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
+        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
-    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedBacks=[],conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
         """Add a ActivateAction to the game
         Args:
         - an ObjectType : a Entity
@@ -1673,13 +1673,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             aClassDef = self
         else:
             #Case for action on a Entity
-            aClassDef = self.getEntityDef(anObjectType)
+            aClassDef = self.getEntityType(anObjectType)
         # if aClassDef is None : raise ValueError('Wrong format of entityDef')
         # todo these 2 lines are useless
         # if isinstance(aClassDef,SGEntityDef) and setControllerContextualMenu:
         #     aClassDef.updateMenu=True
 
-        aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu)
+        aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
         if setControllerButton:
             buttonCoord = setControllerButton

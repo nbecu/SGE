@@ -9,16 +9,16 @@ class SGEntity(AttributeAndValueFunctionalities):
     Separated from the view to enable Model-View architecture
     """
     
-    def __init__(self, classDef, size, attributesAndValues):
+    def __init__(self, type, size, attributesAndValues):
         """
         Initialize the entity model
         
         Args:
-            classDef: The entity definition class
+            type: The entity definition class
             size: Size of the entity
             attributesAndValues: Initial attributes and values
         """
-        self.type = classDef
+        self.type = type
         self.id = self.type.nextId()
         self.privateID = self.type.name + str(self.id)
         self.model = self.type.model
@@ -101,7 +101,7 @@ class SGEntity(AttributeAndValueFunctionalities):
     def getListOfStepsData(self, startStep=None, endStep=None):
         """Get list of step data"""
         aList = self.getListOfUntagedStepsData(startStep, endStep)
-        return [{**{'entityType': self.type.category(), 'entityName': self.type.name, 'id': self.id}, **aStepData} for aStepData in aList]
+        return [{**{'category': self.type.category(), 'name': self.type.name, 'id': self.id}, **aStepData} for aStepData in aList]
 
     def isDeleted(self):
         """Check if entity is deleted"""

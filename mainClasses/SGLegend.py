@@ -39,8 +39,8 @@ class SGLegend(SGGameSpace):
         self.posYOfItems = 0
         anItem=SGLegendItem(self,'Title1',self.id)
         self.legendItems.append(anItem)
-        for entDef, aDictOfSymbology in self.listOfSymbologies.items():
-            anItem=SGLegendItem(self,'Title2',entDef.name)
+        for type, aDictOfSymbology in self.listOfSymbologies.items():
+            anItem=SGLegendItem(self,'Title2',type.name)
             self.legendItems.append(anItem)
             # aDictOfSymbology is a dict with keys 'shape' and 'border'
             aShapeSymbology = aDictOfSymbology['shape']
@@ -48,29 +48,29 @@ class SGLegend(SGGameSpace):
             if aShapeSymbology is None and aBorderSymbology is None:         
                 # Case 1: Default symbology - no POV defined, use entity's default shape color
                 # This case corresponds to entities without any POV defined, showing default appearance
-                anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
+                anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
                 self.legendItems.append(anItem)
                 continue
             if aShapeSymbology is not None:
                 # Case 2: Shape symbology - POV for shape color, creates items for each symbol name and color
                 # This case corresponds to entities with shape-based POV (e.g., health status affecting color)
-                if self.alwaysDisplayDefaultAgentSymbology and entDef.isAgentDef:
+                if self.alwaysDisplayDefaultAgentSymbology and type.isAgentDef:
                     # Use default symbology for agents without attributes
-                    anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
+                    anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
                     self.legendItems.append(anItem)    
-                aAtt = list(entDef.povShapeColor[aShapeSymbology].keys())[0]
-                dictSymbolNameAndColor= list(entDef.povShapeColor[aShapeSymbology].values())[0]
+                aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
+                dictSymbolNameAndColor= list(type.povShapeColor[aShapeSymbology].values())[0]
                 for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,type,aColor,aAtt,aSymbolName)
                     self.legendItems.append(anItem)
             if aBorderSymbology is not None:
                 # Case 3: Border symbology - POV for border color and width, creates items for each symbol name
                 # This case corresponds to entities with border-based POV (e.g., ownership or status borders)
-                aPovBorderDef = entDef.povBorderColorAndWidth.get(aBorderSymbology)
+                aPovBorderDef = type.povBorderColorAndWidth.get(aBorderSymbology)
                 aAtt = list(aPovBorderDef.keys())[0]
                 dictSymbolNameAndColorAndWidth= list(aPovBorderDef.values())[0]
                 for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,type,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
                     self.legendItems.append(anItem)
 
         for anItem in self.legendItems:

@@ -16,11 +16,11 @@ Cell.setRandomEntities("landForm", "lac", 4)
 Cell.newPov("base", "landForm", {"plain": Qt.green, "lac": Qt.blue, "mountain": Qt.darkGray})
 
 # Sheep (random movement, only on plains)
-Sheep = myModel.newAgentSpecies("Sheep", "ellipseAgent1", defaultSize=20, locationInEntity="center", defaultColor=Qt.white)
+Sheep = myModel.newAgentType("Sheep", "ellipseAgent1", defaultSize=20, locationInEntity="center", defaultColor=Qt.white)
 Sheep.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
 # Wolf (hunts the sheep)
-Wolf = myModel.newAgentSpecies("Wolf", "triangleAgent2", defaultSize=20, locationInEntity="center", defaultColor=Qt.red)
+Wolf = myModel.newAgentType("Wolf", "triangleAgent2", defaultSize=20, locationInEntity="center", defaultColor=Qt.red)
 Wolf.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
 p1 = myModel.newModelPhase()

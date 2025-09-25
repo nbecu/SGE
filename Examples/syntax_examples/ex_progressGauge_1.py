@@ -19,7 +19,7 @@ Cell.setEntities_withColumn('cover','road',randint(1,Cell.grid.columns))
 Cell.setEntities_withRow('cover','road',randint(1,Cell.grid.rows))
 
 Cell.newPov("base","cover",{"empty":Qt.white,"building":Qt.blue,"road":Qt.lightGray})
-Cars=myModel.newAgentSpecies("car","circleAgent",defaultSize=10, locationInEntity="center")
+Cars=myModel.newAgentType("car","circleAgent",defaultSize=10, locationInEntity="center")
 Cars.newAgentsAtRandom(2,condition= lambda cell : cell.isValue('cover','road'))
 
 p1 = myModel.newModelPhase()

@@ -35,7 +35,7 @@ SeaCell.newPov("base", "seascape", {
 SeaCell.grid.moveToCoords(50, 300)
 
 # Create some agents
-Cows = myModel.newAgentSpecies("Cows", "rectAgent1", defaultSize=25, defaultColor=Qt.white, locationInEntity="bottomLeft")
+Cows = myModel.newAgentType("Cows", "rectAgent1", defaultSize=25, defaultColor=Qt.white, locationInEntity="bottomLeft")
 Cows.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"],
     "hunger": ["full", "hungry", "starving"],
@@ -43,7 +43,7 @@ Cows.setDefaultValues_randomChoice({
 })
 Cows.newAgentsAtRandom(5, LandCell, condition=lambda c: c.isValue("landForm", "plain"))
 
-Fishes = myModel.newAgentSpecies("Fish", "ellipseAgent1", defaultSize=20, defaultColor=Qt.gray)
+Fishes = myModel.newAgentType("Fish", "ellipseAgent1", defaultSize=20, defaultColor=Qt.gray)
 Fishes.setDefaultValues_randomChoice({
     "species": ["Salmon", "Tuna", "Cod", "Mackerel"],
     "size": ["small", "medium", "large"],

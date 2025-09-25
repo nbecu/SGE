@@ -851,8 +851,8 @@ DashBoardSurfaces.moveToCoords(1520,30)
 # Dashboard des potentiel d'accueil des ZH
 # DashBoardPotAccueil = myModel.newDashBoard("Potentiel accueil")
 # for aCaseAction in casesAction1:
-#     aTypeZH = aCaseAction.entDef().entityName
-#     aInd = DashBoardPotAccueil.addIndicatorOnEntity(aCaseAction,'potentiel accueil',title=aCaseAction.entDef().entityName)
+#     aTypeZH = aCaseAction.type.name
+#     aInd = DashBoardPotAccueil.addIndicatorOnEntity(aCaseAction,'potentiel accueil',title=aCaseAction.type.name)
 
 #     if surfaceInitiales[aTypeZH] == 0 and aTypeZH not in ['port plaisance','foret','herbier']:
 #          aInd.setResult(0)

@@ -23,7 +23,7 @@ Cell.newPov("terrain", "terrain", {
 })
 
 # Create agent species
-Robots = myModel.newAgentSpecies("Robots", "triangleAgent1", defaultSize=20)
+Robots = myModel.newAgentType("Robots", "triangleAgent1", defaultSize=20)
 
 # Create multiple robots
 robot1 = Robots.newAgentAtCoords(Cell, 1, 1)

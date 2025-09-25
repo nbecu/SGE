@@ -21,7 +21,7 @@ Cell.newPov("LandUse", "landUse", {
 })
 
 # Create agents
-Sheeps = myModel.newAgentSpecies("Sheeps", "triangleAgent1")
+Sheeps = myModel.newAgentType("Sheeps", "triangleAgent1")
 Sheeps.newPov("Health", "health", {'good': Qt.blue, 'bad': Qt.red})
 Sheeps.setDefaultValues({"health": "good"})
 

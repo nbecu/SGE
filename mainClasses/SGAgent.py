@@ -168,7 +168,7 @@ class SGAgent(SGEntity):
         self.updateView()
 
     # Feedback methods
-    def feedBack(self, theAction):
+    def feedback(self, theAction):
         """Apply feedback from a game mechanics action"""
         booleanForFeedback = True
         for anCondition in theAction.conditionOfFeedBack:

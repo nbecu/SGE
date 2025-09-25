@@ -10,7 +10,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [x] Rename EntDef to a name that makes more sense (Dec 2024)
   - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType
   - ✅ Renamed attributes: classDef → type, entityName → name
-  - ✅ Renamed methods: entityType() → category(), newAgentSpecies() → newAgentType()
+  - ✅ Renamed methods: entityType() → category(), newAgentType() → newAgentType()
   - ✅ Updated all imports, references, and examples
   - ✅ Fixed ControlPanel LegendItems display issue
   - ✅ All tests and examples working correctly

@@ -8,7 +8,7 @@ import copy
 class SGAbstractAction():
     IDincr=0
     instances = []
-    def __init__(self,type,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test
@@ -24,8 +24,8 @@ class SGAbstractAction():
         self.numberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
-        self.feedbacks=copy.deepcopy(feedBacks)
-        self.conditionsOfFeedBack=copy.deepcopy(conditionsOfFeedBack) 
+        self.feedbacks=copy.deepcopy(feedbacks)
+        self.conditionsOfFeedback=copy.deepcopy(conditionsOfFeedback) 
         self.setControllerContextualMenu=setControllerContextualMenu
         self.setOnController=copy.deepcopy(setOnController)        
         
@@ -103,7 +103,7 @@ class SGAbstractAction():
     #Function to test if the action feedback 
     def checkFeedbackAuhorization(self,aFeedbackTarget):
         res = True 
-        for aCondition in self.conditionsOfFeedBack:
+        for aCondition in self.conditionsOfFeedback:
             res = res and aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aFeedbackTarget)
         return res
     
@@ -148,7 +148,7 @@ class SGAbstractAction():
         self.feedbacks.append(aFeedback)
         
     def addConditionOfFeedBack(self,aCondition):
-        self.conditionsOfFeedBack.append(aCondition)
+        self.conditionsOfFeedback.append(aCondition)
         
     def getNbRemainingActions(self):
         return self.number-self.numberUsed

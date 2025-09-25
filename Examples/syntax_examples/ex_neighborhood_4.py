@@ -16,7 +16,7 @@ Cell.setRandomEntities("landForm", "lac", 4)
 Cell.newPov("base", "landForm", {"plain": Qt.green, "lac": Qt.blue, "mountain": Qt.darkGray})
 
 
-Bees = myModel.newAgentSpecies("Bees", "circleAgent", defaultSize=10, defaultColor=QColor.fromRgb(165,42,42), locationInEntity="center")
+Bees = myModel.newAgentType("Bees", "circleAgent", defaultSize=10, defaultColor=QColor.fromRgb(165,42,42), locationInEntity="center")
 Bees.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
 p1 = myModel.newModelPhase()

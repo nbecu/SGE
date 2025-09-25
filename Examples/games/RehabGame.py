@@ -36,16 +36,16 @@ Cell.newBorderPov("Parc info", "ProtectionLevel", {
 
 Cell.displayBorderPov('Parc info')
 
-harvesters = myModel.newAgentSpecies(
+harvesters = myModel.newAgentType(
     "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}})
 harvesters.setDefaultValue('harvest',0)
 harvesters.setDefaultValue('total harvest',0)
 
-Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, defaultColor=Qt.yellow)
+Bird = myModel.newAgentType("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, defaultColor=Qt.yellow)
 
 Bird.setDefaultValue('nb reproduction',0)
 
-Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
+Chick = myModel.newAgentType("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
 
 myModel.newLegend()
 

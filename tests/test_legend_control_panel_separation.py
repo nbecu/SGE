@@ -35,7 +35,7 @@ Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest
 
 # In SGE a "type" of agent is called a species.
 # To create a species, it needs : a name and a shape 
-Sheeps=myModel.newAgentSpecies("Sheeps","ellipseAgent1")
+Sheeps=myModel.newAgentType("Sheeps","ellipseAgent1")
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 
 # You can also set default values to the species so that new agents will be initialized 
@@ -114,7 +114,7 @@ for i, action in enumerate(player1_actions):
     print(f"     Action {i+1} ({action.actionType}): canBeUsed = {can_use}")
     if action.actionType == "Create":
         print(f"       Target entity: {action.targetType.name}")
-        print(f"       Target entityType: {action.targetType.category()}")
+        print(f"       Target category: {action.targetType.category()}")
         print(f"       Target isAgentDef: {action.targetType.isAgentDef}")
         print(f"       Target isCellDef: {action.targetType.isCellDef}")
         print(f"       Conditions count: {len(action.conditions)}")

@@ -33,7 +33,7 @@ LandCell.newPov("base", "landForm", {"plain": Qt.green, "mountain": Qt.darkGray}
 LandCell.grid.moveToCoords(20, 410)
 
 # Create some agents
-Cows = myModel.newAgentSpecies("Cows", "rectAgent1", defaultSize=25, defaultColor=Qt.white, locationInEntity="bottomLeft")
+Cows = myModel.newAgentType("Cows", "rectAgent1", defaultSize=25, defaultColor=Qt.white, locationInEntity="bottomLeft")
 Cows.setDefaultValues_randomChoice({
     "health": ["good", "fair", "poor"],
     "hunger": ["full", "hungry", "starving"],
@@ -42,7 +42,7 @@ Cows.setDefaultValues_randomChoice({
 Cows.newAgentsAtRandom(8, LandCell)
 
 
-Fishes = myModel.newAgentSpecies("Fish", "triangleAgent1", defaultSize=10, defaultColor=Qt.gray, locationInEntity="center")
+Fishes = myModel.newAgentType("Fish", "triangleAgent1", defaultSize=10, defaultColor=Qt.gray, locationInEntity="center")
 Fishes.setDefaultValues_randomChoice({
     "species": ["Salmon", "Tuna", "Cod", "Mackerel"],
     "size": ["small", "medium", "large"],

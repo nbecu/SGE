@@ -21,7 +21,7 @@ Cell.setEntities("type", "grass")
 Cell.newPov("Type", "type", {"grass": Qt.green})
 
 # Créer un agent simple
-Sheeps = myModel.newAgentSpecies("Sheeps", "circleAgent")
+Sheeps = myModel.newAgentType("Sheeps", "circleAgent")
 Sheeps.setDefaultValues({"health": "good"})
 Sheeps.newPov("Health", "health", {"good": Qt.blue, "bad": Qt.red})
 

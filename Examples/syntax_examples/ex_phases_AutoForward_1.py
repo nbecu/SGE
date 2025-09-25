@@ -15,7 +15,7 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1") 
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1") 
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
 m1=Sheeps.newAgentAtCoords(Cell,1,1,{"health":"good","hunger":"bad"})

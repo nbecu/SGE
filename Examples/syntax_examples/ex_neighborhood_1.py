@@ -19,7 +19,7 @@ Cell.newBorderPov("transparent","landForm",{"plain":Qt.transparent,"lac":Qt.tran
 Cell.displayBorderPov("transparent")
 
 
-Sheeps=myModel.newAgentSpecies("Sheeps","ellipseAgent1",defaultSize=20,locationInEntity='center')
+Sheeps=myModel.newAgentType("Sheeps","ellipseAgent1",defaultSize=20,locationInEntity='center')
 
 Sheeps.newAgentsAtRandom(1, condition=lambda cell : cell.isValue('landForm','plain'))
 

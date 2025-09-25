@@ -17,7 +17,7 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 
 # In SGE a "type" of agent is called a species.
 # To create a species, it needs : a name and a shape 
-Sheeps=myModel.newAgentSpecies("Sheeps","ellipseAgent1")
+Sheeps=myModel.newAgentType("Sheeps","ellipseAgent1")
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 
 # You can also set default values to the species so that new agents will be initialized with those values

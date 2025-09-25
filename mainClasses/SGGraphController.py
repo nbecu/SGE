@@ -643,13 +643,13 @@ class IndicatorSpec:
     def get_data(self, data_at_a_given_step):
         if self.component[0] == 'entity':
             if self.indicatorType == 'population':
-                return [entry['population'] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+                return [entry['population'] for entry in data_at_a_given_step if 'category' in entry and entry['name'] == self.component[1]]
             elif self.indicatorType == 'entDefAttributes':
-                return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+                return [entry[self.indicatorType][self.indicator] for entry in data_at_a_given_step if 'category' in entry and entry['name'] == self.component[1]]
             elif self.indicatorType == 'quantiAttributes':
-                return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+                return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'category' in entry and entry['name'] == self.component[1]]
             elif self.indicatorType == 'qualiAttributes':
-                return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'entityType' in entry and entry['entityName'] == self.component[1]]
+                return [entry[self.indicatorType][self.indicator[0]][self.indicator[1]] for entry in data_at_a_given_step if 'category' in entry and entry['name'] == self.component[1]]
         elif self.component == 'simVariable':
             return [entry['value'] for entry in data_at_a_given_step if 'simVarName' in entry and entry['simVarName'] == self.indicator]
         elif self.component[0] == 'player':

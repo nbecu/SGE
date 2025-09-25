@@ -17,7 +17,7 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 
 
 # health and hunger default values are initialized with random integer values
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1")
 Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10),"hunger":(lambda: random.randint(0,10)*10)})
 
 # generate a color gradient corresponding to the range of values that can be taken by the entities
