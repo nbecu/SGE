@@ -111,10 +111,6 @@ class SGEntity(AttributeAndValueFunctionalities):
         """Perform action on the entity"""
         aLambdaFunction(self)
 
-    def entDef(self): #todo to remove (obsolete)
-        """Returns the 'entity definition' class of the entity"""
-        return self.type
-
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
         dict = {}

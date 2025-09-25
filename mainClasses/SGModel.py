@@ -880,9 +880,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def checkAndUpdateWatchers(self): 
         for aType in self.getEntityTypes():
             aType.updateAllWatchers()
-        # for aPlayer in self.getEntityTypes(): #Todo removed because it was a mistake (it was added begining august for no apparent reason)
-        #     aType.updateAllWatchers()
-    
+        
     def getAgentsPrivateID(self):
         agents=self.getAllAgents()
         agents_privateID=[]

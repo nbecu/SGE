@@ -110,7 +110,7 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 SGE utilise plusieurs niveaux de méthodes factory selon le type d'élément à créer :
 
-### 1. Méthodes factory pour les définitions d'entités (EntityDef)
+### 1. Méthodes factory pour les définitions d'entités (EntityType)
 ```python
 # Créer une définition de cellules + grille (gameSpace)
 cellDef = model.newCellsOnGrid(columns=10, rows=10, format="square", size=30)

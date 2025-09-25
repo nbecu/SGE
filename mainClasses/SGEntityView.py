@@ -172,7 +172,3 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
     def isDeleted(self):
         """Check if entity is deleted"""
         return not self.isDisplay
-
-    def entDef(self): #todo to remove (obsolete)
-        """Returns the 'entity definition' class of the entity"""
-        return self.type
