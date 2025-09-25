@@ -165,7 +165,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
         dict = {}
-        dict['entityName'] = self.type.name
+        dict['name'] = self.type.name
         dict['id'] = self.id
         return dict
 

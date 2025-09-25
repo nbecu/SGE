@@ -146,8 +146,8 @@ class SGGraphController(NavigationToolbar):
 
                 #create menu items for entities
                 ##retrieves the list of entities
-                entities_list = {entry['entityName'] for entry in self.dataEntities if
-                                'entityName' in entry and not isinstance(entry['entityName'], dict)}
+                entities_list = {entry['name'] for entry in self.dataEntities if
+                                'name' in entry and not isinstance(entry['name'], dict)}
                 ###Take this opportunity to initialize the first entitiy to be selected in the menu
                 if not self.firstEntity:
                     self.firstEntity = sorted(entities_list)[0]
@@ -158,11 +158,11 @@ class SGGraphController(NavigationToolbar):
                 for entity_name in sorted(entities_list):
                     attrib_dict = {}
                     attrib_dict[f"entity-:{entity_name}-:population"] = None
-                    list_entDef_attribut_key = {x for entry in self.dataEntities for x in entry.get('entDefAttributes', {}) if entry['entityName'] == entity_name}
+                    list_entDef_attribut_key = {x for entry in self.dataEntities for x in entry.get('entDefAttributes', {}) if entry['name'] == entity_name}
                     for entDef_attribut_key in sorted(list_entDef_attribut_key):
                         attrib_dict[f"entity-:{entity_name}-:{entDef_attribut_key}"] = None                                              
                     list_attribut_key = {attribut for entry in self.dataEntities for attribut in entry.get(self.parentAttributKey, {}) if
-                                        entry['entityName'] == entity_name}
+                                        entry['name'] == entity_name}
                     if not self.firstAttribut:
                         self.firstAttribut = "population"  # sorted(list_attribut_key)[0]
                     for attribut_key in sorted(list_attribut_key):
@@ -225,9 +225,9 @@ class SGGraphController(NavigationToolbar):
 
             #create menu items for entities
             ##retrieves the list of entities
-            entities_list = {entry['entityName'] for entry in self.dataEntities if
-                             'entityName' in entry and isinstance(entry[self.parentAttributKey], dict)
-                             and entry[self.parentAttributKey].keys() and not isinstance(entry['entityName'], dict) #pourquoi cettte denière condition ?
+            entities_list = {entry['name'] for entry in self.dataEntities if
+                             'name' in entry and isinstance(entry[self.parentAttributKey], dict)
+                             and entry[self.parentAttributKey].keys() and not isinstance(entry['name'], dict) #pourquoi cettte denière condition ?
                              }
             ##Take this opportunity to initialize the first entitiy to be selected in the menu
             if not self.firstEntity:
@@ -236,7 +236,7 @@ class SGGraphController(NavigationToolbar):
             for entity_name in sorted(entities_list):
                 attrib_dict = {}
                 list_attribut_key = {attribut for entry in self.dataEntities for attribut in entry.get(self.parentAttributKey, {}) if
-                                     entry.get('entityName') == entity_name and isinstance(
+                                     entry.get('name') == entity_name and isinstance(
                                          entry[self.parentAttributKey][attribut], dict)}
 
                 if not self.firstAttribut:
@@ -404,7 +404,7 @@ class SGGraphController(NavigationToolbar):
                 entity_name_list.append(entity_name)
                 attribut_value = list_opt[-1]
                 histo_y = {f"{entity_name}-{attribut_value}": entry[self.parentAttributKey][attribut_value]['histo']
-                           for entry in data if entry['entityName'] == entity_name and self.parentAttributKey in entry
+                           for entry in data if entry['name'] == entity_name and self.parentAttributKey in entry
                            and attribut_value in entry[self.parentAttributKey] and 'histo' in
                            entry[self.parentAttributKey][attribut_value] and entry['round'] == max(self.rounds)}
                 list_data.append(histo_y)
@@ -431,18 +431,18 @@ class SGGraphController(NavigationToolbar):
     def plot_pie_typeGraph(self, data, selected_option_list):
         if len(selected_option_list) > 0 and "-:" in selected_option_list[0]:
             list_option = selected_option_list[0].split("-:")
-            entityName = list_option[1]
+            name = list_option[1]
             attribut_value = list_option[2]
             self.ax.clear()
             data_pie = next((entry[self.parentAttributKey][attribut_value] for entry in data
                              if entry['round'] == max(self.rounds) and
-                             entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]), None)
+                             entry['name'] == name and attribut_value in entry[self.parentAttributKey]), None)
             if data_pie is None:
                 return None 
                 # raise ValueError('Did not find data for Pie Chart')  
             labels = list(data_pie.keys())
             values = list(data_pie.values())
-            self.title = f"Répartition des {entityName} par {attribut_value} en (%)"
+            self.title = f"Répartition des {name} par {attribut_value} en (%)"
             self.ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
             self.ax.axis('equal')
             self.ax.legend()
@@ -464,8 +464,8 @@ class SGGraphController(NavigationToolbar):
         for option in selected_option_list:
             if "-:" in option:
                 list_opt = option.split("-:")
-                entityName = list_opt[1]
-                entity_name_list.append(entityName)
+                name = list_opt[1]
+                entity_name_list.append(name)
                 attribut_value = list_opt[-1]
                 list_attribut_key.append(attribut_value)
 
@@ -480,13 +480,13 @@ class SGGraphController(NavigationToolbar):
                         phaseIndex = phase_to_display if r != 0 else 0
 
                         # code initiale qui bug car parfois l'index [-1] n'existe pas car la liste est vide
-                        # aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if entry['entityName'] == entityName
+                        # aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if entry['name'] == name
                         #           and attribut_value in entry[self.parentAttributKey] and
                         #           entry['round'] == r and entry['phase'] == phaseIndex][-1]
                         # list_data.append(aEntry)
 
                         entries = [entry[self.parentAttributKey][attribut_value] for entry in data 
-                                 if entry['entityName'] == entityName
+                                 if entry['name'] == name
                                  and attribut_value in entry[self.parentAttributKey] 
                                  and entry['round'] == r 
                                  and entry['phase'] == phaseIndex]
@@ -502,7 +502,7 @@ class SGGraphController(NavigationToolbar):
                 else:  # Case --> 'per step'
                     # 1/ get the first step (round 0, phase 0)
                     aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if
-                              entry['entityName'] == entityName
+                              entry['name'] == name
                               and attribut_value in entry[self.parentAttributKey] and
                               entry['round'] == 0 and entry['phase'] == 0][-1]
                     list_data.append(aEntry)
@@ -510,7 +510,7 @@ class SGGraphController(NavigationToolbar):
                     for aR in range(self.nbRoundsWithLastPhase):
                         for aP in range(self.nbPhases):
                             aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data if
-                                      entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]
+                                      entry['name'] == name and attribut_value in entry[self.parentAttributKey]
                                       and entry['round'] == (aR + 1) and entry['phase'] == (aP + 1)][-1]
                             list_data.append(aEntry)
 
@@ -519,7 +519,7 @@ class SGGraphController(NavigationToolbar):
                         for aP in range(self.phaseOfLastRound):
                             aEntry = [entry[self.parentAttributKey][attribut_value] for entry in data
                                       if len(data)>0 and self.parentAttributKey in entry and
-                                      entry['entityName'] == entityName and attribut_value in entry[self.parentAttributKey]
+                                      entry['name'] == name and attribut_value in entry[self.parentAttributKey]
                                       and entry['round'] == self.nbRounds and entry['phase'] == (aP + 1)][-1]
                             list_data.append(aEntry)
 

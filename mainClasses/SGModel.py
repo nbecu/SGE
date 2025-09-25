@@ -1479,9 +1479,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.symbologiesInSubmenus[submenu]=[]
             return submenu
             
-    def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology,isBorder=False):
+    def addClassDefSymbologyinMenuBar(self, aType,nameOfSymbology,isBorder=False):
         if self.symbologyMenu is None: return False
-        submenu_name= aClassDef.name
+        submenu_name= aType.name
         if isBorder: submenu_name = submenu_name + self.keyword_borderSubmenu
         # get the submenu (or create it if it doesn't exist yet)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
@@ -1493,12 +1493,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # add actions to the submenu
         self.symbologiesInSubmenus[submenu].append(item)
 
-    def checkSymbologyinMenuBar(self, aClassDef, nameOfSymbology, borderSymbology=False):
+    def checkSymbologyinMenuBar(self, aType, nameOfSymbology, borderSymbology=False):
         """
         Checks and updates the symbology in the menu bar for the specified class definition.
 
         Args:
-            aClassDef: The class definition for which the symbology is being checked.
+            aType: The class definition for which the symbology is being checked.
             nameOfSymbology (str): The name of the symbology to check.
             borderSymbology (bool): Indicates if the symbology is for a border (default: False).
 
@@ -1509,11 +1509,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             return False
 
         if borderSymbology:
-            entityName = aClassDef.name + self.keyword_borderSubmenu
+            name = aType.name + self.keyword_borderSubmenu
         else:
-            entityName = aClassDef.name
+            name = aType.name
 
-        symbologies = self.getSymbologiesOfSubmenu(entityName)
+        symbologies = self.getSymbologiesOfSubmenu(name)
 
         for aSymbology in symbologies:
             if aSymbology.text() == nameOfSymbology:
@@ -1596,9 +1596,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aClassDef = self.getEntityType(anObjectType)
-        if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
+        aType = self.getEntityType(anObjectType)
+        if aType is None : raise ValueError('Wrong format of entityDef')
+        return SGCreate(aType,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
 
     def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
         """
@@ -1610,9 +1610,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aClassDef = self.getEntityType(anObjectType)
-        if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+        aType = self.getEntityType(anObjectType)
+        if aType is None : raise ValueError('Wrong format of entityDef')
+        return SGModify(aType,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
 
     def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
         """
@@ -1629,12 +1629,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             setControllerContextualMenu (bool): whether to show in contextual menu
             writeAttributeInLabel (bool): whether to show attribute in label
         """
-        aClassDef = self.getEntityType(anObjectType)
-        if aClassDef is None:
+        aType = self.getEntityType(anObjectType)
+        if aType is None:
             raise ValueError('Wrong format of entityDef')
         
         from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
-        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
+        return SGModifyActionWithDialog(aType, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
 
     def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
@@ -1646,9 +1646,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aClassDef = self.getEntityType(anObjectType)
-        if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        aType = self.getEntityType(anObjectType)
+        if aType is None : raise ValueError('Wrong format of entityDef')
+        return SGDelete(aType, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
     def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
         """
@@ -1659,9 +1659,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - a Number (int) : number of utilisation, could use "infinite"
         - listOfConditions (list of lambda functions) : conditions on the moving Entity
         """
-        aClassDef = self.getEntityType(anObjectType)
-        if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
+        aType = self.getEntityType(anObjectType)
+        if aType is None : raise ValueError('Wrong format of entityDef')
+        return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
     def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
         """Add a ActivateAction to the game
@@ -1670,16 +1670,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - """
         #Case for action on the model
         if anObjectType is None or anObjectType ==self:
-            aClassDef = self
+            aType = self
         else:
             #Case for action on a Entity
-            aClassDef = self.getEntityType(anObjectType)
-        # if aClassDef is None : raise ValueError('Wrong format of entityDef')
+            aType = self.getEntityType(anObjectType)
+        # if aType is None : raise ValueError('Wrong format of entityDef')
         # todo these 2 lines are useless
-        # if isinstance(aClassDef,SGEntityDef) and setControllerContextualMenu:
-        #     aClassDef.updateMenu=True
+        # if isinstance(aType,SGEntityDef) and setControllerContextualMenu:
+        #     aType.updateMenu=True
 
-        aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        aActivateAction = SGActivate(aType, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
         if setControllerButton:
             buttonCoord = setControllerButton
@@ -1969,7 +1969,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         methodNameToExe = objectAndMethod['method']
 
         aIdentificationDict={}
-        aIdentificationDict['entityName']=classOfObjectToExe
+        aIdentificationDict['name']=classOfObjectToExe
         aIdentificationDict['id']=idOfObjectToExe 
         aSGObject = self.getSGObject_withIdentifier(aIdentificationDict)
         

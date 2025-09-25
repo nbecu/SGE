@@ -29,8 +29,8 @@ class SGFormatDataHistory():
             h = aEntity.getHistoryDataJSON()
             historyData.append(h)
             #dictOfData[aEntity.getObjectIdentiferForJsonDumps] = aEntity.history["value"]
-            """print("id: {}, entityName: {}, entityDef: {}, value: {}".
-                  format(h['id'], h['entityName'], h['entityDef'], h['value']))"""
+            """print("id: {}, name: {}, entityDef: {}, value: {}".
+                  format(h['id'], h['name'], h['entityDef'], h['value']))"""
             # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
         #print("historyData : ", len(historyData))
         return historyData

@@ -223,7 +223,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
         aData = {
                 'category': self.category(),
-                'entityName': self.name,
+                'name': self.name,
                 'round': currentRound,
                 'phase': currentPhase,
                 'population': len(self.entities),
