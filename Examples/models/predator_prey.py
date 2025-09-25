@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(660, 430, windowTitle="Wolf hunts closest sheep (radius 3) and kills it if its on the same location")
+myModel = SGModel(660, 444, windowTitle="Wolf hunts closest sheep (radius 3) and kills it if its on the same location")
 
 Cell = myModel.newCellsOnGrid(
     columns=16, rows=10, format="square", gap=0, size=40, neighborhood='moore', boundaries='closed'

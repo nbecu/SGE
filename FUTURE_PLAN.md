@@ -5,7 +5,6 @@ This document contains the planned improvements and features for the SGE (Simula
 ## Current Development Items
 
 ### Core Architecture & Framework
-- [ ] Refactor SGModel to follow the ordering convention of SGE for modeler methods
 - [ ] Unify definition of `setValue` for the different classes
 - [ ] Migrate to PyQt6
 
@@ -56,6 +55,12 @@ This document contains the planned improvements and features for the SGE (Simula
 
 
 ## Completed Items
+
+- [x] Refactor SGModel to follow the ordering convention of SGE for modeler methods (Dec 2024)
+  - ✅ Added proper section separators for MODELER METHODS
+  - ✅ Organized methods by type: NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY
+  - ✅ Moved developer methods to DEVELOPER METHODS section
+  - ✅ Maintained all functionality while improving code organization
 
 - [x] Rename EntDef to a name that makes more sense (Dec 2024)
   - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType
