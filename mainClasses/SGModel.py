@@ -1479,7 +1479,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.symbologiesInSubmenus[submenu]=[]
             return submenu
             
-    def addClassDefSymbologyinMenuBar(self, aType,nameOfSymbology,isBorder=False):
+    def addEntTypeSymbologyinMenuBar(self, aType,nameOfSymbology,isBorder=False):
         if self.symbologyMenu is None: return False
         submenu_name= aType.name
         if isBorder: submenu_name = submenu_name + self.keyword_borderSubmenu

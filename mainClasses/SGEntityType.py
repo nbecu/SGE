@@ -585,7 +585,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
             
         """
         self.povShapeColor[nameOfPov]={str(concernedAtt):dictOfColor}
-        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov)
+        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov)
         if len(self.povShapeColor)==1:
             self.displayPov(nameOfPov)
 
@@ -599,7 +599,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
             DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)        """
         dictOfColorAndWidth = self.addWidthInPovDictOfColors(borderWidth,dictOfColor)
         self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
-        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov,isBorder=True)
 
     def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):
         """
@@ -611,7 +611,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """
         dictOfColorAndWidth = self.reformatDictOfColorAndWidth(dictOfColorAndWidth)
         self.povBorderColorAndWidth[nameOfPov]={str(concernedAtt):dictOfColorAndWidth}
-        self.model.addClassDefSymbologyinMenuBar(self,nameOfPov,isBorder=True)
+        self.model.addEntTypeSymbologyinMenuBar(self,nameOfPov,isBorder=True)
 
 
     # ============================================================================

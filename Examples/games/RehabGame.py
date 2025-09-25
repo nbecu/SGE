@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    750, 500, x=5, windowTitle="Rehab Game")
+    750, 500, nb_columns=5, windowTitle="Rehab Game")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')

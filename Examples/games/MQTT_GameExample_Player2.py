@@ -8,7 +8,7 @@ monApp = QtWidgets.QApplication([])
 
 random.seed(13)
 myModel = SGModel(
-    900, 900, x=5, windowTitle="MQTT Example - Player 2", typeOfLayout="grid")
+    900, 900, nb_columns=5, windowTitle="MQTT Example - Player 2", typeOfLayout="grid")
 
 Cell = myModel.newCellsOnGrid(7, 7, "square", size=60, gap=2,name='grid1')
 Cell.setEntities("Resource", 2)
