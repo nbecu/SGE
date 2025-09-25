@@ -40,7 +40,7 @@ class SGLegend(SGGameSpace):
         anItem=SGLegendItem(self,'Title1',self.id)
         self.legendItems.append(anItem)
         for entDef, aDictOfSymbology in self.listOfSymbologies.items():
-            anItem=SGLegendItem(self,'Title2',entDef.entityName)
+            anItem=SGLegendItem(self,'Title2',entDef.name)
             self.legendItems.append(anItem)
             # aDictOfSymbology is a dict with keys 'shape' and 'border'
             aShapeSymbology = aDictOfSymbology['shape']

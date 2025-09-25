@@ -19,7 +19,7 @@ class SGAdminPlayer(SGPlayer):
     def _createAllGameActions(self):
         """Automatically creates all possible gameActions for Admin based on discovered attributes and values"""
         # Get all entities from the model
-        allEntityDefs = self.model.getEntitiesDef()
+        allEntityDefs = self.model.getEntityTypes()
         
         # Create actions for each entity type
         for entityDef in allEntityDefs:
@@ -47,7 +47,7 @@ class SGAdminPlayer(SGPlayer):
     
     def _createModifyActionsForEntity(self, entityDef):
         """Creates ModifyActions for an entity based on discovered attributes and values"""
-        # Use the new method from SGEntityDef
+        # Use the new method from SGEntityType
         discoveredAttrs = entityDef.discoverAttributesAndValues()
         
         # Create ModifyActions for each attribute-value combination

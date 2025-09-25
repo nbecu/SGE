@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from sqlalchemy import true
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGIndicator import SGIndicator
-from mainClasses.SGEntityDef import *
+from mainClasses.SGEntityType import *
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGPlayer import SGPlayer
 from mainClasses.SGCell import SGCell
@@ -69,12 +69,12 @@ class SGDashBoard(SGGameSpace):
         self.setLayout(self.layout)
 
 
-    def addIndicator(self, entityName,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True, displayName=True, conditionsOnEntities=[]):
+    def addIndicator(self, name,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add an Indicator on the DashBoard.
 
         Args:
-            entityName (str) :  aEntityDef name, or aEntityDef, of a List of EntityDef or names, or None (only for score)
+            name (str) :  aEntityType name, or aEntityType, of a List of EntityType or names, or None (only for score)
             method (str) : name of the method in ["sumAtt","avgAtt","minAtt","maxAtt","nb","nbWithLess","nbWithMore","nbEqualTo","thresoldToLogicOp","score"].
             attribute (str) : concerned attribute 
             value (str, optional) : concerned value
@@ -93,20 +93,20 @@ class SGDashBoard(SGGameSpace):
 
         """
         self.posYOfItems = self.posYOfItems+1
-        if isinstance(entityName,str) :
-            resEntDef = self.model.getEntityDef(entityName)
+        if isinstance(name,str) :
+            resEntDef = self.model.getEntityDef(name)
             if resEntDef is None: raise ValueError('Wrong type')  
             listOfEntDef = [resEntDef]
-        elif isinstance(entityName,SGEntityDef) :
-            listOfEntDef = [entityName]
-        elif entityName is None :
+        elif isinstance(name,SGEntityType) :
+            listOfEntDef = [name]
+        elif name is None :
             listOfEntDef = None
-        elif isinstance(entityName,list) and isinstance(entityName[0],str) :
-            listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in entityName]
-        elif isinstance(entityName,list) and isinstance(entityName[0],SGEntityDef) :
-            listOfEntDef = entityName
-        elif issubclass(type(entityName), SGEntity): # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
-            listOfEntDef = entityName
+        elif isinstance(name,list) and isinstance(name[0],str) :
+            listOfEntDef = [self.model.getEntityDef(aEntName) for aEntName in name]
+        elif isinstance(name,list) and isinstance(name[0],SGEntityType) :
+            listOfEntDef = name
+        elif issubclass(type(name), SGEntity): # A PRIORI CE CAS NE SE PRESENTE JAMAIS CAR dans ce genre cas, on utilise la méthode addIndicatorOnEntity()
+            listOfEntDef = name
         else:
             raise ValueError('Wrong type')
         
@@ -139,7 +139,7 @@ class SGDashBoard(SGGameSpace):
             displayRefresh (str, optional): Determines how the display is refreshed (e.g., "instantaneous", "onTimeConditions").
             isDisplay (bool, optional): Whether to display on the dashboard (default is True).
         """
-        if not isinstance(entity,(SGEntity,SGEntityDef,SGPlayer,SGCell)): raise ValueError ('Wrong entity format')
+        if not isinstance(entity,(SGEntity,SGEntityType,SGPlayer,SGCell)): raise ValueError ('Wrong entity format')
         self.entity= entity
 
         if value is None:

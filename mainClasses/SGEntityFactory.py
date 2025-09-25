@@ -67,7 +67,7 @@ class SGEntityFactory:
         )
         
         # Create the agent view with grid as parent (not cell)
-        grid_parent = cell.classDef.grid if hasattr(cell, 'classDef') and hasattr(cell.classDef, 'grid') else None
+        grid_parent = cell.type.grid if hasattr(cell, 'type') and hasattr(cell.type, 'grid') else None
         
         agent_view = SGAgentView(agent_model, grid_parent)
         

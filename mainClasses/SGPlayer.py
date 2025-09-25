@@ -157,7 +157,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
     
     def getAllGameActionsOn(self, anEntityInstance):
         actionsForMenu=[]
-        entityDef=anEntityInstance.classDef
+        entityDef=anEntityInstance.type
         for aGameAction in self.gameActions:
             if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) or isinstance(aGameAction,SGDelete) and aGameAction.targetEntDef==entityDef:
                 actionsForMenu.append(aGameAction)
@@ -171,7 +171,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 return
     
     def getMoveActionsOn(self, anEntityInstance):
-        entityDef=anEntityInstance.classDef
+        entityDef=anEntityInstance.type
         moveActions=[]
         for aGameAction in self.gameActions:
             if isinstance(aGameAction,SGMove):

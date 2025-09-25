@@ -31,7 +31,7 @@ from mainClasses.SGDataRecorder import *
 from mainClasses.SGEndGameRule import *
 from mainClasses.SGEntity import *
 from mainClasses.SGEntityView import *
-from mainClasses.SGEntityDef import *
+from mainClasses.SGEntityType import *
 from mainClasses.SGGrid import *
 from mainClasses.SGGraphController import SGGraphController
 from mainClasses.SGGraphLinear import SGGraphLinear
@@ -120,8 +120,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # list of graphs
         self.openedGraphs = []
         # Definition of the AgentDef and CellDef
-        self.agentSpecies = {}
-        self.cellOfGrids = {}
+        self.agentTypes = {}
+        self.cellTypes = {}
         # Definition of simulation variables
         self.simulationVariables = []
         # definition of layouts and associated parameters
@@ -269,12 +269,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         ]
         
         # Get all entity definitions
-        entityDefs = self.getEntitiesDef()
+        entityDefs = self.getEntityTypes()
         
         # Create submenus for each entity definition
         for entityDef in entityDefs:
             # Create submenu for this entity type
-            entityMenu = self.tooltipMenu.addMenu(f"&{entityDef.entityName}")
+            entityMenu = self.tooltipMenu.addMenu(f"&{entityDef.name}")
             
             # Create action group for exclusive selection within this entity type
             actionGroup = QActionGroup(self)
@@ -283,13 +283,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Store reference to action group for this entity
             if not hasattr(self, 'tooltipActionGroups'):
                 self.tooltipActionGroups = {}
-            self.tooltipActionGroups[entityDef.entityName] = actionGroup
+            self.tooltipActionGroups[entityDef.name] = actionGroup
             
             # Create actions for each tooltip option
             for label, tooltipType, description in tooltipOptions:
                 action = QAction(f"&{label}", self)
                 action.setCheckable(True)
-                action.setStatusTip(f"{description} for {entityDef.entityName}")
+                action.setStatusTip(f"{description} for {entityDef.name}")
                 action.setData(tooltipType)
                 
                 # Set default selection (none)
@@ -304,7 +304,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             for tooltipName in entityDef.customTooltips.keys():
                 action = QAction(f"&{tooltipName}", self)
                 action.setCheckable(True)
-                action.setStatusTip(f"Custom tooltip: {tooltipName} for {entityDef.entityName}")
+                action.setStatusTip(f"Custom tooltip: {tooltipName} for {entityDef.name}")
                 action.setData(tooltipName)
                 
                 action.triggered.connect(lambda checked, e=entityDef, t=tooltipName: self.setTooltipTypeForEntity(e, t))
@@ -545,7 +545,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # msg_box.setWindowTitle("Warning Message")
             # # Get the agent model from the view
             # agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
-            # msg_box.setText("A " + agent_model.classDef.entityName +" cannot be moved here")
+            # msg_box.setText("A " + agent_model.type.name +" cannot be moved here")
             # msg_box.setStandardButtons(QMessageBox.Ok)
             # msg_box.setDefaultButton(QMessageBox.Ok)
             # msg_box.exec_()
@@ -648,18 +648,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         
         return aCellDef
     
-    def generateCellsForGrid(self,grid,defaultCellImage,entityName):
-        CellDef = SGCellDef(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,entityName=entityName,defaultCellImage=defaultCellImage)
-        self.cellOfGrids[grid.id] = CellDef
+    def generateCellsForGrid(self,grid,defaultCellImage,name):
+        CellType = SGCellType(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,name=name,defaultCellImage=defaultCellImage)
+        self.cellTypes[grid.id] = CellType
         for row in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
-                CellDef.newCell(col, row)
-        return CellDef
+                CellType.newCell(col, row)
+        return CellType
 
-    # To get the CellDef corresponding to a Grid
-    def getCellDef(self, aGrid):
+    # To get the CellType corresponding to a Grid
+    def getCellType(self, aGrid):
         if aGrid.isCellDef: return aGrid
-        return self.cellOfGrids[aGrid.id]
+        return self.cellTypes[aGrid.id]
 
 
     # To get all the cells of the collection
@@ -667,17 +667,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getCells(self,grid=None):
         if grid == None:
             grid = self.getGrids()[0]
-        return self.getCellDef(grid).entities
+        return self.getCellType(grid).entities
     
     def getAllCells(self):
         # send back the cells of all the grids
         aList= []
-        for entDef in self.cellOfGrids.values():
-            aList.extend(entDef.entities)
+        for entType in self.cellTypes.values():
+            aList.extend(entType.entities)
         return aList
     
     def numberOfCellDef(self):
-        return len(self.cellOfGrids)
+        return len(self.cellTypes)
     
     def numberOfGrids(self):
         return self.numberOfCellDef()
@@ -685,15 +685,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getAllEntities(self):
         # send back the cells of all the grids and the agents of all the species
         aList= []
-        for entDef in self.cellOfGrids.values():
-            aList.extend(entDef.entities)
-        for entDef in self.getAgentSpeciesDict():
-            aList.extend(entDef.entities)
+        for entType in self.cellTypes.values():
+            aList.extend(entType.entities)
+        for entType in self.getAgentTypesDict():
+            aList.extend(entType.entities)
         return aList
     
     # To get all the povs of the collection
     def getCellPovs(self,grid):
-        return {key: value for dict in (self.cellOfGrids[grid.id]['ColorPOV'],self.cellOfGrids[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
+        return {key: value for dict in (self.cellTypes[grid.id]['ColorPOV'],self.cellTypes[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
 
     # To get a cell in particular
     def getCell(self, aGrid, aId):
@@ -762,7 +762,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 )
 
     # To create a New kind of agents
-    def newAgentSpecies(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",defaultImage=None):
+    def newAgentType(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity="random",defaultImage=None):
         """
         Create a new specie of Agents.
 
@@ -780,9 +780,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent"]:
             raise ValueError(f"Invalid shape: {shape}")
-        aAgentSpecies = SGAgentDef(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
-        self.agentSpecies[name]=aAgentSpecies
-        return aAgentSpecies
+        aAgentType = SGAgentType(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
+        self.agentTypes[name]=aAgentType
+        return aAgentType
 
     def getDefaultAgentRandomValue(self, begin, end):
         #Cette methode etait utiliser dans exstep8 pour l'utiliser comme suit :
@@ -790,27 +790,27 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             #Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
         return random.randint(begin, end)
 
-    def getAgentSpeciesName(self):
-        # send back a list of the names of all the species
-        return list(self.agentSpecies.keys())
+    def getAgentTypesName(self):
+        # send back a list of the names of all the agent types
+        return list(self.agentTypes.keys())
     
-    def getAgentSpeciesDict(self):
-        # send back a list of all the species Dict (specie definition dict)
-        return list(self.agentSpecies.values())
+    def getAgentTypesDict(self):
+        # send back a list of all the agent types Dict (agent type definition dict)
+        return list(self.agentTypes.values())
 
-    def getAgentSpecieDict(self, aSpecieName):
-        # send back the specie dict (specie definition dict) that corresponds to aSpecieName
-        return self.agentSpecies.get(aSpecieName)
+    def getAgentTypeDict(self, aTypeName):
+        # send back the agent type dict (agent type definition dict) that corresponds to aTypeName
+        return self.agentTypes.get(aTypeName)
 
-    def getAgentsOfSpecie(self, aSpecieName) -> list[SGAgent]:
-        agentDef = self.getAgentSpecieDict(aSpecieName)
-        if agentDef is None:  return None
-        else: return agentDef.entities[:]
+    def getAgentsOfType(self, aTypeName) -> list[SGAgent]:
+        agentType = self.getAgentTypeDict(aTypeName)
+        if agentType is None:  return None
+        else: return agentType.entities[:]
     
     def positionAllAgents(self):
         """Position all agents after grid layout is applied"""
-        for agent_species in self.getAgentSpeciesDict():
-            for agent in agent_species.entities:
+        for agent_type in self.getAgentTypesDict():
+            for agent in agent_type.entities:
                 if hasattr(agent, 'view') and agent.view:
                     # Show the agent view first
                     agent.view.show()
@@ -821,32 +821,32 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     agent.view.update()
 
     def getAllAgents(self):
-        # send back the agents of all the species
+        # send back the agents of all the types
         aList= []
-        for entDef in self.getAgentSpeciesDict():
-            aList.extend(entDef.entities)
+        for entType in self.getAgentTypesDict():
+            aList.extend(entType.entities)
         return aList
     
-    def getEntitiesDef(self):
-        return list(self.cellOfGrids.values()) + list(self.agentSpecies.values())
+    def getEntityTypes(self):
+        return list(self.cellTypes.values()) + list(self.agentTypes.values())
 
-    def getEntityDef(self, entityName):
-        if isinstance(entityName,SGEntityDef):
-            return entityName
-        return self.getEntityDefByName(entityName)
+    def getEntityDef(self, name):
+        if isinstance(name,SGEntityType):
+            return name
+        return self.getTypeByName(name)
     
-    def getEntityDefByName(self, entityName):
-        entityDef = next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
+    def getTypeByName(self, name):
+        entityType = next((entType for entType in self.getEntityTypes() if entType.name == name), None)
         
-        if entityDef is None:
-            existing_entities = [entDef.entityName for entDef in self.getEntitiesDef()]
-            raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
+        if entityType is None:
+            existing_entities = [entType.name for entType in self.getEntityTypes()]
+            raise ValueError(f"No EntityType found with the name '{name}'. Existing EntityTypes: {', '.join(existing_entities)}")
         
-        return entityDef
+        return entityType
 
     #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
     def getSGEntity_withIdentfier(self, aIdentificationDict):
-        entDef = self.getEntityDef(aIdentificationDict['entityName'])
+        entDef = self.getEntityDef(aIdentificationDict['name'])
         aId = aIdentificationDict['id']
         targetEntity = entDef.getEntity(aId)
         return targetEntity 
@@ -859,8 +859,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         
 
     def deleteAllAgents(self):
-        for aAgentDef in self.getAgentSpeciesDict():
-            aAgentDef.deleteAllEntities()
+        for aAgentType in self.getAgentTypesDict():
+            aAgentType.deleteAllEntities()
 
     def updateIDincr(self, newValue):
         self.IDincr = newValue
@@ -878,10 +878,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         raise ValueError("Check again!")
     
     def checkAndUpdateWatchers(self):
-        for entDef in self.getEntitiesDef():
-            entDef.updateAllWatchers()
-        for aPlayer in self.getEntitiesDef():
-            entDef.updateAllWatchers()
+        for entType in self.getEntityTypes():
+            entType.updateAllWatchers()
+        for aPlayer in self.getEntityTypes():
+            entType.updateAllWatchers()
     
     def getAgentsPrivateID(self):
         agents=self.getAllAgents()
@@ -929,7 +929,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
-        aModelAction = SGModelAction_OnEntities(self,actions, conditions, feedbacks,(lambda:self.getAgentsOfSpecie(specieName)))
+        aModelAction = SGModelAction_OnEntities(self,actions, conditions, feedbacks,(lambda:self.getAgentsOfType(specieName)))
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
         return aModelAction
@@ -1481,7 +1481,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             
     def addClassDefSymbologyinMenuBar(self, aClassDef,nameOfSymbology,isBorder=False):
         if self.symbologyMenu is None: return False
-        submenu_name= aClassDef.entityName
+        submenu_name= aClassDef.name
         if isBorder: submenu_name = submenu_name + self.keyword_borderSubmenu
         # get the submenu (or create it if it doesn't exist yet)
         submenu = self.getOrCreateSubmenuSymbology(submenu_name)
@@ -1509,9 +1509,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             return False
 
         if borderSymbology:
-            entityName = aClassDef.entityName + self.keyword_borderSubmenu
+            entityName = aClassDef.name + self.keyword_borderSubmenu
         else:
-            entityName = aClassDef.entityName
+            entityName = aClassDef.name
 
         symbologies = self.getSymbologiesOfSubmenu(entityName)
 
@@ -1539,11 +1539,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         submenu = self.getSubmenuSymbology(submenuName)
         return self.symbologiesInSubmenus.get(submenu) 
     
-    def getCheckedSymbologyOfEntity(self, entityName, borderSymbology = False):
+    def getCheckedSymbologyOfEntity(self, name, borderSymbology = False):
         # return the name of the symbology which is checked for a given entity type. If no symbology is ckecked, returns None
         if self.symbologyMenu is None: return None
-        if borderSymbology: entityName = entityName + self.keyword_borderSubmenu
-        symbologies = self.getSymbologiesOfSubmenu(entityName)
+        if borderSymbology: name = name + self.keyword_borderSubmenu
+        symbologies = self.getSymbologiesOfSubmenu(name)
         if symbologies is None: return None
         return next((aSymbology.text() for aSymbology in symbologies if aSymbology.isChecked()),None)
 
@@ -1551,24 +1551,24 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # return the active symbology of each type of entity
         if grid is None: 
             gridObject = self.getGrids()[0]
-            cellDef = self.getCellDef(gridObject)
-            entitiesDef=[cellDef] + list(self.agentSpecies.values())
+            cellType = self.getCellType(gridObject)
+            entitiesDef=[cellType] + list(self.agentTypes.values())
         elif grid == "combined" :
             entitiesDef=[]
             for aGrid in self.getGrids():
-                cellDef = self.getCellDef(aGrid)
-                entitiesDef=entitiesDef+[cellDef]
-            entitiesDef=entitiesDef+list(self.agentSpecies.values())
+                cellType = self.getCellType(aGrid)
+                entitiesDef=entitiesDef+[cellType]
+            entitiesDef=entitiesDef+list(self.agentTypes.values())
         else : 
             gridObject=self.getGrid_withID(grid)
-            cellDef = self.getCellDef(gridObject)
-            entitiesDef=[cellDef] + list(self.agentSpecies.values())
+            cellType = self.getCellType(gridObject)
+            entitiesDef=[cellType] + list(self.agentTypes.values())
 
         selectedSymbologies={}
         for entDef in entitiesDef:
             selectedSymbologies[entDef]={
-                'shape':self.getCheckedSymbologyOfEntity(entDef.entityName),
-                'border': self.getCheckedSymbologyOfEntity(entDef.entityName, borderSymbology = True)
+                'shape':self.getCheckedSymbologyOfEntity(entDef.name),
+                'border': self.getCheckedSymbologyOfEntity(entDef.name, borderSymbology = True)
                 }
         return selectedSymbologies
 
@@ -1586,7 +1586,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # -----------------------------------------------------------
     # Game actions function
 
-    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
+    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
         """
         Add a Create GameAction to the game.
 
@@ -1598,9 +1598,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
+        return SGCreate(aClassDef,  dictAttributes, aNumber,conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
+    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
         """
         Add a Modify GameAction to the game.
 
@@ -1612,9 +1612,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+        return SGModify(aClassDef,  dictAttributes,aNumber, conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
 
-    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
         """
         Add a ModifyActionWithDialog GameAction to the game.
         
@@ -1634,9 +1634,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             raise ValueError('Wrong format of entityDef')
         
         from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
-        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
+        return SGModifyActionWithDialog(aClassDef, attribute, aNumber, conditions, feedBacks, conditionsOfFeedBack, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
 
-    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
+    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
         Add a Delete GameAction to the game.
 
@@ -1648,9 +1648,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGDelete(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        return SGDelete(aClassDef, aNumber, conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu)
 
-    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
+    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedBacks=[], conditionsOfFeedBack=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
         """
         Add a MoveAction to the game.
 
@@ -1661,9 +1661,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         aClassDef = self.getEntityDef(anObjectType)
         if aClassDef is None : raise ValueError('Wrong format of entityDef')
-        return SGMove(aClassDef, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
+        return SGMove(aClassDef, aNumber, conditions, feedBacks, conditionsOfFeedBack, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
-    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
+    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedBacks=[],conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
         """Add a ActivateAction to the game
         Args:
         - an ObjectType : a Entity
@@ -1679,7 +1679,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # if isinstance(aClassDef,SGEntityDef) and setControllerContextualMenu:
         #     aClassDef.updateMenu=True
 
-        aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        aActivateAction = SGActivate(aClassDef, aMethod ,aNumber, conditions, feedBacks, conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu)
 
         if setControllerButton:
             buttonCoord = setControllerButton
@@ -2009,14 +2009,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.actionsFromBrokerToBeExecuted=[]
 
-    def getEntityDefByName(self, entityName):
-        entityDef = next((entDef for entDef in self.getEntitiesDef() if entDef.entityName == entityName), None)
-        
-        if entityDef is None:
-            existing_entities = [entDef.entityName for entDef in self.getEntitiesDef()]
-            raise ValueError(f"No EntityDef found with the name '{entityName}'. Existing EntityDefs: {', '.join(existing_entities)}")
-        
-        return entityDef
     
     # ============================================================================
     # LAYOUT CONFIGURATION METHODS

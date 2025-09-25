@@ -3,7 +3,7 @@ from pathlib import Path
 
 from mainClasses.SGModel import*
 from mainClasses.SGEntity import *
-from mainClasses.SGEntityDef import*
+from mainClasses.SGEntityType import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
 from mainClasses.SGModelAction import*
@@ -40,5 +40,5 @@ class SGTestGetData():
         # self.model.getAllCells  --> These two lines are equivalent to self.modelgetAllEntities
 
         # In addition to data carried by the entities, there are are also data carried by :
-        #      - SGEntityDef, SimVariable and SGPlayer --> Those data are in the form of attribute and values
+        #      - SGEntityType, SimVariable and SGPlayer --> Those data are in the form of attribute and values
         #      - GameActions  --> Those data are the number of actions performed or left at each round

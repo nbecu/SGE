@@ -20,8 +20,8 @@ Cell.newBorderPov("transparent", "landForm", {"plain": Qt.transparent, "lac": Qt
 Cell.displayBorderPov("transparent")
 
 # Agent species
-Sheep = myModel.newAgentSpecies("Sheep", "ellipseAgent1", defaultSize=18, locationInEntity="center", defaultColor=Qt.white)
-Wolf  = myModel.newAgentSpecies("Wolf",  "ellipseAgent2", defaultSize=20, locationInEntity="center", defaultColor=Qt.red)
+Sheep = myModel.newAgentType("Sheep", "ellipseAgent1", defaultSize=18, locationInEntity="center", defaultColor=Qt.white)
+Wolf  = myModel.newAgentType("Wolf",  "ellipseAgent2", defaultSize=20, locationInEntity="center", defaultColor=Qt.red)
 
 # Place agents: 5 sheep on plains; 1 wolf on plain
 Sheep.newAgentsAtRandom(5, condition=lambda c: c.isValue("landForm", "plain"))

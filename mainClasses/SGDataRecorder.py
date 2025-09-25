@@ -3,7 +3,7 @@ from pathlib import Path
 
 from mainClasses.SGModel import*
 from mainClasses.SGEntity import *
-from mainClasses.SGEntityDef import*
+from mainClasses.SGEntityType import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
 from mainClasses.SGModelAction import*
@@ -23,12 +23,12 @@ class SGDataRecorder():
         
 
     def calculateStepStats(self):
-        for aEntDef in self.model.getEntitiesDef():  
+        for aEntDef in self.model.getEntityTypes():  
               aEntDef.calculateAndRecordCurrentStepStats()
     
     def getStats_ofEntities(self):
         aList=[]
-        for aEntDef in self.model.getEntitiesDef():  
+        for aEntDef in self.model.getEntityTypes():  
               aList.extend(aEntDef.listOfStepStats)
         return aList
 
@@ -95,18 +95,18 @@ class SGDataRecorder():
         nbPhases = self.model.timeManager.numberOfPhases() -1 #ToDo : le +1  devra etre enlevé lorsqu'on fera le merge avec la branche "version 5""
         return aPhase+((aRound -1)*nbPhases)+1
 
-    def getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(self,entityName,entityId,aRound,aPhase): #todo  This method uses 'self.stepsData_ofEntities' which seems Deprecated
+    def getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(self,name,entityId,aRound,aPhase): #todo  This method uses 'self.stepsData_ofEntities' which seems Deprecated
         #keys of a stepData are -> 'entityType','entityName','id','round','phase','dictAttributes'
-        res=  next((aStepData for aStepData in self.stepsData_ofEntities if entityName==aStepData['entityName'] and entityId==aStepData['id'] and aRound==aStepData['round'] and aPhase==aStepData['phase']), None) 
+        res=  next((aStepData for aStepData in self.stepsData_ofEntities if name==aStepData['entityName'] and entityId==aStepData['id'] and aRound==aStepData['round'] and aPhase==aStepData['phase']), None) 
         return res if None else res['dictAttributes']
 
-    def getAttributeValueOfAEntityAtRoundAndPhase(self,entityName,entityId,aRound,aPhase,aAttribute): #todo  This method uses getDictAttributesOfAEntityAtSpecifiedRoundAndPhase, which uses 'self.stepsData_ofEntities' which seems Deprecated
-        res=  self.getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(entityName,entityId,aRound,aPhase)
+    def getAttributeValueOfAEntityAtRoundAndPhase(self,name,entityId,aRound,aPhase,aAttribute): #todo  This method uses getDictAttributesOfAEntityAtSpecifiedRoundAndPhase, which uses 'self.stepsData_ofEntities' which seems Deprecated
+        res=  self.getDictAttributesOfAEntityAtSpecifiedRoundAndPhase(name,entityId,aRound,aPhase)
         return res if None else res[aAttribute]
     
-    def getAttributeValueOfAEntityAtSpecifiedStep(self,entityName,entityId,aStep,aAttribute): #todo  This method uses getDictAttributesOfAEntityAtSpecifiedRoundAndPhase, which uses 'self.stepsData_ofEntities' which seems Deprecated
+    def getAttributeValueOfAEntityAtSpecifiedStep(self,name,entityId,aStep,aAttribute): #todo  This method uses getDictAttributesOfAEntityAtSpecifiedRoundAndPhase, which uses 'self.stepsData_ofEntities' which seems Deprecated
         aDate = self.convertStep_inRoundAndPhase(aStep)
-        return self.getValueOfAEntityAndAttributeAtSpecifiedRoundAndPhase(entityName,entityId,aDate['round'],aDate['phase'],aAttribute)
+        return self.getValueOfAEntityAndAttributeAtSpecifiedRoundAndPhase(name,entityId,aDate['round'],aDate['phase'],aAttribute)
 
     
         

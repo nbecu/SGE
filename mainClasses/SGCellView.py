@@ -123,7 +123,7 @@ class SGCellView(SGEntityView):
     
     def getRegion(self):
         """Get the region for the cell shape"""
-        cellShape = self.classDef.shape
+        cellShape = self.type.shape
         current_size = self.grid.size  # Use current grid size
         
         if cellShape == "square":

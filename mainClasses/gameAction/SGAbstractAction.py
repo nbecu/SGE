@@ -8,17 +8,17 @@ import copy
 class SGAbstractAction():
     IDincr=0
     instances = []
-    def __init__(self,entDef,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+    def __init__(self,type,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test
         from mainClasses.SGModel import SGModel  # Import local pour éviter l'import circulaire
-        if isinstance(entDef, SGModel):
-            self.targetEntDef='model'
-            self.model=entDef
+        if isinstance(type, SGModel):
+            self.targetType='model'
+            self.model=type
         else:
-            self.targetEntDef=entDef
-            self.model=self.targetEntDef.model 
+            self.targetType=type
+            self.model=self.targetType.model 
         self.number = inf if number in ("infinite", None, inf) else number
         
         self.numberUsed=0
@@ -156,8 +156,8 @@ class SGAbstractAction():
     
     def getGraphIdentifier(self):
         """Generate unique identifier for graphs, showing ID only when necessary"""
-        if hasattr(self.targetEntDef, 'entityName'):
-            base_name = f"{self.targetEntDef.entityName}_{self.nameToDisplay}"
+        if hasattr(self.targetType, 'name'):
+            base_name = f"{self.targetType.name}_{self.nameToDisplay}"
         else:
             base_name = f"model_{self.nameToDisplay}"
         
@@ -172,9 +172,9 @@ class SGAbstractAction():
         """Static method to check for name conflicts without recursion"""
         count = 0
         for action in cls.instances:
-            if hasattr(action, 'targetEntDef') and hasattr(action, 'nameToDisplay'):
-                if hasattr(action.targetEntDef, 'entityName'):
-                    action_base = f"{action.targetEntDef.entityName}_{action.nameToDisplay}"
+            if hasattr(action, 'targetType') and hasattr(action, 'nameToDisplay'):
+                if hasattr(action.targetType, 'name'):
+                    action_base = f"{action.targetType.name}_{action.nameToDisplay}"
                 else:
                     action_base = f"model_{action.nameToDisplay}"
                 

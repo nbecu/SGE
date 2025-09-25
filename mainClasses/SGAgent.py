@@ -96,7 +96,7 @@ class SGAgent(SGEntity):
         maxSize = self.cell.size
         # Use cell coordinates instead of pos()
         startX = self.cell.startXBase + (self.cell.xCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
-        if self.classDef.shape in ["ellipseAgent2","rectAgent2"]: 
+        if self.type.shape in ["ellipseAgent2","rectAgent2"]: 
             x = random.randint(startX, startX + maxSize - round(self.size/2))
         else:
             x = random.randint(startX, startX + maxSize - self.size)
@@ -106,7 +106,7 @@ class SGAgent(SGEntity):
         maxSize = self.cell.size
         # Use cell coordinates instead of pos()
         startY = self.cell.startYBase + (self.cell.yCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
-        if self.classDef.shape in ["ellipseAgent1","rectAgent1"]: 
+        if self.type.shape in ["ellipseAgent1","rectAgent1"]: 
             y = random.randint(startY, startY + maxSize - round(self.size/2))
         else:
             y = random.randint(startY, startY + maxSize - self.size)
@@ -118,27 +118,27 @@ class SGAgent(SGEntity):
         startX = self.cell.startXBase + (self.cell.xCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
         startY = self.cell.startYBase + (self.cell.yCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
         
-        if self.classDef.locationInEntity == "random":
+        if self.type.locationInEntity == "random":
             self.xCoord = self.getRandomX()
             self.yCoord = self.getRandomY()
             return
-        if self.classDef.locationInEntity == "topRight":
+        if self.type.locationInEntity == "topRight":
             self.xCoord = startX + maxSize - 10
             self.yCoord = startY + 5
             return
-        if self.classDef.locationInEntity == "topLeft":
+        if self.type.locationInEntity == "topLeft":
             self.xCoord = startX + 5
             self.yCoord = startY + 5
             return
-        if self.classDef.locationInEntity == "bottomLeft":
+        if self.type.locationInEntity == "bottomLeft":
             self.xCoord = startX + 5
             self.yCoord = startY + maxSize - 10
             return
-        if self.classDef.locationInEntity == "bottomRight":
+        if self.type.locationInEntity == "bottomRight":
             self.xCoord = startX + maxSize - 10
             self.yCoord = startY + maxSize - 10
             return
-        if self.classDef.locationInEntity == "center":
+        if self.type.locationInEntity == "center":
             self.xCoord = startX + int(maxSize/2) - int(self.size/2)
             self.yCoord = startY + int(maxSize/2) - int(self.size/2)
             return
@@ -242,7 +242,7 @@ class SGAgent(SGEntity):
             return agents
         
         # Filter by species
-        return [agent for agent in agents if agent.classDef.entityName == specie]
+        return [agent for agent in agents if agent.type.name == specie]
 
     def nbAgentsHere(self, specie=None):
         """
@@ -558,10 +558,10 @@ class SGAgent(SGEntity):
             for aAgent in agents:
                 if isinstance(aAgent, list):
                     for agent in aAgent:
-                        if agent.classDef == aSpecies or agent.classDef.entityName == aSpecies:
+                        if agent.type == aSpecies or agent.type.name == aSpecies:
                             filtered_agents.append(agent)
-                elif hasattr(aAgent, 'classDef'):  # Check if it's an agent
-                    if aAgent.classDef == aSpecies or aAgent.classDef.entityName == aSpecies:
+                elif hasattr(aAgent, 'type'):  # Check if it's an agent
+                    if aAgent.type == aSpecies or aAgent.type.name == aSpecies:
                         filtered_agents.append(aAgent)
         return filtered_agents
                 

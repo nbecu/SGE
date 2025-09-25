@@ -4,13 +4,13 @@ from mainClasses.SGTimePhase import *
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
-    def __init__(self,entDef,number,conditions=[],feedBack=[],conditionOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(type,number,conditions,feedBacks,conditionsOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
         self.nameToDisplay = nameToDisplay or "⇄ move"
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent
-        self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
+        self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
 
     def perform_with(self,aTargetEntity,aDestinationEntity=None,serverUpdate=True):
         # The arg aDestinationEntity has a default value set to None, because the method is also defined at the superclass level and it takes only 2 arguments 
@@ -71,8 +71,8 @@ class SGMove(SGAbstractAction):
 
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:
-            aColor = self.targetEntDef.defaultShapeColor
-            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,gameAction=self)]
+            aColor = self.targetType.defaultShapeColor
+            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
         
     def chooseFeedbackTargetAmong(self,aListOfChoices):
         # aListOfChoices -> [aMovingEntity,aDestinationEntity,aOriginEntity,aParameterHolder,resAction]

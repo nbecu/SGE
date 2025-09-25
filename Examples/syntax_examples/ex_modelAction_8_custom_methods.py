@@ -30,7 +30,7 @@ Cell.newPov("Resource", "Resource", {
 Cell.newBorderPov("ProtectionLevel", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
-Workers = myModel.newAgentSpecies(
+Workers = myModel.newAgentType(
     "Workers", "triangleAgent1", {'harvest':{0},'total harvest':{0}})
 Workers.setDefaultValue('harvest',0)
 Workers.setDefaultValue('total harvest',0)

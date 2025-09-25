@@ -15,7 +15,7 @@ Cell.setRandomEntities("landUse","shrub",10)
 
 Cell.newPov("pov","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1")
 Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
 
 

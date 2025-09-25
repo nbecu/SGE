@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
-    def __init__(self,entDef,dictNewValues,number,conditions=[],feedBack=[],conditionOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True, writeAttributeInLabel=False):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,dictNewValues,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True, writeAttributeInLabel=False):
+        super().__init__(type,number,conditions,feedBacks,conditionsOfFeedBack,nameToDisplay,setControllerContextualMenu,setOnController)
         self.dictNewValues=dictNewValues
-        self.entityDef=entDef
+        self.entityDef=type
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
         self.value = self.dictNewValues[self.att]  # Get associate value
         self.nameToDisplay = (
@@ -16,7 +16,7 @@ class SGModify(SGAbstractAction):
             else nameToDisplay
         )
         self.actionType="Modify"
-        self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
+        self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
         self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         self.addCondition(lambda aTargetEntity: aTargetEntity.value(self.att) != self.value)
    
@@ -29,17 +29,17 @@ class SGModify(SGAbstractAction):
         if self.setControllerContextualMenu == False:
             aList = []
             for aAtt, aValue in self.dictNewValues.items():
-                aColor = self.targetEntDef.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
+                aColor = self.targetType.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)
                 # If it's a border color, it returns a dict, not a color.
                 if isinstance(aColor,dict):
                     borderColorAndWidth = aColor
-                    aColor =  self.targetEntDef.defaultShapeColor
+                    aColor =  self.targetType.defaultShapeColor
                     #todo Modifs pour MTZC pour que ce soit plus simple
-                    aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,aAtt,aValue,isBorderItem = True, borderColorAndWidth = borderColorAndWidth , gameAction=self))
+                    aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,aAtt,aValue,isBorderItem = True, borderColorAndWidth = borderColorAndWidth , gameAction=self))
                 # If not, its a shape color
                 else:
                     #todo Modifs pour MTZC pour que ce soit plus simple
-                    aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,aAtt,aValue,gameAction=self))
+                    aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,aAtt,aValue,gameAction=self))
 
             return aList
 

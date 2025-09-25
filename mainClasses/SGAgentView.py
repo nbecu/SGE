@@ -55,26 +55,26 @@ class SGAgentView(SGEntityView):
         grid_size = current_cell.grid.size
         
         # Calculate relative position within the cell based on current grid size
-        if self.classDef.locationInEntity == "random":
+        if self.type.locationInEntity == "random":
             # For random, we need to maintain the same relative position
             if not hasattr(self, '_randomX') or not hasattr(self, '_randomY'):
                 self._randomX = random.random()  # Store as 0.0 to 1.0
                 self._randomY = random.random()
             relX = int(self._randomX * (grid_size - self.size))
             relY = int(self._randomY * (grid_size - self.size))
-        elif self.classDef.locationInEntity == "topRight":
+        elif self.type.locationInEntity == "topRight":
             relX = grid_size - self.size
             relY = 0
-        elif self.classDef.locationInEntity == "topLeft":
+        elif self.type.locationInEntity == "topLeft":
             relX = 0
             relY = 0
-        elif self.classDef.locationInEntity == "bottomLeft":
+        elif self.type.locationInEntity == "bottomLeft":
             relX = 0
             relY = grid_size - self.size
-        elif self.classDef.locationInEntity == "bottomRight":
+        elif self.type.locationInEntity == "bottomRight":
             relX = grid_size - self.size
             relY = grid_size - self.size
-        elif self.classDef.locationInEntity == "center":
+        elif self.type.locationInEntity == "center":
             # For center, always maintain exact center regardless of sizes
             relX = (grid_size - self.size) / 2
             relY = (grid_size - self.size) / 2
@@ -123,7 +123,7 @@ class SGAgentView(SGEntityView):
         penColorAndWidth = self.getBorderColorAndWidth()
         painter.setPen(QPen(penColorAndWidth['color'], penColorAndWidth['width']))
         
-        agentShape = self.classDef.shape
+        agentShape = self.type.shape
         x = self.xCoord
         y = self.yCoord
         
@@ -198,7 +198,7 @@ class SGAgentView(SGEntityView):
     
     def getRegion(self):
         """Get the region for the agent shape"""
-        agentShape = self.classDef.shape
+        agentShape = self.type.shape
         if agentShape == "circleAgent":
             region = QRegion(0, 0, self.size, self.size, QRegion.Ellipse)
         elif agentShape == "squareAgent":

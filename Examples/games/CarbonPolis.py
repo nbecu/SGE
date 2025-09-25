@@ -657,28 +657,28 @@ for aZH in ZHs.keys():
     Player.addGameAction(myModel.newModifyAction(cases, {"typeZH":aZH},feedbacks=[lambda : updateActions3()]))
 
 nbPionActions1_parJoueur='infinite' #20
-pionAction1=myModel.newAgentSpecies("Action1","circleAgent",defaultSize=5,)
+pionAction1=myModel.newAgentType("Action1","circleAgent",defaultSize=5,)
 pionAction1.newPov("joueur","joueur",joueurs_potentiels)
 
 for jX in list(joueurs_actifs.keys()):
     nomJ =""+jX
     Player.addGameAction(myModel.newCreateAction(pionAction1, {"joueur":nomJ},nbPionActions1_parJoueur,
                             conditions=[
-                                    lambda aCell: aCell.classDef != cases and aCell.value('type') == 'action1',
+                                    lambda aCell: aCell.type != cases and aCell.value('type') == 'action1',
                                         ],
                             create_several_at_each_click = True
                             ))
 Player.addGameAction(myModel.newDeleteAction(pionAction1))
 
 nbPionActions2_parJoueur='infinite' #6
-pionAction2=myModel.newAgentSpecies("Action2","squareAgent",defaultSize=20,locationInEntity='center')
+pionAction2=myModel.newAgentType("Action2","squareAgent",defaultSize=20,locationInEntity='center')
 pionAction2.newPov("joueur","joueur",joueurs_actifs)
 
 for jX in list(joueurs_actifs.keys()):
     nomJ =""+jX
     Player.addGameAction(myModel.newCreateAction(pionAction2, {"joueur":nomJ},nbPionActions2_parJoueur,
                             conditions=[
-                                    lambda aCell: aCell.classDef != cases and aCell.value('type') == 'action2',
+                                    lambda aCell: aCell.type != cases and aCell.value('type') == 'action2',
                                     lambda aCell: aCell.isEmpty(),
                                     ],
                             feedbacks=[lambda : updateActions2()]))
@@ -742,12 +742,12 @@ def initDebutTour():
             aCase.grid.update()
 
             # updatePotentielAccueil
-            aTypeZH = aCase.entDef().entityName
+            aTypeZH = aCase.type.name
             
-            surfaceInitialeDeReference = aCase.entDef().value('surfaceInitialeDeReferencePourPotentielAccueil')
+            surfaceInitialeDeReference = aCase.type.value('surfaceInitialeDeReferencePourPotentielAccueil')
 
             # updateSurfaceZH(aTypeZH)  # Mise à jour de la surface actuelle avec la fonction dédiée #INUTILE ,c'est fait au dessus
-            surfaceActuelle = aCase.entDef().value('surface actuelle')
+            surfaceActuelle = aCase.type.value('surface actuelle')
 
             if aTypeZH ==  'vasiere nue Diop':
                 surfaceActuelle = (surfaceActuelle

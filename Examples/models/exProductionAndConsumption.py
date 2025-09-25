@@ -44,7 +44,7 @@ def produce(aPU):
         score.incValue(1) 
 
 ## Define Consumers
-Consumers=myModel.newAgentSpecies("Consumer","triangleAgent1")
+Consumers=myModel.newAgentType("Consumer","triangleAgent1")
 Consumers.setDefaultValues({"energy":50})
 Consumers.newAgentsAtRandom(20,ProductionUnits,{"strategy":(lambda: random.choice(['restrained','unrestrained']))})
 
@@ -88,7 +88,7 @@ def reproAndDie(aConsumer):
         score.decValue(1)
 
 ## Define Regulator
-Regulators=myModel.newAgentSpecies("Regulator","circleAgent")
+Regulators=myModel.newAgentType("Regulator","circleAgent")
 Regulators.setValue("satisf constant",0)
 Regulators.setValue("satisf not constant",0)
 Regulators.newAgentsAtRandom(5,ProductionUnits)
@@ -98,13 +98,13 @@ Regulators.newAgentsAtRandom(5,ProductionUnits)
 def evaluate(aRegulator):
     aCell = aRegulator.cell
     if aCell.value('production system') == 'boosted' and aCell.value('energy') == 100:
-        if aRegulator.entDef.value("satisf constant") == aRegulator.entDef.value("satisf not constant"):
+        if aRegulator.type.value("satisf constant") == aRegulator.type.value("satisf not constant"):
             if random.random() < 0.5:
                 newS = 'constant'
             else :
                 newS = 'not constant'
         else :
-            ratio = aRegulator.entDef.value("satisf constant") / (aRegulator.entDef.value("satisf constant") + aRegulator.entDef.value("satisf not constant"))
+            ratio = aRegulator.type.value("satisf constant") / (aRegulator.type.value("satisf constant") + aRegulator.type.value("satisf not constant"))
             if random.random < ratio :
                 newS = 'constant'
             else :
@@ -112,14 +112,14 @@ def evaluate(aRegulator):
             aCell.setValue('production system',newS)
 
     if aCell.value('production system') == 'constant' and aCell.value('energy') == 100:
-        aRegulator.classDef.incValue("satisf constant",1)
+        aRegulator.type.incValue("satisf constant",1)
     if aCell.value('production system') == 'not constant' and aCell.value('energy') == 100:
-        aRegulator.classDef.incValue("satisf not constant",1)
+        aRegulator.type.incValue("satisf not constant",1)
     if aCell.value('production system') == 'constant' and aCell.value('energy') <= 10:
-        aRegulator.classDef.decValue("satisf constant",1)
+        aRegulator.type.decValue("satisf constant",1)
         aRegulator.cell.setValue('production system','boosted')
     if aCell.value('production system') == 'not constant' and aCell.value('energy') <= 10:
-        aRegulator.classDef.decValue("satisf not constant",1)
+        aRegulator.type.decValue("satisf not constant",1)
         aRegulator.cell.setValue('production system','boosted')
 
 

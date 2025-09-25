@@ -235,7 +235,7 @@ class SGCell(SGEntity):
         
         # Filter by species
         nameOfSpecie = normalize_species_name(nameOfSpecie)
-        return [agent for agent in self.agents if agent.classDef.entityName == nameOfSpecie]
+        return [agent for agent in self.agents if agent.type.name == nameOfSpecie]
 
     def getFirstAgentOfSpecie(self, nameOfSpecie):
         """
@@ -249,7 +249,7 @@ class SGCell(SGEntity):
         """
         nameOfSpecie = normalize_species_name(nameOfSpecie)
         for agent in self.agents:
-            if agent.classDef.entityName == nameOfSpecie:
+            if agent.type.name == nameOfSpecie:
                 return agent
         return None
 
@@ -325,10 +325,10 @@ class SGCell(SGEntity):
                 aCell = None
                 if cellShape == "square":
                     if neighborhood == "moore":
-                        aCell = self.classDef.getCell(ii, jj)
+                        aCell = self.type.getCell(ii, jj)
                     elif neighborhood == "neumann":
                         if (ii == self.xCoord or jj == self.yCoord) and not (ii == self.xCoord and jj == self.yCoord):
-                            aCell = self.classDef.getCell(ii, jj)
+                            aCell = self.type.getCell(ii, jj)
                     else:
                         raise ValueError(f"Invalid neighborhood type: {neighborhood}")
                 elif cellShape == "hexagonal":
@@ -364,11 +364,11 @@ class SGCell(SGEntity):
                                 # Simple toroidal wrap-around for hexagonal grids
                                 ii = ((i - 1) % columns) + 1
                                 jj = ((j - 1) % rows) + 1
-                                aCell = self.classDef.getCell(ii, jj)
+                                aCell = self.type.getCell(ii, jj)
                             else:  # closed boundaries
                                 if i < 1 or i > columns or j < 1 or j > rows:
                                     continue
-                                aCell = self.classDef.getCell(i, j)
+                                aCell = self.type.getCell(i, j)
                     elif neighborhood == "neumann":
                         # For hexagonal Neumann: 3 neighbors (orthogonal only)
                         dx = ii - self.xCoord
@@ -380,7 +380,7 @@ class SGCell(SGEntity):
                             valid_neighbors = [(-1,0), (0,-1), (0,1)]
                         
                         if (dx, dy) in valid_neighbors:
-                            aCell = self.classDef.getCell(ii, jj)
+                            aCell = self.type.getCell(ii, jj)
                     else:
                         raise ValueError(f"Invalid neighborhood type: {neighborhood}")
                 else:
@@ -397,22 +397,22 @@ class SGCell(SGEntity):
     def getNeighborN(self):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """Get neighbor to the North"""
-        return self.classDef.getCell(self.xCoord, self.yCoord - 1) if self.yCoord > 1 else None
+        return self.type.getCell(self.xCoord, self.yCoord - 1) if self.yCoord > 1 else None
 
     def getNeighborS(self):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """Get neighbor to the South"""
-        return self.classDef.getCell(self.xCoord, self.yCoord + 1) if self.yCoord < self.classDef.grid.rows else None
+        return self.type.getCell(self.xCoord, self.yCoord + 1) if self.yCoord < self.type.grid.rows else None
 
     def getNeighborE(self):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn delegates to it.
         """Get neighbor to the East"""
-        return self.classDef.getCell(self.xCoord + 1, self.yCoord) if self.xCoord < self.classDef.grid.columns else None
+        return self.type.getCell(self.xCoord + 1, self.yCoord) if self.xCoord < self.type.grid.columns else None
 
     def getNeighborW(self):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withColumn delegates to it.
         """Get neighbor to the West"""
-        return self.classDef.getCell(self.xCoord - 1, self.yCoord) if self.xCoord > 1 else None
+        return self.type.getCell(self.xCoord - 1, self.yCoord) if self.xCoord > 1 else None
 
     def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
@@ -472,7 +472,7 @@ class SGCell(SGEntity):
                     nx = ((nx - 1) % grid.columns) + 1
                     ny = ((ny - 1) % grid.rows) + 1
 
-                neighbor = self.classDef.getCell(nx, ny)
+                neighbor = self.type.getCell(nx, ny)
                 if neighbor is not None:
                     if all(cond(neighbor) for cond in conditions):
                         results.append(neighbor)

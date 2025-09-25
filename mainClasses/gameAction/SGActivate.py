@@ -5,12 +5,12 @@ import sys
 
 #Class who manage the game mechanics of Activation
 class SGActivate(SGAbstractAction):
-    def __init__(self,entDef,method,number,conditions=[],feedBack=[],conditionOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
-        super().__init__(entDef,number,conditions,feedBack,conditionOfFeedBack,aNameToDisplay,setControllerContextualMenu,setOnController)
-        if self.targetEntDef != "model":
-            self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ entDef.entityName)
+    def __init__(self,type,method,number,conditions=[],feedBacks=[],conditionsOfFeedBack=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+        super().__init__(type,number,conditions,feedBacks,conditionsOfFeedBack,aNameToDisplay,setControllerContextualMenu,setOnController)
+        if self.targetType != "model":
+            self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ entDef.name)
             self.actionType="Activate"
-            self.addCondition(lambda aTargetEntity: aTargetEntity.classDef == self.targetEntDef)
+            self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         else:
             self.nameToDisplay= aNameToDisplay or "activate"
@@ -36,5 +36,5 @@ class SGActivate(SGAbstractAction):
         
     def generateLegendItems(self,aControlPanel):
         if self.setControllerContextualMenu == False:
-            aColor = self.targetEntDef.defaultShapeColor
-            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetEntDef,aColor,gameAction=self)]
+            aColor = self.targetType.defaultShapeColor
+            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]

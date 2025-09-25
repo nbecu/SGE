@@ -20,7 +20,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         """
         super().__init__(parent)
         self.entity_model = entity_model
-        self.classDef = entity_model.classDef
+        self.type = entity_model.type
         self.id = entity_model.id
         self.privateID = entity_model.privateID
         self.model = entity_model.model
@@ -41,9 +41,9 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         if self.isDisplay == False: 
             return Qt.transparent
             
-        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
-        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
-        aDefaultColor = self.classDef.defaultShapeColor
+        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name)
+        aPovDef = self.type.povShapeColor.get(aChoosenPov)
+        aDefaultColor = self.type.defaultShapeColor
         return self.readColorFromPovDef(aPovDef, aDefaultColor)
 
     def getBorderColorAndWidth(self):
@@ -51,10 +51,10 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         if self.isDisplay == False: 
             return Qt.transparent
             
-        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName, borderSymbology=True)
-        aBorderPovDef = self.classDef.povBorderColorAndWidth.get(aChoosenPov)
-        aDefaultColor = self.classDef.defaultBorderColor
-        aDefaultWidth = self.classDef.defaultBorderWidth
+        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name, borderSymbology=True)
+        aBorderPovDef = self.type.povBorderColorAndWidth.get(aChoosenPov)
+        aDefaultColor = self.type.defaultBorderColor
+        aDefaultWidth = self.type.defaultBorderWidth
         return self.readColorAndWidthFromBorderPovDef(aBorderPovDef, aDefaultColor, aDefaultWidth)
     
     def getImage(self):
@@ -62,8 +62,8 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         if self.isDisplay == False: 
             return None
             
-        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.classDef.entityName)
-        aPovDef = self.classDef.povShapeColor.get(aChoosenPov)
+        aChoosenPov = self.model.getCheckedSymbologyOfEntity(self.type.name)
+        aPovDef = self.type.povShapeColor.get(aChoosenPov)
         if aPovDef is None: 
             return None
             
@@ -140,7 +140,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         """Show context menu for the entity"""
         menu = QMenu(self)
 
-        for anItem in self.classDef.attributesToDisplayInContextualMenu:
+        for anItem in self.type.attributesToDisplayInContextualMenu:
             aAtt = anItem['att']
             aLabel = anItem['label']
             aValue = self.entity_model.value(aAtt)
@@ -165,7 +165,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
         dict = {}
-        dict['entityName'] = self.classDef.entityName
+        dict['entityName'] = self.type.name
         dict['id'] = self.id
         return dict
 
@@ -175,4 +175,4 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
 
     def entDef(self):
         """Returns the 'entity definition' class of the entity"""
-        return self.classDef
+        return self.type

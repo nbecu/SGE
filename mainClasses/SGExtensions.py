@@ -107,17 +107,17 @@ def execute_callable_with_entity(callable_func, entity=None):
 
 def normalize_species_name(species):
     """
-    Normalize a species name to a string, handling both string and SGAgentDef inputs.
+    Normalize a species name to a string, handling both string and SGAgentType inputs.
     
-    This utility method extracts the entity name from SGAgentDef objects
+    This utility method extracts the entity name from SGAgentType objects
     or returns the string as-is for string inputs.
     
-    :param species: Either a string species name or an SGAgentDef object
+    :param species: Either a string species name or an SGAgentType object
     :return: The normalized species name as a string
     """
-    from mainClasses.SGEntityDef import SGAgentDef
-    if isinstance(species, SGAgentDef):
-        return species.entityName
+    from mainClasses.SGEntityType import SGAgentType
+    if isinstance(species, SGAgentType):
+        return species.name
     return species
 
 

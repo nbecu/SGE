@@ -13,7 +13,7 @@ Cell.setEntities_withColumn("landUse","forest",2)
 Cell.setRandomEntities("landUse","short grass",10)
 Cell.newPov("base","landUse",{"grass":Qt.green,"short grass":Qt.yellow,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1",defaultSize=30)
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1",defaultSize=30)
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'low':Qt.green,'high':Qt.yellow})
 Sheeps.displayAttributeValueInContextualMenu('health')

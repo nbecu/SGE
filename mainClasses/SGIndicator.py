@@ -63,7 +63,7 @@ class SGIndicator():
         self.name = aName
 
     def strOfEntitiesName(self):
-        return ",".join([entDef.entityName for entDef in self.listOfEntDef])
+        return ",".join([entDef.name for entDef in self.listOfEntDef])
 
     def checkAndUpdate(self):
         if self.getUpdatePermission():

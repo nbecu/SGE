@@ -13,11 +13,11 @@ from collections import Counter, defaultdict
 import random
 from typing import Union
 
-# Definition of SGEntityDef
-class SGEntityDef(AttributeAndValueFunctionalities):
-    def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultShapeColor):
+# Definition of SGEntityType
+class SGEntityType(AttributeAndValueFunctionalities):
+    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultShapeColor):
         self.model = sgModel
-        self.entityName = entityName
+        self.name = name
         self.dictAttributes = entDefAttributesAndValues if entDefAttributesAndValues is not None else {}
         self.attributesDefaultValues = {}
         self.shape = shape
@@ -60,15 +60,15 @@ class SGEntityDef(AttributeAndValueFunctionalities):
         self.IDincr +=1
         return self.IDincr
     
-    def entityType(self):
+    def category(self):
         """
-        Return the type of entity this definition represents.
+        Return the category of entity this type represents.
         
         Returns:
-            str: 'Cell' for cell definitions, 'Agent' for agent definitions
+            str: 'Cell' for cell types, 'Agent' for agent types
             
         Raises:
-            ValueError: If the entity type is not recognized
+            ValueError: If the entity category is not recognized
         """
         if self.isCellDef: return 'Cell'
         elif self.isAgentDef: return 'Agent'
@@ -222,8 +222,8 @@ class SGEntityDef(AttributeAndValueFunctionalities):
                 type(dict(Counter(listOfValues)))
 
         aData = {
-                'entityType': self.entityType(),
-                'entityName': self.entityName,
+                'entityType': self.category(),
+                'entityName': self.name,
                 'round': currentRound,
                 'phase': currentPhase,
                 'population': len(self.entities),
@@ -987,10 +987,10 @@ class SGEntityDef(AttributeAndValueFunctionalities):
     # SPECIALIZED CLASSES
     # ============================================================================
 
-# Définition de SGCellDef
-class SGCellDef(SGEntityDef):
-    def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, entityName='Cell', defaultCellImage=None):
-        super().__init__(grid.model, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+# Définition de SGCellType
+class SGCellType(SGEntityType):
+    def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, name='Cell', defaultCellImage=None):
+        super().__init__(grid.model, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
         self.isCellDef = True
         self.grid = grid
@@ -1218,9 +1218,9 @@ class SGCellDef(SGEntityDef):
 # ********************************************************    
 
 
-class SGAgentDef(SGEntityDef):
-    def __init__(self, sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None):
-        super().__init__(sgModel, entityName, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+class SGAgentType(SGEntityType):
+    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None):
+        super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
         self.isAgentDef = True
         self.locationInEntity = locationInEntity
@@ -1343,9 +1343,9 @@ class SGAgentDef(SGEntityDef):
 
         # Normalize argument cellDef_or_grid to support calls like newAgentAtCoords(Cell,3,3) or newAgentAtCoords(3,3) or newAgentAtCoords(aGrid,3,3)
         if not cellDef_or_grid:
-            aCellDef = first_value(self.model.cellOfGrids,None)
+            aCellDef = first_value(self.model.cellTypes,None)
         else: 
-            aCellDef = self.model.getCellDef(cellDef_or_grid)
+            aCellDef = self.model.getCellType(cellDef_or_grid)
         if aCellDef == None : return
         aGrid = self.model.getGrid(aCellDef)
 
@@ -1417,9 +1417,9 @@ class SGAgentDef(SGEntityDef):
             cellDef_or_grid = None
         # Normalize argument cellDef_or_grid to support calls like newAgentAtRandom(Cell) or newAgentAtRandom() or newAgentAtRandom(aGrid)
         if not cellDef_or_grid:
-            aCellDef = first_value(self.model.cellOfGrids,None)
+            aCellDef = first_value(self.model.cellTypes,None)
         else: 
-            aCellDef = self.model.getCellDef(cellDef_or_grid)
+            aCellDef = self.model.getCellType(cellDef_or_grid)
         if aCellDef == None : return
 
         locationCell=aCellDef.getRandomEntity(condition=condition)
@@ -1449,9 +1449,9 @@ class SGAgentDef(SGEntityDef):
             
         # Normalize argument cellDef_or_grid to support calls like newAgentAtRandom(Cell) or newAgentAtRandom() or newAgentAtRandom(aGrid)
         if not cellDef_or_grid:
-            aCellDef = first_value(self.model.cellOfGrids,None)
+            aCellDef = first_value(self.model.cellTypes,None)
         else: 
-            aCellDef = self.model.getCellDef(cellDef_or_grid)
+            aCellDef = self.model.getCellType(cellDef_or_grid)
         if aCellDef == None : return
         
         locationCells=aCellDef.getRandomEntities(aNumber, condition=condition)

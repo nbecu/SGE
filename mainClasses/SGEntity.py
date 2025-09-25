@@ -18,13 +18,13 @@ class SGEntity(AttributeAndValueFunctionalities):
             size: Size of the entity
             attributesAndValues: Initial attributes and values
         """
-        self.classDef = classDef
-        self.id = self.classDef.nextId()
-        self.privateID = self.classDef.entityName + str(self.id)
-        self.model = self.classDef.model
-        self.shape = self.classDef.shape
+        self.type = classDef
+        self.id = self.type.nextId()
+        self.privateID = self.type.name + str(self.id)
+        self.model = self.type.model
+        self.shape = self.type.shape
         self.size = size
-        self.borderColor = self.classDef.defaultBorderColor
+        self.borderColor = self.type.defaultBorderColor
         self.isDisplay = True
         
         # Define variables to handle the history 
@@ -45,7 +45,7 @@ class SGEntity(AttributeAndValueFunctionalities):
         if thisAgentAttributesAndValues is None: 
             thisAgentAttributesAndValues = {}
         
-        for aAtt, aDefaultValue in self.classDef.attributesDefaultValues.items():
+        for aAtt, aDefaultValue in self.type.attributesDefaultValues.items():
             if not aAtt in thisAgentAttributesAndValues.keys():
                 thisAgentAttributesAndValues[aAtt] = aDefaultValue
         for aAtt, valueToSet in thisAgentAttributesAndValues.items():
@@ -101,7 +101,7 @@ class SGEntity(AttributeAndValueFunctionalities):
     def getListOfStepsData(self, startStep=None, endStep=None):
         """Get list of step data"""
         aList = self.getListOfUntagedStepsData(startStep, endStep)
-        return [{**{'entityType': self.classDef.entityType(), 'entityName': self.classDef.entityName, 'id': self.id}, **aStepData} for aStepData in aList]
+        return [{**{'entityType': self.type.category(), 'entityName': self.type.name, 'id': self.id}, **aStepData} for aStepData in aList]
 
     def isDeleted(self):
         """Check if entity is deleted"""
@@ -113,12 +113,12 @@ class SGEntity(AttributeAndValueFunctionalities):
 
     def entDef(self):
         """Returns the 'entity definition' class of the entity"""
-        return self.classDef
+        return self.type
 
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
         dict = {}
-        dict['entityName'] = self.classDef.entityName
+        dict['entityName'] = self.type.name
         dict['id'] = self.id
         return dict
 

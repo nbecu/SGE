@@ -20,13 +20,13 @@ myModel = SGModel(700,400,name="defaultActionSelected Example", windowTitle="Con
 grid = myModel.newCellsOnGrid(5, 5, size=50, name="myGrid")
 
 # Create an agent species
-agents = myModel.newAgentSpecies("CircleAgent", "circleAgent", defaultSize=20, defaultColor=Qt.blue)
+agents = myModel.newAgentType("CircleAgent", "circleAgent", defaultSize=20, defaultColor=Qt.blue)
 
 # Create another agent species (triangular)
-triangularAgents = myModel.newAgentSpecies("TriangularAgent", "triangleAgent1", defaultSize=25, defaultColor=Qt.yellow)
+triangularAgents = myModel.newAgentType("TriangularAgent", "triangleAgent1", defaultSize=25, defaultColor=Qt.yellow)
 
 # Create a third agent species (square)
-squareAgents = myModel.newAgentSpecies("SquareAgent", "squareAgent", defaultSize=30, defaultColor=Qt.darkYellow)
+squareAgents = myModel.newAgentType("SquareAgent", "squareAgent", defaultSize=30, defaultColor=Qt.darkYellow)
 
 # Create an agent creation action
 createAction = myModel.newCreateAction("CircleAgent", aNameToDisplay="Create an agent")
