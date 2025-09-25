@@ -8,7 +8,7 @@ class SGActivate(SGAbstractAction):
     def __init__(self,type,method,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,setOnController)
         if self.targetType != "model":
-            self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ entDef.name)
+            self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ type.name)
             self.actionType="Activate"
             self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())

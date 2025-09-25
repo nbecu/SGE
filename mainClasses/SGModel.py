@@ -1552,23 +1552,23 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if grid is None: 
             gridObject = self.getGrids()[0]
             cellType = self.getCellType(gridObject)
-            entitiesDef=[cellType] + list(self.agentTypes.values())
+            entityTypes=[cellType] + list(self.agentTypes.values())
         elif grid == "combined" :
-            entitiesDef=[]
+            entityTypes=[]
             for aGrid in self.getGrids():
                 cellType = self.getCellType(aGrid)
-                entitiesDef=entitiesDef+[cellType]
-            entitiesDef=entitiesDef+list(self.agentTypes.values())
+                entityTypes=entityTypes+[cellType]
+            entityTypes=entityTypes+list(self.agentTypes.values())
         else : 
             gridObject=self.getGrid_withID(grid)
             cellType = self.getCellType(gridObject)
-            entitiesDef=[cellType] + list(self.agentTypes.values())
+            entityTypes=[cellType] + list(self.agentTypes.values())
 
         selectedSymbologies={}
-        for entDef in entitiesDef:
-            selectedSymbologies[entDef]={
-                'shape':self.getCheckedSymbologyOfEntity(entDef.name),
-                'border': self.getCheckedSymbologyOfEntity(entDef.name, borderSymbology = True)
+        for type in entityTypes:
+            selectedSymbologies[type]={
+                'shape':self.getCheckedSymbologyOfEntity(type.name),
+                'border': self.getCheckedSymbologyOfEntity(type.name, borderSymbology = True)
                 }
         return selectedSymbologies
 

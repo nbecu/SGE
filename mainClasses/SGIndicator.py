@@ -63,7 +63,7 @@ class SGIndicator():
         self.name = aName
 
     def strOfEntitiesName(self):
-        return ",".join([entDef.name for entDef in self.entityTypes])
+        return ",".join([type.name for type in self.entityTypes])
 
     def checkAndUpdate(self):
         if self.getUpdatePermission():
@@ -163,7 +163,7 @@ class SGIndicator():
 
     
     def getListOfEntities(self):
-        listOfAllEntities = [j for i in [entDef.entities for entDef in self.entityTypes] for j in i]  
+        listOfAllEntities = [j for i in [type.entities for type in self.entityTypes] for j in i]  
         if self.conditionsOnEntities:
             entitiesSatisfyingConditions = []
             for aEnt in listOfAllEntities:
