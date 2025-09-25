@@ -7,7 +7,13 @@ This document contains the planned improvements and features for the SGE (Simula
 ### Core Architecture & Framework
 - [ ] Refactor SGModel to follow the ordering convention of SGE for modeler methods
 - [ ] Unify definition of `setValue` for the different classes
-- [ ] Rename EntDef to a name that makes more sense
+- [x] Rename EntDef to a name that makes more sense (Dec 2024)
+  - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType
+  - ✅ Renamed attributes: classDef → type, entityName → name
+  - ✅ Renamed methods: entityType() → category(), newAgentSpecies() → newAgentType()
+  - ✅ Updated all imports, references, and examples
+  - ✅ Fixed ControlPanel LegendItems display issue
+  - ✅ All tests and examples working correctly
 - [ ] Rename species to a name that makes more sense
 - [ ] Migrate to PyQt6
 

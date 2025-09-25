@@ -113,10 +113,10 @@ for i, action in enumerate(player1_actions):
     can_use = action.canBeUsed()
     print(f"     Action {i+1} ({action.actionType}): canBeUsed = {can_use}")
     if action.actionType == "Create":
-        print(f"       Target entity: {action.targetEntDef.entityName}")
-        print(f"       Target entityType: {action.targetEntDef.entityType()}")
-        print(f"       Target isAgentDef: {action.targetEntDef.isAgentDef}")
-        print(f"       Target isCellDef: {action.targetEntDef.isCellDef}")
+        print(f"       Target entity: {action.targetType.name}")
+        print(f"       Target entityType: {action.targetType.category()}")
+        print(f"       Target isAgentDef: {action.targetType.isAgentDef}")
+        print(f"       Target isCellDef: {action.targetType.isCellDef}")
         print(f"       Conditions count: {len(action.conditions)}")
         for j, condition in enumerate(action.conditions):
             print(f"         Condition {j+1}: {condition}")

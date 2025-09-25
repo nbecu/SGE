@@ -21,17 +21,17 @@ class SGCell(SGEntity):
     - Delegates UI to SGCellView for display and interaction
     """
     
-    def __init__(self, classDef, x, y, defaultImage):
+    def __init__(self, type, x, y, defaultImage):
         # Initialize the model part
-        super().__init__(classDef, classDef.defaultsize, attributesAndValues=None)
+        super().__init__(type, type.defaultsize, attributesAndValues=None)
         
         # Cell-specific properties
-        self.grid = classDef.grid
+        self.grid = type.grid
         self.xCoord = x
         self.yCoord = y
         self.gap = self.grid.gap
         self.saveGap = self.gap
-        self.saveSize = classDef.defaultsize
+        self.saveSize = type.defaultsize
         self.startXBase = self.grid.startXBase
         self.startYBase = self.grid.startYBase
         self.defaultImage = defaultImage
@@ -39,11 +39,11 @@ class SGCell(SGEntity):
         # List of agents in this cell
         self.agents = []
         
-        # Initialize attributes from classDef
+        # Initialize attributes from type
         self.initAttributesAndValuesWith({})
         
         # Create and link the view
-        self.view = SGCellView(self, classDef.grid)
+        self.view = SGCellView(self, type.grid)
         self.setView(self.view)
         
         # Type identification attributes

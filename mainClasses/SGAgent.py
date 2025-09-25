@@ -22,7 +22,7 @@ class SGAgent(SGEntity):
     - Delegates UI to SGAgentView for display and interaction
     """
     
-    def __init__(self, cell, size, attributesAndValues, shapeColor, classDef, defaultImage, popupImage):
+    def __init__(self, cell, size, attributesAndValues, shapeColor, type, defaultImage, popupImage):
         """
         Initialize the agent
         
@@ -31,11 +31,11 @@ class SGAgent(SGEntity):
             size: Size of the agent
             attributesAndValues: Initial attributes and values
             shapeColor: Shape color
-            classDef: The agent definition class
+            type: The agent definition class
             defaultImage: Default image for the agent
             popupImage: Popup image for the agent
         """
-        super().__init__(classDef, size, attributesAndValues)
+        super().__init__(type, size, attributesAndValues)
         
         # Type identification attributes
         self.isEntity = True
@@ -396,8 +396,8 @@ class SGAgent(SGEntity):
             # Movement from one cell to another
             
             # Check if moving to a different grid
-            old_grid = self.cell.classDef.grid if hasattr(self.cell, 'classDef') and hasattr(self.cell.classDef, 'grid') else None
-            new_grid = aDestinationCell.classDef.grid if hasattr(aDestinationCell, 'classDef') and hasattr(aDestinationCell.classDef, 'grid') else None
+            old_grid = self.cell.type.grid if hasattr(self.cell, 'type') and hasattr(self.cell.type, 'grid') else None
+            new_grid = aDestinationCell.type.grid if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid') else None
             
             if old_grid != new_grid and hasattr(self, 'view') and self.view is not None:
                 # Change the parent of the view to the new grid
@@ -463,7 +463,7 @@ class SGAgent(SGEntity):
             if isinstance(target, tuple) and len(target) == 2:
                 # target is coordinates (x, y)
                 x, y = target
-                newCell = self.cell.classDef.getCell(x, y)
+                newCell = self.cell.type.getCell(x, y)
             else:
                 # target is a numeric ID
                 newCell = aGrid.getCell_withId(target)
@@ -529,7 +529,7 @@ class SGAgent(SGEntity):
         elif hasattr(target, 'isCell') and target.isCell:  # Target is a Cell
             target_cell = target
         elif isinstance(target, tuple) and len(target) == 2:  # Coordinates (x, y)
-            target_cell = self.cell.classDef.getCell(target[0], target[1])
+            target_cell = self.cell.type.getCell(target[0], target[1])
         else:
             raise ValueError("Invalid target type for moveTowards()")
 

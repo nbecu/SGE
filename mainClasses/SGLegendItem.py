@@ -8,7 +8,7 @@ from math import inf
 
 #Class who is responsible of creation legend item 
 class SGLegendItem(QtWidgets.QWidget):
-    def __init__(self,parent,type,text,classDefOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None):
+    def __init__(self,parent,type,text,typeOrShape=None,color=Qt.black,nameOfAttribut="",valueOfAttribut="",isBorderItem=False,borderColorAndWidth=None,gameAction=None):
         super().__init__(parent)
         #Basic initialize
         self.legend=parent
@@ -16,18 +16,18 @@ class SGLegendItem(QtWidgets.QWidget):
         self.posY=self.legend.posYOfItems
         self.legend.posYOfItems +=1
         self.text=str(text)
-        if classDefOrShape == 'square' or classDefOrShape is None:
-            self.shape= classDefOrShape
+        if typeOrShape == 'square' or typeOrShape is None:
+            self.shape= typeOrShape
         else:
-            self.classDef=classDefOrShape
-            self.shape=self.classDef.shape
+            self.typeDef=typeOrShape
+            self.shape=self.typeDef.shape
         self.color=color
         self.nameOfAttribut=nameOfAttribut
         self.valueOfAttribut=valueOfAttribut
         self.isBorderItem=isBorderItem
         if self.isBorderItem:
             self.borderColorAndWidth=borderColorAndWidth
-            self.color= self.classDef.defaultShapeColor
+            self.color= self.typeDef.defaultShapeColor
         self.remainNumber=int
         self.gameAction= gameAction
 
@@ -59,10 +59,10 @@ class SGLegendItem(QtWidgets.QWidget):
         return True
     
     def isSymbolOnCell(self):
-        return self.type == 'symbol' and self.classDef.entityType() == 'Cell'#self.shape in ["square","hexagonal"]
+        return self.type == 'symbol' and self.typeDef.category() == 'Cell'#self.shape in ["square","hexagonal"]
 
     def isSymbolOnAgent(self):
-        return self.type == 'symbol' and self.classDef.entityType() =='Agent' # in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
+        return self.type == 'symbol' and self.typeDef.category() =='Agent' # in ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2")
 
     #Drawing function
     def paintEvent(self,event):

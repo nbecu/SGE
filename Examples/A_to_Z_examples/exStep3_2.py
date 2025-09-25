@@ -18,7 +18,7 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.dar
 
 # You can put numerical values or string values.
 # Here is an example with numerical values
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent2",defaultSize=25)
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent2",defaultSize=25)
 Sheeps.setDefaultValues_randomNumeric({"health": range(0, 100, 10), "hunger": range(0, 100, 10)})
 
 # define color gradients for both attributes

@@ -83,20 +83,20 @@ class SGControlPanel(SGGameSpace):
         # Filter out actions that can't be properly sorted (like model actions)
         sortableActions = []
         for action in gameActions:
-            if hasattr(action, 'targetEntDef') and action.targetEntDef != 'model':
+            if hasattr(action, 'targetType') and action.targetType != 'model':
                 sortableActions.append(action)
         
         # Sort actions by entity type and name
-        sortedGameActions = sorted(sortableActions, key=lambda x: (0, x.targetEntDef.name) if x.targetEntDef.category() == 'Cell' else (1, x.targetEntDef.name))
+        sortedGameActions = sorted(sortableActions, key=lambda x: (0, x.targetType.name) if x.targetType.category() == 'Cell' else (1, x.targetType.name))
 
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:
             if "Move" == aGameAction.actionType and not aGameAction.setOnController or aGameAction.setControllerContextualMenu:
                 continue
-            if lastEntDefTitle != aGameAction.targetEntDef.name:
-                anItem=SGLegendItem(self,'Title2',aGameAction.targetEntDef.name)
+            if lastEntDefTitle != aGameAction.targetType.name:
+                anItem=SGLegendItem(self,'Title2',aGameAction.targetType.name)
                 self.legendItems.append(anItem)
-                lastEntDefTitle = aGameAction.targetEntDef.name
+                lastEntDefTitle = aGameAction.targetType.name
             #case of ModifyAction
             listOfLegendItems = aGameAction.generateLegendItems(self)
             if listOfLegendItems is not None:

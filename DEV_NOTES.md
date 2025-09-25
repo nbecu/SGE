@@ -8,15 +8,40 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 
 ## État actuel du développement
 
-### Date de dernière mise à jour : Septembre 2025
+### Date de dernière mise à jour : Décembre 2024
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : layout_export_import_for_release_sept_25
-### Dernier chantier : Système de sauvegarde/chargement des configurations Enhanced Grid Layout
+### Branche actuelle : renaming-classes
+### Dernier chantier : Renommage SGEntityDef → SGEntityType
 
 ---
 
 ## Travail en cours
+
+### Décembre 2024 - Renommage SGEntityDef → SGEntityType (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Renommage complet des classes et attributs pour améliorer la lisibilité et l'intuitivité du code SGE
+- **Fichiers concernés** : 
+  - `mainClasses/SGEntityType.py` (classes renommées : SGEntityType, SGCellType, SGAgentType)
+  - `mainClasses/SGEntity.py` (attribut classDef → type)
+  - `mainClasses/SGCell.py` (attribut classDef → type)
+  - `mainClasses/SGAgent.py` (attribut classDef → type)
+  - `mainClasses/AttributeAndValueFunctionalities.py` (classDef → type)
+  - `mainClasses/SGLegendItem.py` (classDef → typeDef, entityType() → category())
+  - `mainClasses/SGFormatDataHistory.py` (classDef.entityName → type.name)
+  - `mainClasses/SGPlayer.py` (targetEntDef → targetType)
+  - `mainClasses/SGControlPanel.py` (targetEntDef → targetType)
+  - `tests/` (tous les fichiers de test mis à jour)
+  - `examples/A_to_Z_examples/exStep3_2.py` (newAgentSpecies → newAgentType)
+- **Problèmes rencontrés** : 
+  - Chaîne de création des LegendItems dans ControlPanels cassée
+  - Références incohérentes entre classes d'actions et ControlPanels
+- **Solutions appliquées** : 
+  - Renommage systématique de tous les attributs et méthodes
+  - Correction des références dans SGPlayer.getAllGameActionsOn() et SGControlPanel.initUI_withGameActions()
+  - Mise à jour de tous les imports et références dans le codebase
+  - Tests complets avec exemples fonctionnels
+- **Résultat** : Code plus lisible et intuitif, toutes les fonctionnalités préservées, LegendItems des ControlPanels fonctionnels
 
 ### Septembre 2025 - Système de sauvegarde/chargement des configurations Enhanced Grid Layout (TERMINÉ)
 - **Statut** : ✅ Terminé et validé

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Test suite for Model-View alternative methods in SGEntityDef
+Test suite for Model-View alternative methods in SGEntityType
 
 This test validates all the new WithModelView methods that were added to
-SGCellDef and SGAgentDef to support the Model-View architecture.
+SGCellType and SGAgentType to support the Model-View architecture.
 """
 
 import sys
@@ -16,7 +16,7 @@ from PyQt5.QtCore import Qt
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mainClasses.SGModel import SGModel
-from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
+from mainClasses.SGEntityType import SGCellType, SGAgentType
 
 
 class TestModelViewAlternatives(unittest.TestCase):
@@ -42,7 +42,7 @@ class TestModelViewAlternatives(unittest.TestCase):
         )
         
         # Create agent definition
-        cls.agent_def = SGAgentDef(
+        cls.agent_def = SGAgentType(
             cls.model,
             "test_agent",
             "circle",
@@ -296,7 +296,7 @@ class TestModelViewAlternatives(unittest.TestCase):
     def test_error_handling_no_cell_def(self):
         """Test error handling when no cell definition is available"""
         # Create a new agent definition without any cell definitions
-        empty_agent_def = SGAgentDef(
+        empty_agent_def = SGAgentType(
             self.model,
             "empty_agent",
             "circle",

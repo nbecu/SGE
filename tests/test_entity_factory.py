@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PyQt5.QtWidgets import QApplication
 from mainClasses.SGModel import SGModel
-from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
+from mainClasses.SGEntityType import SGCellType, SGAgentType
 from mainClasses.SGEntityFactory import SGEntityFactory
 
 class TestEntityFactory:
@@ -34,7 +34,7 @@ class TestEntityFactory:
         self.grid = self.cell_def.grid
         
         # Create an agent definition
-        self.agent_def = SGAgentDef(
+        self.agent_def = SGAgentType(
             self.model,
             "test_agent",
             "circleAgent",

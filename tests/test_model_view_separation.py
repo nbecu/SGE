@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from PyQt5.QtWidgets import QApplication
 from mainClasses.SGModel import SGModel
 from mainClasses.SGGrid import SGGrid
-from mainClasses.SGEntityDef import SGCellDef, SGAgentDef
+from mainClasses.SGEntityType import SGCellType, SGAgentType
 from mainClasses.SGAgent import SGAgent
 from mainClasses.SGCell import SGCell
 
@@ -36,7 +36,7 @@ class TestModelViewSeparation:
         self.grid = self.cell_def.grid
         
         # Créer une définition d'agent
-        self.agent_def = SGAgentDef(
+        self.agent_def = SGAgentType(
             self.model,
             "test_agent",
             "circleAgent",
@@ -83,8 +83,8 @@ class TestModelViewSeparation:
             target_cell,
             self.agent.size,
             saved_attributes,
-            self.agent.classDef.povShapeColor,
-            self.agent.classDef,
+            self.agent.type.povShapeColor,
+            self.agent.type,
             self.agent.defaultImage,
             self.agent.popupImage
         )
@@ -133,8 +133,8 @@ class TestModelViewSeparation:
             target_cell,
             self.agent.size,
             saved_attributes,
-            self.agent.classDef.povShapeColor,
-            self.agent.classDef,
+            self.agent.type.povShapeColor,
+            self.agent.type,
             self.agent.defaultImage,
             self.agent.popupImage
         )

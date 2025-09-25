@@ -76,7 +76,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         if aAttribut in self.dictAttributes and self.dictAttributes[aAttribut]==aValue: return False #The attribute has already this value
         self.dictAttributes[aAttribut]=aValue
         self.saveValueInHistory(aAttribut,aValue)
-        # self.classDef.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
+        # self.type.updateWatchersOnAttribute(aAttribut) #This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut) #This is for watchers on this specific entity
         # self.model.update()
         return True
@@ -159,7 +159,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         actionsForMenu=[]
         entityDef=anEntityInstance.type
         for aGameAction in self.gameActions:
-            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) or isinstance(aGameAction,SGDelete) and aGameAction.targetEntDef==entityDef:
+            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) or isinstance(aGameAction,SGDelete) and aGameAction.targetType==entityDef:
                 actionsForMenu.append(aGameAction)
         return actionsForMenu
     
