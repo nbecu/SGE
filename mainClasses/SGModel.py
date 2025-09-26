@@ -62,6 +62,7 @@ from mainClasses.gameAction.SGDelete import *
 from mainClasses.gameAction.SGModify import *
 from mainClasses.gameAction.SGMove import *
 from mainClasses.SGEventHandlerGuide import *
+from mainClasses.SGMQTTManager import SGMQTTManager
 
 
 
@@ -168,10 +169,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.haveToBeClose = False
         self.mqttMajType=None
 
-        self.actionsFromBrokerToBeExecuted=[]
-        self.simulationVariablesAtMAJ=[] 
-
         self.dataRecorder=SGDataRecorder(self)
+
+        # Initialize MQTT Manager
+        self.mqttManager = SGMQTTManager(self)
 
         self.initUI()
 
@@ -592,14 +593,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def nextTurn(self):
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
-            self.buildNextTurnMsgAndPublishToBroker()
+            self.mqttManager.buildNextTurnMsgAndPublishToBroker()
 
 
     def closeEvent(self, event):
         self.haveToBeClose = True
         self.getTextBoxHistory(self.TextBoxes)
-        if hasattr(self, 'client'):
-            self.client.disconnect()
+        if hasattr(self, 'mqttManager') and self.mqttManager:
+            self.mqttManager.disconnect()
         self.close()
 
 
@@ -958,15 +959,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         Args:
             majType (str): "Phase" or "Instantaneous"
-        
         """
-        self.clientId= uuid.uuid4().hex
-        self.majTimer = QTimer(self)
-        self.majTimer.timeout.connect(self.onMAJTimer)
-        self.majTimer.start(100)
-        self.initMQTT()
-        self.mqttMajType=majType
-
+        self.mqttManager.setMQTTProtocol(majType)
         self.launch()
 
     # Return all gameActions of all players
@@ -990,182 +984,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             majIDs.add(agID)
         return majIDs
 
-    # MQTT Basic function to  connect to the broker
-    def connect_mqtt(self):
-        def on_log(client, userdata, level, buf):
-            print("log: "+buf)
-
-        def on_connect(client, userdata, flags, rc):
-            if rc == 0:
-                print("Connected to MQTT Broker!")
-            else:
-                print("Failed to connect, return code %d\n", rc)
-
-        def on_disconnect(client, userdata, flags, rc=0):
-            print("disconnect result code "+str(rc))
-
-        print("connectMQTT")
-        # self.client = mqtt_client.Client(self.currentPlayerName)  # Old version
-        self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayerName) # for the new version of paho possible correction
-        self.client.on_connect = on_connect
-        self.client.on_disconnect = on_disconnect
-        self.client.on_log = on_log
-        self.q = queue.Queue()
-        self.t1 = threading.Thread(target=self.handleClientThread, args=())
-        self.t1.start()
-        self.timer.start(5)
-        self.client.connect("localhost", 1883)
-        self.client.user_data_set(self)
-
-    # Thread that handle the listen of the client
-    def handleClientThread(self):
-        while True:
-            self.client.loop(.1)
-            if self.haveToBeClose == True:
-                break
-
-    # Init the MQTT client
-    def initMQTT(self):
-        def on_message(aClient, userdata, msg):
-            userdata.q.put(msg.payload)
-            print("message received " + msg.topic)
-            message = self.q.get()
-            msg_decoded = message.decode("utf-8")
-            if msg.topic in ['gameAction_performed','nextTurn','execute_method']:
-                unserializedMsg= json.loads(msg_decoded)
-                if unserializedMsg['clientId']== self.clientId:
-                    print("Own update, no action required.") 
-                else:
-                    if msg.topic == 'gameAction_performed':
-                        self.processBrokerMsg_gameAction_performed(unserializedMsg)
-                    elif msg.topic == 'execute_method':
-                        self.processBrokerMsg_executeMethod(unserializedMsg)
-                    elif msg.topic == 'nextTurn':
-                        self.processBrokerMsg_nextTrun(unserializedMsg)
-                return
-            msg_list = eval(msg_decoded)   
-
-        self.connect_mqtt()
-
-        self.client.subscribe("gameAction_performed")
-        self.client.subscribe("nextTurn")
-        self.client.subscribe("execute_method")
-        self.client.on_message = on_message
-        
-    def buildNextTurnMsgAndPublishToBroker(self):
-        msgTopic = 'nextTurn'
-        msg_dict={}
-        msg_dict['clientId']=self.clientId
-        #eventually, one can add some more info about this nextTurn action
-        # msg_dict['foo']= foo
-        serializedMsg = json.dumps(msg_dict)
-        if hasattr(self, 'client'):
-            self.client.publish(msgTopic,serializedMsg)
-        else: raise ValueError('Why does this case happens?')
-
-    # Method to build a json_string 'Execution message' and publish it on the mqtt broker
-    # A 'Execution message' is a message that will triger a specified method, of a specified object, to be executed with some specified arguments
-    def buildExeMsgAndPublishToBroker(self,*args):
-        #Check that a client is declared
-        if not hasattr(self, 'client'): raise ValueError('Why does this case happens?')
-        
-        msgTopic = args[0] # The first arg is the topic of the msg
-        objectAndMethodToExe = args[1] #Second arg is a dict that identifies the object and method to be executed. The dict has three keys: 'class_name', 'id', 'method' (method name called by the object )
-        argsToSerialize= args[2:] # The third to the last arg, correspond to all the arguments for the method
-
-        #build the message to publish
-        msg_dict={}
-        msg_dict['clientId']=self.clientId
-        msg_dict['objectAndMethod']= objectAndMethodToExe
-        listOfArgs=[]
-        for arg in argsToSerialize:
-            if isinstance(arg,SGModel.JsonManagedDataTypes):
-                listOfArgs.append(arg)
-            else:
-                listOfArgs.append(['SGObjectIdentifer',arg.getObjectIdentiferForJsonDumps()])
-        msg_dict['listOfArgs']= listOfArgs
-
-        #serialize (encode) and publish the message
-        serializedMsg = json.dumps(msg_dict)
-        self.client.publish(msgTopic,serializedMsg)
-
-    def processBrokerMsg_nextTrun(self, unserializedMsg):
-        #eventually, one can add and process some more info about this nextTurn action
-        self.actionsFromBrokerToBeExecuted.append({
-            'action_type':'nextTurn'
-             })
-        
-    #Method to process the incoming of a "gameAction_performed" msg
-    def processBrokerMsg_gameAction_performed(self, unserializedMsg):
-        msg = unserializedMsg
-        objectAndMethod = msg['objectAndMethod']
-        classOfObjectToExe = objectAndMethod['class_name']
-        idOfObjectToExe = objectAndMethod['id']
-        methodOfObjectToExe = objectAndMethod['method']
-        if methodOfObjectToExe != 'perform_with': raise ValueError('This method only works for msg that should execute gameAction.perform_with(*args)')
-        aGameAction = self.getGameAction_withClassAndId(classOfObjectToExe,idOfObjectToExe)
-        listOfArgs=[]
-        for aArgSpec in msg['listOfArgs']:
-            if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
-                aArg=self.getSGEntity_withIdentfier(aArgSpec[1])
-            else:
-                aArg= aArgSpec
-            listOfArgs.append(aArg)
-        self.actionsFromBrokerToBeExecuted.append({
-            'action_type':'gameAction',
-            'gameAction':aGameAction,
-             'listOfArgs':listOfArgs
-             })
-
-    def processBrokerMsg_executeMethod(self, unserializedMsg):
-        msg = unserializedMsg
-        objectAndMethod = msg['objectAndMethod']
-        classOfObjectToExe = objectAndMethod['class_name']
-        idOfObjectToExe = objectAndMethod['id']
-        methodNameToExe = objectAndMethod['method']
-
-        aIdentificationDict={}
-        aIdentificationDict['name']=classOfObjectToExe
-        aIdentificationDict['id']=idOfObjectToExe 
-        aSGObject = self.getSGObject_withIdentifier(aIdentificationDict)
-        
-        methodToExe = getattr(aSGObject,methodNameToExe) # this code retrieves the method to be executed and places it in the 'methodToExe' variable. This 'methodToExe' variable can now be used as if it were the method to be executed.
-        #retrieve the arguments of the method to be executed
-        listOfArgs=[]
-        for aArgSpec in msg['listOfArgs']:
-            if isinstance(aArgSpec, list) and len(aArgSpec)>0 and aArgSpec[0]== 'SGObjectIdentifer':
-                aArg=self.getSGObject_withIdentifier(aArgSpec[1])
-            else:
-                aArg= aArgSpec
-            listOfArgs.append(aArg)
-
-        #method execution with these arguments
-        methodToExe(*listOfArgs)
-
-        # the code below can be used to defer execution of the method to a thread outside the mqtt read thread.
-        # self.actionsFromBrokerToBeExecuted.append({
-        #     'action_type':'execute_method',
-        #     'boundMethod':methodToExe,     # a bound method is a method already associated with the object that will execute it
-        #      'listOfArgs':listOfArgs
-        #      })
-    
-    def onMAJTimer(self):
-        self.executeGameActionsAfterBrokerMsg()
-    
-    def executeGameActionsAfterBrokerMsg(self):
-        for item in self.actionsFromBrokerToBeExecuted:
-            actionType = item['action_type']
-            if actionType == 'gameAction':
-                aGameAction = item['gameAction']
-                listOfArgs = item['listOfArgs']
-                aGameAction.perform_with(*listOfArgs,serverUpdate=False)
-            elif actionType == 'nextTurn':
-                self.timeManager.nextPhase()
-            else: raise ValueError('No other possible choices')
-
-        self.actionsFromBrokerToBeExecuted=[]
-
-    
     # ============================================================================
     # LAYOUT CONFIGURATION METHODS
     # ============================================================================

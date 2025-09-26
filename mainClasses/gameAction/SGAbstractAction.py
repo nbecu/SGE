@@ -134,7 +134,7 @@ class SGAbstractAction():
             dict['class_name']=self.__class__.__name__
             dict['id']=self.id
             dict['method']='perform_with'
-            self.model.buildExeMsgAndPublishToBroker('gameAction_performed',dict, *args)
+            self.model.mqttManager.buildExeMsgAndPublishToBroker('gameAction_performed',dict, *args)
 #-----------------------------------------------------------------------------------------
 #Definiton of the methods who the modeler will use
         
