@@ -80,7 +80,7 @@ class SGEndGameRule(SGGameSpace):
         # Automatically adjust size after adding a condition
         self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
-    def addEndGameCondition_onEntity(self, aEntity, attribute, logicalTest, objective, name="Entity based condition",speciesName=None, aGrid=None, color=Qt.black, isDisplay=True):
+    def addEndGameCondition_onEntity(self, aEntity, attribute, logicalTest, objective, name="Entity based condition",type_name=None, aGrid=None, color=Qt.black, isDisplay=True):
         """Create an EndGame Condition with an Entity
 
         Args:
@@ -89,7 +89,7 @@ class SGEndGameRule(SGGameSpace):
             logicalTest (str): logical test concerned in ["greater","greater or equal","equal", "less or equal","less"]
             objective (int) : objective value to do logical test with
             name (str) : name of the end game condition, displayed (default : “Entity based condition")
-            speciesName (str) : name of the AgentSpecies (only if your entity is an Agent, default : None)
+            type_name (str) : name of the entity type (only if your entity is an Agent, default : None)
             aGrid (instance) : instance of the concerned grid (only if your entity is a Cell, default : None)
             color (Qt.color) : text color (default : black)
             isDisplay (bool) : is displayed in the EndGameRule board (default : True)

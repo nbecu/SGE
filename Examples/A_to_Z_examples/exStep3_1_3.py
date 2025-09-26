@@ -15,8 +15,7 @@ Cell.setEntities_withColumn("landUse","forest",2)
 Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("base","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 
-# In SGE a "type" of agent is called a species.
-# To create a species, it needs : a name and a shape 
+# To create a type of agents, it needs : a name and a shape 
 Sheeps=myModel.newAgentType("Sheeps","circleAgent",defaultSize=10)
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 

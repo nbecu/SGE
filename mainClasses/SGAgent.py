@@ -224,12 +224,12 @@ class SGAgent(SGEntity):
             return (self.cell.xCoord, self.cell.yCoord)
         return None
     
-    def getAgentsHere(self, specie=None):
+    def getAgentsHere(self, agent_type=None):
         """
         Get all agents in the same cell as this agent.
 
         Args:
-            specie (str | None): If specified, only agents of this specie are returned.
+            agent_type (str | None): If specified, only agents of this type are returned.
 
         Returns:
             list[SGAgent]: Agents in the same cell.
@@ -238,49 +238,49 @@ class SGAgent(SGEntity):
             return []
         
         agents = self.cell.getAgents()
-        if specie is None:
+        if agent_type is None:
             return agents
         
-        # Filter by species
-        return [agent for agent in agents if agent.type.name == specie]
+        # Filter by type
+        return [agent for agent in agents if agent.type.name == agent_type]
 
-    def nbAgentsHere(self, specie=None):
+    def nbAgentsHere(self, agent_type=None):
         """
         Get the number of agents in the same cell as this agent.
 
         Args:
-            specie (str | None): If specified, only agents of this specie are counted.
+            agent_type (str | None): If specified, only agents of this type are counted.
 
         Returns:
             int: Number of matching agents in the same cell.
         """
         if self.cell is None:
             return 0
-        return len(self.getAgentsHere(specie))
+        return len(self.getAgentsHere(agent_type))
 
     def getNeighborCells(self, neighborhood=None):
         """Get neighbor cells"""
         return self.cell.getNeighborCells(condition=neighborhood)
     
-    def getNeighborAgents(self, aSpecies=None, neighborhood=None):
+    def getNeighborAgents(self, agent_type=None, neighborhood=None):
         """Get neighbor agents"""
         neighborAgents = []        
         neighborAgents = [aCell.agents for aCell in self.getNeighborCells(neighborhood=neighborhood)]
         
-        if aSpecies:
-            return self.filterBySpecies(aSpecies, neighborAgents)
+        if agent_type:
+            return self.filterByType(agent_type, neighborAgents)
         return neighborAgents
     
-    def getClosestAgentMatching(self, agentSpecie, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
+    def getClosestAgentMatching(self, agent_type, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
         """
-        Find the closest neighboring agent of a given species from this agent's position,
+        Find the closest neighboring agent of a given type from this agent's position,
         with optional filtering conditions on the target agent and the target cell.
 
         This method is a wrapper for SGCell.getClosestAgentMatching().
 
         Args:
-            agentSpecie (str | SGAgentDef): 
-                The species of the agent to search for.
+            agent_type (str | SGAgentDef): 
+                The type of the agent to search for.
             max_distance (int, optional): 
                 Maximum search radius. Defaults to 1.
             conditions_on_agent (list[callable], optional): 
@@ -301,43 +301,43 @@ class SGAgent(SGEntity):
         """
         
         return self.cell.getClosestAgentMatching(
-            agentSpecie=agentSpecie,
+            agent_type=agent_type,
             max_distance=max_distance,
             conditions_on_agent=conditions_on_agent,
             conditions_on_cell=conditions_on_cell,
             return_all=return_all
         )
 
-    def nbNeighborAgents(self, aSpecies=None, neighborhood=None):  
+    def nbNeighborAgents(self, agent_type=None, neighborhood=None):  
         """Get number of neighbor agents"""
-        return len(self.getNeighborAgents(aSpecies, neighborhood))
+        return len(self.getNeighborAgents(agent_type, neighborhood))
 
-    def getNeighborsN(self, aSpecies=None):
-        """Get neighbors to the North"""
+    def getNeighborsN(self, agent_type=None):
+        """Get neighbor agents to the North"""
         theCell = self.cell.getNeighborN()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies, theCell.agents)
+        if agent_type:
+            return self.filterByType(agent_type, theCell.agents)
         return theCell.agents
     
-    def getNeighborsS(self, aSpecies=None):
-        """Get neighbors to the South"""
+    def getNeighborsS(self, agent_type=None):
+        """Get neighbor agents to the South"""
         theCell = self.cell.getNeighborS()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies, theCell.agents)
+        if agent_type:
+            return self.filterByType(agent_type, theCell.agents)
         return theCell.agents
     
-    def getNeighborsE(self, aSpecies=None):
-        """Get neighbors to the East"""
+    def getNeighborsE(self, agent_type=None):
+        """Get neighbor agents to the East"""
         theCell = self.cell.getNeighborE()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies, theCell.agents)
+        if agent_type:
+            return self.filterByType(agent_type, theCell.agents)
         return theCell.agents
     
-    def getNeighborsW(self, aSpecies=None):
-        """Get neighbors to the West"""
+    def getNeighborsW(self, agent_type=None):
+        """Get neighbor agents to the West"""
         theCell = self.cell.getNeighborW()
-        if aSpecies:
-            return self.filterBySpecies(aSpecies, theCell.agents)
+        if agent_type:
+            return self.filterByType(agent_type, theCell.agents)
         return theCell.agents
 
     # ============================================================================
@@ -551,17 +551,17 @@ class SGAgent(SGEntity):
     # OTHER MODELER METHODS
     # ============================================================================
 
-    def filterBySpecies(self, aSpecies, agents): #todo est ce que cette méthode ne devrait pas plutôt etre dans SGExtensions.py ?
-        """Filter agents by species"""
+    def filterByType(self, agent_type, agents): #todo est ce que cette méthode ne devrait pas plutôt etre dans SGExtensions.py ?
+        """Filter agents by type"""
         filtered_agents = []
         if len(agents) != 0:
             for aAgent in agents:
                 if isinstance(aAgent, list):
                     for agent in aAgent:
-                        if agent.type == aSpecies or agent.type.name == aSpecies:
+                        if agent.type == agent_type or agent.type.name == agent_type:
                             filtered_agents.append(agent)
                 elif hasattr(aAgent, 'type'):  # Check if it's an agent
-                    if aAgent.type == aSpecies or aAgent.type.name == aSpecies:
+                    if aAgent.type == agent_type or aAgent.type.name == agent_type:
                         filtered_agents.append(aAgent)
         return filtered_agents
                 

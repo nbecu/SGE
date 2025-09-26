@@ -22,7 +22,7 @@ Cell.newPov("terrain", "terrain", {
     "energy": Qt.yellow
 })
 
-# Create agent species
+# Create agent type
 Robots = myModel.newAgentType("Robots", "triangleAgent1", defaultSize=20)
 
 # Create multiple robots

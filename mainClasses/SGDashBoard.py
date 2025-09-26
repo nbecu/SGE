@@ -285,7 +285,7 @@ class SGDashBoard(SGGameSpace):
         """
         Add a sum indicator
         Args :
-            entity (str) : "cell" or "agent" or aAgentSpecies
+            entity (str) : "cell" or "agent" or aAgentType
             attribute (str) : concerned attribute 
             title (str, optional) : name displayed on the dashboard
             color (Qt.color) : text color

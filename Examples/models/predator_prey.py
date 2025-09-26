@@ -19,7 +19,7 @@ Cell.newPov("base", "landForm", {"plain": Qt.green, "lac": Qt.blue, "mountain": 
 Cell.newBorderPov("transparent", "landForm", {"plain": Qt.transparent, "lac": Qt.transparent, "mountain": Qt.transparent})
 Cell.displayBorderPov("transparent")
 
-# Agent species
+# Agent types
 Sheep = myModel.newAgentType("Sheep", "ellipseAgent1", defaultSize=18, locationInEntity="center", defaultColor=Qt.white)
 Wolf  = myModel.newAgentType("Wolf",  "ellipseAgent2", defaultSize=20, locationInEntity="center", defaultColor=Qt.red)
 
@@ -39,7 +39,7 @@ def wolf_hunt_step():
 
     # Find closest sheep within distance 4 (returns one agent by default)
     target_sheep = wolf.getClosestAgentMatching(
-        agentSpecie=Sheep,
+        agent_type=Sheep,
         max_distance=3
         # You could add conditions_on_cell / conditions_on_agent if needed
     )

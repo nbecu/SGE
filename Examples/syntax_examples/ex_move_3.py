@@ -22,7 +22,7 @@ Cell.newPov("terrain", "terrain", {
     "energy": Qt.yellow
 })
 
-# Create agent species with move_type attribute
+# Create agent type with move_type attribute
 Robots = myModel.newAgentType("Robots", "triangleAgent1", defaultSize=20)
 Robots.setDefaultValues({"move_type": "random"})
 

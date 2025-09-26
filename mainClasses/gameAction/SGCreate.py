@@ -33,11 +33,11 @@ class SGCreate(SGAbstractAction):
     def executeAction(self, aTargetEntity):
         """Create a single entity """
         # in case of agent, we create the agent on the cell using Model-View architecture
-        if self.targetType.isAgentDef:
+        if self.targetType.isAgentType:
             result = self.targetType.newAgentOnCell(aTargetEntity, self.dictAttributs)
             return result
         # in case of cell, we just revive the cell
-        elif self.targetType.isCellDef:
+        elif self.targetType.isCellType:
             # Check if this cell is in deletedCells (meaning it was deleted)
             if aTargetEntity in self.targetType.deletedCells:
                 self.targetType.reviveThisCell(aTargetEntity)

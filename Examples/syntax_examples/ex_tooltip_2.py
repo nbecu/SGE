@@ -45,7 +45,7 @@ Cows.newAgentsAtRandom(5, LandCell, condition=lambda c: c.isValue("landForm", "p
 
 Fishes = myModel.newAgentType("Fish", "ellipseAgent1", defaultSize=20, defaultColor=Qt.gray)
 Fishes.setDefaultValues_randomChoice({
-    "species": ["Salmon", "Tuna", "Cod", "Mackerel"],
+    "type": ["Salmon", "Tuna", "Cod", "Mackerel"],
     "size": ["small", "medium", "large"],
     "swimming_depth": ["surface", "mid", "deep"]
 })
@@ -69,9 +69,9 @@ Cows.setTooltip("Health", "health")  # Display health attribute
 Cows.setTooltip("Hunger", "hunger")  # Display hunger attribute
 Cows.setTooltip("Status", lambda cow: f"Health: {cow.value('health')}, Hunger: {cow.value('hunger')}")  # Combined status
 
-Fishes.setTooltip("Species", "species")  # Display species attribute
+Fishes.setTooltip("Type", "type")  # Display types attribute
 Fishes.setTooltip("Size", "size")  # Display size attribute
-Fishes.setTooltip("Info", lambda fish: f"{fish.value('species')} ({fish.value('size')}) in {fish.cell.value('seascape')}")  # Combined info
+Fishes.setTooltip("Info", lambda fish: f"{fish.value('type')} ({fish.value('size')}) in {fish.cell.value('seascape')}")  # Combined info
 
 
 myModel.launch()

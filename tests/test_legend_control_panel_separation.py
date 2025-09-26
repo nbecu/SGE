@@ -33,12 +33,11 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-# In SGE a "type" of agent is called a species.
-# To create a species, it needs : a name and a shape 
+# To create a type of agent, it needs : a name and a shape 
 Sheeps=myModel.newAgentType("Sheeps","ellipseAgent1")
 # available shapes are "circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2"
 
-# You can also set default values to the species so that new agents will be initialized 
+# You can also set default values to the agent type so that new agents will be initialized 
 Sheeps.setDefaultValues_randomChoice({
                 "health": ["good", "bad"],
                 "hunger": ("good", "bad")            })
@@ -115,8 +114,8 @@ for i, action in enumerate(player1_actions):
     if action.actionType == "Create":
         print(f"       Target entity: {action.targetType.name}")
         print(f"       Target category: {action.targetType.category()}")
-        print(f"       Target isAgentDef: {action.targetType.isAgentDef}")
-        print(f"       Target isCellDef: {action.targetType.isCellDef}")
+        print(f"       Target isAgentType: {action.targetType.isAgentType}")
+        print(f"       Target isCellType: {action.targetType.isCellType}")
         print(f"       Conditions count: {len(action.conditions)}")
         for j, condition in enumerate(action.conditions):
             print(f"         Condition {j+1}: {condition}")

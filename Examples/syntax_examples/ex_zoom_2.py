@@ -44,7 +44,7 @@ Cows.newAgentsAtRandom(8, LandCell)
 
 Fishes = myModel.newAgentType("Fish", "triangleAgent1", defaultSize=10, defaultColor=Qt.gray, locationInEntity="center")
 Fishes.setDefaultValues_randomChoice({
-    "species": ["Salmon", "Tuna", "Cod", "Mackerel"],
+    "type": ["Salmon", "Tuna", "Cod", "Mackerel"],
     "size": ["small", "medium", "large"],
     "swimming_depth": ["surface", "mid", "deep"]
 })

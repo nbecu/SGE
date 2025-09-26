@@ -54,7 +54,7 @@ class SGLegend(SGGameSpace):
             if aShapeSymbology is not None:
                 # Case 2: Shape symbology - POV for shape color, creates items for each symbol name and color
                 # This case corresponds to entities with shape-based POV (e.g., health status affecting color)
-                if self.alwaysDisplayDefaultAgentSymbology and type.isAgentDef:
+                if self.alwaysDisplayDefaultAgentSymbology and type.isAgentType:
                     # Use default symbology for agents without attributes
                     anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
                     self.legendItems.append(anItem)    

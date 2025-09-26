@@ -15,11 +15,11 @@ Cell.setRandomEntities("landForm", "mountain", 6)
 Cell.setRandomEntities("landForm", "lac", 4)
 Cell.newPov("base", "landForm", {"plain": Qt.green, "lac": Qt.blue, "mountain": Qt.darkGray})
 
-# Species 1: Turtle - moves slowly (1 movement per turn)
+# Agent type 1: Turtle - moves slowly (1 movement per turn)
 Turtle = myModel.newAgentType("Turtle", "squareAgent", defaultSize=20, locationInEntity="center", defaultColor=Qt.darkGreen)
 Turtle.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 
-# Species 2: Rabbit - moves quickly (3 movements per turn)
+# Agent type 2: Rabbit - moves quickly (3 movements per turn)
 Rabbit = myModel.newAgentType("Rabbit", "ellipseAgent1", defaultSize=15, locationInEntity="center", defaultColor=Qt.white)
 Rabbit.newAgentsAtRandom(1, condition=lambda c: c.isValue("landForm", "plain"))
 

@@ -200,12 +200,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 CellType.newCell(col, row)
         return CellType
 
-    def updateIDincr(self, newValue):
-        self.IDincr = newValue
-        return self.IDincr
-    
-    def updateIDmemory(self, aSpecies):
-        aSpecies.memoryID = aSpecies.memoryID+1
+    def numberOfGrids(self):
+        return len(self.cellTypes)
+
 
     #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
     def getSGEntity_withIdentfier(self, aIdentificationDict):
@@ -220,12 +217,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aId = aIdentificationDict['id']
         return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
 
-    def getIdFromPrivateId(self, aPrivateID, aSpeciesName):
-        result=re.search(f'{aSpeciesName}(\d+)', aPrivateID)
-        if result:
-            anID=result.group(1)
-            return anID
-        raise ValueError("Check again!")
 
     def initUI(self):
         # Definition of the view through the a widget
@@ -404,8 +395,33 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         QApplication.processEvents()
         self.positionAllAgents()
         
+    def positionAllAgents(self):
+        """Position all agents after grid layout is applied"""
+        for agent_type in self.getAgentTypes():
+            for agent in agent_type.entities:
+                if hasattr(agent, 'view') and agent.view:
+                    # Show the agent view first
+                    agent.view.show()
+                    agent.view.raise_()  # Bring to front
+                    # Then position it
+                    agent.view.getPositionInEntity()
+                    # Force update to ensure positioning is applied
+                    agent.view.update()
+
     def hasDefinedPositionGameSpace(self):
         return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
+
+
+    def show_adminControlPanel(self): #todo a mettre dans méthodes de developer
+        """
+        Private method to show the Admin Control Panel
+        """
+        adminPlayer = self.getAdminPlayer()
+        adminPlayer.createAllGameActions()
+        if adminPlayer.controlPanel is None:
+            adminPlayer.newControlPanel("Admin")
+        else:
+            adminPlayer.controlPanel.show()
 
 
     def setDashboards(self):
@@ -413,6 +429,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for aDashBoard in dashboards:
             aDashBoard.showIndicators()
     
+    def deleteTextBox(self, titleOfTheTextBox):
+        del self.gameSpaces[titleOfTheTextBox]
+
     # Create the menu of the menu
     def createMenu(self):
         # Add the 'play' button
@@ -563,6 +582,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         rounds = set([entry['round'] for entry in self.listData])
         print("rounds :: ", rounds)
 
+    def checkAndUpdateWatchers(self): 
+        for aType in self.getEntityTypes():
+            aType.updateAllWatchers()
+
     # Trigger the next turn
     def nextTurn(self):
         self.timeManager.nextPhase()
@@ -645,10 +668,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # Getter
 
     def getGrid(self,anObject):
-        if anObject.isCellDef: return anObject.grid
+        if anObject.isCellType: return anObject.grid
         elif anObject.isAGrid: return anObject
         else: raise ValueError('Wrong object type')
 
+    # To get all the povs of the collection
+    def getCellPovs(self,grid):
+        return {key: value for dict in (self.cellTypes[grid.id]['ColorPOV'],self.cellTypes[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
 
     # To get all type of gameSpace who are grids
     def getGrids(self):
@@ -673,7 +699,67 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def getGameAction_withClassAndId(self,aClassName,aId):
         return next((item for item in self.getAllGameActions() if item.__class__.__name__==aClassName and item.id==aId), None)
+
+    def getSimVars(self):
+        return self.simulationVariables
+
+    def getTimeManager(self):
+        return self.timeManager
+
+    def getTextBoxHistory(self, TextBoxes):
+        for aTextBox in TextBoxes:
+            print(str(aTextBox.id)+' : '+str(aTextBox.history))
+
+    def getAllPlayers(self):
+        return list(self.players.values())
         
+    def getPlayer(self, aUserName):
+        if aUserName is None:
+            raise ValueError('Username cannot be None')
+        if aUserName == "Admin":
+            return self.getAdminPlayer()
+        if isinstance(aUserName,SGPlayer):
+            return aUserName
+        if aUserName in self.players:
+            return self.players[aUserName]
+        else:
+            raise ValueError(f'No Player named {aUserName} exists')
+            
+    def getCurrentPlayer(self):
+        if not self.currentPlayerName:
+            raise ValueError('Current player is not defined')
+        return self.getPlayer(self.currentPlayerName)
+        
+    def getPlayers(self):
+        """
+        Get all the players of the game
+
+        Returns:
+            list: list of players
+        """
+        return self.players.values()
+
+    def getUsersName(self):
+        aList = [aP.name for aP in list(self.players.values())]
+        aList.append('Admin')
+        return aList
+
+    def getAdminPlayer(self):
+        """Get the Admin player instance"""
+        return self.players.get("Admin")
+        
+    def getUserControlPanelOrLegend(self, aUserName):
+        self.getLegends()
+
+    # To select only users with a control panel
+    def getUsers_withControlPanel(self):
+        selection=[]
+        if self.shouldDisplayAdminControlPanel:
+            selection.append('Admin')     
+        for aP in self.players.values():
+            if aP.controlPanel !=  None:
+                selection.append(aP.name) 
+        return selection   
             
     # To change the number of zoom we currently are
     def setNumberOfZoom(self, number):
@@ -1210,12 +1296,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
 
 
-
-
+    def __MODELER_METHODS__(self):
+        pass
 # ============================================================================
 # MODELER METHODS
 # ============================================================================
 
+    def __MODELER_METHODS__NEW__(self):
+        pass
 # ============================================================================
 # NEW/ADD METHODS
 # ============================================================================
@@ -1273,15 +1361,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         Create a new specie of Agents.
 
         Args:
-            name (str) : the species name
-            shape (str) : the species shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent")
-            dictAttributes (dict) : all the species attributs with all the values
-            defaultSize (int) : the species shape size (Default=10)
+            name (str) : the agentType name
+            shape (str) : the agentType shape ("circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent")
+            dictAttributes (dict) : all the agentType attributs with all the values
+            defaultSize (int) : the agentType shape size (Default=10)
             locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random 
             defaultImage (str, optional) : link to image
         Return:
-            a nested dict for the species
-            a species
+            a agentType
 
         """
         if shape not in ["circleAgent","squareAgent", "ellipseAgent1","ellipseAgent2", "rectAgent1","rectAgent2", "triangleAgent1","triangleAgent2", "arrowAgent1","arrowAgent2","hexagonAgent"]:
@@ -1304,6 +1391,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.users.append(player.name)
         return player
 
+    # to create a new play phase
     def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         Create a new play phase for the game.
@@ -1336,43 +1424,42 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return self.timeManager.newPlayPhase(phaseName, activePlayers, modelActions, autoForwardWhenAllActionsUsed, message_auto_forward, show_message_box_at_start)
 
 
-    # -----------------------------------------------------------
-    # Game actions function
+    # To create game actions
 
-    def newCreateAction(self, anObjectType, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
+    def newCreateAction(self, entity_type, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
         """
         Add a Create GameAction to the game.
 
         Args:
-        - anObjectType : a AgentSpecies or the keyword "Cell"
+        - entity_type : a type of entity (agentType, cellType or name of the entity type)
         - a Number (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aType = self.getEntityType(anObjectType)
+        aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
         return SGCreate(aType,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
 
-    def newModifyAction(self, anObjectType, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
+    def newModifyAction(self, entity_type, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
         """
         Add a Modify GameAction to the game.
 
         Args:
-        - anObjectType : a AgentSpecies or the keyword "Cell"
+        - entity_type : a type of entity (agentType, cellType or name of the entity type)
         - a Number (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aType = self.getEntityType(anObjectType)
+        aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGModify(aType,  dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+        return SGModify(aType, dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
 
-    def newModifyActionWithDialog(self, anObjectType, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+    def newModifyActionWithDialog(self, entity_type, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
         """
         Add a ModifyActionWithDialog GameAction to the game.
         
         Args:
-            anObjectType: an AgentSpecies or the keyword "Cell"
+            entity_type : a type of entity (agentType, cellType or name of the entity type)
             attribute (str): the attribute to modify
             aNumber (int): number of utilisation, could use "infinite"
             conditions (list): conditions that must be met
@@ -1382,51 +1469,59 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             setControllerContextualMenu (bool): whether to show in contextual menu
             writeAttributeInLabel (bool): whether to show attribute in label
         """
-        aType = self.getEntityType(anObjectType)
+        aType = self.getEntityType(entity_type)
         if aType is None:
             raise ValueError('Wrong format of entityDef')
         
         from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
         return SGModifyActionWithDialog(aType, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
 
-    def newDeleteAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
+    def newDeleteAction(self, entity_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
         """
         Add a Delete GameAction to the game.
 
         Args:
-        - anObjectType : a AgentSpecies
+        - entity_type : a type of entity (agentType, cellType or name of the entity type)
         - a Number (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
 
         """
-        aType = self.getEntityType(anObjectType)
+        aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
         return SGDelete(aType, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
-    def newMoveAction(self, anObjectType, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
+    def newMoveAction(self, agent_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
         """
         Add a MoveAction to the game.
 
         Args:
-        - anObjectType : a AgentSpecies
+        - agent_type : a type of agent (agentType or name of the agent type)
         - a Number (int) : number of utilisation, could use "infinite"
         - listOfConditions (list of lambda functions) : conditions on the moving Entity
         """
-        aType = self.getEntityType(anObjectType)
+        aType = self.getEntityType(agent_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
         return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
-    def newActivateAction(self,anObjectType,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
+    def newActivateAction(self,object_type,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
         """Add a ActivateAction to the game
         Args:
-        - an ObjectType : a Entity
+        - object_type : the model itself or a type of entity (agentType, cellType or name of the entity type)
+        - aMethod (lambda function) : the method to activate
+        - aNumber (int) : number of utilisation, could use "infinite"
+        - conditions (list of lambda functions) : conditions on the activating entity
+        - feedbacks (list of lambda functions) : feedbacks to execute after activation
+        - conditionsOfFeedback (list of lambda functions) : conditions for feedback execution
+        - aNameToDisplay (str) : custom name to display
+        - setControllerContextualMenu (bool) : whether to show in contextual menu
+        - setControllerButton (tuple) : coordinates of the button to set in the controller
         - """
         #Case for action on the model
-        if anObjectType is None or anObjectType ==self:
+        if object_type is None or object_type ==self:
             aType = self
         else:
             #Case for action on a Entity
-            aType = self.getEntityType(anObjectType)
+            aType = self.getEntityType(object_type)
         # if aType is None : raise ValueError('Wrong format of entityDef')
         # todo these 2 lines are useless
         # if isinstance(aType,SGEntityDef) and setControllerContextualMenu:
@@ -1439,7 +1534,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
         return aActivateAction
 
-
+    # To create a new model phase
     def newModelPhase(self, actions=None, condition=None, name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         Create a new model phase for the game.
@@ -1507,7 +1602,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aModelAction.id = self.id_modelActions
         return aModelAction
 
-
+    # To create a new dashboard
     def newDashBoard(self, title=None, borderColor=Qt.black, borderSize=1, backgroundColor=QColor(230, 230, 230), textColor=Qt.black, layout ='vertical'):
         """  Qt.lightGray
         Create the score board of the game
@@ -1527,6 +1622,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return aDashBoard
 
+    # To create a new end game rule
     def newEndGameRule(self, title='EndGame Rules', numberRequired=1):
         """
         Create the EndGame Rule Board of the game
@@ -1544,13 +1640,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return aEndGameRule
 
-        
+    # To create a new simulation variable
     def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):
         aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
     
-
+    # To create a new progress gauge
     def newProgressGauge(self,simVar,minimum=0,maximum=100, title=None,orientation="horizontal",colorRanges=None,unit="",
                          borderColor=Qt.black,backgroundColor=Qt.white,bar_width=25,bar_length=None,title_position='above',display_value_on_top=True
     ):
@@ -1637,7 +1733,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layoutOfModel.addGameSpace(aLegend)
 
         return aLegend
-    
+
+    # To create a new user selector
     def newUserSelector(self, customListOfUsers=None, orientation='horizontal'):
         """
         To create a User Selector in your game. Functions automatically with the players declared in your model.
@@ -1664,8 +1761,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     f"  - you need to add more users with control panel for the userSelector to be created"
                 )
 
-
-
         
     # To create a Time Label
     def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
@@ -1689,22 +1784,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aTimeLabel
 
     # To create a Text Box
-    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
-        """
-        Create a text box with full customization options.
-
-        Args:
-            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
-            title (str): Name of the widget (default: "Text Box")
-            sizeX (int, optional): Manual width override for the text box
-            sizeY (int, optional): Manual height override for the text box
-            borderColor (QColor): Border color of the text box (default: Qt.black)
-            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
-
-        Returns:
-            SGTextBox: The created text box widget
-        """
-    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None,
+     borderColor=Qt.black, backgroundColor=Qt.lightGray):
         """
         Create a text box with full customization options.
 
@@ -1750,6 +1831,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aLabel.move(position[0], position[1])
         return aLabel
 
+    # To create a new styled label
     def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", alignement= "Left", border_style="solid", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):
         """Display a text at a given position and allow setting the style of the text, border, and background.
 
@@ -1851,6 +1933,21 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aButton.move(position[0], position[1])
         return aButton
 
+
+    # To create a void
+    def createVoid(self, name, sizeX=200, sizeY=200):
+        # Creation
+        aVoid = SGVoid(self, name, sizeX, sizeY)
+        self.gameSpaces[name] = aVoid
+
+        # Realocation of the position thanks to the layout
+        newPos = self.layoutOfModel.addGameSpace(aVoid)
+        aVoid.setStartXBase(newPos[0])
+        aVoid.setStartYBase(newPos[1])
+        aVoid.move(aVoid.startXBase, aVoid.startYBase)
+        return aVoid
+
+
     def newWarningPopUp(self,aTitle, aMessage):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
@@ -1872,6 +1969,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # ============================================================================
 # SET METHODS
 # ============================================================================
+    def __MODELER_METHODS__SET__(self):
+        pass
 
         
     def setCurrentPlayer(self, aUserName):
@@ -1932,69 +2031,34 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # ============================================================================
 # GET/NB METHODS
 # ============================================================================
+    def __MODELER_METHODS__GET__(self):
+        pass
+
+    def roundNumber(self):
+        """Return the current ingame round number"""
+        return self.timeManager.currentRoundNumber
+
+    def phaseNumber(self):
+        """Return the current ingame phase number"""
+        return self.timeManager.currentPhaseNumber
+    
+    def getEntityTypes(self):
+        return list(self.cellTypes.values()) + list(self.agentTypes.values())
+
+    def getEntityType(self, name):
+        if isinstance(name,SGEntityType):
+            return name
+        detectedType = next((aType for aType in self.getEntityTypes() if aType.name == name), None)
+        if detectedType is None:
+            existing_entities = [aType.name for aType in self.getEntityTypes()]
+            raise ValueError(f"No EntityType found with the name '{name}'. Existing EntityTypes: {', '.join(existing_entities)}")
+        return detectedType
 
     # To get the CellType corresponding to a Grid
     def getCellType(self, aGrid):
-        if aGrid.isCellDef: return aGrid
+        if aGrid.isCellType: return aGrid
         return self.cellTypes[aGrid.id]
 
-
-    # To get all the cells of the collection
-    # If several grids, this method only returns the cells of the first grid
-    def getCells(self,grid=None):
-        if grid == None:
-            grid = self.getGrids()[0]
-        return self.getCellType(grid).entities
-    
-    def getAllCells(self):
-        # send back the cells of all the grids
-        aList= []
-        for entType in self.cellTypes.values():
-            aList.extend(entType.entities)
-        return aList
-    
-    def numberOfCellDef(self):
-        return len(self.cellTypes)
-    
-    def numberOfGrids(self):
-        return self.numberOfCellDef()
-
-    def getAllEntities(self):
-        # send back the cells of all the grids and the agents of all the species
-        aList= []
-        for entType in self.cellTypes.values():
-            aList.extend(entType.entities)
-        for entType in self.getAgentTypes():
-            aList.extend(entType.entities)
-        return aList
-    
-    # To get all the povs of the collection
-    def getCellPovs(self,grid): #todo a mettre dans méthodes de developer
-        return {key: value for dict in (self.cellTypes[grid.id]['ColorPOV'],self.cellTypes[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
-
-    # To get a cell in particular
-    def getCell(self, aGrid, aId):
-        result = list(filter(lambda cell: cell.id == aId, self.getCells(aGrid)))
-        if len(result)!=1: raise ValueError("No cell with such Id!")
-        return result[0]
-
-    # To create a void
-    def createVoid(self, name, sizeX=200, sizeY=200):
-        # Creation
-        aVoid = SGVoid(self, name, sizeX, sizeY)
-        self.gameSpaces[name] = aVoid
-
-        # Realocation of the position thanks to the layout
-        newPos = self.layoutOfModel.addGameSpace(aVoid)
-        aVoid.setStartXBase(newPos[0])
-        aVoid.setStartYBase(newPos[1])
-        aVoid.move(aVoid.startXBase, aVoid.startYBase)
-        return aVoid
-
-    def getAgentTypesName(self):
-        # send back a list of the names of all the agent types
-        return list(self.agentTypes.keys())
-    
     def getAgentTypes(self):
         # send back a list of all the agent types Dict (agent type definition dict)
         return list(self.agentTypes.values())
@@ -2003,23 +2067,34 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # send back the agent type dict (agent type definition dict) that corresponds to aTypeName
         return self.agentTypes.get(aTypeName)
 
-    def getAgentsOfType(self, aTypeName) -> list[SGAgent]:
-        agentType = self.getAgentType(aTypeName)
-        if agentType is None:  return None
-        else: return agentType.entities[:]
+    def getAllEntities(self):
+        # send back the cells of all the grids and the agents of all types
+        aList= []
+        for entType in self.cellTypes.values():
+            aList.extend(entType.entities)
+        for entType in self.getAgentTypes():
+            aList.extend(entType.entities)
+        return aList
     
-    def positionAllAgents(self):
-        """Position all agents after grid layout is applied"""
-        for agent_type in self.getAgentTypes():
-            for agent in agent_type.entities:
-                if hasattr(agent, 'view') and agent.view:
-                    # Show the agent view first
-                    agent.view.show()
-                    agent.view.raise_()  # Bring to front
-                    # Then position it
-                    agent.view.getPositionInEntity()
-                    # Force update to ensure positioning is applied
-                    agent.view.update()
+    def getAllCells(self):
+        # send back the cells of all the grids
+        aList= []
+        for entType in self.cellTypes.values():
+            aList.extend(entType.entities)
+        return aList
+
+    # To get all the cells of the collection
+    # If several grids, this method only returns the cells of the first grid
+    def getCells(self,grid=None):
+        if grid == None:
+            grid = self.getGrids()[0]
+        return self.getCellType(grid).entities
+    
+    # To get a cell in particular
+    def getCell(self, aGrid, aId):
+        result = list(filter(lambda cell: cell.id == aId, self.getCells(aGrid)))
+        if len(result)!=1: raise ValueError("No cell with such Id!")
+        return result[0]
 
     def getAllAgents(self):
         # send back the agents of all the types
@@ -2027,105 +2102,32 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for entType in self.getAgentTypes():
             aList.extend(entType.entities)
         return aList
+
+    def getAgentsOfType(self, aTypeName) -> list[SGAgent]:
+        agentType = self.getAgentType(aTypeName)
+        if agentType is None:  return None
+        else: return agentType.entities[:]
+
     
-    def getEntityTypes(self):
-        return list(self.cellTypes.values()) + list(self.agentTypes.values())
-
-    def getEntityType(self, name):
-        if isinstance(name,SGEntityType):
-            return name
-        
-        detectedType = next((aType for aType in self.getEntityTypes() if aType.name == name), None)
-        
-        if detectedType is None:
-            existing_entities = [aType.name for aType in self.getEntityTypes()]
-            raise ValueError(f"No EntityType found with the name '{name}'. Existing EntityTypes: {', '.join(existing_entities)}")
-        
-        return detectedType
-
-        
-
 # ============================================================================
 # DELETE METHODS
 # ============================================================================
+    def __MODELER_METHODS__DELETE__(self):
+        pass
 
     def deleteAllAgents(self):
         for aAgentType in self.getAgentTypes():
             aAgentType.deleteAllEntities()
 
 
-
-    
-
-    def getDefaultAgentRandomValue(self, begin, end):
-        #Cette methode etait utiliser dans exstep8 pour l'utiliser comme suit :
-            #Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
-            #Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
-        return random.randint(begin, end)
     
 # ============================================================================
 # DO/DISPLAY METHODS
 # ============================================================================
-
-    def checkAndUpdateWatchers(self): #todo a mettre dans méthodes de developer
-        for aType in self.getEntityTypes():
-            aType.updateAllWatchers()
+    def __MODELER_METHODS__DO_DISPLAY__(self):
+        pass
 
 
-
-    def getAllPlayers(self):
-        return list(self.players.values())
-        
-    def getPlayer(self, aUserName):
-        if aUserName is None:
-            raise ValueError('Username cannot be None')
-        if aUserName == "Admin":
-            return self.getAdminPlayer()
-        if isinstance(aUserName,SGPlayer):
-            return aUserName
-        if aUserName in self.players:
-            return self.players[aUserName]
-        else:
-            raise ValueError(f'No Player named {aUserName} exists')
-            
-    def getCurrentPlayer(self):
-        if not self.currentPlayerName:
-            raise ValueError('Current player is not defined')
-        return self.getPlayer(self.currentPlayerName)
-        
-    def getPlayers(self):
-        """
-        Get all the players of the game
-
-        Returns:
-            list: list of players
-        """
-        return self.players.values()
-
-
-
-
-    def getUsersName(self):
-        aList = [aP.name for aP in list(self.players.values())]
-        aList.append('Admin')
-        return aList
-
-    def getAdminPlayer(self):
-        """Get the Admin player instance"""
-        return self.players.get("Admin")
-        
-    def getUserControlPanelOrLegend(self, aUserName):
-        self.getLegends()
-
-    # To select only users with a control panel
-    def getUsers_withControlPanel(self):
-        selection=[]
-        if self.shouldDisplayAdminControlPanel:
-            selection.append('Admin')     
-        for aP in self.players.values():
-            if aP.controlPanel !=  None:
-                selection.append(aP.name) 
-        return selection
 
 
     def displayTimeInWindowTitle(self, setting=True):
@@ -2148,38 +2150,4 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.show_adminControlPanel()
 
 
-    def show_adminControlPanel(self): #todo a mettre dans méthodes de developer
-        """
-        Private method to show the Admin Control Panel
-        """
-        adminPlayer = self.getAdminPlayer()
-        adminPlayer.createAllGameActions()
-        if adminPlayer.controlPanel is None:
-            adminPlayer.newControlPanel("Admin")
-        else:
-            adminPlayer.controlPanel.show()
-
-    def deleteTextBox(self, titleOfTheTextBox):
-        del self.gameSpaces[titleOfTheTextBox]
-
-    def getTextBoxHistory(self, TextBoxes):
-        for aTextBox in TextBoxes:
-            print(str(aTextBox.id)+' : '+str(aTextBox.history))
-
-    def roundNumber(self):
-        """Return the current ingame round number"""
-        return self.timeManager.currentRoundNumber
-
-    def phaseNumber(self):
-        """Return the current ingame phase number"""
-        return self.timeManager.currentPhaseNumber
     
-    def getSimVars(self):
-        return self.simulationVariables
-
-
-    # -----------------------------------------------------------
-    # TimeManager functions
-
-    def getTimeManager(self):
-        return self.timeManager

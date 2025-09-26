@@ -264,14 +264,14 @@ class SGGrid(SGGameSpace):
 
     # Return all the cells
     def getCells(self):
-        return self.model.getCellDef(self).entities
+        return self.model.getCellType(self).entities
 
     # Return the cell
     def getCell_withId(self, cell_id):
         return self.model.getCell(self,cell_id)
 
     def cellIdFromCoords(self,x,y):
-        return self.model.getCellDef(self).cellIdFromCoords(x,y)
+        return self.model.getCellType(self).cellIdFromCoords(x,y)
     
 
     def getCell_withCoords(self,x,y):

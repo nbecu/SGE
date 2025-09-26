@@ -60,8 +60,8 @@ Utilisez ces préfixes pour les méthodes destinées aux modelers :
 Utilisez des attributs booléens avec le préfixe `is` :
 
 - **`isAdmin`** : Pour les joueurs admin
-- **`isAgentDef`** : Pour les définitions d'agents
-- **`isCellDef`** : Pour les définitions de cellules
+- **`isAgentType`** : Pour les types d'agents
+- **`isCellType`** : Pour les types de cellules
 - **`isLegend`** : Pour les composants UI de légende
 - **`isControlPanel`** : Pour les interfaces de contrôle
 
@@ -633,7 +633,7 @@ agent.moveAgent(condition=lambda cell: cell.isNotValue("terrain", "metal"))
 
 **Méthodes disponibles** :
 - `execute_callable_with_entity(callable_func, entity=None)` : Gestion dynamique des arguments
-- `normalize_species_name(species)` : Normalisation des noms d'espèces
+- `normalize_type_name(type_name)` : Normalisation des noms des entityTypes
 
 ### 17.2 Usage recommandé
 ```python

@@ -320,7 +320,7 @@ indTouriste=DashBoardRessources.addIndicatorOnSimVariable(touriste)
 DashBoardRessources.addIndicator(Touriste,"nb")
 
 
-def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
+def createHex(nom,agent_type,dataInst,dataAct,dataPerm=None,model=myModel):
     """Cette fonction permet de créer une tuile hexagone à partir du nom de celle-ci et des données issues des tableaux excel"""
     variables=myModel.getSimVars()
     
@@ -385,18 +385,18 @@ def createHex(nom,species,dataInst,dataAct,dataPerm=None,model=myModel):
     entite = hexagones.newAgentAtCoords(pioche,6,1,{'nom': nom,'coûtCubes': coutCubes, 'joueur':joueur, 'nom':nom, 'effetInstantaneJauge': effetInstantaneJauge, 'coutCubesAct': coutCubesAct, 'coutVin':coutVin, 'coutVinBio':coutVinBio,'coutSous':coutSous,"effetRessourcesAct":effetRessourcesAct,"effetActivableJauge":effetActivableJauge,"coutTouriste":coutTouriste,"effetActivableTouriste":effetActivableTouriste,"conditionAdjacence":conditionAdjacence,"nbAdjacence":nbAdjacence,"conditionFeedbackAdjacence":conditionFeedbackAdjacence,"feedbackAdjacenceAttractivité":feedbackAdjacenceAttractivité,"placed":False},image=QPixmap(image_ACT),popupImage=image)
     return
 
-def createAllHex(species,dataInst,dataAct,dataPerm=None,model=myModel):
+def createAllHex(agent_type,dataInst,dataAct,dataPerm=None,model=myModel):
     """Cette fonction permet de créer toutes les tuiles hexagones à partir des données issues des tableaux excel"""
     listOfHex=list(dataInst['nom'])
     for aHexName in listOfHex:
-        createHex(aHexName,species,dataInst,dataAct,dataPerm,model)
+        createHex(aHexName,agent_type,dataInst,dataAct,dataPerm,model)
     
-def createPlayerHex(aPlayerName, species, dataInst, dataAct, dataPerm=None, model=myModel):
+def createPlayerHex(aPlayerName, agent_type, dataInst, dataAct, dataPerm=None, model=myModel):
     """Cette fonction permet de créer les tuiles hexagones d'un joueur à partir des données issues des tableaux excel"""
     playerHex = dataInst[dataInst['joueur'] == aPlayerName]['nom'].tolist()
     random.shuffle(playerHex)
     for hexName in playerHex:
-        createHex(hexName, species, dataInst, dataAct, dataPerm, model)
+        createHex(hexName, agent_type, dataInst, dataAct, dataPerm, model)
 
 hexagones=myModel.newAgentType("Hexagone","hexagonAgent",{"coûtCubes":0,"joueur":None,"nom":None,"effetInstantaneJauge":None,"condPlacement":None,'coutCubesAct': None, 'coutVin':None, 'coutVinBio':None,'coutSous':None,"effetRessourcesAct":None,"effetActivableJauge":None,"face":"recto","imageFace":None},defaultSize=80,locationInEntity="center")
 hexagones.newBorderPovColorAndWidth("Activation","Activation",{False:[Qt.black,1],True:[Qt.yellow,2]})
@@ -462,7 +462,7 @@ TourismeSpecificActions = createTourismeSpecificGA()
 
 def checkIfAHexIsHere(aTargetCell):
     """Permet de vérifier si une tuile hexagone est déjà présente sur une cellule de plateau"""
-    return aTargetCell.isEmpty(specie="Hexagone")
+    return aTargetCell.isEmpty(type_name="Hexagone")
 
 def execeffetInstantaneJauge(aHex):
     """Détaille les actions réalisées au placement d'un hexagone"""
@@ -576,7 +576,7 @@ def decTouristes():
 def execeffetActivableTouriste(aTourist):
     """Détaille les actions réalisées à l'activation d'un hexagone par le placement d'un touriste"""
     aTargetCell=aTourist.cell
-    aHex=aTargetCell.getAgents(specie="Hexagone")[0]
+    aHex=aTargetCell.getAgents(type_name="Hexagone")[0]
     dictOfValues=aHex.value("effetActivableTouriste")
     attractivite.incValue(int(dictOfValues.get("Attractivité")))
     qualiteVie.incValue(int(dictOfValues.get("Qualité de vie")))
@@ -611,7 +611,7 @@ def checkAdjacence(aHex):
 def adjacenceFeedback(aHex):
     """Détaille les actions réalisées à l'activation d'un hexagone par la présence d'un autre hexagone à côté"""
     if aHex.value("conditionFeedbackAdjacence") == "coutTouriste":
-        listOfNeighbours=aHex.getNeighborAgents(aSpecies=hexagones)
+        listOfNeighbours=aHex.getNeighborAgents(agent_type=hexagones)
         for aNeighbourHex in listOfNeighbours:
             if aNeighbourHex.value("coutTouriste")>0:
                 attractivite.incValue()

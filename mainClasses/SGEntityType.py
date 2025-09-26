@@ -31,8 +31,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         self.borderColorClassif = {}  # Classif will replace pov
         
         # Type identification attributes
-        self.isAgentDef = False
-        self.isCellDef = False
+        self.isAgentType = False
+        self.isCellType = False
         self.isAGrid = False
         
         #Define variables to handle the history 
@@ -70,8 +70,8 @@ class SGEntityType(AttributeAndValueFunctionalities):
         Raises:
             ValueError: If the entity category is not recognized
         """
-        if self.isCellDef: return 'Cell'
-        elif self.isAgentDef: return 'Agent'
+        if self.isCellType: return 'Cell'
+        elif self.isAgentType: return 'Agent'
         else: raise ValueError('Wrong or new entity type')
 
     # ============================================================================
@@ -575,10 +575,9 @@ class SGEntityType(AttributeAndValueFunctionalities):
     # ============================================================================
     def newPov(self,nameOfPov,concernedAtt,dictOfColor):
         """
-        Declare a new Point of View for the Species.
+        Declare a new Point of View for the entityType.
 
         Args:
-            self (Species object): aSpecies
             nameOfPov (str): name of POV, will appear in the interface
             concernedAtt (str): name of the attribut concerned by the declaration
             dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)
@@ -800,7 +799,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
     # ============================================================================
     def deleteAllEntities(self):
         """
-        Delete all entities of the species.
+        Delete all entities of the entity type.
         """
         for ent in self.entities[:]:
             self.deleteEntity(ent)
@@ -992,7 +991,7 @@ class SGCellType(SGEntityType):
     def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, name='Cell', defaultCellImage=None):
         super().__init__(grid.model, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
-        self.isCellDef = True
+        self.isCellType = True
         self.grid = grid
         self.deletedCells = []
         self.defaultImage = defaultCellImage
@@ -1222,7 +1221,7 @@ class SGAgentType(SGEntityType):
     def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, locationInEntity="random", defaultImage=None, popupImage=None):
         super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
-        self.isAgentDef = True
+        self.isAgentType = True
         self.locationInEntity = locationInEntity
         self.defaultImage = defaultImage
         self.popupImage = popupImage
@@ -1301,7 +1300,7 @@ class SGAgentType(SGEntityType):
 
     def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):
         """
-        Create a specific number of new Agents in the associated species on a specific cell.
+        Create a specific number of new Agents of a given type on a specific cell.
         
         Args:
             nbAgents (int): Number of agents to create
@@ -1309,14 +1308,14 @@ class SGAgentType(SGEntityType):
             attributesAndValues (dict, optional): Initial attributes and values for the agents
             
         Returns:
-            None: Agents are created and added to the species
+            None: Agents are created and added to the agentType
         """
         for n in range(nbAgents):
             self.newAgentOnCell(aCell, attributesAndValues)
     
     def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None):
         """
-        Create a new Agent in the associated species.
+        Create a new Agent of a given type.
 
         Args:
             cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
@@ -1358,7 +1357,7 @@ class SGAgentType(SGEntityType):
 
     def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None):
         """
-        Create a specific number of new Agents in the associated species.
+        Create a specific number of new Agents of a given type.
 
         Args:
             nbAgents (int): number of Agents
@@ -1399,7 +1398,7 @@ class SGAgentType(SGEntityType):
 
     def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):
         """
-        Create a new Agent in the associated species a place it on a random cell.
+        Create a new Agent of a given type and place it on a random cell.
         Args:
             cellDef_or_grid (instance): the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
             attributesAndValues (dict, optional): mapping of attribute names to values (or callables)
@@ -1428,7 +1427,7 @@ class SGAgentType(SGEntityType):
 
     def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):
         """
-        Create a number of Agents in the associated species and place them on random cells.
+        Create a number of Agents of a given type and place them on random cells.
         Args:
             aNumber(int) : number of agents to be created
             cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used
@@ -1467,7 +1466,7 @@ class SGAgentType(SGEntityType):
 
     def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGAgent:
         """
-        Return a random agent from this species.
+        Return a random agent of this type.
         
         Returns:
             SGAgent: A random agent from the list
@@ -1515,7 +1514,7 @@ class SGAgentType(SGEntityType):
     # ============================================================================
     def moveRandomly(self, numberOfMovement=1,condition=None):
         """
-        All agents of the species move randomly.
+        All agents of this type move randomly.
 
         args:
             numberOfMovement (int): number of movements in one action

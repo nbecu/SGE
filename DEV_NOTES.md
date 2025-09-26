@@ -791,7 +791,7 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 
 ### 26/12/2024 - Méthodes utilitaires SGExtensions
 - **Contexte** : Besoin de méthodes utilitaires communes pour éviter la duplication de code
-- **Décision prise** : Créer des méthodes utilitaires dans SGExtensions.py (execute_callable_with_entity, normalize_species_name)
+- **Décision prise** : Créer des méthodes utilitaires dans SGExtensions.py (execute_callable_with_entity, normalize_type_name)
 - **Impact** : Code plus réutilisable, gestion dynamique des arguments lambda, normalisation des noms d'espèces
 
 ### 26/12/2024 - Documentation PowerShell vs Bash
@@ -958,7 +958,7 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 
 ### 26/12/2024 - Méthodes utilitaires SGExtensions
 - **Convention** : Utiliser SGExtensions.py pour les méthodes utilitaires communes
-- **Exemples** : execute_callable_with_entity(), normalize_species_name()
+- **Exemples** : execute_callable_with_entity(), normalize_type_name()
 - **Avantage** : Code réutilisable, gestion dynamique des arguments, normalisation des noms
 
 ### 26/12/2024 - Documentation PowerShell vs Bash
@@ -1007,7 +1007,7 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 - **Avantage** : API plus intuitive et cohérente
 ### 25/08/2025 - Type Identification Attributes
 - **Convention** : Utiliser des attributs booléens `is*` pour identifier le type d'objet
-- **Exemples** : `isAdmin`, `isAgentDef`, `isCellDef`, `isLegend`, `isControlPanel`
+- **Exemples** : `isAdmin`, `isAgentType`, `isCellType`, `isLegend`, `isControlPanel`
 - **Avantage** : Séparation des responsabilités sans héritage complexe
 
 ### 25/08/2025 - API Ergonomics and Delegation

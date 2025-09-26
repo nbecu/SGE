@@ -105,20 +105,20 @@ def execute_callable_with_entity(callable_func, entity=None):
         raise ValueError(f"Callable must have 0 or 1 arguments, got {nbArguments}")
 
 
-def normalize_species_name(species):
+def normalize_type_name(type_name):
     """
-    Normalize a species name to a string, handling both string and SGAgentType inputs.
+    Normalize a agent or cell type name to a string, handling both string and SGAgentType or SGCellType inputs.
     
-    This utility method extracts the entity name from SGAgentType objects
+    This utility method extracts the entity name from SGAgentType or SGCellType objects
     or returns the string as-is for string inputs.
     
-    :param species: Either a string species name or an SGAgentType object
-    :return: The normalized species name as a string
+    :param type_name: Either a string type name or an SGAgentType or SGCellType object
+    :return: The normalized agent or cell type name as a string
     """
-    from mainClasses.SGEntityType import SGAgentType
-    if isinstance(species, SGAgentType):
-        return species.name
-    return species
+    from mainClasses.SGEntityType import SGAgentType, SGCellType
+    if isinstance(type_name, SGAgentType) or isinstance(type_name, SGCellType):
+        return type_name.name
+    return type_name
 
 
 def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradient=False, mapping=None, as_dict=False, as_ranges=False):

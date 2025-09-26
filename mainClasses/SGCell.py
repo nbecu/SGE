@@ -181,17 +181,17 @@ class SGCell(SGEntity):
     # ============================================================================
 
     #Create agents on the cell
-    def newAgentHere(self, aAgentSpecies,adictAttributes=None):
+    def newAgentHere(self, agent_type,adictAttributes=None):
         """
-        Create a new Agent in the associated species.
+        Create a new Agent from the associated agent type.
 
         Args:
-            aAgentSpecies (instance) : the species of your agent
+            agent_type (instance) : the type of your agent
             adictAttributes to set the values
 
         Return:
             a new agent"""
-        return aAgentSpecies.newAgentOnCell(self,adictAttributes)
+        return agent_type.newAgentOnCell(self,adictAttributes)
 		
 
     # ============================================================================
@@ -219,57 +219,57 @@ class SGCell(SGEntity):
         """Get cell coordinates"""
         return (self.xCoord, self.yCoord)
 
-    def getAgents(self, nameOfSpecie=None):
+    def getAgents(self, type_name=None):
         """
         Get all agents in this cell.
         
         Args:
-            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+            type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object.
                 If None, returns all agents in the cell.
                 
         Returns:
-            list[SGAgent]: List of agents of the specified species, or all agents if nameOfSpecie is None
+            list[SGAgent]: List of agents of the specified type, or all agents if type_name is None
         """
-        if nameOfSpecie is None:
+        if type_name is None:
             return self.agents[:]
         
-        # Filter by species
-        nameOfSpecie = normalize_species_name(nameOfSpecie)
-        return [agent for agent in self.agents if agent.type.name == nameOfSpecie]
+        # Filter by type
+        typeName = normalize_type_name(type_name)
+        return [agent for agent in self.agents if agent.type.name == typeName]
 
-    def getFirstAgentOfSpecie(self, nameOfSpecie):
+    def getFirstAgentOfSpecie(self, type_name):
         """
-        Get the first agent of a specific species in this cell.
+        Get the first agent of a specific type in this cell.
         
         Args:
-            nameOfSpecie (str or SGAgentDef): The species name or SGAgentDef object
+            type_name (str or SGAgentDef): The agent type name or SGAgentDef object
             
         Returns:
-            SGAgent or None: The first agent of the specified species, or None if not found
+            SGAgent or None: The first agent of the specified type, or None if not found
         """
-        nameOfSpecie = normalize_species_name(nameOfSpecie)
+        type_name = normalize_type_name(type_name)
         for agent in self.agents:
-            if agent.type.name == nameOfSpecie:
+            if agent.type.name == type_name:
                 return agent
         return None
 
-    def nbAgents(self, nameOfSpecie=None):
+    def nbAgents(self, type_name=None):
         """
         Get the number of agents in this cell.
         
         Args:
-            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+            type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.
                 If None, returns total count of all agents.
                 
         Returns:
-            int: Number of agents of the specified species, or total count if nameOfSpecie is None
+            int: Number of agents of the specified type, or total count if type_name is None
         """
-        if nameOfSpecie is None:
+        if type_name is None:
             return len(self.agents)
         
-        nameOfSpecie = normalize_species_name(nameOfSpecie)
-        # Count by species
-        return len(self.getAgents(nameOfSpecie))
+        type_name = normalize_type_name(type_name)
+        # Count by type
+        return len(self.getAgents(type_name))
 
 
     def getNeighborCells(self, condition=None, neighborhood=None):
@@ -535,14 +535,14 @@ class SGCell(SGEntity):
         return min(matching_cells, key=lambda cell: self.distanceTo(cell))
 
 
-    def getClosestAgentMatching(self, agentSpecie, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
+    def getClosestAgentMatching(self, agent_type, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):
         """
         Find the closest neighboring cell within a given radius that contains at least one agent 
-        of a given species and meets optional conditions on both the agent and the cell.
+        of a given type and meets optional conditions on both the agent and the cell.
 
         Args:
-            agentSpecie (str | SGAgentDef): 
-                The species of the agent to search for.
+            agent_type (str | SGAgentDef): 
+                The type of the agent to search for.
             max_distance (int, optional): 
                 Maximum search radius. Defaults to 1.
             conditions_on_agent (list[callable], optional): 
@@ -567,8 +567,8 @@ class SGCell(SGEntity):
             conditions=conditions_on_cell
         )
 
-        # Step 2: Keep only cells that have agents of the given species
-        matching_cells = [cell for cell in matching_cells if cell.hasAgents(agentSpecie)]
+        # Step 2: Keep only cells that have agents of the given type
+        matching_cells = [cell for cell in matching_cells if cell.hasAgents(agent_type)]
 
         # Step 3: If there are agent conditions, filter cells that have at least one matching agent
         if conditions_on_agent:
@@ -576,7 +576,7 @@ class SGCell(SGEntity):
                 return all(cond(agent) for cond in conditions_on_agent)
             matching_cells = [
                 cell for cell in matching_cells 
-                if any(agent_satisfies_conditions(agent) for agent in cell.getAgents(agentSpecie))
+                if any(agent_satisfies_conditions(agent) for agent in cell.getAgents(agent_type))
             ]
 
         # Step 4: If no cells remain, return None
@@ -587,7 +587,7 @@ class SGCell(SGEntity):
         closest_cell = min(matching_cells, key=lambda cell: self.distanceTo(cell))
 
         # Step 6: Return agent(s) on the closest cell
-        matching_agents = closest_cell.getAgents(agentSpecie)
+        matching_agents = closest_cell.getAgents(agent_type)
         if conditions_on_agent:
             matching_agents = [agent for agent in matching_agents if all(cond(agent) for cond in conditions_on_agent)]
 
@@ -610,33 +610,33 @@ class SGCell(SGEntity):
         """Check if this cell contains a specific agent"""
         return agent in self.agents
     
-    def hasAgents(self, nameOfSpecie=None):
+    def hasAgents(self, type_name=None):
         """
-        Check if this cell contains agents of a specific species.
+        Check if this cell contains agents of a specific type.
         
         Args:
-            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+            type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.
                 If None, checks if cell contains any agents.
                 
         Returns:
-            bool: True if the cell contains agents of the specified species, False otherwise
+            bool: True if the cell contains agents of the specified type, False otherwise
         """
-        nameOfSpecie = normalize_species_name(nameOfSpecie)
-        return self.nbAgents(nameOfSpecie) > 0
+        type_name = normalize_type_name(type_name)
+        return self.nbAgents(type_name) > 0
 
-    def isEmpty(self, specie=None):
+    def isEmpty(self, type_name=None):
         """
-        Check if this cell is empty of agents of a specific species.
+        Check if this cell is empty of agents of a specific type.
         
         Args:
-            nameOfSpecie (str or SGAgentDef, optional): The species name or SGAgentDef object.
+            type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.
                 If None, checks if cell is completely empty.
                 
         Returns:
-            bool: True if the cell is empty of the specified species, False otherwise
+            bool: True if the cell is empty of the specified type, False otherwise
         """
-        nameOfSpecie = normalize_species_name(specie)
-        return not self.hasAgents(nameOfSpecie)
+        type_name = normalize_type_name(type_name)
+        return not self.hasAgents(type_name)
 
     
 

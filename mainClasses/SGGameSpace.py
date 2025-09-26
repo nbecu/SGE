@@ -14,8 +14,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.model=parent
         
         # Type identification attributes
-        self.isCellDef = False
-        self.isAgentDef = False
+        self.isCellType = False
+        self.isAgentType = False
         self.isAGrid = False
 
         self.posXInLayout=posXInLayout

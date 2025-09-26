@@ -77,10 +77,10 @@ class SGEntity(AttributeAndValueFunctionalities):
             raise ValueError('wrong format')
         return dictColorAndWidth
 
-    def getRandomAttributValue(self, aAgentSpecies, aAtt):
+    def getRandomAttributValue(self, aAgentType, aAtt):
         """Get random attribute value"""
-        if aAgentSpecies.dictAttributes is not None and aAtt in aAgentSpecies.dictAttributes:
-            values = list(aAgentSpecies.dictAttributes[aAtt])
+        if aAgentType.dictAttributes is not None and aAtt in aAgentType.dictAttributes:
+            values = list(aAgentType.dictAttributes[aAtt])
             number = len(values)
             aRandomValue = random.randint(0, number - 1)          
             return aRandomValue

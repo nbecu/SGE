@@ -268,8 +268,8 @@ This convention is consistent throughout SGE and must be respected in all coordi
 Use boolean attributes with the `is` prefix to identify the type of object and enable different behaviors:
 
 - **`isAdmin`**: For players (e.g., `self.isAdmin = True` for admin players)
-- **`isAgentDef`**: For entity definitions (e.g., `self.isAgentDef = True` for agent species)
-- **`isCellDef`**: For entity definitions (e.g., `self.isCellDef = True` for cell types)
+- **`isAgentType`**: For agent types (e.g., `self.isAgentType = True` for agent types)
+- **`isCellType`**: For cell types (e.g., `self.isCellType = True` for cell types)
 - **`isLegend`**: For UI components (e.g., `self.isLegend = True` for pure legend display)
 - **`isControlPanel`**: For UI components (e.g., `self.isControlPanel = True` for control interfaces)
 
