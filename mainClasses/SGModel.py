@@ -181,6 +181,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # ============================================================================
     # DEVELOPER METHODS
     # ============================================================================
+    def __DEVELOPER_METHODS__(self):
+        pass
 
     def initModelActions(self):
         self.id_modelActions = 0
