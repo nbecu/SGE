@@ -1005,8 +1005,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             print("disconnect result code "+str(rc))
 
         print("connectMQTT")
-        self.client = mqtt_client.Client(self.currentPlayerName)
-        # self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayerName) # for the new version of paho possible correction
+        # self.client = mqtt_client.Client(self.currentPlayerName)  # Old version
+        self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.currentPlayerName) # for the new version of paho possible correction
         self.client.on_connect = on_connect
         self.client.on_disconnect = on_disconnect
         self.client.on_log = on_log
