@@ -185,41 +185,53 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def __DEVELOPER_METHODS__(self):
         pass
 
+    # ============================================================================
+    # INITIALIZATION METHODS
+    # ============================================================================
+    def __INITIALIZATION_METHODS__(self):
+        pass
+
     def initModelActions(self):
         self.id_modelActions = 0
 
-    def getAgentsPrivateID(self):
-        agents=self.getAllAgents()
-        agents_privateID=[]
-        for agent in agents:
-            agents_privateID.append(agent.privateID)
-        return agents_privateID
+    def initBeforeShowing(self):
+        """Initialize components that need to be ready before the window is shown"""
+        # Initialize tooltip menu with all entity definitions
+        self.updateTooltipMenu()
+        
+        # Reorganize Enhanced Grid Layout orders to eliminate gaps, then apply the layout
+        # self.reorganizeEnhancedGridLayoutOrders()
+        self.applyAutomaticLayout()
+        
+        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
+        self.createEnhancedGridLayoutMenu()
+        
+        # Show admin control panel if needed
+        if self.shouldDisplayAdminControlPanel:
+            self.show_adminControlPanel()
+        
+        # Set up dashboards
+        self.setDashboards()
+    
+    def initAfterOpening(self):
+        if self.currentPlayerName is None:
+            possibleUsers = self.getUsers_withControlPanel()
+            if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
+            elif possibleUsers == [] : self.setCurrentPlayer('Admin')
 
-    def generateCellsForGrid(self,grid,defaultCellImage,name):
-        CellType = SGCellType(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,name=name,defaultCellImage=defaultCellImage)
-        self.cellTypes[grid.id] = CellType
-        for row in range(1, grid.rows + 1):
-            for col in range(1, grid.columns + 1):
-                CellType.newCell(col, row)
-        return CellType
+        #todo Obsolete - to delete
+        #  if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
+        
+        # Position all agents after grid layout is applied and window is shown
+        # Use QApplication.processEvents() to ensure layouts are processed before positioning
+        QApplication.processEvents()
+        self.positionAllAgents()
 
-    def numberOfGrids(self):
-        return len(self.cellTypes)
-
-
-    #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
-    def getSGEntity_withIdentfier(self, aIdentificationDict):
-        type = self.getEntityType(aIdentificationDict['name'])
-        aId = aIdentificationDict['id']
-        targetEntity = type.getEntity(aId)
-        return targetEntity 
-
-    #This method is used by updateServer to retrieve any type of SG object (eg. GameAction or Entity) 
-    def getSGObject_withIdentifier(self, aIdentificationDict):
-        className = aIdentificationDict['name']
-        aId = aIdentificationDict['id']
-        return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
-
+    # ============================================================================
+    # UI MANAGEMENT METHODS
+    # ============================================================================
+    def __UI_MANAGEMENT_METHODS__(self):
+        pass
 
     def initUI(self):
         # Definition of the view through the a widget
@@ -259,41 +271,115 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.label.hide()
             self.timer.stop()
 
-    def maj_coordonnees(self):
-        pos_souris_globale = self.mapFromGlobal(QCursor.pos())
-        coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
-        self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
-    
-    def createEnhancedGridLayoutMenu(self):
-        """Create Enhanced Grid Layout submenu in Settings menu"""
-        if self.typeOfLayout == "enhanced_grid":
-            self.enhancedGridMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
-            
-            # Edit layoutOrders action
-            editLayoutOrderAction = QAction("&Edit Layout...", self)
-            editLayoutOrderAction.triggered.connect(self.openLayoutOrderTableDialog)
-            self.enhancedGridMenu.addAction(editLayoutOrderAction)
-                                    
-            # Save layout configuration action
-            saveConfigAction = QAction("&Save Current Layout...", self)
-            saveConfigAction.triggered.connect(self.openSaveLayoutConfigDialog)
-            self.enhancedGridMenu.addAction(saveConfigAction)
-            
-            # Manage layout configurations action
-            manageConfigAction = QAction("&Manage Layout Configurations...", self)
-            manageConfigAction.triggered.connect(self.openLayoutConfigManagerDialog)
-            self.enhancedGridMenu.addAction(manageConfigAction)
 
-            # Separator
-            self.enhancedGridMenu.addSeparator()
-            
-            # Toggle layoutOrder tooltips action
-            self.layoutOrderTooltipAction = QAction("&Show GameSpace order tooltip", self)
-            self.layoutOrderTooltipAction.setCheckable(True)
-            self.layoutOrderTooltipAction.setChecked(False)
-            self.layoutOrderTooltipAction.triggered.connect(self.toggleLayoutOrderTooltips)
-            self.enhancedGridMenu.addAction(self.layoutOrderTooltipAction)
-            
+    def closeEvent(self, event):
+        self.haveToBeClose = True
+        self.getTextBoxHistory(self.TextBoxes)
+        if hasattr(self, 'mqttManager') and self.mqttManager:
+            self.mqttManager.disconnect()
+        self.close()
+
+    # Function to handle the drag of widget
+    def dragEnterEvent(self, e):
+        e.accept()
+
+    def dropEvent(self, e):
+        if isinstance(e.source(), (SGEntity, SGEntityView)):
+            # msg_box = QMessageBox(self)
+            # msg_box.setIcon(QMessageBox.Information)
+            # msg_box.setWindowTitle("Warning Message")
+            # # Get the agent model from the view
+            # agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+            # msg_box.setText("A " + agent_model.type.name +" cannot be moved here")
+            # msg_box.setStandardButtons(QMessageBox.Ok)
+            # msg_box.setDefaultButton(QMessageBox.Ok)
+            # msg_box.exec_()
+            return
+        position = e.pos()
+        # Get the agent model from the view
+        agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
+        
+        # Get the agent size - handle both model and view cases
+        if hasattr(agent_model, 'size') and not callable(agent_model.size):
+            # agent_model is a model with size attribute
+            agent_size = agent_model.size
+        elif hasattr(agent_model, 'size') and callable(agent_model.size):
+            # agent_model is a view with size() method
+            agent_size = agent_model.size().width()  # Use width as size
+        else:
+            # Fallback to default size
+            agent_size = 30
+        
+        position.setX(position.x()-int(agent_size/2))
+        position.setY(position.y()-int(agent_size/2))
+        agent_model.move(position)
+
+        e.setDropAction(Qt.MoveAction)
+        e.accept()
+
+    # Contextual Menu (opened on a right click)
+    # def show_contextMenu(self, point): #todo Obsolete - to delete
+    #     menu = QMenu(self)
+
+    #     option1 = QAction("LayoutCheck", self)
+    #     option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
+    #                                     #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
+    #     menu.addAction(option1)
+
+    #     if self.rect().contains(point):
+    #         menu.exec_(self.mapToGlobal(point))
+
+    # Handle window title
+    def updateWindowTitle(self):
+        # Update window title with the number of the round and number of the phase
+        if self.isTimeDisplayedInWindowTitle :
+            if self.timeManager.numberOfPhases() == 1:
+                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}"
+            else:
+                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}, Phase {self.phaseNumber()}"
+
+            self.setWindowTitle(title) 
+
+
+     # Create the menu of the menu
+    def createMenu(self):
+        # Add the 'play' button
+        if sys.platform == "darwin":
+            # For Mac compatibility: add the play button in a submenu
+            self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
+            startGame = QAction(" &Next step", self)
+            self.startGame.addAction(startGame)
+            startGame.triggered.connect(self.nextTurn)
+        else:
+            # for all other platforms than Mac, direct action on play icon
+            aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
+            aAction.triggered.connect(self.nextTurn)
+            self.menuBar().addAction(aAction)
+        
+        self.menuBar().addSeparator()
+
+        aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
+        aAction.triggered.connect(self.zoomPlusModel)
+        self.menuBar().addAction(aAction)
+
+        aAction = QAction(QIcon(f"{path_icon}/zoomLess.png"), " &zoomLess", self)
+        aAction .triggered.connect(self.zoomLessModel)
+        self.menuBar().addAction(aAction)
+
+        aAction  = QAction(QIcon(f"{path_icon}/zoomToFit.png"), " &zoomToFit", self)
+        aAction .triggered.connect(self.zoomFitModel)
+        self.menuBar().addAction(aAction)
+
+        self.menuBar().addSeparator()
+
+        self.symbologyMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
+        self.symbologiesInSubmenus = {}
+        self.keyword_borderSubmenu = ' border'
+
+        self.createGraphMenu()
+        
+        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
+
     
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
@@ -348,12 +434,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 action.triggered.connect(lambda checked, e=aType, t=tooltipName: self.setTooltipTypeForEntity(e, t))
                 actionGroup.addAction(action)
                 entityMenu.addAction(action)
-    
-    def setTooltipTypeForEntity(self, entityDef, tooltipType):
-        """Set tooltip type for a specific entity definition"""
-        if hasattr(entityDef, 'displayTooltip'):
-            entityDef.displayTooltip(tooltipType)
-    
+
     def updateTooltipMenu(self):
         """Update tooltip menu when custom tooltips are added"""
         # Clear existing tooltip menu
@@ -361,121 +442,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             self.tooltipMenu.clear()
             if hasattr(self, 'tooltipActionGroups'):
                 del self.tooltipActionGroups
-        
         # Recreate the menu
         self.createTooltipMenu()
-    
-    def initBeforeShowing(self):
-        """Initialize components that need to be ready before the window is shown"""
-        # Initialize tooltip menu with all entity definitions
-        self.updateTooltipMenu()
-        
-        # Reorganize Enhanced Grid Layout orders to eliminate gaps, then apply the layout
-        # self.reorganizeEnhancedGridLayoutOrders()
-        self.applyAutomaticLayout()
-        
-        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
-        self.createEnhancedGridLayoutMenu()
-        
-        # Show admin control panel if needed
-        if self.shouldDisplayAdminControlPanel:
-            self.show_adminControlPanel()
-        
-        # Set up dashboards
-        self.setDashboards()
-    
-    def initAfterOpening(self):
-        if self.currentPlayerName is None:
-            possibleUsers = self.getUsers_withControlPanel()
-            if possibleUsers != [] : self.setCurrentPlayer(possibleUsers[0])
-            elif possibleUsers == [] : self.setCurrentPlayer('Admin')
 
-        #todo Obsolete - to delete
-        #  if not self.hasDefinedPositionGameSpace() : QTimer.singleShot(100, self.adjustGamespacesPosition)
-        
-        # Position all agents after grid layout is applied and window is shown
-        # Use QApplication.processEvents() to ensure layouts are processed before positioning
-        QApplication.processEvents()
-        self.positionAllAgents()
-        
-    def positionAllAgents(self):
-        """Position all agents after grid layout is applied"""
-        for agent_type in self.getAgentTypes():
-            for agent in agent_type.entities:
-                if hasattr(agent, 'view') and agent.view:
-                    # Show the agent view first
-                    agent.view.show()
-                    agent.view.raise_()  # Bring to front
-                    # Then position it
-                    agent.view.getPositionInEntity()
-                    # Force update to ensure positioning is applied
-                    agent.view.update()
-
-    def hasDefinedPositionGameSpace(self):
-        return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
-
-
-    def show_adminControlPanel(self): #todo a mettre dans méthodes de developer
-        """
-        Private method to show the Admin Control Panel
-        """
-        adminPlayer = self.getAdminPlayer()
-        adminPlayer.createAllGameActions()
-        if adminPlayer.controlPanel is None:
-            adminPlayer.newControlPanel("Admin")
-        else:
-            adminPlayer.controlPanel.show()
-
-
-    def setDashboards(self):
-        dashboards=self.getGameSpaceByClass(SGDashBoard)
-        for aDashBoard in dashboards:
-            aDashBoard.showIndicators()
-    
-    def deleteTextBox(self, titleOfTheTextBox):
-        del self.gameSpaces[titleOfTheTextBox]
-
-    # Create the menu of the menu
-    def createMenu(self):
-        # Add the 'play' button
-        if sys.platform == "darwin":
-            # For Mac compatibility: add the play button in a submenu
-            self.startGame = self.menuBar().addMenu(QIcon(f"{path_icon}/play.png"), " &Step")
-            startGame = QAction(" &Next step", self)
-            self.startGame.addAction(startGame)
-            startGame.triggered.connect(self.nextTurn)
-        else:
-            # for all other platforms than Mac, direct action on play icon
-            aAction = QAction(QIcon(f"{path_icon}/play.png"), " &play", self)
-            aAction.triggered.connect(self.nextTurn)
-            self.menuBar().addAction(aAction)
-        
-        self.menuBar().addSeparator()
-
-        aAction = QAction(QIcon(f"{path_icon}/zoomPlus.png"), " &zoomPlus", self)
-        aAction.triggered.connect(self.zoomPlusModel)
-        self.menuBar().addAction(aAction)
-
-        aAction = QAction(QIcon(f"{path_icon}/zoomLess.png"), " &zoomLess", self)
-        aAction .triggered.connect(self.zoomLessModel)
-        self.menuBar().addAction(aAction)
-
-        aAction  = QAction(QIcon(f"{path_icon}/zoomToFit.png"), " &zoomToFit", self)
-        aAction .triggered.connect(self.zoomFitModel)
-        self.menuBar().addAction(aAction)
-
-        self.menuBar().addSeparator()
-
-        self.symbologyMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/symbology.png"), "&Symbology")
-        self.symbologiesInSubmenus = {}
-        self.keyword_borderSubmenu = ' border'
-
-        self.createGraphMenu()
-        
-        self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
-
-
-    # Create all the action related to the menu
 
     def createGraphMenu(self):
         self.chooseGraph = self.menuBar().addMenu(QIcon(f"{path_icon}/icon_dashboards.png"), "&openChooseGraph")
@@ -501,6 +470,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.chooseGraph.addAction(actionOtherDiagram)
 
 
+    # Create all the action related to the menu
     def createAction(self):
         self.save = QAction(QIcon(f"{path_icon}/save.png"), " &save", self)
         self.save.setShortcut("Ctrl+s")
@@ -575,6 +545,138 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """To be implemented"""
         return True
 
+
+    # ============================================================================
+    # ENTITY MANAGEMENT METHODS
+    # ============================================================================
+    def __ENTITY_MANAGEMENT_METHODS__(self):
+        pass
+
+    def getSGEntity_withIdentfier(self, aIdentificationDict):
+        #This method is used by updateServer to retrieve an entity (cell , agents) used has argument in a game action 
+        type = self.getEntityType(aIdentificationDict['name'])
+        aId = aIdentificationDict['id']
+        targetEntity = type.getEntity(aId)
+        return targetEntity 
+
+    def getSGObject_withIdentifier(self, aIdentificationDict):
+        #This method is used by updateServer to retrieve any type of SG object (eg. GameAction or Entity) 
+        className = aIdentificationDict['name']
+        aId = aIdentificationDict['id']
+        return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
+
+    def generateCellsForGrid(self,grid,defaultCellImage,name):
+        CellType = SGCellType(grid, grid.cellShape,grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white,name=name,defaultCellImage=defaultCellImage)
+        self.cellTypes[grid.id] = CellType
+        for row in range(1, grid.rows + 1):
+            for col in range(1, grid.columns + 1):
+                CellType.newCell(col, row)
+        return CellType
+
+    # ============================================================================
+    # UTILITY METHODS
+    # ============================================================================
+    def __UTILITY_METHODS__(self):
+        pass
+
+    def getAgentsPrivateID(self):
+        agents=self.getAllAgents()
+        agents_privateID=[]
+        for agent in agents:
+            agents_privateID.append(agent.privateID)
+        return agents_privateID
+
+    def numberOfGrids(self):
+        return len(self.cellTypes)
+
+    def maj_coordonnees(self):
+        pos_souris_globale = self.mapFromGlobal(QCursor.pos())
+        coord_x, coord_y = pos_souris_globale.x(), pos_souris_globale.y()
+        self.label.setText(f'Global Cursor Coordinates : ({coord_x}, {coord_y})')
+
+    # ============================================================================
+    # LAYOUT CONFIGURATION METHODS
+    # ============================================================================
+    def __LAYOUT_CONFIGURATION_METHODS__(self):
+        pass
+
+    def createEnhancedGridLayoutMenu(self):
+        """Create Enhanced Grid Layout submenu in Settings menu"""
+        if self.typeOfLayout == "enhanced_grid":
+            self.enhancedGridMenu = self.settingsMenu.addMenu("&Enhanced Grid Layout")
+            
+            # Edit layoutOrders action
+            editLayoutOrderAction = QAction("&Edit Layout...", self)
+            editLayoutOrderAction.triggered.connect(self.openLayoutOrderTableDialog)
+            self.enhancedGridMenu.addAction(editLayoutOrderAction)
+                                    
+            # Save layout configuration action
+            saveConfigAction = QAction("&Save Current Layout...", self)
+            saveConfigAction.triggered.connect(self.openSaveLayoutConfigDialog)
+            self.enhancedGridMenu.addAction(saveConfigAction)
+            
+            # Manage layout configurations action
+            manageConfigAction = QAction("&Manage Layout Configurations...", self)
+            manageConfigAction.triggered.connect(self.openLayoutConfigManagerDialog)
+            self.enhancedGridMenu.addAction(manageConfigAction)
+
+            # Separator
+            self.enhancedGridMenu.addSeparator()
+            
+            # Toggle layoutOrder tooltips action
+            self.layoutOrderTooltipAction = QAction("&Show GameSpace order tooltip", self)
+            self.layoutOrderTooltipAction.setCheckable(True)
+            self.layoutOrderTooltipAction.setChecked(False)
+            self.layoutOrderTooltipAction.triggered.connect(self.toggleLayoutOrderTooltips)
+            self.enhancedGridMenu.addAction(self.layoutOrderTooltipAction)
+            
+    
+    
+    def setTooltipTypeForEntity(self, entityDef, tooltipType):
+        """Set tooltip type for a specific entity definition"""
+        if hasattr(entityDef, 'displayTooltip'):
+            entityDef.displayTooltip(tooltipType)
+
+    
+    def positionAllAgents(self):
+        """Position all agents after grid layout is applied"""
+        for agent_type in self.getAgentTypes():
+            for agent in agent_type.entities:
+                if hasattr(agent, 'view') and agent.view:
+                    # Show the agent view first
+                    agent.view.show()
+                    agent.view.raise_()  # Bring to front
+                    # Then position it
+                    agent.view.getPositionInEntity()
+                    # Force update to ensure positioning is applied
+                    agent.view.update()
+
+    def hasDefinedPositionGameSpace(self):
+        return any(aGameSpace.isPositionDefineByModeler() for aGameSpace in self.gameSpaces.values())
+
+
+    def show_adminControlPanel(self): #todo a mettre dans méthodes de developer
+        """
+        Private method to show the Admin Control Panel
+        """
+        adminPlayer = self.getAdminPlayer()
+        adminPlayer.createAllGameActions()
+        if adminPlayer.controlPanel is None:
+            adminPlayer.newControlPanel("Admin")
+        else:
+            adminPlayer.controlPanel.show()
+
+
+    def setDashboards(self):
+        dashboards=self.getGameSpaceByClass(SGDashBoard)
+        for aDashBoard in dashboards:
+            aDashBoard.showIndicators()
+    
+    def deleteTextBox(self, titleOfTheTextBox):
+        del self.gameSpaces[titleOfTheTextBox]
+
+   
+
     # def setAllDataSinceInit(self):
     #     print("Test")
     #     for aEntity in self.getAllEntities():
@@ -594,76 +696,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.timeManager.nextPhase()
         if self.mqttMajType in ["Phase","Instantaneous"]:
             self.mqttManager.buildNextTurnMsgAndPublishToBroker()
-
-
-    def closeEvent(self, event):
-        self.haveToBeClose = True
-        self.getTextBoxHistory(self.TextBoxes)
-        if hasattr(self, 'mqttManager') and self.mqttManager:
-            self.mqttManager.disconnect()
-        self.close()
-
-
-    # Function to handle the drag of widget
-    def dragEnterEvent(self, e):
-        e.accept()
-
-    def dropEvent(self, e):
-        if isinstance(e.source(), (SGEntity, SGEntityView)):
-            # msg_box = QMessageBox(self)
-            # msg_box.setIcon(QMessageBox.Information)
-            # msg_box.setWindowTitle("Warning Message")
-            # # Get the agent model from the view
-            # agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
-            # msg_box.setText("A " + agent_model.type.name +" cannot be moved here")
-            # msg_box.setStandardButtons(QMessageBox.Ok)
-            # msg_box.setDefaultButton(QMessageBox.Ok)
-            # msg_box.exec_()
-            return
-        position = e.pos()
-        # Get the agent model from the view
-        agent_model = e.source().agent_model if hasattr(e.source(), 'agent_model') else e.source()
-        
-        # Get the agent size - handle both model and view cases
-        if hasattr(agent_model, 'size') and not callable(agent_model.size):
-            # agent_model is a model with size attribute
-            agent_size = agent_model.size
-        elif hasattr(agent_model, 'size') and callable(agent_model.size):
-            # agent_model is a view with size() method
-            agent_size = agent_model.size().width()  # Use width as size
-        else:
-            # Fallback to default size
-            agent_size = 30
-        
-        position.setX(position.x()-int(agent_size/2))
-        position.setY(position.y()-int(agent_size/2))
-        agent_model.move(position)
-
-        e.setDropAction(Qt.MoveAction)
-        e.accept()
-
-    # Contextual Menu (opened on a right click)
-    # def show_contextMenu(self, point): #todo Obsolete - to delete
-    #     menu = QMenu(self)
-
-    #     option1 = QAction("LayoutCheck", self)
-    #     option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
-    #                                     #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed 
-    #     menu.addAction(option1)
-
-    #     if self.rect().contains(point):
-    #         menu.exec_(self.mapToGlobal(point))
-
-    # Handle window title
-    def updateWindowTitle(self):
-        # Update window title with the number of the round and number of the phase
-        if self.isTimeDisplayedInWindowTitle :
-            if self.timeManager.numberOfPhases() == 1:
-                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}"
-            else:
-                title = f"{self.windowTitle_prefix} {' - ' if self.windowTitle_prefix != ' ' else ''} Round {self.roundNumber()}, Phase {self.phaseNumber()}"
-
-            self.setWindowTitle(title) 
 
 
     
@@ -1066,11 +1098,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                                f"Failed to load layout configuration '{config_name}'")
         
         return success
-    
-# ============================================================================
-# IS/HAS METHODS
-# ============================================================================
-
+  
     def hasLayoutConfig(self, config_name):
         """
         Check if a layout configuration exists.
