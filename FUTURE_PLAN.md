@@ -60,7 +60,16 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Added proper section separators for MODELER METHODS
   - ✅ Organized methods by type: NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY
   - ✅ Moved developer methods to DEVELOPER METHODS section
+  - ✅ Organized developer methods into logical sub-sections by responsibility
+  - ✅ Added placeholder methods for IDE outline visibility
   - ✅ Maintained all functionality while improving code organization
+
+- [x] Extract MQTT functionality into SGMQTTManager class (Dec 2024)
+  - ✅ Created new SGMQTTManager class for all MQTT logic
+  - ✅ Refactored SGModel to delegate MQTT calls to SGMQTTManager
+  - ✅ Separated MQTT protocol configuration from game launch logic
+  - ✅ Added optional broker host parameter for modelers (localhost or online)
+  - ✅ Maintained all MQTT functionality while improving separation of concerns
 
 - [x] Rename EntDef to a name that makes more sense (Dec 2024)
   - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType

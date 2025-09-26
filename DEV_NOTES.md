@@ -11,12 +11,39 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
 ### Date de dernière mise à jour : Décembre 2024
 ### Dernier chat utilisé : Claude Sonnet 4 (Cursor)
 ### Ordinateur de travail : Windows 10 (nbecu)
-### Branche actuelle : renaming-classes
-### Dernier chantier : Renommage SGEntityDef → SGEntityType
+### Branche actuelle : Refactor-SGModel-Method-Organization
+### Dernier chantier : Refactoring SGModel + Extraction MQTT
 
 ---
 
 ## Travail en cours
+
+### Décembre 2024 - Refactoring SGModel + Extraction MQTT (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Refactoring complet de SGModel.py pour suivre les conventions SGE d'organisation des méthodes, extraction de la fonctionnalité MQTT dans une classe dédiée SGMQTTManager, et organisation des méthodes developer en sous-sections par responsabilité
+- **Fichiers concernés** : 
+  - `mainClasses/SGModel.py` (refactoring complet organisation méthodes)
+  - `mainClasses/SGMQTTManager.py` (nouveau - classe dédiée MQTT)
+  - `mainClasses/gameAction/SGAbstractAction.py` (mise à jour référence MQTT)
+  - `examples/games/MQTT_GameExample_Player1.py` (test validation)
+  - `FUTURE_PLAN.md` (mise à jour chantiers terminés)
+  - `CONTEXT_SGE_FOR_CHATBOT.md` (mise à jour organisation méthodes)
+- **Problèmes rencontrés** : 
+  - Organisation des méthodes developer non structurée
+  - Logique MQTT mélangée avec logique principale SGModel
+  - Conflit API paho-mqtt (CallbackAPIVersion.VERSION1 requis)
+  - Références obsolètes après extraction MQTT
+- **Solutions appliquées** : 
+  - Organisation des méthodes MODELER selon conventions SGE (NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY)
+  - Déplacement méthodes developer vers section DEVELOPER METHODS
+  - Organisation méthodes developer en sous-sections par responsabilité (INITIALIZATION, UI MANAGEMENT, ENTITY MANAGEMENT, LAYOUT MANAGEMENT, GAME FLOW MANAGEMENT, UTILITY)
+  - Extraction complète logique MQTT dans SGMQTTManager avec séparation configuration/lancement
+  - Ajout paramètre optionnel broker_host pour modelers (localhost par défaut, online possible)
+  - Correction API paho-mqtt avec CallbackAPIVersion.VERSION1
+  - Mise à jour toutes références MQTT vers SGMQTTManager
+  - Ajout méthodes placeholder pour visibilité IDE outline
+  - Documentation mise à jour (FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- **Résultat** : SGModel.py parfaitement organisé selon conventions SGE, fonctionnalité MQTT séparée et flexible, code plus maintenable et lisible, API modeler améliorée
 
 ### Décembre 2024 - Renommage SGEntityDef → SGEntityType (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
@@ -403,6 +430,20 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 - [x] Documentation mise à jour (README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - [x] Tests validés avec exemples multiples et modèles complexes (CarbonPolis.py)
 
+### Refactoring SGModel + Extraction MQTT - TERMINÉ ✅
+Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés** et validés :
+- [x] Organisation des méthodes MODELER selon conventions SGE (NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY)
+- [x] Déplacement méthodes developer vers section DEVELOPER METHODS
+- [x] Organisation méthodes developer en sous-sections par responsabilité (INITIALIZATION, UI MANAGEMENT, ENTITY MANAGEMENT, LAYOUT MANAGEMENT, GAME FLOW MANAGEMENT, UTILITY)
+- [x] Extraction complète logique MQTT dans SGMQTTManager avec séparation configuration/lancement
+- [x] Ajout paramètre optionnel broker_host pour modelers (localhost par défaut, online possible)
+- [x] Correction API paho-mqtt avec CallbackAPIVersion.VERSION1
+- [x] Mise à jour toutes références MQTT vers SGMQTTManager
+- [x] Ajout méthodes placeholder pour visibilité IDE outline
+- [x] Documentation mise à jour (FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- [x] Tests validés avec MQTT_GameExample_Player1.py
+- [x] Code parfaitement organisé selon conventions SGE
+
 ### Prochaines étapes générales
 - [ ] Nouvelles fonctionnalités SGE (selon besoins futurs)
 - [ ] Optimisations performance (si nécessaire)
@@ -414,6 +455,23 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 ---
 
 ## Problèmes résolus
+
+### Décembre 2024 - Refactoring SGModel + Extraction MQTT (MAJOR)
+- **Description** : Refactoring complet de SGModel.py pour suivre les conventions SGE d'organisation des méthodes et extraction de la fonctionnalité MQTT dans une classe dédiée
+- **Solution** : 
+  1. Organisation des méthodes MODELER selon conventions SGE (NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY)
+  2. Déplacement méthodes developer vers section DEVELOPER METHODS
+  3. Organisation méthodes developer en sous-sections par responsabilité (INITIALIZATION, UI MANAGEMENT, ENTITY MANAGEMENT, LAYOUT MANAGEMENT, GAME FLOW MANAGEMENT, UTILITY)
+  4. Extraction complète logique MQTT dans SGMQTTManager avec séparation configuration/lancement
+  5. Ajout paramètre optionnel broker_host pour modelers (localhost par défaut, online possible)
+  6. Correction API paho-mqtt avec CallbackAPIVersion.VERSION1
+  7. Mise à jour toutes références MQTT vers SGMQTTManager
+  8. Ajout méthodes placeholder pour visibilité IDE outline
+  9. Documentation mise à jour (FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
+  10. Tests validés avec MQTT_GameExample_Player1.py
+- **Fichiers modifiés** : `SGModel.py`, `SGMQTTManager.py` (nouveau), `SGAbstractAction.py`, `MQTT_GameExample_Player1.py`, `FUTURE_PLAN.md`, `CONTEXT_SGE_FOR_CHATBOT.md`
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : SGModel.py parfaitement organisé selon conventions SGE, fonctionnalité MQTT séparée et flexible, code plus maintenable et lisible, API modeler améliorée
 
 ### Septembre 2025 - Système de sauvegarde/chargement des configurations Enhanced Grid Layout (MAJOR)
 - **Description** : Implémentation complète d'un système de persistance des configurations Enhanced Grid Layout avec gestion des types de position, optimisations de performance, et interface utilisateur robuste
@@ -637,6 +695,32 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 ---
 
 ## Décisions importantes
+
+### Décembre 2024 - Organisation des méthodes selon conventions SGE
+- **Contexte** : Besoin de suivre les conventions SGE d'organisation des méthodes pour améliorer la maintenabilité
+- **Décision prise** : Organiser SGModel.py selon la structure standard SGE avec séparation DEVELOPER/MODELER et sous-sections par responsabilité
+- **Impact** : 
+  - Code plus lisible et maintenable
+  - Navigation facilitée dans l'IDE
+  - Respect des conventions SGE
+  - Structure prévisible pour les développeurs
+
+### Décembre 2024 - Extraction MQTT dans classe dédiée
+- **Contexte** : Logique MQTT mélangée avec logique principale SGModel, violation du principe de responsabilité unique
+- **Décision prise** : Extraire toute la logique MQTT dans une classe dédiée SGMQTTManager
+- **Impact** : 
+  - Séparation claire des responsabilités
+  - Code plus maintenable et testable
+  - API modeler améliorée avec paramètre broker_host optionnel
+  - Facilité d'extension des fonctionnalités MQTT
+
+### Décembre 2024 - Méthodes placeholder pour visibilité IDE
+- **Contexte** : Besoin d'améliorer la visibilité des sections dans l'outline de l'IDE
+- **Décision prise** : Ajouter des méthodes placeholder (__SECTION_NAME__) dans chaque section
+- **Impact** : 
+  - Navigation améliorée dans l'IDE
+  - Structure visible dans l'outline
+  - Facilité de maintenance
 
 ### Septembre 2025 - Système de persistance des configurations Enhanced Grid Layout
 - **Contexte** : Besoin de permettre aux modelers de sauvegarder et recharger leurs configurations Enhanced Grid Layout entre sessions
@@ -871,6 +955,21 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 
 ## Conventions découvertes et documentées
 
+### Décembre 2024 - Organisation des méthodes selon conventions SGE
+- **Convention** : Organiser SGModel.py selon la structure standard SGE avec séparation DEVELOPER/MODELER et sous-sections par responsabilité
+- **Exemples** : INITIALIZATION METHODS, UI MANAGEMENT METHODS, ENTITY MANAGEMENT METHODS, LAYOUT MANAGEMENT METHODS, GAME FLOW MANAGEMENT METHODS, UTILITY METHODS
+- **Avantage** : Code plus lisible et maintenable, navigation facilitée dans l'IDE, respect des conventions SGE
+
+### Décembre 2024 - Extraction MQTT dans classe dédiée
+- **Convention** : Extraire toute la logique MQTT dans une classe dédiée SGMQTTManager pour séparation des responsabilités
+- **Exemples** : `SGMQTTManager.setMQTTProtocol()`, `SGMQTTManager.connect_mqtt()`, `SGMQTTManager.buildNextTurnMsgAndPublishToBroker()`
+- **Avantage** : Séparation claire des responsabilités, code plus maintenable et testable, API modeler améliorée
+
+### Décembre 2024 - Méthodes placeholder pour visibilité IDE
+- **Convention** : Ajouter des méthodes placeholder (__SECTION_NAME__) dans chaque section pour améliorer la visibilité dans l'outline de l'IDE
+- **Exemples** : `def __INITIALIZATION_METHODS__(self): pass`, `def __UI_MANAGEMENT_METHODS__(self): pass`
+- **Avantage** : Navigation améliorée dans l'IDE, structure visible dans l'outline, facilité de maintenance
+
 ### Septembre 2025 - Système de persistance des configurations Enhanced Grid Layout
 - **Convention** : Utiliser JSON pour la persistance des configurations avec structure hiérarchique par modèle
 - **Exemples** : `layout_config.json` avec clés "configurations" et filtrage par `model_name`
@@ -1028,6 +1127,24 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 ---
 
 ## Chats importants
+
+### Décembre 2024 - Refactoring SGModel + Extraction MQTT (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Refactoring complet de SGModel.py pour suivre les conventions SGE d'organisation des méthodes et extraction de la fonctionnalité MQTT dans une classe dédiée
+- **Résultats** : 
+  - Organisation des méthodes MODELER selon conventions SGE (NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY)
+  - Déplacement méthodes developer vers section DEVELOPER METHODS
+  - Organisation méthodes developer en sous-sections par responsabilité (INITIALIZATION, UI MANAGEMENT, ENTITY MANAGEMENT, LAYOUT MANAGEMENT, GAME FLOW MANAGEMENT, UTILITY)
+  - Extraction complète logique MQTT dans SGMQTTManager avec séparation configuration/lancement
+  - Ajout paramètre optionnel broker_host pour modelers (localhost par défaut, online possible)
+  - Correction API paho-mqtt avec CallbackAPIVersion.VERSION1
+  - Mise à jour toutes références MQTT vers SGMQTTManager
+  - Ajout méthodes placeholder pour visibilité IDE outline
+  - Documentation mise à jour (FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
+  - Tests validés avec MQTT_GameExample_Player1.py
+- **Fichiers modifiés** : `SGModel.py`, `SGMQTTManager.py` (nouveau), `SGAbstractAction.py`, `MQTT_GameExample_Player1.py`, `FUTURE_PLAN.md`, `CONTEXT_SGE_FOR_CHATBOT.md`
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur Refactor-SGModel-Method-Organization
 
 ### Septembre 2025 - Système de sauvegarde/chargement des configurations Enhanced Grid Layout (MAJOR)
 - **Ordinateur** : Windows 10 (nbecu)
@@ -1188,6 +1305,14 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 ## Notes techniques
 
 ### Modifications importantes
+- Décembre 2024 : Refactoring complet SGModel.py selon conventions SGE (organisation méthodes MODELER et DEVELOPER)
+- Décembre 2024 : Extraction MQTT dans SGMQTTManager.py avec séparation configuration/lancement
+- Décembre 2024 : Organisation méthodes developer en sous-sections par responsabilité (INITIALIZATION, UI MANAGEMENT, ENTITY MANAGEMENT, LAYOUT MANAGEMENT, GAME FLOW MANAGEMENT, UTILITY)
+- Décembre 2024 : Ajout paramètre optionnel broker_host pour modelers (localhost par défaut, online possible)
+- Décembre 2024 : Correction API paho-mqtt avec CallbackAPIVersion.VERSION1
+- Décembre 2024 : Mise à jour toutes références MQTT vers SGMQTTManager
+- Décembre 2024 : Ajout méthodes placeholder pour visibilité IDE outline
+- Décembre 2024 : Documentation mise à jour (FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - Septembre 2025 : Système de sauvegarde/chargement des configurations Enhanced Grid Layout complet (SGLayoutConfigManager.py, SGLayoutConfigSaveDialog.py, SGLayoutConfigManagerDialog.py)
 - Septembre 2025 : Attribut _positionType explicite dans SGGameSpace avec méthodes de gestion d'état (setToAbsolute, setToLayoutOrder, setToMixed)
 - Septembre 2025 : Optimisations de performance avec cache gameSpaces_cache pour lookups O(1) dans SGLayoutOrderTableDialog
@@ -1232,6 +1357,13 @@ Le système de persistance des configurations Enhanced Grid Layout est **complè
 - 25/08/2025 : Configuration pytest.ini
 
 ### Découvertes architecturales
+- Décembre 2024 : L'organisation des méthodes selon conventions SGE améliore significativement la maintenabilité et la lisibilité du code
+- Décembre 2024 : L'extraction MQTT dans une classe dédiée respecte le principe de responsabilité unique et facilite la maintenance
+- Décembre 2024 : Les méthodes placeholder améliorent la visibilité des sections dans l'outline de l'IDE
+- Décembre 2024 : La séparation configuration/lancement MQTT offre plus de flexibilité aux modelers
+- Décembre 2024 : Le paramètre broker_host optionnel permet l'utilisation de brokers locaux ou en ligne
+- Décembre 2024 : L'API paho-mqtt nécessite CallbackAPIVersion.VERSION1 pour compatibilité
+- Décembre 2024 : La documentation doit être mise à jour simultanément avec le code
 - Septembre 2025 : Le système de persistance des configurations Enhanced Grid Layout nécessite une gestion explicite des types de position avec attribut _positionType
 - Septembre 2025 : Les optimisations de performance avec cache gameSpaces_cache améliorent significativement les performances des interfaces complexes
 - Septembre 2025 : Le renommage sémantique (absolute_position → manual_position) améliore la cohérence et la compréhensibilité du code
