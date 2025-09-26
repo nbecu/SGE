@@ -75,6 +75,13 @@ endGameRule.addEndGameCondition_onEntity(Cell.getEntity(1,5), 'Resource', "great
 endGameRule.showEndGameConditions()
 
 
-myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
+# Option 1: Use localhost (default)
+# myModel.launch_withMQTT("Instantaneous")
+
+# Option 2: Use online broker (Eclipse Mosquitto)
+myModel.launch_withMQTT("Instantaneous", broker_host="test.mosquitto.org")
+
+# Option 3: Use another online broker
+# myModel.launch_withMQTT("Instantaneous", broker_host="broker.hivemq.com")
 
 sys.exit(monApp.exec_())

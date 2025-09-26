@@ -953,14 +953,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.initAfterOpening()
 
     # To open and launch the game with a mqtt broker
-    def launch_withMQTT(self,majType):
+    def launch_withMQTT(self,majType, broker_host="localhost", broker_port=1883):
         """
         Set the mqtt protocol, then launch the game
 
         Args:
             majType (str): "Phase" or "Instantaneous"
+            broker_host (str): MQTT broker host (default: "localhost")
+            broker_port (int): MQTT broker port (default: 1883)
         """
-        self.mqttManager.setMQTTProtocol(majType)
+        self.mqttManager.setMQTTProtocol(majType, broker_host, broker_port)
         self.launch()
 
     # Return all gameActions of all players

@@ -36,54 +36,23 @@ class SGMQTTManager:
         self.haveToBeClose = False
         self.actionsFromBrokerToBeExecuted = []
         
-    def setMQTTProtocol(self, majType):
+    def setMQTTProtocol(self, majType, broker_host="localhost", broker_port=1883):
         """
         Set the MQTT protocol configuration
 
         Args:
             majType (str): "Phase" or "Instantaneous"
+            broker_host (str): MQTT broker host (default: "localhost")
+            broker_port (int): MQTT broker port (default: 1883)
         """
         self.clientId = uuid.uuid4().hex
         self.majTimer = QTimer(self.model)
         self.majTimer.timeout.connect(self.onMAJTimer)
         self.majTimer.start(100)
+        self.broker_host = broker_host
+        self.broker_port = broker_port
         self.initMQTT()
         self.model.mqttMajType = majType
-
-
-    def connect_mqtt(self):
-        """MQTT Basic function to connect to the broker"""
-        def on_log(client, userdata, level, buf):
-            print("log: "+buf)
-
-        def on_connect(client, userdata, flags, rc):
-            if rc == 0:
-                print("Connected to MQTT Broker!")
-            else:
-                print("Failed to connect, return code %d\n", rc)
-
-        def on_disconnect(client, userdata, flags, rc=0):
-            print("disconnect result code "+str(rc))
-
-        print("connectMQTT")
-        # self.client = mqtt_client.Client(self.model.currentPlayerName)  # Old version
-        self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.model.currentPlayerName) # for the new version of paho possible correction
-        self.client.on_connect = on_connect
-        self.client.on_disconnect = on_disconnect
-        self.client.on_log = on_log
-        self.q = queue.Queue()
-        self.t1 = threading.Thread(target=self.handleClientThread, args=())
-        self.t1.start()
-        self.model.timer.start(5)
-        self.client.connect("localhost", 1883)
-        self.client.user_data_set(self)
-
-    def handleClientThread(self):
-        """Thread that handle the listen of the client"""
-        while True:
-            self.client.loop(.1)
-            if self.haveToBeClose == True:
-                break
 
     def initMQTT(self):
         """Init the MQTT client"""
@@ -112,6 +81,40 @@ class SGMQTTManager:
         self.client.subscribe("nextTurn")
         self.client.subscribe("execute_method")
         self.client.on_message = on_message
+
+    def connect_mqtt(self):
+        """MQTT Basic function to connect to the broker"""
+        def on_log(client, userdata, level, buf):
+            print("log: "+buf)
+
+        def on_connect(client, userdata, flags, rc):
+            if rc == 0:
+                print("Connected to MQTT Broker!")
+            else:
+                print("Failed to connect, return code %d\n", rc)
+
+        def on_disconnect(client, userdata, flags, rc=0):
+            print("disconnect result code "+str(rc))
+
+        print("connectMQTT")
+        # self.client = mqtt_client.Client(self.model.currentPlayerName)  # Old version
+        self.client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, self.model.currentPlayerName) # for the new version of paho possible correction
+        self.client.on_connect = on_connect
+        self.client.on_disconnect = on_disconnect
+        self.client.on_log = on_log
+        self.q = queue.Queue()
+        self.t1 = threading.Thread(target=self.handleClientThread, args=())
+        self.t1.start()
+        self.model.timer.start(5)
+        self.client.connect(self.broker_host, self.broker_port)
+        self.client.user_data_set(self)
+
+    def handleClientThread(self):
+        """Thread that handle the listen of the client"""
+        while True:
+            self.client.loop(.1)
+            if self.haveToBeClose == True:
+                break
         
     def buildNextTurnMsgAndPublishToBroker(self):
         """Build and publish next turn message to MQTT broker"""
