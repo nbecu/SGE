@@ -128,6 +128,19 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Support for manual positioning with `moveToCoords()` override
   - ✅ Integrate a menu and the possibility to export the settings (layoutOrders and/or absolute position)
 
+## Git Branch Organization Convention
+
+SGE follows a structured branch naming convention:
+- **`main`** → Main development branch
+- **`version_*`** → Stable released versions (e.g., `version_august_2025`)
+- **`candidate_*`** → Release candidates (e.g., `main_candidate_release_sept_2025`)
+- **`dev_*`** → Active development branches
+- **`project_*`** → Project-specific branches
+- **`legacy_*`** → Historical/archived branches
+- **`experimental_*`** → Experimental features
+
+Workflow: `dev_*` → `candidate_*` → `version_*` → `legacy_*`
+
 ## Notes
 
 This future plan is regularly updated as new ideas emerge and priorities change. Each item represents a potential improvement or new feature for the SGE framework.

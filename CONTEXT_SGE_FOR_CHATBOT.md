@@ -688,3 +688,47 @@ execute_callable_with_entity(lambda a: doSomething(a), agent)
 ### 19.2 Règles critiques
 **OBLIGATOIRE** : Finaliser selon ce processus, mettre à jour documentation, tester fonctionnalités
 **INTERDIT** : Laisser chantier sans finalisation, oublier documentation, finaliser sans validation
+
+## 20. Convention de nommage des branches Git (CRITIQUE pour chatbots)
+
+### 20.1 Rôle de la convention
+**Les chatbots DOIVENT** appliquer cette convention lors de la création ou suggestion de nouvelles branches Git pour SGE.
+
+### 20.2 Préfixes par catégorie
+- **`main`** → Branche principale de développement (inchangée)
+- **`version_*`** → Versions stables avec date (ex: `version_august_2025`)
+- **`candidate_*`** → Candidats de release (ex: `candidate_main_candidate_release_sept_2025`)
+- **`dev_*`** → Branches de développement actives (ex: `dev_refactor_model_view_separation`)
+- **`project_*`** → Branches spécifiques à des projets (ex: `project_CarbonPolis_9_04_25`)
+- **`legacy_*`** → Branches historiques/archivées (ex: `legacy_dev_2023`)
+- **`experimental_*`** → Fonctionnalités expérimentales (ex: `experimental_start_the_sim_at_any_date`)
+
+### 20.3 Workflow de promotion des branches
+1. **Développement** : Travailler sur des branches `dev_*`
+2. **Candidat de release** : Promouvoir `dev_*` → `candidate_*` quand prêt pour les tests
+3. **Version stable** : Promouvoir `candidate_*` → `version_*` quand publiée
+4. **Archivage** : Déplacer les anciennes branches vers `legacy_*` quand plus nécessaires
+
+### 20.4 Obligations pour les chatbots
+- **TOUJOURS** suggérer des noms de branches selon cette convention
+- **SYSTÉMATIQUEMENT** appliquer les préfixes appropriés
+- **RÉGULIÈREMENT** proposer la promotion des branches selon le workflow
+- **JAMAIS** créer des branches sans préfixe (sauf `main`)
+
+### 20.5 Exemples d'application
+```bash
+# Nouveau chantier de développement
+git checkout -b dev_improve_graph_interface
+
+# Candidat de release
+git checkout -b candidate_main_candidate_release_oct_2025
+
+# Version stable
+git checkout -b version_october_2025
+
+# Projet spécifique
+git checkout -b project_NewGame_2025
+
+# Fonctionnalité expérimentale
+git checkout -b experimental_new_algorithm
+```
