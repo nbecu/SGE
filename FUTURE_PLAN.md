@@ -12,7 +12,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Correct the zoom model menu 
 - [ ] Main window auto resize
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
-- [ ] create a "Theme system" to apply ready-to-use sgAspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
+- [ ] create a "Theme system" to apply ready-to-use gs_aspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
 
 ### POV System & Visual Elements
 - [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies
@@ -43,20 +43,11 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### Documentation & Tools
 - [ ] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide)
-- [x] Add in SGModel menu bar the possibility to choose the displayTooltip of entities (Dec 2024)
-  - ✅ Added tooltip selection menu in SGModel Settings
-  - ✅ Created individual tooltip submenus for each EntityDef (CellDef and AgentDef)
-  - ✅ Implemented `setTooltip()` modeler method in SGEntityDef
-  - ✅ Added support for attribute names, static text, and lambda functions
-  - ✅ Created `hasAttribute()` method in AttributeAndValueFunctionalities
-  - ✅ Removed obsolete "Custom" option from displayTooltip()
-  - ✅ Added comprehensive examples in syntax_examples/
-  - ✅ Menu dynamically updates when new EntityDefs are created
 
 
 ## Completed Items
 
-- [x] Refactor SGModel to follow the ordering convention of SGE for modeler methods (Dec 2024)
+- [x] Refactor SGModel to follow the ordering convention of SGE for modeler methods (Sept 2025)
   - ✅ Added proper section separators for MODELER METHODS
   - ✅ Organized methods by type: NEW/ADD/SET, DELETE, GET/NB, IS/HAS, DO/DISPLAY
   - ✅ Moved developer methods to DEVELOPER METHODS section
@@ -64,14 +55,14 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Added placeholder methods for IDE outline visibility
   - ✅ Maintained all functionality while improving code organization
 
-- [x] Extract MQTT functionality into SGMQTTManager class (Dec 2024)
+- [x] Extract MQTT functionality into SGMQTTManager class (Sept 2025)
   - ✅ Created new SGMQTTManager class for all MQTT logic
   - ✅ Refactored SGModel to delegate MQTT calls to SGMQTTManager
   - ✅ Separated MQTT protocol configuration from game launch logic
   - ✅ Added optional broker host parameter for modelers (localhost or online)
   - ✅ Maintained all MQTT functionality while improving separation of concerns
 
-- [x] Rename EntDef to a name that makes more sense (Dec 2024)
+- [x] Rename EntDef to a name that makes more sense (Sept 2025)
   - ✅ Renamed SGEntityDef → SGEntityType, SGCellDef → SGCellType, SGAgentDef → SGAgentType
   - ✅ Renamed attributes: classDef → type, entityName → name
   - ✅ Renamed methods: entityType() → category(), newAgentType() → newAgentType()
@@ -116,6 +107,16 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Added proper drag state management (dragging flag, drag_start_position)
   - ✅ Eliminated non-intuitive positioning behavior
   - ✅ All gameSpaces now support smooth, intuitive drag & drop movement
+
+- [x] Add in SGModel menu bar the possibility to choose the displayTooltip of entities (Sept 2025)
+  - ✅ Added tooltip selection menu in SGModel Settings
+  - ✅ Created individual tooltip submenus for each EntityDef (CellDef and AgentDef)
+  - ✅ Implemented `setTooltip()` modeler method in SGEntityDef
+  - ✅ Added support for attribute names, static text, and lambda functions
+  - ✅ Created `hasAttribute()` method in AttributeAndValueFunctionalities
+  - ✅ Removed obsolete "Custom" option from displayTooltip()
+  - ✅ Added comprehensive examples in syntax_examples/
+  - ✅ Menu dynamically updates when new EntityDefs are created
 
 - [x] Integrate the enhanced grid layout of `gameSpaces` (Sept 2025)
   - ✅ Created `SGEnhancedGridLayout` class inheriting from `SGAbstractLayout`
