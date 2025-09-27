@@ -190,7 +190,14 @@ class SGCell(SGEntity):
             adictAttributes to set the values
 
         Return:
-            a new agent"""
+            a new agent
+            
+        Example:
+            # Create a sheep agent with default attributes
+            sheep = cell.newAgentHere(sheepType)
+            
+            # Create a sheep agent with custom attributes
+            sheep = cell.newAgentHere(sheepType, {"health": "good", "age": 2})"""
         return agent_type.newAgentOnCell(self,adictAttributes)
 		
 
@@ -229,6 +236,16 @@ class SGCell(SGEntity):
                 
         Returns:
             list[SGAgent]: List of agents of the specified type, or all agents if type_name is None
+            
+        Example:
+            # Get all agents in the cell
+            all_agents = cell.getAgents()
+            
+            # Get only sheep agents
+            sheep_agents = cell.getAgents("Sheeps")
+            
+            # Get agents using agent type object
+            sheep_agents = cell.getAgents(sheepType)
         """
         if type_name is None:
             return self.agents[:]
@@ -294,6 +311,16 @@ class SGCell(SGEntity):
                 * "closed": Finite boundaries (no wrap-around).
             - Coordinates in this grid are 1-indexed.
             - For "neumann" neighborhood, only horizontal and vertical neighbors are considered.
+            
+        Example:
+            # Get all neighboring cells
+            neighbors = cell.getNeighborCells()
+            
+            # Get only forest cells
+            forest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue("terrain") == "forest")
+            
+            # Get neighbors using Moore neighborhood
+            moore_neighbors = cell.getNeighborCells(neighborhood="moore")
         """
         if neighborhood is None:
             neighborhood = self.grid.neighborhood

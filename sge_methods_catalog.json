@@ -1,0 +1,1945 @@
+{
+  "metadata": {
+    "title": "SGE Methods Catalog",
+    "description": "Comprehensive catalog of SGE modeler methods",
+    "version": "1.0.0",
+    "generated_date": "2024-12-19",
+    "total_classes": 4,
+    "total_methods": 76
+  },
+  "classes": {
+    "SGCell": {
+      "class_name": "SGCell",
+      "description": "SGCell model class for SGE framework",
+      "total_methods": 20,
+      "categories": {
+        "NEW": [
+          {
+            "name": "newAgentHere",
+            "signature": "def newAgentHere(self, agent_type,adictAttributes=None):",
+            "description": "Create a new Agent from the associated agent type.",
+            "docstring": "Create a new Agent from the associated agent type.\n\nArgs:\n    agent_type (instance) : the type of your agent\n    adictAttributes to set the values\n\nReturn:\n    a new agent\n    \nExample:\n    # Create a sheep agent with default attributes\n    sheep = cell.newAgentHere(sheepType)\n    \n    # Create a sheep agent with custom attributes\n    sheep = cell.newAgentHere(sheepType, {\"health\": \"good\", \"age\": 2})",
+            "category": "NEW",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "agent_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "adictAttributes",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Create a sheep agent with default attributes\nsheep = cell.newAgentHere(sheepType)\n\n# Create a sheep agent with custom attributes\nsheep = cell.newAgentHere(sheepType, {\"health\": \"good\", \"age\": 2})"
+            ],
+            "line_number": 184
+          }
+        ],
+        "DELETE": [
+          {
+            "name": "deleteAllAgents",
+            "signature": "def deleteAllAgents(self):",
+            "description": "Delete all agents in this cell",
+            "docstring": "Delete all agents in this cell",
+            "category": "DELETE",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 208
+          }
+        ],
+        "GET": [
+          {
+            "name": "getId",
+            "signature": "def getId(self):",
+            "description": "Get cell identifier using numeric ID consistent with cellIdFromCoords",
+            "docstring": "Get cell identifier using numeric ID consistent with cellIdFromCoords",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 221
+          },
+          {
+            "name": "getCoords",
+            "signature": "def getCoords(self):",
+            "description": "Get cell coordinates",
+            "docstring": "Get cell coordinates",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 225
+          },
+          {
+            "name": "getAgents",
+            "signature": "def getAgents(self, type_name=None):",
+            "description": "Get all agents in this cell.",
+            "docstring": "Get all agents in this cell.\n\nArgs:\n    type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object.\n        If None, returns all agents in the cell.\n        \nReturns:\n    list[SGAgent]: List of agents of the specified type, or all agents if type_name is None\n    \nExample:\n    # Get all agents in the cell\n    all_agents = cell.getAgents()\n    \n    # Get only sheep agents\n    sheep_agents = cell.getAgents(\"Sheeps\")\n    \n    # Get agents using agent type object\n    sheep_agents = cell.getAgents(sheepType)",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "type_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Get all agents in the cell\nall_agents = cell.getAgents()\n\n# Get only sheep agents\nsheep_agents = cell.getAgents(\"Sheeps\")\n\n# Get agents using agent type object\nsheep_agents = cell.getAgents(sheepType)"
+            ],
+            "line_number": 229
+          },
+          {
+            "name": "getFirstAgentOfSpecie",
+            "signature": "def getFirstAgentOfSpecie(self, type_name):",
+            "description": "Get the first agent of a specific type in this cell.",
+            "docstring": "Get the first agent of a specific type in this cell.\n\nArgs:\n    type_name (str or SGAgentDef): The agent type name or SGAgentDef object\n    \nReturns:\n    SGAgent or None: The first agent of the specified type, or None if not found",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "type_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 257
+          },
+          {
+            "name": "getNeighborCells",
+            "signature": "def getNeighborCells(self, condition=None, neighborhood=None):",
+            "description": "Get the neighboring cells of the current cell.",
+            "docstring": "Get the neighboring cells of the current cell.\n\nArgs:\n    condition (lambda function, optional): a condition that cells must respect to be return by this method \n    neighborhood (\"moore\", \"neumann\", optional):\n        Type of neighborhood to use.\n        - \"moore\": Includes diagonals (8 neighbors for square grid, 6 for hexagonal grid).\n        - \"neumann\": Only orthogonal neighbors (4 neighbors for square grid; 3 or 4 for hexagonal grid depending on orientation).\n        Defaults to the grid's `neighborhood` attribute.\n\nReturns:\n    list: A list of neighboring cells (may be fewer if `boundary_condition` is \"closed\" and the cell is on an edge, or if a condition is defined).\n\nNotes:\n    - Boundary handling depends on `self.grid.boundary_condition`:\n        * \"open\" : Toroidal wrap-around (grid edges connect).\n        * \"closed\": Finite boundaries (no wrap-around).\n    - Coordinates in this grid are 1-indexed.\n    - For \"neumann\" neighborhood, only horizontal and vertical neighbors are considered.\n    \nExample:\n    # Get all neighboring cells\n    neighbors = cell.getNeighborCells()\n    \n    # Get only forest cells\n    forest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue(\"terrain\") == \"forest\")\n    \n    # Get neighbors using Moore neighborhood\n    moore_neighbors = cell.getNeighborCells(neighborhood=\"moore\")",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "neighborhood",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Get all neighboring cells\nneighbors = cell.getNeighborCells()\n\n# Get only forest cells\nforest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue(\"terrain\") == \"forest\")\n\n# Get neighbors using Moore neighborhood\nmoore_neighbors = cell.getNeighborCells(neighborhood=\"moore\")"
+            ],
+            "line_number": 292
+          },
+          {
+            "name": "getNeighborN",
+            "signature": "def getNeighborN(self):",
+            "description": "Get neighbor to the North",
+            "docstring": "Get neighbor to the North",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 424
+          },
+          {
+            "name": "getNeighborS",
+            "signature": "def getNeighborS(self):",
+            "description": "Get neighbor to the South",
+            "docstring": "Get neighbor to the South",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 429
+          },
+          {
+            "name": "getNeighborE",
+            "signature": "def getNeighborE(self):",
+            "description": "Get neighbor to the East",
+            "docstring": "Get neighbor to the East",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 434
+          },
+          {
+            "name": "getNeighborW",
+            "signature": "def getNeighborW(self):",
+            "description": "Get neighbor to the West",
+            "docstring": "Get neighbor to the West",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 439
+          },
+          {
+            "name": "getNeighborCells_inRadius",
+            "signature": "def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):",
+            "description": "Get all neighbor cells within a given radius according to the grid's neighborhood type.",
+            "docstring": "Get all neighbor cells within a given radius according to the grid's neighborhood type.\n\nArgs:\n    max_distance (int, optional): \n        Maximum distance (radius) from the current cell to search for neighbors. Defaults to 1.\n    conditions (list[callable] | None, optional): \n        A list of lambda functions, each taking a Cell as argument and returning True \n        if the cell should be included. All conditions must be satisfied. \n        If None or empty, all valid neighbors are returned.\n    neighborhood (\"moore\", \"neumann\", optional):\n        Type of neighborhood to use.\n        - \"moore\": Includes diagonals (8 neighbors for square grid, 6 for hexagonal grid).\n        - \"neumann\": Only orthogonal neighbors (4 neighbors for square grid; 3 or 4 for hexagonal grid depending on orientation).\n        Defaults to the grid's `neighborhood` attribute.\n\nReturns:\n    list[SGCell]: List of matching neighbor cells (excluding self).",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "max_distance",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "neighborhood",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 444
+          },
+          {
+            "name": "getClosestNeighborMatching",
+            "signature": "def getClosestNeighborMatching(self, max_distance=1, conditions=None, neighborhood=None):",
+            "description": "Get the closest cell within a given radius that matches all given conditions.",
+            "docstring": "Get the closest cell within a given radius that matches all given conditions.\n\nArgs:\n    max_distance (int, optional): \n        Maximum distance (radius) from the current cell to search for neighbors. Defaults to 1.\n    conditions (list[callable] | callable | None, optional): \n        A list of lambda functions (or a single lambda) that each take a Cell as argument \n        and return True if the cell should be considered valid.\n        All conditions must be satisfied.\n    neighborhood (\"moore\", \"neumann\", optional):\n        Type of neighborhood to use.\n        Defaults to the grid's `neighborhood` attribute.\n\nReturns:\n    SGCell | None: The closest matching cell, or None if no match found.",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "max_distance",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "neighborhood",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 527
+          },
+          {
+            "name": "getClosestAgentMatching",
+            "signature": "def getClosestAgentMatching(self, agent_type, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):",
+            "description": "Find the closest neighboring cell within a given radius that contains at least one agent",
+            "docstring": "Find the closest neighboring cell within a given radius that contains at least one agent \nof a given type and meets optional conditions on both the agent and the cell.\n\nArgs:\n    agent_type (str | SGAgentDef): \n        The type of the agent to search for.\n    max_distance (int, optional): \n        Maximum search radius. Defaults to 1.\n    conditions_on_agent (list[callable], optional): \n        A list of lambda functions that each take an agent as argument and return True if valid.\n        All conditions must be satisfied for the agent to be valid.\n    conditions_on_cell (list[callable], optional): \n        A list of lambda functions that each take a cell as argument and return True if valid.\n        All conditions must be satisfied for the cell to be valid.\n    return_all (bool, optional):\n        If True, returns all matching agents on the closest cell. \n        If False (default), returns one random matching agent.\n\nReturns:\n    SGAgent | list[SGAgent] | None:\n        - If return_all=False → a single agent (randomly chosen) that matches the conditions.\n        - If return_all=True → a list of matching agents.\n        - None if no match found.",
+            "category": "GET",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "agent_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "max_distance",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions_on_agent",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions_on_cell",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "return_all",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 565
+          }
+        ],
+        "NB": [
+          {
+            "name": "nbAgents",
+            "signature": "def nbAgents(self, type_name=None):",
+            "description": "Get the number of agents in this cell.",
+            "docstring": "Get the number of agents in this cell.\n\nArgs:\n    type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.\n        If None, returns total count of all agents.\n        \nReturns:\n    int: Number of agents of the specified type, or total count if type_name is None",
+            "category": "NB",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "type_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 273
+          }
+        ],
+        "OTHER MODELER METHODS": [
+          {
+            "name": "distanceTo",
+            "signature": "def distanceTo(self, otherCell):",
+            "description": "Compute Euclidean distance to another cell.",
+            "docstring": "Compute Euclidean distance to another cell.\n\nArgs:\n    otherCell (SGCell): The target cell.\n\nReturns:\n    float: Euclidean distance between the two cells.",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "otherCell",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 511
+          },
+          {
+            "name": "agent_satisfies_conditions",
+            "signature": "def agent_satisfies_conditions(agent):",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "agent",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 602
+          }
+        ],
+        "HAS": [
+          {
+            "name": "hasAgent",
+            "signature": "def hasAgent(self, agent):",
+            "description": "Check if this cell contains a specific agent",
+            "docstring": "Check if this cell contains a specific agent",
+            "category": "HAS",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "agent",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 636
+          },
+          {
+            "name": "hasAgents",
+            "signature": "def hasAgents(self, type_name=None):",
+            "description": "Check if this cell contains agents of a specific type.",
+            "docstring": "Check if this cell contains agents of a specific type.\n\nArgs:\n    type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.\n        If None, checks if cell contains any agents.\n        \nReturns:\n    bool: True if the cell contains agents of the specified type, False otherwise",
+            "category": "HAS",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "type_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 640
+          }
+        ],
+        "IS": [
+          {
+            "name": "isEmpty",
+            "signature": "def isEmpty(self, type_name=None):",
+            "description": "Check if this cell is empty of agents of a specific type.",
+            "docstring": "Check if this cell is empty of agents of a specific type.\n\nArgs:\n    type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.\n        If None, checks if cell is completely empty.\n        \nReturns:\n    bool: True if the cell is empty of the specified type, False otherwise",
+            "category": "IS",
+            "class_name": "SGCell",
+            "parameters": [
+              {
+                "name": "type_name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 654
+          }
+        ]
+      }
+    },
+    "SGEntityType": {
+      "class_name": "SGEntityType",
+      "description": "SGEntityType model class for SGE framework",
+      "total_methods": 39,
+      "categories": {
+        "SET": [
+          {
+            "name": "setDefaultValue",
+            "signature": "def setDefaultValue(self, aAtt, aDefaultValue):",
+            "description": "Set a default value for a specific attribute.",
+            "docstring": "Set a default value for a specific attribute.\n\nArgs:\n    aAtt (str): Name of the attribute\n    aDefaultValue: Default value for the attribute (can be a callable)",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aDefaultValue",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 303
+          },
+          {
+            "name": "setDefaultValues",
+            "signature": "def setDefaultValues(self, aDictOfAttributesAndValues):",
+            "description": "Set default values for multiple attributes.",
+            "docstring": "Set default values for multiple attributes.\n\nArgs:\n    aDictOfAttributesAndValues (dict): Dictionary mapping attribute names to their default values",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aDictOfAttributesAndValues",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 313
+          },
+          {
+            "name": "setDefaultValues_randomChoice",
+            "signature": "def setDefaultValues_randomChoice(self, mapping):",
+            "description": "Set default values with automatic random choice conversion for lists/tuples.",
+            "docstring": "Set default values with automatic random choice conversion for lists/tuples.\n\nThis convenience helper sets default values where each entry can be a scalar, \na callable, or a list/tuple of choices. If a value is a list/tuple, it is \nautomatically converted to a lambda that returns random.choice(value).\n\nArgs:\n    mapping (dict): Dictionary mapping attribute names to values or choice lists\n    \nExample:\n    setDefaultValues_randomChoice({\n        \"health\": [\"good\", \"bad\"],\n        \"hunger\": (\"good\", \"bad\"),\n        \"speed\": 3\n    })\nis equivalent to:\n    setDefaultValues({\n        \"health\": lambda: random.choice([\"good\", \"bad\"]),\n        \"hunger\": lambda: random.choice((\"good\", \"bad\")),\n        \"speed\": 3\n    })",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "mapping",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "setDefaultValues_randomChoice({\n\"health\": [\"good\", \"bad\"],\n\"hunger\": (\"good\", \"bad\"),\n\"speed\": 3\n})\nis equivalent to:\nsetDefaultValues({\n\"health\": lambda: random.choice([\"good\", \"bad\"]),\n\"hunger\": lambda: random.choice((\"good\", \"bad\")),\n\"speed\": 3\n})"
+            ],
+            "line_number": 323
+          },
+          {
+            "name": "setDefaultValues_randomNumeric",
+            "signature": "def setDefaultValues_randomNumeric(self, mapping):",
+            "description": "Set default numeric values with automatic random distribution conversion.",
+            "docstring": "Set default numeric values with automatic random distribution conversion.\n\nThis convenience helper sets default values with automatic conversion to random\ndistribution functions based on concise specification formats.\n\nArgs:\n    mapping (dict): Dictionary mapping attribute names to distribution specs\n    \nSupported specs per attribute:\n  - (min, max) of ints  -> lambda: random.randint(min, max)\n  - (min, max) of floats-> lambda: random.uniform(min, max)\n  - range(start, stop[, step]) -> lambda: random.randrange(start, stop+step, step)  [stop is INCLUSIVE]\n  - {\"uniform\": (a, b)} -> lambda: random.uniform(a, b)\n  - {\"randint\": (a, b)} -> lambda: random.randint(a, b)\n  - {\"normal\": (mu, sigma)} or {\"gauss\": (mu, sigma)} -> lambda: random.gauss(mu, sigma)\n  - {\"choice\": [v1, v2, ...]} -> lambda: random.choice([...])\nAny other value is forwarded as-is (including already-callable values).\n\nExample:\n    setDefaultValues_randomNumeric({\n        \"age\": (10, 18),              # randint 10..18\n        \"speed\": (0.5, 2.0),          # uniform 0.5..2.0\n        \"index\": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)\n        \"height\": {\"normal\": (170, 10)},\n        \"state\": {\"choice\": [\"A\", \"B\", \"C\"]},\n    })",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "mapping",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "setDefaultValues_randomNumeric({\n\"age\": (10, 18),              # randint 10..18\n\"speed\": (0.5, 2.0),          # uniform 0.5..2.0\n\"index\": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)\n\"height\": {\"normal\": (170, 10)},\n\"state\": {\"choice\": [\"A\", \"B\", \"C\"]},\n})"
+            ],
+            "line_number": 356
+          },
+          {
+            "name": "setEntities",
+            "signature": "def setEntities(self, aAttribute, aValue, condition=None):",
+            "description": "Set the value of attribut value of all entities",
+            "docstring": "Set the value of attribut value of all entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set\n    aValue (str): Value to set the attribute to\n    condition (lambda function): a condition on the entity can be used to select only some entities",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 427
+          },
+          {
+            "name": "setTooltip",
+            "signature": "def setTooltip(self, tooltipName, tooltipValue):",
+            "description": "Set a custom tooltip option for entities of this definition.",
+            "docstring": "Set a custom tooltip option for entities of this definition.\n\nArgs:\n    tooltipName (str): Name of the tooltip option (will appear in menu)\n    tooltipValue: Value to display in tooltip. Can be:\n        - str: Attribute name to display\n        - callable: Function that takes entity and returns tooltip text\n        - Any other value: Will be converted to string\n\nExample:\n    # Display health attribute\n    agentDef.setTooltip(\"Health\", \"health\")\n    \n    # Display custom calculated value\n    agentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n    \n    # Display static text\n    agentDef.setTooltip(\"Info\", \"Agent Information\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "tooltipName",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "tooltipValue",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
+            ],
+            "line_number": 439
+          },
+          {
+            "name": "setRandomEntity",
+            "signature": "def setRandomEntity(self, aAttribute, aValue, condition=None):",
+            "description": "Apply a value to a random entity",
+            "docstring": "Apply a value to a random entity\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 467
+          },
+          {
+            "name": "setRandomEntity_withValue",
+            "signature": "def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):",
+            "description": "To apply a value to a random entity with a certain value",
+            "docstring": "To apply a value to a random entity with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribut",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionVal",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 477
+          },
+          {
+            "name": "setRandomEntity_withValueNot",
+            "signature": "def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):",
+            "description": "To apply a value to a random entity not having a certain value",
+            "docstring": "To apply a value to a random entity not having a certain value\n\n Args:\n     aAttribut (str): Name of the attribute to set.\n     aValue (str): Value to set the attribute to\n ",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribut",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionVal",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 487
+          },
+          {
+            "name": "setRandomEntities",
+            "signature": "def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):",
+            "description": "Applies the same attribut value for a random number of entities",
+            "docstring": "Applies the same attribut value for a random number of entities\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "numberOfentities",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 497
+          },
+          {
+            "name": "setRandomEntities_withValue",
+            "signature": "def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "description": "To apply a value to some random entities with a certain value",
+            "docstring": "To apply a value to some random entities with a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribut",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "numberOfentities",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionVal",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 512
+          },
+          {
+            "name": "setRandomEntities_withValueNot",
+            "signature": "def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):",
+            "description": "To apply a value to some random entities noty having a certain value",
+            "docstring": "To apply a value to some random entities noty having a certain value\n\nArgs:\n    aAttribut (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    numberOfentities (int): number of entities",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribut",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "numberOfentities",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionVal",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 524
+          },
+          {
+            "name": "setEntities_withColumn",
+            "signature": "def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):",
+            "description": "Set the value of attribut to all entities in a specified column",
+            "docstring": "Set the value of attribut to all entities in a specified column\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    aColumnNumber (int): a column number",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aColumnNumber",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 536
+          },
+          {
+            "name": "setEntities_withRow",
+            "signature": "def setEntities_withRow(self, aAttribute, aValue, aRowNumber):",
+            "description": "Set the value of attribut to all entities in a specified row",
+            "docstring": "Set the value of attribut to all entities in a specified row\n\nArgs:\n    aAttribute (str): Name of the attribute to set.\n    aValue (str): Value to set the attribute to\n    aRowNumber (int): a row number",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aRowNumber",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 549
+          }
+        ],
+        "OTHER MODELER METHODS": [
+          {
+            "name": "copyValue_forAllEntities",
+            "signature": "def copyValue_forAllEntities(self,  source_att, target_att,  condition=None):",
+            "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.",
+            "docstring": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.\nArgs:\n    source_att (str): Name of the attribute copied\n    target_att  (str): Name of the attribute set\n    condition (lambda function, optional): a condition on the entity can be used to select only some entities",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "source_att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "target_att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 562
+          },
+          {
+            "name": "metricOnEntities",
+            "signature": "def metricOnEntities(self, metric, attribute, value=None):",
+            "description": "Get metrics for all entities.",
+            "docstring": "Get metrics for all entities.\nArgs:\n    metric (str): The metric to use for statistical evaluation. Possible values include:\n        - 'sumAtt': Sum of the specified attribute values.\n        - 'avgAtt': Average of the specified attribute values.\n        - 'minAtt': Minimum value of the specified attribute.\n        - 'maxAtt': Maximum value of the specified attribute.\n        - 'nbWithLess': Count of entities with attribute values less than the specified value.\n        - 'nbWithMore': Count of entities with attribute values greater than the specified value.\n        - 'nbEqualTo': Count of entities with attribute values equal to the specified value.\n    attribute (str): The attribute to evaluate.\n    value (optional): The value to compare against for certain metrics.\nReturns:\n    float or int: The calculated metric for all entities.",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "metric",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 921
+          },
+          {
+            "name": "metricOnEntitiesWithValue",
+            "signature": "def metricOnEntitiesWithValue(self, attributeForSelection, valueForSelection, metric, attribute, value=None):",
+            "description": "Get metrics for entities that have a specific attribute value.",
+            "docstring": "Get metrics for entities that have a specific attribute value.\n\nArgs:\n    attributeForSelection (str): The attribute used to filter entities for selection.\n    valueForSelection: The value that the specified attribute must match for the entities to be included.\n    metric (str): The metric to use for statistical evaluation. Possible values include:\n        - 'sumAtt': Sum of the specified attribute values.\n        - 'avgAtt': Average of the specified attribute values.\n        - 'minAtt': Minimum value of the specified attribute.\n        - 'maxAtt': Maximum value of the specified attribute.\n        - 'nbWithLess': Count of entities with attribute values less than the specified value.\n        - 'nbWithMore': Count of entities with attribute values greater than the specified value.\n        - 'nbEqualTo': Count of entities with attribute values equal to the specified value.\n    attribute (str): The attribute to evaluate.\n    value: The value to compare against.\nReturns:\n    float or int: The calculated metric for entities with the specified value.",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "attributeForSelection",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "valueForSelection",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "metric",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 940
+          },
+          {
+            "name": "metricOnEntitiesWithValueNot",
+            "signature": "def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):",
+            "description": "Get metrics for entities that do not have a specific attribute value.",
+            "docstring": "Get metrics for entities that do not have a specific attribute value.\nArgs:\n    attributeForSelection (str): The attribute used to filter entities for selection.\n    valueForSelection: The value that the specified attribute must not match for the entities to be included.\n    metric (str): The metric to use for statistical evaluation. Possible values include:\n        - 'sumAtt': Sum of the specified attribute values.\n        - 'avgAtt': Average of the specified attribute values.\n        - 'minAtt': Minimum value of the specified attribute.\n        - 'maxAtt': Maximum value of the specified attribute.\n        - 'nbWithLess': Count of entities with attribute values less than the specified value.\n        - 'nbWithMore': Count of entities with attribute values greater than the specified value.\n        - 'nbEqualTo': Count of entities with attribute values equal to the specified value.\n    attribute (str): The attribute to evaluate.\n    value: The value to compare against.\nReturns:\n    float or int: The calculated metric for entities without the specified value.",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "attributeForSelection",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "valueForSelection",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "metric",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 963
+          }
+        ],
+        "NEW": [
+          {
+            "name": "newPov",
+            "signature": "def newPov(self,nameOfPov,concernedAtt,dictOfColor):",
+            "description": "Declare a new Point of View for the entityType.",
+            "docstring": "Declare a new Point of View for the entityType.\n\nArgs:\n    nameOfPov (str): name of POV, will appear in the interface\n    concernedAtt (str): name of the attribut concerned by the declaration\n    dictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)\n    ",
+            "category": "NEW",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "nameOfPov",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "concernedAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "dictOfColor",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 576
+          },
+          {
+            "name": "newBorderPov",
+            "signature": "def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):",
+            "description": "Declare a new Point of View (only for border color).",
+            "docstring": "Declare a new Point of View (only for border color).\nArgs:\n    nameOfPov (str): name of POV, will appear in the interface\n    aAtt (str): name of the attribut\n    DictofColors (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)        ",
+            "category": "NEW",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "nameOfPov",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "concernedAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "dictOfColor",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "borderWidth",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 592
+          },
+          {
+            "name": "newBorderPovColorAndWidth",
+            "signature": "def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):",
+            "description": "Declare a new Point of View (only for border color).",
+            "docstring": "Declare a new Point of View (only for border color).\nArgs:\n    nameOfPov (str): name of POV, will appear in the interface\n    aAtt (str): name of the attribut\n    DictofColorsAndWidth (dict): a dictionary with all the attribut values, and for each one a Qt.Color (https://doc.qt.io/archives/3.3/qcolor.html)",
+            "category": "NEW",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "nameOfPov",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "concernedAtt",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "dictOfColorAndWidth",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 603
+          },
+          {
+            "name": "newModelAction",
+            "signature": "def newModelAction(self, actions=None, conditions=None, feedbacks=None):",
+            "description": "Create an SGModelAction_OnEntities targeting entities of this definition.",
+            "docstring": "Create an SGModelAction_OnEntities targeting entities of this definition.\n\nArgs:\n    actions (callable | list[callable]): Action(s) with signature action(aEntity)\n    conditions (callable | list[callable]): Condition(s) with signature condition(aEntity)\n    feedbacks (callable | list[callable] | SGModelAction): Feedback action(s)",
+            "category": "NEW",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "actions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 901
+          }
+        ],
+        "GET": [
+          {
+            "name": "getEntity",
+            "signature": "def getEntity(self, x, y=None):",
+            "description": "Return an entity identified by its id or its coordinates on a grid",
+            "docstring": "Return an entity identified by its id or its coordinates on a grid\narg:\n    id (int): id of the entity\nAlternativly, can return an entity identified by its if or coordinates on a grid \n     x (int): column number\n    y (int):  row number",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "x",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "y",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 619
+          },
+          {
+            "name": "getEntities",
+            "signature": "def getEntities(self, condition=None):",
+            "description": "Get all entities, optionally filtered by a condition.",
+            "docstring": "Get all entities, optionally filtered by a condition.\n\nArgs:\n    condition (callable, optional): Function that takes an entity and returns True if it should be included\n    \nReturns:\n    list: List of entities matching the condition, or all entities if condition is None",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 635
+          },
+          {
+            "name": "getEntities_withValue",
+            "signature": "def getEntities_withValue(self, att, val):",
+            "description": "Get all entities that have a specific attribute value.",
+            "docstring": "Get all entities that have a specific attribute value.\n\nArgs:\n    att (str): Attribute name\n    val: Value to match\n    \nReturns:\n    list: List of entities with the specified attribute value",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "val",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 648
+          },
+          {
+            "name": "getEntities_withValueNot",
+            "signature": "def getEntities_withValueNot(self, att, val):",
+            "description": "Get all entities that do not have a specific attribute value.",
+            "docstring": "Get all entities that do not have a specific attribute value.\n\nArgs:\n    att (str): Attribute name\n    val: Value to exclude\n    \nReturns:\n    list: List of entities without the specified attribute value",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "val",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 661
+          },
+          {
+            "name": "getRandomEntity",
+            "signature": "def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):",
+            "description": "Return a random entity from the available entities.",
+            "docstring": "Return a random entity from the available entities.\n\nArgs:\n    condition (callable, optional): Function that takes an entity and returns True if it should be considered\n    listOfEntitiesToPickFrom (list, optional): Specific list of entities to pick from\n    \nReturns:\n    Entity or False: A random entity if available, False if no entities match",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "listOfEntitiesToPickFrom",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 674
+          },
+          {
+            "name": "getRandomEntity_withValue",
+            "signature": "def getRandomEntity_withValue(self, att, val, condition=None):",
+            "description": "Return a random entity that has a specific attribute value.",
+            "docstring": "Return a random entity that has a specific attribute value.\n\nArgs:\n    att (str): Attribute name\n    val: Value to match\n    condition (callable, optional): Additional condition function\n    \nReturns:\n    Entity or False: A random entity with the specified value, False if none found",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "val",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 694
+          },
+          {
+            "name": "getRandomEntity_withValueNot",
+            "signature": "def getRandomEntity_withValueNot(self, att, val, condition=None):",
+            "description": "Return a random entity that does not have a specific attribute value.",
+            "docstring": "Return a random entity that does not have a specific attribute value.\n\nArgs:\n    att (str): Attribute name\n    val: Value to exclude\n    condition (callable, optional): Additional condition function\n    \nReturns:\n    Entity or False: A random entity without the specified value, False if none found",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "val",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 708
+          },
+          {
+            "name": "getRandomEntities",
+            "signature": "def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):",
+            "description": "Return a specified number of random entities.",
+            "docstring": "Return a specified number of random entities.\n\nArgs:\n    aNumber (int): Number of entities to return\n    condition (callable, optional): Function that takes an entity and returns True if it should be considered\n    listOfEntitiesToPickFrom (list, optional): Specific list of entities to pick from\n    \nReturns:\n    list: List of random entities (may be fewer than requested if not enough entities match)",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "listOfEntitiesToPickFrom",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 722
+          },
+          {
+            "name": "getRandomEntities_withValue",
+            "signature": "def getRandomEntities_withValue(self, aNumber, att, val, condition=None):",
+            "description": "Return a specified number of random entities that have a specific attribute value.",
+            "docstring": "Return a specified number of random entities that have a specific attribute value.\n\nArgs:\n    aNumber (int): Number of entities to return\n    att (str): Attribute name\n    val: Value to match\n    condition (callable, optional): Additional condition function\n    \nReturns:\n    list: List of random entities with the specified value",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "val",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 743
+          },
+          {
+            "name": "getRandomEntities_withValueNot",
+            "signature": "def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):",
+            "description": "Return a specified number of random entities that do not have a specific attribute value.",
+            "docstring": "Return a specified number of random entities that do not have a specific attribute value.\n\nArgs:\n    aNumber (int): Number of entities to return\n    att (str): Attribute name\n    val: Value to exclude\n    condition (callable, optional): Additional condition function\n    \nReturns:\n    list: List of random entities without the specified value",
+            "category": "GET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "val",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 758
+          }
+        ],
+        "NB": [
+          {
+            "name": "nbOfEntities",
+            "signature": "def nbOfEntities(self):",
+            "description": "Get the total number of entities in this definition.",
+            "docstring": "Get the total number of entities in this definition.\n\nReturns:\n    int: Total number of entities",
+            "category": "NB",
+            "class_name": "SGEntityType",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 773
+          },
+          {
+            "name": "nb_withValue",
+            "signature": "def nb_withValue(self, att, value):",
+            "description": "Get the number of entities that have a specific attribute value.",
+            "docstring": "Get the number of entities that have a specific attribute value.\n\nArgs:\n    att (str): Attribute name\n    value: Value to count\n    \nReturns:\n    int: Number of entities with the specified value",
+            "category": "NB",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "att",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 782
+          }
+        ],
+        "DELETE": [
+          {
+            "name": "deleteAllEntities",
+            "signature": "def deleteAllEntities(self):",
+            "description": "Delete all entities of the entity type.",
+            "docstring": "Delete all entities of the entity type.",
+            "category": "DELETE",
+            "class_name": "SGEntityType",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 800
+          }
+        ],
+        "DISPLAY": [
+          {
+            "name": "displayPov",
+            "signature": "def displayPov(self,nameOfPov):",
+            "description": "Displays the symbology for the specified Point of View.",
+            "docstring": "Displays the symbology for the specified Point of View.\nArgs:\n    nameOfPov (str): The name of the Point of View to display.",
+            "category": "DISPLAY",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "nameOfPov",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 810
+          },
+          {
+            "name": "displayBorderPov",
+            "signature": "def displayBorderPov(self,nameOfBorderPov):",
+            "description": "Displays the border symbology for the specified Point of View.",
+            "docstring": "Displays the border symbology for the specified Point of View.\nArgs:\n    nameOfBorderPov (str): The name of the border Point of View to display.",
+            "category": "DISPLAY",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "nameOfBorderPov",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 819
+          },
+          {
+            "name": "displayAttributeValueInContextualMenu",
+            "signature": "def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):",
+            "description": "Set an attribute to be displayed in the contextual menu.",
+            "docstring": "Set an attribute to be displayed in the contextual menu.\n\nArgs:\n    aAttribut (str): Name of the attribute to display\n    aLabel (str, optional): Custom label for the attribute (defaults to attribute name)",
+            "category": "DISPLAY",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribut",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aLabel",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 829
+          },
+          {
+            "name": "displayTooltip",
+            "signature": "def displayTooltip(self, type=None):",
+            "description": "Method to control the display of entity tooltips",
+            "docstring": "Method to control the display of entity tooltips\n\nArgs:\n    type (str): Type of tooltip to display\n        - None: Default - no tooltip displayed\n        - 'coords': Display coordinates (x, y)\n        - 'id': Display entity ID\n        - 'none': Explicitly disable tooltip\n        - Any custom tooltip name defined via setTooltip(): Display custom tooltip",
+            "category": "DISPLAY",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "type",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 845
+          }
+        ]
+      }
+    },
+    "SGCellType": {
+      "class_name": "SGCellType",
+      "description": "SGCellType model class for SGE framework",
+      "total_methods": 8,
+      "categories": {
+        "SET": [
+          {
+            "name": "setCell",
+            "signature": "def setCell(self, x, y, aAttribute, aValue):",
+            "description": "",
+            "docstring": "",
+            "category": "SET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "x",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "y",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aAttribute",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1078
+          },
+          {
+            "name": "setLayoutOrder",
+            "signature": "def setLayoutOrder(self, order):",
+            "description": "Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.",
+            "docstring": "Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.\n\nArgs:\n    order (int or str): The layout order value. Use None for auto-assignment.\n                       Use \"manual_position\" for manually positioned gameSpaces.\n\nExample:\n    grid.setLayoutOrder(1)  # Set grid as first in layout\n    legend.setLayoutOrder(3)  # Set legend as third in layout\n    dashboard.setLayoutOrder(None)  # Reset to auto-assignment",
+            "category": "SET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "order",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "grid.setLayoutOrder(1)  # Set grid as first in layout\nlegend.setLayoutOrder(3)  # Set legend as third in layout\ndashboard.setLayoutOrder(None)  # Reset to auto-assignment"
+            ],
+            "line_number": 1082
+          }
+        ],
+        "GET": [
+          {
+            "name": "getCell",
+            "signature": "def getCell(self, x, y=None):",
+            "description": "Retrieve a cell object from the grid.",
+            "docstring": "Retrieve a cell object from the grid.\n\nArgs:\n    x (int, tuple, list, or cell ID):\n        - If int and `y` is provided: interpreted as the column index (1-indexed).\n        - If tuple or list of two ints: interpreted as (column, row) coordinates (1-indexed).\n        - If int and `y` is None: interpreted directly as a cell ID.\n    y (int, optional):\n        Row index (1-indexed). Only used if `x` is an int representing a column.\n\nReturns:\n    object or None: The cell object if found within the grid boundaries, otherwise None.\n\nNotes:\n    - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows.\n    - If coordinates are outside this range, returns None.\n    - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).",
+            "category": "GET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "x",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "y",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1100
+          },
+          {
+            "name": "getEntity",
+            "signature": "def getEntity(self, x, y=None):",
+            "description": "Get a single entity (cell) by coordinates.",
+            "docstring": "Get a single entity (cell) by coordinates.\n\nArgs:\n    x (int): X coordinate of the entity\n    y (int, optional): Y coordinate of the entity. If None, x is treated as a cell ID string\n    \nReturns:\n    SGCell: The entity at the specified coordinates, or None if not found",
+            "category": "GET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "x",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "y",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1139
+          },
+          {
+            "name": "getEntities_withRow",
+            "signature": "def getEntities_withRow(self, aRowNumber):",
+            "description": "Get all entities (cells) in a specific row.",
+            "docstring": "Get all entities (cells) in a specific row.\n\nArgs:\n    aRowNumber (int): Row number to retrieve entities from\n    \nReturns:\n    list[SGCell]: List of entities in the specified row",
+            "category": "GET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "aRowNumber",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1152
+          },
+          {
+            "name": "getEntities_withColumn",
+            "signature": "def getEntities_withColumn(self, aColumnNumber):",
+            "description": "Get all entities (cells) in a specific column.",
+            "docstring": "Get all entities (cells) in a specific column.\n\nArgs:\n    aColumnNumber (int): Column number to retrieve entities from\n    \nReturns:\n    list[SGCell]: List of entities in the specified column",
+            "category": "GET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "aColumnNumber",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1164
+          },
+          {
+            "name": "getRandomEntity",
+            "signature": "def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGCell:",
+            "description": "Return a random cell from this grid.",
+            "docstring": "Return a random cell from this grid.\n\nArgs:\n    condition (callable, optional): Condition function to filter cells (signature: condition(cell))\n    listOfEntitiesToPickFrom (list, optional): Specific list of entities to pick from\n    \nReturns:\n    SGCell: A random cell from the grid, or False if no cells found",
+            "category": "GET",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "listOfEntitiesToPickFrom",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1177
+          }
+        ],
+        "DELETE": [
+          {
+            "name": "deleteEntity",
+            "signature": "def deleteEntity(self, aCell):",
+            "description": "Delete a given cell",
+            "docstring": "Delete a given cell\nargs:\n    aCell (instance): the cell to de deleted",
+            "category": "DELETE",
+            "class_name": "SGCellType",
+            "parameters": [
+              {
+                "name": "aCell",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1194
+          }
+        ]
+      }
+    },
+    "SGAgentType": {
+      "class_name": "SGAgentType",
+      "description": "SGAgentType model class for SGE framework",
+      "total_methods": 9,
+      "categories": {
+        "NEW": [
+          {
+            "name": "newAgentOnCell",
+            "signature": "def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None) -> SGAgent:",
+            "description": "Create a new agent on a specific cell.",
+            "docstring": "Create a new agent on a specific cell.\n\nArgs:\n    aCell (SGCell): Cell where the agent will be placed\n    attributesAndValues (dict, optional): Initial attributes and values for the agent\n    image (str, optional): Image path for the agent\n    popupImage (str, optional): Popup image path for the agent\n    \nReturns:\n    SGAgent: The created agent model, or None if creation failed",
+            "category": "NEW",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "aCell",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "image",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "popupImage",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1272
+          },
+          {
+            "name": "newAgentsOnCell",
+            "signature": "def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):",
+            "description": "Create a specific number of new Agents of a given type on a specific cell.",
+            "docstring": "Create a specific number of new Agents of a given type on a specific cell.\n\nArgs:\n    nbAgents (int): Number of agents to create\n    aCell (SGCell): Cell where the agents will be placed\n    attributesAndValues (dict, optional): Initial attributes and values for the agents\n    \nReturns:\n    None: Agents are created and added to the agentType",
+            "category": "NEW",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "nbAgents",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aCell",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1301
+          },
+          {
+            "name": "newAgentAtCoords",
+            "signature": "def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None):",
+            "description": "Create a new Agent of a given type.",
+            "docstring": "Create a new Agent of a given type.\n\nArgs:\n    cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used\n    x (int) : Column position in grid (Default=Random)\n    y (int) : Row position in grid (Default=Random)\nFlexible calling patterns (backward compatible):\n    - newAgentAtCoords(x, y, ...)\n    - newAgentAtCoords((x, y), ...)\n    - newAgentAtCoords(cellDef_or_grid, x, y, ...)\nReturn:\n    a agent",
+            "category": "NEW",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "cellDef_or_grid",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "x",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "y",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "image",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "popupImage",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1316
+          },
+          {
+            "name": "newAgentsAtCoords",
+            "signature": "def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None):",
+            "description": "Create a specific number of new Agents of a given type.",
+            "docstring": "Create a specific number of new Agents of a given type.\n\nArgs:\n    nbAgents (int): number of Agents\n    cellDef_or_grid (instance, optional): the cellDef or grid you want your agent in. If None, the first cellDef/grid is used\n    x (int, optional): Column position in grid (1..columns)\n    y (int, optional): Row position in grid (1..rows)\n    attributesAndValues (dict, optional): mapping of attribute names to values (or callables)\nFlexible calling patterns (backward compatible):\n    - newAgentsAtCoords(7)\n    - newAgentsAtCoords(7, {\"health\":\"good\"})\n    - newAgentsAtCoords(7, 3, 3)\n    - newAgentsAtCoords(7, (3, 3))\n    - newAgentsAtCoords(7, cellDef_or_grid, 3, 3)\n    - newAgentsAtCoords(7, cellDef_or_grid, (3, 3))\n    - newAgentsAtCoords(7, 3, 3, {\"health\":\"good\"})\n    - newAgentsAtCoords(7, cellDef_or_grid, 3, 3, {\"health\":\"good\"})\nReturn:\n    agents",
+            "category": "NEW",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "nbAgents",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "cellDef_or_grid",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "x",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "y",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1358
+          },
+          {
+            "name": "newAgentAtRandom",
+            "signature": "def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):",
+            "description": "Create a new Agent of a given type and place it on a random cell.",
+            "docstring": "Create a new Agent of a given type and place it on a random cell.\nArgs:\n    cellDef_or_grid (instance): the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used\n    attributesAndValues (dict, optional): mapping of attribute names to values (or callables)\nFlexible calling patterns (backward compatible):\n    - newAgentAtRandom()\n    - newAgentAtRandom({\"health\":\"good\"})\n    - newAgentAtRandom(cellDef_or_grid)\n    - newAgentAtRandom(cellDef_or_grid, {\"health\":\"good\"})\nReturn:\n    a agent\n    ",
+            "category": "NEW",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "cellDef_or_grid",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1399
+          },
+          {
+            "name": "newAgentsAtRandom",
+            "signature": "def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):",
+            "description": "Create a number of Agents of a given type and place them on random cells.",
+            "docstring": "Create a number of Agents of a given type and place them on random cells.\nArgs:\n    aNumber(int) : number of agents to be created\n    cellDef_or_grid (instance) : the cellDef or grid you want your agent in. If its None, the first cellDef and grid will be used\n    attributesAndValues (dict, optional): mapping of attribute names to values (or callables)\nFlexible calling patterns (backward compatible):\n    - newAgentsAtRandom(7)\n    - newAgentsAtRandom(7, {\"health\":\"good\", \"hunger\":\"bad\"})\n    - newAgentsAtRandom(7, cellDef_or_grid)\n    - newAgentsAtRandom(7, cellDef_or_grid, attributesAndValues)\nReturn:\n    a list of agents\n    ",
+            "category": "NEW",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "cellDef_or_grid",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1428
+          }
+        ],
+        "GET": [
+          {
+            "name": "getRandomEntity",
+            "signature": "def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGAgent:",
+            "description": "Return a random agent of this type.",
+            "docstring": "Return a random agent of this type.\n\nReturns:\n    SGAgent: A random agent from the list\n    bool: False if no agents found",
+            "category": "GET",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "listOfEntitiesToPickFrom",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1467
+          }
+        ],
+        "DELETE": [
+          {
+            "name": "deleteEntity",
+            "signature": "def deleteEntity(self, aAgent):",
+            "description": "Delete a given agent",
+            "docstring": "Delete a given agent\nargs:\n    aAgent (instance): the agent to be deleted",
+            "category": "DELETE",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "aAgent",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1482
+          }
+        ],
+        "OTHER MODELER METHODS": [
+          {
+            "name": "moveRandomly",
+            "signature": "def moveRandomly(self, numberOfMovement=1,condition=None):",
+            "description": "All agents of this type move randomly.",
+            "docstring": "All agents of this type move randomly.\n\nargs:\n    numberOfMovement (int): number of movements in one action\n    condition (lambda function, optional): a condition that the destination cell should respect for the agent to move",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGAgentType",
+            "parameters": [
+              {
+                "name": "numberOfMovement",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "condition",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1515
+          }
+        ]
+      }
+    }
+  }
+}

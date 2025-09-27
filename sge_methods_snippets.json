@@ -1,0 +1,613 @@
+{
+  "SGCell.newAgentHere": {
+    "prefix": "sgcell.newAgentHere",
+    "body": [
+      "${1:agent} = ${2:cell}.newAgentHere(${3:agent_type}${4:, adictAttributes=${5:None}})"
+    ],
+    "description": "Create a new Agent from the associated agent type.",
+    "scope": "python"
+  },
+  "SGCell.deleteAllAgents": {
+    "prefix": "sgcell.deleteAllAgents",
+    "body": [
+      "${1:instance}.deleteAllAgents()"
+    ],
+    "description": "Delete all agents in this cell",
+    "scope": "python"
+  },
+  "SGCell.getId": {
+    "prefix": "sgcell.getId",
+    "body": [
+      "${1:result} = ${2:instance}.getId()"
+    ],
+    "description": "Get cell identifier using numeric ID consistent with cellIdFromCoords",
+    "scope": "python"
+  },
+  "SGCell.getCoords": {
+    "prefix": "sgcell.getCoords",
+    "body": [
+      "${1:result} = ${2:instance}.getCoords()"
+    ],
+    "description": "Get cell coordinates",
+    "scope": "python"
+  },
+  "SGCell.getAgents": {
+    "prefix": "sgcell.getAgents",
+    "body": [
+      "${1:result} = ${2:instance}.getAgents(${3:type_name})"
+    ],
+    "description": "Get all agents in this cell.",
+    "scope": "python"
+  },
+  "SGCell.getFirstAgentOfSpecie": {
+    "prefix": "sgcell.getFirstAgentOfSpecie",
+    "body": [
+      "${1:result} = ${2:instance}.getFirstAgentOfSpecie(${3:type_name})"
+    ],
+    "description": "Get the first agent of a specific type in this cell.",
+    "scope": "python"
+  },
+  "SGCell.getNeighborCells": {
+    "prefix": "sgcell.getNeighborCells",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborCells(${3:condition}, ${4:neighborhood})"
+    ],
+    "description": "Get the neighboring cells of the current cell.",
+    "scope": "python"
+  },
+  "SGCell.getNeighborN": {
+    "prefix": "sgcell.getNeighborN",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborN()"
+    ],
+    "description": "Get neighbor to the North",
+    "scope": "python"
+  },
+  "SGCell.getNeighborS": {
+    "prefix": "sgcell.getNeighborS",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborS()"
+    ],
+    "description": "Get neighbor to the South",
+    "scope": "python"
+  },
+  "SGCell.getNeighborE": {
+    "prefix": "sgcell.getNeighborE",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborE()"
+    ],
+    "description": "Get neighbor to the East",
+    "scope": "python"
+  },
+  "SGCell.getNeighborW": {
+    "prefix": "sgcell.getNeighborW",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborW()"
+    ],
+    "description": "Get neighbor to the West",
+    "scope": "python"
+  },
+  "SGCell.getNeighborCells_inRadius": {
+    "prefix": "sgcell.getNeighborCells_inRadius",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborCells_inRadius(${3:max_distance}, ${4:conditions}, ${5:neighborhood})"
+    ],
+    "description": "Get all neighbor cells within a given radius according to the grid's neighborhood type.",
+    "scope": "python"
+  },
+  "SGCell.getClosestNeighborMatching": {
+    "prefix": "sgcell.getClosestNeighborMatching",
+    "body": [
+      "${1:result} = ${2:instance}.getClosestNeighborMatching(${3:max_distance}, ${4:conditions}, ${5:neighborhood})"
+    ],
+    "description": "Get the closest cell within a given radius that matches all given conditions.",
+    "scope": "python"
+  },
+  "SGCell.getClosestAgentMatching": {
+    "prefix": "sgcell.getClosestAgentMatching",
+    "body": [
+      "${1:result} = ${2:instance}.getClosestAgentMatching(${3:agent_type}, ${4:max_distance}, ${5:conditions_on_agent}, ${6:conditions_on_cell}, ${7:return_all})"
+    ],
+    "description": "Find the closest neighboring cell within a given radius that contains at least one agent",
+    "scope": "python"
+  },
+  "SGCell.nbAgents": {
+    "prefix": "sgcell.nbAgents",
+    "body": [
+      "${1:count} = ${2:instance}.nbAgents(${3:type_name})"
+    ],
+    "description": "Get the number of agents in this cell.",
+    "scope": "python"
+  },
+  "SGCell.distanceTo": {
+    "prefix": "sgcell.distanceTo",
+    "body": [
+      "${1:result} = ${2:instance}.distanceTo(${3:otherCell})"
+    ],
+    "description": "Compute Euclidean distance to another cell.",
+    "scope": "python"
+  },
+  "SGCell.agent_satisfies_conditions": {
+    "prefix": "sgcell.agent_satisfies_conditions",
+    "body": [
+      "${1:result} = ${2:instance}.agent_satisfies_conditions(${3:agent})"
+    ],
+    "description": "",
+    "scope": "python"
+  },
+  "SGCell.hasAgent": {
+    "prefix": "sgcell.hasAgent",
+    "body": [
+      "if ${1:instance}.hasAgent(${2:agent}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this cell contains a specific agent",
+    "scope": "python"
+  },
+  "SGCell.hasAgents": {
+    "prefix": "sgcell.hasAgents",
+    "body": [
+      "if ${1:instance}.hasAgents(${2:type_name}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this cell contains agents of a specific type.",
+    "scope": "python"
+  },
+  "SGCell.isEmpty": {
+    "prefix": "sgcell.isEmpty",
+    "body": [
+      "if ${1:instance}.isEmpty(${2:type_name}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this cell is empty of agents of a specific type.",
+    "scope": "python"
+  },
+  "SGEntityType.setDefaultValue": {
+    "prefix": "sgentitytype.setDefaultValue",
+    "body": [
+      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
+    ],
+    "description": "Set a default value for a specific attribute.",
+    "scope": "python"
+  },
+  "SGEntityType.setDefaultValues": {
+    "prefix": "sgentitytype.setDefaultValues",
+    "body": [
+      "${1:instance}.setDefaultValues(${2:value})"
+    ],
+    "description": "Set default values for multiple attributes.",
+    "scope": "python"
+  },
+  "SGEntityType.setDefaultValues_randomChoice": {
+    "prefix": "sgentitytype.setDefaultValues_randomChoice",
+    "body": [
+      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
+    ],
+    "description": "Set default values with automatic random choice conversion for lists/tuples.",
+    "scope": "python"
+  },
+  "SGEntityType.setDefaultValues_randomNumeric": {
+    "prefix": "sgentitytype.setDefaultValues_randomNumeric",
+    "body": [
+      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
+    ],
+    "description": "Set default numeric values with automatic random distribution conversion.",
+    "scope": "python"
+  },
+  "SGEntityType.setEntities": {
+    "prefix": "sgentitytype.setEntities",
+    "body": [
+      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut value of all entities",
+    "scope": "python"
+  },
+  "SGEntityType.setTooltip": {
+    "prefix": "sgentitytype.setTooltip",
+    "body": [
+      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
+    ],
+    "description": "Set a custom tooltip option for entities of this definition.",
+    "scope": "python"
+  },
+  "SGEntityType.setRandomEntity": {
+    "prefix": "sgentitytype.setRandomEntity",
+    "body": [
+      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Apply a value to a random entity",
+    "scope": "python"
+  },
+  "SGEntityType.setRandomEntity_withValue": {
+    "prefix": "sgentitytype.setRandomEntity_withValue",
+    "body": [
+      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity with a certain value",
+    "scope": "python"
+  },
+  "SGEntityType.setRandomEntity_withValueNot": {
+    "prefix": "sgentitytype.setRandomEntity_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity not having a certain value",
+    "scope": "python"
+  },
+  "SGEntityType.setRandomEntities": {
+    "prefix": "sgentitytype.setRandomEntities",
+    "body": [
+      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Applies the same attribut value for a random number of entities",
+    "scope": "python"
+  },
+  "SGEntityType.setRandomEntities_withValue": {
+    "prefix": "sgentitytype.setRandomEntities_withValue",
+    "body": [
+      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities with a certain value",
+    "scope": "python"
+  },
+  "SGEntityType.setRandomEntities_withValueNot": {
+    "prefix": "sgentitytype.setRandomEntities_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities noty having a certain value",
+    "scope": "python"
+  },
+  "SGEntityType.setEntities_withColumn": {
+    "prefix": "sgentitytype.setEntities_withColumn",
+    "body": [
+      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified column",
+    "scope": "python"
+  },
+  "SGEntityType.setEntities_withRow": {
+    "prefix": "sgentitytype.setEntities_withRow",
+    "body": [
+      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified row",
+    "scope": "python"
+  },
+  "SGEntityType.copyValue_forAllEntities": {
+    "prefix": "sgentitytype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.",
+    "scope": "python"
+  },
+  "SGEntityType.metricOnEntities": {
+    "prefix": "sgentitytype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities.",
+    "scope": "python"
+  },
+  "SGEntityType.metricOnEntitiesWithValue": {
+    "prefix": "sgentitytype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgentitytype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.newPov": {
+    "prefix": "sgentitytype.newPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View for the entityType.",
+    "scope": "python"
+  },
+  "SGEntityType.newBorderPov": {
+    "prefix": "sgentitytype.newBorderPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color).",
+    "scope": "python"
+  },
+  "SGEntityType.newBorderPovColorAndWidth": {
+    "prefix": "sgentitytype.newBorderPovColorAndWidth",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color).",
+    "scope": "python"
+  },
+  "SGEntityType.newModelAction": {
+    "prefix": "sgentitytype.newModelAction",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create an SGModelAction_OnEntities targeting entities of this definition.",
+    "scope": "python"
+  },
+  "SGEntityType.getEntity": {
+    "prefix": "sgentitytype.getEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
+    ],
+    "description": "Return an entity identified by its id or its coordinates on a grid",
+    "scope": "python"
+  },
+  "SGEntityType.getEntities": {
+    "prefix": "sgentitytype.getEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities(${3:condition})"
+    ],
+    "description": "Get all entities, optionally filtered by a condition.",
+    "scope": "python"
+  },
+  "SGEntityType.getEntities_withValue": {
+    "prefix": "sgentitytype.getEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.getEntities_withValueNot": {
+    "prefix": "sgentitytype.getEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.getRandomEntity": {
+    "prefix": "sgentitytype.getRandomEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a random entity from the available entities.",
+    "scope": "python"
+  },
+  "SGEntityType.getRandomEntity_withValue": {
+    "prefix": "sgentitytype.getRandomEntity_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that has a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.getRandomEntity_withValueNot": {
+    "prefix": "sgentitytype.getRandomEntity_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that does not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.getRandomEntities": {
+    "prefix": "sgentitytype.getRandomEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a specified number of random entities.",
+    "scope": "python"
+  },
+  "SGEntityType.getRandomEntities_withValue": {
+    "prefix": "sgentitytype.getRandomEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.getRandomEntities_withValueNot": {
+    "prefix": "sgentitytype.getRandomEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.nbOfEntities": {
+    "prefix": "sgentitytype.nbOfEntities",
+    "body": [
+      "${1:count} = ${2:instance}.nbOfEntities()"
+    ],
+    "description": "Get the total number of entities in this definition.",
+    "scope": "python"
+  },
+  "SGEntityType.nb_withValue": {
+    "prefix": "sgentitytype.nb_withValue",
+    "body": [
+      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
+    ],
+    "description": "Get the number of entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.deleteAllEntities": {
+    "prefix": "sgentitytype.deleteAllEntities",
+    "body": [
+      "${1:instance}.deleteAllEntities()"
+    ],
+    "description": "Delete all entities of the entity type.",
+    "scope": "python"
+  },
+  "SGEntityType.displayPov": {
+    "prefix": "sgentitytype.displayPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
+    ],
+    "description": "Displays the symbology for the specified Point of View.",
+    "scope": "python"
+  },
+  "SGEntityType.displayBorderPov": {
+    "prefix": "sgentitytype.displayBorderPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
+    ],
+    "description": "Displays the border symbology for the specified Point of View.",
+    "scope": "python"
+  },
+  "SGEntityType.displayAttributeValueInContextualMenu": {
+    "prefix": "sgentitytype.displayAttributeValueInContextualMenu",
+    "body": [
+      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:aLabel})"
+    ],
+    "description": "Set an attribute to be displayed in the contextual menu.",
+    "scope": "python"
+  },
+  "SGEntityType.displayTooltip": {
+    "prefix": "sgentitytype.displayTooltip",
+    "body": [
+      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
+    ],
+    "description": "Method to control the display of entity tooltips",
+    "scope": "python"
+  },
+  "SGCellType.setCell": {
+    "prefix": "sgcelltype.setCell",
+    "body": [
+      "${1:instance}.setCell(${2:x}, ${3:y})"
+    ],
+    "description": "",
+    "scope": "python"
+  },
+  "SGCellType.setLayoutOrder": {
+    "prefix": "sgcelltype.setLayoutOrder",
+    "body": [
+      "${1:instance}.setLayoutOrder(${2:value})"
+    ],
+    "description": "Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.",
+    "scope": "python"
+  },
+  "SGCellType.getCell": {
+    "prefix": "sgcelltype.getCell",
+    "body": [
+      "${1:result} = ${2:instance}.getCell(${3:x}, ${4:y})"
+    ],
+    "description": "Retrieve a cell object from the grid.",
+    "scope": "python"
+  },
+  "SGCellType.getEntity": {
+    "prefix": "sgcelltype.getEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
+    ],
+    "description": "Get a single entity (cell) by coordinates.",
+    "scope": "python"
+  },
+  "SGCellType.getEntities_withRow": {
+    "prefix": "sgcelltype.getEntities_withRow",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withRow(${3:aRowNumber})"
+    ],
+    "description": "Get all entities (cells) in a specific row.",
+    "scope": "python"
+  },
+  "SGCellType.getEntities_withColumn": {
+    "prefix": "sgcelltype.getEntities_withColumn",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withColumn(${3:aColumnNumber})"
+    ],
+    "description": "Get all entities (cells) in a specific column.",
+    "scope": "python"
+  },
+  "SGCellType.getRandomEntity": {
+    "prefix": "sgcelltype.getRandomEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a random cell from this grid.",
+    "scope": "python"
+  },
+  "SGCellType.deleteEntity": {
+    "prefix": "sgcelltype.deleteEntity",
+    "body": [
+      "${1:instance}.deleteEntity(${2:aCell})"
+    ],
+    "description": "Delete a given cell",
+    "scope": "python"
+  },
+  "SGAgentType.newAgentOnCell": {
+    "prefix": "sgagenttype.newAgentOnCell",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a new agent on a specific cell.",
+    "scope": "python"
+  },
+  "SGAgentType.newAgentsOnCell": {
+    "prefix": "sgagenttype.newAgentsOnCell",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a specific number of new Agents of a given type on a specific cell.",
+    "scope": "python"
+  },
+  "SGAgentType.newAgentAtCoords": {
+    "prefix": "sgagenttype.newAgentAtCoords",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a new Agent of a given type.",
+    "scope": "python"
+  },
+  "SGAgentType.newAgentsAtCoords": {
+    "prefix": "sgagenttype.newAgentsAtCoords",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a specific number of new Agents of a given type.",
+    "scope": "python"
+  },
+  "SGAgentType.newAgentAtRandom": {
+    "prefix": "sgagenttype.newAgentAtRandom",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a new Agent of a given type and place it on a random cell.",
+    "scope": "python"
+  },
+  "SGAgentType.newAgentsAtRandom": {
+    "prefix": "sgagenttype.newAgentsAtRandom",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a number of Agents of a given type and place them on random cells.",
+    "scope": "python"
+  },
+  "SGAgentType.getRandomEntity": {
+    "prefix": "sgagenttype.getRandomEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a random agent of this type.",
+    "scope": "python"
+  },
+  "SGAgentType.deleteEntity": {
+    "prefix": "sgagenttype.deleteEntity",
+    "body": [
+      "${1:instance}.deleteEntity(${2:aAgent})"
+    ],
+    "description": "Delete a given agent",
+    "scope": "python"
+  },
+  "SGAgentType.moveRandomly": {
+    "prefix": "sgagenttype.moveRandomly",
+    "body": [
+      "${1:result} = ${2:instance}.moveRandomly(${3:numberOfMovement}, ${4:condition})"
+    ],
+    "description": "All agents of this type move randomly.",
+    "scope": "python"
+  }
+}

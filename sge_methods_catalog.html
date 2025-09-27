@@ -1,0 +1,711 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGE Methods Catalog</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        .header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 2.5em; }
+        .header p { margin: 10px 0 0 0; opacity: 0.9; }
+        
+        .main-container { display: flex; min-height: calc(100vh - 120px); }
+        
+        .sidebar { width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .content { flex: 1; padding: 20px; overflow-y: auto; }
+        
+        .classes-section { margin-bottom: 25px; }
+        .classes-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .class-link { display: inline-block; padding: 8px 16px; background-color: #3498db; color: white; text-decoration: none; border-radius: 20px; font-size: 0.9em; transition: background-color 0.3s; }
+        .class-link:hover { background-color: #2980b9; }
+        
+        .search-section { margin-bottom: 25px; }
+        .search-box { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; box-sizing: border-box; }
+        .search-box:focus { outline: none; border-color: #3498db; }
+        
+        .filters-section { margin-bottom: 25px; }
+        .filters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .filter-group { }
+        .filter-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50; font-size: 0.9em; }
+        .filter-select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }
+        
+        .class-section { background-color: white; margin-bottom: 25px; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .class-section h2 { color: #2c3e50; margin-top: 0; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        
+        .category-section { margin: 25px 0; }
+        .category-section h3 { color: #34495e; margin-bottom: 15px; font-size: 1.2em; }
+        
+        .method-card { border: 1px solid #e0e0e0; margin: 15px 0; padding: 20px; border-radius: 8px; background-color: #fafafa; transition: box-shadow 0.3s; }
+        .method-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .method-card h4 { color: #2c3e50; margin-top: 0; font-size: 1.3em; }
+        .method-signature { font-family: 'Courier New', monospace; background-color: #2c3e50; color: #ecf0f1; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 0.9em; }
+        .examples { background-color: #e8f5e8; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #27ae60; }
+        .examples pre { margin: 0; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        
+        .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #3498db; }
+        .stat-label { color: #7f8c8d; font-size: 0.9em; }
+        
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .filters-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SGE Methods Catalog</h1>
+        <p>Comprehensive catalog of SGE modeler methods</p>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">76</div>
+                <div class="stat-label">Methods</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Classes</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="classes-section">
+                <h3>Classes</h3>
+                <div class="classes-list">
+                    <a href="#SGCell" class="class-link">SGCell</a>
+                    <a href="#SGEntityType" class="class-link">SGEntityType</a>
+                    <a href="#SGCellType" class="class-link">SGCellType</a>
+                    <a href="#SGAgentType" class="class-link">SGAgentType</a>
+
+                </div>
+            </div>
+            
+            <div class="search-section">
+                <h3>Search</h3>
+                <input type="text" class="search-box" id="search-box" placeholder="Search methods...">
+            </div>
+            
+            <div class="filters-section">
+                <h3>Filters</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <select class="filter-select" id="class-filter">
+                            <option value="all">All Classes</option>
+                            <option value="SGCell">SGCell</option>
+                            <option value="SGEntityType">SGEntityType</option>
+                            <option value="SGCellType">SGCellType</option>
+                            <option value="SGAgentType">SGAgentType</option>
+
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Category</label>
+                        <select class="filter-select" id="category-filter">
+                            <option value="all">All Categories</option>
+                            <option value="NEW">NEW</option>
+                            <option value="ADD">ADD</option>
+                            <option value="SET">SET</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="GET">GET</option>
+                            <option value="NB">NB</option>
+                            <option value="IS">IS</option>
+                            <option value="HAS">HAS</option>
+                            <option value="DO">DO</option>
+                            <option value="DISPLAY">DISPLAY</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Examples</label>
+                        <select class="filter-select" id="examples-filter">
+                            <option value="all">All Methods</option>
+                            <option value="with-examples">With Examples</option>
+                            <option value="without-examples">Without Examples</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Parameters</label>
+                        <select class="filter-select" id="parameters-filter">
+                            <option value="all">All Methods</option>
+                            <option value="with-params">With Parameters</option>
+                            <option value="without-params">Without Parameters</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+
+        <div class="class-section" id="SGCell">
+            <h2>SGCell</h2>
+            <p>SGCell model class for SGE framework - 20 methods</p>
+
+            <div class="category-section">
+                <h3>NEW Methods</h3>
+
+                <div class="method-card" data-category="NEW" data-class="SGCell" data-examples="with-examples" data-parameters="with-params">
+                    <h4>newAgentHere</h4>
+                    <div class="method-signature">def newAgentHere(self, agent_type,adictAttributes=None):</div>
+                    <p><strong>Description:</strong> Create a new Agent from the associated agent type.</p>
+<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li><li>adictAttributes: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Create a sheep agent with default attributes
+sheep = cell.newAgentHere(sheepType)
+
+# Create a sheep agent with custom attributes
+sheep = cell.newAgentHere(sheepType, {"health": "good", "age": 2})
+</pre></div></div></div>
+            <div class="category-section">
+                <h3>DELETE Methods</h3>
+
+                <div class="method-card" data-category="DELETE" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>deleteAllAgents</h4>
+                    <div class="method-signature">def deleteAllAgents(self):</div>
+                    <p><strong>Description:</strong> Delete all agents in this cell</p>
+</div></div>
+            <div class="category-section">
+                <h3>GET Methods</h3>
+
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>getId</h4>
+                    <div class="method-signature">def getId(self):</div>
+                    <p><strong>Description:</strong> Get cell identifier using numeric ID consistent with cellIdFromCoords</p>
+</div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>getCoords</h4>
+                    <div class="method-signature">def getCoords(self):</div>
+                    <p><strong>Description:</strong> Get cell coordinates</p>
+</div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="with-examples" data-parameters="with-params">
+                    <h4>getAgents</h4>
+                    <div class="method-signature">def getAgents(self, type_name=None):</div>
+                    <p><strong>Description:</strong> Get all agents in this cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Get all agents in the cell
+all_agents = cell.getAgents()
+
+# Get only sheep agents
+sheep_agents = cell.getAgents("Sheeps")
+
+# Get agents using agent type object
+sheep_agents = cell.getAgents(sheepType)
+</pre></div></div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getFirstAgentOfSpecie</h4>
+                    <div class="method-signature">def getFirstAgentOfSpecie(self, type_name):</div>
+                    <p><strong>Description:</strong> Get the first agent of a specific type in this cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="with-examples" data-parameters="with-params">
+                    <h4>getNeighborCells</h4>
+                    <div class="method-signature">def getNeighborCells(self, condition=None, neighborhood=None):</div>
+                    <p><strong>Description:</strong> Get the neighboring cells of the current cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>neighborhood: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Get all neighboring cells
+neighbors = cell.getNeighborCells()
+
+# Get only forest cells
+forest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue("terrain") == "forest")
+
+# Get neighbors using Moore neighborhood
+moore_neighbors = cell.getNeighborCells(neighborhood="moore")
+</pre></div></div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>getNeighborN</h4>
+                    <div class="method-signature">def getNeighborN(self):</div>
+                    <p><strong>Description:</strong> Get neighbor to the North</p>
+</div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>getNeighborS</h4>
+                    <div class="method-signature">def getNeighborS(self):</div>
+                    <p><strong>Description:</strong> Get neighbor to the South</p>
+</div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>getNeighborE</h4>
+                    <div class="method-signature">def getNeighborE(self):</div>
+                    <p><strong>Description:</strong> Get neighbor to the East</p>
+</div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="without-params">
+                    <h4>getNeighborW</h4>
+                    <div class="method-signature">def getNeighborW(self):</div>
+                    <p><strong>Description:</strong> Get neighbor to the West</p>
+</div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getNeighborCells_inRadius</h4>
+                    <div class="method-signature">def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):</div>
+                    <p><strong>Description:</strong> Get all neighbor cells within a given radius according to the grid's neighborhood type.</p>
+<p><strong>Parameters:</strong></p><ul><li>max_distance: Any</li><li>conditions: Any</li><li>neighborhood: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getClosestNeighborMatching</h4>
+                    <div class="method-signature">def getClosestNeighborMatching(self, max_distance=1, conditions=None, neighborhood=None):</div>
+                    <p><strong>Description:</strong> Get the closest cell within a given radius that matches all given conditions.</p>
+<p><strong>Parameters:</strong></p><ul><li>max_distance: Any</li><li>conditions: Any</li><li>neighborhood: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getClosestAgentMatching</h4>
+                    <div class="method-signature">def getClosestAgentMatching(self, agent_type, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):</div>
+                    <p><strong>Description:</strong> Find the closest neighboring cell within a given radius that contains at least one agent</p>
+<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li><li>max_distance: Any</li><li>conditions_on_agent: Any</li><li>conditions_on_cell: Any</li><li>return_all: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>NB Methods</h3>
+
+                <div class="method-card" data-category="NB" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>nbAgents</h4>
+                    <div class="method-signature">def nbAgents(self, type_name=None):</div>
+                    <p><strong>Description:</strong> Get the number of agents in this cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>OTHER MODELER METHODS Methods</h3>
+
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>distanceTo</h4>
+                    <div class="method-signature">def distanceTo(self, otherCell):</div>
+                    <p><strong>Description:</strong> Compute Euclidean distance to another cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>otherCell: Any</li></ul></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>agent_satisfies_conditions</h4>
+                    <div class="method-signature">def agent_satisfies_conditions(agent):</div>
+                    <p><strong>Description:</strong> </p>
+<p><strong>Parameters:</strong></p><ul><li>agent: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>HAS Methods</h3>
+
+                <div class="method-card" data-category="HAS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>hasAgent</h4>
+                    <div class="method-signature">def hasAgent(self, agent):</div>
+                    <p><strong>Description:</strong> Check if this cell contains a specific agent</p>
+<p><strong>Parameters:</strong></p><ul><li>agent: Any</li></ul></div>
+                <div class="method-card" data-category="HAS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>hasAgents</h4>
+                    <div class="method-signature">def hasAgents(self, type_name=None):</div>
+                    <p><strong>Description:</strong> Check if this cell contains agents of a specific type.</p>
+<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>IS Methods</h3>
+
+                <div class="method-card" data-category="IS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>isEmpty</h4>
+                    <div class="method-signature">def isEmpty(self, type_name=None):</div>
+                    <p><strong>Description:</strong> Check if this cell is empty of agents of a specific type.</p>
+<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div></div></div>
+        <div class="class-section" id="SGEntityType">
+            <h2>SGEntityType</h2>
+            <p>SGEntityType model class for SGE framework - 39 methods</p>
+
+            <div class="category-section">
+                <h3>SET Methods</h3>
+
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setDefaultValue</h4>
+                    <div class="method-signature">def setDefaultValue(self, aAtt, aDefaultValue):</div>
+                    <p><strong>Description:</strong> Set a default value for a specific attribute.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAtt: Any</li><li>aDefaultValue: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setDefaultValues</h4>
+                    <div class="method-signature">def setDefaultValues(self, aDictOfAttributesAndValues):</div>
+                    <p><strong>Description:</strong> Set default values for multiple attributes.</p>
+<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setDefaultValues_randomChoice</h4>
+                    <div class="method-signature">def setDefaultValues_randomChoice(self, mapping):</div>
+                    <p><strong>Description:</strong> Set default values with automatic random choice conversion for lists/tuples.</p>
+<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
+"health": ["good", "bad"],
+"hunger": ("good", "bad"),
+"speed": 3
+})
+is equivalent to:
+setDefaultValues({
+"health": lambda: random.choice(["good", "bad"]),
+"hunger": lambda: random.choice(("good", "bad")),
+"speed": 3
+})
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setDefaultValues_randomNumeric</h4>
+                    <div class="method-signature">def setDefaultValues_randomNumeric(self, mapping):</div>
+                    <p><strong>Description:</strong> Set default numeric values with automatic random distribution conversion.</p>
+<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
+"age": (10, 18),              # randint 10..18
+"speed": (0.5, 2.0),          # uniform 0.5..2.0
+"index": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)
+"height": {"normal": (170, 10)},
+"state": {"choice": ["A", "B", "C"]},
+})
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setEntities</h4>
+                    <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setTooltip</h4>
+                    <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
+                    <p><strong>Description:</strong> Set a custom tooltip option for entities of this definition.</p>
+<p><strong>Parameters:</strong></p><ul><li>tooltipName: Any</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
+agentDef.setTooltip("Health", "health")
+
+# Display custom calculated value
+agentDef.setTooltip("Status", lambda entity: f"Health: {entity.value('health')}")
+
+# Display static text
+agentDef.setTooltip("Info", "Agent Information")
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setRandomEntity</h4>
+                    <div class="method-signature">def setRandomEntity(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Apply a value to a random entity</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setRandomEntity_withValue</h4>
+                    <div class="method-signature">def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
+                    <p><strong>Description:</strong> To apply a value to a random entity with a certain value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setRandomEntity_withValueNot</h4>
+                    <div class="method-signature">def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
+                    <p><strong>Description:</strong> To apply a value to a random entity not having a certain value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setRandomEntities</h4>
+                    <div class="method-signature">def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):</div>
+                    <p><strong>Description:</strong> Applies the same attribut value for a random number of entities</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setRandomEntities_withValue</h4>
+                    <div class="method-signature">def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
+                    <p><strong>Description:</strong> To apply a value to some random entities with a certain value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setRandomEntities_withValueNot</h4>
+                    <div class="method-signature">def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
+                    <p><strong>Description:</strong> To apply a value to some random entities noty having a certain value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setEntities_withColumn</h4>
+                    <div class="method-signature">def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):</div>
+                    <p><strong>Description:</strong> Set the value of attribut to all entities in a specified column</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aColumnNumber: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setEntities_withRow</h4>
+                    <div class="method-signature">def setEntities_withRow(self, aAttribute, aValue, aRowNumber):</div>
+                    <p><strong>Description:</strong> Set the value of attribut to all entities in a specified row</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aRowNumber: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>OTHER MODELER METHODS Methods</h3>
+
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>copyValue_forAllEntities</h4>
+                    <div class="method-signature">def copyValue_forAllEntities(self,  source_att, target_att,  condition=None):</div>
+                    <p><strong>Description:</strong> Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>metricOnEntities</h4>
+                    <div class="method-signature">def metricOnEntities(self, metric, attribute, value=None):</div>
+                    <p><strong>Description:</strong> Get metrics for all entities.</p>
+<p><strong>Parameters:</strong></p><ul><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>metricOnEntitiesWithValue</h4>
+                    <div class="method-signature">def metricOnEntitiesWithValue(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
+                    <p><strong>Description:</strong> Get metrics for entities that have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>metricOnEntitiesWithValueNot</h4>
+                    <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
+                    <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>NEW Methods</h3>
+
+                <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newPov</h4>
+                    <div class="method-signature">def newPov(self,nameOfPov,concernedAtt,dictOfColor):</div>
+                    <p><strong>Description:</strong> Declare a new Point of View for the entityType.</p>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newBorderPov</h4>
+                    <div class="method-signature">def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):</div>
+                    <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newBorderPovColorAndWidth</h4>
+                    <div class="method-signature">def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):</div>
+                    <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newModelAction</h4>
+                    <div class="method-signature">def newModelAction(self, actions=None, conditions=None, feedbacks=None):</div>
+                    <p><strong>Description:</strong> Create an SGModelAction_OnEntities targeting entities of this definition.</p>
+<p><strong>Parameters:</strong></p><ul><li>actions: Any</li><li>conditions: Any</li><li>feedbacks: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>GET Methods</h3>
+
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntity</h4>
+                    <div class="method-signature">def getEntity(self, x, y=None):</div>
+                    <p><strong>Description:</strong> Return an entity identified by its id or its coordinates on a grid</p>
+<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntities</h4>
+                    <div class="method-signature">def getEntities(self, condition=None):</div>
+                    <p><strong>Description:</strong> Get all entities, optionally filtered by a condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntities_withValue</h4>
+                    <div class="method-signature">def getEntities_withValue(self, att, val):</div>
+                    <p><strong>Description:</strong> Get all entities that have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntities_withValueNot</h4>
+                    <div class="method-signature">def getEntities_withValueNot(self, att, val):</div>
+                    <p><strong>Description:</strong> Get all entities that do not have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntity</h4>
+                    <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):</div>
+                    <p><strong>Description:</strong> Return a random entity from the available entities.</p>
+<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntity_withValue</h4>
+                    <div class="method-signature">def getRandomEntity_withValue(self, att, val, condition=None):</div>
+                    <p><strong>Description:</strong> Return a random entity that has a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntity_withValueNot</h4>
+                    <div class="method-signature">def getRandomEntity_withValueNot(self, att, val, condition=None):</div>
+                    <p><strong>Description:</strong> Return a random entity that does not have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntities</h4>
+                    <div class="method-signature">def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):</div>
+                    <p><strong>Description:</strong> Return a specified number of random entities.</p>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntities_withValue</h4>
+                    <div class="method-signature">def getRandomEntities_withValue(self, aNumber, att, val, condition=None):</div>
+                    <p><strong>Description:</strong> Return a specified number of random entities that have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntities_withValueNot</h4>
+                    <div class="method-signature">def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):</div>
+                    <p><strong>Description:</strong> Return a specified number of random entities that do not have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>NB Methods</h3>
+
+                <div class="method-card" data-category="NB" data-class="SGEntityType" data-examples="without-examples" data-parameters="without-params">
+                    <h4>nbOfEntities</h4>
+                    <div class="method-signature">def nbOfEntities(self):</div>
+                    <p><strong>Description:</strong> Get the total number of entities in this definition.</p>
+</div>
+                <div class="method-card" data-category="NB" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>nb_withValue</h4>
+                    <div class="method-signature">def nb_withValue(self, att, value):</div>
+                    <p><strong>Description:</strong> Get the number of entities that have a specific attribute value.</p>
+<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>value: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>DELETE Methods</h3>
+
+                <div class="method-card" data-category="DELETE" data-class="SGEntityType" data-examples="without-examples" data-parameters="without-params">
+                    <h4>deleteAllEntities</h4>
+                    <div class="method-signature">def deleteAllEntities(self):</div>
+                    <p><strong>Description:</strong> Delete all entities of the entity type.</p>
+</div></div>
+            <div class="category-section">
+                <h3>DISPLAY Methods</h3>
+
+                <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>displayPov</h4>
+                    <div class="method-signature">def displayPov(self,nameOfPov):</div>
+                    <p><strong>Description:</strong> Displays the symbology for the specified Point of View.</p>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li></ul></div>
+                <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>displayBorderPov</h4>
+                    <div class="method-signature">def displayBorderPov(self,nameOfBorderPov):</div>
+                    <p><strong>Description:</strong> Displays the border symbology for the specified Point of View.</p>
+<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: Any</li></ul></div>
+                <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>displayAttributeValueInContextualMenu</h4>
+                    <div class="method-signature">def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):</div>
+                    <p><strong>Description:</strong> Set an attribute to be displayed in the contextual menu.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLabel: Any</li></ul></div>
+                <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>displayTooltip</h4>
+                    <div class="method-signature">def displayTooltip(self, type=None):</div>
+                    <p><strong>Description:</strong> Method to control the display of entity tooltips</p>
+<p><strong>Parameters:</strong></p><ul><li>type: Any</li></ul></div></div></div>
+        <div class="class-section" id="SGCellType">
+            <h2>SGCellType</h2>
+            <p>SGCellType model class for SGE framework - 8 methods</p>
+
+            <div class="category-section">
+                <h3>SET Methods</h3>
+
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>setCell</h4>
+                    <div class="method-signature">def setCell(self, x, y, aAttribute, aValue):</div>
+                    <p><strong>Description:</strong> </p>
+<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li><li>aAttribute: Any</li><li>aValue: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setLayoutOrder</h4>
+                    <div class="method-signature">def setLayoutOrder(self, order):</div>
+                    <p><strong>Description:</strong> Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.</p>
+<p><strong>Parameters:</strong></p><ul><li>order: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>grid.setLayoutOrder(1)  # Set grid as first in layout
+legend.setLayoutOrder(3)  # Set legend as third in layout
+dashboard.setLayoutOrder(None)  # Reset to auto-assignment
+</pre></div></div></div>
+            <div class="category-section">
+                <h3>GET Methods</h3>
+
+                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getCell</h4>
+                    <div class="method-signature">def getCell(self, x, y=None):</div>
+                    <p><strong>Description:</strong> Retrieve a cell object from the grid.</p>
+<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntity</h4>
+                    <div class="method-signature">def getEntity(self, x, y=None):</div>
+                    <p><strong>Description:</strong> Get a single entity (cell) by coordinates.</p>
+<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntities_withRow</h4>
+                    <div class="method-signature">def getEntities_withRow(self, aRowNumber):</div>
+                    <p><strong>Description:</strong> Get all entities (cells) in a specific row.</p>
+<p><strong>Parameters:</strong></p><ul><li>aRowNumber: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getEntities_withColumn</h4>
+                    <div class="method-signature">def getEntities_withColumn(self, aColumnNumber):</div>
+                    <p><strong>Description:</strong> Get all entities (cells) in a specific column.</p>
+<p><strong>Parameters:</strong></p><ul><li>aColumnNumber: Any</li></ul></div>
+                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntity</h4>
+                    <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGCell:</div>
+                    <p><strong>Description:</strong> Return a random cell from this grid.</p>
+<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>DELETE Methods</h3>
+
+                <div class="method-card" data-category="DELETE" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>deleteEntity</h4>
+                    <div class="method-signature">def deleteEntity(self, aCell):</div>
+                    <p><strong>Description:</strong> Delete a given cell</p>
+<p><strong>Parameters:</strong></p><ul><li>aCell: Any</li></ul></div></div></div>
+        <div class="class-section" id="SGAgentType">
+            <h2>SGAgentType</h2>
+            <p>SGAgentType model class for SGE framework - 9 methods</p>
+
+            <div class="category-section">
+                <h3>NEW Methods</h3>
+
+                <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newAgentOnCell</h4>
+                    <div class="method-signature">def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None) -> SGAgent:</div>
+                    <p><strong>Description:</strong> Create a new agent on a specific cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>aCell: Any</li><li>attributesAndValues: Any</li><li>image: Any</li><li>popupImage: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newAgentsOnCell</h4>
+                    <div class="method-signature">def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):</div>
+                    <p><strong>Description:</strong> Create a specific number of new Agents of a given type on a specific cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>nbAgents: Any</li><li>aCell: Any</li><li>attributesAndValues: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newAgentAtCoords</h4>
+                    <div class="method-signature">def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None):</div>
+                    <p><strong>Description:</strong> Create a new Agent of a given type.</p>
+<p><strong>Parameters:</strong></p><ul><li>cellDef_or_grid: Any</li><li>x: Any</li><li>y: Any</li><li>attributesAndValues: Any</li><li>image: Any</li><li>popupImage: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newAgentsAtCoords</h4>
+                    <div class="method-signature">def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None):</div>
+                    <p><strong>Description:</strong> Create a specific number of new Agents of a given type.</p>
+<p><strong>Parameters:</strong></p><ul><li>nbAgents: Any</li><li>cellDef_or_grid: Any</li><li>x: Any</li><li>y: Any</li><li>attributesAndValues: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newAgentAtRandom</h4>
+                    <div class="method-signature">def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):</div>
+                    <p><strong>Description:</strong> Create a new Agent of a given type and place it on a random cell.</p>
+<p><strong>Parameters:</strong></p><ul><li>cellDef_or_grid: Any</li><li>attributesAndValues: Any</li><li>condition: Any</li></ul></div>
+                <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>newAgentsAtRandom</h4>
+                    <div class="method-signature">def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):</div>
+                    <p><strong>Description:</strong> Create a number of Agents of a given type and place them on random cells.</p>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>cellDef_or_grid: Any</li><li>attributesAndValues: Any</li><li>condition: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>GET Methods</h3>
+
+                <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>getRandomEntity</h4>
+                    <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGAgent:</div>
+                    <p><strong>Description:</strong> Return a random agent of this type.</p>
+<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>DELETE Methods</h3>
+
+                <div class="method-card" data-category="DELETE" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>deleteEntity</h4>
+                    <div class="method-signature">def deleteEntity(self, aAgent):</div>
+                    <p><strong>Description:</strong> Delete a given agent</p>
+<p><strong>Parameters:</strong></p><ul><li>aAgent: Any</li></ul></div></div>
+            <div class="category-section">
+                <h3>OTHER MODELER METHODS Methods</h3>
+
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>moveRandomly</h4>
+                    <div class="method-signature">def moveRandomly(self, numberOfMovement=1,condition=None):</div>
+                    <p><strong>Description:</strong> All agents of this type move randomly.</p>
+<p><strong>Parameters:</strong></p><ul><li>numberOfMovement: Any</li><li>condition: Any</li></ul></div></div></div>
+        </div>
+    </div>
+    
+    <script>
+        // Apply all filters
+        function applyFilters() {
+            const searchQuery = document.getElementById('search-box').value.toLowerCase();
+            const classFilter = document.getElementById('class-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+            const examplesFilter = document.getElementById('examples-filter').value;
+            const parametersFilter = document.getElementById('parameters-filter').value;
+            
+            const methodCards = document.querySelectorAll('.method-card');
+            
+            methodCards.forEach(card => {
+                let show = true;
+                
+                // Search filter
+                if (searchQuery && !card.textContent.toLowerCase().includes(searchQuery)) {
+                    show = false;
+                }
+                
+                // Class filter
+                if (classFilter !== 'all' && card.dataset.class !== classFilter) {
+                    show = false;
+                }
+                
+                // Category filter
+                if (categoryFilter !== 'all' && card.dataset.category !== categoryFilter) {
+                    show = false;
+                }
+                
+                // Examples filter
+                if (examplesFilter !== 'all' && card.dataset.examples !== examplesFilter) {
+                    show = false;
+                }
+                
+                // Parameters filter
+                if (parametersFilter !== 'all' && card.dataset.parameters !== parametersFilter) {
+                    show = false;
+                }
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+        
+        // Add event listeners to all filters
+        document.getElementById('search-box').addEventListener('input', applyFilters);
+        document.getElementById('class-filter').addEventListener('change', applyFilters);
+        document.getElementById('category-filter').addEventListener('change', applyFilters);
+        document.getElementById('examples-filter').addEventListener('change', applyFilters);
+        document.getElementById('parameters-filter').addEventListener('change', applyFilters);
+    </script>
+</body>
+</html>
