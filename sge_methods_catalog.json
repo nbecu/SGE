@@ -37,7 +37,7 @@
             "examples": [
               "# Create a sheep agent with default attributes\nsheep = cell.newAgentHere(sheepType)\n\n# Create a sheep agent with custom attributes\nsheep = cell.newAgentHere(sheepType, {\"health\": \"good\", \"age\": 2})"
             ],
-            "line_number": 184,
+            "line_number": 188,
             "parent_classes": [
               "SGEntity"
             ]
@@ -54,7 +54,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 208,
+            "line_number": 212,
             "parent_classes": [
               "SGEntity"
             ]
@@ -71,7 +71,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 221,
+            "line_number": 225,
             "parent_classes": [
               "SGEntity"
             ]
@@ -86,7 +86,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 225,
+            "line_number": 229,
             "parent_classes": [
               "SGEntity"
             ]
@@ -109,7 +109,7 @@
             "examples": [
               "# Get all agents in the cell\nall_agents = cell.getAgents()\n\n# Get only sheep agents\nsheep_agents = cell.getAgents(\"Sheeps\")\n\n# Get agents using agent type object\nsheep_agents = cell.getAgents(sheepType)"
             ],
-            "line_number": 229,
+            "line_number": 233,
             "parent_classes": [
               "SGEntity"
             ]
@@ -130,7 +130,7 @@
             ],
             "returns": "SGAgent or None: The first agent of the specified type, or None if not found",
             "examples": [],
-            "line_number": 257,
+            "line_number": 261,
             "parent_classes": [
               "SGEntity"
             ]
@@ -158,7 +158,7 @@
             "examples": [
               "# Get all neighboring cells\nneighbors = cell.getNeighborCells()\n\n# Get only forest cells\nforest_neighbors = cell.getNeighborCells(condition=lambda c: c.getValue(\"terrain\") == \"forest\")\n\n# Get neighbors using Moore neighborhood\nmoore_neighbors = cell.getNeighborCells(neighborhood=\"moore\")"
             ],
-            "line_number": 292,
+            "line_number": 296,
             "parent_classes": [
               "SGEntity"
             ]
@@ -173,7 +173,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 424,
+            "line_number": 428,
             "parent_classes": [
               "SGEntity"
             ]
@@ -188,7 +188,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 429,
+            "line_number": 433,
             "parent_classes": [
               "SGEntity"
             ]
@@ -203,7 +203,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 434,
+            "line_number": 438,
             "parent_classes": [
               "SGEntity"
             ]
@@ -218,7 +218,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 439,
+            "line_number": 443,
             "parent_classes": [
               "SGEntity"
             ]
@@ -249,7 +249,7 @@
             ],
             "returns": "list[SGCell]: List of matching neighbor cells (excluding self).",
             "examples": [],
-            "line_number": 444,
+            "line_number": 448,
             "parent_classes": [
               "SGEntity"
             ]
@@ -280,7 +280,7 @@
             ],
             "returns": "SGCell | None: The closest matching cell, or None if no match found.",
             "examples": [],
-            "line_number": 527,
+            "line_number": 531,
             "parent_classes": [
               "SGEntity"
             ]
@@ -321,7 +321,7 @@
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
             "examples": [],
-            "line_number": 565,
+            "line_number": 569,
             "parent_classes": [
               "SGEntity"
             ]
@@ -364,7 +364,7 @@
             ],
             "returns": "int: Number of agents of the specified type, or total count if type_name is None",
             "examples": [],
-            "line_number": 273,
+            "line_number": 277,
             "parent_classes": [
               "SGEntity"
             ]
@@ -387,7 +387,7 @@
             ],
             "returns": "float: Euclidean distance between the two cells.",
             "examples": [],
-            "line_number": 511,
+            "line_number": 515,
             "parent_classes": [
               "SGEntity"
             ]
@@ -408,7 +408,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 602,
+            "line_number": 606,
             "parent_classes": [
               "SGEntity"
             ]
@@ -431,7 +431,7 @@
             ],
             "returns": "bool: True if the agent is in this cell, False otherwise",
             "examples": [],
-            "line_number": 636,
+            "line_number": 640,
             "parent_classes": [
               "SGEntity"
             ]
@@ -452,7 +452,7 @@
             ],
             "returns": "bool: True if the cell contains agents of the specified type, False otherwise",
             "examples": [],
-            "line_number": 648,
+            "line_number": 652,
             "parent_classes": [
               "SGEntity"
             ]
@@ -475,7 +475,7 @@
             ],
             "returns": "bool: True if the cell is empty of the specified type, False otherwise",
             "examples": [],
-            "line_number": 662,
+            "line_number": 666,
             "parent_classes": [
               "SGEntity"
             ]
