@@ -83,6 +83,29 @@ model.loadLayoutConfig("my_layout")
 configs = model.getAvailableLayoutConfigs()
 ```
 
+## Method Catalog
+
+SGE provides a comprehensive method catalog to help modelers discover and use available methods:
+
+### Generated Files
+- **`sge_methods_catalog.json`**: Complete method catalog in JSON format
+- **`sge_methods_catalog.html`**: Interactive HTML documentation with filtering
+- **`sge_methods_snippets.json`**: VS Code/Cursor snippets for code completion
+
+### Method Categories
+Methods are organized into categories:
+- **SET**: Value modification methods (`setValue`, `incValue`, `decValue`)
+- **GET**: Data retrieval methods (`getValue`, `getCell`, `getEntities`)
+- **DO**: Action methods (`moveTo`, `moveAgent`, `moveRandomly`)
+- **IS/HAS**: Boolean test methods (`isValue`, `hasAgent`, `isEmpty`)
+- **NEW**: Creation methods (`newAgent`, `newCell`, `newModelPhase`)
+- **DELETE**: Removal methods (`deleteEntity`, `deleteAllAgents`)
+- **NB**: Counting methods (`nbAgents`, `nbCells`)
+- **DISPLAY**: UI methods (`displayTimeInWindowTitle`, `show`)
+
+### Usage
+The method catalog includes inherited methods from parent classes, making it easy to discover all available functionality for each entity type.
+
 ## Folder hierarchy
 - Examples
   - example1.0.py

@@ -155,6 +155,49 @@ class SGAgent(SGEntity):
     # (No is/do/display methods for agents)
 ```
 
+### 4.4 Method Catalog Generation
+
+SGE includes an automated method catalog generator (`SGMethodsCatalog.py`) that:
+
+- **Extracts methods** from all modeler classes
+- **Handles inheritance** recursively (e.g., `SGCell` → `SGEntity` → `AttributeAndValueFunctionalities`)
+- **Categorizes methods** using naming conventions and explicit `@CATEGORY:` tags
+- **Generates documentation** in JSON, HTML, and VS Code snippet formats
+- **Supports tagging** for ambiguous method categorization
+
+#### Category Tagging System
+Use `@CATEGORY:` tags in comments before method definitions to override automatic categorization:
+
+```python
+# @CATEGORY: SET
+def incValue(self, attribute, value=1):
+    """Increment a value by the specified amount."""
+```
+
+#### Running the Catalog Generator
+```python
+from mainClasses.SGMethodsCatalog import SGMethodsCatalog
+catalog = SGMethodsCatalog()
+catalog.generate_catalog()
+```
+
+#### Automatic Method Tagging
+To automatically identify and tag ambiguous methods:
+
+```python
+from mainClasses.SGMethodsCatalog import SGMethodsCatalog
+catalog = SGMethodsCatalog()
+
+# Identify methods that need explicit categorization
+catalog.identify_and_tag_ambiguous_methods()
+
+# Apply tags to specific classes (dry run first)
+catalog.add_category_tags_to_methods(dry_run=True, target_classes=["AttributeAndValueFunctionalities"])
+
+# Apply tags for real
+catalog.add_category_tags_to_methods(dry_run=False, target_classes=["AttributeAndValueFunctionalities"])
+```
+
 ---
 
 ## 5. Model-View Architecture

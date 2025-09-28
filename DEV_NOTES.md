@@ -311,6 +311,46 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
   - Documentation mise à jour (README_developer.md, DEV_NOTES.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - **Résultat** : Architecture parfaitement cohérente avec SGEntity comme classe de base pour SGAgent et SGCell
 
+### 26/12/2024 - Système de génération de catalogue de méthodes (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Implémentation complète d'un système de génération automatique de catalogue de méthodes SGE avec extraction, catégorisation, et génération de documentation
+- **Fichiers concernés** : 
+  - `mainClasses/SGMethodsCatalog.py` (nouveau - générateur de catalogue complet)
+  - `sge_methods_catalog.json` (généré - catalogue JSON complet)
+  - `sge_methods_catalog.html` (généré - documentation interactive HTML)
+  - `sge_methods_snippets.json` (généré - snippets VS Code/Cursor)
+  - `mainClasses/AttributeAndValueFunctionalities.py` (tags @CATEGORY ajoutés)
+  - `mainClasses/SGEntityType.py` (amélioration docstrings et méthodes)
+  - `mainClasses/SGAgent.py` (tags @CATEGORY pour méthodes move)
+  - `mainClasses/SGCell.py` (type hints et imports TYPE_CHECKING)
+  - `mainClasses/SGEntityView.py` (correction getColor)
+  - `mainClasses/SGExtensions.py` (extension palette couleurs Qt)
+  - `examples/syntax_examples/ex_colors.py` (démonstration couleurs étendues)
+  - `README_developer.md` (section Method Catalog Generation)
+  - `README_modeler.md` (section Method Catalog)
+  - `CONTEXT_SGE_FOR_CHATBOT.md` (section 20 Method Catalog Generation)
+- **Problèmes rencontrés** : 
+  - Méthodes héritées non détectées (AttributeAndValueFunctionalities)
+  - Duplication de méthodes dans le catalogue JSON
+  - Catégorisation incorrecte de méthodes ambiguës
+  - Gestion de l'héritage récursif incomplète
+  - Extraction incomplète des paramètres et retours depuis docstrings
+  - Problèmes de couleurs Qt personnalisées
+  - Snippets VS Code avec propriété scope invalide
+- **Solutions appliquées** : 
+  - Modification `_extract_class_name` pour inclure AttributeAndValueFunctionalities.py
+  - Implémentation logique d'héritage récursif dans `_get_inherited_methods`
+  - Système de déduplication dans `_generate_catalog_structure`
+  - Système de tags `@CATEGORY:` pour catégorisation explicite
+  - Méthodes `identify_and_tag_ambiguous_methods` et `add_category_tags_to_methods`
+  - Amélioration extraction paramètres avec `_parse_docstring_parameters`
+  - Amélioration extraction retours avec `_extract_returns`
+  - Extension palette couleurs Qt dans `SGExtensions.py`
+  - Correction `getColor()` pour retourner QColor directement
+  - Suppression propriété `scope` des snippets VS Code
+  - Documentation complète avec exemples d'utilisation
+- **Résultat** : Système complet de génération de catalogue de méthodes avec extraction automatique, catégorisation intelligente, gestion de l'héritage, et génération de documentation JSON/HTML/snippets
+
 ### 26/12/2024 - Architecture Model-View (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
 - **Description** : Implémentation complète de l'architecture Model-View pour SGAgent, SGCell, SGEntity avec séparation claire entre logique (Model) et UI (View)
@@ -443,6 +483,20 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
 - [x] Documentation mise à jour (FUTURE_PLAN.md, CONTEXT_SGE_FOR_CHATBOT.md)
 - [x] Tests validés avec MQTT_GameExample_Player1.py
 - [x] Code parfaitement organisé selon conventions SGE
+
+### Système de génération de catalogue de méthodes - TERMINÉ ✅
+Le système de génération automatique de catalogue de méthodes est **complètement terminé** et validé :
+- [x] Création de SGMethodsCatalog.py avec extraction automatique des méthodes
+- [x] Gestion de l'héritage récursif (SGCell → SGEntity → AttributeAndValueFunctionalities)
+- [x] Système de catégorisation avec tags @CATEGORY: explicites
+- [x] Génération de documentation JSON, HTML et snippets VS Code
+- [x] Méthodes d'identification et de tagage automatique des méthodes ambiguës
+- [x] Amélioration extraction des paramètres et retours depuis docstrings
+- [x] Extension palette couleurs Qt dans SGExtensions.py
+- [x] Correction problèmes de couleurs et snippets VS Code
+- [x] Documentation complète avec exemples d'utilisation
+- [x] Tests validés avec génération de catalogues complets
+- [x] Système prêt pour utilisation par les développeurs et modelers
 
 ### Prochaines étapes générales
 - [ ] Nouvelles fonctionnalités SGE (selon besoins futurs)
@@ -593,6 +647,23 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
 - **Fichiers modifiés** : SGEntityDef.py, SGGameSpace.py, SGControlPanel.py, examples/
 - **Chat utilisé** : Claude Sonnet 4 (Cursor)
 - **Impact** : API cohérente pour modelers, bugs UI résolus, architecture Model-View stable
+
+### 26/12/2024 - Système de génération de catalogue de méthodes (MAJOR)
+- **Description** : Implémentation complète d'un système de génération automatique de catalogue de méthodes SGE avec extraction, catégorisation, et génération de documentation
+- **Solution** : 
+  1. Création de SGMethodsCatalog.py avec extraction automatique des méthodes
+  2. Gestion de l'héritage récursif (SGCell → SGEntity → AttributeAndValueFunctionalities)
+  3. Système de catégorisation avec tags @CATEGORY: explicites
+  4. Génération de documentation JSON, HTML et snippets VS Code
+  5. Méthodes d'identification et de tagage automatique des méthodes ambiguës
+  6. Amélioration extraction des paramètres et retours depuis docstrings
+  7. Extension palette couleurs Qt dans SGExtensions.py
+  8. Correction problèmes de couleurs et snippets VS Code
+  9. Documentation complète avec exemples d'utilisation
+  10. Tests validés avec génération de catalogues complets
+- **Fichiers modifiés** : SGMethodsCatalog.py (nouveau), sge_methods_catalog.json, sge_methods_catalog.html, sge_methods_snippets.json, AttributeAndValueFunctionalities.py, SGEntityType.py, SGAgent.py, SGCell.py, SGEntityView.py, SGExtensions.py, ex_colors.py, documentation complète
+- **Chat utilisé** : Claude Sonnet 4 (Cursor)
+- **Impact** : Système complet de génération de catalogue de méthodes avec extraction automatique, catégorisation intelligente, gestion de l'héritage, et génération de documentation JSON/HTML/snippets
 
 ### 26/12/2024 - Architecture Model-View (MAJOR)
 - **Description** : Refactoring complet pour séparer Model et View dans SGAgent, SGCell, SGEntity
@@ -1104,6 +1175,26 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
 - **Convention** : Noms de classes sans suffixe pour les modèles principaux
 - **Exemples** : SGAgent, SGCell (au lieu de SGAgentModel, SGCellModel)
 - **Avantage** : API plus intuitive et cohérente
+
+### 26/12/2024 - Système de génération de catalogue de méthodes
+- **Convention** : Utiliser SGMethodsCatalog.py pour générer automatiquement la documentation des méthodes
+- **Exemples** : `catalog.generate_catalog()`, `catalog.save_to_json()`, `catalog.generate_html()`, `catalog.generate_snippets()`
+- **Avantage** : Documentation automatique et à jour, découverte des méthodes facilitée
+
+### 26/12/2024 - Tags @CATEGORY pour catégorisation explicite
+- **Convention** : Utiliser des tags `@CATEGORY:` dans les commentaires avant les méthodes pour catégorisation explicite
+- **Exemples** : `# @CATEGORY: SET`, `# @CATEGORY: DO`, `# @CATEGORY: GET`
+- **Avantage** : Catégorisation précise des méthodes ambiguës, documentation cohérente
+
+### 26/12/2024 - Gestion de l'héritage récursif
+- **Convention** : Remonter récursivement dans la chaîne d'héritage pour extraire toutes les méthodes
+- **Exemples** : SGCell → SGEntity → AttributeAndValueFunctionalities
+- **Avantage** : Catalogue complet avec toutes les méthodes héritées
+
+### 26/12/2024 - Extension palette couleurs Qt
+- **Convention** : Étendre la palette Qt avec des couleurs personnalisées dans SGExtensions.py
+- **Exemples** : `Qt.turquoise = QColor.fromRgb(64, 224, 208)`, `Qt.hotpink = QColor.fromRgb(255, 105, 180)`
+- **Avantage** : Palette de couleurs étendue pour les modelers
 ### 25/08/2025 - Type Identification Attributes
 - **Convention** : Utiliser des attributs booléens `is*` pour identifier le type d'objet
 - **Exemples** : `isAdmin`, `isAgentType`, `isCellType`, `isLegend`, `isControlPanel`
@@ -1300,6 +1391,24 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
   - tests/test_player_names_in_phases.py (nouveau)
   - pytest.ini (nouveau)
 
+### 26/12/2024 - Système de génération de catalogue de méthodes (MAJOR)
+- **Ordinateur** : Windows 10 (nbecu)
+- **Sujet principal** : Implémentation complète d'un système de génération automatique de catalogue de méthodes SGE avec extraction, catégorisation, et génération de documentation
+- **Résultats** : 
+  - Création de SGMethodsCatalog.py avec extraction automatique des méthodes
+  - Gestion de l'héritage récursif (SGCell → SGEntity → AttributeAndValueFunctionalities)
+  - Système de catégorisation avec tags @CATEGORY: explicites
+  - Génération de documentation JSON, HTML et snippets VS Code
+  - Méthodes d'identification et de tagage automatique des méthodes ambiguës
+  - Amélioration extraction des paramètres et retours depuis docstrings
+  - Extension palette couleurs Qt dans SGExtensions.py
+  - Correction problèmes de couleurs et snippets VS Code
+  - Documentation complète avec exemples d'utilisation
+  - Tests validés avec génération de catalogues complets
+- **Fichiers modifiés** : SGMethodsCatalog.py (nouveau), sge_methods_catalog.json, sge_methods_catalog.html, sge_methods_snippets.json, AttributeAndValueFunctionalities.py, SGEntityType.py, SGAgent.py, SGCell.py, SGEntityView.py, SGExtensions.py, ex_colors.py, documentation complète
+- **Durée** : Session complète de développement
+- **Commits** : Multiple commits avec push sur main
+
 ---
 
 ## Notes techniques
@@ -1355,6 +1464,10 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
 - 25/08/2025 : Amélioration API délégation (SGModel.py, SGTimeManager.py)
 - 25/08/2025 : Création tests pytest (test_player_names_in_phases.py)
 - 25/08/2025 : Configuration pytest.ini
+- 26/12/2024 : Système de génération de catalogue de méthodes (SGMethodsCatalog.py, sge_methods_catalog.json, sge_methods_catalog.html, sge_methods_snippets.json)
+- 26/12/2024 : Gestion de l'héritage récursif et catégorisation avec tags @CATEGORY
+- 26/12/2024 : Extension palette couleurs Qt (SGExtensions.py, ex_colors.py)
+- 26/12/2024 : Documentation complète (README_developer.md, README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
 
 ### Découvertes architecturales
 - Décembre 2024 : L'organisation des méthodes selon conventions SGE améliore significativement la maintenabilité et la lisibilité du code
@@ -1411,6 +1524,12 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
 - 25/08/2025 : L'utilisation de pyproject.toml seul est plus simple que requirements.txt + pyproject.toml
 - 25/08/2025 : La conversion automatique des noms de joueurs améliore l'ergonomie de l'API
 - 25/08/2025 : Les tests pytest standard facilitent la maintenance et la validation
+- 26/12/2024 : Le système de génération automatique de catalogue de méthodes améliore significativement la documentation et la découverte des méthodes
+- 26/12/2024 : La gestion de l'héritage récursif est essentielle pour un catalogue complet des méthodes disponibles
+- 26/12/2024 : Les tags @CATEGORY: permettent une catégorisation précise des méthodes ambiguës
+- 26/12/2024 : L'extension de la palette couleurs Qt offre plus de flexibilité aux modelers
+- 26/12/2024 : La génération de snippets VS Code améliore l'expérience de développement
+- 26/12/2024 : La documentation HTML interactive facilite la navigation et la découverte des méthodes
 
 ### Questions en suspens
 - Comment optimiser la performance du système de persistance pour de très grandes configurations ?
@@ -1443,6 +1562,14 @@ Le refactoring de SGModel.py et l'extraction MQTT sont **complètement terminés
 - Faut-il étendre l'architecture Model-View à d'autres entités SGE ?
 - Comment améliorer la détection des tests pytest dans Cursor/IDE ?
 - Faut-il étendre la conversion automatique des noms à d'autres parties de l'API ?
+- Comment optimiser la performance du système de génération de catalogue pour de très grandes codebases ?
+- Faut-il étendre le système de génération de catalogue à d'autres types de documentation ?
+- Comment gérer la migration des méthodes existantes vers le nouveau système de tags @CATEGORY ?
+- Faut-il créer d'autres exemples pour les nouvelles fonctionnalités de génération de catalogue ?
+- Comment optimiser la performance de l'extraction des méthodes pour de gros volumes de code ?
+- Faut-il implémenter des raccourcis clavier pour la génération de catalogue ?
+- Comment gérer la génération de catalogue avec des méthodes très complexes (multiples paramètres) ?
+- Faut-il ajouter des indicateurs visuels du statut de génération du catalogue ?
 
 ---
 

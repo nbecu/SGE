@@ -2,6 +2,29 @@
 """
 SGMethodsCatalog - SGE Methods Catalog Generator
 Generates comprehensive catalog of SGE modeler methods for documentation and discovery
+
+USAGE EXAMPLES:
+
+1. Generate complete method catalog:
+   from mainClasses.SGMethodsCatalog import SGMethodsCatalog
+   catalog = SGMethodsCatalog()
+   catalog.generate_catalog()
+   catalog.save_to_json("sge_methods_catalog.json")
+   catalog.generate_html("sge_methods_catalog.html")
+   catalog.generate_snippets("sge_methods_snippets.json")
+
+2. Automatic method tagging:
+   from mainClasses.SGMethodsCatalog import SGMethodsCatalog
+   catalog = SGMethodsCatalog()
+   
+   # Identify methods that need explicit categorization
+   catalog.identify_and_tag_ambiguous_methods()
+   
+   # Apply tags to specific classes (dry run first)
+   catalog.add_category_tags_to_methods(dry_run=True, target_classes=["AttributeAndValueFunctionalities"])
+   
+   # Apply tags for real
+   catalog.add_category_tags_to_methods(dry_run=False, target_classes=["AttributeAndValueFunctionalities"])
 """
 
 import ast
