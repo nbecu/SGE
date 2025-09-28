@@ -58,50 +58,78 @@ def _extend_qt_colors():
     Qt.tomato = QColor.fromRgb(255, 99, 71)  # Tomato
     Qt.darkgray = QColor.fromRgb(169, 169, 169)  # Dark Gray
     Qt.mediumvioletred = QColor.fromRgb(199, 21, 133)  # Medium Violet Red
+    
+    # Couleurs thématiques - Bleus
     Qt.lightblue = QColor.fromRgb(173, 216, 230)  # Light Blue
     Qt.darkblue = QColor.fromRgb(0, 0, 139)  # Dark Blue
+    
+    # Couleurs thématiques - Rouges
     Qt.crimson = QColor.fromRgb(220, 20, 60)  # Crimson
     Qt.darkred = QColor.fromRgb(139, 0, 0)  # Dark Red
     Qt.lightcoral = QColor.fromRgb(240, 128, 128)  # Light Coral
+    
+    # Couleurs thématiques - Verts
     Qt.darkgreen = QColor.fromRgb(0, 100, 0)  # Dark Green
     Qt.lightgreen = QColor.fromRgb(144, 238, 144)  # Light Green
     Qt.forestgreen = QColor.fromRgb(34, 139, 34)  # Forest Green
     Qt.seagreen = QColor.fromRgb(46, 139, 87)  # Sea Green
+    
+    # Couleurs thématiques - Jaunes/Oranges
     Qt.gold = QColor.fromRgb(255, 215, 0)  # Gold
     Qt.darkorange = QColor.fromRgb(255, 140, 0)  # Dark Orange
     Qt.lightyellow = QColor.fromRgb(255, 255, 224)  # Light Yellow
     Qt.khaki = QColor.fromRgb(240, 230, 140)  # Khaki
+    
+    # Couleurs thématiques - Violets/Magentas
     Qt.darkviolet = QColor.fromRgb(148, 0, 211)  # Dark Violet
     Qt.plum = QColor.fromRgb(221, 160, 221)  # Plum
     Qt.lavender = QColor.fromRgb(230, 230, 250)  # Lavender
+    
+    # Couleurs thématiques - Gris
     Qt.lightgray = QColor.fromRgb(211, 211, 211)  # Light Gray
     Qt.silver = QColor.fromRgb(192, 192, 192)  # Silver
     Qt.slategray = QColor.fromRgb(112, 128, 144)  # Slate Gray
+    
+    # Couleurs de base manquantes
     Qt.purple = QColor.fromRgb(128, 0, 128)  # Purple
     Qt.steelblue = QColor.fromRgb(70, 130, 180)  # Steel Blue
+    
+    # Additional thematic colors - Blues
     Qt.navy = QColor.fromRgb(0, 0, 128)  # Navy
     Qt.royalblue = QColor.fromRgb(65, 105, 225)  # Royal Blue
     Qt.skyblue = QColor.fromRgb(135, 206, 235)  # Sky Blue
     Qt.powderblue = QColor.fromRgb(176, 224, 230)  # Powder Blue
+    
+    # Additional thematic colors - Reds
     Qt.firebrick = QColor.fromRgb(178, 34, 34)  # Fire Brick
     Qt.indianred = QColor.fromRgb(205, 92, 92)  # Indian Red
     Qt.salmon = QColor.fromRgb(250, 128, 114)  # Salmon
     Qt.rosybrown = QColor.fromRgb(188, 143, 143)  # Rosy Brown
+    
+    # Additional thematic colors - Greens
     Qt.olive = QColor.fromRgb(128, 128, 0)  # Olive
     Qt.olivedrab = QColor.fromRgb(107, 142, 35)  # Olive Drab
     Qt.springgreen = QColor.fromRgb(0, 255, 127)  # Spring Green
     Qt.palegreen = QColor.fromRgb(152, 251, 152)  # Pale Green
+    
+    # Additional thematic colors - Yellows/Oranges
     Qt.peachpuff = QColor.fromRgb(255, 218, 185)  # Peach Puff
     Qt.moccasin = QColor.fromRgb(255, 228, 181)  # Moccasin
     Qt.papayawhip = QColor.fromRgb(255, 239, 213)  # Papaya Whip
+    
+    # Additional thematic colors - Purples/Magentas
     Qt.orchid = QColor.fromRgb(218, 112, 214)  # Orchid
     Qt.thistle = QColor.fromRgb(216, 191, 216)  # Thistle
     Qt.mediumorchid = QColor.fromRgb(186, 85, 211)  # Medium Orchid
     Qt.mediumpurple = QColor.fromRgb(147, 112, 219)  # Medium Purple
+    
+    # Additional thematic colors - Grays
     Qt.dimgray = QColor.fromRgb(105, 105, 105)  # Dim Gray
     Qt.gainsboro = QColor.fromRgb(220, 220, 220)  # Gainsboro
     Qt.whitesmoke = QColor.fromRgb(245, 245, 245)  # White Smoke
     Qt.darkslategray = QColor.fromRgb(47, 79, 79)  # Dark Slate Gray
+    
+    # Additional thematic colors - Browns
     Qt.saddlebrown = QColor.fromRgb(139, 69, 19)  # Saddle Brown
     Qt.sienna = QColor.fromRgb(160, 82, 45)  # Sienna
     Qt.chocolate = QColor.fromRgb(210, 105, 30)  # Chocolate
@@ -110,6 +138,31 @@ def _extend_qt_colors():
     Qt.tan = QColor.fromRgb(210, 180, 140)  # Tan
     Qt.wheat = QColor.fromRgb(245, 222, 179)  # Wheat
     Qt.cornsilk = QColor.fromRgb(255, 248, 220)  # Cornsilk
+    
+    # Red gradient colors
+    Qt.maroon = QColor.fromRgb(128, 0, 0)  # Maroon
+    Qt.orangered = QColor.fromRgb(255, 69, 0)  # Orange Red
+    Qt.coral = QColor.fromRgb(255, 127, 80)  # Coral
+    Qt.lightsalmon = QColor.fromRgb(255, 160, 122)  # Light Salmon
+    Qt.mistyrose = QColor.fromRgb(255, 228, 225)  # Misty Rose
+    
+    # Blue gradient colors
+    Qt.midnightblue = QColor.fromRgb(25, 25, 112)  # Midnight Blue
+    Qt.mediumblue = QColor.fromRgb(0, 0, 205)  # Medium Blue
+    Qt.cornflowerblue = QColor.fromRgb(100, 149, 237)  # Cornflower Blue
+    Qt.aliceblue = QColor.fromRgb(240, 248, 255)  # Alice Blue
+    
+    # Yellow gradient colors
+    Qt.darkgoldenrod = QColor.fromRgb(184, 134, 11)  # Dark Goldenrod
+    Qt.goldenrod = QColor.fromRgb(218, 165, 32)  # Goldenrod
+    Qt.lemonchiffon = QColor.fromRgb(255, 250, 205)  # Lemon Chiffon
+    Qt.ivory = QColor.fromRgb(255, 255, 240)  # Ivory
+    
+    # Additional colors
+    Qt.turquoise = QColor.fromRgb(64, 224, 208)  # Turquoise
+    Qt.hotpink = QColor.fromRgb(255, 105, 180)  # Hot Pink
+    Qt.limegreen = QColor.fromRgb(50, 205, 50)  # Lime Green
+    Qt.darkorange = QColor.fromRgb(255, 140, 0)  # Dark Orange
 
 # Initialize the color extensions
 _extend_qt_colors()

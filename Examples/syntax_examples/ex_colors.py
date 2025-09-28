@@ -96,7 +96,35 @@ boxes.getCell(72).setValue('color', 'burlywood')
 boxes.getCell(73).setValue('color', 'tan')
 boxes.getCell(74).setValue('color', 'wheat')
 boxes.getCell(75).setValue('color', 'cornsilk')
-
+# Red gradient
+boxes.getCell(76).setValue('color', 'darkred')
+boxes.getCell(77).setValue('color', 'maroon')
+boxes.getCell(78).setValue('color', 'red')
+boxes.getCell(79).setValue('color', 'orangered')
+boxes.getCell(80).setValue('color', 'coral')
+boxes.getCell(81).setValue('color', 'lightsalmon')
+boxes.getCell(82).setValue('color', 'mistyrose')
+# Blue gradient
+boxes.getCell(83).setValue('color', 'midnightblue')
+boxes.getCell(84).setValue('color', 'darkblue')
+boxes.getCell(85).setValue('color', 'blue')
+boxes.getCell(86).setValue('color', 'mediumblue')
+boxes.getCell(87).setValue('color', 'cornflowerblue')
+boxes.getCell(88).setValue('color', 'lightsteelblue')
+boxes.getCell(89).setValue('color', 'aliceblue')
+# Yellow gradient
+boxes.getCell(90).setValue('color', 'darkgoldenrod')
+boxes.getCell(91).setValue('color', 'goldenrod')
+boxes.getCell(92).setValue('color', 'gold')
+boxes.getCell(93).setValue('color', 'yellow')
+boxes.getCell(94).setValue('color', 'lightyellow')
+boxes.getCell(95).setValue('color', 'lemonchiffon')
+boxes.getCell(96).setValue('color', 'ivory')
+# Additional colors
+boxes.getCell(97).setValue('color', 'turquoise')
+boxes.getCell(98).setValue('color', 'hotpink')
+boxes.getCell(99).setValue('color', 'limegreen')
+boxes.getCell(100).setValue('color', 'darkorange')
 
 
 colorDict = {}
@@ -114,6 +142,8 @@ for aColor in boxes.getEntities():
     
 
 boxes.newPov("color", "color",colorDict)
+
+boxes.setTooltip("color", "color")
 
 myModel.launch()
 
