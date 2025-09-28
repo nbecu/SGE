@@ -351,6 +351,38 @@ Ce fichier documente l'état actuel du développement SGE, les problèmes en cou
   - Documentation complète avec exemples d'utilisation
 - **Résultat** : Système complet de génération de catalogue de méthodes avec extraction automatique, catégorisation intelligente, gestion de l'héritage, et génération de documentation JSON/HTML/snippets
 
+### 26/12/2024 - Amélioration interface HTML du catalogue de méthodes (TERMINÉ)
+- **Statut** : ✅ Terminé et validé
+- **Description** : Amélioration complète de l'interface HTML interactive du catalogue de méthodes avec filtrage hiérarchique, cartes dépliables, et boutons de copie
+- **Fichiers concernés** : 
+  - `mainClasses/SGMethodsCatalog.py` (améliorations interface HTML)
+  - `sge_methods_catalog.html` (régénéré avec nouvelles fonctionnalités)
+  - `FUTURE_PLAN.md` (mise à jour statut tâche)
+  - `CONTEXT_SGE_FOR_CHATBOT.md` (ajout section interface HTML)
+  - `README_modeler.md` (mise à jour section Method Catalog)
+  - `README_developer.md` (mention interface interactive)
+- **Fonctionnalités ajoutées** : 
+  - **Filtrage hiérarchique** : boutons bleus pour classes (premier niveau) + filtres dropdown
+  - **Tri alphabétique** des méthodes dans chaque catégorie
+  - **Cartes de méthodes dépliables** avec indicateurs +/- 
+  - **Compteurs dynamiques** basés sur les méthodes visibles
+  - **Ordre logique SGE** des catégories (NEW, ADD, SET, DELETE, GET, NB, IS, HAS, DO, DISPLAY, OTHER)
+  - **Bouton "Expand All Methods"** dans le header
+  - **Affichage d'héritage unifié** pour classes et méthodes
+  - **Scroll optimisé** : seul le contenu défile, header et sidebar fixes
+  - **Boutons de copie de syntaxe** pour les méthodes (📋 sans paramètres, 📝 avec paramètres)
+  - **Case à cocher** pour inclure/exclure le nom d'objet dans la syntaxe copiée
+- **Problèmes résolus** : 
+  - Header qui cachait le contenu (ajustement margin-top: 200px)
+  - Boutons bleus agissant comme navigation au lieu de filtres
+  - Filtre catégorie ne s'appliquant pas correctement
+  - Scrollbar sur toute la fenêtre au lieu du contenu uniquement
+  - Héritage affiché dans le header au lieu d'une ligne séparée
+  - Compteur de méthodes mal stylé
+  - Méthodes commençant par __ incluses (exclues maintenant)
+  - Retours à la ligne dans descriptions de paramètres non préservés
+- **Résultat** : Interface HTML complète et intuitive avec filtrage avancé, navigation facilitée, et copie de syntaxe pour les modelers
+
 ### 26/12/2024 - Architecture Model-View (TERMINÉ)
 - **Statut** : ✅ Terminé et validé
 - **Description** : Implémentation complète de l'architecture Model-View pour SGAgent, SGCell, SGEntity avec séparation claire entre logique (Model) et UI (View)
@@ -1468,6 +1500,7 @@ Le système de génération automatique de catalogue de méthodes est **complèt
 - 26/12/2024 : Gestion de l'héritage récursif et catégorisation avec tags @CATEGORY
 - 26/12/2024 : Extension palette couleurs Qt (SGExtensions.py, ex_colors.py)
 - 26/12/2024 : Documentation complète (README_developer.md, README_modeler.md, CONTEXT_SGE_FOR_CHATBOT.md)
+- 26/12/2024 : Amélioration interface HTML du catalogue de méthodes (filtrage hiérarchique, cartes dépliables, boutons de copie)
 
 ### Découvertes architecturales
 - Décembre 2024 : L'organisation des méthodes selon conventions SGE améliore significativement la maintenabilité et la lisibilité du code
@@ -1530,6 +1563,7 @@ Le système de génération automatique de catalogue de méthodes est **complèt
 - 26/12/2024 : L'extension de la palette couleurs Qt offre plus de flexibilité aux modelers
 - 26/12/2024 : La génération de snippets VS Code améliore l'expérience de développement
 - 26/12/2024 : La documentation HTML interactive facilite la navigation et la découverte des méthodes
+- 26/12/2024 : L'interface HTML avec filtrage hiérarchique et boutons de copie améliore significativement l'expérience des modelers
 
 ### Questions en suspens
 - Comment optimiser la performance du système de persistance pour de très grandes configurations ?

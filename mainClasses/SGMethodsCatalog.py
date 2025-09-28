@@ -435,7 +435,7 @@ class SGEMethodExtractor:
                 elif current_param and line:
                     # Continuation of description
                     if current_param in parameters:
-                        parameters[current_param]['description'] += ' ' + line
+                        parameters[current_param]['description'] += '\n' + line
         
         return parameters
     
@@ -522,8 +522,11 @@ class SGEMethodExtractor:
     
     def _is_modeler_method(self, method_info: MethodInfo) -> bool:
         """Check if a method is a modeler method"""
-        # Since we're already filtering by section, all methods in the modeler section are modeler methods
-        # Just exclude obvious developer methods that might have slipped through
+        # Exclude methods starting with __ (section separators)
+        if method_info.name.startswith('__'):
+            return False
+            
+        # Exclude obvious developer methods that might have slipped through
         excluded_methods = ['getView', 'setView', 'updateView', 'setDisplay', 'updateIncomingAgent', 
                            'removeAgent', 'shouldAcceptDropFrom', 'zoomIn', 'zoomOut', 'zoomFit',
                            'convert_coordinates', 'paintEvent', 'getRegion', 'mousePressEvent', 'dropEvent']
@@ -726,6 +729,9 @@ class SGMethodsCatalog:
         .toggle-all-btn {{ background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-size: 0.9em; transition: background-color 0.3s; }}
         .toggle-all-btn:hover {{ background-color: #229954; }}
         
+        .checkbox-label {{ display: flex; align-items: center; gap: 8px; font-size: 14px; color: white; cursor: pointer; }}
+        .checkbox-label input[type="checkbox"] {{ width: 16px; height: 16px; cursor: pointer; }}
+        
         .main-container {{ display: flex; min-height: 100vh; margin-top: 200px; }}
         
         .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; left: 0; top: 200px; bottom: 0; overflow-y: auto; }}
@@ -759,6 +765,9 @@ class SGMethodsCatalog:
         .method-card:hover {{ box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
         .method-header {{ padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }}
         .method-header h4 {{ color: #2c3e50; margin: 0; font-size: 1.3em; }}
+        .method-header-controls {{ display: flex; align-items: center; gap: 10px; }}
+        .copy-btn {{ background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 5px; border-radius: 3px; transition: background-color 0.3s; }}
+        .copy-btn:hover {{ background-color: #e8f5e8; }}
         .method-toggle {{ font-size: 1.2em; color: #7f8c8d; }}
         .method-content {{ padding: 0 20px 20px 20px; display: none; }}
         .method-content.expanded {{ display: block; }}
@@ -794,6 +803,12 @@ class SGMethodsCatalog:
             </div>
             <div class="stat-item">
                 <button class="toggle-all-btn" onclick="toggleAllMethods()">Expand All Methods</button>
+            </div>
+            <div class="stat-item">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="object-name-checkbox" checked onchange="toggleObjectName()">
+                    <span>Include object name<br>when copying method syntax</span>
+                </label>
             </div>
         </div>
     </div>
@@ -922,7 +937,11 @@ class SGMethodsCatalog:
                 <div class="method-card" data-category="{category}" data-class="{class_name}" data-examples="{has_examples}" data-parameters="{has_params}">
                     <div class="method-header" onclick="toggleMethod(this)">
                         <h4>{method['name']}</h4>
-                        <span class="method-toggle">+</span>
+                        <div class="method-header-controls">
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax('{method['signature']}', '{method['name']}', '{class_name}', {method.get('parameters', [])}, false)" title="Copy method syntax without parameters">📋</button>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyMethodSyntax('{method['signature']}', '{method['name']}', '{class_name}', {method.get('parameters', [])}, true)" title="Copy method syntax with parameters">📝</button>
+                            <span class="method-toggle">+</span>
+                        </div>
                     </div>
                     <div class="method-content">
 """
@@ -938,7 +957,12 @@ class SGMethodsCatalog:
                     if method.get('parameters'):
                         html += "<p><strong>Parameters:</strong></p><ul>"
                         for param in method['parameters']:
-                            html += f"<li>{param['name']}: {param['type']}</li>"
+                            if param.get('description'):
+                                # Convert newlines to <br> for HTML display
+                                description = param['description'].replace('\n', '<br>')
+                                html += f"<li><strong>{param['name']}</strong> ({param['type']}): {description}</li>"
+                            else:
+                                html += f"<li><strong>{param['name']}</strong> ({param['type']})</li>"
                         html += "</ul>"
                     
                     if method.get('returns'):
@@ -996,6 +1020,89 @@ class SGMethodsCatalog:
                 methodToggles.forEach(toggle => toggle.textContent = '-');
                 button.textContent = 'Collapse All Methods';
             }
+        }
+        
+        // Global variable to track object name inclusion
+        let includeObjectName = true;
+        
+        // Toggle object name inclusion
+        function toggleObjectName() {
+            const checkbox = document.getElementById('object-name-checkbox');
+            includeObjectName = checkbox.checked;
+        }
+        
+        // Copy method syntax to clipboard
+        function copyMethodSyntax(signature, methodName, className, parameters, includeParams) {
+            // Generate modeler-friendly syntax
+            let syntax = '';
+            
+            // Determine the object name based on class
+            let objectName = '';
+            switch(className) {
+                case 'SGCell':
+                    objectName = 'cell';
+                    break;
+                case 'SGAgent':
+                    objectName = 'agent';
+                    break;
+                case 'SGModel':
+                    objectName = 'myModel';
+                    break;
+                case 'SGEntityType':
+                    objectName = 'Entities';
+                    break;
+                case 'SGCellType':
+                    objectName = 'Cells';
+                    break;
+                case 'SGAgentType':
+                    objectName = 'Agents';
+                    break;
+                default:
+                    objectName = 'object';
+            }
+            
+            // Build the syntax with or without parameters
+            if (includeParams && parameters && parameters.length > 0) {
+                const paramList = parameters.map(param => {
+                    if (param.type === 'optional') {
+                        return `${param.name}=value`;
+                    } else {
+                        return param.name;
+                    }
+                }).join(', ');
+                if (includeObjectName) {
+                    syntax = `${objectName}.${methodName}(${paramList})`;
+                } else {
+                    syntax = `${methodName}(${paramList})`;
+                }
+            } else {
+                if (includeObjectName) {
+                    syntax = `${objectName}.${methodName}()`;
+                } else {
+                    syntax = `${methodName}()`;
+                }
+            }
+            
+            navigator.clipboard.writeText(syntax).then(function() {
+                // Show feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✓';
+                button.style.color = '#27ae60';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.color = '';
+                }, 1000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = syntax;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            });
         }
         
         // Update method counts
@@ -1663,6 +1770,7 @@ if __name__ == "__main__":
         "mainClasses/SGEntity.py",
         "mainClasses/SGEntityType.py",  # SGCellType and  SGAgenType and defined in SGEntityType.py
         "mainClasses/SGAgent.py",
+        "mainClasses/SGModel.py",
         # "mainClasses/AttributeAndValueFunctionalities.py"
     ]
     

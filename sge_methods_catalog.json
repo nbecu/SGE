@@ -4,8 +4,8 @@
     "description": "Comprehensive catalog of SGE modeler methods",
     "version": "1.0.0",
     "generated_date": "2024-12-19",
-    "total_classes": 5,
-    "total_methods": 235
+    "total_classes": 6,
+    "total_methods": 281
   },
   "classes": {
     "SGCell": {
@@ -30,7 +30,7 @@
               {
                 "name": "adictAttributes",
                 "type": "dict, optional",
-                "description": "a dict of attributes to set the values Return: a new agent"
+                "description": "a dict of attributes to set the values\nReturn:\na new agent"
               }
             ],
             "returns": "a new agent",
@@ -102,7 +102,7 @@
               {
                 "name": "type_name",
                 "type": "str or SGAgentDef, optional",
-                "description": "The name of the type or SGAgentDef object. If None, returns all agents in the cell."
+                "description": "The name of the type or SGAgentDef object.\nIf None, returns all agents in the cell."
               }
             ],
             "returns": "list[SGAgent]: List of agents of the specified type, or all agents if type_name is None",
@@ -151,7 +151,7 @@
               {
                 "name": "neighborhood",
                 "type": "\"moore\", \"neumann\", optional",
-                "description": " Type of neighborhood to use."
+                "description": "\nType of neighborhood to use."
               }
             ],
             "returns": "list: A list of neighboring cells (may be fewer if `boundary_condition` is \"closed\" and the cell is on an edge, or if a condition is defined). Notes: - Boundary handling depends on `self.grid.boundary_condition`: * \"open\" : Toroidal wrap-around (grid edges connect). * \"closed\": Finite boundaries (no wrap-around). - Coordinates in this grid are 1-indexed. - For \"neumann\" neighborhood, only horizontal and vertical neighbors are considered.",
@@ -234,17 +234,17 @@
               {
                 "name": "max_distance",
                 "type": "int, optional",
-                "description": " Maximum distance (radius) from the current cell to search for neighbors. Defaults to 1."
+                "description": "\nMaximum distance (radius) from the current cell to search for neighbors. Defaults to 1."
               },
               {
                 "name": "conditions",
                 "type": "list[callable] | None, optional",
-                "description": " A list of lambda functions, each taking a Cell as argument and returning True if the cell should be included. All conditions must be satisfied. If None or empty, all valid neighbors are returned."
+                "description": "\nA list of lambda functions, each taking a Cell as argument and returning True\nif the cell should be included. All conditions must be satisfied.\nIf None or empty, all valid neighbors are returned."
               },
               {
                 "name": "neighborhood",
                 "type": "\"moore\", \"neumann\", optional",
-                "description": " Type of neighborhood to use."
+                "description": "\nType of neighborhood to use."
               }
             ],
             "returns": "list[SGCell]: List of matching neighbor cells (excluding self).",
@@ -265,17 +265,17 @@
               {
                 "name": "max_distance",
                 "type": "int, optional",
-                "description": " Maximum distance (radius) from the current cell to search for neighbors. Defaults to 1."
+                "description": "\nMaximum distance (radius) from the current cell to search for neighbors. Defaults to 1."
               },
               {
                 "name": "conditions",
                 "type": "list[callable] | callable | None, optional",
-                "description": " A list of lambda functions (or a single lambda) that each take a Cell as argument and return True if the cell should be considered valid. All conditions must be satisfied."
+                "description": "\nA list of lambda functions (or a single lambda) that each take a Cell as argument\nand return True if the cell should be considered valid.\nAll conditions must be satisfied."
               },
               {
                 "name": "neighborhood",
                 "type": "\"moore\", \"neumann\", optional",
-                "description": " Type of neighborhood to use. Defaults to the grid's `neighborhood` attribute."
+                "description": "\nType of neighborhood to use.\nDefaults to the grid's `neighborhood` attribute."
               }
             ],
             "returns": "SGCell | None: The closest matching cell, or None if no match found.",
@@ -296,27 +296,27 @@
               {
                 "name": "agent_type",
                 "type": "str | SGAgentDef",
-                "description": " The type of the agent to search for."
+                "description": "\nThe type of the agent to search for."
               },
               {
                 "name": "max_distance",
                 "type": "int, optional",
-                "description": " Maximum search radius. Defaults to 1."
+                "description": "\nMaximum search radius. Defaults to 1."
               },
               {
                 "name": "conditions_on_agent",
                 "type": "list[callable], optional",
-                "description": " A list of lambda functions that each take an agent as argument and return True if valid. All conditions must be satisfied for the agent to be valid."
+                "description": "\nA list of lambda functions that each take an agent as argument and return True if valid.\nAll conditions must be satisfied for the agent to be valid."
               },
               {
                 "name": "conditions_on_cell",
                 "type": "list[callable], optional",
-                "description": " A list of lambda functions that each take a cell as argument and return True if valid. All conditions must be satisfied for the cell to be valid."
+                "description": "\nA list of lambda functions that each take a cell as argument and return True if valid.\nAll conditions must be satisfied for the cell to be valid."
               },
               {
                 "name": "return_all",
                 "type": "bool, optional",
-                "description": " If True, returns all matching agents on the closest cell. If False (default), returns one random matching agent."
+                "description": "\nIf True, returns all matching agents on the closest cell.\nIf False (default), returns one random matching agent."
               }
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
@@ -359,7 +359,7 @@
               {
                 "name": "type_name",
                 "type": "str or SGAgentDef, optional",
-                "description": "The agent type name or SGAgentDef object. If None, returns total count of all agents."
+                "description": "The agent type name or SGAgentDef object.\nIf None, returns total count of all agents."
               }
             ],
             "returns": "int: Number of agents of the specified type, or total count if type_name is None",
@@ -447,7 +447,7 @@
               {
                 "name": "type_name",
                 "type": "str or SGAgentDef, optional",
-                "description": "The agent type name or SGAgentDef object. If None, checks if cell contains any agents."
+                "description": "The agent type name or SGAgentDef object.\nIf None, checks if cell contains any agents."
               }
             ],
             "returns": "bool: True if the cell contains agents of the specified type, False otherwise",
@@ -470,7 +470,7 @@
               {
                 "name": "type_name",
                 "type": "str or SGAgentDef, optional",
-                "description": "The agent type name or SGAgentDef object. If None, checks if cell is completely empty."
+                "description": "The agent type name or SGAgentDef object.\nIf None, checks if cell is completely empty."
               }
             ],
             "returns": "bool: True if the cell is empty of the specified type, False otherwise",
@@ -804,7 +804,7 @@
               {
                 "name": "mapping",
                 "type": "dict",
-                "description": "Dictionary mapping attribute names to distribution specs Supported specs per attribute:"
+                "description": "Dictionary mapping attribute names to distribution specs\nSupported specs per attribute:"
               }
             ],
             "returns": "",
@@ -901,7 +901,7 @@
               {
                 "name": "condition",
                 "type": "callable, optional",
-                "description": "Condition function to filter entities Supported distribution formats: - (min, max) of ints  -> random.randint(min, max) - (min, max) of floats-> random.uniform(min, max) - range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
+                "description": "Condition function to filter entities\nSupported distribution formats:\n- (min, max) of ints  -> random.randint(min, max)\n- (min, max) of floats-> random.uniform(min, max)\n- range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
               }
             ],
             "returns": "",
@@ -957,7 +957,7 @@
               {
                 "name": "tooltipName",
                 "type": "str",
-                "description": "Name of the tooltip option (will appear in menu) tooltipValue: Value to display in tooltip. Can be: - str: Attribute name to display - callable: Function that takes entity and returns tooltip text - Any other value: Will be converted to string"
+                "description": "Name of the tooltip option (will appear in menu)\ntooltipValue: Value to display in tooltip. Can be:\n- str: Attribute name to display\n- callable: Function that takes entity and returns tooltip text\n- Any other value: Will be converted to string"
               },
               {
                 "name": "tooltipValue",
@@ -1503,7 +1503,7 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
@@ -1534,7 +1534,7 @@
               {
                 "name": "attributeForSelection",
                 "type": "str",
-                "description": "The attribute used to filter entities for selection. valueForSelection: The value that the specified attribute must match for the entities to be included."
+                "description": "The attribute used to filter entities for selection.\nvalueForSelection: The value that the specified attribute must match for the entities to be included."
               },
               {
                 "name": "valueForSelection",
@@ -1544,12 +1544,12 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
                 "type": "str",
-                "description": "The attribute to evaluate. value: The value to compare against."
+                "description": "The attribute to evaluate.\nvalue: The value to compare against."
               },
               {
                 "name": "value",
@@ -1575,7 +1575,7 @@
               {
                 "name": "attributeForSelection",
                 "type": "str",
-                "description": "The attribute used to filter entities for selection. valueForSelection: The value that the specified attribute must not match for the entities to be included."
+                "description": "The attribute used to filter entities for selection.\nvalueForSelection: The value that the specified attribute must not match for the entities to be included."
               },
               {
                 "name": "valueForSelection",
@@ -1585,12 +1585,12 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
                 "type": "str",
-                "description": "The attribute to evaluate. value: The value to compare against."
+                "description": "The attribute to evaluate.\nvalue: The value to compare against."
               },
               {
                 "name": "value",
@@ -1811,7 +1811,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -1837,7 +1837,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -1889,7 +1889,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -1920,7 +1920,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -1987,7 +1987,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -2023,7 +2023,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -2091,7 +2091,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name value: Value to count"
+                "description": "Attribute name\nvalue: Value to count"
               },
               {
                 "name": "value",
@@ -2204,7 +2204,7 @@
               {
                 "name": "type",
                 "type": "str",
-                "description": "Type of tooltip to display - None: Default - no tooltip displayed"
+                "description": "Type of tooltip to display\n- None: Default - no tooltip displayed"
               }
             ],
             "returns": "",
@@ -2322,7 +2322,7 @@
               {
                 "name": "order",
                 "type": "int or str",
-                "description": "The layout order value. Use None for auto-assignment. Use \"manual_position\" for manually positioned gameSpaces."
+                "description": "The layout order value. Use None for auto-assignment.\nUse \"manual_position\" for manually positioned gameSpaces."
               }
             ],
             "returns": "",
@@ -2418,7 +2418,7 @@
               {
                 "name": "mapping",
                 "type": "dict",
-                "description": "Dictionary mapping attribute names to distribution specs Supported specs per attribute:"
+                "description": "Dictionary mapping attribute names to distribution specs\nSupported specs per attribute:"
               }
             ],
             "returns": "",
@@ -2518,7 +2518,7 @@
               {
                 "name": "condition",
                 "type": "callable, optional",
-                "description": "Condition function to filter entities Supported distribution formats: - (min, max) of ints  -> random.randint(min, max) - (min, max) of floats-> random.uniform(min, max) - range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
+                "description": "Condition function to filter entities\nSupported distribution formats:\n- (min, max) of ints  -> random.randint(min, max)\n- (min, max) of floats-> random.uniform(min, max)\n- range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
               }
             ],
             "returns": "",
@@ -2576,7 +2576,7 @@
               {
                 "name": "tooltipName",
                 "type": "str",
-                "description": "Name of the tooltip option (will appear in menu) tooltipValue: Value to display in tooltip. Can be: - str: Attribute name to display - callable: Function that takes entity and returns tooltip text - Any other value: Will be converted to string"
+                "description": "Name of the tooltip option (will appear in menu)\ntooltipValue: Value to display in tooltip. Can be:\n- str: Attribute name to display\n- callable: Function that takes entity and returns tooltip text\n- Any other value: Will be converted to string"
               },
               {
                 "name": "tooltipValue",
@@ -3105,7 +3105,7 @@
               {
                 "name": "y",
                 "type": "int, optional",
-                "description": " Row index (1-indexed). Only used if `x` is an int representing a column."
+                "description": "\nRow index (1-indexed). Only used if `x` is an int representing a column."
               }
             ],
             "returns": "object or None: The cell object if found within the grid boundaries, otherwise None. Notes: - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows. - If coordinates are outside this range, returns None. - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).",
@@ -3242,7 +3242,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -3269,7 +3269,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -3296,7 +3296,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -3328,7 +3328,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -3397,7 +3397,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -3434,7 +3434,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -3559,7 +3559,7 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
@@ -3591,7 +3591,7 @@
               {
                 "name": "attributeForSelection",
                 "type": "str",
-                "description": "The attribute used to filter entities for selection. valueForSelection: The value that the specified attribute must match for the entities to be included."
+                "description": "The attribute used to filter entities for selection.\nvalueForSelection: The value that the specified attribute must match for the entities to be included."
               },
               {
                 "name": "valueForSelection",
@@ -3601,12 +3601,12 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
                 "type": "str",
-                "description": "The attribute to evaluate. value: The value to compare against."
+                "description": "The attribute to evaluate.\nvalue: The value to compare against."
               },
               {
                 "name": "value",
@@ -3633,7 +3633,7 @@
               {
                 "name": "attributeForSelection",
                 "type": "str",
-                "description": "The attribute used to filter entities for selection. valueForSelection: The value that the specified attribute must not match for the entities to be included."
+                "description": "The attribute used to filter entities for selection.\nvalueForSelection: The value that the specified attribute must not match for the entities to be included."
               },
               {
                 "name": "valueForSelection",
@@ -3643,12 +3643,12 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
                 "type": "str",
-                "description": "The attribute to evaluate. value: The value to compare against."
+                "description": "The attribute to evaluate.\nvalue: The value to compare against."
               },
               {
                 "name": "value",
@@ -3844,7 +3844,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name value: Value to count"
+                "description": "Attribute name\nvalue: Value to count"
               },
               {
                 "name": "value",
@@ -3944,7 +3944,7 @@
               {
                 "name": "type",
                 "type": "str",
-                "description": "Type of tooltip to display - None: Default - no tooltip displayed"
+                "description": "Type of tooltip to display\n- None: Default - no tooltip displayed"
               }
             ],
             "returns": "",
@@ -4458,7 +4458,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -4485,7 +4485,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -4512,7 +4512,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -4544,7 +4544,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -4613,7 +4613,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to match"
+                "description": "Attribute name\nval: Value to match"
               },
               {
                 "name": "val",
@@ -4650,7 +4650,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name val: Value to exclude"
+                "description": "Attribute name\nval: Value to exclude"
               },
               {
                 "name": "val",
@@ -4801,7 +4801,7 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
@@ -4833,7 +4833,7 @@
               {
                 "name": "attributeForSelection",
                 "type": "str",
-                "description": "The attribute used to filter entities for selection. valueForSelection: The value that the specified attribute must match for the entities to be included."
+                "description": "The attribute used to filter entities for selection.\nvalueForSelection: The value that the specified attribute must match for the entities to be included."
               },
               {
                 "name": "valueForSelection",
@@ -4843,12 +4843,12 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
                 "type": "str",
-                "description": "The attribute to evaluate. value: The value to compare against."
+                "description": "The attribute to evaluate.\nvalue: The value to compare against."
               },
               {
                 "name": "value",
@@ -4875,7 +4875,7 @@
               {
                 "name": "attributeForSelection",
                 "type": "str",
-                "description": "The attribute used to filter entities for selection. valueForSelection: The value that the specified attribute must not match for the entities to be included."
+                "description": "The attribute used to filter entities for selection.\nvalueForSelection: The value that the specified attribute must not match for the entities to be included."
               },
               {
                 "name": "valueForSelection",
@@ -4885,12 +4885,12 @@
               {
                 "name": "metric",
                 "type": "str",
-                "description": "The metric to use for statistical evaluation. Possible values include: - 'sumAtt': Sum of the specified attribute values. - 'avgAtt': Average of the specified attribute values. - 'minAtt': Minimum value of the specified attribute. - 'maxAtt': Maximum value of the specified attribute. - 'nbWithLess': Count of entities with attribute values less than the specified value. - 'nbWithMore': Count of entities with attribute values greater than the specified value. - 'nbEqualTo': Count of entities with attribute values equal to the specified value."
+                "description": "The metric to use for statistical evaluation. Possible values include:\n- 'sumAtt': Sum of the specified attribute values.\n- 'avgAtt': Average of the specified attribute values.\n- 'minAtt': Minimum value of the specified attribute.\n- 'maxAtt': Maximum value of the specified attribute.\n- 'nbWithLess': Count of entities with attribute values less than the specified value.\n- 'nbWithMore': Count of entities with attribute values greater than the specified value.\n- 'nbEqualTo': Count of entities with attribute values equal to the specified value."
               },
               {
                 "name": "attribute",
                 "type": "str",
-                "description": "The attribute to evaluate. value: The value to compare against."
+                "description": "The attribute to evaluate.\nvalue: The value to compare against."
               },
               {
                 "name": "value",
@@ -5008,7 +5008,7 @@
               {
                 "name": "mapping",
                 "type": "dict",
-                "description": "Dictionary mapping attribute names to distribution specs Supported specs per attribute:"
+                "description": "Dictionary mapping attribute names to distribution specs\nSupported specs per attribute:"
               }
             ],
             "returns": "",
@@ -5108,7 +5108,7 @@
               {
                 "name": "condition",
                 "type": "callable, optional",
-                "description": "Condition function to filter entities Supported distribution formats: - (min, max) of ints  -> random.randint(min, max) - (min, max) of floats-> random.uniform(min, max) - range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
+                "description": "Condition function to filter entities\nSupported distribution formats:\n- (min, max) of ints  -> random.randint(min, max)\n- (min, max) of floats-> random.uniform(min, max)\n- range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
               }
             ],
             "returns": "",
@@ -5166,7 +5166,7 @@
               {
                 "name": "tooltipName",
                 "type": "str",
-                "description": "Name of the tooltip option (will appear in menu) tooltipValue: Value to display in tooltip. Can be: - str: Attribute name to display - callable: Function that takes entity and returns tooltip text - Any other value: Will be converted to string"
+                "description": "Name of the tooltip option (will appear in menu)\ntooltipValue: Value to display in tooltip. Can be:\n- str: Attribute name to display\n- callable: Function that takes entity and returns tooltip text\n- Any other value: Will be converted to string"
               },
               {
                 "name": "tooltipValue",
@@ -5706,7 +5706,7 @@
               {
                 "name": "att",
                 "type": "str",
-                "description": "Attribute name value: Value to count"
+                "description": "Attribute name\nvalue: Value to count"
               },
               {
                 "name": "value",
@@ -5806,7 +5806,7 @@
               {
                 "name": "type",
                 "type": "str",
-                "description": "Type of tooltip to display - None: Default - no tooltip displayed"
+                "description": "Type of tooltip to display\n- None: Default - no tooltip displayed"
               }
             ],
             "returns": "",
@@ -6017,27 +6017,27 @@
               {
                 "name": "agent_type",
                 "type": "str | SGAgentDef",
-                "description": " The type of the agent to search for."
+                "description": "\nThe type of the agent to search for."
               },
               {
                 "name": "max_distance",
                 "type": "int, optional",
-                "description": " Maximum search radius. Defaults to 1."
+                "description": "\nMaximum search radius. Defaults to 1."
               },
               {
                 "name": "conditions_on_agent",
                 "type": "list[callable], optional",
-                "description": " A list of lambda functions that each take an agent as argument and return True if valid. All conditions must be satisfied for the agent to be valid."
+                "description": "\nA list of lambda functions that each take an agent as argument and return True if valid.\nAll conditions must be satisfied for the agent to be valid."
               },
               {
                 "name": "conditions_on_cell",
                 "type": "list[callable], optional",
-                "description": " A list of lambda functions that each take a cell as argument and return True if valid. All conditions must be satisfied for the cell to be valid."
+                "description": "\nA list of lambda functions that each take a cell as argument and return True if valid.\nAll conditions must be satisfied for the cell to be valid."
               },
               {
                 "name": "return_all",
                 "type": "bool, optional",
-                "description": " If True, returns all matching agents on the closest cell. If False (default), returns one random matching agent."
+                "description": "\nIf True, returns all matching agents on the closest cell.\nIf False (default), returns one random matching agent."
               }
             ],
             "returns": "SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.",
@@ -6330,7 +6330,7 @@
               {
                 "name": "method",
                 "type": "str",
-                "description": "Movement method - \"random\" (default) - \"cell\" (default when target is defined) -used with target as numeric ID (int), coordinates (x, y) tuple - \"direction\" (default when target is defined) -used with target as direction string (\"up\", \"down\", \"left\", \"right\")"
+                "description": "Movement method\n- \"random\" (default)\n- \"cell\" (default when target is defined)\n-used with target as numeric ID (int), coordinates (x, y) tuple\n- \"direction\" (default when target is defined)\n-used with target as direction string (\"up\", \"down\", \"left\", \"right\")"
               },
               {
                 "name": "target",
@@ -6392,12 +6392,12 @@
               {
                 "name": "target",
                 "type": "Agent | Cell | tuple[int,int]",
-                "description": " - Another agent object - A cell object - A tuple (x, y) for target coordinates"
+                "description": "\n- Another agent object\n- A cell object\n- A tuple (x, y) for target coordinates"
               },
               {
                 "name": "condition",
                 "type": "callable, optional",
-                "description": "A lambda function that takes a Cell as argument and returns True if the agent can move there."
+                "description": "A lambda function that takes a Cell as argument and returns True\nif the agent can move there."
               }
             ],
             "returns": "",
@@ -6647,6 +6647,1788 @@
           }
         ]
       }
+    },
+    "SGModel": {
+      "class_name": "SGModel",
+      "description": "SGModel model class for SGE framework",
+      "total_methods": 46,
+      "categories": {
+        "NEW": [
+          {
+            "name": "newCellsOnGrid",
+            "signature": "def newCellsOnGrid(self, columns=10, rows=10, format=\"square\", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None,neighborhood='moore',boundaries='open'):",
+            "description": "Create a grid that contains cells",
+            "docstring": "Create a grid that contains cells\n\nArgs:\n    columns (int): number of columns (width).\n    rows (int): number of rows (height).\n    format (\"square\", \"hexagonal\"): shape of the cells.\n        - Defaults to \"square\".\n        - Note that the hexagonal grid is \"Pointy-top hex grid with even-r offset\".\n    size (int, optional): size of the cells. Defaults to 30.\n    gap (int, optional): gap size between cells. Defaults to 0.\n    color (a color, optional): background color of the grid . Defaults to Qt.gray.\n    moveable (bool) : grid can be moved by clic and drage. Defaults to \"True\".\n    name (st): name of the grid.\n    backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.\n    defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.\n    neighborhood (\"moore\",\"neumann\"): Neighborhood type for cell os the grid. Defaults to \"moore\".\n        - \"moore\": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).\n        - \"neumann\": Von Neumann neighborhood (4 neighbors for square cells) , 3 or 4 for hexagonal cells, depending on orientation).\n    boundaries (\"mopen\",\"closed\"): Boundary condition of the grid. Defaults to \"open\".\n        - \"open\": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.\n        - \"closed\": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).\n\nReturns:\n    aCellDef: the cellDef that defines the cells that have been placed on a grid",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "columns",
+                "type": "int",
+                "description": "number of columns (width)."
+              },
+              {
+                "name": "rows",
+                "type": "int",
+                "description": "number of rows (height)."
+              },
+              {
+                "name": "format",
+                "type": "\"square\", \"hexagonal\"",
+                "description": "shape of the cells.\n- Defaults to \"square\".\n- Note that the hexagonal grid is \"Pointy-top hex grid with even-r offset\"."
+              },
+              {
+                "name": "size",
+                "type": "int, optional",
+                "description": "size of the cells. Defaults to 30."
+              },
+              {
+                "name": "gap",
+                "type": "int, optional",
+                "description": "gap size between cells. Defaults to 0."
+              },
+              {
+                "name": "color",
+                "type": "a color, optional",
+                "description": "background color of the grid . Defaults to Qt.gray."
+              },
+              {
+                "name": "moveable",
+                "type": "bool",
+                "description": "grid can be moved by clic and drage. Defaults to \"True\"."
+              },
+              {
+                "name": "name",
+                "type": "st",
+                "description": "name of the grid."
+              },
+              {
+                "name": "backGroundImage",
+                "type": "QPixmap, optional",
+                "description": "Background image for the grid as a QPixmap. If None, no background image is applied."
+              },
+              {
+                "name": "defaultCellImage",
+                "type": "QPixmap, optional",
+                "description": "Default image for each cell as a QPixmap. If None, cells are displayed with background colors."
+              },
+              {
+                "name": "neighborhood",
+                "type": "\"moore\",\"neumann\"",
+                "description": "Neighborhood type for cell os the grid. Defaults to \"moore\"."
+              },
+              {
+                "name": "boundaries",
+                "type": "\"mopen\",\"closed\"",
+                "description": "Boundary condition of the grid. Defaults to \"open\"."
+              }
+            ],
+            "returns": "aCellDef: the cellDef that defines the cells that have been placed on a grid",
+            "examples": [],
+            "line_number": 1080,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newAgentType",
+            "signature": "def newAgentType(self, name, shape, entDefAttributesAndValues=None, defaultSize=15, defaultColor=Qt.black, locationInEntity=\"random\",defaultImage=None):",
+            "description": "Create a new specie of Agents.",
+            "docstring": "Create a new specie of Agents.\n\nArgs:\n    name (str) : the agentType name\n    shape (str) : the agentType shape (\"circleAgent\",\"squareAgent\", \"ellipseAgent1\",\"ellipseAgent2\", \"rectAgent1\",\"rectAgent2\", \"triangleAgent1\",\"triangleAgent2\", \"arrowAgent1\",\"arrowAgent2\",\"hexagonAgent\")\n    dictAttributes (dict) : all the agentType attributs with all the values\n    defaultSize (int) : the agentType shape size (Default=10)\n    locationInEntity (str, optional) : topRight, topLeft, center, bottomRight, bottomLeft, random \n    defaultImage (str, optional) : link to image\nReturn:\n    a agentType",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "name",
+                "type": "str",
+                "description": "the agentType name"
+              },
+              {
+                "name": "shape",
+                "type": "str",
+                "description": "the agentType shape (\"circleAgent\",\"squareAgent\", \"ellipseAgent1\",\"ellipseAgent2\", \"rectAgent1\",\"rectAgent2\", \"triangleAgent1\",\"triangleAgent2\", \"arrowAgent1\",\"arrowAgent2\",\"hexagonAgent\")"
+              },
+              {
+                "name": "entDefAttributesAndValues",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "defaultSize",
+                "type": "int",
+                "description": "the agentType shape size (Default=10)"
+              },
+              {
+                "name": "defaultColor",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "locationInEntity",
+                "type": "str, optional",
+                "description": "topRight, topLeft, center, bottomRight, bottomLeft, random"
+              },
+              {
+                "name": "defaultImage",
+                "type": "str, optional",
+                "description": "link to image\nReturn:\na agentType"
+              }
+            ],
+            "returns": "a agentType",
+            "examples": [],
+            "line_number": 1128,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newPlayer",
+            "signature": "def newPlayer(self, name,attributesAndValues=None):",
+            "description": "\"",
+            "docstring": "\"\nCreate a new player\n\nArgs:\n    name (str) : name of the Player (will be displayed)",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "name",
+                "type": "str",
+                "description": "name of the Player (will be displayed)"
+              },
+              {
+                "name": "attributesAndValues",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1151,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newPlayPhase",
+            "signature": "def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):",
+            "description": "Create a new play phase for the game.",
+            "docstring": "Create a new play phase for the game.\n\nArgs:\n    phaseName (str): Name of the phase\n    activePlayers (list): List of players active in this phase. Can contain:\n        - Player instances (SGPlayer objects)\n        - Player names (str) - will be automatically converted to instances\n        - 'Admin' (str) - will be converted to the Admin player instance\n        - None (default:all users)\n    modelActions (list, optional): Actions the model performs at the beginning of the phase (add, delete, move...)\n        - SGModelAction objects\n        - lambda functions\n        - list of SGModelAction objects or lambda functions\n    autoForwardWhenAllActionsUsed (bool, optional): Whether to automatically forward to next phase when all players have used their actions\n        - False (default): the phase will not be executed automatically when all players have used their actions\n        - True: the phase will be executed automatically when all players have used their actions\n    message_auto_forward (bool, optional): Whether to show a message when automatically forwarding to the next phase\n        - True (default): a message will be displayed when auto-forwarding\n        - False: no message will be displayed when auto-forwarding\n    show_message_box_at_start (bool, optional): Whether to show a message box at the start of the phase\n        - False (default): no message box will be shown at the start of the phase\n        - True: a message box will be shown at the start of the phase\n        \n    \nReturns:\n    The created play phase (an instance of SGPlayPhase)",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "phaseName",
+                "type": "str",
+                "description": "Name of the phase"
+              },
+              {
+                "name": "activePlayers",
+                "type": "list",
+                "description": "List of players active in this phase. Can contain:\n- Player instances (SGPlayer objects)\n- Player names (str) - will be automatically converted to instances\n- 'Admin' (str) - will be converted to the Admin player instance"
+              },
+              {
+                "name": "modelActions",
+                "type": "list, optional",
+                "description": "Actions the model performs at the beginning of the phase (add, delete, move...)\n- SGModelAction objects\n- lambda functions\n- list of SGModelAction objects or lambda functions"
+              },
+              {
+                "name": "autoForwardWhenAllActionsUsed",
+                "type": "bool, optional",
+                "description": "Whether to automatically forward to next phase when all players have used their actions"
+              },
+              {
+                "name": "message_auto_forward",
+                "type": "bool, optional",
+                "description": "Whether to show a message when automatically forwarding to the next phase"
+              },
+              {
+                "name": "show_message_box_at_start",
+                "type": "bool, optional",
+                "description": "Whether to show a message box at the start of the phase"
+              }
+            ],
+            "returns": "The created play phase (an instance of SGPlayPhase)",
+            "examples": [],
+            "line_number": 1164,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newCreateAction",
+            "signature": "def newCreateAction(self, entity_type, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):",
+            "description": "Add a Create GameAction to the game.",
+            "docstring": "Add a Create GameAction to the game.\n\nArgs:\n- entity_type : a type of entity (agentType, cellType or name of the entity type)\n- a Number (int) : number of utilisation, could use \"infinite\"\n- dictAttributes (dict) : attribute with value concerned, could be None",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "dictAttributes",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNameToDisplay",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "create_several_at_each_click",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "writeAttributeInLabel",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1198,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newModifyAction",
+            "signature": "def newModifyAction(self, entity_type, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):",
+            "description": "Add a Modify GameAction to the game.",
+            "docstring": "Add a Modify GameAction to the game.\n\nArgs:\n- entity_type : a type of entity (agentType, cellType or name of the entity type)\n- a Number (int) : number of utilisation, could use \"infinite\"\n- dictAttributes (dict) : attribute with value concerned, could be None",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "dictAttributes",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNameToDisplay",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "setControllerContextualMenu",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "writeAttributeInLabel",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1212,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newModifyActionWithDialog",
+            "signature": "def newModifyActionWithDialog(self, entity_type, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):",
+            "description": "Add a ModifyActionWithDialog GameAction to the game.",
+            "docstring": "Add a ModifyActionWithDialog GameAction to the game.\n\nArgs:\n    entity_type : a type of entity (agentType, cellType or name of the entity type)\n    attribute (str): the attribute to modify\n    aNumber (int): number of utilisation, could use \"infinite\"\n    conditions (list): conditions that must be met\n    feedbacks (list): actions to execute after modification\n    conditionsOfFeedback (list): conditions for feedback execution\n    aNameToDisplay (str): custom name to display\n    setControllerContextualMenu (bool): whether to show in contextual menu\n    writeAttributeInLabel (bool): whether to show attribute in label",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": "a type of entity (agentType, cellType or name of the entity type)"
+              },
+              {
+                "name": "attribute",
+                "type": "str",
+                "description": "the attribute to modify"
+              },
+              {
+                "name": "aNumber",
+                "type": "int",
+                "description": "number of utilisation, could use \"infinite\""
+              },
+              {
+                "name": "conditions",
+                "type": "list",
+                "description": "conditions that must be met"
+              },
+              {
+                "name": "feedbacks",
+                "type": "list",
+                "description": "actions to execute after modification"
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "list",
+                "description": "conditions for feedback execution"
+              },
+              {
+                "name": "aNameToDisplay",
+                "type": "str",
+                "description": "custom name to display"
+              },
+              {
+                "name": "setControllerContextualMenu",
+                "type": "bool",
+                "description": "whether to show in contextual menu"
+              },
+              {
+                "name": "writeAttributeInLabel",
+                "type": "bool",
+                "description": "whether to show attribute in label"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1226,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newDeleteAction",
+            "signature": "def newDeleteAction(self, entity_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):",
+            "description": "Add a Delete GameAction to the game.",
+            "docstring": "Add a Delete GameAction to the game.\n\nArgs:\n- entity_type : a type of entity (agentType, cellType or name of the entity type)\n- a Number (int) : number of utilisation, could use \"infinite\"\n- dictAttributes (dict) : attribute with value concerned, could be None",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "entity_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNameToDisplay",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "setControllerContextualMenu",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1248,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newMoveAction",
+            "signature": "def newMoveAction(self, agent_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):",
+            "description": "Add a MoveAction to the game.",
+            "docstring": "Add a MoveAction to the game.\n\nArgs:\n- agent_type : a type of agent (agentType or name of the agent type)\n- a Number (int) : number of utilisation, could use \"infinite\"\n- listOfConditions (list of lambda functions) : conditions on the moving Entity",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "agent_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacksAgent",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedBackAgent",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNameToDisplay",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "setOnController",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1262,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newActivateAction",
+            "signature": "def newActivateAction(self,object_type,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :",
+            "description": "Add a ActivateAction to the game",
+            "docstring": "Add a ActivateAction to the game\nArgs:\n- object_type : the model itself or a type of entity (agentType, cellType or name of the entity type)\n- aMethod (lambda function) : the method to activate\n- aNumber (int) : number of utilisation, could use \"infinite\"\n- conditions (list of lambda functions) : conditions on the activating entity\n- feedbacks (list of lambda functions) : feedbacks to execute after activation\n- conditionsOfFeedback (list of lambda functions) : conditions for feedback execution\n- aNameToDisplay (str) : custom name to display\n- setControllerContextualMenu (bool) : whether to show in contextual menu\n- setControllerButton (tuple) : coordinates of the button to set in the controller\n- ",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "object_type",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aMethod",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNumber",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditions",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "feedbacks",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "conditionsOfFeedback",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aNameToDisplay",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "setControllerContextualMenu",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "setControllerButton",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1275,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newModelPhase",
+            "signature": "def newModelPhase(self, actions=None, condition=None, name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):",
+            "description": "Create a new model phase for the game.",
+            "docstring": "Create a new model phase for the game.\n\nArgs:\n    actions (SGModelAction, lambda function, or list of SGModelAction/lambda function, optional):\n        The action(s) to be executed during the phase. Can be a single SGModelAction, a lambda function,\n        or a list of either.\n    condition (lambda function, optional):\n        A function returning a boolean. Actions are performed only if this function returns True.\n    name (str, optional):\n        Name displayed on the TimeLabel.\n    auto_forward (bool, optional):\n        If True, this phase will be executed automatically. Default is False.\n    message_auto_forward (bool, optional):\n        If True, a message will be displayed when auto-forwarding. Default is True.\n    show_message_box_at_start (bool, optional):\n        If True, a message box will be shown at the start of the phase. Default is False.\n    \nReturns:\n    SGTimePhase: The created time phase",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "actions",
+                "type": "SGModelAction, lambda function, or list of SGModelAction/lambda function, optional",
+                "description": "\nThe action(s) to be executed during the phase. Can be a single SGModelAction, a lambda function,\nor a list of either."
+              },
+              {
+                "name": "condition",
+                "type": "lambda function, optional",
+                "description": "\nA function returning a boolean. Actions are performed only if this function returns True."
+              },
+              {
+                "name": "name",
+                "type": "str, optional",
+                "description": "\nName displayed on the TimeLabel."
+              },
+              {
+                "name": "auto_forward",
+                "type": "bool, optional",
+                "description": "\nIf True, this phase will be executed automatically. Default is False."
+              },
+              {
+                "name": "message_auto_forward",
+                "type": "bool, optional",
+                "description": "\nIf True, a message will be displayed when auto-forwarding. Default is True."
+              },
+              {
+                "name": "show_message_box_at_start",
+                "type": "bool, optional",
+                "description": "\nIf True, a message box will be shown at the start of the phase. Default is False."
+              }
+            ],
+            "returns": "SGTimePhase: The created time phase",
+            "examples": [],
+            "line_number": 1307,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newModelAction",
+            "signature": "def newModelAction(self, actions=[], conditions=[], feedbacks=[]):",
+            "description": "To add a model action which can be executed during a modelPhase",
+            "docstring": "To add a model action which can be executed during a modelPhase\nargs:\n    actions (lambda function): Actions the model performs during the phase (add, delete, move...)\n    conditions (lambda function): Actions are performed only if the condition returns true  \n    feedbacks (lambda function): feedback actions performed only if the actions are executed",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "actions",
+                "type": "lambda function",
+                "description": "Actions the model performs during the phase (add, delete, move...)"
+              },
+              {
+                "name": "conditions",
+                "type": "lambda function",
+                "description": "Actions are performed only if the condition returns true"
+              },
+              {
+                "name": "feedbacks",
+                "type": "lambda function",
+                "description": "feedback actions performed only if the actions are executed"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1332,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newModelAction_onCells",
+            "signature": "def newModelAction_onCells(self, actions=[], conditions=[], feedbacks=[]):",
+            "description": "To add a model action which can be executed during a modelPhase",
+            "docstring": "To add a model action which can be executed during a modelPhase\nargs:\n    actions (lambda function): Actions the cell performs during the phase (add, delete, move...)\n    conditions (lambda function): Actions are performed only if the condition returns true  \n    feedbacks (lambda function): feedback actions performed only if the actions are executed",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "actions",
+                "type": "lambda function",
+                "description": "Actions the cell performs during the phase (add, delete, move...)"
+              },
+              {
+                "name": "conditions",
+                "type": "lambda function",
+                "description": "Actions are performed only if the condition returns true"
+              },
+              {
+                "name": "feedbacks",
+                "type": "lambda function",
+                "description": "feedback actions performed only if the actions are executed"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1347,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newModelAction_onAgents",
+            "signature": "def newModelAction_onAgents(self, specieName, actions=[], conditions=[], feedbacks=[]):",
+            "description": "To add a model action which can be executed during a modelPhase",
+            "docstring": "To add a model action which can be executed during a modelPhase\nargs:\n    actions (lambda function): Actions the agent performs during the phase (add, delete, move...)\n    conditions (lambda function): Actions are performed only if the condition returns true  \n    feedbacks (lambda function): feedback actions performed only if the actions are executed",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "specieName",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "actions",
+                "type": "lambda function",
+                "description": "Actions the agent performs during the phase (add, delete, move...)"
+              },
+              {
+                "name": "conditions",
+                "type": "lambda function",
+                "description": "Actions are performed only if the condition returns true"
+              },
+              {
+                "name": "feedbacks",
+                "type": "lambda function",
+                "description": "feedback actions performed only if the actions are executed"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1361,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newDashBoard",
+            "signature": "def newDashBoard(self, title=None, borderColor=Qt.black, borderSize=1, backgroundColor=QColor(230, 230, 230), textColor=Qt.black, layout ='vertical'):",
+            "description": "Qt.lightGray",
+            "docstring": "Qt.lightGray\nCreate the score board of the game\n\nArgs:\ntitle (str) : title of the widget (default:\"Phases&Rounds\")\nbackgroundColor (Qt Color) : color of the background (default : Qt.transparent)\nborderColor (Qt Color, default very light gray) : color of the border (default : Qt.black)\ntextColor (Qt Color) : color of the text (default : Qt.black)",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "title",
+                "type": "str",
+                "description": "title of the widget (default:\"Phases&Rounds\")"
+              },
+              {
+                "name": "borderColor",
+                "type": "Qt Color, default very light gray",
+                "description": "color of the border (default : Qt.black)"
+              },
+              {
+                "name": "borderSize",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "backgroundColor",
+                "type": "Qt Color",
+                "description": "color of the background (default : Qt.transparent)"
+              },
+              {
+                "name": "textColor",
+                "type": "Qt Color",
+                "description": "color of the text (default : Qt.black)"
+              },
+              {
+                "name": "layout",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1376,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newEndGameRule",
+            "signature": "def newEndGameRule(self, title='EndGame Rules', numberRequired=1):",
+            "description": "Create the EndGame Rule Board of the game",
+            "docstring": "Create the EndGame Rule Board of the game\n\nArgs:\n    title (str) : header of the board, displayed (default : EndGame Rules)\n    numberRequired (int) : number of completed conditions to trigger EndGame",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "title",
+                "type": "str",
+                "description": "header of the board, displayed (default : EndGame Rules)"
+              },
+              {
+                "name": "numberRequired",
+                "type": "int",
+                "description": "number of completed conditions to trigger EndGame"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1396,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newSimVariable",
+            "signature": "def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):",
+            "description": "",
+            "docstring": "",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "name",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "initValue",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "color",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "isDisplay",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1414,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newProgressGauge",
+            "signature": "def newProgressGauge(self,simVar,minimum=0,maximum=100, title=None,orientation=\"horizontal\",colorRanges=None,unit=\"\", borderColor=Qt.black,backgroundColor=Qt.white,bar_width=25,bar_length=None,title_position='above',display_value_on_top=True ):",
+            "description": "Create a progress gauge widget for monitoring simulation variables.",
+            "docstring": "Create a progress gauge widget for monitoring simulation variables.\nThis widget displays a progress bar (horizontal or vertical) that reflects the value of \na linked simulation variable.\nThe gauge can also trigger callbacks when specific thresholds are crossed.\nIt supports optional titles, value labels, units, color ranges for dynamic coloring, and custom sizes.\n\nArgs:\n    simVar (object): The simulation variable to be monitored.\n    minimum (float or int, optional): Minimum value of the gauge. Defaults to 0.\n    maximum (float or int, optional): Maximum value of the gauge. Defaults to 100.\n    title (str, optional): The displayed title of the gauge. Defaults to None.\n    orientation (str, optional): Either 'horizontal' or 'vertical'. Defaults to 'horizontal'.\n    colorRanges (list of tuple, optional): Each tuple is \n        (min_value, max_value, css_color_string) defining dynamic color rules.\n    unit (str, optional): Unit string to display next to the value. Defaults to \"\".\n    borderColor (QColor or Qt.GlobalColor, optional): The border color of the gauge widget. Defaults to Qt.black.\n    backgroundColor (QColor or Qt.GlobalColor, optional): The background color of the gauge widget. Defaults to Qt.white.\n    bar_width (int, float, or str, optional): Width of the progress bar in pixels, or \"fit title size\" for vertical mode. Defaults to 25.\n    bar_length (int, optional): Length of the progress bar in pixels. Defaults to 180 for horizontal and 160 for vertical.\n    title_position (str, optional): \"above\" or \"below\" the gauge. Defaults to \"above\".\n    display_value_on_top (bool, optional): Whether to display the numeric value on top of the progress bar. Defaults to True.\n\nmethods:\n    setThresholdValue(value, on_up=None, on_down=None):\n        Allow to define callbacks to execute when a value threshold is crossed.\n        ex. aGauge1.setThresholdValue(8, on_up= lambda: print(\"⚠️ Surchauffe détectée !\"))\n        ex. aGauge2.setThresholdValue(2, on_down= lambda: myAgents.moveRandomly()))\nReturns:\n    SGProgressGauge: The created SGProgressGauge instance.",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "simVar",
+                "type": "object",
+                "description": "The simulation variable to be monitored."
+              },
+              {
+                "name": "minimum",
+                "type": "float or int, optional",
+                "description": "Minimum value of the gauge. Defaults to 0."
+              },
+              {
+                "name": "maximum",
+                "type": "float or int, optional",
+                "description": "Maximum value of the gauge. Defaults to 100."
+              },
+              {
+                "name": "title",
+                "type": "str, optional",
+                "description": "The displayed title of the gauge. Defaults to None."
+              },
+              {
+                "name": "orientation",
+                "type": "str, optional",
+                "description": "Either 'horizontal' or 'vertical'. Defaults to 'horizontal'."
+              },
+              {
+                "name": "colorRanges",
+                "type": "list of tuple, optional",
+                "description": "Each tuple is\n(min_value, max_value, css_color_string) defining dynamic color rules."
+              },
+              {
+                "name": "unit",
+                "type": "str, optional",
+                "description": "Unit string to display next to the value. Defaults to \"\"."
+              },
+              {
+                "name": "borderColor",
+                "type": "QColor or Qt.GlobalColor, optional",
+                "description": "The border color of the gauge widget. Defaults to Qt.black."
+              },
+              {
+                "name": "backgroundColor",
+                "type": "QColor or Qt.GlobalColor, optional",
+                "description": "The background color of the gauge widget. Defaults to Qt.white."
+              },
+              {
+                "name": "bar_width",
+                "type": "int, float, or str, optional",
+                "description": "Width of the progress bar in pixels, or \"fit title size\" for vertical mode. Defaults to 25."
+              },
+              {
+                "name": "bar_length",
+                "type": "int, optional",
+                "description": "Length of the progress bar in pixels. Defaults to 180 for horizontal and 160 for vertical."
+              },
+              {
+                "name": "title_position",
+                "type": "str, optional",
+                "description": "\"above\" or \"below\" the gauge. Defaults to \"above\"."
+              },
+              {
+                "name": "display_value_on_top",
+                "type": "bool, optional",
+                "description": "Whether to display the numeric value on top of the progress bar. Defaults to True.\nmethods:"
+              }
+            ],
+            "returns": "SGProgressGauge: The created SGProgressGauge instance.",
+            "examples": [],
+            "line_number": 1420,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newLegend",
+            "signature": "def newLegend(self, name='Legend', alwaysDisplayDefaultAgentSymbology=False):#, grid=None):",
+            "description": "To create an Admin Legend (with all the cell and agent values)",
+            "docstring": "To create an Admin Legend (with all the cell and agent values)\n\nArgs:\nName (str): name of the Legend (default : Legend)\nalwaysDisplayDefaultAgentSymbology (bool) : display default symbology of agent, even if agents with attribute symbologies are shown (default : False)\ngrid (str) : name of the grid or None (select the first grid) or \"combined\"",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "name",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "alwaysDisplayDefaultAgentSymbology",
+                "type": "bool",
+                "description": "display default symbology of agent, even if agents with attribute symbologies are shown (default : False)"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1487,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newUserSelector",
+            "signature": "def newUserSelector(self, customListOfUsers=None, orientation='horizontal'):",
+            "description": "To create a User Selector in your game. Functions automatically with the players declared in your model.",
+            "docstring": "To create a User Selector in your game. Functions automatically with the players declared in your model.\n\nArgs:\n    customListOfUsers(list, optional) : a custom list of users to be used instead of the automatic list generated by the model.\n    orientation(str, optional) : layout orientation - 'horizontal' (default) or 'vertical'.",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "customListOfUsers",
+                "type": "list, optional",
+                "description": "a custom list of users to be used instead of the automatic list generated by the model."
+              },
+              {
+                "name": "orientation",
+                "type": "str, optional",
+                "description": "layout orientation - 'horizontal' (default) or 'vertical'."
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1508,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newTimeLabel",
+            "signature": "def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):",
+            "description": "Create the visual time board of the game.",
+            "docstring": "Create the visual time board of the game.\n\nArgs:\ntitle (str) : name of the widget (default:None)\nbackgroundColor (Qt Color) : color of the background (default : Qt.white)\nborderColor (Qt Color) : color of the border (default : Qt.black)\ntextColor (Qt Color) : color of the text (default : Qt.black)",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "title",
+                "type": "str",
+                "description": "name of the widget (default:None)"
+              },
+              {
+                "name": "backgroundColor",
+                "type": "Qt Color",
+                "description": "color of the background (default : Qt.white)"
+              },
+              {
+                "name": "borderColor",
+                "type": "Qt Color",
+                "description": "color of the border (default : Qt.black)"
+              },
+              {
+                "name": "textColor",
+                "type": "Qt Color",
+                "description": "color of the text (default : Qt.black)"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1536,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newTextBox",
+            "signature": "def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):",
+            "description": "Create a text box with full customization options.",
+            "docstring": "Create a text box with full customization options.\n\nArgs:\n    textToWrite (str): Displayed text in the widget (default: \"Welcome in the game!\")\n    title (str): Name of the widget (default: \"Text Box\")\n    sizeX (int, optional): Manual width override for the text box\n    sizeY (int, optional): Manual height override for the text box\n    borderColor (QColor): Border color of the text box (default: Qt.black)\n    backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)\n\nReturns:\n    SGTextBox: The created text box widget",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "textToWrite",
+                "type": "str",
+                "description": "Displayed text in the widget (default: \"Welcome in the game!\")"
+              },
+              {
+                "name": "title",
+                "type": "str",
+                "description": "Name of the widget (default: \"Text Box\")"
+              },
+              {
+                "name": "sizeX",
+                "type": "int, optional",
+                "description": "Manual width override for the text box"
+              },
+              {
+                "name": "sizeY",
+                "type": "int, optional",
+                "description": "Manual height override for the text box"
+              },
+              {
+                "name": "borderColor",
+                "type": "QColor",
+                "description": "Border color of the text box (default: Qt.black)"
+              },
+              {
+                "name": "backgroundColor",
+                "type": "QColor",
+                "description": "Background color of the text box (default: Qt.lightGray)"
+              }
+            ],
+            "returns": "SGTextBox: The created text box widget",
+            "examples": [],
+            "line_number": 1557,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newLabel",
+            "signature": "def newLabel(self, text, position, textStyle_specs=\"\", borderStyle_specs=\"\", backgroundColor_specs=\"\", alignement=\"Left\", fixedWidth=None, fixedHeight=None):",
+            "description": "Display a text at a given position",
+            "docstring": "Display a text at a given position\n\nArgs:\n    text (str): The text to display.\n    position (tuple): Coordinates (x, y) of the position of the text.\n    textStyle_specs (str, optional): CSS-like specifications for the text style (font, size, color, etc.).\n    borderStyle_specs (str, optional): CSS-like specifications for the border style (size, color, type).\n    backgroundColor_specs (str, optional): CSS-like specifications for the background color.\n    alignement (str, optional): Text alignment. Options include \"Left\", \"Right\", \"HCenter\", \"Top\", \"Bottom\", \"VCenter\", \"Center\", \"Justify\".\n    fixedWidth (float, optional): Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long.\n    fixedHeight (float, optional): Fixed height of the widget in pixels. If specified, the widget will have a fixed height and will not resize.\n\nReturns:\n    SGLabel: An instance of SGLabel with the specified properties.",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "text",
+                "type": "str",
+                "description": "The text to display."
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "description": "Coordinates (x, y) of the position of the text."
+              },
+              {
+                "name": "textStyle_specs",
+                "type": "str, optional",
+                "description": "CSS-like specifications for the text style (font, size, color, etc.)."
+              },
+              {
+                "name": "borderStyle_specs",
+                "type": "str, optional",
+                "description": "CSS-like specifications for the border style (size, color, type)."
+              },
+              {
+                "name": "backgroundColor_specs",
+                "type": "str, optional",
+                "description": "CSS-like specifications for the background color."
+              },
+              {
+                "name": "alignement",
+                "type": "str, optional",
+                "description": "Text alignment. Options include \"Left\", \"Right\", \"HCenter\", \"Top\", \"Bottom\", \"VCenter\", \"Center\", \"Justify\"."
+              },
+              {
+                "name": "fixedWidth",
+                "type": "float, optional",
+                "description": "Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long."
+              },
+              {
+                "name": "fixedHeight",
+                "type": "float, optional",
+                "description": "Fixed height of the widget in pixels. If specified, the widget will have a fixed height and will not resize."
+              }
+            ],
+            "returns": "SGLabel: An instance of SGLabel with the specified properties.",
+            "examples": [],
+            "line_number": 1584,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newLabel_stylised",
+            "signature": "def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration=\"none\", font_weight=\"normal\", font_style=\"normal\", alignement= \"Left\", border_style=\"solid\", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):",
+            "description": "Display a text at a given position and allow setting the style of the text, border, and background.",
+            "docstring": "Display a text at a given position and allow setting the style of the text, border, and background.\n\nArgs:\n    text (str): The text to display.\n    position (tuple): Coordinates (x, y) of the position of the text.\n    font (str, optional): Font family. Options include \"Times New Roman\", \"Georgia\", \"Garamond\", \"Baskerville\", \"Arial\", \"Helvetica\", \"Verdana\", \"Tahoma\", \"Trebuchet MS\", \"Courier New\", \"Lucida Console\", \"Monaco\", \"Consolas\", \"Comic Sans MS\", \"Papyrus\", \"Impact\".\n    size (int, optional): Font size in pixels.\n    color (str, optional): Text color. Can be specified by name (e.g., \"red\", \"orange\", \"navy\", \"gold\"), hex code (e.g., \"#FF0000\", \"#AB28F9\"), RGB values (e.g., \"rgb(127, 12, 0)\"), or RGBA values for transparency (e.g., \"rgba(154, 20, 8, 0.5)\").\n    text_decoration (str, optional): Text decoration style. Options include \"none\", \"underline\", \"overline\", \"line-through\", \"blink\".\n    font_weight (str, optional): Font weight. Options include \"normal\", \"bold\", \"bolder\", \"lighter\", \"100\", \"200\", \"300\", \"400\", \"500\", \"600\", \"700\", \"800\", \"900\".\n    font_style (str, optional): Font style. Options include \"normal\", \"italic\", \"oblique\".\n    alignement (str, optional): Text alignment. Options include \"Left\", \"Right, \"HCenter\", \"Top\", \"Bottom\", \"VCenter\", \"Center\", \"Justify\".\n    border_style (str, optional): Border style. Options include \"solid\", \"dotted\", \"dashed\", \"double\", \"groove\", \"ridge\", \"inset\".\n    border_size (int, optional): Border size in pixels.\n    border_color (str, optional): Same options as color.\n    background_color (str, optional): Same options as color.\n    fixedWidth (float, optional): Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long.\n    fixedHeight (float, optional): Fixed height of the widget in pixels.",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "text",
+                "type": "str",
+                "description": "The text to display."
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "description": "Coordinates (x, y) of the position of the text."
+              },
+              {
+                "name": "font",
+                "type": "str, optional",
+                "description": "Font family. Options include \"Times New Roman\", \"Georgia\", \"Garamond\", \"Baskerville\", \"Arial\", \"Helvetica\", \"Verdana\", \"Tahoma\", \"Trebuchet MS\", \"Courier New\", \"Lucida Console\", \"Monaco\", \"Consolas\", \"Comic Sans MS\", \"Papyrus\", \"Impact\"."
+              },
+              {
+                "name": "size",
+                "type": "int, optional",
+                "description": "Font size in pixels."
+              },
+              {
+                "name": "color",
+                "type": "str, optional",
+                "description": "Text color. Can be specified by name (e.g., \"red\", \"orange\", \"navy\", \"gold\"), hex code (e.g., \"#FF0000\", \"#AB28F9\"), RGB values (e.g., \"rgb(127, 12, 0)\"), or RGBA values for transparency (e.g., \"rgba(154, 20, 8, 0.5)\")."
+              },
+              {
+                "name": "text_decoration",
+                "type": "str, optional",
+                "description": "Text decoration style. Options include \"none\", \"underline\", \"overline\", \"line-through\", \"blink\"."
+              },
+              {
+                "name": "font_weight",
+                "type": "str, optional",
+                "description": "Font weight. Options include \"normal\", \"bold\", \"bolder\", \"lighter\", \"100\", \"200\", \"300\", \"400\", \"500\", \"600\", \"700\", \"800\", \"900\"."
+              },
+              {
+                "name": "font_style",
+                "type": "str, optional",
+                "description": "Font style. Options include \"normal\", \"italic\", \"oblique\"."
+              },
+              {
+                "name": "alignement",
+                "type": "str, optional",
+                "description": "Text alignment. Options include \"Left\", \"Right, \"HCenter\", \"Top\", \"Bottom\", \"VCenter\", \"Center\", \"Justify\"."
+              },
+              {
+                "name": "border_style",
+                "type": "str, optional",
+                "description": "Border style. Options include \"solid\", \"dotted\", \"dashed\", \"double\", \"groove\", \"ridge\", \"inset\"."
+              },
+              {
+                "name": "border_size",
+                "type": "int, optional",
+                "description": "Border size in pixels."
+              },
+              {
+                "name": "border_color",
+                "type": "str, optional",
+                "description": "Same options as color."
+              },
+              {
+                "name": "background_color",
+                "type": "str, optional",
+                "description": "Same options as color."
+              },
+              {
+                "name": "fixedWidth",
+                "type": "float, optional",
+                "description": "Fixed width of the label in pixels. If specified, word wrap will be used in case the text is too long."
+              },
+              {
+                "name": "fixedHeight",
+                "type": "float, optional",
+                "description": "Fixed height of the widget in pixels."
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1605,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newButton",
+            "signature": "def newButton(self, method, text, position, background_color='white', background_image=None, border_size=1, border_color='lightgray', border_style='solid', border_radius=5, text_color=None, font_family=None, font_size=None, font_weight=None, min_width=None, min_height=None, padding=2, hover_text_color= None, hover_background_color= '#c6eff7', hover_border_color= '#6bd8ed', pressed_color=None, disabled_color=None):",
+            "description": "Display a button with customizable style.",
+            "docstring": "Display a button with customizable style.\nArgs:\n    method (lambda function | SGAbstractAction ): Method to execute when button is pressed \n        - lambda function : une fonction/méthode appelée telle quelle\n        - SGAbstractAction: l'action est exécutée via perform_with\n    text (str): Text of the button\n    position (tuple): Coordinates (x, y) of the button position\n    background_color (str, optional): Background color. Can be name (e.g., \"red\"), hex (#FF0000), RGB (rgb(127,12,0)) or RGBA\n    background_image (str, optional): Path to background image\n    border_size (int, optional): Border size in pixels\n    border_color (str, optional): Border color. Same format as background_color\n    border_style (str, optional): Border style. Options include \"solid\", \"dotted\", \"dashed\", \"double\", \"groove\", \"ridge\", \"inset\".\n    border_radius (int, optional): Border radius in pixels for rounded corners\n    text_color (str, optional): Text color. Same format as background_color\n    font_family (str, optional): Font family (e.g., \"Arial\", \"Times New Roman\", \"Helvetica\")\n    font_size (int, optional): Font size in pixels\n    font_weight (str, optional): Font weight (\"normal\", \"bold\", \"100\" to \"900\")\n    min_width (int, optional): Minimum button width in pixels\n    min_height (int, optional): Minimum button height in pixels\n    padding (int, optional): Internal padding in pixels\n    hover_color (str, optional): Background color on hover. Same format as background_color\n    pressed_color (str, optional): Background color when pressed. Same format as background_color\n    disabled_color (str, optional): Background color when disabled. Same format as background_color",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "method",
+                "type": "lambda function | SGAbstractAction",
+                "description": "Method to execute when button is pressed\n- lambda function : une fonction/méthode appelée telle quelle\n- SGAbstractAction: l'action est exécutée via perform_with"
+              },
+              {
+                "name": "text",
+                "type": "str",
+                "description": "Text of the button"
+              },
+              {
+                "name": "position",
+                "type": "tuple",
+                "description": "Coordinates (x, y) of the button position"
+              },
+              {
+                "name": "background_color",
+                "type": "str, optional",
+                "description": "Background color. Can be name (e.g., \"red\"), hex (#FF0000), RGB (rgb(127,12,0)) or RGBA"
+              },
+              {
+                "name": "background_image",
+                "type": "str, optional",
+                "description": "Path to background image"
+              },
+              {
+                "name": "border_size",
+                "type": "int, optional",
+                "description": "Border size in pixels"
+              },
+              {
+                "name": "border_color",
+                "type": "str, optional",
+                "description": "Border color. Same format as background_color"
+              },
+              {
+                "name": "border_style",
+                "type": "str, optional",
+                "description": "Border style. Options include \"solid\", \"dotted\", \"dashed\", \"double\", \"groove\", \"ridge\", \"inset\"."
+              },
+              {
+                "name": "border_radius",
+                "type": "int, optional",
+                "description": "Border radius in pixels for rounded corners"
+              },
+              {
+                "name": "text_color",
+                "type": "str, optional",
+                "description": "Text color. Same format as background_color"
+              },
+              {
+                "name": "font_family",
+                "type": "str, optional",
+                "description": "Font family (e.g., \"Arial\", \"Times New Roman\", \"Helvetica\")"
+              },
+              {
+                "name": "font_size",
+                "type": "int, optional",
+                "description": "Font size in pixels"
+              },
+              {
+                "name": "font_weight",
+                "type": "str, optional",
+                "description": "Font weight (\"normal\", \"bold\", \"100\" to \"900\")"
+              },
+              {
+                "name": "min_width",
+                "type": "int, optional",
+                "description": "Minimum button width in pixels"
+              },
+              {
+                "name": "min_height",
+                "type": "int, optional",
+                "description": "Minimum button height in pixels"
+              },
+              {
+                "name": "padding",
+                "type": "int, optional",
+                "description": "Internal padding in pixels"
+              },
+              {
+                "name": "hover_text_color",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "hover_background_color",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "hover_border_color",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "pressed_color",
+                "type": "str, optional",
+                "description": "Background color when pressed. Same format as background_color"
+              },
+              {
+                "name": "disabled_color",
+                "type": "str, optional",
+                "description": "Background color when disabled. Same format as background_color"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1639,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newWarningPopUp",
+            "signature": "def newWarningPopUp(self,aTitle, aMessage):",
+            "description": "",
+            "docstring": "",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aTitle",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aMessage",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1721,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "newPopUp",
+            "signature": "def newPopUp(self, aTitle, aMessage):",
+            "description": "",
+            "docstring": "",
+            "category": "NEW",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aTitle",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aMessage",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1730,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ],
+        "OTHER MODELER METHODS": [
+          {
+            "name": "createVoid",
+            "signature": "def createVoid(self, name, sizeX=200, sizeY=200):",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "name",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "sizeX",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "sizeY",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1708,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "roundNumber",
+            "signature": "def roundNumber(self):",
+            "description": "Return the current ingame round number",
+            "docstring": "Return the current ingame round number",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1807,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "phaseNumber",
+            "signature": "def phaseNumber(self):",
+            "description": "Return the current ingame phase number",
+            "docstring": "Return the current ingame phase number",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1811,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ],
+        "SET": [
+          {
+            "name": "setCurrentPlayer",
+            "signature": "def setCurrentPlayer(self, aUserName):",
+            "description": "Set the Active Player at the initialisation",
+            "docstring": "Set the Active Player at the initialisation\n\nArgs:\n    playerName (str): predefined playerName",
+            "category": "SET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aUserName",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1746,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "set_gameSpaces_draggability",
+            "signature": "def set_gameSpaces_draggability(self, all_elements=None, include=None, exclude=None, value=True):",
+            "description": "Met à jour l'état de \"draggability\" des éléments.",
+            "docstring": "Met à jour l'état de \"draggability\" des éléments.\n\n:param all_elements: Si True, applique la valeur à tous les éléments.\n:param include: Liste des éléments spécifiques à modifier.\n:param exclude: Liste des éléments à exclure.\n:param value: Valeur à appliquer (True ou False).",
+            "category": "SET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "all_elements",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "include",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "exclude",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "value",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1771,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ],
+        "GET": [
+          {
+            "name": "getEntityTypes",
+            "signature": "def getEntityTypes(self):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1815,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getEntityType",
+            "signature": "def getEntityType(self, name):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "name",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1818,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getCellType",
+            "signature": "def getCellType(self, aGrid):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aGrid",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1828,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getAgentTypes",
+            "signature": "def getAgentTypes(self):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1832,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getAgentType",
+            "signature": "def getAgentType(self, aTypeName):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aTypeName",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1836,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getAllEntities",
+            "signature": "def getAllEntities(self):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1840,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getAllCells",
+            "signature": "def getAllCells(self):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1849,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getCells",
+            "signature": "def getCells(self,grid=None):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "grid",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1858,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getCell",
+            "signature": "def getCell(self, aGrid, aId):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aGrid",
+                "type": "Any",
+                "description": ""
+              },
+              {
+                "name": "aId",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1864,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getAllAgents",
+            "signature": "def getAllAgents(self):",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1869,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "getAgentsOfType",
+            "signature": "def getAgentsOfType(self, aTypeName) -> list[SGAgent]:",
+            "description": "",
+            "docstring": "",
+            "category": "GET",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "aTypeName",
+                "type": "Any",
+                "description": ""
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1876,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ],
+        "DELETE": [
+          {
+            "name": "deleteAllAgents",
+            "signature": "def deleteAllAgents(self):",
+            "description": "",
+            "docstring": "",
+            "category": "DELETE",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1888,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ],
+        "DISPLAY": [
+          {
+            "name": "displayTimeInWindowTitle",
+            "signature": "def displayTimeInWindowTitle(self, setting=True):",
+            "description": "Set whether to display the time (Round number and Phase number) in the window title.",
+            "docstring": "Set whether to display the time (Round number and Phase number) in the window title.\nArgs:\n    setting (bool, optional): If True or not specified, the time will be displayed in the window title; if False, it will not.",
+            "category": "DISPLAY",
+            "class_name": "SGModel",
+            "parameters": [
+              {
+                "name": "setting",
+                "type": "bool, optional",
+                "description": "If True or not specified, the time will be displayed in the window title; if False, it will not."
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 1903,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          },
+          {
+            "name": "displayAdminControlPanel",
+            "signature": "def displayAdminControlPanel(self):",
+            "description": "Display the Admin Control Panel",
+            "docstring": "Display the Admin Control Panel",
+            "category": "DISPLAY",
+            "class_name": "SGModel",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 1914,
+            "parent_classes": [
+              "QMainWindow",
+              "SGEventHandlerGuide"
+            ]
+          }
+        ]
+      }
     }
   },
   "inheritance": {
@@ -6664,6 +8446,10 @@
     ],
     "SGAgent": [
       "SGEntity"
+    ],
+    "SGModel": [
+      "QMainWindow",
+      "SGEventHandlerGuide"
     ]
   }
 }

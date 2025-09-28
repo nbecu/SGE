@@ -1658,5 +1658,327 @@
       "${1:instance}.setValues(${2:value})"
     ],
     "description": "Set multiple attribute values at once."
+  },
+  "SGModel.newActivateAction": {
+    "prefix": "sgmodel.newActivateAction",
+    "body": [
+      "${1:result} = ${2:instance}.newActivateAction(${3:})"
+    ],
+    "description": "Add a ActivateAction to the game"
+  },
+  "SGModel.newAgentType": {
+    "prefix": "sgmodel.newAgentType",
+    "body": [
+      "${1:result} = ${2:instance}.newAgentType(${3:})"
+    ],
+    "description": "Create a new specie of Agents."
+  },
+  "SGModel.newButton": {
+    "prefix": "sgmodel.newButton",
+    "body": [
+      "${1:result} = ${2:instance}.newButton(${3:})"
+    ],
+    "description": "Display a button with customizable style."
+  },
+  "SGModel.newCellsOnGrid": {
+    "prefix": "sgmodel.newCellsOnGrid",
+    "body": [
+      "${1:result} = ${2:instance}.newCellsOnGrid(${3:})"
+    ],
+    "description": "Create a grid that contains cells"
+  },
+  "SGModel.newCreateAction": {
+    "prefix": "sgmodel.newCreateAction",
+    "body": [
+      "${1:result} = ${2:instance}.newCreateAction(${3:})"
+    ],
+    "description": "Add a Create GameAction to the game."
+  },
+  "SGModel.newDashBoard": {
+    "prefix": "sgmodel.newDashBoard",
+    "body": [
+      "${1:result} = ${2:instance}.newDashBoard(${3:})"
+    ],
+    "description": "Qt.lightGray"
+  },
+  "SGModel.newDeleteAction": {
+    "prefix": "sgmodel.newDeleteAction",
+    "body": [
+      "${1:result} = ${2:instance}.newDeleteAction(${3:})"
+    ],
+    "description": "Add a Delete GameAction to the game."
+  },
+  "SGModel.newEndGameRule": {
+    "prefix": "sgmodel.newEndGameRule",
+    "body": [
+      "${1:result} = ${2:instance}.newEndGameRule(${3:})"
+    ],
+    "description": "Create the EndGame Rule Board of the game"
+  },
+  "SGModel.newLabel": {
+    "prefix": "sgmodel.newLabel",
+    "body": [
+      "${1:result} = ${2:instance}.newLabel(${3:})"
+    ],
+    "description": "Display a text at a given position"
+  },
+  "SGModel.newLabel_stylised": {
+    "prefix": "sgmodel.newLabel_stylised",
+    "body": [
+      "${1:result} = ${2:instance}.newLabel_stylised(${3:})"
+    ],
+    "description": "Display a text at a given position and allow setting the style of the text, border, and background."
+  },
+  "SGModel.newLegend": {
+    "prefix": "sgmodel.newLegend",
+    "body": [
+      "${1:result} = ${2:instance}.newLegend(${3:})"
+    ],
+    "description": "To create an Admin Legend (with all the cell and agent values)"
+  },
+  "SGModel.newModelAction": {
+    "prefix": "sgmodel.newModelAction",
+    "body": [
+      "${1:result} = ${2:instance}.newModelAction(${3:})"
+    ],
+    "description": "To add a model action which can be executed during a modelPhase"
+  },
+  "SGModel.newModelAction_onAgents": {
+    "prefix": "sgmodel.newModelAction_onAgents",
+    "body": [
+      "${1:result} = ${2:instance}.newModelAction_onAgents(${3:})"
+    ],
+    "description": "To add a model action which can be executed during a modelPhase"
+  },
+  "SGModel.newModelAction_onCells": {
+    "prefix": "sgmodel.newModelAction_onCells",
+    "body": [
+      "${1:result} = ${2:instance}.newModelAction_onCells(${3:})"
+    ],
+    "description": "To add a model action which can be executed during a modelPhase"
+  },
+  "SGModel.newModelPhase": {
+    "prefix": "sgmodel.newModelPhase",
+    "body": [
+      "${1:result} = ${2:instance}.newModelPhase(${3:})"
+    ],
+    "description": "Create a new model phase for the game."
+  },
+  "SGModel.newModifyAction": {
+    "prefix": "sgmodel.newModifyAction",
+    "body": [
+      "${1:result} = ${2:instance}.newModifyAction(${3:})"
+    ],
+    "description": "Add a Modify GameAction to the game."
+  },
+  "SGModel.newModifyActionWithDialog": {
+    "prefix": "sgmodel.newModifyActionWithDialog",
+    "body": [
+      "${1:result} = ${2:instance}.newModifyActionWithDialog(${3:})"
+    ],
+    "description": "Add a ModifyActionWithDialog GameAction to the game."
+  },
+  "SGModel.newMoveAction": {
+    "prefix": "sgmodel.newMoveAction",
+    "body": [
+      "${1:result} = ${2:instance}.newMoveAction(${3:})"
+    ],
+    "description": "Add a MoveAction to the game."
+  },
+  "SGModel.newPlayer": {
+    "prefix": "sgmodel.newPlayer",
+    "body": [
+      "${1:result} = ${2:instance}.newPlayer(${3:})"
+    ],
+    "description": "\""
+  },
+  "SGModel.newPlayPhase": {
+    "prefix": "sgmodel.newPlayPhase",
+    "body": [
+      "${1:result} = ${2:instance}.newPlayPhase(${3:})"
+    ],
+    "description": "Create a new play phase for the game."
+  },
+  "SGModel.newPopUp": {
+    "prefix": "sgmodel.newPopUp",
+    "body": [
+      "${1:result} = ${2:instance}.newPopUp(${3:})"
+    ],
+    "description": ""
+  },
+  "SGModel.newProgressGauge": {
+    "prefix": "sgmodel.newProgressGauge",
+    "body": [
+      "${1:result} = ${2:instance}.newProgressGauge(${3:})"
+    ],
+    "description": "Create a progress gauge widget for monitoring simulation variables."
+  },
+  "SGModel.newSimVariable": {
+    "prefix": "sgmodel.newSimVariable",
+    "body": [
+      "${1:result} = ${2:instance}.newSimVariable(${3:})"
+    ],
+    "description": ""
+  },
+  "SGModel.newTextBox": {
+    "prefix": "sgmodel.newTextBox",
+    "body": [
+      "${1:result} = ${2:instance}.newTextBox(${3:})"
+    ],
+    "description": "Create a text box with full customization options."
+  },
+  "SGModel.newTimeLabel": {
+    "prefix": "sgmodel.newTimeLabel",
+    "body": [
+      "${1:result} = ${2:instance}.newTimeLabel(${3:})"
+    ],
+    "description": "Create the visual time board of the game."
+  },
+  "SGModel.newUserSelector": {
+    "prefix": "sgmodel.newUserSelector",
+    "body": [
+      "${1:result} = ${2:instance}.newUserSelector(${3:})"
+    ],
+    "description": "To create a User Selector in your game. Functions automatically with the players declared in your model."
+  },
+  "SGModel.newWarningPopUp": {
+    "prefix": "sgmodel.newWarningPopUp",
+    "body": [
+      "${1:result} = ${2:instance}.newWarningPopUp(${3:})"
+    ],
+    "description": ""
+  },
+  "SGModel.createVoid": {
+    "prefix": "sgmodel.createVoid",
+    "body": [
+      "${1:result} = ${2:instance}.createVoid(${3:name}, ${4:sizeX}, ${5:sizeY})"
+    ],
+    "description": ""
+  },
+  "SGModel.phaseNumber": {
+    "prefix": "sgmodel.phaseNumber",
+    "body": [
+      "${1:result} = ${2:instance}.phaseNumber()"
+    ],
+    "description": "Return the current ingame phase number"
+  },
+  "SGModel.roundNumber": {
+    "prefix": "sgmodel.roundNumber",
+    "body": [
+      "${1:result} = ${2:instance}.roundNumber()"
+    ],
+    "description": "Return the current ingame round number"
+  },
+  "SGModel.set_gameSpaces_draggability": {
+    "prefix": "sgmodel.set_gameSpaces_draggability",
+    "body": [
+      "${1:instance}.set_gameSpaces_draggability(${2:all_elements}, ${3:include})"
+    ],
+    "description": "Met à jour l'état de \"draggability\" des éléments."
+  },
+  "SGModel.setCurrentPlayer": {
+    "prefix": "sgmodel.setCurrentPlayer",
+    "body": [
+      "${1:instance}.setCurrentPlayer(${2:value})"
+    ],
+    "description": "Set the Active Player at the initialisation"
+  },
+  "SGModel.getAgentsOfType": {
+    "prefix": "sgmodel.getAgentsOfType",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentsOfType(${3:aTypeName})"
+    ],
+    "description": ""
+  },
+  "SGModel.getAgentType": {
+    "prefix": "sgmodel.getAgentType",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentType(${3:aTypeName})"
+    ],
+    "description": ""
+  },
+  "SGModel.getAgentTypes": {
+    "prefix": "sgmodel.getAgentTypes",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentTypes()"
+    ],
+    "description": ""
+  },
+  "SGModel.getAllAgents": {
+    "prefix": "sgmodel.getAllAgents",
+    "body": [
+      "${1:result} = ${2:instance}.getAllAgents()"
+    ],
+    "description": ""
+  },
+  "SGModel.getAllCells": {
+    "prefix": "sgmodel.getAllCells",
+    "body": [
+      "${1:result} = ${2:instance}.getAllCells()"
+    ],
+    "description": ""
+  },
+  "SGModel.getAllEntities": {
+    "prefix": "sgmodel.getAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getAllEntities()"
+    ],
+    "description": ""
+  },
+  "SGModel.getCell": {
+    "prefix": "sgmodel.getCell",
+    "body": [
+      "${1:result} = ${2:instance}.getCell(${3:aGrid}, ${4:aId})"
+    ],
+    "description": ""
+  },
+  "SGModel.getCells": {
+    "prefix": "sgmodel.getCells",
+    "body": [
+      "${1:result} = ${2:instance}.getCells(${3:grid})"
+    ],
+    "description": ""
+  },
+  "SGModel.getCellType": {
+    "prefix": "sgmodel.getCellType",
+    "body": [
+      "${1:result} = ${2:instance}.getCellType(${3:aGrid})"
+    ],
+    "description": ""
+  },
+  "SGModel.getEntityType": {
+    "prefix": "sgmodel.getEntityType",
+    "body": [
+      "${1:result} = ${2:instance}.getEntityType(${3:name})"
+    ],
+    "description": ""
+  },
+  "SGModel.getEntityTypes": {
+    "prefix": "sgmodel.getEntityTypes",
+    "body": [
+      "${1:result} = ${2:instance}.getEntityTypes()"
+    ],
+    "description": ""
+  },
+  "SGModel.deleteAllAgents": {
+    "prefix": "sgmodel.deleteAllAgents",
+    "body": [
+      "${1:instance}.deleteAllAgents()"
+    ],
+    "description": ""
+  },
+  "SGModel.displayAdminControlPanel": {
+    "prefix": "sgmodel.displayAdminControlPanel",
+    "body": [
+      "${1:result} = ${2:instance}.displayAdminControlPanel()"
+    ],
+    "description": "Display the Admin Control Panel"
+  },
+  "SGModel.displayTimeInWindowTitle": {
+    "prefix": "sgmodel.displayTimeInWindowTitle",
+    "body": [
+      "${1:result} = ${2:instance}.displayTimeInWindowTitle(${3:setting})"
+    ],
+    "description": "Set whether to display the time (Round number and Phase number) in the window title."
   }
 }
