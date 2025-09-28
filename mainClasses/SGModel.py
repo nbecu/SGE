@@ -1366,6 +1366,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             conditions (lambda function): Actions are performed only if the condition returns true  
             feedbacks (lambda function): feedback actions performed only if the actions are executed
         """
+        specieName = normalize_type_name(specieName)
         aModelAction = SGModelAction_OnEntities(self,actions, conditions, feedbacks,(lambda:self.getAgentsOfType(specieName)))
         self.id_modelActions += 1
         aModelAction.id = self.id_modelActions
