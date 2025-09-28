@@ -223,11 +223,14 @@ class SGEMethodExtractor:
         # Extract description (first line of docstring)
         description = docstring.split('\n')[0].strip() if docstring else ""
         
+        # Look for @CATEGORY tag in comments before the method
+        category_tag = self._find_category_tag_in_comments(content, line_number)
+        
         # Determine category
-        category = self._determine_category(method_name, docstring)
+        category = self._determine_category(method_name, docstring, category_tag)
         
         # Extract parameters
-        parameters = self._extract_parameters(node)
+        parameters = self._extract_parameters(node, docstring)
         
         # Extract return info
         returns = self._extract_returns(docstring)
@@ -268,9 +271,27 @@ class SGEMethodExtractor:
         
         return ' '.join(signature_lines)
     
-    def _determine_category(self, method_name: str, docstring: str = "") -> str:
+    def _find_category_tag_in_comments(self, content: str, method_line_number: int) -> Optional[str]:
+        """Find @CATEGORY tag in comments before a method"""
+        lines = content.split('\n')
+        method_index = method_line_number - 1  # Convert to 0-based index
+        
+        # Look in the 5 lines before the method
+        for i in range(max(0, method_index - 5), method_index):
+            line = lines[i].strip()
+            if '@CATEGORY:' in line:
+                category = line.split('@CATEGORY:')[1].strip()
+                return category.upper()
+        
+        return None
+    
+    def _determine_category(self, method_name: str, docstring: str = "", category_tag: Optional[str] = None) -> str:
         """Determine the category of a method based on its name and tags"""
-        # First check for explicit category tag in docstring or comments
+        # First check for explicit category tag in comments
+        if category_tag:
+            return category_tag
+        
+        # Then check for explicit category tag in docstring
         if docstring:
             # Look for @CATEGORY tag in docstring
             for line in docstring.split('\n'):
@@ -288,9 +309,12 @@ class SGEMethodExtractor:
         
         return "OTHER MODELER METHODS"
     
-    def _extract_parameters(self, node: ast.FunctionDef) -> List[Dict[str, str]]:
-        """Extract parameter information"""
+    def _extract_parameters(self, node: ast.FunctionDef, docstring: str = "") -> List[Dict[str, str]]:
+        """Extract parameter information from function signature and docstring"""
         parameters = []
+        
+        # Extract parameter info from docstring
+        docstring_params = self._parse_docstring_parameters(docstring)
         
         for arg in node.args.args:
             if arg.arg == 'self':
@@ -302,11 +326,81 @@ class SGEMethodExtractor:
                 'description': ''
             }
             
-            # Try to get type annotation
+            # Try to get type annotation from function signature
             if arg.annotation:
                 param_info['type'] = ast.unparse(arg.annotation)
             
+            # Override with information from docstring if available
+            if arg.arg in docstring_params:
+                docstring_param = docstring_params[arg.arg]
+                if docstring_param.get('type'):
+                    param_info['type'] = docstring_param['type']
+                if docstring_param.get('description'):
+                    param_info['description'] = docstring_param['description']
+            
             parameters.append(param_info)
+        
+        return parameters
+    
+    def _parse_docstring_parameters(self, docstring: str) -> Dict[str, Dict[str, str]]:
+        """Parse parameter information from docstring Args: section"""
+        if not docstring:
+            return {}
+        
+        parameters = {}
+        lines = docstring.split('\n')
+        in_args_section = False
+        current_param = None
+        
+        for line in lines:
+            line = line.strip()
+            
+            # Check for Args: section start
+            if line.lower().startswith('args:'):
+                in_args_section = True
+                continue
+            
+            # Check for other sections that end Args section
+            if in_args_section and (line.lower().startswith('returns:') or 
+                                  line.lower().startswith('example:') or
+                                  line.lower().startswith('note:') or
+                                  line.lower().startswith('raises:')):
+                break
+            
+            if in_args_section:
+                # Look for parameter definitions (name (type): description)
+                if ':' in line and '(' in line and ')' in line:
+                    # Extract parameter name, type, and description
+                    parts = line.split(':', 1)
+                    if len(parts) == 2:
+                        param_part = parts[0].strip()
+                        description = parts[1].strip()
+                        
+                        # Extract name and type from "name (type)" format
+                        if '(' in param_part and ')' in param_part:
+                            name_start = param_part.find('(')
+                            name = param_part[:name_start].strip()
+                            type_start = param_part.find('(') + 1
+                            type_end = param_part.find(')')
+                            param_type = param_part[type_start:type_end].strip()
+                            
+                            parameters[name] = {
+                                'type': param_type,
+                                'description': description
+                            }
+                            current_param = name
+                        else:
+                            # Simple name: description format
+                            name = param_part.strip()
+                            parameters[name] = {
+                                'type': 'Any',
+                                'description': description
+                            }
+                            current_param = name
+                elif current_param and line:
+                    # Continuation of description
+                    if current_param in parameters:
+                        parameters[current_param]['description'] += ' ' + line
         
         return parameters
     
@@ -315,20 +409,31 @@ class SGEMethodExtractor:
         if not docstring:
             return ""
         
-        # Look for Returns: section
+        # Look for Returns: or Return: section
         lines = docstring.split('\n')
         in_returns_section = False
         return_info = []
         
         for line in lines:
             line = line.strip()
-            if line.lower().startswith('returns:'):
+            if line.lower().startswith('returns:') or line.lower().startswith('return:'):
                 in_returns_section = True
-                return_info.append(line[8:].strip())  # Remove "Returns:"
+                # Remove "Returns:" or "Return:" prefix
+                if line.lower().startswith('returns:'):
+                    return_info.append(line[8:].strip())
+                else:
+                    return_info.append(line[7:].strip())
             elif in_returns_section:
-                if line and not line.startswith(' '):
-                    break
-                return_info.append(line)
+                # Stop at next section or non-indented line
+                if line and not line.startswith(' ') and not line.startswith('\t'):
+                    # Check if it's another section
+                    if (line.lower().startswith('args:') or 
+                        line.lower().startswith('example:') or
+                        line.lower().startswith('note:') or
+                        line.lower().startswith('raises:')):
+                        break
+                if line:
+                    return_info.append(line)
         
         return ' '.join(return_info).strip()
     
@@ -1072,10 +1177,16 @@ class SGMethodsCatalog:
             'isValue', 'isNotValue'
         ]
         
+        # Methods that should be in DO but are currently in OTHER
+        do_methods_ambiguous = [
+            'moveTo', 'moveAgent', 'moveRandomly', 'moveTowards'
+        ]
+        
         ambiguous_methods = {
             'SET': set_methods_ambiguous,
             'GET': get_methods_ambiguous,
-            'IS': is_methods_ambiguous
+            'IS': is_methods_ambiguous,
+            'DO': do_methods_ambiguous
         }
         
         print("Methods identified as ambiguous:")

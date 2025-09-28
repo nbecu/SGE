@@ -159,7 +159,7 @@
                     <h4>newAgentHere</h4>
                     <div class="method-signature">def newAgentHere(self, agent_type,adictAttributes=None):</div>
                     <p><strong>Description:</strong> Create a new Agent from the associated agent type.</p>
-<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li><li>adictAttributes: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Create a sheep agent with default attributes
+<p><strong>Parameters:</strong></p><ul><li>agent_type: instance</li><li>adictAttributes: dict, optional</li></ul><p><strong>Returns:</strong> a new agent</p><div class='examples'><strong>Examples:</strong><pre># Create a sheep agent with default attributes
 sheep = cell.newAgentHere(sheepType)
 
 # Create a sheep agent with custom attributes
@@ -190,7 +190,7 @@ sheep = cell.newAgentHere(sheepType, {"health": "good", "age": 2})
                     <h4>getAgents</h4>
                     <div class="method-signature">def getAgents(self, type_name=None):</div>
                     <p><strong>Description:</strong> Get all agents in this cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Get all agents in the cell
+<p><strong>Parameters:</strong></p><ul><li>type_name: str or SGAgentDef, optional</li></ul><p><strong>Returns:</strong> list[SGAgent]: List of agents of the specified type, or all agents if type_name is None</p><div class='examples'><strong>Examples:</strong><pre># Get all agents in the cell
 all_agents = cell.getAgents()
 
 # Get only sheep agents
@@ -203,12 +203,12 @@ sheep_agents = cell.getAgents(sheepType)
                     <h4>getFirstAgentOfSpecie</h4>
                     <div class="method-signature">def getFirstAgentOfSpecie(self, type_name):</div>
                     <p><strong>Description:</strong> Get the first agent of a specific type in this cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>type_name: str or SGAgentDef</li></ul><p><strong>Returns:</strong> SGAgent or None: The first agent of the specified type, or None if not found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCell" data-examples="with-examples" data-parameters="with-params">
                     <h4>getNeighborCells</h4>
                     <div class="method-signature">def getNeighborCells(self, condition=None, neighborhood=None):</div>
                     <p><strong>Description:</strong> Get the neighboring cells of the current cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>neighborhood: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Get all neighboring cells
+<p><strong>Parameters:</strong></p><ul><li>condition: lambda function, optional</li><li>neighborhood: "moore", "neumann", optional</li></ul><p><strong>Returns:</strong> list: A list of neighboring cells (may be fewer if `boundary_condition` is "closed" and the cell is on an edge, or if a condition is defined). Notes: - Boundary handling depends on `self.grid.boundary_condition`: * "open" : Toroidal wrap-around (grid edges connect). * "closed": Finite boundaries (no wrap-around). - Coordinates in this grid are 1-indexed. - For "neumann" neighborhood, only horizontal and vertical neighbors are considered.</p><div class='examples'><strong>Examples:</strong><pre># Get all neighboring cells
 neighbors = cell.getNeighborCells()
 
 # Get only forest cells
@@ -241,22 +241,22 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <h4>getNeighborCells_inRadius</h4>
                     <div class="method-signature">def getNeighborCells_inRadius(self, max_distance=1, conditions=None, neighborhood=None):</div>
                     <p><strong>Description:</strong> Get all neighbor cells within a given radius according to the grid's neighborhood type.</p>
-<p><strong>Parameters:</strong></p><ul><li>max_distance: Any</li><li>conditions: Any</li><li>neighborhood: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>max_distance: int, optional</li><li>conditions: list[callable] | None, optional</li><li>neighborhood: "moore", "neumann", optional</li></ul><p><strong>Returns:</strong> list[SGCell]: List of matching neighbor cells (excluding self).</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>getClosestNeighborMatching</h4>
                     <div class="method-signature">def getClosestNeighborMatching(self, max_distance=1, conditions=None, neighborhood=None):</div>
                     <p><strong>Description:</strong> Get the closest cell within a given radius that matches all given conditions.</p>
-<p><strong>Parameters:</strong></p><ul><li>max_distance: Any</li><li>conditions: Any</li><li>neighborhood: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>max_distance: int, optional</li><li>conditions: list[callable] | callable | None, optional</li><li>neighborhood: "moore", "neumann", optional</li></ul><p><strong>Returns:</strong> SGCell | None: The closest matching cell, or None if no match found.</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>getClosestAgentMatching</h4>
                     <div class="method-signature">def getClosestAgentMatching(self, agent_type, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):</div>
                     <p><strong>Description:</strong> Find the closest neighboring cell within a given radius that contains at least one agent</p>
-<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li><li>max_distance: Any</li><li>conditions_on_agent: Any</li><li>conditions_on_cell: Any</li><li>return_all: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>agent_type: str | SGAgentDef</li><li>max_distance: int, optional</li><li>conditions_on_agent: list[callable], optional</li><li>conditions_on_cell: list[callable], optional</li><li>return_all: bool, optional</li></ul><p><strong>Returns:</strong> SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>getValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def getValue(self, att):</div>
                     <p><strong>Description:</strong> Return the value of a cell Attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>NB Methods</h3>
 
@@ -264,7 +264,7 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <h4>nbAgents</h4>
                     <div class="method-signature">def nbAgents(self, type_name=None):</div>
                     <p><strong>Description:</strong> Get the number of agents in this cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>type_name: str or SGAgentDef, optional</li></ul><p><strong>Returns:</strong> int: Number of agents of the specified type, or total count if type_name is None</p></div></div>
             <div class="category-section">
                 <h3>OTHER MODELER METHODS Methods</h3>
 
@@ -272,45 +272,25 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <h4>distanceTo</h4>
                     <div class="method-signature">def distanceTo(self, otherCell):</div>
                     <p><strong>Description:</strong> Compute Euclidean distance to another cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>otherCell: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>otherCell: SGCell</li></ul><p><strong>Returns:</strong> float: Euclidean distance between the two cells.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>agent_satisfies_conditions</h4>
                     <div class="method-signature">def agent_satisfies_conditions(agent):</div>
                     <p><strong>Description:</strong> </p>
-<p><strong>Parameters:</strong></p><ul><li>agent: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
-                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
-                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
-                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
-                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
-                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
-                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLambdaFunction: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
-                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
-                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>agent: Any</li></ul></div></div>
             <div class="category-section">
                 <h3>HAS Methods</h3>
 
                 <div class="method-card" data-category="HAS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>hasAgent</h4>
-                    <div class="method-signature">def hasAgent(self, agent):</div>
+                    <div class="method-signature">def hasAgent(self, agent: 'SGAgent') -> bool:</div>
                     <p><strong>Description:</strong> Check if this cell contains a specific agent</p>
-<p><strong>Parameters:</strong></p><ul><li>agent: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>agent: SGAgent</li></ul><p><strong>Returns:</strong> bool: True if the agent is in this cell, False otherwise</p></div>
                 <div class="method-card" data-category="HAS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>hasAgents</h4>
                     <div class="method-signature">def hasAgents(self, type_name=None):</div>
                     <p><strong>Description:</strong> Check if this cell contains agents of a specific type.</p>
-<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>type_name: str or SGAgentDef, optional</li></ul><p><strong>Returns:</strong> bool: True if the cell contains agents of the specified type, False otherwise</p></div></div>
             <div class="category-section">
                 <h3>IS Methods</h3>
 
@@ -318,17 +298,17 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <h4>isEmpty</h4>
                     <div class="method-signature">def isEmpty(self, type_name=None):</div>
                     <p><strong>Description:</strong> Check if this cell is empty of agents of a specific type.</p>
-<p><strong>Parameters:</strong></p><ul><li>type_name: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>type_name: str or SGAgentDef, optional</li></ul><p><strong>Returns:</strong> bool: True if the cell is empty of the specified type, False otherwise</p></div>
                 <div class="method-card" data-category="IS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>isValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut if equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div>
                 <div class="method-card" data-category="IS" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>isNotValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isNotValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut is not equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div>
             <div class="category-section">
                 <h3>SET Methods</h3>
 
@@ -336,12 +316,32 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <h4>setValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValue(self, aAttribut, valueToSet):</div>
                     <p><strong>Description:</strong> Sets the value of an attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValues <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
-<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div></div>
+<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
+                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
+                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
+                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLambdaFunction: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
+                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
+                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li></ul></div></div></div>
         <div class="class-section" id="SGEntityType">
             <h2>SGEntityType</h2>
             <p>SGEntityType model class for SGE framework - 48 methods</p>
@@ -354,17 +354,17 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <h4>setDefaultValue</h4>
                     <div class="method-signature">def setDefaultValue(self, aAtt, aDefaultValue):</div>
                     <p><strong>Description:</strong> Set a default value for a specific attribute.</p>
-<p><strong>Parameters:</strong></p><ul><li>aAtt: Any</li><li>aDefaultValue: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAtt: str</li><li>aDefaultValue: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setDefaultValues</h4>
                     <div class="method-signature">def setDefaultValues(self, aDictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set default values for multiple attributes.</p>
-<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: dict</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setDefaultValues_randomChoice</h4>
                     <div class="method-signature">def setDefaultValues_randomChoice(self, mapping):</div>
                     <p><strong>Description:</strong> Set default values with automatic random choice conversion for lists/tuples.</p>
-<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
+<p><strong>Parameters:</strong></p><ul><li>mapping: dict</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
 "health": ["good", "bad"],
 "hunger": ("good", "bad"),
 "speed": 3
@@ -380,7 +380,7 @@ setDefaultValues({
                     <h4>setDefaultValues_randomNumeric</h4>
                     <div class="method-signature">def setDefaultValues_randomNumeric(self, mapping):</div>
                     <p><strong>Description:</strong> Set default numeric values with automatic random distribution conversion.</p>
-<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
+<p><strong>Parameters:</strong></p><ul><li>mapping: dict</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
 "age": (10, 18),              # randint 10..18
 "speed": (0.5, 2.0),          # uniform 0.5..2.0
 "index": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)
@@ -392,12 +392,12 @@ setDefaultValues({
                     <h4>setEntities</h4>
                     <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: lambda function</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setTooltip</h4>
                     <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
                     <p><strong>Description:</strong> Set a custom tooltip option for entities of this definition.</p>
-<p><strong>Parameters:</strong></p><ul><li>tooltipName: Any</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
+<p><strong>Parameters:</strong></p><ul><li>tooltipName: str</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
 agentDef.setTooltip("Health", "health")
 
 # Display custom calculated value
@@ -410,52 +410,72 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>setRandomEntity</h4>
                     <div class="method-signature">def setRandomEntity(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Apply a value to a random entity</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntity_withValue</h4>
                     <div class="method-signature">def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to a random entity with a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntity_withValueNot</h4>
                     <div class="method-signature">def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to a random entity not having a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities</h4>
                     <div class="method-signature">def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):</div>
                     <p><strong>Description:</strong> Applies the same attribut value for a random number of entities</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities_withValue</h4>
                     <div class="method-signature">def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to some random entities with a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities_withValueNot</h4>
                     <div class="method-signature">def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to some random entities noty having a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setEntities_withColumn</h4>
                     <div class="method-signature">def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):</div>
                     <p><strong>Description:</strong> Set the value of attribut to all entities in a specified column</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aColumnNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>aColumnNumber: int</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setEntities_withRow</h4>
                     <div class="method-signature">def setEntities_withRow(self, aAttribute, aValue, aRowNumber):</div>
                     <p><strong>Description:</strong> Set the value of attribut to all entities in a specified row</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aRowNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>aRowNumber: int</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValue(self, aAttribut, valueToSet):</div>
                     <p><strong>Description:</strong> Sets the value of an attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValues <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
-<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
+                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
+                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
+                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLambdaFunction: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
+                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>OTHER MODELER METHODS Methods</h3>
 
@@ -463,42 +483,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>copyValue_forAllEntities</h4>
                     <div class="method-signature">def copyValue_forAllEntities(self,  source_att, target_att,  condition=None):</div>
                     <p><strong>Description:</strong> Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li><li>condition: lambda function, optional</li></ul></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntities</h4>
                     <div class="method-signature">def metricOnEntities(self, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for all entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>metric: str</li><li>attribute: str</li><li>value: optional</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for all entities.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntitiesWithValue</h4>
                     <div class="method-signature">def metricOnEntitiesWithValue(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities with the specified value.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntitiesWithValueNot</h4>
                     <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
-                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
-                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
-                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLambdaFunction: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
-                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div></div>
             <div class="category-section">
                 <h3>NEW Methods</h3>
 
@@ -506,22 +506,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>newPov</h4>
                     <div class="method-signature">def newPov(self,nameOfPov,concernedAtt,dictOfColor):</div>
                     <p><strong>Description:</strong> Declare a new Point of View for the entityType.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: str</li><li>dictOfColor: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newBorderPov</h4>
                     <div class="method-signature">def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):</div>
                     <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newBorderPovColorAndWidth</h4>
                     <div class="method-signature">def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):</div>
                     <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newModelAction</h4>
                     <div class="method-signature">def newModelAction(self, actions=None, conditions=None, feedbacks=None):</div>
                     <p><strong>Description:</strong> Create an SGModelAction_OnEntities targeting entities of this definition.</p>
-<p><strong>Parameters:</strong></p><ul><li>actions: Any</li><li>conditions: Any</li><li>feedbacks: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>actions: callable | list[callable]</li><li>conditions: callable | list[callable]</li><li>feedbacks: callable | list[callable] | SGModelAction</li></ul></div></div>
             <div class="category-section">
                 <h3>GET Methods</h3>
 
@@ -534,52 +534,52 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getEntities</h4>
                     <div class="method-signature">def getEntities(self, condition=None):</div>
                     <p><strong>Description:</strong> Get all entities, optionally filtered by a condition.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of entities matching the condition, or all entities if condition is None</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withValue</h4>
                     <div class="method-signature">def getEntities_withValue(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li></ul><p><strong>Returns:</strong> list: List of entities with the specified attribute value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withValueNot</h4>
                     <div class="method-signature">def getEntities_withValueNot(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li></ul><p><strong>Returns:</strong> list: List of entities without the specified attribute value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity</h4>
                     <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):</div>
                     <p><strong>Description:</strong> Return a random entity from the available entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>condition: callable, optional</li><li>listOfEntitiesToPickFrom: list, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity if available, False if no entities match</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValue</h4>
                     <div class="method-signature">def getRandomEntity_withValue(self, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a random entity that has a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity with the specified value, False if none found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValueNot</h4>
                     <div class="method-signature">def getRandomEntity_withValueNot(self, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a random entity that does not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity without the specified value, False if none found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities</h4>
                     <div class="method-signature">def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>condition: callable, optional</li><li>listOfEntitiesToPickFrom: list, optional</li></ul><p><strong>Returns:</strong> list: List of random entities (may be fewer than requested if not enough entities match)</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities_withValue</h4>
                     <div class="method-signature">def getRandomEntities_withValue(self, aNumber, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of random entities with the specified value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities_withValueNot</h4>
                     <div class="method-signature">def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of random entities without the specified value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def getValue(self, att):</div>
                     <p><strong>Description:</strong> Return the value of a cell Attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>NB Methods</h3>
 
@@ -587,12 +587,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>nbOfEntities</h4>
                     <div class="method-signature">def nbOfEntities(self):</div>
                     <p><strong>Description:</strong> Get the total number of entities in this definition.</p>
-</div>
+<p><strong>Returns:</strong> int: Total number of entities</p></div>
                 <div class="method-card" data-category="NB" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>nb_withValue</h4>
                     <div class="method-signature">def nb_withValue(self, att, value):</div>
                     <p><strong>Description:</strong> Get the number of entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>value: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> int: Number of entities with the specified value</p></div></div>
             <div class="category-section">
                 <h3>DELETE Methods</h3>
 
@@ -608,22 +608,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>displayPov</h4>
                     <div class="method-signature">def displayPov(self,nameOfPov):</div>
                     <p><strong>Description:</strong> Displays the symbology for the specified Point of View.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayBorderPov</h4>
                     <div class="method-signature">def displayBorderPov(self,nameOfBorderPov):</div>
                     <p><strong>Description:</strong> Displays the border symbology for the specified Point of View.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: str</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayAttributeValueInContextualMenu</h4>
                     <div class="method-signature">def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):</div>
                     <p><strong>Description:</strong> Set an attribute to be displayed in the contextual menu.</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLabel: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLabel: str, optional</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayTooltip</h4>
                     <div class="method-signature">def displayTooltip(self, type=None):</div>
                     <p><strong>Description:</strong> Method to control the display of entity tooltips</p>
-<p><strong>Parameters:</strong></p><ul><li>type: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>type: str</li></ul></div></div>
             <div class="category-section">
                 <h3>IS Methods</h3>
 
@@ -631,12 +631,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>isValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut if equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div>
                 <div class="method-card" data-category="IS" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>isNotValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isNotValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut is not equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div></div>
         <div class="class-section" id="SGCellType">
             <h2>SGCellType</h2>
             <p>SGCellType model class for SGE framework - 54 methods</p>
@@ -654,7 +654,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>setLayoutOrder</h4>
                     <div class="method-signature">def setLayoutOrder(self, order):</div>
                     <p><strong>Description:</strong> Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.</p>
-<p><strong>Parameters:</strong></p><ul><li>order: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>grid.setLayoutOrder(1)  # Set grid as first in layout
+<p><strong>Parameters:</strong></p><ul><li>order: int or str</li></ul><div class='examples'><strong>Examples:</strong><pre>grid.setLayoutOrder(1)  # Set grid as first in layout
 legend.setLayoutOrder(3)  # Set legend as third in layout
 dashboard.setLayoutOrder(None)  # Reset to auto-assignment
 </pre></div></div>
@@ -662,17 +662,17 @@ dashboard.setLayoutOrder(None)  # Reset to auto-assignment
                     <h4>setDefaultValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValue(self, aAtt, aDefaultValue):</div>
                     <p><strong>Description:</strong> Set a default value for a specific attribute.</p>
-<p><strong>Parameters:</strong></p><ul><li>aAtt: Any</li><li>aDefaultValue: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAtt: str</li><li>aDefaultValue: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setDefaultValues <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValues(self, aDictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set default values for multiple attributes.</p>
-<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: dict</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setDefaultValues_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValues_randomChoice(self, mapping):</div>
                     <p><strong>Description:</strong> Set default values with automatic random choice conversion for lists/tuples.</p>
-<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
+<p><strong>Parameters:</strong></p><ul><li>mapping: dict</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
 "health": ["good", "bad"],
 "hunger": ("good", "bad"),
 "speed": 3
@@ -688,7 +688,7 @@ setDefaultValues({
                     <h4>setDefaultValues_randomNumeric <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValues_randomNumeric(self, mapping):</div>
                     <p><strong>Description:</strong> Set default numeric values with automatic random distribution conversion.</p>
-<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
+<p><strong>Parameters:</strong></p><ul><li>mapping: dict</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
 "age": (10, 18),              # randint 10..18
 "speed": (0.5, 2.0),          # uniform 0.5..2.0
 "index": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)
@@ -700,12 +700,12 @@ setDefaultValues({
                     <h4>setEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: lambda function</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setTooltip <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
                     <p><strong>Description:</strong> Set a custom tooltip option for entities of this definition.</p>
-<p><strong>Parameters:</strong></p><ul><li>tooltipName: Any</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
+<p><strong>Parameters:</strong></p><ul><li>tooltipName: str</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
 agentDef.setTooltip("Health", "health")
 
 # Display custom calculated value
@@ -718,52 +718,72 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>setRandomEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntity(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Apply a value to a random entity</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntity_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to a random entity with a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntity_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to a random entity not having a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):</div>
                     <p><strong>Description:</strong> Applies the same attribut value for a random number of entities</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to some random entities with a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to some random entities noty having a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setEntities_withColumn <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):</div>
                     <p><strong>Description:</strong> Set the value of attribut to all entities in a specified column</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aColumnNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>aColumnNumber: int</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setEntities_withRow <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setEntities_withRow(self, aAttribute, aValue, aRowNumber):</div>
                     <p><strong>Description:</strong> Set the value of attribut to all entities in a specified row</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aRowNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>aRowNumber: int</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValue(self, aAttribut, valueToSet):</div>
                     <p><strong>Description:</strong> Sets the value of an attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValues <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
-<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
+                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
+                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
+                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLambdaFunction: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
+                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>GET Methods</h3>
 
@@ -771,72 +791,72 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getCell</h4>
                     <div class="method-signature">def getCell(self, x, y=None):</div>
                     <p><strong>Description:</strong> Retrieve a cell object from the grid.</p>
-<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>x: int, tuple, list, or cell ID</li><li>y: int, optional</li></ul><p><strong>Returns:</strong> object or None: The cell object if found within the grid boundaries, otherwise None. Notes: - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows. - If coordinates are outside this range, returns None. - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntity</h4>
                     <div class="method-signature">def getEntity(self, x, y=None):</div>
                     <p><strong>Description:</strong> Get a single entity (cell) by coordinates.</p>
-<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>x: int</li><li>y: int, optional</li></ul><p><strong>Returns:</strong> SGCell: The entity at the specified coordinates, or None if not found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withRow</h4>
                     <div class="method-signature">def getEntities_withRow(self, aRowNumber):</div>
                     <p><strong>Description:</strong> Get all entities (cells) in a specific row.</p>
-<p><strong>Parameters:</strong></p><ul><li>aRowNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aRowNumber: int</li></ul><p><strong>Returns:</strong> list[SGCell]: List of entities in the specified row</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withColumn</h4>
                     <div class="method-signature">def getEntities_withColumn(self, aColumnNumber):</div>
                     <p><strong>Description:</strong> Get all entities (cells) in a specific column.</p>
-<p><strong>Parameters:</strong></p><ul><li>aColumnNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aColumnNumber: int</li></ul><p><strong>Returns:</strong> list[SGCell]: List of entities in the specified column</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity</h4>
                     <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGCell:</div>
                     <p><strong>Description:</strong> Return a random cell from this grid.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>condition: callable, optional</li><li>listOfEntitiesToPickFrom: list, optional</li></ul><p><strong>Returns:</strong> SGCell: A random cell from the grid, or False if no cells found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities(self, condition=None):</div>
                     <p><strong>Description:</strong> Get all entities, optionally filtered by a condition.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of entities matching the condition, or all entities if condition is None</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities_withValue(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li></ul><p><strong>Returns:</strong> list: List of entities with the specified attribute value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities_withValueNot(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li></ul><p><strong>Returns:</strong> list: List of entities without the specified attribute value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntity_withValue(self, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a random entity that has a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity with the specified value, False if none found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntity_withValueNot(self, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a random entity that does not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity without the specified value, False if none found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>condition: callable, optional</li><li>listOfEntitiesToPickFrom: list, optional</li></ul><p><strong>Returns:</strong> list: List of random entities (may be fewer than requested if not enough entities match)</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntities_withValue(self, aNumber, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of random entities with the specified value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of random entities without the specified value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def getValue(self, att):</div>
                     <p><strong>Description:</strong> Return the value of a cell Attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>DELETE Methods</h3>
 
@@ -844,7 +864,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>deleteEntity</h4>
                     <div class="method-signature">def deleteEntity(self, aCell):</div>
                     <p><strong>Description:</strong> Delete a given cell</p>
-<p><strong>Parameters:</strong></p><ul><li>aCell: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aCell: instance</li></ul></div>
                 <div class="method-card" data-category="DELETE" data-class="SGCellType" data-examples="without-examples" data-parameters="without-params">
                     <h4>deleteAllEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def deleteAllEntities(self):</div>
@@ -857,42 +877,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>copyValue_forAllEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def copyValue_forAllEntities(self,  source_att, target_att,  condition=None):</div>
                     <p><strong>Description:</strong> Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li><li>condition: lambda function, optional</li></ul></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntities(self, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for all entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>metric: str</li><li>attribute: str</li><li>value: optional</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for all entities.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntitiesWithValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntitiesWithValue(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities with the specified value.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntitiesWithValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
-                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
-                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
-                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLambdaFunction: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
-                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div></div>
             <div class="category-section">
                 <h3>NEW Methods</h3>
 
@@ -900,22 +900,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>newPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newPov(self,nameOfPov,concernedAtt,dictOfColor):</div>
                     <p><strong>Description:</strong> Declare a new Point of View for the entityType.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: str</li><li>dictOfColor: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newBorderPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):</div>
                     <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newBorderPovColorAndWidth <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):</div>
                     <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newModelAction <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newModelAction(self, actions=None, conditions=None, feedbacks=None):</div>
                     <p><strong>Description:</strong> Create an SGModelAction_OnEntities targeting entities of this definition.</p>
-<p><strong>Parameters:</strong></p><ul><li>actions: Any</li><li>conditions: Any</li><li>feedbacks: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>actions: callable | list[callable]</li><li>conditions: callable | list[callable]</li><li>feedbacks: callable | list[callable] | SGModelAction</li></ul></div></div>
             <div class="category-section">
                 <h3>NB Methods</h3>
 
@@ -923,12 +923,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>nbOfEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def nbOfEntities(self):</div>
                     <p><strong>Description:</strong> Get the total number of entities in this definition.</p>
-</div>
+<p><strong>Returns:</strong> int: Total number of entities</p></div>
                 <div class="method-card" data-category="NB" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>nb_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def nb_withValue(self, att, value):</div>
                     <p><strong>Description:</strong> Get the number of entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>value: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> int: Number of entities with the specified value</p></div></div>
             <div class="category-section">
                 <h3>DISPLAY Methods</h3>
 
@@ -936,22 +936,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>displayPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayPov(self,nameOfPov):</div>
                     <p><strong>Description:</strong> Displays the symbology for the specified Point of View.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayBorderPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayBorderPov(self,nameOfBorderPov):</div>
                     <p><strong>Description:</strong> Displays the border symbology for the specified Point of View.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: str</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayAttributeValueInContextualMenu <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):</div>
                     <p><strong>Description:</strong> Set an attribute to be displayed in the contextual menu.</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLabel: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLabel: str, optional</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayTooltip <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayTooltip(self, type=None):</div>
                     <p><strong>Description:</strong> Method to control the display of entity tooltips</p>
-<p><strong>Parameters:</strong></p><ul><li>type: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>type: str</li></ul></div></div>
             <div class="category-section">
                 <h3>IS Methods</h3>
 
@@ -959,12 +959,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>isValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut if equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div>
                 <div class="method-card" data-category="IS" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>isNotValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isNotValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut is not equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div></div>
         <div class="class-section" id="SGAgentType">
             <h2>SGAgentType</h2>
             <p>SGAgentType model class for SGE framework - 56 methods</p>
@@ -977,52 +977,52 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>newAgentOnCell</h4>
                     <div class="method-signature">def newAgentOnCell(self, aCell, attributesAndValues=None, image=None, popupImage=None) -> SGAgent:</div>
                     <p><strong>Description:</strong> Create a new agent on a specific cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>aCell: Any</li><li>attributesAndValues: Any</li><li>image: Any</li><li>popupImage: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aCell: SGCell</li><li>attributesAndValues: dict, optional</li><li>image: str, optional</li><li>popupImage: str, optional</li></ul><p><strong>Returns:</strong> SGAgent: The created agent model, or None if creation failed</p></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newAgentsOnCell</h4>
                     <div class="method-signature">def newAgentsOnCell(self, nbAgents, aCell, attributesAndValues=None):</div>
                     <p><strong>Description:</strong> Create a specific number of new Agents of a given type on a specific cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>nbAgents: Any</li><li>aCell: Any</li><li>attributesAndValues: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nbAgents: int</li><li>aCell: SGCell</li><li>attributesAndValues: dict, optional</li></ul><p><strong>Returns:</strong> None: Agents are created and added to the agentType</p></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newAgentAtCoords</h4>
                     <div class="method-signature">def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None):</div>
                     <p><strong>Description:</strong> Create a new Agent of a given type.</p>
-<p><strong>Parameters:</strong></p><ul><li>cellDef_or_grid: Any</li><li>x: Any</li><li>y: Any</li><li>attributesAndValues: Any</li><li>image: Any</li><li>popupImage: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>cellDef_or_grid: instance</li><li>x: int</li><li>y: int</li><li>attributesAndValues: Any</li><li>image: Any</li><li>popupImage: Any</li></ul><p><strong>Returns:</strong> a agent</p></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newAgentsAtCoords</h4>
                     <div class="method-signature">def newAgentsAtCoords(self, nbAgents, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None):</div>
                     <p><strong>Description:</strong> Create a specific number of new Agents of a given type.</p>
-<p><strong>Parameters:</strong></p><ul><li>nbAgents: Any</li><li>cellDef_or_grid: Any</li><li>x: Any</li><li>y: Any</li><li>attributesAndValues: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nbAgents: int</li><li>cellDef_or_grid: instance, optional</li><li>x: int, optional</li><li>y: int, optional</li><li>attributesAndValues: dict, optional</li></ul><p><strong>Returns:</strong> agents</p></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newAgentAtRandom</h4>
                     <div class="method-signature">def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):</div>
                     <p><strong>Description:</strong> Create a new Agent of a given type and place it on a random cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>cellDef_or_grid: Any</li><li>attributesAndValues: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>cellDef_or_grid: instance</li><li>attributesAndValues: dict, optional</li><li>condition: Any</li></ul><p><strong>Returns:</strong> a agent</p></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newAgentsAtRandom</h4>
                     <div class="method-signature">def newAgentsAtRandom(self, aNumber, cellDef_or_grid=None, attributesAndValues=None,condition=None):</div>
                     <p><strong>Description:</strong> Create a number of Agents of a given type and place them on random cells.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>cellDef_or_grid: Any</li><li>attributesAndValues: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>cellDef_or_grid: instance</li><li>attributesAndValues: dict, optional</li><li>condition: Any</li></ul><p><strong>Returns:</strong> a list of agents</p></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newPov(self,nameOfPov,concernedAtt,dictOfColor):</div>
                     <p><strong>Description:</strong> Declare a new Point of View for the entityType.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: str</li><li>dictOfColor: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newBorderPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newBorderPov(self, nameOfPov, concernedAtt, dictOfColor, borderWidth=3):</div>
                     <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: Any</li><li>dictOfColor: Any</li><li>borderWidth: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newBorderPovColorAndWidth <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newBorderPovColorAndWidth(self, nameOfPov, concernedAtt, dictOfColorAndWidth):</div>
                     <p><strong>Description:</strong> Declare a new Point of View (only for border color).</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li><li>concernedAtt: Any</li><li>dictOfColorAndWidth: Any</li></ul></div>
                 <div class="method-card" data-category="NEW" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>newModelAction <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def newModelAction(self, actions=None, conditions=None, feedbacks=None):</div>
                     <p><strong>Description:</strong> Create an SGModelAction_OnEntities targeting entities of this definition.</p>
-<p><strong>Parameters:</strong></p><ul><li>actions: Any</li><li>conditions: Any</li><li>feedbacks: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>actions: callable | list[callable]</li><li>conditions: callable | list[callable]</li><li>feedbacks: callable | list[callable] | SGModelAction</li></ul></div></div>
             <div class="category-section">
                 <h3>GET Methods</h3>
 
@@ -1030,7 +1030,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getRandomEntity</h4>
                     <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGAgent:</div>
                     <p><strong>Description:</strong> Return a random agent of this type.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul><p><strong>Returns:</strong> SGAgent: A random agent from the list bool: False if no agents found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntity(self, x, y=None):</div>
@@ -1040,47 +1040,47 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities(self, condition=None):</div>
                     <p><strong>Description:</strong> Get all entities, optionally filtered by a condition.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of entities matching the condition, or all entities if condition is None</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities_withValue(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li></ul><p><strong>Returns:</strong> list: List of entities with the specified attribute value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities_withValueNot(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li></ul><p><strong>Returns:</strong> list: List of entities without the specified attribute value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntity_withValue(self, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a random entity that has a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity with the specified value, False if none found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntity_withValueNot(self, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a random entity that does not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> Entity or False: A random entity without the specified value, False if none found</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntities(self, aNumber, condition=None, listOfEntitiesToPickFrom=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>condition: callable, optional</li><li>listOfEntitiesToPickFrom: list, optional</li></ul><p><strong>Returns:</strong> list: List of random entities (may be fewer than requested if not enough entities match)</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntities_withValue(self, aNumber, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of random entities with the specified value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntities_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntities_withValueNot(self, aNumber, att, val, condition=None):</div>
                     <p><strong>Description:</strong> Return a specified number of random entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>aNumber: Any</li><li>att: Any</li><li>val: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aNumber: int</li><li>att: str</li><li>val: Any</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> list: List of random entities without the specified value</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def getValue(self, att):</div>
                     <p><strong>Description:</strong> Return the value of a cell Attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>DELETE Methods</h3>
 
@@ -1088,7 +1088,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>deleteEntity</h4>
                     <div class="method-signature">def deleteEntity(self, aAgent):</div>
                     <p><strong>Description:</strong> Delete a given agent</p>
-<p><strong>Parameters:</strong></p><ul><li>aAgent: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAgent: instance</li></ul></div>
                 <div class="method-card" data-category="DELETE" data-class="SGAgentType" data-examples="without-examples" data-parameters="without-params">
                     <h4>deleteAllEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def deleteAllEntities(self):</div>
@@ -1101,47 +1101,27 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>moveRandomly</h4>
                     <div class="method-signature">def moveRandomly(self, numberOfMovement=1,condition=None):</div>
                     <p><strong>Description:</strong> All agents of this type move randomly.</p>
-<p><strong>Parameters:</strong></p><ul><li>numberOfMovement: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>numberOfMovement: int</li><li>condition: lambda function, optional</li></ul></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>copyValue_forAllEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def copyValue_forAllEntities(self,  source_att, target_att,  condition=None):</div>
                     <p><strong>Description:</strong> Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li><li>condition: lambda function, optional</li></ul></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntities(self, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for all entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>metric: str</li><li>attribute: str</li><li>value: optional</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for all entities.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntitiesWithValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntitiesWithValue(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities with the specified value.</p></div>
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>metricOnEntitiesWithValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: Any</li><li>valueForSelection: Any</li><li>metric: Any</li><li>attribute: Any</li><li>value: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
-                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
-                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
-                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLambdaFunction: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
-                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div></div>
             <div class="category-section">
                 <h3>SET Methods</h3>
 
@@ -1149,17 +1129,17 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>setDefaultValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValue(self, aAtt, aDefaultValue):</div>
                     <p><strong>Description:</strong> Set a default value for a specific attribute.</p>
-<p><strong>Parameters:</strong></p><ul><li>aAtt: Any</li><li>aDefaultValue: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAtt: str</li><li>aDefaultValue: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setDefaultValues <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValues(self, aDictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set default values for multiple attributes.</p>
-<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aDictOfAttributesAndValues: dict</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setDefaultValues_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValues_randomChoice(self, mapping):</div>
                     <p><strong>Description:</strong> Set default values with automatic random choice conversion for lists/tuples.</p>
-<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
+<p><strong>Parameters:</strong></p><ul><li>mapping: dict</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomChoice({
 "health": ["good", "bad"],
 "hunger": ("good", "bad"),
 "speed": 3
@@ -1175,7 +1155,7 @@ setDefaultValues({
                     <h4>setDefaultValues_randomNumeric <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setDefaultValues_randomNumeric(self, mapping):</div>
                     <p><strong>Description:</strong> Set default numeric values with automatic random distribution conversion.</p>
-<p><strong>Parameters:</strong></p><ul><li>mapping: Any</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
+<p><strong>Parameters:</strong></p><ul><li>mapping: dict</li></ul><div class='examples'><strong>Examples:</strong><pre>setDefaultValues_randomNumeric({
 "age": (10, 18),              # randint 10..18
 "speed": (0.5, 2.0),          # uniform 0.5..2.0
 "index": range(0, 100, 5),    # randrange with stop inclusive (includes 100 if aligned)
@@ -1187,12 +1167,12 @@ setDefaultValues({
                     <h4>setEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: lambda function</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setTooltip <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
                     <p><strong>Description:</strong> Set a custom tooltip option for entities of this definition.</p>
-<p><strong>Parameters:</strong></p><ul><li>tooltipName: Any</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
+<p><strong>Parameters:</strong></p><ul><li>tooltipName: str</li><li>tooltipValue: Any</li></ul><div class='examples'><strong>Examples:</strong><pre># Display health attribute
 agentDef.setTooltip("Health", "health")
 
 # Display custom calculated value
@@ -1205,52 +1185,72 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>setRandomEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntity(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Apply a value to a random entity</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntity_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntity_withValue(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to a random entity with a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntity_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntity_withValueNot(self, aAttribut, aValue, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to a random entity not having a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntities(self, aAttribute, aValue, numberOfentities=1, condition=None):</div>
                     <p><strong>Description:</strong> Applies the same attribut value for a random number of entities</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntities_withValue(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to some random entities with a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setRandomEntities_withValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setRandomEntities_withValueNot(self, aAttribut, aValue, numberOfentities, conditionAtt, conditionVal, condition=None):</div>
                     <p><strong>Description:</strong> To apply a value to some random entities noty having a certain value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aValue: Any</li><li>numberOfentities: Any</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aValue: str</li><li>numberOfentities: int</li><li>conditionAtt: Any</li><li>conditionVal: Any</li><li>condition: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setEntities_withColumn <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setEntities_withColumn(self, aAttribute, aValue, aColumnNumber):</div>
                     <p><strong>Description:</strong> Set the value of attribut to all entities in a specified column</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aColumnNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>aColumnNumber: int</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setEntities_withRow <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setEntities_withRow(self, aAttribute, aValue, aRowNumber):</div>
                     <p><strong>Description:</strong> Set the value of attribut to all entities in a specified row</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribute: Any</li><li>aValue: Any</li><li>aRowNumber: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>aRowNumber: int</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValue(self, aAttribut, valueToSet):</div>
                     <p><strong>Description:</strong> Sets the value of an attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValues <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
-<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
+                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
+                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
+                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLambdaFunction: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
+                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
+                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>NB Methods</h3>
 
@@ -1258,12 +1258,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>nbOfEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def nbOfEntities(self):</div>
                     <p><strong>Description:</strong> Get the total number of entities in this definition.</p>
-</div>
+<p><strong>Returns:</strong> int: Total number of entities</p></div>
                 <div class="method-card" data-category="NB" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>nb_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def nb_withValue(self, att, value):</div>
                     <p><strong>Description:</strong> Get the number of entities that have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>value: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> int: Number of entities with the specified value</p></div></div>
             <div class="category-section">
                 <h3>DISPLAY Methods</h3>
 
@@ -1271,22 +1271,22 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>displayPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayPov(self,nameOfPov):</div>
                     <p><strong>Description:</strong> Displays the symbology for the specified Point of View.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfPov: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfPov: str</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayBorderPov <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayBorderPov(self,nameOfBorderPov):</div>
                     <p><strong>Description:</strong> Displays the border symbology for the specified Point of View.</p>
-<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>nameOfBorderPov: str</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayAttributeValueInContextualMenu <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):</div>
                     <p><strong>Description:</strong> Set an attribute to be displayed in the contextual menu.</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLabel: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLabel: str, optional</li></ul></div>
                 <div class="method-card" data-category="DISPLAY" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>displayTooltip <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def displayTooltip(self, type=None):</div>
                     <p><strong>Description:</strong> Method to control the display of entity tooltips</p>
-<p><strong>Parameters:</strong></p><ul><li>type: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>type: str</li></ul></div></div>
             <div class="category-section">
                 <h3>IS Methods</h3>
 
@@ -1294,12 +1294,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>isValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut if equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div>
                 <div class="method-card" data-category="IS" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>isNotValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isNotValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut is not equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div></div>
         <div class="class-section" id="SGAgent">
             <h2>SGAgent</h2>
             <p>SGAgent model class for SGE framework - 31 methods</p>
@@ -1332,7 +1332,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getAgentsHere</h4>
                     <div class="method-signature">def getAgentsHere(self, agent_type=None):</div>
                     <p><strong>Description:</strong> Get all agents in the same cell as this agent.</p>
-<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>agent_type: str | None</li></ul><p><strong>Returns:</strong> list[SGAgent]: Agents in the same cell.</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>getNeighborCells</h4>
                     <div class="method-signature">def getNeighborCells(self, neighborhood=None):</div>
@@ -1347,7 +1347,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getClosestAgentMatching</h4>
                     <div class="method-signature">def getClosestAgentMatching(self, agent_type, max_distance=1, conditions_on_agent=None, conditions_on_cell=None, return_all=False):</div>
                     <p><strong>Description:</strong> Find the closest neighboring agent of a given type from this agent's position,</p>
-<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li><li>max_distance: Any</li><li>conditions_on_agent: Any</li><li>conditions_on_cell: Any</li><li>return_all: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>agent_type: str | SGAgentDef</li><li>max_distance: int, optional</li><li>conditions_on_agent: list[callable], optional</li><li>conditions_on_cell: list[callable], optional</li><li>return_all: bool, optional</li></ul><p><strong>Returns:</strong> SGAgent | list[SGAgent] | None: - If return_all=False → a single agent (randomly chosen) that matches the conditions. - If return_all=True → a list of matching agents. - None if no match found.</p></div>
                 <div class="method-card" data-category="GET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>getNeighborsN</h4>
                     <div class="method-signature">def getNeighborsN(self, agent_type=None):</div>
@@ -1372,7 +1372,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>getValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def getValue(self, att):</div>
                     <p><strong>Description:</strong> Return the value of a cell Attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>att: str</li></ul></div></div>
             <div class="category-section">
                 <h3>NB Methods</h3>
 
@@ -1380,7 +1380,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>nbAgentsHere</h4>
                     <div class="method-signature">def nbAgentsHere(self, agent_type=None):</div>
                     <p><strong>Description:</strong> Get the number of agents in the same cell as this agent.</p>
-<p><strong>Parameters:</strong></p><ul><li>agent_type: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>agent_type: str | None</li></ul><p><strong>Returns:</strong> int: Number of matching agents in the same cell.</p></div>
                 <div class="method-card" data-category="NB" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>nbNeighborAgents</h4>
                     <div class="method-signature">def nbNeighborAgents(self, agent_type=None, neighborhood=None):</div>
@@ -1398,12 +1398,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>isValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut if equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div>
                 <div class="method-card" data-category="IS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>isNotValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def isNotValue(self, attribut_to_test, value_to_test):</div>
                     <p><strong>Description:</strong> Tests if the the value of an attribut is not equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div>
             <div class="category-section">
                 <h3>HAS Methods</h3>
 
@@ -1411,30 +1411,33 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>hasAgentsHere</h4>
                     <div class="method-signature">def hasAgentsHere(self, specie=None):</div>
                     <p><strong>Description:</strong> Check if the cell containing this agent has at least one agent.</p>
-<p><strong>Parameters:</strong></p><ul><li>specie: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>specie: str | None</li></ul><p><strong>Returns:</strong> bool: True if at least one matching agent is in the same cell, False otherwise.</p></div></div>
             <div class="category-section">
-                <h3>OTHER MODELER METHODS Methods</h3>
+                <h3>DO Methods</h3>
 
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+                <div class="method-card" data-category="DO" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>moveTo</h4>
                     <div class="method-signature">def moveTo(self, aDestinationCell):</div>
                     <p><strong>Description:</strong> Move this agent to a specific cell.</p>
-<p><strong>Parameters:</strong></p><ul><li>aDestinationCell: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+<p><strong>Parameters:</strong></p><ul><li>aDestinationCell: Any</li></ul><p><strong>Returns:</strong> self: The agent (for chaining operations)</p></div>
+                <div class="method-card" data-category="DO" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>moveAgent</h4>
                     <div class="method-signature">def moveAgent(self, method='random', target=None, numberOfMovement=1, condition=None):</div>
                     <p><strong>Description:</strong> Move the agent using predefined movement patterns.</p>
-<p><strong>Parameters:</strong></p><ul><li>method: Any</li><li>target: Any</li><li>numberOfMovement: Any</li><li>condition: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+<p><strong>Parameters:</strong></p><ul><li>method: str</li><li>target: Any</li><li>numberOfMovement: int</li><li>condition: callable, optional</li></ul><p><strong>Returns:</strong> self: The agent (for chaining operations)</p></div>
+                <div class="method-card" data-category="DO" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>moveRandomly</h4>
                     <div class="method-signature">def moveRandomly(self, numberOfMovement=1, condition=None):</div>
                     <p><strong>Description:</strong> An agent moves randomly in his direct neighborhood.</p>
-<p><strong>Parameters:</strong></p><ul><li>numberOfMovement: Any</li><li>condition: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+<p><strong>Parameters:</strong></p><ul><li>numberOfMovement: int</li><li>condition: lambda function, optional</li></ul></div>
+                <div class="method-card" data-category="DO" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>moveTowards</h4>
                     <div class="method-signature">def moveTowards(self, target, condition=None):</div>
                     <p><strong>Description:</strong> Move the agent one step towards a target cell or another agent.</p>
-<p><strong>Parameters:</strong></p><ul><li>target: Any</li><li>condition: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>target: Agent | Cell | tuple[int,int]</li><li>condition: callable, optional</li></ul></div></div>
+            <div class="category-section">
+                <h3>OTHER MODELER METHODS Methods</h3>
+
                 <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>filterByType</h4>
                     <div class="method-signature">def filterByType(self, agent_type, agents): #todo est ce que cette méthode ne devrait pas plutôt etre dans SGExtensions.py ?</div>
@@ -1444,27 +1447,7 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>dist</h4>
                     <div class="method-signature">def dist(c1, c2):</div>
                     <p><strong>Description:</strong> </p>
-<p><strong>Parameters:</strong></p><ul><li>c1: Any</li><li>c2: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
-                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
-                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
-                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
-                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
-                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
-                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLambdaFunction: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
-                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
-                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
-                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li></ul></div></div>
+<p><strong>Parameters:</strong></p><ul><li>c1: Any</li><li>c2: Any</li></ul></div></div>
             <div class="category-section">
                 <h3>SET Methods</h3>
 
@@ -1472,12 +1455,32 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>setValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValue(self, aAttribut, valueToSet):</div>
                     <p><strong>Description:</strong> Sets the value of an attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li></ul></div>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li></ul></div>
                 <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>setValues <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
-<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div></div>
+<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+                    <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
+                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+                    <h4>decValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
+                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+                    <h4>calcValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
+                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribut: str</li><li>aLambdaFunction: Any</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
+                    <h4>copyValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
+                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
+<p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li></ul></div></div></div>
         </div>
     </div>
     

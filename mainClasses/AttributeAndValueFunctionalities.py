@@ -108,6 +108,7 @@ class AttributeAndValueFunctionalities():
 
 
     # Attribute access methods
+    # @CATEGORY: GET
     def value(self, att):
         """
         Return the value of a cell Attribut
@@ -169,6 +170,7 @@ class AttributeAndValueFunctionalities():
         for att, value in dictOfAttributesAndValues.items():
             self.setValue(att, value)
 
+    # @CATEGORY: SET
     def incValue(self, aAttribut, valueToSet=1, max=None):
         """
         Increase the value of an attribut with an additional value
@@ -184,6 +186,7 @@ class AttributeAndValueFunctionalities():
             self.setValue(aAttribut,
                           (self.value(aAttribut) + aValue if max is None else min(self.value(aAttribut) + aValue, max)))
 
+    # @CATEGORY: SET
     def decValue(self, aAttribut, valueToSet=1, min=None):
         """
         Decrease the value of an attribut with an additional value
@@ -199,6 +202,7 @@ class AttributeAndValueFunctionalities():
         if isinstance(self.value(aAttribut), numbers.Number) and isinstance(aValue, numbers.Number):
             self.setValue(aAttribut, (self.value(aAttribut) - aValue if min is None else max(self.value(aAttribut) - aValue, min)))
 
+    # @CATEGORY: SET
     def calcValue(self, aAttribut, aLambdaFunction):
         """
         Apply a calculation on the value of an attribut using a lambda function
@@ -214,6 +218,7 @@ class AttributeAndValueFunctionalities():
         else: 
             raise ValueError('calcValue works with a lambda function')
 
+    # @CATEGORY: SET
     def copyValue(self, source_att, target_att):
         """
         Copy the value of an attribut (source_att), in another attribute (target_att)
@@ -248,6 +253,7 @@ class AttributeAndValueFunctionalities():
     # IS/HAS METHODS
     # ============================================================================
 
+    # @CATEGORY: IS
     def isValue(self, attribut_to_test, value_to_test):
         """
         Tests if the the value of an attribut if equal to a value
@@ -257,6 +263,7 @@ class AttributeAndValueFunctionalities():
         """
         return self.getValue(attribut_to_test) == value_to_test
 
+    # @CATEGORY: IS
     def isNotValue(self, attribut_to_test, value_to_test):
         """
         Tests if the the value of an attribut is not equal to a value

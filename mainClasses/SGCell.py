@@ -3,6 +3,10 @@ from PyQt5.QtCore import *
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCellView import SGCellView
 from mainClasses.SGExtensions import *
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from mainClasses.SGAgent import SGAgent
 # from mainClasses.gameAction.SGCreate import *  # Commented to avoid circular import
 # from mainClasses.gameAction.SGDelete import *   # Commented to avoid circular import
 # from mainClasses.gameAction.SGModify import *   # Commented to avoid circular import
@@ -187,7 +191,7 @@ class SGCell(SGEntity):
 
         Args:
             agent_type (instance) : the type of your agent
-            adictAttributes to set the values
+            adictAttributes (dict, optional): a dict of attributes to set the values
 
         Return:
             a new agent
@@ -633,8 +637,16 @@ class SGCell(SGEntity):
     # IS/HAS METHODS
     # ============================================================================
 
-    def hasAgent(self, agent):
-        """Check if this cell contains a specific agent"""
+    def hasAgent(self, agent: 'SGAgent') -> bool:
+        """
+        Check if this cell contains a specific agent
+        
+        Args:
+            agent (SGAgent): The agent to check for
+            
+        Returns:
+            bool: True if the agent is in this cell, False otherwise
+        """
         return agent in self.agents
     
     def hasAgents(self, type_name=None):

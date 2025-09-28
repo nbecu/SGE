@@ -366,6 +366,7 @@ class SGAgent(SGEntity):
     # DO/DISPLAY METHODS
     # ============================================================================
 
+    # @CATEGORY: DO
     def moveTo(self, aDestinationCell):
         """
         Move this agent to a specific cell.
@@ -421,6 +422,7 @@ class SGAgent(SGEntity):
                 self.updateView()
             
             return self
+    # @CATEGORY: DO
     def moveAgent(self, method='random', target=None, numberOfMovement=1, condition=None):
         """
         Move the agent using predefined movement patterns.
@@ -501,6 +503,7 @@ class SGAgent(SGEntity):
         return newCell
 
 
+    # @CATEGORY: DO
     def moveRandomly(self, numberOfMovement=1, condition=None):
         """
         An agent moves randomly in his direct neighborhood.
@@ -511,6 +514,7 @@ class SGAgent(SGEntity):
         """
         self.moveAgent(method="random", numberOfMovement=numberOfMovement, condition=condition)
 
+    # @CATEGORY: DO
     def moveTowards(self, target, condition=None):
         """
         Move the agent one step towards a target cell or another agent.

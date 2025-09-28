@@ -143,38 +143,6 @@
     "description": "",
     "scope": "python"
   },
-  "SGCell.incValue": {
-    "prefix": "sgcell.incValue",
-    "body": [
-      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
-    ],
-    "description": "Increase the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "SGCell.decValue": {
-    "prefix": "sgcell.decValue",
-    "body": [
-      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
-    ],
-    "description": "Decrease the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "SGCell.calcValue": {
-    "prefix": "sgcell.calcValue",
-    "body": [
-      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
-    ],
-    "description": "Apply a calculation on the value of an attribut using a lambda function",
-    "scope": "python"
-  },
-  "SGCell.copyValue": {
-    "prefix": "sgcell.copyValue",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
-    ],
-    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
-    "scope": "python"
-  },
   "SGCell.hasAgent": {
     "prefix": "sgcell.hasAgent",
     "body": [
@@ -234,6 +202,38 @@
       "${1:instance}.setValues(${2:value})"
     ],
     "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
+  "SGCell.incValue": {
+    "prefix": "sgcell.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCell.decValue": {
+    "prefix": "sgcell.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCell.calcValue": {
+    "prefix": "sgcell.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGCell.copyValue": {
+    "prefix": "sgcell.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
     "scope": "python"
   },
   "SGEntityType.setDefaultValue": {
@@ -364,38 +364,6 @@
     "description": "Set multiple attribute values at once.",
     "scope": "python"
   },
-  "SGEntityType.copyValue_forAllEntities": {
-    "prefix": "sgentitytype.copyValue_forAllEntities",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
-    ],
-    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.",
-    "scope": "python"
-  },
-  "SGEntityType.metricOnEntities": {
-    "prefix": "sgentitytype.metricOnEntities",
-    "body": [
-      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
-    ],
-    "description": "Get metrics for all entities.",
-    "scope": "python"
-  },
-  "SGEntityType.metricOnEntitiesWithValue": {
-    "prefix": "sgentitytype.metricOnEntitiesWithValue",
-    "body": [
-      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
-    ],
-    "description": "Get metrics for entities that have a specific attribute value.",
-    "scope": "python"
-  },
-  "SGEntityType.metricOnEntitiesWithValueNot": {
-    "prefix": "sgentitytype.metricOnEntitiesWithValueNot",
-    "body": [
-      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
-    ],
-    "description": "Get metrics for entities that do not have a specific attribute value.",
-    "scope": "python"
-  },
   "SGEntityType.incValue": {
     "prefix": "sgentitytype.incValue",
     "body": [
@@ -426,6 +394,38 @@
       "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
     ],
     "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
+    "scope": "python"
+  },
+  "SGEntityType.copyValue_forAllEntities": {
+    "prefix": "sgentitytype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.",
+    "scope": "python"
+  },
+  "SGEntityType.metricOnEntities": {
+    "prefix": "sgentitytype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities.",
+    "scope": "python"
+  },
+  "SGEntityType.metricOnEntitiesWithValue": {
+    "prefix": "sgentitytype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgentitytype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value.",
     "scope": "python"
   },
   "SGEntityType.newPov": {
@@ -766,6 +766,38 @@
     "description": "Set multiple attribute values at once.",
     "scope": "python"
   },
+  "SGCellType.incValue": {
+    "prefix": "sgcelltype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCellType.decValue": {
+    "prefix": "sgcelltype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCellType.calcValue": {
+    "prefix": "sgcelltype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGCellType.copyValue": {
+    "prefix": "sgcelltype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
+    "scope": "python"
+  },
   "SGCellType.getCell": {
     "prefix": "sgcelltype.getCell",
     "body": [
@@ -924,38 +956,6 @@
       "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
     ],
     "description": "Get metrics for entities that do not have a specific attribute value.",
-    "scope": "python"
-  },
-  "SGCellType.incValue": {
-    "prefix": "sgcelltype.incValue",
-    "body": [
-      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
-    ],
-    "description": "Increase the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "SGCellType.decValue": {
-    "prefix": "sgcelltype.decValue",
-    "body": [
-      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
-    ],
-    "description": "Decrease the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "SGCellType.calcValue": {
-    "prefix": "sgcelltype.calcValue",
-    "body": [
-      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
-    ],
-    "description": "Apply a calculation on the value of an attribut using a lambda function",
-    "scope": "python"
-  },
-  "SGCellType.copyValue": {
-    "prefix": "sgcelltype.copyValue",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
-    ],
-    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
     "scope": "python"
   },
   "SGCellType.newPov": {
@@ -1280,38 +1280,6 @@
     "description": "Get metrics for entities that do not have a specific attribute value.",
     "scope": "python"
   },
-  "SGAgentType.incValue": {
-    "prefix": "sgagenttype.incValue",
-    "body": [
-      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
-    ],
-    "description": "Increase the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "SGAgentType.decValue": {
-    "prefix": "sgagenttype.decValue",
-    "body": [
-      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
-    ],
-    "description": "Decrease the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "SGAgentType.calcValue": {
-    "prefix": "sgagenttype.calcValue",
-    "body": [
-      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
-    ],
-    "description": "Apply a calculation on the value of an attribut using a lambda function",
-    "scope": "python"
-  },
-  "SGAgentType.copyValue": {
-    "prefix": "sgagenttype.copyValue",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
-    ],
-    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
-    "scope": "python"
-  },
   "SGAgentType.setDefaultValue": {
     "prefix": "sgagenttype.setDefaultValue",
     "body": [
@@ -1438,6 +1406,38 @@
       "${1:instance}.setValues(${2:value})"
     ],
     "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
+  "SGAgentType.incValue": {
+    "prefix": "sgagenttype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGAgentType.decValue": {
+    "prefix": "sgagenttype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGAgentType.calcValue": {
+    "prefix": "sgagenttype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGAgentType.copyValue": {
+    "prefix": "sgagenttype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
     "scope": "python"
   },
   "SGAgentType.nbOfEntities": {
@@ -1710,6 +1710,22 @@
     "description": "",
     "scope": "python"
   },
+  "SGAgent.setValue": {
+    "prefix": "sgagent.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "SGAgent.setValues": {
+    "prefix": "sgagent.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
   "SGAgent.incValue": {
     "prefix": "sgagent.incValue",
     "body": [
@@ -1740,22 +1756,6 @@
       "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
     ],
     "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
-    "scope": "python"
-  },
-  "SGAgent.setValue": {
-    "prefix": "sgagent.setValue",
-    "body": [
-      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
-    ],
-    "description": "Sets the value of an attribut",
-    "scope": "python"
-  },
-  "SGAgent.setValues": {
-    "prefix": "sgagent.setValues",
-    "body": [
-      "${1:instance}.setValues(${2:value})"
-    ],
-    "description": "Set multiple attribute values at once.",
     "scope": "python"
   }
 }
