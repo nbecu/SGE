@@ -5,13 +5,13 @@
     "version": "1.0.0",
     "generated_date": "2024-12-19",
     "total_classes": 5,
-    "total_methods": 218
+    "total_methods": 235
   },
   "classes": {
     "SGCell": {
       "class_name": "SGCell",
       "description": "SGCell model class for SGE framework",
-      "total_methods": 29,
+      "total_methods": 30,
       "categories": {
         "NEW": [
           {
@@ -342,7 +342,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 244,
+            "line_number": 260,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -501,7 +501,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 257,
+            "line_number": 273,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -526,7 +526,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 267,
+            "line_number": 283,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -578,6 +578,33 @@
             "original_class": "AttributeAndValueFunctionalities"
           },
           {
+            "name": "setValue_randomChoice",
+            "signature": "def setValue_randomChoice(self, aAttribute, choices):",
+            "description": "Set a random value for an attribute from a list of choices.",
+            "docstring": "Set a random value for an attribute from a list of choices.\n\nArgs:\n    aAttribute (str): Name of the attribute to set\n    choices (list or tuple): List of possible values to choose from\n    \nExample:\n    agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\n    cell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))",
+            "category": "SET",
+            "class_name": "AttributeAndValueFunctionalities",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "Name of the attribute to set"
+              },
+              {
+                "name": "choices",
+                "type": "list or tuple",
+                "description": "List of possible values to choose from"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
+            ],
+            "line_number": 173,
+            "parent_classes": null,
+            "original_class": "AttributeAndValueFunctionalities"
+          },
+          {
             "name": "incValue",
             "signature": "def incValue(self, aAttribut, valueToSet=1, max=None):",
             "description": "Increase the value of an attribut with an additional value",
@@ -603,7 +630,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 174,
+            "line_number": 190,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -633,7 +660,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -658,7 +685,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -683,7 +710,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -693,7 +720,7 @@
     "SGEntityType": {
       "class_name": "SGEntityType",
       "description": "SGEntityType model class for SGE framework",
-      "total_methods": 48,
+      "total_methods": 53,
       "categories": {
         "SET": [
           {
@@ -821,6 +848,105 @@
             ]
           },
           {
+            "name": "setEntities_randomChoice",
+            "signature": "def setEntities_randomChoice(self, aAttribute, aValue, condition=None):",
+            "description": "Set random choice values for all entities matching the condition.",
+            "docstring": "Set random choice values for all entities matching the condition.\n\nThis method sets the same randomly chosen value for all entities that match\nthe given condition. The value is chosen once and applied to all entities.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue (list or tuple): List/tuple of possible values to choose from\n    condition (callable, optional): Condition function to filter entities\n    \nExample:\n    # Set random health status for all agents\n    agentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n    \n    # Set random type for only forest cells\n    cellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"], \n                                    condition=lambda c: c.getValue(\"type\") == \"forest\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "list or tuple",
+                "description": "List/tuple of possible values to choose from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random health status for all agents\nagentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random type for only forest cells\ncellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
+            ],
+            "line_number": 439,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "setEntities_randomNumeric",
+            "signature": "def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):",
+            "description": "Set random numeric values for all entities matching the condition.",
+            "docstring": "Set random numeric values for all entities matching the condition.\n\nThis method sets random numeric values for all entities that match the given\ncondition. Each entity gets a different random value based on the specified\ndistribution or range.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue: Distribution specification (see supported formats below)\n    condition (callable, optional): Condition function to filter entities\n    \nSupported distribution formats:\n  - (min, max) of ints  -> random.randint(min, max)\n  - (min, max) of floats-> random.uniform(min, max)\n  - range(start, stop[, step]) -> random.randrange(start, stop+step, step)\n  - {\"uniform\": (a, b)} -> random.uniform(a, b)\n  - {\"randint\": (a, b)} -> random.randint(a, b)\n  - {\"normal\": (mu, sigma)} or {\"gauss\": (mu, sigma)} -> random.gauss(mu, sigma)\n  - {\"choice\": [v1, v2, ...]} -> random.choice([...])\n    \nExample:\n    # Set random age between 18-65 for all agents\n    agentType.setEntities_randomNumeric(\"age\", (18, 65))\n    \n    # Set random speed for only active agents\n    agentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0), \n                                      condition=lambda a: a.getValue(\"active\"))\n    \n    # Set normal distributed height\n    agentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n    \n    # Set random choice from list\n    agentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": "Distribution specification (see supported formats below)"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities Supported distribution formats: - (min, max) of ints  -> random.randint(min, max) - (min, max) of floats-> random.uniform(min, max) - range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random age between 18-65 for all agents\nagentType.setEntities_randomNumeric(\"age\", (18, 65))\n\n# Set random speed for only active agents\nagentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0),\ncondition=lambda a: a.getValue(\"active\"))\n\n# Set normal distributed height\nagentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n\n# Set random choice from list\nagentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})"
+            ],
+            "line_number": 464,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "setEntities_randomChoicePerEntity",
+            "signature": "def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):",
+            "description": "Set random choice values for each entity individually.",
+            "docstring": "Set random choice values for each entity individually.\n\nThis method sets a different randomly chosen value for each entity that matches\nthe given condition. Each entity gets its own random choice from the list.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue (list or tuple): List/tuple of possible values to choose from\n    condition (callable, optional): Condition function to filter entities\n    \nExample:\n    # Set random health status for each agent individually\n    agentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n    \n    # Set random terrain for each forest cell individually\n    cellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"], \n                                             condition=lambda c: c.getValue(\"type\") == \"forest\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "list or tuple",
+                "description": "List/tuple of possible values to choose from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random health status for each agent individually\nagentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random terrain for each forest cell individually\ncellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
+            ],
+            "line_number": 546,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
             "name": "setTooltip",
             "signature": "def setTooltip(self, tooltipName, tooltipValue):",
             "description": "Set a custom tooltip option for entities of this definition.",
@@ -843,7 +969,7 @@
             "examples": [
               "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
             ],
-            "line_number": 439,
+            "line_number": 569,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -874,7 +1000,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 467,
+            "line_number": 597,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -915,7 +1041,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 477,
+            "line_number": 607,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -956,7 +1082,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 487,
+            "line_number": 617,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -992,7 +1118,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 497,
+            "line_number": 627,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1038,7 +1164,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 512,
+            "line_number": 642,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1084,7 +1210,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 524,
+            "line_number": 654,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1115,7 +1241,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 536,
+            "line_number": 666,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1146,7 +1272,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 549,
+            "line_number": 679,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1197,6 +1323,33 @@
             "original_class": "AttributeAndValueFunctionalities"
           },
           {
+            "name": "setValue_randomChoice",
+            "signature": "def setValue_randomChoice(self, aAttribute, choices):",
+            "description": "Set a random value for an attribute from a list of choices.",
+            "docstring": "Set a random value for an attribute from a list of choices.\n\nArgs:\n    aAttribute (str): Name of the attribute to set\n    choices (list or tuple): List of possible values to choose from\n    \nExample:\n    agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\n    cell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))",
+            "category": "SET",
+            "class_name": "AttributeAndValueFunctionalities",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "Name of the attribute to set"
+              },
+              {
+                "name": "choices",
+                "type": "list or tuple",
+                "description": "List of possible values to choose from"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
+            ],
+            "line_number": 173,
+            "parent_classes": null,
+            "original_class": "AttributeAndValueFunctionalities"
+          },
+          {
             "name": "incValue",
             "signature": "def incValue(self, aAttribut, valueToSet=1, max=None):",
             "description": "Increase the value of an attribut with an additional value",
@@ -1222,7 +1375,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 174,
+            "line_number": 190,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1252,7 +1405,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1277,7 +1430,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -1302,7 +1455,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -1334,7 +1487,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 562,
+            "line_number": 692,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1365,7 +1518,7 @@
             ],
             "returns": "float or int: The calculated metric for all entities.",
             "examples": [],
-            "line_number": 921,
+            "line_number": 1051,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1406,7 +1559,7 @@
             ],
             "returns": "float or int: The calculated metric for entities with the specified value.",
             "examples": [],
-            "line_number": 940,
+            "line_number": 1070,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1447,7 +1600,22 @@
             ],
             "returns": "float or int: The calculated metric for entities without the specified value.",
             "examples": [],
-            "line_number": 963,
+            "line_number": 1093,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ]
+          },
+          {
+            "name": "generate_random_value",
+            "signature": "def generate_random_value():",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 504,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1480,7 +1648,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 576,
+            "line_number": 706,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1516,7 +1684,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 592,
+            "line_number": 722,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1547,7 +1715,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 603,
+            "line_number": 733,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1578,7 +1746,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 901,
+            "line_number": 1031,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1606,7 +1774,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 619,
+            "line_number": 749,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1627,7 +1795,7 @@
             ],
             "returns": "list: List of entities matching the condition, or all entities if condition is None",
             "examples": [],
-            "line_number": 635,
+            "line_number": 765,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1653,7 +1821,7 @@
             ],
             "returns": "list: List of entities with the specified attribute value",
             "examples": [],
-            "line_number": 648,
+            "line_number": 778,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1679,7 +1847,7 @@
             ],
             "returns": "list: List of entities without the specified attribute value",
             "examples": [],
-            "line_number": 661,
+            "line_number": 791,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1705,7 +1873,7 @@
             ],
             "returns": "Entity or False: A random entity if available, False if no entities match",
             "examples": [],
-            "line_number": 674,
+            "line_number": 804,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1736,7 +1904,7 @@
             ],
             "returns": "Entity or False: A random entity with the specified value, False if none found",
             "examples": [],
-            "line_number": 694,
+            "line_number": 824,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1767,7 +1935,7 @@
             ],
             "returns": "Entity or False: A random entity without the specified value, False if none found",
             "examples": [],
-            "line_number": 708,
+            "line_number": 838,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1798,7 +1966,7 @@
             ],
             "returns": "list: List of random entities (may be fewer than requested if not enough entities match)",
             "examples": [],
-            "line_number": 722,
+            "line_number": 852,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1834,7 +2002,7 @@
             ],
             "returns": "list: List of random entities with the specified value",
             "examples": [],
-            "line_number": 743,
+            "line_number": 873,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1870,7 +2038,7 @@
             ],
             "returns": "list: List of random entities without the specified value",
             "examples": [],
-            "line_number": 758,
+            "line_number": 888,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1891,7 +2059,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 244,
+            "line_number": 260,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -1907,7 +2075,7 @@
             "parameters": [],
             "returns": "int: Total number of entities",
             "examples": [],
-            "line_number": 773,
+            "line_number": 903,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1933,7 +2101,7 @@
             ],
             "returns": "int: Number of entities with the specified value",
             "examples": [],
-            "line_number": 782,
+            "line_number": 912,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1950,7 +2118,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 800,
+            "line_number": 930,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1973,7 +2141,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 810,
+            "line_number": 940,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -1994,7 +2162,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 819,
+            "line_number": 949,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -2020,7 +2188,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 829,
+            "line_number": 959,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -2041,7 +2209,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 845,
+            "line_number": 975,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -2069,7 +2237,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 257,
+            "line_number": 273,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -2094,7 +2262,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 267,
+            "line_number": 283,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -2104,7 +2272,7 @@
     "SGCellType": {
       "class_name": "SGCellType",
       "description": "SGCellType model class for SGE framework",
-      "total_methods": 54,
+      "total_methods": 59,
       "categories": {
         "SET": [
           {
@@ -2138,7 +2306,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1078,
+            "line_number": 1208,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2161,7 +2329,7 @@
             "examples": [
               "grid.setLayoutOrder(1)  # Set grid as first in layout\nlegend.setLayoutOrder(3)  # Set legend as third in layout\ndashboard.setLayoutOrder(None)  # Reset to auto-assignment"
             ],
-            "line_number": 1082,
+            "line_number": 1212,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2296,6 +2464,108 @@
             "original_class": "SGEntityType"
           },
           {
+            "name": "setEntities_randomChoice",
+            "signature": "def setEntities_randomChoice(self, aAttribute, aValue, condition=None):",
+            "description": "Set random choice values for all entities matching the condition.",
+            "docstring": "Set random choice values for all entities matching the condition.\n\nThis method sets the same randomly chosen value for all entities that match\nthe given condition. The value is chosen once and applied to all entities.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue (list or tuple): List/tuple of possible values to choose from\n    condition (callable, optional): Condition function to filter entities\n    \nExample:\n    # Set random health status for all agents\n    agentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n    \n    # Set random type for only forest cells\n    cellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"], \n                                    condition=lambda c: c.getValue(\"type\") == \"forest\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "list or tuple",
+                "description": "List/tuple of possible values to choose from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random health status for all agents\nagentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random type for only forest cells\ncellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
+            ],
+            "line_number": 439,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
+            "name": "setEntities_randomNumeric",
+            "signature": "def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):",
+            "description": "Set random numeric values for all entities matching the condition.",
+            "docstring": "Set random numeric values for all entities matching the condition.\n\nThis method sets random numeric values for all entities that match the given\ncondition. Each entity gets a different random value based on the specified\ndistribution or range.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue: Distribution specification (see supported formats below)\n    condition (callable, optional): Condition function to filter entities\n    \nSupported distribution formats:\n  - (min, max) of ints  -> random.randint(min, max)\n  - (min, max) of floats-> random.uniform(min, max)\n  - range(start, stop[, step]) -> random.randrange(start, stop+step, step)\n  - {\"uniform\": (a, b)} -> random.uniform(a, b)\n  - {\"randint\": (a, b)} -> random.randint(a, b)\n  - {\"normal\": (mu, sigma)} or {\"gauss\": (mu, sigma)} -> random.gauss(mu, sigma)\n  - {\"choice\": [v1, v2, ...]} -> random.choice([...])\n    \nExample:\n    # Set random age between 18-65 for all agents\n    agentType.setEntities_randomNumeric(\"age\", (18, 65))\n    \n    # Set random speed for only active agents\n    agentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0), \n                                      condition=lambda a: a.getValue(\"active\"))\n    \n    # Set normal distributed height\n    agentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n    \n    # Set random choice from list\n    agentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": "Distribution specification (see supported formats below)"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities Supported distribution formats: - (min, max) of ints  -> random.randint(min, max) - (min, max) of floats-> random.uniform(min, max) - range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random age between 18-65 for all agents\nagentType.setEntities_randomNumeric(\"age\", (18, 65))\n\n# Set random speed for only active agents\nagentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0),\ncondition=lambda a: a.getValue(\"active\"))\n\n# Set normal distributed height\nagentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n\n# Set random choice from list\nagentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})"
+            ],
+            "line_number": 464,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
+            "name": "setEntities_randomChoicePerEntity",
+            "signature": "def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):",
+            "description": "Set random choice values for each entity individually.",
+            "docstring": "Set random choice values for each entity individually.\n\nThis method sets a different randomly chosen value for each entity that matches\nthe given condition. Each entity gets its own random choice from the list.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue (list or tuple): List/tuple of possible values to choose from\n    condition (callable, optional): Condition function to filter entities\n    \nExample:\n    # Set random health status for each agent individually\n    agentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n    \n    # Set random terrain for each forest cell individually\n    cellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"], \n                                             condition=lambda c: c.getValue(\"type\") == \"forest\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "list or tuple",
+                "description": "List/tuple of possible values to choose from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random health status for each agent individually\nagentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random terrain for each forest cell individually\ncellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
+            ],
+            "line_number": 546,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
             "name": "setTooltip",
             "signature": "def setTooltip(self, tooltipName, tooltipValue):",
             "description": "Set a custom tooltip option for entities of this definition.",
@@ -2318,7 +2588,7 @@
             "examples": [
               "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
             ],
-            "line_number": 439,
+            "line_number": 569,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2350,7 +2620,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 467,
+            "line_number": 597,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2392,7 +2662,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 477,
+            "line_number": 607,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2434,7 +2704,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 487,
+            "line_number": 617,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2471,7 +2741,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 497,
+            "line_number": 627,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2518,7 +2788,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 512,
+            "line_number": 642,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2565,7 +2835,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 524,
+            "line_number": 654,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2597,7 +2867,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 536,
+            "line_number": 666,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2629,7 +2899,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 549,
+            "line_number": 679,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2681,6 +2951,33 @@
             "original_class": "AttributeAndValueFunctionalities"
           },
           {
+            "name": "setValue_randomChoice",
+            "signature": "def setValue_randomChoice(self, aAttribute, choices):",
+            "description": "Set a random value for an attribute from a list of choices.",
+            "docstring": "Set a random value for an attribute from a list of choices.\n\nArgs:\n    aAttribute (str): Name of the attribute to set\n    choices (list or tuple): List of possible values to choose from\n    \nExample:\n    agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\n    cell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))",
+            "category": "SET",
+            "class_name": "AttributeAndValueFunctionalities",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "Name of the attribute to set"
+              },
+              {
+                "name": "choices",
+                "type": "list or tuple",
+                "description": "List of possible values to choose from"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
+            ],
+            "line_number": 173,
+            "parent_classes": null,
+            "original_class": "AttributeAndValueFunctionalities"
+          },
+          {
             "name": "incValue",
             "signature": "def incValue(self, aAttribut, valueToSet=1, max=None):",
             "description": "Increase the value of an attribut with an additional value",
@@ -2706,7 +3003,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 174,
+            "line_number": 190,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -2736,7 +3033,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -2761,7 +3058,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -2786,7 +3083,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -2813,7 +3110,7 @@
             ],
             "returns": "object or None: The cell object if found within the grid boundaries, otherwise None. Notes: - Coordinates are 1-indexed: valid ranges are 1 ≤ x ≤ grid.columns and 1 ≤ y ≤ grid.rows. - If coordinates are outside this range, returns None. - Supports passing coordinates as a tuple or list: e.g. getCell((4, 2)).",
             "examples": [],
-            "line_number": 1100,
+            "line_number": 1230,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2839,7 +3136,7 @@
             ],
             "returns": "SGCell: The entity at the specified coordinates, or None if not found",
             "examples": [],
-            "line_number": 1139,
+            "line_number": 1269,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2860,7 +3157,7 @@
             ],
             "returns": "list[SGCell]: List of entities in the specified row",
             "examples": [],
-            "line_number": 1152,
+            "line_number": 1282,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2881,7 +3178,7 @@
             ],
             "returns": "list[SGCell]: List of entities in the specified column",
             "examples": [],
-            "line_number": 1164,
+            "line_number": 1294,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2907,7 +3204,7 @@
             ],
             "returns": "SGCell: A random cell from the grid, or False if no cells found",
             "examples": [],
-            "line_number": 1177,
+            "line_number": 1307,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -2928,7 +3225,7 @@
             ],
             "returns": "list: List of entities matching the condition, or all entities if condition is None",
             "examples": [],
-            "line_number": 635,
+            "line_number": 765,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2955,7 +3252,7 @@
             ],
             "returns": "list: List of entities with the specified attribute value",
             "examples": [],
-            "line_number": 648,
+            "line_number": 778,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -2982,7 +3279,7 @@
             ],
             "returns": "list: List of entities without the specified attribute value",
             "examples": [],
-            "line_number": 661,
+            "line_number": 791,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3014,7 +3311,7 @@
             ],
             "returns": "Entity or False: A random entity with the specified value, False if none found",
             "examples": [],
-            "line_number": 694,
+            "line_number": 824,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3046,7 +3343,7 @@
             ],
             "returns": "Entity or False: A random entity without the specified value, False if none found",
             "examples": [],
-            "line_number": 708,
+            "line_number": 838,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3078,7 +3375,7 @@
             ],
             "returns": "list: List of random entities (may be fewer than requested if not enough entities match)",
             "examples": [],
-            "line_number": 722,
+            "line_number": 852,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3115,7 +3412,7 @@
             ],
             "returns": "list: List of random entities with the specified value",
             "examples": [],
-            "line_number": 743,
+            "line_number": 873,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3152,7 +3449,7 @@
             ],
             "returns": "list: List of random entities without the specified value",
             "examples": [],
-            "line_number": 758,
+            "line_number": 888,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3174,7 +3471,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 244,
+            "line_number": 260,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -3196,7 +3493,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1194,
+            "line_number": 1324,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3211,7 +3508,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 800,
+            "line_number": 930,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3245,7 +3542,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 562,
+            "line_number": 692,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3277,7 +3574,7 @@
             ],
             "returns": "float or int: The calculated metric for all entities.",
             "examples": [],
-            "line_number": 921,
+            "line_number": 1051,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3319,7 +3616,7 @@
             ],
             "returns": "float or int: The calculated metric for entities with the specified value.",
             "examples": [],
-            "line_number": 940,
+            "line_number": 1070,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3361,7 +3658,23 @@
             ],
             "returns": "float or int: The calculated metric for entities without the specified value.",
             "examples": [],
-            "line_number": 963,
+            "line_number": 1093,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
+            "name": "generate_random_value",
+            "signature": "def generate_random_value():",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 504,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3395,7 +3708,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 576,
+            "line_number": 706,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3432,7 +3745,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 592,
+            "line_number": 722,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3464,7 +3777,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 603,
+            "line_number": 733,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3496,7 +3809,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 901,
+            "line_number": 1031,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3514,7 +3827,7 @@
             "parameters": [],
             "returns": "int: Total number of entities",
             "examples": [],
-            "line_number": 773,
+            "line_number": 903,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3541,7 +3854,7 @@
             ],
             "returns": "int: Number of entities with the specified value",
             "examples": [],
-            "line_number": 782,
+            "line_number": 912,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3565,7 +3878,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 810,
+            "line_number": 940,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3587,7 +3900,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 819,
+            "line_number": 949,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3614,7 +3927,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 829,
+            "line_number": 959,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3636,7 +3949,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 845,
+            "line_number": 975,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3665,7 +3978,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 257,
+            "line_number": 273,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -3690,7 +4003,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 267,
+            "line_number": 283,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -3700,7 +4013,7 @@
     "SGAgentType": {
       "class_name": "SGAgentType",
       "description": "SGAgentType model class for SGE framework",
-      "total_methods": 56,
+      "total_methods": 61,
       "categories": {
         "NEW": [
           {
@@ -3734,7 +4047,7 @@
             ],
             "returns": "SGAgent: The created agent model, or None if creation failed",
             "examples": [],
-            "line_number": 1272,
+            "line_number": 1402,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3765,7 +4078,7 @@
             ],
             "returns": "None: Agents are created and added to the agentType",
             "examples": [],
-            "line_number": 1301,
+            "line_number": 1431,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3811,7 +4124,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1316,
+            "line_number": 1446,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3852,7 +4165,7 @@
             ],
             "returns": "agents",
             "examples": [],
-            "line_number": 1358,
+            "line_number": 1488,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3883,7 +4196,7 @@
             ],
             "returns": "a agent",
             "examples": [],
-            "line_number": 1399,
+            "line_number": 1529,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3919,7 +4232,7 @@
             ],
             "returns": "a list of agents",
             "examples": [],
-            "line_number": 1428,
+            "line_number": 1558,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -3950,7 +4263,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 576,
+            "line_number": 706,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3987,7 +4300,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 592,
+            "line_number": 722,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4019,7 +4332,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 603,
+            "line_number": 733,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4051,7 +4364,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 901,
+            "line_number": 1031,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4080,7 +4393,7 @@
             ],
             "returns": "SGAgent: A random agent from the list bool: False if no agents found",
             "examples": [],
-            "line_number": 1467,
+            "line_number": 1597,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4106,7 +4419,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 619,
+            "line_number": 749,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4128,7 +4441,7 @@
             ],
             "returns": "list: List of entities matching the condition, or all entities if condition is None",
             "examples": [],
-            "line_number": 635,
+            "line_number": 765,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4155,7 +4468,7 @@
             ],
             "returns": "list: List of entities with the specified attribute value",
             "examples": [],
-            "line_number": 648,
+            "line_number": 778,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4182,7 +4495,7 @@
             ],
             "returns": "list: List of entities without the specified attribute value",
             "examples": [],
-            "line_number": 661,
+            "line_number": 791,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4214,7 +4527,7 @@
             ],
             "returns": "Entity or False: A random entity with the specified value, False if none found",
             "examples": [],
-            "line_number": 694,
+            "line_number": 824,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4246,7 +4559,7 @@
             ],
             "returns": "Entity or False: A random entity without the specified value, False if none found",
             "examples": [],
-            "line_number": 708,
+            "line_number": 838,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4278,7 +4591,7 @@
             ],
             "returns": "list: List of random entities (may be fewer than requested if not enough entities match)",
             "examples": [],
-            "line_number": 722,
+            "line_number": 852,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4315,7 +4628,7 @@
             ],
             "returns": "list: List of random entities with the specified value",
             "examples": [],
-            "line_number": 743,
+            "line_number": 873,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4352,7 +4665,7 @@
             ],
             "returns": "list: List of random entities without the specified value",
             "examples": [],
-            "line_number": 758,
+            "line_number": 888,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4374,7 +4687,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 244,
+            "line_number": 260,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -4396,7 +4709,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1482,
+            "line_number": 1612,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4411,7 +4724,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 800,
+            "line_number": 930,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4440,7 +4753,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 1515,
+            "line_number": 1645,
             "parent_classes": [
               "SGEntityType"
             ]
@@ -4471,7 +4784,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 562,
+            "line_number": 692,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4503,7 +4816,7 @@
             ],
             "returns": "float or int: The calculated metric for all entities.",
             "examples": [],
-            "line_number": 921,
+            "line_number": 1051,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4545,7 +4858,7 @@
             ],
             "returns": "float or int: The calculated metric for entities with the specified value.",
             "examples": [],
-            "line_number": 940,
+            "line_number": 1070,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4587,7 +4900,23 @@
             ],
             "returns": "float or int: The calculated metric for entities without the specified value.",
             "examples": [],
-            "line_number": 963,
+            "line_number": 1093,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
+            "name": "generate_random_value",
+            "signature": "def generate_random_value():",
+            "description": "",
+            "docstring": "",
+            "category": "OTHER MODELER METHODS",
+            "class_name": "SGEntityType",
+            "parameters": [],
+            "returns": "",
+            "examples": [],
+            "line_number": 504,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4725,6 +5054,108 @@
             "original_class": "SGEntityType"
           },
           {
+            "name": "setEntities_randomChoice",
+            "signature": "def setEntities_randomChoice(self, aAttribute, aValue, condition=None):",
+            "description": "Set random choice values for all entities matching the condition.",
+            "docstring": "Set random choice values for all entities matching the condition.\n\nThis method sets the same randomly chosen value for all entities that match\nthe given condition. The value is chosen once and applied to all entities.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue (list or tuple): List/tuple of possible values to choose from\n    condition (callable, optional): Condition function to filter entities\n    \nExample:\n    # Set random health status for all agents\n    agentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n    \n    # Set random type for only forest cells\n    cellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"], \n                                    condition=lambda c: c.getValue(\"type\") == \"forest\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "list or tuple",
+                "description": "List/tuple of possible values to choose from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random health status for all agents\nagentType.setEntities_randomChoice(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random type for only forest cells\ncellType.setEntities_randomChoice(\"terrain\", [\"oak\", \"pine\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
+            ],
+            "line_number": 439,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
+            "name": "setEntities_randomNumeric",
+            "signature": "def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):",
+            "description": "Set random numeric values for all entities matching the condition.",
+            "docstring": "Set random numeric values for all entities matching the condition.\n\nThis method sets random numeric values for all entities that match the given\ncondition. Each entity gets a different random value based on the specified\ndistribution or range.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue: Distribution specification (see supported formats below)\n    condition (callable, optional): Condition function to filter entities\n    \nSupported distribution formats:\n  - (min, max) of ints  -> random.randint(min, max)\n  - (min, max) of floats-> random.uniform(min, max)\n  - range(start, stop[, step]) -> random.randrange(start, stop+step, step)\n  - {\"uniform\": (a, b)} -> random.uniform(a, b)\n  - {\"randint\": (a, b)} -> random.randint(a, b)\n  - {\"normal\": (mu, sigma)} or {\"gauss\": (mu, sigma)} -> random.gauss(mu, sigma)\n  - {\"choice\": [v1, v2, ...]} -> random.choice([...])\n    \nExample:\n    # Set random age between 18-65 for all agents\n    agentType.setEntities_randomNumeric(\"age\", (18, 65))\n    \n    # Set random speed for only active agents\n    agentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0), \n                                      condition=lambda a: a.getValue(\"active\"))\n    \n    # Set normal distributed height\n    agentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n    \n    # Set random choice from list\n    agentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "Any",
+                "description": "Distribution specification (see supported formats below)"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities Supported distribution formats: - (min, max) of ints  -> random.randint(min, max) - (min, max) of floats-> random.uniform(min, max) - range(start, stop[, step]) -> random.randrange(start, stop+step, step)"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random age between 18-65 for all agents\nagentType.setEntities_randomNumeric(\"age\", (18, 65))\n\n# Set random speed for only active agents\nagentType.setEntities_randomNumeric(\"speed\", (0.5, 2.0),\ncondition=lambda a: a.getValue(\"active\"))\n\n# Set normal distributed height\nagentType.setEntities_randomNumeric(\"height\", {\"normal\": (170, 10)})\n\n# Set random choice from list\nagentType.setEntities_randomNumeric(\"status\", {\"choice\": [\"A\", \"B\", \"C\"]})"
+            ],
+            "line_number": 464,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
+            "name": "setEntities_randomChoicePerEntity",
+            "signature": "def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):",
+            "description": "Set random choice values for each entity individually.",
+            "docstring": "Set random choice values for each entity individually.\n\nThis method sets a different randomly chosen value for each entity that matches\nthe given condition. Each entity gets its own random choice from the list.\n\nArgs:\n    aAttribute (str): The attribute name to set\n    aValue (list or tuple): List/tuple of possible values to choose from\n    condition (callable, optional): Condition function to filter entities\n    \nExample:\n    # Set random health status for each agent individually\n    agentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n    \n    # Set random terrain for each forest cell individually\n    cellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"], \n                                             condition=lambda c: c.getValue(\"type\") == \"forest\")",
+            "category": "SET",
+            "class_name": "SGEntityType",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "The attribute name to set"
+              },
+              {
+                "name": "aValue",
+                "type": "list or tuple",
+                "description": "List/tuple of possible values to choose from"
+              },
+              {
+                "name": "condition",
+                "type": "callable, optional",
+                "description": "Condition function to filter entities"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "# Set random health status for each agent individually\nagentType.setEntities_randomChoicePerEntity(\"health\", [\"good\", \"bad\", \"excellent\"])\n\n# Set random terrain for each forest cell individually\ncellType.setEntities_randomChoicePerEntity(\"terrain\", [\"oak\", \"pine\", \"birch\"],\ncondition=lambda c: c.getValue(\"type\") == \"forest\")"
+            ],
+            "line_number": 546,
+            "parent_classes": [
+              "AttributeAndValueFunctionalities"
+            ],
+            "original_class": "SGEntityType"
+          },
+          {
             "name": "setTooltip",
             "signature": "def setTooltip(self, tooltipName, tooltipValue):",
             "description": "Set a custom tooltip option for entities of this definition.",
@@ -4747,7 +5178,7 @@
             "examples": [
               "# Display health attribute\nagentDef.setTooltip(\"Health\", \"health\")\n\n# Display custom calculated value\nagentDef.setTooltip(\"Status\", lambda entity: f\"Health: {entity.value('health')}\")\n\n# Display static text\nagentDef.setTooltip(\"Info\", \"Agent Information\")"
             ],
-            "line_number": 439,
+            "line_number": 569,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4779,7 +5210,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 467,
+            "line_number": 597,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4821,7 +5252,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 477,
+            "line_number": 607,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4863,7 +5294,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 487,
+            "line_number": 617,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4900,7 +5331,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 497,
+            "line_number": 627,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4947,7 +5378,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 512,
+            "line_number": 642,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -4994,7 +5425,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 524,
+            "line_number": 654,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5026,7 +5457,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 536,
+            "line_number": 666,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5058,7 +5489,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 549,
+            "line_number": 679,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5110,6 +5541,33 @@
             "original_class": "AttributeAndValueFunctionalities"
           },
           {
+            "name": "setValue_randomChoice",
+            "signature": "def setValue_randomChoice(self, aAttribute, choices):",
+            "description": "Set a random value for an attribute from a list of choices.",
+            "docstring": "Set a random value for an attribute from a list of choices.\n\nArgs:\n    aAttribute (str): Name of the attribute to set\n    choices (list or tuple): List of possible values to choose from\n    \nExample:\n    agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\n    cell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))",
+            "category": "SET",
+            "class_name": "AttributeAndValueFunctionalities",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "Name of the attribute to set"
+              },
+              {
+                "name": "choices",
+                "type": "list or tuple",
+                "description": "List of possible values to choose from"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
+            ],
+            "line_number": 173,
+            "parent_classes": null,
+            "original_class": "AttributeAndValueFunctionalities"
+          },
+          {
             "name": "incValue",
             "signature": "def incValue(self, aAttribut, valueToSet=1, max=None):",
             "description": "Increase the value of an attribut with an additional value",
@@ -5135,7 +5593,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 174,
+            "line_number": 190,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -5165,7 +5623,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -5190,7 +5648,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -5215,7 +5673,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -5231,7 +5689,7 @@
             "parameters": [],
             "returns": "int: Total number of entities",
             "examples": [],
-            "line_number": 773,
+            "line_number": 903,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5258,7 +5716,7 @@
             ],
             "returns": "int: Number of entities with the specified value",
             "examples": [],
-            "line_number": 782,
+            "line_number": 912,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5282,7 +5740,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 810,
+            "line_number": 940,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5304,7 +5762,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 819,
+            "line_number": 949,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5331,7 +5789,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 829,
+            "line_number": 959,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5353,7 +5811,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 845,
+            "line_number": 975,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -5382,7 +5840,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 257,
+            "line_number": 273,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -5407,7 +5865,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 267,
+            "line_number": 283,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -5417,7 +5875,7 @@
     "SGAgent": {
       "class_name": "SGAgent",
       "description": "SGAgent model class for SGE framework",
-      "total_methods": 31,
+      "total_methods": 32,
       "categories": {
         "GET": [
           {
@@ -5689,7 +6147,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 244,
+            "line_number": 260,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -5786,7 +6244,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 257,
+            "line_number": 273,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -5811,7 +6269,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 267,
+            "line_number": 283,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }
@@ -6051,6 +6509,33 @@
             "original_class": "AttributeAndValueFunctionalities"
           },
           {
+            "name": "setValue_randomChoice",
+            "signature": "def setValue_randomChoice(self, aAttribute, choices):",
+            "description": "Set a random value for an attribute from a list of choices.",
+            "docstring": "Set a random value for an attribute from a list of choices.\n\nArgs:\n    aAttribute (str): Name of the attribute to set\n    choices (list or tuple): List of possible values to choose from\n    \nExample:\n    agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\n    cell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))",
+            "category": "SET",
+            "class_name": "AttributeAndValueFunctionalities",
+            "parameters": [
+              {
+                "name": "aAttribute",
+                "type": "str",
+                "description": "Name of the attribute to set"
+              },
+              {
+                "name": "choices",
+                "type": "list or tuple",
+                "description": "List of possible values to choose from"
+              }
+            ],
+            "returns": "",
+            "examples": [
+              "agent.setValue_randomChoice(\"status\", [\"active\", \"inactive\", \"pending\"])\ncell.setValue_randomChoice(\"terrain\", (\"forest\", \"grassland\", \"water\"))"
+            ],
+            "line_number": 173,
+            "parent_classes": null,
+            "original_class": "AttributeAndValueFunctionalities"
+          },
+          {
             "name": "incValue",
             "signature": "def incValue(self, aAttribut, valueToSet=1, max=None):",
             "description": "Increase the value of an attribut with an additional value",
@@ -6076,7 +6561,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 174,
+            "line_number": 190,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -6106,7 +6591,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 190,
+            "line_number": 206,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -6131,7 +6616,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 206,
+            "line_number": 222,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           },
@@ -6156,7 +6641,7 @@
             ],
             "returns": "",
             "examples": [],
-            "line_number": 222,
+            "line_number": 238,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }

@@ -1406,8 +1406,7 @@ class SGMethodsCatalog:
                     snippets[snippet_key] = {
                         "prefix": f"{class_name.lower()}.{method['name']}",
                         "body": snippet_body,
-                        "description": method.get("description", ""),
-                        "scope": "python"
+                        "description": method.get("description", "")
                     }
         
         with open(output_file, 'w', encoding='utf-8') as f:

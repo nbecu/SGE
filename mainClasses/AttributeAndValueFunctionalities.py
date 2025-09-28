@@ -170,6 +170,22 @@ class AttributeAndValueFunctionalities():
         for att, value in dictOfAttributesAndValues.items():
             self.setValue(att, value)
 
+    def setValue_randomChoice(self, aAttribute, choices):
+        """
+        Set a random value for an attribute from a list of choices.
+        
+        Args:
+            aAttribute (str): Name of the attribute to set
+            choices (list or tuple): List of possible values to choose from
+            
+        Example:
+            agent.setValue_randomChoice("status", ["active", "inactive", "pending"])
+            cell.setValue_randomChoice("terrain", ("forest", "grassland", "water"))
+        """
+        import random
+        chosen_value = random.choice(choices)
+        self.setValue(aAttribute, chosen_value)
+
     # @CATEGORY: SET
     def incValue(self, aAttribut, valueToSet=1, max=None):
         """

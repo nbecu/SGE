@@ -436,6 +436,136 @@ class SGEntityType(AttributeAndValueFunctionalities):
         for ent in self.getEntities(condition):
             ent.setValue(aAttribute, aValue)
 
+    def setEntities_randomChoice(self, aAttribute, aValue, condition=None):
+        """
+        Set random choice values for all entities matching the condition.
+        
+        This method sets the same randomly chosen value for all entities that match
+        the given condition. The value is chosen once and applied to all entities.
+        
+        Args:
+            aAttribute (str): The attribute name to set
+            aValue (list or tuple): List/tuple of possible values to choose from
+            condition (callable, optional): Condition function to filter entities
+            
+        Example:
+            # Set random health status for all agents
+            agentType.setEntities_randomChoice("health", ["good", "bad", "excellent"])
+            
+            # Set random type for only forest cells
+            cellType.setEntities_randomChoice("terrain", ["oak", "pine"], 
+                                            condition=lambda c: c.getValue("type") == "forest")
+        """
+        import random
+        chosen_value = random.choice(aValue)
+        for ent in self.getEntities(condition):
+            ent.setValue(aAttribute, chosen_value)
+
+    def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):
+        """
+        Set random numeric values for all entities matching the condition.
+        
+        This method sets random numeric values for all entities that match the given
+        condition. Each entity gets a different random value based on the specified
+        distribution or range.
+        
+        Args:
+            aAttribute (str): The attribute name to set
+            aValue: Distribution specification (see supported formats below)
+            condition (callable, optional): Condition function to filter entities
+            
+        Supported distribution formats:
+          - (min, max) of ints  -> random.randint(min, max)
+          - (min, max) of floats-> random.uniform(min, max)
+          - range(start, stop[, step]) -> random.randrange(start, stop+step, step)
+          - {"uniform": (a, b)} -> random.uniform(a, b)
+          - {"randint": (a, b)} -> random.randint(a, b)
+          - {"normal": (mu, sigma)} or {"gauss": (mu, sigma)} -> random.gauss(mu, sigma)
+          - {"choice": [v1, v2, ...]} -> random.choice([...])
+            
+        Example:
+            # Set random age between 18-65 for all agents
+            agentType.setEntities_randomNumeric("age", (18, 65))
+            
+            # Set random speed for only active agents
+            agentType.setEntities_randomNumeric("speed", (0.5, 2.0), 
+                                              condition=lambda a: a.getValue("active"))
+            
+            # Set normal distributed height
+            agentType.setEntities_randomNumeric("height", {"normal": (170, 10)})
+            
+            # Set random choice from list
+            agentType.setEntities_randomNumeric("status", {"choice": ["A", "B", "C"]})
+        """
+        import random
+        import numbers
+        
+        # Generate random value function based on distribution spec
+        def generate_random_value():
+            # range() → make stop inclusive by adding one step
+            if isinstance(aValue, range):
+                start, stop, step = aValue.start, aValue.stop, aValue.step
+                if step == 0:
+                    return start
+                else:
+                    inclusive_stop = stop + step
+                    return random.randrange(start, inclusive_stop, step)
+            # tuple/list of 2 -> randint or uniform
+            elif isinstance(aValue, (list, tuple)) and len(aValue) == 2:
+                lo, hi = aValue[0], aValue[1]
+                if isinstance(lo, numbers.Integral) and isinstance(hi, numbers.Integral):
+                    return random.randint(int(lo), int(hi))
+                elif isinstance(lo, numbers.Real) and isinstance(hi, numbers.Real):
+                    return random.uniform(float(lo), float(hi))
+                else:
+                    return aValue
+            # dict distribution spec
+            elif isinstance(aValue, dict) and len(aValue) == 1:
+                name, params = next(iter(aValue.items()))
+                if name == "uniform" and isinstance(params, (list, tuple)) and len(params) == 2:
+                    a, b = float(params[0]), float(params[1])
+                    return random.uniform(a, b)
+                elif name in ("randint", "randrange") and isinstance(params, (list, tuple)) and len(params) >= 2:
+                    a, b = int(params[0]), int(params[1])
+                    return random.randint(a, b)
+                elif name in ("gauss", "normal") and isinstance(params, (list, tuple)) and len(params) == 2:
+                    mu, sigma = float(params[0]), float(params[1])
+                    return random.gauss(mu, sigma)
+                elif name == "choice" and isinstance(params, (list, tuple)):
+                    return random.choice(params)
+                else:
+                    return aValue
+            else:
+                return aValue
+        
+        # Apply random values to all matching entities
+        for ent in self.getEntities(condition):
+            random_value = generate_random_value()
+            ent.setValue(aAttribute, random_value)
+
+    def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):
+        """
+        Set random choice values for each entity individually.
+        
+        This method sets a different randomly chosen value for each entity that matches
+        the given condition. Each entity gets its own random choice from the list.
+        
+        Args:
+            aAttribute (str): The attribute name to set
+            aValue (list or tuple): List/tuple of possible values to choose from
+            condition (callable, optional): Condition function to filter entities
+            
+        Example:
+            # Set random health status for each agent individually
+            agentType.setEntities_randomChoicePerEntity("health", ["good", "bad", "excellent"])
+            
+            # Set random terrain for each forest cell individually
+            cellType.setEntities_randomChoicePerEntity("terrain", ["oak", "pine", "birch"], 
+                                                     condition=lambda c: c.getValue("type") == "forest")
+        """
+        for ent in self.getEntities(condition):
+            ent.setValue_randomChoice(aAttribute, aValue)
+
     def setTooltip(self, tooltipName, tooltipValue):
         """
         Set a custom tooltip option for entities of this definition.

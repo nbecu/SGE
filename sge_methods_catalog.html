@@ -62,7 +62,7 @@
         <p>Comprehensive catalog of SGE modeler methods</p>
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">218</div>
+                <div class="stat-number">235</div>
                 <div class="stat-label">Methods</div>
             </div>
             <div class="stat-item">
@@ -149,7 +149,7 @@
 
         <div class="class-section" id="SGCell">
             <h2>SGCell</h2>
-            <p>SGCell model class for SGE framework - 29 methods</p>
+            <p>SGCell model class for SGE framework - 30 methods</p>
             <p><strong>Inherits from:</strong> SGEntity</p>
 
             <div class="category-section">
@@ -322,6 +322,13 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
 <p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCell" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setValue_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def setValue_randomChoice(self, aAttribute, choices):</div>
+                    <p><strong>Description:</strong> Set a random value for an attribute from a list of choices.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>choices: list or tuple</li></ul><div class='examples'><strong>Examples:</strong><pre>agent.setValue_randomChoice("status", ["active", "inactive", "pending"])
+cell.setValue_randomChoice("terrain", ("forest", "grassland", "water"))
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGCell" data-examples="without-examples" data-parameters="with-params">
                     <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
@@ -344,7 +351,7 @@ moore_neighbors = cell.getNeighborCells(neighborhood="moore")
 <p><strong>Parameters:</strong></p><ul><li>source_att: str</li><li>target_att: str</li></ul></div></div></div>
         <div class="class-section" id="SGEntityType">
             <h2>SGEntityType</h2>
-            <p>SGEntityType model class for SGE framework - 48 methods</p>
+            <p>SGEntityType model class for SGE framework - 53 methods</p>
             <p><strong>Inherits from:</strong> AttributeAndValueFunctionalities</p>
 
             <div class="category-section">
@@ -393,6 +400,45 @@ setDefaultValues({
                     <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
 <p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: lambda function</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomChoice</h4>
+                    <div class="method-signature">def setEntities_randomChoice(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random choice values for all entities matching the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: list or tuple</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random health status for all agents
+agentType.setEntities_randomChoice("health", ["good", "bad", "excellent"])
+
+# Set random type for only forest cells
+cellType.setEntities_randomChoice("terrain", ["oak", "pine"],
+condition=lambda c: c.getValue("type") == "forest")
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomNumeric</h4>
+                    <div class="method-signature">def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random numeric values for all entities matching the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: Any</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random age between 18-65 for all agents
+agentType.setEntities_randomNumeric("age", (18, 65))
+
+# Set random speed for only active agents
+agentType.setEntities_randomNumeric("speed", (0.5, 2.0),
+condition=lambda a: a.getValue("active"))
+
+# Set normal distributed height
+agentType.setEntities_randomNumeric("height", {"normal": (170, 10)})
+
+# Set random choice from list
+agentType.setEntities_randomNumeric("status", {"choice": ["A", "B", "C"]})
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomChoicePerEntity</h4>
+                    <div class="method-signature">def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random choice values for each entity individually.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: list or tuple</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random health status for each agent individually
+agentType.setEntities_randomChoicePerEntity("health", ["good", "bad", "excellent"])
+
+# Set random terrain for each forest cell individually
+cellType.setEntities_randomChoicePerEntity("terrain", ["oak", "pine", "birch"],
+condition=lambda c: c.getValue("type") == "forest")
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setTooltip</h4>
                     <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
@@ -456,6 +502,13 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
 <p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setValue_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def setValue_randomChoice(self, aAttribute, choices):</div>
+                    <p><strong>Description:</strong> Set a random value for an attribute from a list of choices.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>choices: list or tuple</li></ul><div class='examples'><strong>Examples:</strong><pre>agent.setValue_randomChoice("status", ["active", "inactive", "pending"])
+cell.setValue_randomChoice("terrain", ("forest", "grassland", "water"))
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGEntityType" data-examples="without-examples" data-parameters="with-params">
                     <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
@@ -498,7 +551,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>metricOnEntitiesWithValueNot</h4>
                     <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGEntityType" data-examples="without-examples" data-parameters="without-params">
+                    <h4>generate_random_value</h4>
+                    <div class="method-signature">def generate_random_value():</div>
+                    <p><strong>Description:</strong> </p>
+</div></div>
             <div class="category-section">
                 <h3>NEW Methods</h3>
 
@@ -639,7 +697,7 @@ agentDef.setTooltip("Info", "Agent Information")
 <p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div></div>
         <div class="class-section" id="SGCellType">
             <h2>SGCellType</h2>
-            <p>SGCellType model class for SGE framework - 54 methods</p>
+            <p>SGCellType model class for SGE framework - 59 methods</p>
             <p><strong>Inherits from:</strong> SGEntityType</p>
 
             <div class="category-section">
@@ -701,6 +759,45 @@ setDefaultValues({
                     <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
 <p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: lambda function</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def setEntities_randomChoice(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random choice values for all entities matching the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: list or tuple</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random health status for all agents
+agentType.setEntities_randomChoice("health", ["good", "bad", "excellent"])
+
+# Set random type for only forest cells
+cellType.setEntities_randomChoice("terrain", ["oak", "pine"],
+condition=lambda c: c.getValue("type") == "forest")
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomNumeric <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random numeric values for all entities matching the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: Any</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random age between 18-65 for all agents
+agentType.setEntities_randomNumeric("age", (18, 65))
+
+# Set random speed for only active agents
+agentType.setEntities_randomNumeric("speed", (0.5, 2.0),
+condition=lambda a: a.getValue("active"))
+
+# Set normal distributed height
+agentType.setEntities_randomNumeric("height", {"normal": (170, 10)})
+
+# Set random choice from list
+agentType.setEntities_randomNumeric("status", {"choice": ["A", "B", "C"]})
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomChoicePerEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random choice values for each entity individually.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: list or tuple</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random health status for each agent individually
+agentType.setEntities_randomChoicePerEntity("health", ["good", "bad", "excellent"])
+
+# Set random terrain for each forest cell individually
+cellType.setEntities_randomChoicePerEntity("terrain", ["oak", "pine", "birch"],
+condition=lambda c: c.getValue("type") == "forest")
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setTooltip <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
@@ -764,6 +861,13 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
 <p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setValue_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def setValue_randomChoice(self, aAttribute, choices):</div>
+                    <p><strong>Description:</strong> Set a random value for an attribute from a list of choices.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>choices: list or tuple</li></ul><div class='examples'><strong>Examples:</strong><pre>agent.setValue_randomChoice("status", ["active", "inactive", "pending"])
+cell.setValue_randomChoice("terrain", ("forest", "grassland", "water"))
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
@@ -892,7 +996,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>metricOnEntitiesWithValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGCellType" data-examples="without-examples" data-parameters="without-params">
+                    <h4>generate_random_value <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def generate_random_value():</div>
+                    <p><strong>Description:</strong> </p>
+</div></div>
             <div class="category-section">
                 <h3>NEW Methods</h3>
 
@@ -967,7 +1076,7 @@ agentDef.setTooltip("Info", "Agent Information")
 <p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div></div>
         <div class="class-section" id="SGAgentType">
             <h2>SGAgentType</h2>
-            <p>SGAgentType model class for SGE framework - 56 methods</p>
+            <p>SGAgentType model class for SGE framework - 61 methods</p>
             <p><strong>Inherits from:</strong> SGEntityType</p>
 
             <div class="category-section">
@@ -1121,7 +1230,12 @@ agentDef.setTooltip("Info", "Agent Information")
                     <h4>metricOnEntitiesWithValueNot <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def metricOnEntitiesWithValueNot(self, attributeForSelection, valueForSelection, metric, attribute, value=None):</div>
                     <p><strong>Description:</strong> Get metrics for entities that do not have a specific attribute value.</p>
-<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div></div>
+<p><strong>Parameters:</strong></p><ul><li>attributeForSelection: str</li><li>valueForSelection: Any</li><li>metric: str</li><li>attribute: str</li><li>value: Any</li></ul><p><strong>Returns:</strong> float or int: The calculated metric for entities without the specified value.</p></div>
+                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="SGAgentType" data-examples="without-examples" data-parameters="without-params">
+                    <h4>generate_random_value <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def generate_random_value():</div>
+                    <p><strong>Description:</strong> </p>
+</div></div>
             <div class="category-section">
                 <h3>SET Methods</h3>
 
@@ -1168,6 +1282,45 @@ setDefaultValues({
                     <div class="method-signature">def setEntities(self, aAttribute, aValue, condition=None):</div>
                     <p><strong>Description:</strong> Set the value of attribut value of all entities</p>
 <p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: str</li><li>condition: lambda function</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def setEntities_randomChoice(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random choice values for all entities matching the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: list or tuple</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random health status for all agents
+agentType.setEntities_randomChoice("health", ["good", "bad", "excellent"])
+
+# Set random type for only forest cells
+cellType.setEntities_randomChoice("terrain", ["oak", "pine"],
+condition=lambda c: c.getValue("type") == "forest")
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomNumeric <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def setEntities_randomNumeric(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random numeric values for all entities matching the condition.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: Any</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random age between 18-65 for all agents
+agentType.setEntities_randomNumeric("age", (18, 65))
+
+# Set random speed for only active agents
+agentType.setEntities_randomNumeric("speed", (0.5, 2.0),
+condition=lambda a: a.getValue("active"))
+
+# Set normal distributed height
+agentType.setEntities_randomNumeric("height", {"normal": (170, 10)})
+
+# Set random choice from list
+agentType.setEntities_randomNumeric("status", {"choice": ["A", "B", "C"]})
+</pre></div></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setEntities_randomChoicePerEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
+                    <div class="method-signature">def setEntities_randomChoicePerEntity(self, aAttribute, aValue, condition=None):</div>
+                    <p><strong>Description:</strong> Set random choice values for each entity individually.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>aValue: list or tuple</li><li>condition: callable, optional</li></ul><div class='examples'><strong>Examples:</strong><pre># Set random health status for each agent individually
+agentType.setEntities_randomChoicePerEntity("health", ["good", "bad", "excellent"])
+
+# Set random terrain for each forest cell individually
+cellType.setEntities_randomChoicePerEntity("terrain", ["oak", "pine", "birch"],
+condition=lambda c: c.getValue("type") == "forest")
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
                     <h4>setTooltip <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def setTooltip(self, tooltipName, tooltipValue):</div>
@@ -1231,6 +1384,13 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
 <p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setValue_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def setValue_randomChoice(self, aAttribute, choices):</div>
+                    <p><strong>Description:</strong> Set a random value for an attribute from a list of choices.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>choices: list or tuple</li></ul><div class='examples'><strong>Examples:</strong><pre>agent.setValue_randomChoice("status", ["active", "inactive", "pending"])
+cell.setValue_randomChoice("terrain", ("forest", "grassland", "water"))
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
@@ -1302,7 +1462,7 @@ agentDef.setTooltip("Info", "Agent Information")
 <p><strong>Parameters:</strong></p><ul><li>attribut_to_test: str</li><li>value_to_test: str</li></ul></div></div></div>
         <div class="class-section" id="SGAgent">
             <h2>SGAgent</h2>
-            <p>SGAgent model class for SGE framework - 31 methods</p>
+            <p>SGAgent model class for SGE framework - 32 methods</p>
             <p><strong>Inherits from:</strong> SGEntity</p>
 
             <div class="category-section">
@@ -1461,6 +1621,13 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
 <p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: dict</li></ul></div>
+                <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="with-examples" data-parameters="with-params">
+                    <h4>setValue_randomChoice <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
+                    <div class="method-signature">def setValue_randomChoice(self, aAttribute, choices):</div>
+                    <p><strong>Description:</strong> Set a random value for an attribute from a list of choices.</p>
+<p><strong>Parameters:</strong></p><ul><li>aAttribute: str</li><li>choices: list or tuple</li></ul><div class='examples'><strong>Examples:</strong><pre>agent.setValue_randomChoice("status", ["active", "inactive", "pending"])
+cell.setValue_randomChoice("terrain", ("forest", "grassland", "water"))
+</pre></div></div>
                 <div class="method-card" data-category="SET" data-class="SGAgent" data-examples="without-examples" data-parameters="with-params">
                     <h4>incValue <span style="color: #7f8c8d; font-size: 0.8em;">(from AttributeAndValueFunctionalities)</span></h4>
                     <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
