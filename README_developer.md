@@ -164,6 +164,7 @@ SGE includes an automated method catalog generator (`SGMethodsCatalog.py`) that:
 - **Categorizes methods** using naming conventions and explicit `@CATEGORY:` tags
 - **Generates documentation** in JSON, HTML, and VS Code snippet formats
 - **Supports tagging** for ambiguous method categorization
+- **Interactive HTML interface** with hierarchical filtering, expandable cards, and dynamic counts
 
 #### Category Tagging System
 Use `@CATEGORY:` tags in comments before method definitions to override automatic categorization:

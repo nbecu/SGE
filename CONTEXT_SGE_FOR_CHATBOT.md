@@ -699,7 +699,18 @@ execute_callable_with_entity(lambda a: doSomething(a), agent)
 - **Catégorisation** via conventions de nommage et tags `@CATEGORY:`
 - **Génération** de documentation JSON, HTML et snippets VS Code
 
-### 20.2 Usage pour les développeurs
+### 20.2 Interface HTML interactive (DÉCEMBRE 2024)
+**Nouvelles fonctionnalités** :
+- **Filtrage hiérarchique** : boutons bleus pour classes (premier niveau) + filtres dropdown
+- **Tri alphabétique** des méthodes dans chaque catégorie
+- **Cartes de méthodes dépliables** avec indicateurs +/- 
+- **Compteurs dynamiques** basés sur les méthodes visibles
+- **Ordre logique SGE** des catégories (NEW, ADD, SET, DELETE, GET, NB, IS, HAS, DO, DISPLAY, OTHER)
+- **Bouton "Expand All Methods"** dans le header
+- **Affichage d'héritage unifié** pour classes et méthodes
+- **Scroll optimisé** : seul le contenu défile, header et sidebar fixes
+
+### 20.3 Usage pour les développeurs
 ```python
 from mainClasses.SGMethodsCatalog import SGMethodsCatalog
 catalog = SGMethodsCatalog()
@@ -715,7 +726,7 @@ catalog.identify_and_tag_ambiguous_methods()
 catalog.add_category_tags_to_methods(dry_run=True, target_classes=["AttributeAndValueFunctionalities"])
 ```
 
-### 20.3 Système de tags @CATEGORY
+### 20.4 Système de tags @CATEGORY
 **Utilisation** : Tags explicites pour catégoriser les méthodes ambiguës
 ```python
 # @CATEGORY: SET

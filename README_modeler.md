@@ -89,7 +89,7 @@ SGE provides a comprehensive method catalog to help modelers discover and use av
 
 ### Generated Files
 - **`sge_methods_catalog.json`**: Complete method catalog in JSON format
-- **`sge_methods_catalog.html`**: Interactive HTML documentation with filtering
+- **`sge_methods_catalog.html`**: Interactive HTML documentation with advanced filtering
 - **`sge_methods_snippets.json`**: VS Code/Cursor snippets for code completion
 
 ### Method Categories
