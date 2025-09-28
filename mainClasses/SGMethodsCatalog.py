@@ -1055,19 +1055,19 @@ class SGMethodsCatalog:
     
     def identify_and_tag_ambiguous_methods(self):
         """Identify methods that need category tags and optionally add them"""
-        print("\n=== IDENTIFICATION DES MÉTHODES AMBIGÜES ===")
+        print("\n=== IDENTIFICATION OF AMBIGUOUS METHODS ===")
         
-        # Méthodes qui devraient être dans SET mais sont actuellement en OTHER
+        # Methods that should be in SET but are currently in OTHER
         set_methods_ambiguous = [
             'incValue', 'decValue', 'calcValue', 'copyValue'
         ]
         
-        # Méthodes qui devraient être dans GET mais sont actuellement en OTHER
+        # Methods that should be in GET but are currently in OTHER
         get_methods_ambiguous = [
-            'value'  # si elle existe
+            'value'  # if it exists
         ]
         
-        # Méthodes qui devraient être dans IS mais sont actuellement en OTHER
+        # Methods that should be in IS but are currently in OTHER
         is_methods_ambiguous = [
             'isValue', 'isNotValue'
         ]
@@ -1078,35 +1078,52 @@ class SGMethodsCatalog:
             'IS': is_methods_ambiguous
         }
         
-        print("Méthodes identifiées comme ambigües :")
+        print("Methods identified as ambiguous:")
         for category, methods in ambiguous_methods.items():
             if methods:
                 print(f"  {category}: {', '.join(methods)}")
         
-        print("\nPour ajouter les tags, utilisez :")
+        print("\nTo add tags, use:")
         print("catalog.add_category_tags_to_methods()")
         
         return ambiguous_methods
     
-    def add_category_tags_to_methods(self, dry_run=True):
-        """Add category tags to ambiguous methods in source files"""
-        print(f"\n=== AJOUT DES TAGS DE CATÉGORIE (dry_run={dry_run}) ===")
+    def add_category_tags_to_methods(self, dry_run=True, target_classes=None):
+        """Add category tags to ambiguous methods in source files
+        
+        Args:
+            dry_run (bool): If True, only show what would be modified without making changes
+            target_classes (list): List of class names to process. If None, process all classes.
+        """
+        print(f"\n=== ADDING CATEGORY TAGS (dry_run={dry_run}) ===")
         
         ambiguous_methods = self.identify_and_tag_ambiguous_methods()
         
-        # Fichiers à traiter
-        files_to_process = [
+        # Files to process
+        all_files = [
             "mainClasses/AttributeAndValueFunctionalities.py",
             "mainClasses/SGCell.py",
             "mainClasses/SGAgent.py",
             "mainClasses/SGEntityType.py"
         ]
         
+        # Filter files based on target_classes
+        if target_classes:
+            files_to_process = []
+            for file_path in all_files:
+                # Extract class name from file path
+                filename = os.path.basename(file_path)
+                class_name = filename.replace('.py', '')
+                if class_name in target_classes:
+                    files_to_process.append(file_path)
+        else:
+            files_to_process = all_files
+        
         for file_path in files_to_process:
             if not os.path.exists(file_path):
                 continue
                 
-            print(f"\nTraitement de {file_path}...")
+            print(f"\nProcessing {file_path}...")
             
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -1115,11 +1132,11 @@ class SGMethodsCatalog:
             lines = content.split('\n')
             
             for i, line in enumerate(lines):
-                # Chercher les définitions de méthodes
+                # Look for method definitions
                 if line.strip().startswith('def ') and '(' in line:
                     method_name = line.split('def ')[1].split('(')[0].strip()
                     
-                    # Vérifier si cette méthode est ambigüe
+                    # Check if this method is ambiguous
                     target_category = None
                     for category, methods in ambiguous_methods.items():
                         if method_name in methods:
@@ -1127,24 +1144,65 @@ class SGMethodsCatalog:
                             break
                     
                     if target_category:
-                        # Vérifier si le tag existe déjà
-                        if i > 0 and f"# @CATEGORY: {target_category}" in lines[i-1]:
-                            print(f"  ✓ {method_name} : tag {target_category} déjà présent")
-                            continue
+                        # Check if tag already exists (look in previous lines and docstring)
+                        existing_tag = self._find_existing_category_tag(lines, i)
                         
-                        # Ajouter le tag
-                        tag_line = f"    # @CATEGORY: {target_category}"
-                        lines.insert(i, tag_line)
-                        modified = True
-                        print(f"  + {method_name} : ajout du tag {target_category}")
+                        if existing_tag:
+                            if existing_tag == target_category:
+                                print(f"  ✓ {method_name}: tag {target_category} already present")
+                            else:
+                                print(f"  ⚠ {method_name}: existing tag {existing_tag}, would be changed to {target_category}")
+                                if not dry_run:
+                                    # Replace existing tag
+                                    self._replace_existing_tag(lines, i, target_category)
+                                    modified = True
+                        else:
+                            # Add new tag
+                            tag_line = f"    # @CATEGORY: {target_category}"
+                            lines.insert(i, tag_line)
+                            modified = True
+                            print(f"  + {method_name}: adding tag {target_category}")
             
-            # Sauvegarder si modifié et pas en dry_run
+            # Save if modified and not in dry_run
             if modified and not dry_run:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     f.write('\n'.join(lines))
-                print(f"  → Fichier {file_path} modifié")
+                print(f"  → File {file_path} modified")
             elif modified:
-                print(f"  → Fichier {file_path} serait modifié (dry_run)")
+                print(f"  → File {file_path} would be modified (dry_run)")
+    
+    def _find_existing_category_tag(self, lines, method_line_index):
+        """Find existing @CATEGORY tag for a method"""
+        # Look in previous lines (comments before method)
+        for i in range(max(0, method_line_index - 5), method_line_index):
+            line = lines[i].strip()
+            if '@CATEGORY:' in line:
+                return line.split('@CATEGORY:')[1].strip().upper()
+        
+        # Look in docstring (next few lines after method definition)
+        for i in range(method_line_index + 1, min(len(lines), method_line_index + 10)):
+            line = lines[i].strip()
+            if '@CATEGORY:' in line:
+                return line.split('@CATEGORY:')[1].strip().upper()
+            # Stop at first non-comment, non-empty line (end of docstring)
+            if line and not line.startswith('#') and not line.startswith('"""') and not line.startswith("'''"):
+                break
+        
+        return None
+    
+    def _replace_existing_tag(self, lines, method_line_index, new_category):
+        """Replace existing @CATEGORY tag with new one"""
+        # Look in previous lines
+        for i in range(max(0, method_line_index - 5), method_line_index):
+            if '@CATEGORY:' in lines[i]:
+                lines[i] = lines[i].replace(lines[i].split('@CATEGORY:')[1].strip(), new_category)
+                return
+        
+        # Look in docstring
+        for i in range(method_line_index + 1, min(len(lines), method_line_index + 10)):
+            if '@CATEGORY:' in lines[i]:
+                lines[i] = lines[i].replace(lines[i].split('@CATEGORY:')[1].strip(), new_category)
+                return
     
     def _get_inherited_methods(self, class_name: str, methods_data: Dict[str, List[MethodInfo]], inheritance: Dict) -> List[Dict]:
         """Get methods inherited from parent classes"""
