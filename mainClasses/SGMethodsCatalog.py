@@ -67,6 +67,18 @@ class SGEMethodExtractor:
             'display': 'DISPLAY'
         }
     
+    @staticmethod
+    def get_sge_category_order():
+        """Get the logical order of categories used in SGE"""
+        return [
+            'NEW/ADD/SET METHODS',
+            'DELETE METHODS', 
+            'GET/NB METHODS',
+            'IS/HAS METHODS',
+            'DO/DISPLAY METHODS',
+            'OTHER MODELER METHODS'
+        ]
+    
     def extract_methods_from_file(self, file_path: str) -> Dict[str, List[MethodInfo]]:
         """Extract modeler methods from a Python file"""
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -690,10 +702,13 @@ class SGMethodsCatalog:
         return output_file
     
     def _generate_html_content(self) -> str:
-        """Generate HTML content for the catalog"""
+        """Generate HTML content for the catalog with improved UX"""
         metadata = self.catalog_data.get("metadata", {})
         classes = self.catalog_data.get("classes", {})
         inheritance = self.catalog_data.get("inheritance", {})
+        
+        # Get SGE category order
+        sge_category_order = SGEMethodExtractor.get_sge_category_order()
         
         html = f"""
 <!DOCTYPE html>
@@ -704,39 +719,49 @@ class SGMethodsCatalog:
     <title>{metadata.get('title', 'SGE Methods Catalog')}</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }}
-        .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; }}
+        .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }}
         .header h1 {{ margin: 0; font-size: 2.5em; }}
         .header p {{ margin: 10px 0 0 0; opacity: 0.9; }}
+        .header-controls {{ margin-top: 15px; }}
+        .toggle-all-btn {{ background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-size: 0.9em; transition: background-color 0.3s; }}
+        .toggle-all-btn:hover {{ background-color: #229954; }}
         
-        .main-container {{ display: flex; min-height: calc(100vh - 120px); }}
+        .main-container {{ display: flex; min-height: 100vh; margin-top: 200px; }}
         
-        .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }}
-        .content {{ flex: 1; padding: 20px; overflow-y: auto; }}
+        .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; left: 0; top: 200px; bottom: 0; overflow-y: auto; }}
+        .content {{ flex: 1; padding: 20px; margin-left: 300px; overflow-y: auto; height: calc(100vh - 200px); }}
         
         .classes-section {{ margin-bottom: 25px; }}
         .classes-list {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-        .class-link {{ display: inline-block; padding: 8px 16px; background-color: #3498db; color: white; text-decoration: none; border-radius: 20px; font-size: 0.9em; transition: background-color 0.3s; }}
+        .class-link {{ display: inline-block; padding: 8px 16px; background-color: #3498db; color: white; text-decoration: none; border-radius: 20px; font-size: 0.9em; transition: background-color 0.3s; cursor: pointer; }}
         .class-link:hover {{ background-color: #2980b9; }}
+        .class-link.active {{ background-color: #e74c3c; }}
         
         .search-section {{ margin-bottom: 25px; }}
         .search-box {{ width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; box-sizing: border-box; }}
         .search-box:focus {{ outline: none; border-color: #3498db; }}
         
         .filters-section {{ margin-bottom: 25px; }}
-        .filters-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }}
+        .filters-grid {{ display: grid; grid-template-columns: 1fr; gap: 15px; }}
         .filter-group {{ }}
         .filter-group label {{ display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50; font-size: 0.9em; }}
         .filter-select {{ width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; box-sizing: border-box; }}
         
         .class-section {{ background-color: white; margin-bottom: 25px; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
         .class-section h2 {{ color: #2c3e50; margin-top: 0; border-bottom: 3px solid #3498db; padding-bottom: 10px; }}
+        .class-method-count {{ margin-top: 5px; }}
         
         .category-section {{ margin: 25px 0; }}
         .category-section h3 {{ color: #34495e; margin-bottom: 15px; font-size: 1.2em; }}
+        .category-method-count {{ color: #7f8c8d; font-size: 0.8em; margin-left: 10px; }}
         
-        .method-card {{ border: 1px solid #e0e0e0; margin: 15px 0; padding: 20px; border-radius: 8px; background-color: #fafafa; transition: box-shadow 0.3s; }}
+        .method-card {{ border: 1px solid #e0e0e0; margin: 15px 0; border-radius: 8px; background-color: #fafafa; transition: box-shadow 0.3s; }}
         .method-card:hover {{ box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
-        .method-card h4 {{ color: #2c3e50; margin-top: 0; font-size: 1.3em; }}
+        .method-header {{ padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }}
+        .method-header h4 {{ color: #2c3e50; margin: 0; font-size: 1.3em; }}
+        .method-toggle {{ font-size: 1.2em; color: #7f8c8d; }}
+        .method-content {{ padding: 0 20px 20px 20px; display: none; }}
+        .method-content.expanded {{ display: block; }}
         .method-signature {{ font-family: 'Courier New', monospace; background-color: #2c3e50; color: #ecf0f1; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 0.9em; }}
         .examples {{ background-color: #e8f5e8; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #27ae60; }}
         .examples pre {{ margin: 0; font-family: 'Courier New', monospace; font-size: 0.9em; }}
@@ -748,7 +773,8 @@ class SGMethodsCatalog:
         
         @media (max-width: 768px) {{
             .main-container {{ flex-direction: column; }}
-            .sidebar {{ width: 100%; }}
+            .sidebar {{ width: 100%; position: relative; }}
+            .content {{ margin-left: 0; }}
             .filters-grid {{ grid-template-columns: 1fr; }}
         }}
     </style>
@@ -766,6 +792,9 @@ class SGMethodsCatalog:
                 <div class="stat-number">{metadata.get('total_classes', 0)}</div>
                 <div class="stat-label">Classes</div>
             </div>
+            <div class="stat-item">
+                <button class="toggle-all-btn" onclick="toggleAllMethods()">Expand All Methods</button>
+            </div>
         </div>
     </div>
     
@@ -776,8 +805,11 @@ class SGMethodsCatalog:
                 <div class="classes-list">
 """
         
+        # Add "All" button first
+        html += '                    <a href="#" class="class-link" data-class="all">All</a>\n'
+        
         for class_name in classes.keys():
-            html += f'                    <a href="#{class_name}" class="class-link">{class_name}</a>\n'
+            html += f'                    <a href="#{class_name}" class="class-link" data-class="{class_name}">{class_name}</a>\n'
         
         html += """
                 </div>
@@ -792,19 +824,6 @@ class SGMethodsCatalog:
                 <h3>Filters</h3>
                 <div class="filters-grid">
                     <div class="filter-group">
-                        <label>Class</label>
-                        <select class="filter-select" id="class-filter">
-                            <option value="all">All Classes</option>
-"""
-        
-        for class_name in classes.keys():
-            html += f'                            <option value="{class_name}">{class_name}</option>\n'
-        
-        html += """
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
                         <label>Category</label>
                         <select class="filter-select" id="category-filter">
                             <option value="all">All Categories</option>
@@ -818,6 +837,7 @@ class SGMethodsCatalog:
                             <option value="HAS">HAS</option>
                             <option value="DO">DO</option>
                             <option value="DISPLAY">DISPLAY</option>
+                            <option value="OTHER MODELER METHODS">OTHER</option>
                         </select>
                     </div>
                     
@@ -845,48 +865,75 @@ class SGMethodsCatalog:
         <div class="content">
 """
         
-        # Build complete inheritance chain
-        complete_inheritance = self._build_inheritance_chain(class_name, inheritance)
-        
         for class_name, class_info in classes.items():
+            # Count visible methods for this class
+            total_visible_methods = 0
+            
             html += f"""
         <div class="class-section" id="{class_name}">
             <h2>{class_name}</h2>
-            <p>{class_info.get('description', '')} - {class_info.get('total_methods', 0)} methods</p>
+            <p>{class_info.get('description', '')}</p>
 """
             
             # Add inheritance information
             if class_name in inheritance and inheritance[class_name]:
                 parent_classes = inheritance[class_name]
-                html += f'            <p><strong>Inherits from:</strong> {", ".join(parent_classes)}</p>\n'
+                html += f'            <div class="inherited-from" style="color: #7f8c8d; font-size: 0.8em; margin: 5px 0;">(inherits from {", ".join(parent_classes)})</div>\n'
             
-            # Use methods directly from class_info (already includes inherited methods)
+            # Add method count
+            html += f'            <p class="class-method-count" id="count-{class_name}">0 methods</p>\n'
+            
+            # Get methods by category and sort by SGE order
             all_methods_by_category = class_info.get('categories', {})
             
-            # Display methods by category (including inherited methods)
-            for category, methods in all_methods_by_category.items():
+            # Sort categories by SGE logical order
+            sorted_categories = []
+            for sge_category in sge_category_order:
+                # Find matching categories in the data
+                for category in all_methods_by_category.keys():
+                    if sge_category in category or category in sge_category:
+                        if category not in sorted_categories:
+                            sorted_categories.append(category)
+            
+            # Add any remaining categories not in SGE order
+            for category in all_methods_by_category.keys():
+                if category not in sorted_categories:
+                    sorted_categories.append(category)
+            
+            # Display methods by category in SGE order
+            for category in sorted_categories:
+                methods = all_methods_by_category.get(category, [])
+                if not methods:
+                    continue
+                
+                # Sort methods alphabetically
+                methods.sort(key=lambda x: x.get('name', '').lower())
+                
                 html += f"""
             <div class="category-section">
-                <h3>{category} Methods</h3>
+                <h3>{category} Methods<span class="category-method-count" id="count-{class_name}-{category.replace(' ', '-')}">({len(methods)})</span></h3>
 """
                 
                 for method in methods:
                     has_examples = "with-examples" if method.get('examples') else "without-examples"
                     has_params = "with-params" if method.get('parameters') else "without-params"
                     
+                    html += f"""
+                <div class="method-card" data-category="{category}" data-class="{class_name}" data-examples="{has_examples}" data-parameters="{has_params}">
+                    <div class="method-header" onclick="toggleMethod(this)">
+                        <h4>{method['name']}</h4>
+                        <span class="method-toggle">+</span>
+                    </div>
+                    <div class="method-content">
+"""
+                    
                     # Check if this is an inherited method
                     original_class = method.get('original_class')
                     if original_class and original_class != class_name:
-                        method_title = f"{method['name']} <span style=\"color: #7f8c8d; font-size: 0.8em;\">(from {original_class})</span>"
-                    else:
-                        method_title = method['name']
+                        html += f'                        <div class="inherited-from" style="color: #7f8c8d; font-size: 0.8em; margin: 5px 0;">(from {original_class})</div>\n'
                     
-                    html += f"""
-                <div class="method-card" data-category="{category}" data-class="{class_name}" data-examples="{has_examples}" data-parameters="{has_params}">
-                    <h4>{method_title}</h4>
-                    <div class="method-signature">{method['signature']}</div>
-                    <p><strong>Description:</strong> {method['description']}</p>
-"""
+                    html += f'                        <div class="method-signature">{method["signature"]}</div>\n'
+                    html += f'                        <p><strong>Description:</strong> {method["description"]}</p>\n'
                     
                     if method.get('parameters'):
                         html += "<p><strong>Parameters:</strong></p><ul>"
@@ -903,7 +950,9 @@ class SGMethodsCatalog:
                             html += f"{example}\n"
                         html += "</pre></div>"
                     
-                    html += "</div>"
+                    html += """
+                    </div>
+                </div>"""
                 
                 html += "</div>"
             
@@ -914,13 +963,81 @@ class SGMethodsCatalog:
     </div>
     
     <script>
+        // Toggle method expansion
+        function toggleMethod(header) {
+            const content = header.nextElementSibling;
+            const toggle = header.querySelector('.method-toggle');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.textContent = '+';
+            } else {
+                content.classList.add('expanded');
+                toggle.textContent = '-';
+            }
+        }
+        
+        // Toggle all methods
+        function toggleAllMethods() {
+            const button = document.querySelector('.toggle-all-btn');
+            const methodContents = document.querySelectorAll('.method-content');
+            const methodToggles = document.querySelectorAll('.method-toggle');
+            
+            const allExpanded = Array.from(methodContents).every(content => content.classList.contains('expanded'));
+            
+            if (allExpanded) {
+                // Collapse all
+                methodContents.forEach(content => content.classList.remove('expanded'));
+                methodToggles.forEach(toggle => toggle.textContent = '+');
+                button.textContent = 'Expand All Methods';
+            } else {
+                // Expand all
+                methodContents.forEach(content => content.classList.add('expanded'));
+                methodToggles.forEach(toggle => toggle.textContent = '-');
+                button.textContent = 'Collapse All Methods';
+            }
+        }
+        
+        // Update method counts
+        function updateMethodCounts() {
+            const classSections = document.querySelectorAll('.class-section');
+            
+            classSections.forEach(classSection => {
+                const classId = classSection.id;
+                const visibleMethods = classSection.querySelectorAll('.method-card:not([style*="none"])');
+                const count = visibleMethods.length;
+                
+                const countElement = document.getElementById(`count-${classId}`);
+                if (countElement) {
+                    countElement.textContent = `${count} methods`;
+                }
+                
+                // Update category counts
+                const categorySections = classSection.querySelectorAll('.category-section');
+                categorySections.forEach(categorySection => {
+                    const categoryHeader = categorySection.querySelector('h3');
+                    const categoryName = categoryHeader.textContent.split(' Methods')[0].replace(' ', '-');
+                    const visibleCategoryMethods = categorySection.querySelectorAll('.method-card:not([style*="none"])');
+                    const categoryCount = visibleCategoryMethods.length;
+                    
+                    const categoryCountElement = document.getElementById(`count-${classId}-${categoryName}`);
+                    if (categoryCountElement) {
+                        categoryCountElement.textContent = `(${categoryCount})`;
+                    }
+                });
+            });
+        }
+        
         // Apply all filters
         function applyFilters() {
             const searchQuery = document.getElementById('search-box').value.toLowerCase();
-            const classFilter = document.getElementById('class-filter').value;
             const categoryFilter = document.getElementById('category-filter').value;
             const examplesFilter = document.getElementById('examples-filter').value;
             const parametersFilter = document.getElementById('parameters-filter').value;
+            
+            // Get active class filter
+            const activeClassLink = document.querySelector('.class-link.active');
+            const classFilter = activeClassLink ? activeClassLink.dataset.class : 'all';
             
             const methodCards = document.querySelectorAll('.method-card');
             const categorySections = document.querySelectorAll('.category-section');
@@ -929,13 +1046,13 @@ class SGMethodsCatalog:
             methodCards.forEach(card => {
                 let show = true;
                 
-                // Search filter
-                if (searchQuery && !card.textContent.toLowerCase().includes(searchQuery)) {
+                // Class filter (first level)
+                if (classFilter !== 'all' && card.dataset.class !== classFilter) {
                     show = false;
                 }
                 
-                // Class filter
-                if (classFilter !== 'all' && card.dataset.class !== classFilter) {
+                // Search filter
+                if (searchQuery && !card.textContent.toLowerCase().includes(searchQuery)) {
                     show = false;
                 }
                 
@@ -959,85 +1076,71 @@ class SGMethodsCatalog:
             
             // Then, hide category sections that have no visible methods
             categorySections.forEach(section => {
-                const visibleMethods = section.querySelectorAll('.method-card[style*="block"], .method-card:not([style*="none"])');
-                const hasVisibleMethods = Array.from(visibleMethods).some(card => 
-                    card.style.display !== 'none' && 
-                    (card.style.display === 'block' || !card.style.display)
-                );
+                const visibleMethods = section.querySelectorAll('.method-card:not([style*="none"])');
+                const hasVisibleMethods = visibleMethods.length > 0;
                 
                 section.style.display = hasVisibleMethods ? 'block' : 'none';
-            });
-            
-            // Also filter inherited methods by category
-            const inheritedSections = document.querySelectorAll('.category-section h3');
-            inheritedSections.forEach(header => {
-                if (header.textContent.includes('INHERITED')) {
-                    const section = header.parentElement;
-                    const inheritedMethods = section.querySelectorAll('.method-card');
-                    let hasVisibleInheritedMethods = false;
-                    
-                    inheritedMethods.forEach(method => {
-                        const methodCategory = method.dataset.category;
-                        let showInherited = true;
-                        
-                        // Apply category filter to inherited methods
-                        if (categoryFilter !== 'all' && methodCategory !== categoryFilter) {
-                            showInherited = false;
-                        }
-                        
-                        // Apply other filters
-                        if (showInherited) {
-                            const searchQuery = document.getElementById('search-box').value.toLowerCase();
-                            const classFilter = document.getElementById('class-filter').value;
-                            const examplesFilter = document.getElementById('examples-filter').value;
-                            const parametersFilter = document.getElementById('parameters-filter').value;
-                            
-                            if (searchQuery && !method.textContent.toLowerCase().includes(searchQuery)) {
-                                showInherited = false;
-                            }
-                            
-                            if (classFilter !== 'all' && method.dataset.class !== classFilter) {
-                                showInherited = false;
-                            }
-                            
-                            if (examplesFilter !== 'all' && method.dataset.examples !== examplesFilter) {
-                                showInherited = false;
-                            }
-                            
-                            if (parametersFilter !== 'all' && method.dataset.parameters !== parametersFilter) {
-                                showInherited = false;
-                            }
-                        }
-                        
-                        method.style.display = showInherited ? 'block' : 'none';
-                        if (showInherited) {
-                            hasVisibleInheritedMethods = true;
-                        }
-                    });
-                    
-                    section.style.display = hasVisibleInheritedMethods ? 'block' : 'none';
-                }
             });
             
             // Also hide class sections that have no visible categories
             const classSections = document.querySelectorAll('.class-section');
             classSections.forEach(classSection => {
-                const visibleCategories = classSection.querySelectorAll('.category-section[style*="block"], .category-section:not([style*="none"])');
-                const hasVisibleCategories = Array.from(visibleCategories).some(section => 
-                    section.style.display !== 'none' && 
-                    (section.style.display === 'block' || !section.style.display)
-                );
+                const visibleCategories = classSection.querySelectorAll('.category-section:not([style*="none"])');
+                const hasVisibleCategories = visibleCategories.length > 0;
                 
                 classSection.style.display = hasVisibleCategories ? 'block' : 'none';
             });
+            
+            // Update method counts
+            updateMethodCounts();
         }
         
-        // Add event listeners to all filters
+        // Class navigation
+        function navigateToClass(className) {
+            const targetElement = document.getElementById(className);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+                
+                // Update active class
+                document.querySelectorAll('.class-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[data-class="${className}"]`).classList.add('active');
+            }
+        }
+        
+        // Add event listeners
         document.getElementById('search-box').addEventListener('input', applyFilters);
-        document.getElementById('class-filter').addEventListener('change', applyFilters);
         document.getElementById('category-filter').addEventListener('change', applyFilters);
         document.getElementById('examples-filter').addEventListener('change', applyFilters);
         document.getElementById('parameters-filter').addEventListener('change', applyFilters);
+        
+        // Class filter event listeners
+        document.querySelectorAll('.class-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const className = link.dataset.class;
+                if (className) {
+                    // Apply class filter directly
+                    applyClassFilter(className);
+                }
+            });
+        });
+        
+        // Apply class filter function
+        function applyClassFilter(className) {
+            // Update active button
+            document.querySelectorAll('.class-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-class="${className}"]`).classList.add('active');
+            
+            // Apply all filters (including the new class filter)
+            applyFilters();
+        }
+        
+        // Initialize
+        updateMethodCounts();
     </script>
 </body>
 </html>

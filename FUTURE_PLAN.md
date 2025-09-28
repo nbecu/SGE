@@ -43,7 +43,6 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Improve model configuration management for multiplayer games
 
 ### Documentation & Tools
-- [ ] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide)
 - [ ] Amélioratin de MethodCatalog - html à prévoir
       - quand on scroll, on veut scroller que le panneau de la liste des méthodes, et non pas le bandeau d'en-tete et le bandeau latéral
       - dans le panneau latéral, il y a une mauvaise ergonomie  de fonctionnalités entre les 'boutons' bleu de la rubrique classes et la liste déroulante Class de la rubrique Filters. Les boutons bleus agissent comme des marqueurs pour scroller direction aux différentes sections. Cette fonctionnalité est intéressante mais le rendu graphique la met trop en avant. Il faudrait que ce soit plus discret, et positinné ailleurs. Le rendu graphique des 'boutons bleus' est très esthétique. Il faudrait remplacer la liste déroulante de filtre de class, par un système de 'boutons bleues' ayant cette même esthétique (ce remplacement ne concerne que class ; les autres types de filtre sont à garder tel quel). 
@@ -55,6 +54,8 @@ This document contains the planned improvements and features for the SGE (Simula
 
 
 ## Completed Items
+
+- [x] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide) (Sept 2025)
 
 - [x] Refactor SGModel to follow the ordering convention of SGE for modeler methods (Sept 2025)
   - ✅ Added proper section separators for MODELER METHODS
