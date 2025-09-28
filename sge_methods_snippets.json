@@ -111,6 +111,14 @@
     "description": "Find the closest neighboring cell within a given radius that contains at least one agent",
     "scope": "python"
   },
+  "SGCell.getValue": {
+    "prefix": "sgcell.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut",
+    "scope": "python"
+  },
   "SGCell.nbAgents": {
     "prefix": "sgcell.nbAgents",
     "body": [
@@ -133,6 +141,38 @@
       "${1:result} = ${2:instance}.agent_satisfies_conditions(${3:agent})"
     ],
     "description": "",
+    "scope": "python"
+  },
+  "SGCell.incValue": {
+    "prefix": "sgcell.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCell.decValue": {
+    "prefix": "sgcell.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCell.calcValue": {
+    "prefix": "sgcell.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGCell.copyValue": {
+    "prefix": "sgcell.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
     "scope": "python"
   },
   "SGCell.hasAgent": {
@@ -160,6 +200,40 @@
       "    ${3:pass}"
     ],
     "description": "Check if this cell is empty of agents of a specific type.",
+    "scope": "python"
+  },
+  "SGCell.isValue": {
+    "prefix": "sgcell.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value",
+    "scope": "python"
+  },
+  "SGCell.isNotValue": {
+    "prefix": "sgcell.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value",
+    "scope": "python"
+  },
+  "SGCell.setValue": {
+    "prefix": "sgcell.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "SGCell.setValues": {
+    "prefix": "sgcell.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
     "scope": "python"
   },
   "SGEntityType.setDefaultValue": {
@@ -274,6 +348,22 @@
     "description": "Set the value of attribut to all entities in a specified row",
     "scope": "python"
   },
+  "SGEntityType.setValue": {
+    "prefix": "sgentitytype.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "SGEntityType.setValues": {
+    "prefix": "sgentitytype.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
   "SGEntityType.copyValue_forAllEntities": {
     "prefix": "sgentitytype.copyValue_forAllEntities",
     "body": [
@@ -304,6 +394,38 @@
       "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
     ],
     "description": "Get metrics for entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGEntityType.incValue": {
+    "prefix": "sgentitytype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGEntityType.decValue": {
+    "prefix": "sgentitytype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGEntityType.calcValue": {
+    "prefix": "sgentitytype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGEntityType.copyValue": {
+    "prefix": "sgentitytype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
     "scope": "python"
   },
   "SGEntityType.newPov": {
@@ -418,6 +540,14 @@
     "description": "Return a specified number of random entities that do not have a specific attribute value.",
     "scope": "python"
   },
+  "SGEntityType.getValue": {
+    "prefix": "sgentitytype.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut",
+    "scope": "python"
+  },
   "SGEntityType.nbOfEntities": {
     "prefix": "sgentitytype.nbOfEntities",
     "body": [
@@ -474,6 +604,24 @@
     "description": "Method to control the display of entity tooltips",
     "scope": "python"
   },
+  "SGEntityType.isValue": {
+    "prefix": "sgentitytype.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value",
+    "scope": "python"
+  },
+  "SGEntityType.isNotValue": {
+    "prefix": "sgentitytype.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value",
+    "scope": "python"
+  },
   "SGCellType.setCell": {
     "prefix": "sgcelltype.setCell",
     "body": [
@@ -490,6 +638,134 @@
     "description": "Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.",
     "scope": "python"
   },
+  "SGCellType.setDefaultValue": {
+    "prefix": "sgcelltype.setDefaultValue",
+    "body": [
+      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
+    ],
+    "description": "Set a default value for a specific attribute.",
+    "scope": "python"
+  },
+  "SGCellType.setDefaultValues": {
+    "prefix": "sgcelltype.setDefaultValues",
+    "body": [
+      "${1:instance}.setDefaultValues(${2:value})"
+    ],
+    "description": "Set default values for multiple attributes.",
+    "scope": "python"
+  },
+  "SGCellType.setDefaultValues_randomChoice": {
+    "prefix": "sgcelltype.setDefaultValues_randomChoice",
+    "body": [
+      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
+    ],
+    "description": "Set default values with automatic random choice conversion for lists/tuples.",
+    "scope": "python"
+  },
+  "SGCellType.setDefaultValues_randomNumeric": {
+    "prefix": "sgcelltype.setDefaultValues_randomNumeric",
+    "body": [
+      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
+    ],
+    "description": "Set default numeric values with automatic random distribution conversion.",
+    "scope": "python"
+  },
+  "SGCellType.setEntities": {
+    "prefix": "sgcelltype.setEntities",
+    "body": [
+      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut value of all entities",
+    "scope": "python"
+  },
+  "SGCellType.setTooltip": {
+    "prefix": "sgcelltype.setTooltip",
+    "body": [
+      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
+    ],
+    "description": "Set a custom tooltip option for entities of this definition.",
+    "scope": "python"
+  },
+  "SGCellType.setRandomEntity": {
+    "prefix": "sgcelltype.setRandomEntity",
+    "body": [
+      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Apply a value to a random entity",
+    "scope": "python"
+  },
+  "SGCellType.setRandomEntity_withValue": {
+    "prefix": "sgcelltype.setRandomEntity_withValue",
+    "body": [
+      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity with a certain value",
+    "scope": "python"
+  },
+  "SGCellType.setRandomEntity_withValueNot": {
+    "prefix": "sgcelltype.setRandomEntity_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity not having a certain value",
+    "scope": "python"
+  },
+  "SGCellType.setRandomEntities": {
+    "prefix": "sgcelltype.setRandomEntities",
+    "body": [
+      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Applies the same attribut value for a random number of entities",
+    "scope": "python"
+  },
+  "SGCellType.setRandomEntities_withValue": {
+    "prefix": "sgcelltype.setRandomEntities_withValue",
+    "body": [
+      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities with a certain value",
+    "scope": "python"
+  },
+  "SGCellType.setRandomEntities_withValueNot": {
+    "prefix": "sgcelltype.setRandomEntities_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities noty having a certain value",
+    "scope": "python"
+  },
+  "SGCellType.setEntities_withColumn": {
+    "prefix": "sgcelltype.setEntities_withColumn",
+    "body": [
+      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified column",
+    "scope": "python"
+  },
+  "SGCellType.setEntities_withRow": {
+    "prefix": "sgcelltype.setEntities_withRow",
+    "body": [
+      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified row",
+    "scope": "python"
+  },
+  "SGCellType.setValue": {
+    "prefix": "sgcelltype.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "SGCellType.setValues": {
+    "prefix": "sgcelltype.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
   "SGCellType.getCell": {
     "prefix": "sgcelltype.getCell",
     "body": [
@@ -503,7 +779,7 @@
     "body": [
       "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
     ],
-    "description": "Get a single entity (cell) by coordinates.",
+    "description": "Return an entity identified by its id or its coordinates on a grid",
     "scope": "python"
   },
   "SGCellType.getEntities_withRow": {
@@ -527,7 +803,79 @@
     "body": [
       "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
     ],
-    "description": "Return a random cell from this grid.",
+    "description": "Return a random entity from the available entities.",
+    "scope": "python"
+  },
+  "SGCellType.getEntities": {
+    "prefix": "sgcelltype.getEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities(${3:condition})"
+    ],
+    "description": "Get all entities, optionally filtered by a condition.",
+    "scope": "python"
+  },
+  "SGCellType.getEntities_withValue": {
+    "prefix": "sgcelltype.getEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.getEntities_withValueNot": {
+    "prefix": "sgcelltype.getEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.getRandomEntity_withValue": {
+    "prefix": "sgcelltype.getRandomEntity_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that has a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.getRandomEntity_withValueNot": {
+    "prefix": "sgcelltype.getRandomEntity_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that does not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.getRandomEntities": {
+    "prefix": "sgcelltype.getRandomEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a specified number of random entities.",
+    "scope": "python"
+  },
+  "SGCellType.getRandomEntities_withValue": {
+    "prefix": "sgcelltype.getRandomEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.getRandomEntities_withValueNot": {
+    "prefix": "sgcelltype.getRandomEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.getValue": {
+    "prefix": "sgcelltype.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut",
     "scope": "python"
   },
   "SGCellType.deleteEntity": {
@@ -536,6 +884,176 @@
       "${1:instance}.deleteEntity(${2:aCell})"
     ],
     "description": "Delete a given cell",
+    "scope": "python"
+  },
+  "SGCellType.deleteAllEntities": {
+    "prefix": "sgcelltype.deleteAllEntities",
+    "body": [
+      "${1:instance}.deleteAllEntities()"
+    ],
+    "description": "Delete all entities of the entity type.",
+    "scope": "python"
+  },
+  "SGCellType.copyValue_forAllEntities": {
+    "prefix": "sgcelltype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.",
+    "scope": "python"
+  },
+  "SGCellType.metricOnEntities": {
+    "prefix": "sgcelltype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities.",
+    "scope": "python"
+  },
+  "SGCellType.metricOnEntitiesWithValue": {
+    "prefix": "sgcelltype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgcelltype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.incValue": {
+    "prefix": "sgcelltype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCellType.decValue": {
+    "prefix": "sgcelltype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGCellType.calcValue": {
+    "prefix": "sgcelltype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGCellType.copyValue": {
+    "prefix": "sgcelltype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
+    "scope": "python"
+  },
+  "SGCellType.newPov": {
+    "prefix": "sgcelltype.newPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View for the entityType.",
+    "scope": "python"
+  },
+  "SGCellType.newBorderPov": {
+    "prefix": "sgcelltype.newBorderPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color).",
+    "scope": "python"
+  },
+  "SGCellType.newBorderPovColorAndWidth": {
+    "prefix": "sgcelltype.newBorderPovColorAndWidth",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color).",
+    "scope": "python"
+  },
+  "SGCellType.newModelAction": {
+    "prefix": "sgcelltype.newModelAction",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create an SGModelAction_OnEntities targeting entities of this definition.",
+    "scope": "python"
+  },
+  "SGCellType.nbOfEntities": {
+    "prefix": "sgcelltype.nbOfEntities",
+    "body": [
+      "${1:count} = ${2:instance}.nbOfEntities()"
+    ],
+    "description": "Get the total number of entities in this definition.",
+    "scope": "python"
+  },
+  "SGCellType.nb_withValue": {
+    "prefix": "sgcelltype.nb_withValue",
+    "body": [
+      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
+    ],
+    "description": "Get the number of entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGCellType.displayPov": {
+    "prefix": "sgcelltype.displayPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
+    ],
+    "description": "Displays the symbology for the specified Point of View.",
+    "scope": "python"
+  },
+  "SGCellType.displayBorderPov": {
+    "prefix": "sgcelltype.displayBorderPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
+    ],
+    "description": "Displays the border symbology for the specified Point of View.",
+    "scope": "python"
+  },
+  "SGCellType.displayAttributeValueInContextualMenu": {
+    "prefix": "sgcelltype.displayAttributeValueInContextualMenu",
+    "body": [
+      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:aLabel})"
+    ],
+    "description": "Set an attribute to be displayed in the contextual menu.",
+    "scope": "python"
+  },
+  "SGCellType.displayTooltip": {
+    "prefix": "sgcelltype.displayTooltip",
+    "body": [
+      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
+    ],
+    "description": "Method to control the display of entity tooltips",
+    "scope": "python"
+  },
+  "SGCellType.isValue": {
+    "prefix": "sgcelltype.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value",
+    "scope": "python"
+  },
+  "SGCellType.isNotValue": {
+    "prefix": "sgcelltype.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value",
     "scope": "python"
   },
   "SGAgentType.newAgentOnCell": {
@@ -586,12 +1104,124 @@
     "description": "Create a number of Agents of a given type and place them on random cells.",
     "scope": "python"
   },
+  "SGAgentType.newPov": {
+    "prefix": "sgagenttype.newPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View for the entityType.",
+    "scope": "python"
+  },
+  "SGAgentType.newBorderPov": {
+    "prefix": "sgagenttype.newBorderPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color).",
+    "scope": "python"
+  },
+  "SGAgentType.newBorderPovColorAndWidth": {
+    "prefix": "sgagenttype.newBorderPovColorAndWidth",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color).",
+    "scope": "python"
+  },
+  "SGAgentType.newModelAction": {
+    "prefix": "sgagenttype.newModelAction",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create an SGModelAction_OnEntities targeting entities of this definition.",
+    "scope": "python"
+  },
   "SGAgentType.getRandomEntity": {
     "prefix": "sgagenttype.getRandomEntity",
     "body": [
       "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
     ],
-    "description": "Return a random agent of this type.",
+    "description": "Return a random entity from the available entities.",
+    "scope": "python"
+  },
+  "SGAgentType.getEntity": {
+    "prefix": "sgagenttype.getEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
+    ],
+    "description": "Return an entity identified by its id or its coordinates on a grid",
+    "scope": "python"
+  },
+  "SGAgentType.getEntities": {
+    "prefix": "sgagenttype.getEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities(${3:condition})"
+    ],
+    "description": "Get all entities, optionally filtered by a condition.",
+    "scope": "python"
+  },
+  "SGAgentType.getEntities_withValue": {
+    "prefix": "sgagenttype.getEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.getEntities_withValueNot": {
+    "prefix": "sgagenttype.getEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.getRandomEntity_withValue": {
+    "prefix": "sgagenttype.getRandomEntity_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that has a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.getRandomEntity_withValueNot": {
+    "prefix": "sgagenttype.getRandomEntity_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that does not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.getRandomEntities": {
+    "prefix": "sgagenttype.getRandomEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a specified number of random entities.",
+    "scope": "python"
+  },
+  "SGAgentType.getRandomEntities_withValue": {
+    "prefix": "sgagenttype.getRandomEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.getRandomEntities_withValueNot": {
+    "prefix": "sgagenttype.getRandomEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.getValue": {
+    "prefix": "sgagenttype.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut",
     "scope": "python"
   },
   "SGAgentType.deleteEntity": {
@@ -602,12 +1232,604 @@
     "description": "Delete a given agent",
     "scope": "python"
   },
+  "SGAgentType.deleteAllEntities": {
+    "prefix": "sgagenttype.deleteAllEntities",
+    "body": [
+      "${1:instance}.deleteAllEntities()"
+    ],
+    "description": "Delete all entities of the entity type.",
+    "scope": "python"
+  },
   "SGAgentType.moveRandomly": {
     "prefix": "sgagenttype.moveRandomly",
     "body": [
       "${1:result} = ${2:instance}.moveRandomly(${3:numberOfMovement}, ${4:condition})"
     ],
     "description": "All agents of this type move randomly.",
+    "scope": "python"
+  },
+  "SGAgentType.copyValue_forAllEntities": {
+    "prefix": "sgagenttype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition.",
+    "scope": "python"
+  },
+  "SGAgentType.metricOnEntities": {
+    "prefix": "sgagenttype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities.",
+    "scope": "python"
+  },
+  "SGAgentType.metricOnEntitiesWithValue": {
+    "prefix": "sgagenttype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgagenttype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.incValue": {
+    "prefix": "sgagenttype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGAgentType.decValue": {
+    "prefix": "sgagenttype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGAgentType.calcValue": {
+    "prefix": "sgagenttype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGAgentType.copyValue": {
+    "prefix": "sgagenttype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
+    "scope": "python"
+  },
+  "SGAgentType.setDefaultValue": {
+    "prefix": "sgagenttype.setDefaultValue",
+    "body": [
+      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
+    ],
+    "description": "Set a default value for a specific attribute.",
+    "scope": "python"
+  },
+  "SGAgentType.setDefaultValues": {
+    "prefix": "sgagenttype.setDefaultValues",
+    "body": [
+      "${1:instance}.setDefaultValues(${2:value})"
+    ],
+    "description": "Set default values for multiple attributes.",
+    "scope": "python"
+  },
+  "SGAgentType.setDefaultValues_randomChoice": {
+    "prefix": "sgagenttype.setDefaultValues_randomChoice",
+    "body": [
+      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
+    ],
+    "description": "Set default values with automatic random choice conversion for lists/tuples.",
+    "scope": "python"
+  },
+  "SGAgentType.setDefaultValues_randomNumeric": {
+    "prefix": "sgagenttype.setDefaultValues_randomNumeric",
+    "body": [
+      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
+    ],
+    "description": "Set default numeric values with automatic random distribution conversion.",
+    "scope": "python"
+  },
+  "SGAgentType.setEntities": {
+    "prefix": "sgagenttype.setEntities",
+    "body": [
+      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut value of all entities",
+    "scope": "python"
+  },
+  "SGAgentType.setTooltip": {
+    "prefix": "sgagenttype.setTooltip",
+    "body": [
+      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
+    ],
+    "description": "Set a custom tooltip option for entities of this definition.",
+    "scope": "python"
+  },
+  "SGAgentType.setRandomEntity": {
+    "prefix": "sgagenttype.setRandomEntity",
+    "body": [
+      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Apply a value to a random entity",
+    "scope": "python"
+  },
+  "SGAgentType.setRandomEntity_withValue": {
+    "prefix": "sgagenttype.setRandomEntity_withValue",
+    "body": [
+      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity with a certain value",
+    "scope": "python"
+  },
+  "SGAgentType.setRandomEntity_withValueNot": {
+    "prefix": "sgagenttype.setRandomEntity_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity not having a certain value",
+    "scope": "python"
+  },
+  "SGAgentType.setRandomEntities": {
+    "prefix": "sgagenttype.setRandomEntities",
+    "body": [
+      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Applies the same attribut value for a random number of entities",
+    "scope": "python"
+  },
+  "SGAgentType.setRandomEntities_withValue": {
+    "prefix": "sgagenttype.setRandomEntities_withValue",
+    "body": [
+      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities with a certain value",
+    "scope": "python"
+  },
+  "SGAgentType.setRandomEntities_withValueNot": {
+    "prefix": "sgagenttype.setRandomEntities_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities noty having a certain value",
+    "scope": "python"
+  },
+  "SGAgentType.setEntities_withColumn": {
+    "prefix": "sgagenttype.setEntities_withColumn",
+    "body": [
+      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified column",
+    "scope": "python"
+  },
+  "SGAgentType.setEntities_withRow": {
+    "prefix": "sgagenttype.setEntities_withRow",
+    "body": [
+      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified row",
+    "scope": "python"
+  },
+  "SGAgentType.setValue": {
+    "prefix": "sgagenttype.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "SGAgentType.setValues": {
+    "prefix": "sgagenttype.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
+  "SGAgentType.nbOfEntities": {
+    "prefix": "sgagenttype.nbOfEntities",
+    "body": [
+      "${1:count} = ${2:instance}.nbOfEntities()"
+    ],
+    "description": "Get the total number of entities in this definition.",
+    "scope": "python"
+  },
+  "SGAgentType.nb_withValue": {
+    "prefix": "sgagenttype.nb_withValue",
+    "body": [
+      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
+    ],
+    "description": "Get the number of entities that have a specific attribute value.",
+    "scope": "python"
+  },
+  "SGAgentType.displayPov": {
+    "prefix": "sgagenttype.displayPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
+    ],
+    "description": "Displays the symbology for the specified Point of View.",
+    "scope": "python"
+  },
+  "SGAgentType.displayBorderPov": {
+    "prefix": "sgagenttype.displayBorderPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
+    ],
+    "description": "Displays the border symbology for the specified Point of View.",
+    "scope": "python"
+  },
+  "SGAgentType.displayAttributeValueInContextualMenu": {
+    "prefix": "sgagenttype.displayAttributeValueInContextualMenu",
+    "body": [
+      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:aLabel})"
+    ],
+    "description": "Set an attribute to be displayed in the contextual menu.",
+    "scope": "python"
+  },
+  "SGAgentType.displayTooltip": {
+    "prefix": "sgagenttype.displayTooltip",
+    "body": [
+      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
+    ],
+    "description": "Method to control the display of entity tooltips",
+    "scope": "python"
+  },
+  "SGAgentType.isValue": {
+    "prefix": "sgagenttype.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value",
+    "scope": "python"
+  },
+  "SGAgentType.isNotValue": {
+    "prefix": "sgagenttype.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value",
+    "scope": "python"
+  },
+  "SGAgent.getId": {
+    "prefix": "sgagent.getId",
+    "body": [
+      "${1:result} = ${2:instance}.getId()"
+    ],
+    "description": "Get agent ID",
+    "scope": "python"
+  },
+  "SGAgent.getCoords": {
+    "prefix": "sgagent.getCoords",
+    "body": [
+      "${1:result} = ${2:instance}.getCoords()"
+    ],
+    "description": "Get agent coordinates",
+    "scope": "python"
+  },
+  "SGAgent.getCell": {
+    "prefix": "sgagent.getCell",
+    "body": [
+      "${1:result} = ${2:instance}.getCell()"
+    ],
+    "description": "Get the current cell of the agent",
+    "scope": "python"
+  },
+  "SGAgent.getCellCoordinates": {
+    "prefix": "sgagent.getCellCoordinates",
+    "body": [
+      "${1:result} = ${2:instance}.getCellCoordinates()"
+    ],
+    "description": "Get the coordinates of the current cell",
+    "scope": "python"
+  },
+  "SGAgent.getAgentsHere": {
+    "prefix": "sgagent.getAgentsHere",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentsHere(${3:agent_type})"
+    ],
+    "description": "Get all agents in the same cell as this agent.",
+    "scope": "python"
+  },
+  "SGAgent.getNeighborCells": {
+    "prefix": "sgagent.getNeighborCells",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborCells(${3:neighborhood})"
+    ],
+    "description": "Get neighbor cells",
+    "scope": "python"
+  },
+  "SGAgent.getNeighborAgents": {
+    "prefix": "sgagent.getNeighborAgents",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborAgents(${3:agent_type}, ${4:neighborhood})"
+    ],
+    "description": "Get neighbor agents",
+    "scope": "python"
+  },
+  "SGAgent.getClosestAgentMatching": {
+    "prefix": "sgagent.getClosestAgentMatching",
+    "body": [
+      "${1:result} = ${2:instance}.getClosestAgentMatching(${3:agent_type}, ${4:max_distance}, ${5:conditions_on_agent}, ${6:conditions_on_cell}, ${7:return_all})"
+    ],
+    "description": "Find the closest neighboring agent of a given type from this agent's position,",
+    "scope": "python"
+  },
+  "SGAgent.getNeighborsN": {
+    "prefix": "sgagent.getNeighborsN",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsN(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the North",
+    "scope": "python"
+  },
+  "SGAgent.getNeighborsS": {
+    "prefix": "sgagent.getNeighborsS",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsS(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the South",
+    "scope": "python"
+  },
+  "SGAgent.getNeighborsE": {
+    "prefix": "sgagent.getNeighborsE",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsE(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the East",
+    "scope": "python"
+  },
+  "SGAgent.getNeighborsW": {
+    "prefix": "sgagent.getNeighborsW",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsW(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the West",
+    "scope": "python"
+  },
+  "SGAgent.getValue": {
+    "prefix": "sgagent.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut",
+    "scope": "python"
+  },
+  "SGAgent.nbAgentsHere": {
+    "prefix": "sgagent.nbAgentsHere",
+    "body": [
+      "${1:count} = ${2:instance}.nbAgentsHere(${3:agent_type})"
+    ],
+    "description": "Get the number of agents in the same cell as this agent.",
+    "scope": "python"
+  },
+  "SGAgent.nbNeighborAgents": {
+    "prefix": "sgagent.nbNeighborAgents",
+    "body": [
+      "${1:count} = ${2:instance}.nbNeighborAgents(${3:agent_type})"
+    ],
+    "description": "Get number of neighbor agents",
+    "scope": "python"
+  },
+  "SGAgent.isInCell": {
+    "prefix": "sgagent.isInCell",
+    "body": [
+      "if ${1:instance}.isInCell(${2:cell}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if agent is in a specific cell",
+    "scope": "python"
+  },
+  "SGAgent.isValue": {
+    "prefix": "sgagent.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value",
+    "scope": "python"
+  },
+  "SGAgent.isNotValue": {
+    "prefix": "sgagent.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value",
+    "scope": "python"
+  },
+  "SGAgent.hasAgentsHere": {
+    "prefix": "sgagent.hasAgentsHere",
+    "body": [
+      "if ${1:instance}.hasAgentsHere(${2:specie}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if the cell containing this agent has at least one agent.",
+    "scope": "python"
+  },
+  "SGAgent.moveTo": {
+    "prefix": "sgagent.moveTo",
+    "body": [
+      "${1:result} = ${2:instance}.moveTo(${3:aDestinationCell})"
+    ],
+    "description": "Move this agent to a specific cell.",
+    "scope": "python"
+  },
+  "SGAgent.moveAgent": {
+    "prefix": "sgagent.moveAgent",
+    "body": [
+      "${1:result} = ${2:instance}.moveAgent(${3:method}, ${4:target}, ${5:numberOfMovement}, ${6:condition})"
+    ],
+    "description": "Move the agent using predefined movement patterns.",
+    "scope": "python"
+  },
+  "SGAgent.moveRandomly": {
+    "prefix": "sgagent.moveRandomly",
+    "body": [
+      "${1:result} = ${2:instance}.moveRandomly(${3:numberOfMovement}, ${4:condition})"
+    ],
+    "description": "An agent moves randomly in his direct neighborhood.",
+    "scope": "python"
+  },
+  "SGAgent.moveTowards": {
+    "prefix": "sgagent.moveTowards",
+    "body": [
+      "${1:result} = ${2:instance}.moveTowards(${3:target}, ${4:condition})"
+    ],
+    "description": "Move the agent one step towards a target cell or another agent.",
+    "scope": "python"
+  },
+  "SGAgent.filterByType": {
+    "prefix": "sgagent.filterByType",
+    "body": [
+      "${1:result} = ${2:instance}.filterByType(${3:agent_type}, ${4:agents})"
+    ],
+    "description": "Filter agents by type",
+    "scope": "python"
+  },
+  "SGAgent.dist": {
+    "prefix": "sgagent.dist",
+    "body": [
+      "${1:result} = ${2:instance}.dist(${3:c1}, ${4:c2})"
+    ],
+    "description": "",
+    "scope": "python"
+  },
+  "SGAgent.incValue": {
+    "prefix": "sgagent.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGAgent.decValue": {
+    "prefix": "sgagent.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "SGAgent.calcValue": {
+    "prefix": "sgagent.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "SGAgent.copyValue": {
+    "prefix": "sgagent.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
+    "scope": "python"
+  },
+  "SGAgent.setValue": {
+    "prefix": "sgagent.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "SGAgent.setValues": {
+    "prefix": "sgagent.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.setValue": {
+    "prefix": "attributeandvaluefunctionalities.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.setValues": {
+    "prefix": "attributeandvaluefunctionalities.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once.",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.incValue": {
+    "prefix": "attributeandvaluefunctionalities.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.decValue": {
+    "prefix": "attributeandvaluefunctionalities.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.calcValue": {
+    "prefix": "attributeandvaluefunctionalities.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.copyValue": {
+    "prefix": "attributeandvaluefunctionalities.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.getValue": {
+    "prefix": "attributeandvaluefunctionalities.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.isValue": {
+    "prefix": "attributeandvaluefunctionalities.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value",
+    "scope": "python"
+  },
+  "AttributeAndValueFunctionalities.isNotValue": {
+    "prefix": "attributeandvaluefunctionalities.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value",
     "scope": "python"
   }
 }

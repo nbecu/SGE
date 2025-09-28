@@ -23,6 +23,7 @@ class MethodInfo:
     returns: str
     examples: List[str]
     line_number: int
+    parent_classes: List[str] = None
 
 class SGEMethodExtractor:
     """Extracts modeler methods from SGE Python files"""
@@ -112,8 +113,10 @@ class SGEMethodExtractor:
     def _extract_class_name(self, file_path: str) -> Optional[str]:
         """Extract class name from file path"""
         filename = os.path.basename(file_path)
-        if filename.startswith('SG') and filename.endswith('.py'):
-            return filename[:-3]  # Remove .py extension
+        if filename.endswith('.py'):
+            # Handle SG classes and special utility classes
+            if filename.startswith('SG') or filename == 'AttributeAndValueFunctionalities.py':
+                return filename[:-3]  # Remove .py extension
         return None
     
     def _extract_multiple_classes_from_file(self, file_path: str) -> Dict[str, List[MethodInfo]]:
@@ -130,11 +133,20 @@ class SGEMethodExtractor:
         
         # Find all classes in the file
         classes_data = {}
+        class_inheritance = {}
         
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 class_name = node.name
                 if class_name.startswith('SG'):
+                    # Extract parent class information
+                    parent_classes = []
+                    if node.bases:
+                        for base in node.bases:
+                            if isinstance(base, ast.Name):
+                                parent_classes.append(base.id)
+                    class_inheritance[class_name] = parent_classes
+                    
                     # Find modeler methods section for this class
                     modeler_section_start, modeler_section_end = self._find_modeler_section_for_class(content, class_name)
                     if modeler_section_start != -1:
@@ -148,6 +160,11 @@ class SGEMethodExtractor:
                         
                         if methods:
                             classes_data[class_name] = methods
+        
+        # Add inheritance information to the data
+        for class_name, methods in classes_data.items():
+            for method in methods:
+                method.parent_classes = class_inheritance.get(class_name, [])
         
         return classes_data
     
@@ -437,9 +454,19 @@ class SGMethodsCatalog:
                 "total_classes": len(methods_data),
                 "total_methods": sum(len(methods) for methods in methods_data.values())
             },
-            "classes": {}
+            "classes": {},
+            "inheritance": {}
         }
         
+        # Build inheritance information first
+        inheritance = {}
+        for class_name, methods in methods_data.items():
+            if methods and hasattr(methods[0], 'parent_classes'):
+                inheritance[class_name] = methods[0].parent_classes
+        
+        catalog["inheritance"] = inheritance
+        
+        # Generate classes with inherited methods
         for class_name, methods in methods_data.items():
             class_info = {
                 "class_name": class_name,
@@ -457,7 +484,24 @@ class SGMethodsCatalog:
                 method_dict = asdict(method)
                 class_info['categories'][category].append(method_dict)
             
+            # Add inherited methods to this class
+            inherited_methods = self._get_inherited_methods(class_name, methods_data, inheritance)
+            for inherited_method in inherited_methods:
+                category = inherited_method.get('category', 'OTHER MODELER METHODS')
+                if category not in class_info['categories']:
+                    class_info['categories'][category] = []
+                class_info['categories'][category].append(inherited_method)
+            
+            # Update total methods count
+            class_info['total_methods'] = sum(len(methods) for methods in class_info['categories'].values())
+            
             catalog["classes"][class_name] = class_info
+        
+        # Update total methods in metadata
+        catalog["metadata"]["total_methods"] = sum(
+            class_info.get('total_methods', 0) 
+            for class_info in catalog["classes"].values()
+        )
         
         return catalog
     
@@ -505,6 +549,7 @@ class SGMethodsCatalog:
         """Generate HTML content for the catalog"""
         metadata = self.catalog_data.get("metadata", {})
         classes = self.catalog_data.get("classes", {})
+        inheritance = self.catalog_data.get("inheritance", {})
         
         html = f"""
 <!DOCTYPE html>
@@ -656,6 +701,9 @@ class SGMethodsCatalog:
         <div class="content">
 """
         
+        # Build complete inheritance chain
+        complete_inheritance = self._build_inheritance_chain(class_name, inheritance)
+        
         for class_name, class_info in classes.items():
             html += f"""
         <div class="class-section" id="{class_name}">
@@ -663,7 +711,16 @@ class SGMethodsCatalog:
             <p>{class_info.get('description', '')} - {class_info.get('total_methods', 0)} methods</p>
 """
             
-            for category, methods in class_info.get('categories', {}).items():
+            # Add inheritance information
+            if class_name in inheritance and inheritance[class_name]:
+                parent_classes = inheritance[class_name]
+                html += f'            <p><strong>Inherits from:</strong> {", ".join(parent_classes)}</p>\n'
+            
+            # Use methods directly from class_info (already includes inherited methods)
+            all_methods_by_category = class_info.get('categories', {})
+            
+            # Display methods by category (including inherited methods)
+            for category, methods in all_methods_by_category.items():
                 html += f"""
             <div class="category-section">
                 <h3>{category} Methods</h3>
@@ -672,9 +729,17 @@ class SGMethodsCatalog:
                 for method in methods:
                     has_examples = "with-examples" if method.get('examples') else "without-examples"
                     has_params = "with-params" if method.get('parameters') else "without-params"
+                    
+                    # Check if this is an inherited method
+                    original_class = method.get('original_class')
+                    if original_class and original_class != class_name:
+                        method_title = f"{method['name']} <span style=\"color: #7f8c8d; font-size: 0.8em;\">(from {original_class})</span>"
+                    else:
+                        method_title = method['name']
+                    
                     html += f"""
                 <div class="method-card" data-category="{category}" data-class="{class_name}" data-examples="{has_examples}" data-parameters="{has_params}">
-                    <h4>{method['name']}</h4>
+                    <h4>{method_title}</h4>
                     <div class="method-signature">{method['signature']}</div>
                     <p><strong>Description:</strong> {method['description']}</p>
 """
@@ -714,7 +779,9 @@ class SGMethodsCatalog:
             const parametersFilter = document.getElementById('parameters-filter').value;
             
             const methodCards = document.querySelectorAll('.method-card');
+            const categorySections = document.querySelectorAll('.category-section');
             
+            // First, hide all method cards based on filters
             methodCards.forEach(card => {
                 let show = true;
                 
@@ -744,6 +811,80 @@ class SGMethodsCatalog:
                 }
                 
                 card.style.display = show ? 'block' : 'none';
+            });
+            
+            // Then, hide category sections that have no visible methods
+            categorySections.forEach(section => {
+                const visibleMethods = section.querySelectorAll('.method-card[style*="block"], .method-card:not([style*="none"])');
+                const hasVisibleMethods = Array.from(visibleMethods).some(card => 
+                    card.style.display !== 'none' && 
+                    (card.style.display === 'block' || !card.style.display)
+                );
+                
+                section.style.display = hasVisibleMethods ? 'block' : 'none';
+            });
+            
+            // Also filter inherited methods by category
+            const inheritedSections = document.querySelectorAll('.category-section h3');
+            inheritedSections.forEach(header => {
+                if (header.textContent.includes('INHERITED')) {
+                    const section = header.parentElement;
+                    const inheritedMethods = section.querySelectorAll('.method-card');
+                    let hasVisibleInheritedMethods = false;
+                    
+                    inheritedMethods.forEach(method => {
+                        const methodCategory = method.dataset.category;
+                        let showInherited = true;
+                        
+                        // Apply category filter to inherited methods
+                        if (categoryFilter !== 'all' && methodCategory !== categoryFilter) {
+                            showInherited = false;
+                        }
+                        
+                        // Apply other filters
+                        if (showInherited) {
+                            const searchQuery = document.getElementById('search-box').value.toLowerCase();
+                            const classFilter = document.getElementById('class-filter').value;
+                            const examplesFilter = document.getElementById('examples-filter').value;
+                            const parametersFilter = document.getElementById('parameters-filter').value;
+                            
+                            if (searchQuery && !method.textContent.toLowerCase().includes(searchQuery)) {
+                                showInherited = false;
+                            }
+                            
+                            if (classFilter !== 'all' && method.dataset.class !== classFilter) {
+                                showInherited = false;
+                            }
+                            
+                            if (examplesFilter !== 'all' && method.dataset.examples !== examplesFilter) {
+                                showInherited = false;
+                            }
+                            
+                            if (parametersFilter !== 'all' && method.dataset.parameters !== parametersFilter) {
+                                showInherited = false;
+                            }
+                        }
+                        
+                        method.style.display = showInherited ? 'block' : 'none';
+                        if (showInherited) {
+                            hasVisibleInheritedMethods = true;
+                        }
+                    });
+                    
+                    section.style.display = hasVisibleInheritedMethods ? 'block' : 'none';
+                }
+            });
+            
+            // Also hide class sections that have no visible categories
+            const classSections = document.querySelectorAll('.class-section');
+            classSections.forEach(classSection => {
+                const visibleCategories = classSection.querySelectorAll('.category-section[style*="block"], .category-section:not([style*="none"])');
+                const hasVisibleCategories = Array.from(visibleCategories).some(section => 
+                    section.style.display !== 'none' && 
+                    (section.style.display === 'block' || !section.style.display)
+                );
+                
+                classSection.style.display = hasVisibleCategories ? 'block' : 'none';
             });
         }
         
@@ -781,6 +922,186 @@ class SGMethodsCatalog:
             }
         
         return summary
+    
+    def _get_inherited_methods(self, class_name: str, classes: Dict, inheritance: Dict) -> List[Dict]:
+        """Get methods inherited by a class from its parent classes (recursively)"""
+        inherited_methods = []
+        visited_classes = set()  # Prevent infinite loops
+        
+        def _get_methods_recursively(current_class: str, depth: int = 0):
+            if current_class in visited_classes or depth > 10:  # Safety limit
+                return
+            
+            visited_classes.add(current_class)
+            
+            # Get direct parent classes
+            if current_class not in inheritance:
+                return
+            
+            parent_classes = inheritance[current_class]
+            for parent_class in parent_classes:
+                # Check if parent class is in the catalog
+                if parent_class in classes:
+                    parent_class_info = classes[parent_class]
+                    for category, methods in parent_class_info.get('categories', {}).items():
+                        for method in methods:
+                            # Add parent class info to the method
+                            method_copy = method.copy()
+                            method_copy['original_class'] = parent_class
+                            inherited_methods.append(method_copy)
+                else:
+                    # Parent class not in catalog, try to extract from file
+                    inherited_from_file = self._extract_inherited_methods_from_file(parent_class)
+                    for method in inherited_from_file:
+                        method['original_class'] = parent_class
+                    inherited_methods.extend(inherited_from_file)
+                
+                # Recursively get methods from parent's parents
+                _get_methods_recursively(parent_class, depth + 1)
+        
+        _get_methods_recursively(class_name)
+        return inherited_methods
+    
+    def _extract_inherited_methods_from_file(self, parent_class_name: str) -> List[Dict]:
+        """Extract methods from a parent class file that's not in the main catalog"""
+        inherited_methods = []
+        
+        # Map class names to their file paths
+        class_file_map = {
+            'AttributeAndValueFunctionalities': 'mainClasses/AttributeAndValueFunctionalities.py',
+            'SGEntity': 'mainClasses/SGEntity.py'
+        }
+        
+        if parent_class_name not in class_file_map:
+            return inherited_methods
+        
+        file_path = class_file_map[parent_class_name]
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Parse the file
+            tree = ast.parse(content)
+            
+            # Find the class
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and node.name == parent_class_name:
+                    # Find modeler methods section for this class
+                    modeler_section_start, modeler_section_end = self.extractor._find_modeler_section_for_class(content, parent_class_name)
+                    if modeler_section_start != -1:
+                        # Extract methods from this class
+                        for method_node in ast.walk(node):
+                            if isinstance(method_node, ast.FunctionDef):
+                                if modeler_section_start <= method_node.lineno <= modeler_section_end:
+                                    method_info = self.extractor._extract_method_info(method_node, parent_class_name, content)
+                                    if method_info and self.extractor._is_modeler_method(method_info):
+                                        method_dict = asdict(method_info)
+                                        method_dict['original_class'] = parent_class_name
+                                        inherited_methods.append(method_dict)
+                    break
+                    
+        except Exception as e:
+            print(f"Error extracting inherited methods from {file_path}: {e}")
+        
+        return inherited_methods
+    
+    def _build_inheritance_chain(self, class_name: str, inheritance: Dict) -> Dict[str, List[str]]:
+        """Build complete inheritance chain for all classes"""
+        complete_inheritance = {}
+        visited = set()
+        
+        def _build_chain_recursively(current_class: str, depth: int = 0):
+            if current_class in visited or depth > 10:
+                return
+            
+            visited.add(current_class)
+            
+            if current_class not in complete_inheritance:
+                complete_inheritance[current_class] = []
+            
+            # Get direct parents
+            if current_class in inheritance:
+                direct_parents = inheritance[current_class] or []
+                complete_inheritance[current_class].extend(direct_parents)
+                
+                # Recursively add parents of parents
+                for parent in direct_parents:
+                    _build_chain_recursively(parent, depth + 1)
+                    if parent in complete_inheritance:
+                        complete_inheritance[current_class].extend(complete_inheritance[parent])
+        
+        # Build chain for all classes
+        for cls in inheritance.keys():
+            _build_chain_recursively(cls)
+        
+        return complete_inheritance
+    
+    def _get_inherited_methods(self, class_name: str, methods_data: Dict[str, List[MethodInfo]], inheritance: Dict) -> List[Dict]:
+        """Get methods inherited from parent classes"""
+        inherited_methods = []
+        visited_classes = set()
+        
+        def _get_methods_recursively(current_class: str, depth: int = 0):
+            if current_class in visited_classes or depth > 10:
+                return
+                
+            visited_classes.add(current_class)
+            
+            # Get direct parent classes
+            parent_classes = inheritance.get(current_class, []) or []
+            
+            # For SGAgent and SGCell, add AttributeAndValueFunctionalities explicitly
+            if current_class in ['SGAgent', 'SGCell']:
+                if 'AttributeAndValueFunctionalities' not in parent_classes:
+                    parent_classes = parent_classes + ['AttributeAndValueFunctionalities']
+            
+            for parent_class in parent_classes:
+                # If parent class is in our catalog, use its methods
+                if parent_class in methods_data:
+                    for method in methods_data[parent_class]:
+                        method_dict = asdict(method)
+                        method_dict['original_class'] = parent_class
+                        inherited_methods.append(method_dict)
+                else:
+                    # Extract methods from parent class file
+                    parent_methods = self._extract_inherited_methods_from_file(parent_class)
+                    for method_dict in parent_methods:
+                        method_dict['original_class'] = parent_class
+                        inherited_methods.append(method_dict)
+                
+                # Recursively get methods from parent's parents
+                _get_methods_recursively(parent_class, depth + 1)
+        
+        _get_methods_recursively(class_name)
+        return inherited_methods
+    
+    def _extract_inherited_methods_from_file(self, parent_class_name: str) -> List[Dict]:
+        """Extract methods from parent class files that are not in the main catalog"""
+        inherited_methods = []
+        
+        # Map class names to their file paths
+        class_to_file = {
+            'AttributeAndValueFunctionalities': 'mainClasses/AttributeAndValueFunctionalities.py',
+            'SGEntity': 'mainClasses/SGEntity.py'
+        }
+        
+        file_path = class_to_file.get(parent_class_name)
+        if not file_path or not os.path.exists(file_path):
+            return inherited_methods
+        
+        try:
+            methods_data = self.extractor.extract_methods_from_file(file_path)
+            
+            if parent_class_name in methods_data:
+                for method in methods_data[parent_class_name]:
+                    method_dict = asdict(method)
+                    inherited_methods.append(method_dict)
+                    
+        except Exception as e:
+            print(f"Error extracting inherited methods from {file_path}: {e}")
+        
+        return inherited_methods
     
     def generate_snippets(self, output_file: str = "sge_methods_snippets.json") -> str:
         """
@@ -937,7 +1258,9 @@ if __name__ == "__main__":
     classes = [
         "mainClasses/SGCell.py",
         "mainClasses/SGEntity.py",
-        "mainClasses/SGEntityType.py"  # SGCellType is defined in SGEntityType.py
+        "mainClasses/SGEntityType.py",  # SGCellType is defined in SGEntityType.py
+        "mainClasses/SGAgent.py",
+        "mainClasses/AttributeAndValueFunctionalities.py"
     ]
     
     catalog.generate_catalog(classes)

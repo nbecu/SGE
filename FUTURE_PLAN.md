@@ -43,6 +43,14 @@ This document contains the planned improvements and features for the SGE (Simula
 
 ### Documentation & Tools
 - [ ] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide)
+- [ ] Amélioratin de MethodCatalog - html à prévoir
+      - quand on scroll, on veut scroller que le panneau de la liste des méthodes, et non pas le bandeau d'en-tete et le bandeau latéral
+      - dans le panneau latéral, il y a une mauvaise ergonomie  de fonctionnalités entre les 'boutons' bleu de la rubrique classes et la liste déroulante Class de la rubrique Filters. Les boutons bleus agissent comme des marqueurs pour scroller direction aux différentes sections. Cette fonctionnalité est intéressante mais le rendu graphique la met trop en avant. Il faudrait que ce soit plus discret, et positinné ailleurs. Le rendu graphique des 'boutons bleus' est très esthétique. Il faudrait remplacer la liste déroulante de filtre de class, par un système de 'boutons bleues' ayant cette même esthétique (ce remplacement ne concerne que class ; les autres types de filtre sont à garder tel quel). 
+      trier les méthodes listés dans chaque catégorie par ordre alphabétique
+      - pemrettre de déplier l'encadrer de chaque méthode
+      - dans le panneau de la liste des méthodes, au niveau de l'intitulé du nom de class, juste en dessous, il est affiché le décompte du nombre de méthode. Je veux que le nombre affiché correspondent au nombre de méthodes présentement affichés pour cette class
+      - dans le panneau de la liste des méthodes, au niveau de l'encart pour chaque classes, je veux que sectins de chaque catégorie soient affichés selon l'ordre logique utilisé dans SGE. Je veux que cet ordre logique soit stocké quelque part dans le code , et qu'il soit appaelé programatiquement à chaque fois qu'on en a besoin, afin que si plus tard cet oprdre change, ça soit prit en compte automatiqeemnet. Cet ordre logique est New add set, detele get, nb is, has, do , display, other. 
+      - dans le panneau de la liste des méthodes, au niveau de l'encart pour chaque classes, pour chaque   section de catégorie, je veux ques les méthodes soient triés par ordre alphabétique 
 
 
 ## Completed Items
