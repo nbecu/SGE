@@ -779,7 +779,7 @@
     "body": [
       "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
     ],
-    "description": "Return an entity identified by its id or its coordinates on a grid",
+    "description": "Get a single entity (cell) by coordinates.",
     "scope": "python"
   },
   "SGCellType.getEntities_withRow": {
@@ -803,7 +803,7 @@
     "body": [
       "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
     ],
-    "description": "Return a random entity from the available entities.",
+    "description": "Return a random cell from this grid.",
     "scope": "python"
   },
   "SGCellType.getEntities": {
@@ -1141,7 +1141,7 @@
     "body": [
       "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
     ],
-    "description": "Return a random entity from the available entities.",
+    "description": "Return a random agent of this type.",
     "scope": "python"
   },
   "SGAgentType.getEntity": {
@@ -1756,80 +1756,6 @@
       "${1:instance}.setValues(${2:value})"
     ],
     "description": "Set multiple attribute values at once.",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.setValue": {
-    "prefix": "attributeandvaluefunctionalities.setValue",
-    "body": [
-      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
-    ],
-    "description": "Sets the value of an attribut",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.setValues": {
-    "prefix": "attributeandvaluefunctionalities.setValues",
-    "body": [
-      "${1:instance}.setValues(${2:value})"
-    ],
-    "description": "Set multiple attribute values at once.",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.incValue": {
-    "prefix": "attributeandvaluefunctionalities.incValue",
-    "body": [
-      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
-    ],
-    "description": "Increase the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.decValue": {
-    "prefix": "attributeandvaluefunctionalities.decValue",
-    "body": [
-      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
-    ],
-    "description": "Decrease the value of an attribut with an additional value",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.calcValue": {
-    "prefix": "attributeandvaluefunctionalities.calcValue",
-    "body": [
-      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
-    ],
-    "description": "Apply a calculation on the value of an attribut using a lambda function",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.copyValue": {
-    "prefix": "attributeandvaluefunctionalities.copyValue",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
-    ],
-    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.getValue": {
-    "prefix": "attributeandvaluefunctionalities.getValue",
-    "body": [
-      "${1:result} = ${2:instance}.getValue(${3:att})"
-    ],
-    "description": "Return the value of a cell Attribut",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.isValue": {
-    "prefix": "attributeandvaluefunctionalities.isValue",
-    "body": [
-      "if ${1:instance}.isValue(${2:attribut_to_test}):",
-      "    ${3:pass}"
-    ],
-    "description": "Tests if the the value of an attribut if equal to a value",
-    "scope": "python"
-  },
-  "AttributeAndValueFunctionalities.isNotValue": {
-    "prefix": "attributeandvaluefunctionalities.isNotValue",
-    "body": [
-      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
-      "    ${3:pass}"
-    ],
-    "description": "Tests if the the value of an attribut is not equal to a value",
     "scope": "python"
   }
 }

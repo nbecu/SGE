@@ -4,8 +4,8 @@
     "description": "Comprehensive catalog of SGE modeler methods",
     "version": "1.0.0",
     "generated_date": "2024-12-19",
-    "total_classes": 6,
-    "total_methods": 230
+    "total_classes": 5,
+    "total_methods": 218
   },
   "classes": {
     "SGCell": {
@@ -2104,7 +2104,7 @@
     "SGCellType": {
       "class_name": "SGCellType",
       "description": "SGCellType model class for SGE framework",
-      "total_methods": 56,
+      "total_methods": 54,
       "categories": {
         "SET": [
           {
@@ -2803,33 +2803,6 @@
             ]
           },
           {
-            "name": "getEntity",
-            "signature": "def getEntity(self, x, y=None):",
-            "description": "Return an entity identified by its id or its coordinates on a grid",
-            "docstring": "Return an entity identified by its id or its coordinates on a grid\narg:\n    id (int): id of the entity\nAlternativly, can return an entity identified by its if or coordinates on a grid \n     x (int): column number\n    y (int):  row number",
-            "category": "GET",
-            "class_name": "SGEntityType",
-            "parameters": [
-              {
-                "name": "x",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "y",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 619,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ],
-            "original_class": "SGEntityType"
-          },
-          {
             "name": "getEntities",
             "signature": "def getEntities(self, condition=None):",
             "description": "Get all entities, optionally filtered by a condition.",
@@ -2900,33 +2873,6 @@
             "returns": "",
             "examples": [],
             "line_number": 661,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ],
-            "original_class": "SGEntityType"
-          },
-          {
-            "name": "getRandomEntity",
-            "signature": "def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):",
-            "description": "Return a random entity from the available entities.",
-            "docstring": "Return a random entity from the available entities.\n\nArgs:\n    condition (callable, optional): Function that takes an entity and returns True if it should be considered\n    listOfEntitiesToPickFrom (list, optional): Specific list of entities to pick from\n    \nReturns:\n    Entity or False: A random entity if available, False if no entities match",
-            "category": "GET",
-            "class_name": "SGEntityType",
-            "parameters": [
-              {
-                "name": "condition",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "listOfEntitiesToPickFrom",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 674,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -3754,7 +3700,7 @@
     "SGAgentType": {
       "class_name": "SGAgentType",
       "description": "SGAgentType model class for SGE framework",
-      "total_methods": 57,
+      "total_methods": 56,
       "categories": {
         "NEW": [
           {
@@ -4237,33 +4183,6 @@
             "returns": "",
             "examples": [],
             "line_number": 661,
-            "parent_classes": [
-              "AttributeAndValueFunctionalities"
-            ],
-            "original_class": "SGEntityType"
-          },
-          {
-            "name": "getRandomEntity",
-            "signature": "def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):",
-            "description": "Return a random entity from the available entities.",
-            "docstring": "Return a random entity from the available entities.\n\nArgs:\n    condition (callable, optional): Function that takes an entity and returns True if it should be considered\n    listOfEntitiesToPickFrom (list, optional): Specific list of entities to pick from\n    \nReturns:\n    Entity or False: A random entity if available, False if no entities match",
-            "category": "GET",
-            "class_name": "SGEntityType",
-            "parameters": [
-              {
-                "name": "condition",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "listOfEntitiesToPickFrom",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 674,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ],
@@ -6241,237 +6160,6 @@
           }
         ]
       }
-    },
-    "AttributeAndValueFunctionalities": {
-      "class_name": "AttributeAndValueFunctionalities",
-      "description": "AttributeAndValueFunctionalities model class for SGE framework",
-      "total_methods": 9,
-      "categories": {
-        "SET": [
-          {
-            "name": "setValue",
-            "signature": "def setValue(self, aAttribut, valueToSet):",
-            "description": "Sets the value of an attribut",
-            "docstring": "Sets the value of an attribut\nArgs:\n    aAttribut (str): Name of the attribute\n    aValue (str): Value to be set. If a value is callable, it will be invoked and its return value will be used",
-            "category": "SET",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "aAttribut",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "valueToSet",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 141,
-            "parent_classes": null
-          },
-          {
-            "name": "setValues",
-            "signature": "def setValues(self, dictOfAttributesAndValues):",
-            "description": "Set multiple attribute values at once.",
-            "docstring": "Set multiple attribute values at once.\nArgs:\n    dictOfAttributesAndValues (dict): mapping of attribute names to values (or callables).",
-            "category": "SET",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "dictOfAttributesAndValues",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 163,
-            "parent_classes": null
-          }
-        ],
-        "OTHER MODELER METHODS": [
-          {
-            "name": "incValue",
-            "signature": "def incValue(self, aAttribut, valueToSet=1, max=None):",
-            "description": "Increase the value of an attribut with an additional value",
-            "docstring": "Increase the value of an attribut with an additional value\nArgs:\n    aAttribut (str): Name of the attribute\n    aValue (str): Value to be added to the current value of the attribute",
-            "category": "OTHER MODELER METHODS",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "aAttribut",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "valueToSet",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "max",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 172,
-            "parent_classes": null
-          },
-          {
-            "name": "decValue",
-            "signature": "def decValue(self, aAttribut, valueToSet=1, min=None):",
-            "description": "Decrease the value of an attribut with an additional value",
-            "docstring": "Decrease the value of an attribut with an additional value\nArgs:\n    aAttribut (str): Name of the attribute\n    aValue (str): Value to be subtracted to the current value of the attribute",
-            "category": "OTHER MODELER METHODS",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "aAttribut",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "valueToSet",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "min",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 187,
-            "parent_classes": null
-          },
-          {
-            "name": "calcValue",
-            "signature": "def calcValue(self, aAttribut, aLambdaFunction):",
-            "description": "Apply a calculation on the value of an attribut using a lambda function",
-            "docstring": "Apply a calculation on the value of an attribut using a lambda function\n\nArgs:\n    aAttribut (str): Name of the attribute\n    aLambda function(lambda) : a lambda function. ex (lambda x: x * 1.2 +5))",
-            "category": "OTHER MODELER METHODS",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "aAttribut",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "aLambdaFunction",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 202,
-            "parent_classes": null
-          },
-          {
-            "name": "copyValue",
-            "signature": "def copyValue(self, source_att, target_att):",
-            "description": "Copy the value of an attribut (source_att), in another attribute (target_att)",
-            "docstring": "Copy the value of an attribut (source_att), in another attribute (target_att)\nArgs:\n    source_att (str): Name of the attribute copied\n    target_att  (str): Name of the attribute set",
-            "category": "OTHER MODELER METHODS",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "source_att",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "target_att",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 217,
-            "parent_classes": null
-          }
-        ],
-        "GET": [
-          {
-            "name": "getValue",
-            "signature": "def getValue(self, att):",
-            "description": "Return the value of a cell Attribut",
-            "docstring": "Return the value of a cell Attribut\nArgs:\n    att (str): Name of the attribute",
-            "category": "GET",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "att",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 239,
-            "parent_classes": null
-          }
-        ],
-        "IS": [
-          {
-            "name": "isValue",
-            "signature": "def isValue(self, attribut_to_test, value_to_test):",
-            "description": "Tests if the the value of an attribut if equal to a value",
-            "docstring": "Tests if the the value of an attribut if equal to a value\nArgs:\n    attribut_to_test (str): Name of the attribute\n    value_to_test (str): Value to be set. If a value is callable, it will be invoked and its return value will be used",
-            "category": "IS",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "attribut_to_test",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "value_to_test",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 251,
-            "parent_classes": null
-          },
-          {
-            "name": "isNotValue",
-            "signature": "def isNotValue(self, attribut_to_test, value_to_test):",
-            "description": "Tests if the the value of an attribut is not equal to a value",
-            "docstring": "Tests if the the value of an attribut is not equal to a value\nArgs:\n    attribut_to_test (str): Name of the attribute\n    value_to_test (str): Value to be set. If a value is callable, it will be invoked and its return value will be used",
-            "category": "IS",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "attribut_to_test",
-                "type": "Any",
-                "description": ""
-              },
-              {
-                "name": "value_to_test",
-                "type": "Any",
-                "description": ""
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 260,
-            "parent_classes": null
-          }
-        ]
-      }
     }
   },
   "inheritance": {
@@ -6489,7 +6177,6 @@
     ],
     "SGAgent": [
       "SGEntity"
-    ],
-    "AttributeAndValueFunctionalities": null
+    ]
   }
 }

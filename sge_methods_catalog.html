@@ -62,11 +62,11 @@
         <p>Comprehensive catalog of SGE modeler methods</p>
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">230</div>
+                <div class="stat-number">218</div>
                 <div class="stat-label">Methods</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">6</div>
+                <div class="stat-number">5</div>
                 <div class="stat-label">Classes</div>
             </div>
         </div>
@@ -82,7 +82,6 @@
                     <a href="#SGCellType" class="class-link">SGCellType</a>
                     <a href="#SGAgentType" class="class-link">SGAgentType</a>
                     <a href="#SGAgent" class="class-link">SGAgent</a>
-                    <a href="#AttributeAndValueFunctionalities" class="class-link">AttributeAndValueFunctionalities</a>
 
                 </div>
             </div>
@@ -104,7 +103,6 @@
                             <option value="SGCellType">SGCellType</option>
                             <option value="SGAgentType">SGAgentType</option>
                             <option value="SGAgent">SGAgent</option>
-                            <option value="AttributeAndValueFunctionalities">AttributeAndValueFunctionalities</option>
 
                         </select>
                     </div>
@@ -641,7 +639,7 @@ agentDef.setTooltip("Info", "Agent Information")
 <p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div></div>
         <div class="class-section" id="SGCellType">
             <h2>SGCellType</h2>
-            <p>SGCellType model class for SGE framework - 56 methods</p>
+            <p>SGCellType model class for SGE framework - 54 methods</p>
             <p><strong>Inherits from:</strong> SGEntityType</p>
 
             <div class="category-section">
@@ -795,11 +793,6 @@ agentDef.setTooltip("Info", "Agent Information")
                     <p><strong>Description:</strong> Return a random cell from this grid.</p>
 <p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>getEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
-                    <div class="method-signature">def getEntity(self, x, y=None):</div>
-                    <p><strong>Description:</strong> Return an entity identified by its id or its coordinates on a grid</p>
-<p><strong>Parameters:</strong></p><ul><li>x: Any</li><li>y: Any</li></ul></div>
-                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getEntities <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getEntities(self, condition=None):</div>
                     <p><strong>Description:</strong> Get all entities, optionally filtered by a condition.</p>
@@ -814,11 +807,6 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def getEntities_withValueNot(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that do not have a specific attribute value.</p>
 <p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
-                <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>getRandomEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
-                    <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):</div>
-                    <p><strong>Description:</strong> Return a random entity from the available entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
                 <div class="method-card" data-category="GET" data-class="SGCellType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntity_withValue(self, att, val, condition=None):</div>
@@ -979,7 +967,7 @@ agentDef.setTooltip("Info", "Agent Information")
 <p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div></div>
         <div class="class-section" id="SGAgentType">
             <h2>SGAgentType</h2>
-            <p>SGAgentType model class for SGE framework - 57 methods</p>
+            <p>SGAgentType model class for SGE framework - 56 methods</p>
             <p><strong>Inherits from:</strong> SGEntityType</p>
 
             <div class="category-section">
@@ -1063,11 +1051,6 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def getEntities_withValueNot(self, att, val):</div>
                     <p><strong>Description:</strong> Get all entities that do not have a specific attribute value.</p>
 <p><strong>Parameters:</strong></p><ul><li>att: Any</li><li>val: Any</li></ul></div>
-                <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
-                    <h4>getRandomEntity <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
-                    <div class="method-signature">def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None):</div>
-                    <p><strong>Description:</strong> Return a random entity from the available entities.</p>
-<p><strong>Parameters:</strong></p><ul><li>condition: Any</li><li>listOfEntitiesToPickFrom: Any</li></ul></div>
                 <div class="method-card" data-category="GET" data-class="SGAgentType" data-examples="without-examples" data-parameters="with-params">
                     <h4>getRandomEntity_withValue <span style="color: #7f8c8d; font-size: 0.8em;">(from SGEntityType)</span></h4>
                     <div class="method-signature">def getRandomEntity_withValue(self, att, val, condition=None):</div>
@@ -1495,67 +1478,6 @@ agentDef.setTooltip("Info", "Agent Information")
                     <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
                     <p><strong>Description:</strong> Set multiple attribute values at once.</p>
 <p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div></div>
-        <div class="class-section" id="AttributeAndValueFunctionalities">
-            <h2>AttributeAndValueFunctionalities</h2>
-            <p>AttributeAndValueFunctionalities model class for SGE framework - 9 methods</p>
-
-            <div class="category-section">
-                <h3>SET Methods</h3>
-
-                <div class="method-card" data-category="SET" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>setValue</h4>
-                    <div class="method-signature">def setValue(self, aAttribut, valueToSet):</div>
-                    <p><strong>Description:</strong> Sets the value of an attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li></ul></div>
-                <div class="method-card" data-category="SET" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>setValues</h4>
-                    <div class="method-signature">def setValues(self, dictOfAttributesAndValues):</div>
-                    <p><strong>Description:</strong> Set multiple attribute values at once.</p>
-<p><strong>Parameters:</strong></p><ul><li>dictOfAttributesAndValues: Any</li></ul></div></div>
-            <div class="category-section">
-                <h3>OTHER MODELER METHODS Methods</h3>
-
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>incValue</h4>
-                    <div class="method-signature">def incValue(self, aAttribut, valueToSet=1, max=None):</div>
-                    <p><strong>Description:</strong> Increase the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>max: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>decValue</h4>
-                    <div class="method-signature">def decValue(self, aAttribut, valueToSet=1, min=None):</div>
-                    <p><strong>Description:</strong> Decrease the value of an attribut with an additional value</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>valueToSet: Any</li><li>min: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>calcValue</h4>
-                    <div class="method-signature">def calcValue(self, aAttribut, aLambdaFunction):</div>
-                    <p><strong>Description:</strong> Apply a calculation on the value of an attribut using a lambda function</p>
-<p><strong>Parameters:</strong></p><ul><li>aAttribut: Any</li><li>aLambdaFunction: Any</li></ul></div>
-                <div class="method-card" data-category="OTHER MODELER METHODS" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>copyValue</h4>
-                    <div class="method-signature">def copyValue(self, source_att, target_att):</div>
-                    <p><strong>Description:</strong> Copy the value of an attribut (source_att), in another attribute (target_att)</p>
-<p><strong>Parameters:</strong></p><ul><li>source_att: Any</li><li>target_att: Any</li></ul></div></div>
-            <div class="category-section">
-                <h3>GET Methods</h3>
-
-                <div class="method-card" data-category="GET" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>getValue</h4>
-                    <div class="method-signature">def getValue(self, att):</div>
-                    <p><strong>Description:</strong> Return the value of a cell Attribut</p>
-<p><strong>Parameters:</strong></p><ul><li>att: Any</li></ul></div></div>
-            <div class="category-section">
-                <h3>IS Methods</h3>
-
-                <div class="method-card" data-category="IS" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>isValue</h4>
-                    <div class="method-signature">def isValue(self, attribut_to_test, value_to_test):</div>
-                    <p><strong>Description:</strong> Tests if the the value of an attribut if equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div>
-                <div class="method-card" data-category="IS" data-class="AttributeAndValueFunctionalities" data-examples="without-examples" data-parameters="with-params">
-                    <h4>isNotValue</h4>
-                    <div class="method-signature">def isNotValue(self, attribut_to_test, value_to_test):</div>
-                    <p><strong>Description:</strong> Tests if the the value of an attribut is not equal to a value</p>
-<p><strong>Parameters:</strong></p><ul><li>attribut_to_test: Any</li><li>value_to_test: Any</li></ul></div></div></div>
         </div>
     </div>
     

@@ -224,7 +224,7 @@ class SGEMethodExtractor:
         description = docstring.split('\n')[0].strip() if docstring else ""
         
         # Determine category
-        category = self._determine_category(method_name)
+        category = self._determine_category(method_name, docstring)
         
         # Extract parameters
         parameters = self._extract_parameters(node)
@@ -268,8 +268,17 @@ class SGEMethodExtractor:
         
         return ' '.join(signature_lines)
     
-    def _determine_category(self, method_name: str) -> str:
-        """Determine the category of a method based on its name"""
+    def _determine_category(self, method_name: str, docstring: str = "") -> str:
+        """Determine the category of a method based on its name and tags"""
+        # First check for explicit category tag in docstring or comments
+        if docstring:
+            # Look for @CATEGORY tag in docstring
+            for line in docstring.split('\n'):
+                if '@CATEGORY:' in line:
+                    category = line.split('@CATEGORY:')[1].strip()
+                    return category.upper()
+        
+        # Fallback to name-based detection
         method_lower = method_name.lower()
         
         # Check each keyword and return the corresponding base category
@@ -490,7 +499,14 @@ class SGMethodsCatalog:
                 category = inherited_method.get('category', 'OTHER MODELER METHODS')
                 if category not in class_info['categories']:
                     class_info['categories'][category] = []
-                class_info['categories'][category].append(inherited_method)
+                
+                # Check for duplicates before adding
+                method_name = inherited_method.get('name')
+                existing_methods = class_info['categories'][category]
+                is_duplicate = any(method.get('name') == method_name for method in existing_methods)
+                
+                if not is_duplicate:
+                    class_info['categories'][category].append(inherited_method)
             
             # Update total methods count
             class_info['total_methods'] = sum(len(methods) for methods in class_info['categories'].values())
@@ -1037,6 +1053,99 @@ class SGMethodsCatalog:
         
         return complete_inheritance
     
+    def identify_and_tag_ambiguous_methods(self):
+        """Identify methods that need category tags and optionally add them"""
+        print("\n=== IDENTIFICATION DES MÉTHODES AMBIGÜES ===")
+        
+        # Méthodes qui devraient être dans SET mais sont actuellement en OTHER
+        set_methods_ambiguous = [
+            'incValue', 'decValue', 'calcValue', 'copyValue'
+        ]
+        
+        # Méthodes qui devraient être dans GET mais sont actuellement en OTHER
+        get_methods_ambiguous = [
+            'value'  # si elle existe
+        ]
+        
+        # Méthodes qui devraient être dans IS mais sont actuellement en OTHER
+        is_methods_ambiguous = [
+            'isValue', 'isNotValue'
+        ]
+        
+        ambiguous_methods = {
+            'SET': set_methods_ambiguous,
+            'GET': get_methods_ambiguous,
+            'IS': is_methods_ambiguous
+        }
+        
+        print("Méthodes identifiées comme ambigües :")
+        for category, methods in ambiguous_methods.items():
+            if methods:
+                print(f"  {category}: {', '.join(methods)}")
+        
+        print("\nPour ajouter les tags, utilisez :")
+        print("catalog.add_category_tags_to_methods()")
+        
+        return ambiguous_methods
+    
+    def add_category_tags_to_methods(self, dry_run=True):
+        """Add category tags to ambiguous methods in source files"""
+        print(f"\n=== AJOUT DES TAGS DE CATÉGORIE (dry_run={dry_run}) ===")
+        
+        ambiguous_methods = self.identify_and_tag_ambiguous_methods()
+        
+        # Fichiers à traiter
+        files_to_process = [
+            "mainClasses/AttributeAndValueFunctionalities.py",
+            "mainClasses/SGCell.py",
+            "mainClasses/SGAgent.py",
+            "mainClasses/SGEntityType.py"
+        ]
+        
+        for file_path in files_to_process:
+            if not os.path.exists(file_path):
+                continue
+                
+            print(f"\nTraitement de {file_path}...")
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            modified = False
+            lines = content.split('\n')
+            
+            for i, line in enumerate(lines):
+                # Chercher les définitions de méthodes
+                if line.strip().startswith('def ') and '(' in line:
+                    method_name = line.split('def ')[1].split('(')[0].strip()
+                    
+                    # Vérifier si cette méthode est ambigüe
+                    target_category = None
+                    for category, methods in ambiguous_methods.items():
+                        if method_name in methods:
+                            target_category = category
+                            break
+                    
+                    if target_category:
+                        # Vérifier si le tag existe déjà
+                        if i > 0 and f"# @CATEGORY: {target_category}" in lines[i-1]:
+                            print(f"  ✓ {method_name} : tag {target_category} déjà présent")
+                            continue
+                        
+                        # Ajouter le tag
+                        tag_line = f"    # @CATEGORY: {target_category}"
+                        lines.insert(i, tag_line)
+                        modified = True
+                        print(f"  + {method_name} : ajout du tag {target_category}")
+            
+            # Sauvegarder si modifié et pas en dry_run
+            if modified and not dry_run:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write('\n'.join(lines))
+                print(f"  → Fichier {file_path} modifié")
+            elif modified:
+                print(f"  → Fichier {file_path} serait modifié (dry_run)")
+    
     def _get_inherited_methods(self, class_name: str, methods_data: Dict[str, List[MethodInfo]], inheritance: Dict) -> List[Dict]:
         """Get methods inherited from parent classes"""
         inherited_methods = []
@@ -1258,9 +1367,9 @@ if __name__ == "__main__":
     classes = [
         "mainClasses/SGCell.py",
         "mainClasses/SGEntity.py",
-        "mainClasses/SGEntityType.py",  # SGCellType is defined in SGEntityType.py
+        "mainClasses/SGEntityType.py",  # SGCellType and  SGAgenType and defined in SGEntityType.py
         "mainClasses/SGAgent.py",
-        "mainClasses/AttributeAndValueFunctionalities.py"
+        # "mainClasses/AttributeAndValueFunctionalities.py"
     ]
     
     catalog.generate_catalog(classes)
@@ -1284,3 +1393,6 @@ if __name__ == "__main__":
         print(f"\n{class_name}: {info['total_methods']} methods")
         for category, count in info["categories"].items():
             print(f"  {category}: {count} methods")
+    
+    # Uncomment the following line to run the tagging script
+    # catalog.identify_and_tag_ambiguous_methods()
