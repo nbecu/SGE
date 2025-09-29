@@ -732,10 +732,10 @@ class SGMethodsCatalog:
         .checkbox-label {{ display: flex; align-items: center; gap: 8px; font-size: 14px; color: white; cursor: pointer; }}
         .checkbox-label input[type="checkbox"] {{ width: 16px; height: 16px; cursor: pointer; }}
         
-        .main-container {{ display: flex; min-height: 100vh; margin-top: 200px; }}
+        .main-container {{ display: flex; min-height: 100vh; margin-top: 195px; }}
         
-        .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; left: 0; top: 200px; bottom: 0; overflow-y: auto; }}
-        .content {{ flex: 1; padding: 20px; margin-left: 300px; overflow-y: auto; height: calc(100vh - 200px); }}
+        .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; left: 0; top: 200px; bottom: 0; }}
+        .content {{ flex: 1; padding: 20px; margin-left: 330px; overflow-y: auto; height: calc(100vh - 195px); }}
         
         .classes-section {{ margin-bottom: 25px; }}
         .classes-list {{ display: flex; flex-wrap: wrap; gap: 8px; }}
