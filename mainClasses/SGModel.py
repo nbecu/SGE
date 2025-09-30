@@ -1654,7 +1654,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     hover_background_color= '#c6eff7',
                     hover_border_color= '#6bd8ed',
                     pressed_color=None,
-                    disabled_color=None):
+                    disabled_color=None,
+                    word_wrap=False,
+                    fixed_width=None):
         """Display a button with customizable style.
         Args:
             method (lambda function | SGAbstractAction ): Method to execute when button is pressed 
@@ -1698,7 +1700,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                         hover_background_color= hover_background_color,
                         hover_border_color= hover_border_color,
                         pressed_color=pressed_color,
-                        disabled_color=disabled_color)
+                        disabled_color=disabled_color,
+                        word_wrap=word_wrap,
+                        fixed_width=fixed_width)
         # aButton = SGButton(self, method, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, fixedWidth, fixedHeight)
         aButton.move(position[0], position[1])
         return aButton
