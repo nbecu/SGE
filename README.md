@@ -2,7 +2,7 @@
 
 Welcome to SGE!
 
-> For detailed documentation:
+> 📚For detailed documentation:
 > - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/SGE_methods/sge_methods_catalog.html)
 > - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/archi_diagrams/index.html)
 
