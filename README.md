@@ -2,6 +2,12 @@
 
 Welcome to SGE!
 
+For detailed documentation for : 
+- **modeler** (creating games/simulations with SGE), please see [README_modeler.md](./README_modeler.md) and the [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/SGE_methods/sge_methods_catalog.html).
+- **developer** (contributing to the SGE library itself), please see [README_developer.md](./README_developer.md) and the [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/archi_diagrams/index.html).
+
+
+
 SGE (Simulation Game Editor) is a simulation game editor. It enables the modeling of a simulated environment and the integration of players who interact with the simulation elements through game actions. To enhance the user experience, SGE supports the addition of UI/UX game components—such as buttons, menus, dashboards, graphs, and end-game rules.
 The three pillars of SGE are:
 - a simulated environment,
@@ -19,11 +25,6 @@ When a model is executed in SGE, the platform initializes the simulation entitie
 The simulation runs turn-by-turn, with the platform automatically managing two distinct types of phases: play phases for player interactions, and model phases for activating agents and other autonomous entities. 
 
 Simulation data and player actions are automatically recorded and can be visualized through various types of graphs (linear, circular, histograms, stack plots).
-
-For more information, refer to the appropriate documentation below. 
-- If you are a **modeler** (creating games/simulations with SGE), please see [README_modeler.md](./README_modeler.md) and the [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/SGE_methods/sge_methods_catalog.html).
-- If you are a **developer** (contributing to the SGE library itself), please see [README_developer.md](./README_developer.md) and the [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/archi_diagrams/index.html).
-
 
 
 
