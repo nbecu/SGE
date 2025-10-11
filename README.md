@@ -4,9 +4,9 @@ Welcome to SGE!
 
 SGE (Simulation Game Editor) is a simulation game editor. It enables the modeling of a simulated environment and the integration of players who interact with the simulation elements through game actions. To enhance the user experience, SGE supports the addition of UI/UX game components—such as buttons, menus, dashboards, graphs, and end-game rules.
 The three pillars of SGE are:
-•	a simulated environment,
-•	players,
-•	UI/UX game components.
+- a simulated environment,
+- players,
+- UI/UX game components.
 These are explicit modeling classes in SGE, which can be manipulated, specified, and parameterized by the modeler.
 Among existing modeling platforms, SGE stands at the intersection of a multi-agent modeling platform and a board game editor. It allows for the modeling of agents and cellular grids in interaction, each with autonomous behavior, as well as the definition of players, game spaces, and rules for placing or moving game pieces.
 Developing a simulation game in SGE involves writing a script using SGE’s primitives, which automate the creation, specification, and graphical rendering of simulation elements. SGE’s Domain-Specific Language (DSL) is designed so that a modeler can implement a complete simulation game in about forty lines of code.
