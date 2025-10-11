@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGE Architecture Diagrams</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -35,7 +34,7 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        .mermaid {
+        .diagram-image {
             text-align: center;
             background: white;
             padding: 20px;
@@ -91,123 +90,10 @@
         <div class="description">
             <strong>Core Architecture:</strong> SGE implements a strict Model-View architecture where each entity has both a Model (data/logic) and a View (UI/display) component. This separation enables fluid agent movement, better code organization, and cleaner separation of concerns.
         </div>
-        <div class="mermaid">
-            classDiagram
-                class SGEntity {
-                    <<abstract>>
-                    +getId()
-                    +getCoords()
-                    +setValue(attribute, value)
-                    +getValue(attribute)
-                    +isValue(attribute, value)
-                    +isNotValue(attribute, value)
-                    +hasAttribute(attribute)
-                    +getAttributes()
-                    +setAttributes(dict)
-                    +id
-                    +attributes
-                    +entityDef
-                    +view
-                }
-
-                class SGEntityView {
-                    <<abstract>>
-                    +show()
-                    +update()
-                    +repaint()
-                    +move(x, y)
-                    +setVisible(visible)
-                    +paintEvent(event)
-                    +mousePressEvent(event)
-                    +mouseMoveEvent(event)
-                    +mouseReleaseEvent(event)
-                    +entity
-                    +parent
-                    +position
-                    +isVisible
-                }
-
-                class SGAgent {
-                    +moveTo(destinationCell)
-                    +moveAgent(method, target, numberOfMovement, condition)
-                    +getId()
-                    +getCoords()
-                    +setValue(attribute, value)
-                    +getValue(attribute)
-                    +isValue(attribute, value)
-                    +isNotValue(attribute, value)
-                    +hasAttribute(attribute)
-                    +getAttributes()
-                    +setAttributes(dict)
-                    +id
-                    +attributes
-                    +entityDef
-                    +view
-                    +currentCell
-                }
-
-                class SGAgentView {
-                    +show()
-                    +update()
-                    +repaint()
-                    +move(x, y)
-                    +setVisible(visible)
-                    +paintEvent(event)
-                    +mousePressEvent(event)
-                    +mouseMoveEvent(event)
-                    +mouseReleaseEvent(event)
-                    +entity
-                    +parent
-                    +position
-                    +isVisible
-                    +agent
-                }
-
-                class SGCell {
-                    +getId()
-                    +getCoords()
-                    +setValue(attribute, value)
-                    +getValue(attribute)
-                    +isValue(attribute, value)
-                    +isNotValue(attribute, value)
-                    +hasAttribute(attribute)
-                    +getAttributes()
-                    +setAttributes(dict)
-                    +id
-                    +attributes
-                    +entityDef
-                    +view
-                    +agents
-                    +xCoord
-                    +yCoord
-                    +grid
-                }
-
-                class SGCellView {
-                    +show()
-                    +update()
-                    +repaint()
-                    +move(x, y)
-                    +setVisible(visible)
-                    +paintEvent(event)
-                    +mousePressEvent(event)
-                    +mouseMoveEvent(event)
-                    +mouseReleaseEvent(event)
-                    +entity
-                    +parent
-                    +position
-                    +isVisible
-                    +cell
-                }
-
-                SGEntity <|-- SGAgent
-                SGEntity <|-- SGCell
-                SGEntityView <|-- SGAgentView
-                SGEntityView <|-- SGCellView
-                SGAgent --> SGAgentView : has view
-                SGCell --> SGCellView : has view
-                SGAgent --> SGCell : moves to
-                SGCell --> SGAgent : contains
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_entities_detailed_diagram_1.png" 
+                 alt="SGE Model-View Architecture Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
         </div>
     </div>
 
@@ -216,28 +102,10 @@
         <div class="description">
             <strong>Entity System:</strong> Detailed view of how entities (agents and cells) are structured, their relationships, and the factory methods used for creation.
         </div>
-        <div class="mermaid">
-            graph TD
-                A[SGModel] --> B[SGEntityType]
-                B --> C[SGCellType]
-                B --> D[SGAgentType]
-                
-                C --> E[newCell]
-                C --> F[newCellsOnGrid]
-                D --> G[newAgentAtCoords]
-                D --> H[newAgentOnCell]
-                
-                E --> I[SGCell + SGCellView]
-                F --> J[SGGrid + Multiple Cells]
-                G --> K[SGAgent + SGAgentView]
-                H --> K
-                
-                I --> L[Model-View Pair]
-                K --> L
-                
-                L --> M[show()]
-                L --> N[update()]
-                L --> O[moveTo()]
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_entities_detailed_diagram_1.png" 
+                 alt="SGE Entities Detailed Architecture Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
         </div>
     </div>
 
@@ -246,70 +114,10 @@
         <div class="description">
             <strong>Action System:</strong> How game actions are structured, created, and executed by players in the SGE framework.
         </div>
-        <div class="mermaid">
-            classDiagram
-                class SGPlayer {
-                    +addGameAction(action)
-                    +addGameActions(actions)
-                    +getGameActions()
-                    +newControlPanel(title, defaultAction)
-                    +name
-                    +gameActions
-                    +controlPanels
-                }
-
-                class SGAbstractAction {
-                    <<abstract>>
-                    +execute()
-                    +getName()
-                    +getDescription()
-                    +getEntityDef()
-                    +getNumberOfActions()
-                    +name
-                    +description
-                    +entityDef
-                    +numberOfActions
-                }
-
-                class SGCreateAction {
-                    +execute()
-                    +createEntities()
-                    +dictAttributes
-                    +aNumber
-                }
-
-                class SGModifyAction {
-                    +execute()
-                    +modifyEntities()
-                    +dictAttributes
-                    +aNumber
-                }
-
-                class SGDeleteAction {
-                    +execute()
-                    +deleteEntities()
-                    +aNumber
-                }
-
-                class SGMoveAction {
-                    +execute()
-                    +moveEntities()
-                    +aNumber
-                }
-
-                class SGActivateAction {
-                    +execute()
-                    +activateMethod()
-                    +aMethod
-                    +aNumber
-                }
-
-                SGPlayer --> SGAbstractAction : has actions
-                SGAbstractAction <|-- SGCreateAction
-                SGAbstractAction <|-- SGModifyAction
-                SGAbstractAction <|-- SGDeleteAction
-                SGAbstractAction <|-- SGMoveAction
-                SGAbstractAction <|-- SGActivateAction
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_gameactions_detailed_diagram_1.png" 
+                 alt="SGE Game Actions System Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
         </div>
     </div>
 
@@ -318,71 +126,10 @@
         <div class="description">
             <strong>UI Components:</strong> Structure of game spaces (UI components) that provide the visual interface for SGE simulations.
         </div>
-        <div class="mermaid">
-            classDiagram
-                class SGGameSpace {
-                    <<abstract>>
-                    +show()
-                    +update()
-                    +repaint()
-                    +move(x, y)
-                    +setVisible(visible)
-                    +paintEvent(event)
-                    +mousePressEvent(event)
-                    +mouseMoveEvent(event)
-                    +mouseReleaseEvent(event)
-                    +title
-                    +position
-                    +size
-                    +isVisible
-                }
-
-                class SGGrid {
-                    +zoomIn()
-                    +zoomOut()
-                    +setZoomLevel(factor)
-                    +resetZoom()
-                    +addAgent(agent)
-                    +removeAgent(agent)
-                    +getCell(x, y)
-                    +columns
-                    +rows
-                    +cellSize
-                    +format
-                    +cells
-                    +agents
-                    +zoomLevel
-                }
-
-                class SGLegend {
-                    +addItem(item)
-                    +removeItem(item)
-                    +updateItems()
-                    +items
-                    +alwaysDisplayDefaultAgentSymbology
-                }
-
-                class SGDashBoard {
-                    +addIndicator(indicator)
-                    +removeIndicator(indicator)
-                    +updateIndicators()
-                    +indicators
-                    +title
-                }
-
-                class SGControlPanel {
-                    +addAction(action)
-                    +removeAction(action)
-                    +setDefaultAction(action)
-                    +actions
-                    +defaultAction
-                    +title
-                }
-
-                SGGameSpace <|-- SGGrid
-                SGGameSpace <|-- SGLegend
-                SGGameSpace <|-- SGDashBoard
-                SGGameSpace <|-- SGControlPanel
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_gamespaces_detailed_diagram_1.png" 
+                 alt="SGE Game Spaces Architecture Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
         </div>
     </div>
 
@@ -391,24 +138,10 @@
         <div class="description">
             <strong>Research Workflow:</strong> How SGE fits into the academic research process for serious games and simulation development.
         </div>
-        <div class="mermaid">
-            graph LR
-                A[Research Question] --> B[Model Design]
-                B --> C[SGE Implementation]
-                C --> D[Game Creation]
-                D --> E[Testing & Validation]
-                E --> F[Data Collection]
-                F --> G[Analysis]
-                G --> H[Results]
-                H --> I[Publication]
-                
-                C --> J[Agent-Based Modeling]
-                C --> K[Grid-Based Simulation]
-                C --> L[Multi-Player Support]
-                
-                D --> M[Serious Games]
-                D --> N[Educational Simulations]
-                D --> O[Research Tools]
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_workflow_academic_diagram_1.png" 
+                 alt="SGE Academic Workflow Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
         </div>
     </div>
 
@@ -417,33 +150,10 @@
         <div class="description">
             <strong>Class Hierarchy:</strong> High-level overview of the main classes and their relationships in the SGE framework.
         </div>
-        <div class="mermaid">
-            graph TD
-                A[SGModel] --> B[SGEntityType]
-                A --> C[SGPlayer]
-                A --> D[SGGameSpace]
-                A --> E[SGTimeManager]
-                
-                B --> F[SGCellType]
-                B --> G[SGAgentType]
-                
-                F --> H[SGCell]
-                G --> I[SGAgent]
-                
-                H --> J[SGCellView]
-                I --> K[SGAgentView]
-                
-                D --> L[SGGrid]
-                D --> M[SGLegend]
-                D --> N[SGDashBoard]
-                D --> O[SGControlPanel]
-                
-                C --> P[SGAbstractAction]
-                P --> Q[SGCreateAction]
-                P --> R[SGModifyAction]
-                P --> S[SGDeleteAction]
-                P --> T[SGMoveAction]
-                P --> U[SGActivateAction]
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_entities_detailed_diagram_1.png" 
+                 alt="SGE Classes Overview Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
         </div>
     </div>
 
@@ -455,15 +165,5 @@
         </p>
     </div>
 
-    <script>
-        mermaid.initialize({ 
-            startOnLoad: true,
-            theme: 'default',
-            flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true
-            }
-        });
-    </script>
 </body>
 </html>
