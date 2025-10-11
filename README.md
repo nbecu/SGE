@@ -7,11 +7,17 @@ The three pillars of SGE are:
 - a simulated environment,
 - players,
 - UI/UX game components.
+
 These are explicit modeling classes in SGE, which can be manipulated, specified, and parameterized by the modeler.
 Among existing modeling platforms, SGE stands at the intersection of a multi-agent modeling platform and a board game editor. It allows for the modeling of agents and cellular grids in interaction, each with autonomous behavior, as well as the definition of players, game spaces, and rules for placing or moving game pieces.
+
+
 Developing a simulation game in SGE involves writing a script using SGE’s primitives, which automate the creation, specification, and graphical rendering of simulation elements. SGE’s Domain-Specific Language (DSL) is designed so that a modeler can implement a complete simulation game in about forty lines of code.
+
 When a model is executed in SGE, the platform initializes the simulation entities and automatically generates all graphical elements and user controls, enabling players to interact with the simulation via a point-and-click interface.
+
 The simulation runs turn-by-turn, with the platform automatically managing two distinct types of phases: play phases for player interactions, and model phases for activating agents and other autonomous entities. 
+
 Simulation data and player actions are automatically recorded and can be visualized through various types of graphs (linear, circular, histograms, stack plots).
 
 For more information, refer to the appropriate documentation below. 
