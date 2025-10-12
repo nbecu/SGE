@@ -102,6 +102,10 @@ Methods are organized into categories:
 ### Usage
 The method catalog includes inherited methods from parent classes, making it easy to discover all available functionality for each entity type.
 
+## Game Action Logs Export
+
+SGE provides functionality to export game action logs for analysis and debugging (see `exportGameActionLogs` and `enableAutoSaveGameActionLogs` in the methods catalog).
+
 ## Folder hierarchy
 - Examples
   - example1.0.py

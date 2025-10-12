@@ -2357,13 +2357,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if not self.timeManager.isInitialization():
             self.show_adminControlPanel()
 
-    def exportGameActionLogs(self, filename=None, format="json"):
+    def exportGameActionLogs(self, filename=None, format="csv"):
         """
         Export gameAction logs to file
         
         Args:
             filename (str, optional): Output filename. If None, generates automatic filename
-            format (str): Export format - "json" or "csv" (default: "json")
+            format (str): Export format - "json" or "csv" (default: "csv")
             
         Returns:
             str: Path to exported file
