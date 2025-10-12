@@ -1,7 +1,7 @@
 """
 SGExtensions.py
-Ce fichier regroupe toutes les extensions de classes (Qt ou non) utilisées dans le projet, ainsi que des utils générales.
-Exemple : méthodes ajoutées dynamiquement à QPainter, QWidget, list, dict, etc.
+This file groups all general utility methods, as well as class extensions (Qt or not) used in the project.
+Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 """
 
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter
@@ -59,38 +59,38 @@ def _extend_qt_colors():
     Qt.darkgray = QColor.fromRgb(169, 169, 169)  # Dark Gray
     Qt.mediumvioletred = QColor.fromRgb(199, 21, 133)  # Medium Violet Red
     
-    # Couleurs thématiques - Bleus
+    # Thematic colors - Blues
     Qt.lightblue = QColor.fromRgb(173, 216, 230)  # Light Blue
     Qt.darkblue = QColor.fromRgb(0, 0, 139)  # Dark Blue
     
-    # Couleurs thématiques - Rouges
+    # Thematic colors - Reds
     Qt.crimson = QColor.fromRgb(220, 20, 60)  # Crimson
     Qt.darkred = QColor.fromRgb(139, 0, 0)  # Dark Red
     Qt.lightcoral = QColor.fromRgb(240, 128, 128)  # Light Coral
     
-    # Couleurs thématiques - Verts
+    # Thematic colors - Greens
     Qt.darkgreen = QColor.fromRgb(0, 100, 0)  # Dark Green
     Qt.lightgreen = QColor.fromRgb(144, 238, 144)  # Light Green
     Qt.forestgreen = QColor.fromRgb(34, 139, 34)  # Forest Green
     Qt.seagreen = QColor.fromRgb(46, 139, 87)  # Sea Green
     
-    # Couleurs thématiques - Jaunes/Oranges
+    # Thematic colors - Yellows/Oranges
     Qt.gold = QColor.fromRgb(255, 215, 0)  # Gold
     Qt.darkorange = QColor.fromRgb(255, 140, 0)  # Dark Orange
     Qt.lightyellow = QColor.fromRgb(255, 255, 224)  # Light Yellow
     Qt.khaki = QColor.fromRgb(240, 230, 140)  # Khaki
     
-    # Couleurs thématiques - Violets/Magentas
+    # Thematic colors - Violets/Magentas
     Qt.darkviolet = QColor.fromRgb(148, 0, 211)  # Dark Violet
     Qt.plum = QColor.fromRgb(221, 160, 221)  # Plum
     Qt.lavender = QColor.fromRgb(230, 230, 250)  # Lavender
     
-    # Couleurs thématiques - Gris
+    # Thematic colors - Grays
     Qt.lightgray = QColor.fromRgb(211, 211, 211)  # Light Gray
     Qt.silver = QColor.fromRgb(192, 192, 192)  # Silver
     Qt.slategray = QColor.fromRgb(112, 128, 144)  # Slate Gray
     
-    # Couleurs de base manquantes
+    # Missing basic colors
     Qt.purple = QColor.fromRgb(128, 0, 128)  # Purple
     Qt.steelblue = QColor.fromRgb(70, 130, 180)  # Steel Blue
     
@@ -302,14 +302,14 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
         if isinstance(value, (tuple, list)):
             return QColor(*value)
 
-        # PyQt5: Qt.GlobalColor sous forme d'int (ex: Qt.red == 7)
-        # PyQt6: réelle enum; QColor(value) sait généralement le gérer aussi
+        # PyQt5: Qt.GlobalColor as int (e.g., Qt.red == 7)
+        # PyQt6: real enum; QColor(value) usually handles it
         try:
             return QColor(Qt.GlobalColor(int(value)))
         except Exception:
             pass
 
-        # Dernier recours: tenter QColor(value) (QRgb/int)
+        # Last resort: try QColor(value) (QRgb/int)
         try:
             q = QColor(value)
             if q.isValid():
@@ -342,7 +342,7 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
                 b = color1.blue()  + (color2.blue()  - color1.blue())  * proportion
                 colors.append(QColor(int(r), int(g), int(b)))
         else:
-            #Ajoute la fonctionnalité one color with mapping mode 
+            # Add one color with mapping mode functionality
             # raise ValueError("one color with mapping mode yet to be implemented")
             # --- One color with mapping mode ---
             n = len(values)
@@ -364,7 +364,7 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
                 b = color1.blue() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
                 tmp_colors.append(QColor(int(r), int(g), int(b)))
 
-            # retirer pur blanc et pur noir
+            # remove pure white and pure black
             colors = tmp_colors[1:-1]
 
         if reverse_gradient:
@@ -391,7 +391,7 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
 
     gradient = []
     if color2 is None:
-        # Single color mode – extrémités atténuées (white → color1 → black), puis on enlève pur blanc/noir
+        # Single color mode – attenuated extremes (white → color1 → black), then remove pure white/black
         extra_steps = steps + 2
         mid_index = extra_steps // 2
 
@@ -409,7 +409,7 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
             b = color1.blue() * (1 - (i - mid_index) / (extra_steps - mid_index - 1))
             gradient.append(QColor(int(r), int(g), int(b)))
 
-        gradient = gradient[1:-1]  # retire pur blanc & pur noir
+        gradient = gradient[1:-1]  # remove pure white & pure black
     else:
         # color1 → color2
         for i in range(steps):
@@ -423,3 +423,30 @@ def generate_color_gradient(color1, color2=None, steps: int = 10, reverse_gradie
         gradient.reverse()
 
     return gradient
+
+
+def serialize_any_object(obj):
+    """
+    Serialize any object safely for JSON/CSV export.
+    
+    This function handles any object type by converting it to a string representation.
+    
+    :param obj: Object to serialize (can be any type)
+    :return: Serialized representation of the object
+    """
+    if hasattr(obj, '__dict__'):
+        # For SGE objects, use their own serialization method
+        if hasattr(obj, 'getObjectIdentiferForExport'):
+            return obj.getObjectIdentiferForExport()
+        elif hasattr(obj, 'id'):
+            # Fallback for objects with id but no getObjectIdentiferForExport method
+            return f"{obj.__class__.__name__}_id_{obj.id}"
+        else:
+            return str(obj)
+    elif isinstance(obj, (list, tuple)):
+        return [serialize_any_object(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: serialize_any_object(value) for key, value in obj.items()}
+    else:
+        return str(obj)
+

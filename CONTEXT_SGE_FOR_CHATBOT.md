@@ -734,12 +734,122 @@ def incValue(self, attribute, value=1):
     """Increment a value by the specified amount."""
 ```
 
-## 21. Convention de nommage des branches Git (CRITIQUE pour chatbots)
+## 21. Précautions d'emploi pour les scripts SGE (CRITIQUE pour chatbots)
 
-### 21.1 Rôle de la convention
+### 21.1 Problèmes courants avec les applications Qt
+**ATTENTION** : Les scripts SGE utilisent PyQt5 et peuvent causer des problèmes spécifiques.
+
+**Erreur "QWidget: Must construct a QApplication before a QWidget"** :
+- **Cause** : Tentative de création de widgets Qt sans initialisation de QApplication
+- **Solution** : Initialiser QApplication AVANT l'import de SGE
+
+**Exemple de correction** :
+```python
+# ❌ INCORRECT - Erreur Qt
+import sys
+from mainClasses.SGSGE import *  # Erreur: QApplication pas initialisée
+
+# ✅ CORRECT - Initialisation Qt
+import sys
+from PyQt5.QtWidgets import QApplication
+
+# Initialiser QApplication AVANT SGE
+app = QApplication.instance()
+if app is None:
+    app = QApplication(sys.argv)
+
+from mainClasses.SGSGE import *  # Maintenant sécurisé
+```
+
+### 21.2 Mode headless pour les chatbots
+**RECOMMANDATION** : Utiliser le mode headless pour éviter les problèmes d'interface graphique.
+
+**Avantages** :
+- Évite les boucles d'événements Qt bloquantes
+- Pas de gestion de fenêtres graphiques
+- Compatible avec les environnements automatisés
+- Évite les plantages de chatbots
+
+**Implémentation** :
+```python
+# Ajouter support mode headless
+headless_mode = "--headless" in sys.argv or "--no-gui" in sys.argv
+
+if headless_mode:
+    # Version sans interface graphique
+    success = test_functionality_headless()
+else:
+    # Version avec interface graphique
+    success = test_functionality()
+```
+
+### 21.3 Gestion des boucles d'événements Qt
+**PROBLÈME** : Boucles `while` bloquantes avec `app.processEvents()`
+
+**❌ INCORRECT** :
+```python
+while myModel.isVisible():
+    app.processEvents()
+    time.sleep(0.01)  # Bloque l'exécution
+```
+
+**✅ CORRECT** :
+```python
+def check_window_closed():
+    if not myModel.isVisible():
+        app.quit()
+    else:
+        QTimer.singleShot(100, check_window_closed)
+
+QTimer.singleShot(100, check_window_closed)
+app.exec_()  # Boucle d'événements non-bloquante
+```
+
+### 21.4 Gestion des caractères Unicode
+**PROBLÈME** : Erreurs d'encodage sur Windows avec caractères Unicode
+
+**❌ INCORRECT** :
+```python
+print("✅ QApplication initialisée correctement")  # Erreur sur Windows
+```
+
+**✅ CORRECT** :
+```python
+print("QApplication initialisee correctement")  # ASCII seulement
+```
+
+### 21.5 Nettoyage de la mémoire
+**OBLIGATOIRE** : Nettoyage propre des ressources Qt
+
+```python
+finally:
+    # Nettoyage de la mémoire
+    if myModel is not None:
+        try:
+            if hasattr(myModel, 'close'):
+                myModel.close()
+        except:
+            pass
+    
+    # Force garbage collection
+    gc.collect()
+```
+
+### 21.6 Commandes de test recommandées
+```bash
+# Mode headless (recommandé pour chatbots)
+python script.py --headless
+
+# Mode graphique (pour utilisation manuelle)
+python script.py
+```
+
+## 22. Convention de nommage des branches Git (CRITIQUE pour chatbots)
+
+### 22.1 Rôle de la convention
 **Les chatbots DOIVENT** appliquer cette convention lors de la création ou suggestion de nouvelles branches Git pour SGE.
 
-### 21.2 Préfixes par catégorie
+### 22.2 Préfixes par catégorie
 - **`main`** → Branche principale de développement (inchangée)
 - **`version_*`** → Versions stables avec date (ex: `version_august_2025`)
 - **`candidate_*`** → Candidats de release (ex: `candidate_main_candidate_release_sept_2025`)
@@ -748,19 +858,19 @@ def incValue(self, attribute, value=1):
 - **`legacy_*`** → Branches historiques/archivées (ex: `legacy_dev_2023`)
 - **`experimental_*`** → Fonctionnalités expérimentales (ex: `experimental_start_the_sim_at_any_date`)
 
-### 21.3 Workflow de promotion des branches
+### 22.3 Workflow de promotion des branches
 1. **Développement** : Travailler sur des branches `dev_*`
 2. **Candidat de release** : Promouvoir `dev_*` → `candidate_*` quand prêt pour les tests
 3. **Version stable** : Promouvoir `candidate_*` → `version_*` quand publiée
 4. **Archivage** : Déplacer les anciennes branches vers `legacy_*` quand plus nécessaires
 
-### 21.4 Obligations pour les chatbots
+### 22.4 Obligations pour les chatbots
 - **TOUJOURS** suggérer des noms de branches selon cette convention
 - **SYSTÉMATIQUEMENT** appliquer les préfixes appropriés
 - **RÉGULIÈREMENT** proposer la promotion des branches selon le workflow
 - **JAMAIS** créer des branches sans préfixe (sauf `main`)
 
-### 21.5 Exemples d'application
+### 22.5 Exemples d'application
 ```bash
 # Nouveau chantier de développement
 git checkout -b dev_improve_graph_interface

@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -106,6 +106,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             int((screensize[0]/2)-width/2), int((screensize[1]/2)-height/2), width, height)
         # Init of variable of the Model
         self.name = name
+        # Unique identifier for this application instance
+        self.session_id = str(uuid.uuid4())
         # Definition of the title of the window
         self.windowTitle_prefix = (windowTitle or self.name or ' ') # if windowTitle  is None, the name of the model is used as prefix for window title
         self.setWindowTitle(self.windowTitle_prefix)
@@ -152,6 +154,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         else:
             self.users = []
         # self.users = ["Admin"]
+        
+        # Auto-save gameAction logs on application close (None = disabled, string = format)
+        self.autoSaveGameActionLogs = None
 
         # To handle the flow of time in the game
         self.timeManager = SGTimeManager(self)
@@ -203,19 +208,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Definition of the toolbar via a menu and the ac
         self.symbologyMenu = None  # init in case no menu is created
         self.createMenu()
-        # todo Obsolete - to delete
-        # # self.setContextMenuPolicy(Qt.CustomContextMenu)
-        # self.customContextMenuRequested.connect(self.show_contextMenu)
         self.nameOfPov = "default"
-        testMode = QAction(" &" + "Cursor Position", self, checkable=True)
-        self.settingsMenu.addAction(testMode)
-        testMode.triggered.connect(lambda: self.showCursorCoords())
+        cursorPositionAction = QAction(" &" + "Cursor Position", self, checkable=True)
+        self.settingsMenu.addAction(cursorPositionAction)
+        cursorPositionAction.triggered.connect(lambda: self.showCursorCoords())
         self.label = QtWidgets.QLabel(self)
         self.label.setGeometry(10, 10, 350, 30)
         self.label.move(300, 0)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.maj_coordonnees)
         self.isLabelVisible = False
+        # Add GameAction Logs Export submenu
+        self.createGameActionLogsExportMenu()
 
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""
@@ -318,6 +322,53 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def closeEvent(self, event):
         self.haveToBeClose = True
         self.getTextBoxHistory(self.TextBoxes)
+        
+        # Check for auto-save of gameAction logs
+        if self.autoSaveGameActionLogs and self.getAllGameActions():
+            # Handle both old format (string) and new format (dict)
+            if isinstance(self.autoSaveGameActionLogs, dict):
+                format_type = self.autoSaveGameActionLogs["format"]
+                save_path = self.autoSaveGameActionLogs["save_path"]
+            else:
+                # Backward compatibility with old string format
+                format_type = self.autoSaveGameActionLogs
+                save_path = None
+            
+            reply = QMessageBox.question(
+                self, 
+                'Save GameAction Logs',
+                'GameActions have been performed. Do you want to save the logs before closing?',
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            
+            if reply == QMessageBox.Yes:
+                try:
+                    if save_path:
+                        # Use specified path
+                        import os
+                        timestamp = self._getCurrentTimestamp()
+                        filename = os.path.join(save_path, f"gameAction_logs_{timestamp}.{format_type}")
+                        filename = self.exportGameActionLogs(filename=filename, format=format_type)
+                    else:
+                        # Let user choose path via file dialog
+                        timestamp = self._getCurrentTimestamp()
+                        default_filename = f"gameAction_logs_{timestamp}.{format_type}"
+                        filename, _ = QFileDialog.getSaveFileName(
+                            self,
+                            'Save GameAction Logs',
+                            default_filename,
+                            f"{format_type.upper()} files (*.{format_type})"
+                        )
+                        if filename:
+                            filename = self.exportGameActionLogs(filename=filename, format=format_type)
+                        else:
+                            return  # User cancelled
+                    
+                    QMessageBox.information(self, 'Success', f'GameAction logs saved to: {filename}')
+                except Exception as e:
+                    QMessageBox.warning(self, 'Error', f'Failed to save logs: {str(e)}')
+        
         if hasattr(self, 'mqttManager') and self.mqttManager:
             self.mqttManager.disconnect()
         self.close()
@@ -359,15 +410,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         e.setDropAction(Qt.MoveAction)
         e.accept()
 
-    # Contextual Menu (opened on a right click)
-    # def show_contextMenu(self, point): #todo Obsolete - to delete
-    #     menu = QMenu(self)
-    #     option1 = QAction("LayoutCheck", self)
-    #     option1.triggered.connect(self.adjustGamespacesPosition) #todo Pourquoi lancer cette méthode ici ???
-    #                                     #todo ca parait très risque. D'autant plus qu'il n'y a pas la verif de   if not self.isMoveToCoordsUsed
-    #     menu.addAction(option1)
-    #     if self.rect().contains(point):
-    #         menu.exec_(self.mapToGlobal(point))
 
     # Handle window title
     def updateWindowTitle(self):
@@ -411,6 +453,375 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.createGraphMenu()
 
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
+        
+    # ============================================================================
+    # GAME ACTION LOGS EXPORT METHODS
+    # ============================================================================
+    
+    def _getGameActionLogsData(self):
+        """
+        Collect all gameAction logs data from all players with detailed action information
+        
+        Returns:
+            dict: Complete gameAction logs data with metadata
+        """
+        # Use existing method to get players with gameActions (excludes inactive Admin)
+        player_names = self.getUsers_withGameActions()
+        
+        logs_data = {
+            "metadata": {
+                "model_name": getattr(self, 'name', 'Unnamed Model'),
+                "export_timestamp": self._getCurrentTimestamp(),
+                "current_round": self.timeManager.currentRoundNumber,
+                "current_phase": self.timeManager.currentPhaseNumber,
+                "total_players": len(player_names),
+                "player_names": player_names
+            },
+            "players": {}
+        }
+        
+        # Collect data from each player
+        for player_name, player in self.players.items():
+            # Skip Admin player if no admin control panel is displayed (no gameActions)
+            if player_name == "Admin" and not self.shouldDisplayAdminControlPanel:
+                continue
+                
+            player_stats = player.getStatsOfGameActions()
+            logs_data["players"][player_name] = {
+                "player_name": player_name,
+                "total_gameActions": len(player.gameActions),
+                "gameActions": [
+                    self._getDetailedActionInfo(action)
+                    for action in player.gameActions
+                ],
+                "stats_by_round_phase": player_stats
+            }
+        
+        return logs_data
+    
+    def _getDetailedActionInfo(self, action):
+        """
+        Get detailed information about a gameAction using the action's own methods
+        
+        Args:
+            action: GameAction instance
+            
+        Returns:
+            dict: Detailed action information
+        """
+        # The action knows itself - encapsulation respect
+        return action.getExportInfo()
+    
+    
+    def _exportGameActionLogsToJSON(self, logs_data, filename):
+        """
+        Export gameAction logs to JSON file
+        
+        Args:
+            logs_data (dict): GameAction logs data
+            filename (str): Output filename
+            
+        Returns:
+            str: Path to exported file
+        """
+        try:
+            from mainClasses.SGExtensions import serialize_any_object
+            
+            # Serialize data safely
+            safe_logs_data = serialize_any_object(logs_data)
+            
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(safe_logs_data, f, indent=2, ensure_ascii=False, default=str)
+            
+            print(f"GameAction logs exported to {filename}")
+            return filename
+            
+        except Exception as e:
+            raise ValueError(f"Failed to export JSON file: {e}")
+    
+    def _exportGameActionLogsToCSV(self, logs_data, filename):
+        """
+        Export gameAction logs to CSV file with detailed information
+        
+        Args:
+            logs_data (dict): GameAction logs data
+            filename (str): Output filename
+            
+        Returns:
+            str: Path to exported file
+        """
+        try:
+            import csv
+            
+            with open(filename, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                
+                # Write header with Session_ID first as requested
+                writer.writerow([
+                    'Session_ID', 'ID_Action', 'Timestamp', 'Round', 'Phase', 'Player', 'Action_ID', 'Action_Name', 'Max_Uses', 'Usage_Count', 'Action_Type', 
+                    'Target_Entity_Category', 'Target_Entity_Name', 'Attribute', 'Value', 'Activated_Method',
+                    'Action_Details', 'Target_Entity_ID', 'Target_Entity_Coordinates', 'Destination_Entity_ID', 'Destination_Entity_Coordinates',
+                    'Result_Action', 'Result_Feedback'
+                ])
+                
+                # Collect all history entries with their metadata for chronological sorting
+                all_history_entries = []
+                
+                for player_name, player_data in logs_data["players"].items():
+                    for action_data in player_data["gameActions"]:
+                        action_id = action_data["action_id"]
+                        action_type = action_data["action_type"]
+                        action_name = action_data["action_name"]
+                        
+                        # Extract flattened fields directly from action_data
+                        target_entity_type = action_data.get("target_entity_type", "N/A")
+                        target_entity_category = action_data.get("target_entity_category", "N/A")
+                        target_entity_name = action_data.get("target_entity_name", "N/A")
+                        
+                        # Extract action details fields
+                        conditions_count = action_data.get("conditions_count", "N/A")
+                        feedbacks_count = action_data.get("feedbacks_count", "N/A")
+                        contextual_menu = action_data.get("contextual_menu", "N/A")
+                        on_controller = action_data.get("on_controller", "N/A")
+                        
+                        # Extract usage info fields
+                        total_uses = action_data.get("total_uses", "N/A")
+                        max_uses = action_data.get("max_uses", "N/A")
+                        
+                        # Collect each history entry with its metadata
+                        for history_entry in action_data["history"]:
+                            all_history_entries.append({
+                                'history_entry': history_entry,
+                                'player_name': player_name,
+                                'action_id': action_id,
+                                'action_type': action_type,
+                                'action_name': action_name,
+                                'target_entity_type': target_entity_type,
+                                'target_entity_category': target_entity_category,
+                                'target_entity_name': target_entity_name,
+                                'conditions_count': conditions_count,
+                                'feedbacks_count': feedbacks_count,
+                                'contextual_menu': contextual_menu,
+                                'on_controller': on_controller,
+                                'total_uses': total_uses,
+                                'max_uses': max_uses
+                            })
+                
+                # Sort all entries by ID_Action (chronological order)
+                all_history_entries.sort(key=lambda x: x['history_entry'].get('id_action', 0) if isinstance(x['history_entry'], dict) else (x['history_entry'][7] if len(x['history_entry']) > 7 and x['history_entry'][7] != "N/A" else 0))
+                
+                # Write data rows in chronological order
+                for entry_data in all_history_entries:
+                    history_entry = entry_data['history_entry']
+                    player_name = entry_data['player_name']
+                    action_id = entry_data['action_id']
+                    action_type = entry_data['action_type']
+                    action_name = entry_data['action_name']
+                    
+                    # Extract flattened fields
+                    target_entity_type = entry_data['target_entity_type']
+                    target_entity_category = entry_data['target_entity_category']
+                    target_entity_name = entry_data['target_entity_name']
+                    conditions_count = entry_data['conditions_count']
+                    feedbacks_count = entry_data['feedbacks_count']
+                    contextual_menu = entry_data['contextual_menu']
+                    on_controller = entry_data['on_controller']
+                    total_uses = entry_data['total_uses']
+                    max_uses = entry_data['max_uses']
+                    
+                    # Handle both dictionary format (new) and list format (old)
+                    if isinstance(history_entry, dict):
+                        # New dictionary format from getFormattedHistory()
+                        round_num = history_entry.get('round', 0)
+                        phase_num = history_entry.get('phase', 0)
+                        usage_count = history_entry.get('usage_count', 0)
+                        target_entity = history_entry.get('target_entity')
+                        res_action = history_entry.get('result_action')
+                        res_feedback = history_entry.get('result_feedback')
+                        timestamp = history_entry.get('timestamp', 'N/A')
+                        id_action = history_entry.get('id_action', 'N/A')
+                        session_id = history_entry.get('session_id', 'N/A')
+                        destination_entity = history_entry.get('destination_entity')
+                    else:
+                        # Old list format (backward compatibility)
+                        if len(history_entry) == 10:  # Action Move avec destination + nouvelles colonnes
+                            round_num, phase_num, usage_count, target_entity, res_action, res_feedback, timestamp, id_action, session_id, destination_entity = history_entry
+                        elif len(history_entry) == 9:  # Autres actions avec nouvelles colonnes
+                            round_num, phase_num, usage_count, target_entity, res_action, res_feedback, timestamp, id_action, session_id = history_entry
+                            destination_entity = None
+                        else:  # Old format (backward compatibility)
+                            round_num, phase_num, usage_count, target_entity, res_action, res_feedback = history_entry
+                            timestamp = "N/A"
+                            id_action = "N/A"
+                            session_id = "N/A"
+                            destination_entity = None
+                    
+                    # Safe serialization of entities
+                    from mainClasses.SGExtensions import serialize_any_object
+                    safe_target_entity = target_entity.getObjectIdentiferForExport()
+                    safe_res_action = serialize_any_object(res_action) if res_action is not None else "None"
+                    safe_res_feedback = serialize_any_object(res_feedback) if res_feedback is not None else "None"
+                    
+                    # Get coordinates of target entity
+                    target_coordinates = "N/A"
+                    if hasattr(target_entity, 'getCoords'):
+                        try:
+                            coords = target_entity.getCoords()
+                            target_coordinates = f"({coords[0]}, {coords[1]})" if coords else "N/A"
+                        except:
+                            target_coordinates = "N/A"
+                    elif hasattr(target_entity, 'xCoord') and hasattr(target_entity, 'yCoord'):
+                        target_coordinates = f"({target_entity.xCoord}, {target_entity.yCoord})"
+                    
+                    # Get destination entity information (for Move actions)
+                    safe_destination_entity = "N/A"
+                    destination_coordinates = "N/A"
+                    if destination_entity is not None:
+                        safe_destination_entity = destination_entity.getObjectIdentiferForExport()
+                        if hasattr(destination_entity, 'getCoords'):
+                            try:
+                                coords = destination_entity.getCoords()
+                                destination_coordinates = f"({coords[0]}, {coords[1]})" if coords else "N/A"
+                            except:
+                                destination_coordinates = "N/A"
+                        elif hasattr(destination_entity, 'xCoord') and hasattr(destination_entity, 'yCoord'):
+                            destination_coordinates = f"({destination_entity.xCoord}, {destination_entity.yCoord})"
+                    
+                    # Find original action to use its methods
+                    action = None
+                    for player in self.players.values():
+                        for act in player.gameActions:
+                            if act.id == action_id:
+                                action = act
+                                break
+                        if action:
+                            break
+                    
+                    # Use action methods for formatting
+                    if action:
+                        action_details_str = action.formatActionDetailsForCSV()
+                        # Extract attributes directly from action
+                        if hasattr(action, 'att') and hasattr(action, 'value'):
+                            attribute_info = {
+                                "attribute": str(action.att),
+                                "value": str(action.value)
+                            }
+                        elif hasattr(action, 'dictAttributs') and action.dictAttributs:
+                            # For Create actions
+                            first_attr = list(action.dictAttributs.keys())[0]
+                            attribute_info = {
+                                "attribute": str(first_attr),
+                                "value": str(action.dictAttributs[first_attr])
+                            }
+                        else:
+                            attribute_info = {"attribute": "N/A", "value": "N/A"}
+                    else:
+                        action_details_str = "No details"
+                        attribute_info = {"attribute": "N/A", "value": "N/A"}
+                    
+                    # Extract activated method for Activate actions
+                    activated_method = "N/A"
+                    if action_type == "Activate" and action:
+                        activated_method = getattr(action.method, '__name__', str(action.method)) if callable(action.method) else str(action.method)
+                    
+                    writer.writerow([
+                        session_id,
+                        id_action,
+                        timestamp,
+                        round_num,
+                        phase_num,
+                        player_name,
+                        action_id,
+                        action_name,
+                        max_uses,
+                        usage_count,
+                        action_type,
+                        target_entity_category,
+                        target_entity_name,
+                        attribute_info["attribute"],
+                        attribute_info["value"],
+                        activated_method,
+                        action_details_str,
+                        safe_target_entity,
+                        target_coordinates,
+                        safe_destination_entity,
+                        destination_coordinates,
+                        safe_res_action,
+                        safe_res_feedback
+                    ])
+            
+            print(f"GameAction logs exported to {filename}")
+            return filename
+            
+        except Exception as e:
+            raise ValueError(f"Failed to export CSV file: {e}")
+    
+    
+    def _getCurrentTimestamp(self):
+        """
+        Get current timestamp for filename generation
+        
+        Returns:
+            str: Formatted timestamp string
+        """
+        from datetime import datetime
+        return datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+
+    def createGameActionLogsExportMenu(self):
+        """Create GameAction Logs Export submenu in Settings menu"""
+        self.gameActionLogsMenu = self.settingsMenu.addMenu("&Export GameAction Logs")
+        
+        # Export to CSV action
+        exportCsvAction = QAction("&Export to CSV...", self)
+        exportCsvAction.triggered.connect(self.openExportGameActionLogsDialog)
+        exportCsvAction.setData("csv")  # Store format in action data
+        self.gameActionLogsMenu.addAction(exportCsvAction)
+        # Export to JSON action
+        exportJsonAction = QAction("&Export to JSON...", self)
+        exportJsonAction.triggered.connect(self.openExportGameActionLogsDialog)
+        exportJsonAction.setData("json")  # Store format in action data
+        self.gameActionLogsMenu.addAction(exportJsonAction)
+        
+    def openExportGameActionLogsDialog(self):
+        """Open dialog to export GameAction logs"""
+        # Get the triggered action to determine format
+        action = self.sender()
+        format_type = action.data()
+        
+        # Generate default filename
+        timestamp = self._getCurrentTimestamp()
+        default_filename = f"gameAction_logs_{timestamp}.{format_type}"
+        
+        # Open file dialog
+        from PyQt5.QtWidgets import QFileDialog
+        
+        if format_type == "json":
+            file_filter = "JSON Files (*.json);;All Files (*)"
+        else:  # csv
+            file_filter = "CSV Files (*.csv);;All Files (*)"
+        
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            f"Export GameAction Logs to {format_type.upper()}",
+            default_filename,
+            file_filter
+        )
+        
+        if filename:
+            try:
+                exported_file = self.exportGameActionLogs(filename, format_type)
+                QMessageBox.information(
+                    self,
+                    "Export Successful",
+                    f"GameAction logs exported successfully to:\n{exported_file}"
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Export Failed",
+                    f"Failed to export GameAction logs:\n{str(e)}"
+                )
 
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
@@ -811,11 +1222,34 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     # To select only users with a control panel
     def getUsers_withControlPanel(self):
         selection = []
-        if self.shouldDisplayAdminControlPanel:
-            selection.append('Admin')
         for aP in self.players.values():
-            if aP.controlPanel != None:
-                selection.append(aP.name)
+            if aP.name == 'Admin':
+                # Admin: add if shouldDisplayAdminControlPanel OR if he has a controlPanel
+                if self.shouldDisplayAdminControlPanel or aP.controlPanel != None:
+                    selection.append(aP.name)
+            else:
+                # Other players: add if they have a controlPanel
+                if aP.controlPanel != None:
+                    selection.append(aP.name)
+        return selection
+
+    def getUsers_withGameActions(self):
+        """
+        Get list of players who have gameActions
+        
+        Returns:
+            list: List of player names who have gameActions
+        """
+        selection = []
+        for aP in self.players.values():
+            if aP.name == 'Admin':
+                # Admin: add if shouldDisplayAdminControlPanel OR if he has gameActions
+                if self.shouldDisplayAdminControlPanel or len(aP.gameActions) > 0:
+                    selection.append(aP.name)
+            else:
+                # Other players: add if they have gameActions
+                if len(aP.gameActions) > 0:
+                    selection.append(aP.name)
         return selection
 
     # To change the number of zoom we currently are
@@ -840,7 +1274,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         pass
 
     def applyAutomaticLayout(self): 
-        # Polymorphisme à l'exécution - chaque layout gère sa propre logique
+        # Runtime polymorphism - each layout handles its own logic
         self.layoutOfModel.applyLayout(self.gameSpaces.values())
 
     def openLayoutOrderTableDialog(self):
@@ -1784,22 +2218,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         all_game_spaces = self.gameSpaces.values()
 
 
-        # Initialiser la liste des éléments à modifier
+        # Initialize the list of elements to modify
         elements_to_change = set()
 
-        # Ajouter tous les éléments si all_elements est True
+        # Add all elements if all_elements is True
         if all_elements:
             elements_to_change.update(all_game_spaces)
 
-        # Ajouter les éléments spécifiés dans include
+        # Add elements specified in include
         if include:
             elements_to_change.update(include)
 
-        # Exclure les éléments spécifiés dans exclude
+        # Exclude elements specified in exclude
         if exclude:
             elements_to_change.difference_update(exclude)
 
-        # Mettre à jour la "draggability" pour les éléments sélectionnés
+        # Update "draggability" for selected elements
         for element in elements_to_change:
             element.setDraggability(value)
 # ============================================================================
@@ -1922,6 +2356,65 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.shouldDisplayAdminControlPanel = True
         if not self.timeManager.isInitialization():
             self.show_adminControlPanel()
+
+    def exportGameActionLogs(self, filename=None, format="json"):
+        """
+        Export gameAction logs to file
+        
+        Args:
+            filename (str, optional): Output filename. If None, generates automatic filename
+            format (str): Export format - "json" or "csv" (default: "json")
+            
+        Returns:
+            str: Path to exported file
+        """
+        if format not in ["json", "csv"]:
+            raise ValueError("Format must be 'json' or 'csv'")
+        
+        # Generate filename if not provided
+        if filename is None:
+            timestamp = self._getCurrentTimestamp()
+            filename = f"gameAction_logs_{timestamp}.{format}"
+        
+        # Get gameAction logs data
+        logs_data = self._getGameActionLogsData()
+        
+        if format == "json":
+            return self._exportGameActionLogsToJSON(logs_data, filename)
+        elif format == "csv":
+            return self._exportGameActionLogsToCSV(logs_data, filename)
+    
+    def enableAutoSaveGameActionLogs(self, format="csv", save_path=None):
+        """
+        Enable automatic saving of gameAction logs when the application is closed.
+        
+        Args:
+            format (str): Export format - "json" or "csv" (default: "csv")
+            save_path (str, optional): Directory path where to save the logs. If None, user will be prompted to choose.
+        
+        Examples:
+            # Save automatically to a specific directory
+            myModel.enableAutoSaveGameActionLogs(format="csv", save_path="/path/to/logs")
+            
+            # Save with user choosing the location
+            myModel.enableAutoSaveGameActionLogs(format="json")
+            
+            # Save CSV to current directory
+            myModel.enableAutoSaveGameActionLogs(save_path=".")
+        """
+        if format not in ["json", "csv"]:
+            raise ValueError("Format must be 'json' or 'csv'")
+        
+        # Store both format and save_path in a dictionary
+        self.autoSaveGameActionLogs = {
+            "format": format,
+            "save_path": save_path
+        }
+        
+        if save_path:
+            print(f"Auto-save of gameAction logs enabled (format: {format}, path: {save_path})")
+        else:
+            print(f"Auto-save of gameAction logs enabled (format: {format}, user will choose path)")
 
 
     

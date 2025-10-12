@@ -38,3 +38,22 @@ class SGActivate(SGAbstractAction):
         if self.setControllerContextualMenu == False:
             aColor = self.targetType.defaultShapeColor
             return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
+    
+    # ============================================================================
+    # EXPORT INTERFACE METHODS - SGActivate specific implementations
+    # ============================================================================
+    
+    def getActionDetails(self):
+        """
+        Specific details for SGActivate
+        """
+        details = super().getActionDetails()
+        details["method_name"] = getattr(self.method, '__name__', str(self.method)) if callable(self.method) else str(self.method)
+        return details
+    
+    def _getSpecificActionInfo(self):
+        """
+        Get specific activation information
+        """
+        method_name = getattr(self.method, '__name__', str(self.method)) if callable(self.method) else str(self.method)
+        return f"Activate: {method_name}"

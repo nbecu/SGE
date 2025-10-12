@@ -827,6 +827,7 @@ def placeInitHexagones():
 
 customLayout()
 placeInitHexagones()
+myModel.enableAutoSaveGameActionLogs()
 myModel.launch()
 # myModel.launch_withMQTT("Instantaneous")
 sys.exit(monApp.exec_())

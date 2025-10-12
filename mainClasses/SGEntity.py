@@ -118,6 +118,21 @@ class SGEntity(AttributeAndValueFunctionalities):
         dict['id'] = self.id
         return dict
 
+    def getObjectIdentiferForExport(self):
+        """
+        Get the unique identifier of this SGE entity for export purposes.
+        
+        This method returns a unique string identifier using the entity's class name, type name, and ID.
+        
+        :return: Unique identifier string for this entity
+        """
+        # Include type name if available (like getObjectIdentiferForJsonDumps)
+        if hasattr(self, 'type') and hasattr(self.type, 'name'):
+            return f"{self.__class__.__name__}_{self.type.name}_id_{self.id}"
+        else:
+            return f"{self.__class__.__name__}_id_{self.id}"
+
+
     def setView(self, view):
         """Set the view for this model"""
         self.view = view

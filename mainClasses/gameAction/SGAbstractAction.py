@@ -3,16 +3,18 @@ from mainClasses.SGCell import SGCell
 from mainClasses.SGTimePhase import *
 from math import inf
 import copy
+from datetime import datetime
 
 #Class who manage the game mechanics of Update
 class SGAbstractAction():
     IDincr=0
     instances = []
+    action_id_counter = 0  # Global shared counter for execution order
     def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test
-        from mainClasses.SGModel import SGModel  # Import local pour éviter l'import circulaire
+        from mainClasses.SGModel import SGModel  # Local import to avoid circular import
         if isinstance(type, SGModel):
             self.targetType='model'
             self.model=type
@@ -22,6 +24,7 @@ class SGAbstractAction():
         self.number = inf if number in ("infinite", None, inf) else number
         
         self.numberUsed=0
+        self.totalNumberUsed=0
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
         self.feedbacks=copy.deepcopy(feedbacks)
@@ -37,9 +40,20 @@ class SGAbstractAction():
         SGAbstractAction.IDincr +=1
         return SGAbstractAction.IDincr   
     
+    def getNextActionId(self):
+        """
+        Generate the next action identifier for execution order
+        
+        Returns:
+            int: Unique action identifier
+        """
+        SGAbstractAction.action_id_counter += 1
+        return SGAbstractAction.action_id_counter
+    
     #Function which increment the number of use
     def incNbUsed(self):
         self.numberUsed += 1
+        self.totalNumberUsed += 1
 
 
     def perform_with(self,aTargetEntity,serverUpdate=True): #The arg aParameterHolder has been removed has it is never used and it complicates the updateServer
@@ -120,12 +134,20 @@ class SGAbstractAction():
         return res if len(listOfRes) == 1 else listOfRes
    
     def savePerformedActionInHistory(self,aTargetEntity, resAction, resFeedback):
+        # Generate temporal and identification information
+        timestamp = datetime.now().isoformat()
+        id_action = self.getNextActionId()
+        session_id = self.model.session_id
+        
         self.history["performed"].append([self.model.timeManager.currentRoundNumber,
                                           self.model.timeManager.currentPhaseNumber,
                                           self.numberUsed,
                                           aTargetEntity,
                                           resAction,
-                                          resFeedback])
+                                          resFeedback,
+                                          timestamp,
+                                          id_action,
+                                          session_id])
 
 
     def updateServer_gameAction_performed(self, *args):
@@ -184,8 +206,191 @@ class SGAbstractAction():
                         return True
         return False
     
-
-  
-            
+    # ============================================================================
+    # EXPORT INTERFACE METHODS
+    # ============================================================================
     
+    def getFormattedHistory(self):
+        """
+        Return formatted history with explicit keys
+        
+        Returns:
+            list: List of dictionaries with formatted history
+        """
+        formatted_history = []
+        
+        for entry in self.history["performed"]:
+            # Structure: [round, phase, usage_count, target_entity, res_action, res_feedback, timestamp, id_action, session_id]
+            formatted_entry = {
+                "session_id": entry[8],
+                "id_action": entry[7],
+                "timestamp": entry[6],
+                "round": entry[0],
+                "phase": entry[1], 
+                "usage_count": entry[2],
+                "target_entity": entry[3],
+                "result_action": entry[4],
+                "result_feedback": entry[5]
+            }
+            formatted_history.append(formatted_entry)
+        
+        return formatted_history
+
+    def getExportInfo(self):
+        """
+        Common interface for action information export
+        
+        Returns:
+            dict: Complete action information for export (flattened structure)
+        """
+        # Get the detailed information
+        target_entity_info = self.getTargetEntityInfo()
+        action_details = self.getActionDetails()
+        usage_info = self.getUsageInfo()
+        
+        # Flatten the structure by merging all sub-objects into the main object
+        export_info = {
+            "action_id": self.id,
+            "action_class": self.__class__.__name__,
+            "action_type": getattr(self, 'actionType', 'Unknown'),
+            "action_name": getattr(self, 'nameToDisplay', f"Action_{self.id}")
+        }
+        
+        # Add target entity info fields directly
+        if target_entity_info:
+            export_info.update({
+                "target_entity_type": target_entity_info.get("type", "N/A"),
+                "target_entity_category": target_entity_info.get("category", "N/A"),
+                "target_entity_name": target_entity_info.get("name", "N/A")
+            })
+        
+        # Add action-specific fields (attribute and value) right after target_entity_name
+        # Direct access to avoid Python module caching issues
+        if self.__class__.__name__ == 'SGModify':
+            if hasattr(self, 'att') and hasattr(self, 'value'):
+                export_info.update({
+                    "attribute": str(self.att),
+                    "value": str(self.value)
+                })
+        elif self.__class__.__name__ == 'SGCreate':
+            if hasattr(self, 'dictAttributs') and self.dictAttributs:
+                # Pour les actions Create, prendre le premier attribut
+                first_attr = list(self.dictAttributs.keys())[0]
+                export_info.update({
+                    "attribute": str(first_attr),
+                    "value": str(self.dictAttributs[first_attr])
+                })
+        
+        # Add action details fields directly
+        if action_details:
+            export_info.update(action_details)
+        
+        # Add usage info fields directly
+        if usage_info:
+            export_info.update(usage_info)
+        
+        # Add history at the end (for all action types)
+        export_info["history"] = self.getFormattedHistory()
+        
+        return export_info
+    
+    def getTargetEntityInfo(self):
+        """
+        Target entity information - generic method
+        
+        Returns:
+            dict: Target entity information
+        """
+        if hasattr(self, 'targetType'):
+            if self.targetType == 'model':
+                return {
+                    "type": "model",
+                    "name": "Model",
+                    "category": "Model"
+                }
+            elif hasattr(self.targetType, 'name'):
+                return {
+                    "type": self.targetType.__class__.__name__,
+                    "name": self.targetType.name,
+                    "category": self.targetType.category() if hasattr(self.targetType, 'category') else "Unknown"
+                }
+        
+        return {
+            "type": "Unknown",
+            "name": "Unknown",
+            "category": "Unknown"
+        }
+    
+    def getActionDetails(self):
+        """
+        Action-specific details - to be redefined in subclasses
+        
+        Returns:
+            dict: Action-specific details
+        """
+        # Default generic implementation
+        return {
+            "conditions_count": len(self.conditions) if hasattr(self, 'conditions') else 0,
+            "feedbacks_count": len(self.feedbacks) if hasattr(self, 'feedbacks') else 0
+        }
+    
+    def getUsageInfo(self):
+        """
+        Action usage information
+        
+        Returns:
+            dict: Usage information
+        """
+        return {
+            "max_uses": self.number if self.number != float('inf') else "infinite",
+            "total_uses": self.totalNumberUsed
+        }
+    
+    def formatActionDetailsForCSV(self):
+        """
+        Format action details for CSV export using Template Method pattern
+        
+        Returns:
+            str: Formatted details for CSV
+        """
+        details_parts = []
+        
+        # Specific information (implemented by subclasses)
+        specific_info = self._getSpecificActionInfo()
+        if specific_info:
+            details_parts.append(specific_info)
+        
+        # Common information (centralized)
+        details_parts.extend(self._getCommonActionInfo())
+        
+        return " | ".join(details_parts) if details_parts else "No details"
+    
+    def _getSpecificActionInfo(self):
+        """
+        Get specific action information - to be implemented by subclasses
+        
+        Returns:
+            str: Specific action information, or None if not applicable
+        """
+        return None
+    
+    def _getCommonActionInfo(self):
+        """
+        Get common action information shared by all action types
+        
+        Returns:
+            list: List of common information strings
+        """
+        common_parts = []
+        
+        if getattr(self, 'setControllerContextualMenu', False):
+            common_parts.append("(contextual menu)")
+        
+        if len(getattr(self, 'conditions', [])) > 0:
+            common_parts.append(f"({len(self.conditions)} conditions)")
+        
+        if len(getattr(self, 'feedbacks', [])) > 0:
+            common_parts.append(f"({len(self.feedbacks)} feedbacks)")
+        
+        return common_parts
 

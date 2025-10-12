@@ -25,7 +25,7 @@ class SGMove(SGAbstractAction):
                     resFeedback = self.executeFeedbacks(aFeedbackTarget)
             else : resFeedback = None
             self.incNbUsed()
-            self.savePerformedActionInHistory(aTargetEntity, aMovingEntity, resFeedback)
+            self.savePerformedActionInHistory(aTargetEntity, aMovingEntity, resFeedback, aDestinationEntity)
 
             if serverUpdate: self.updateServer_gameAction_performed(aTargetEntity,aDestinationEntity)
 
@@ -77,3 +77,40 @@ class SGMove(SGAbstractAction):
     def chooseFeedbackTargetAmong(self,aListOfChoices):
         # aListOfChoices -> [aMovingEntity,aDestinationEntity,aOriginEntity,aParameterHolder,resAction]
         return aListOfChoices[0]
+    
+    # ============================================================================
+    # EXPORT INTERFACE METHODS - SGMove specific implementations
+    # ============================================================================
+    
+    def savePerformedActionInHistory(self,aTargetEntity, resAction, resFeedback, aDestinationEntity=None):
+        """
+        Override for SGMove to include destination entity
+        """
+        if aDestinationEntity is not None:
+            # Call parent method first to create the base history entry
+            super().savePerformedActionInHistory(aTargetEntity, resAction, resFeedback)
+            
+            # Add destination entity to the last entry
+            last_entry = self.history["performed"][-1]
+            last_entry.append(aDestinationEntity)
+        else:
+            # Fallback to parent method if no destination
+            super().savePerformedActionInHistory(aTargetEntity, resAction, resFeedback)
+    
+    def getFormattedHistory(self):
+        """
+        Return formatted history with explicit keys for SGMove
+        Includes destination_entity information
+        """
+        # Get base formatted history from parent
+        formatted_history = super().getFormattedHistory()
+        
+        # Add destination_entity to each entry
+        for i, entry in enumerate(self.history["performed"]):
+            if len(entry) > 9:
+                formatted_history[i]["destination_entity"] = entry[9]
+            else:
+                formatted_history[i]["destination_entity"] = None
+        
+        return formatted_history
+    

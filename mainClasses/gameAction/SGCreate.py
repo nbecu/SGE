@@ -110,7 +110,27 @@ class SGCreate(SGAbstractAction):
                     #todo Modifs pour MTZC pour que ce soit plus simple
                     aList.append(SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,aAtt,aValue,gameAction=self))
                 return aList
-
-
     
+    # ============================================================================
+    # EXPORT INTERFACE METHODS - SGCreate specific implementations
+    # ============================================================================
+    
+    def getActionDetails(self):
+        """
+        Specific details for SGCreate
+        """
+        details = super().getActionDetails()
+        details["attributes_to_set"] = self.dictAttributs
+        details["create_several"] = getattr(self, 'create_several_at_each_click', False)
+        return details
+    
+    def _getSpecificActionInfo(self):
+        """
+        Get specific creation information
+        """
+        if self.dictAttributs:
+            attr_str = ", ".join([f"{k}={v}" for k, v in self.dictAttributs.items()])
+            return f"Create: {attr_str}"
+        else:
+            return "Create: default attributes"
 

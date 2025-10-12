@@ -7,6 +7,8 @@ This document contains the planned improvements and features for the SGE (Simula
 ### Core Architecture & Framework
 - [ ] Unify definition of `setValue` for the different classes
 - [ ] Migrate to PyQt6
+- [ ] Refactor getter methods in SGModel for consistent object retrieval by name (see REFACTORING_GETTER_METHODS.md)
+- [ ] Refactor SGModel: Extract Game Action Export (lines 458-824) and Layout Management (lines 1271-1424) methods into separate classes using composition pattern
 
 ### User Interface & Display
 - [ ] Correct the zoom model menu 
@@ -33,11 +35,13 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Improve data record of gameactions (perhaps using SGAbstractAction.updateServer_gameAction_performed())
 
 ### Simulation Management & Data
+- [ ] Create a importData et exportData qui s'occupe d'aller chercher les bons chemins dans le rep projet
 - [ ] Create automatic recording of simulation state at each round
 - [ ] Create a recovery system for simulation in case it shuts down (could use `updateAtMaj` function)
 - [ ] Allow to start the simulation at a specified time step
 - [ ] Add a item in SGModel menu bar to record the state of the world (state of model entities), and add the possibility to use a saved state of the world, as an initialization state for a new simulation
 - [ ] Add the possibility to export gameAction logs
+- [ ] Implement BotPlayer system for automated gameplay and testing (see BOT_PLAYER_SYSTEM.md)
 
 ### Multiplayer & Configuration
 - [ ] Improve model configuration management for multiplayer games

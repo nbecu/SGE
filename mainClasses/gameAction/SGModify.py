@@ -65,3 +65,25 @@ class SGModifyActionWithDialog(SGModify):
             aTargetEntity.setValue(self.dynamicAttribute, value)
             return aTargetEntity
         return aTargetEntity
+    
+    # ============================================================================
+    # EXPORT INTERFACE METHODS - SGModify specific implementations
+    # ============================================================================
+    
+    def getActionDetails(self):
+        """
+        Specific details for SGModify
+        """
+        details = super().getActionDetails()
+        details["attributes_to_modify"] = self.dictNewValues
+        details["primary_attribute"] = self.att if hasattr(self, 'att') else 'N/A'
+        details["primary_value"] = self.value if hasattr(self, 'value') else 'N/A'
+        return details
+    
+    def _getSpecificActionInfo(self):
+        """
+        Get specific modification information
+        """
+        if hasattr(self, 'att') and hasattr(self, 'value'):
+            return f"Modify: {self.att} -> {self.value}"
+        return None
