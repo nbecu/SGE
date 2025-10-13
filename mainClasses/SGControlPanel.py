@@ -36,6 +36,9 @@ class SGControlPanel(SGGameSpace):
         self.gs_aspect.border_color = borderColor
         self.gs_aspect.border_size = 1
         
+        # Apply initial stylesheet
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        
         # Initialize theme aspects for different states
         self.inactive_aspect = SGAspect.inactive()
         self.haveADeleteButton = False
@@ -154,10 +157,14 @@ class SGControlPanel(SGGameSpace):
             painter = QPainter() 
             painter.begin(self)
             if self.isActive:
-                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+                bg_color = self.gs_aspect.getBackgroundColorValue()
+                print(f"SGControlPanel paintEvent - isActive=True, bg_color={bg_color}")
+                painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
             else:
                 # Use inactive theme instead of hardcoded color
-                painter.setBrush(QBrush(self.inactive_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+                bg_color = self.inactive_aspect.getBackgroundColorValue()
+                print(f"SGControlPanel paintEvent - isActive=False, bg_color={bg_color}")
+                painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
             painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
             #Draw the corner of the Legend
             # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
@@ -231,6 +238,19 @@ class SGControlPanel(SGGameSpace):
             color (QColor or Qt.GlobalColor): The border color
         """
         self.gs_aspect.border_color = color
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setBackgroundColor(self, color):
+        """
+        Set the background color of the control panel.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The background color
+        """
+        self.gs_aspect.background_color = color
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
         
     def setBorderSize(self, size):
         """
@@ -240,6 +260,8 @@ class SGControlPanel(SGGameSpace):
             size (int): The border size in pixels
         """
         self.gs_aspect.border_size = size
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
         
     def setInactiveThemeColor(self, color):
         """

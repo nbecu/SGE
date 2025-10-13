@@ -402,4 +402,263 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.size_manager.set_vertical_gap(gap)
 
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the gameSpace.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the gameSpace.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setBackgroundColor(self, color):
+        """
+        Set the background color of the gameSpace.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The background color
+        """
+        self.gs_aspect.background_color = color
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setTextColor(self, color):
+        """
+        Set the text color of the gameSpace.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The text color
+        """
+        self.gs_aspect.color = color
+        self.setTitlesAndTextsColor(color)
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setTitleAlignment(self, alignment):
+        """
+        Set the title alignment of the gameSpace.
+        
+        Args:
+            alignment (str): The title alignment ('left', 'center', 'right')
+        """
+        self.gs_aspect.alignment = alignment
+        self.update()
+        
+    def setFontFamily(self, font_family):
+        """
+        Set the font family of the gameSpace.
+        
+        Args:
+            font_family (str): The font family name
+        """
+        for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
+                      self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+            aspect.font = font_family
+        self.update()
+        
+    def setFontSize(self, size):
+        """
+        Set the font size of the gameSpace.
+        
+        Args:
+            size (int): The font size in pixels
+        """
+        self.gs_aspect.size = size
+        for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
+                      self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+            aspect.size = size
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setFontWeight(self, weight):
+        """
+        Set the font weight of the gameSpace.
+        
+        Args:
+            weight (str): The font weight ('normal', 'bold', etc.)
+        """
+        self.gs_aspect.font_weight = weight
+        for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
+                      self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+            aspect.font_weight = weight
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setFontStyle(self, style):
+        """
+        Set the font style of the gameSpace.
+        
+        Args:
+            style (str): The font style ('normal', 'italic', 'oblique')
+        """
+        for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
+                      self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+            aspect.font_style = style
+        self.update()
+        
+    def setBorderRadius(self, radius):
+        """
+        Set the border radius of the gameSpace.
+        
+        Args:
+            radius (int): The border radius in pixels
+        """
+        self.gs_aspect.border_radius = radius
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setPadding(self, padding):
+        """
+        Set the padding of the gameSpace.
+        
+        Args:
+            padding (int): The padding in pixels
+        """
+        self.gs_aspect.padding = padding
+        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.update()
+        
+    def setMinWidth(self, width):
+        """
+        Set the minimum width of the gameSpace.
+        
+        Args:
+            width (int): The minimum width in pixels
+        """
+        self.gs_aspect.min_width = width
+        self.update()
+        
+    def setMinHeight(self, height):
+        """
+        Set the minimum height of the gameSpace.
+        
+        Args:
+            height (int): The minimum height in pixels
+        """
+        self.gs_aspect.min_height = height
+        self.update()
+        
+    def setWordWrap(self, wrap):
+        """
+        Set the word wrap of the gameSpace.
+        
+        Args:
+            wrap (bool): Whether to enable word wrap
+        """
+        self.gs_aspect.word_wrap = wrap
+        self.update()
+        
+    def setBackgroundImage(self, image_path):
+        """
+        Set the background image of the gameSpace.
+        
+        Args:
+            image_path (str): The path to the background image
+        """
+        self.gs_aspect.background_image = image_path
+        self.update()
+        
+    def setStyle(self, style_dict):
+        """
+        Set multiple style properties at once.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties
+        """
+        for key, value in style_dict.items():
+            if hasattr(self, f'set{key.title()}'):
+                getattr(self, f'set{key.title()}')(value)
+            elif key == 'border_color':
+                self.setBorderColor(value)
+            elif key == 'border_size':
+                self.setBorderSize(value)
+            elif key == 'background_color':
+                self.setBackgroundColor(value)
+            elif key == 'text_color':
+                self.setTextColor(value)
+            elif key == 'title_alignment':
+                self.setTitleAlignment(value)
+            elif key == 'font_family':
+                self.setFontFamily(value)
+            elif key == 'font_size':
+                self.setFontSize(value)
+            elif key == 'font_weight':
+                self.setFontWeight(value)
+            elif key == 'font_style':
+                self.setFontStyle(value)
+            elif key == 'border_radius':
+                self.setBorderRadius(value)
+            elif key == 'padding':
+                self.setPadding(value)
+            elif key == 'min_width':
+                self.setMinWidth(value)
+            elif key == 'min_height':
+                self.setMinHeight(value)
+            elif key == 'word_wrap':
+                self.setWordWrap(value)
+            elif key == 'background_image':
+                self.setBackgroundImage(value)
+        self.update()
+        
+    def applyTheme(self, theme_name):
+        """
+        Apply a predefined theme to the gameSpace.
+        
+        Args:
+            theme_name (str): The name of the theme ('modern', 'minimal', 'colorful', 'blue', 'green', 'gray')
+        """
+        from mainClasses.SGAspect import SGAspect
+        
+        theme_methods = {
+            'modern': SGAspect.modern,
+            'minimal': SGAspect.minimal,
+            'colorful': SGAspect.colorful,
+            'blue': SGAspect.blue,
+            'green': SGAspect.green,
+            'gray': SGAspect.gray
+        }
+        
+        if theme_name in theme_methods:
+            theme_aspect = theme_methods[theme_name]()
+            # Apply theme properties to gs_aspect
+            self.gs_aspect.background_color = theme_aspect.background_color
+            self.gs_aspect.border_color = theme_aspect.border_color
+            self.gs_aspect.border_size = theme_aspect.border_size
+            self.gs_aspect.border_style = theme_aspect.border_style
+            self.gs_aspect.border_radius = theme_aspect.border_radius
+            self.gs_aspect.padding = theme_aspect.padding
+            
+            # Apply theme properties to text aspects
+            for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
+                          self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+                aspect.color = theme_aspect.color
+                aspect.font = theme_aspect.font
+                aspect.size = theme_aspect.size
+                aspect.font_weight = theme_aspect.font_weight
+                
+            self.update()
+        else:
+            raise ValueError(f"Unknown theme: {theme_name}. Available themes: {list(theme_methods.keys())}")
+
     

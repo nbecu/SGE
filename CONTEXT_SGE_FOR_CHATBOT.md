@@ -335,6 +335,7 @@ class SGAgent(SGEntity):
 - Utiliser nomenclature cohérente (SGAgent, SGCell)
 - Distinguer moveTo() (placement initial) de moveAgent() (mouvement avec patterns)
 - Utiliser les méthodes utilitaires de SGExtensions.py pour éviter la duplication
+- **Utiliser la commande `date` pour obtenir la date actuelle** quand vous avez un doute sur la date du jour dans la documentation
 
 **INTERDIT** :
 - Créer `SGAgent(x,y)` directement

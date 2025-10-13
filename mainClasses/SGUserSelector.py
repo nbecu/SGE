@@ -23,9 +23,8 @@ class SGUserSelector(SGGameSpace):
         
         self.checkboxes = []
         title = QLabel("User Selector")
-        font = QFont()
-        font.setBold(True)
-        title.setFont(font)
+        # Use gs_aspect system instead of hardcoded font
+        title.setStyleSheet(self.title1_aspect.getTextStyle())
         self.userLayout.addWidget(title)
         self.updateUI(self.userLayout)
         self.setLayout(self.userLayout)
@@ -154,3 +153,64 @@ class SGUserSelector(SGGameSpace):
         painter.drawRect(0, 0, self.getSizeXGlobal(), self.getSizeYGlobal())
 
         painter.end()
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setTitleText(self, text):
+        """
+        Set the title text of the user selector.
+        
+        Args:
+            text (str): The title text
+        """
+        if hasattr(self, 'userLayout') and self.userLayout:
+            # Find and update the title label
+            for i in range(self.userLayout.count()):
+                item = self.userLayout.itemAt(i)
+                if item and item.widget() and isinstance(item.widget(), QLabel):
+                    item.widget().setText(text)
+                    break
+        self.update()
+        
+    def setOrientation(self, orientation):
+        """
+        Set the orientation of the user selector.
+        
+        Args:
+            orientation (str): 'horizontal' or 'vertical'
+        """
+        if orientation in ['horizontal', 'vertical']:
+            self.orientation = orientation
+            # Recreate the layout with new orientation
+            self.initUI()
+        else:
+            raise ValueError("Orientation must be 'horizontal' or 'vertical'")
+        
+    def setCheckboxStyle(self, style_dict):
+        """
+        Set the style of all checkboxes.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties for checkboxes
+        """
+        for checkbox in self.checkboxes:
+            style_parts = []
+            for key, value in style_dict.items():
+                if key == 'color':
+                    style_parts.append(f"color: {value}")
+                elif key == 'font_size':
+                    style_parts.append(f"font-size: {value}px")
+                elif key == 'font_family':
+                    style_parts.append(f"font-family: {value}")
+                elif key == 'font_weight':
+                    style_parts.append(f"font-weight: {value}")
+            
+            if style_parts:
+                checkbox.setStyleSheet("; ".join(style_parts))
+        self.update()

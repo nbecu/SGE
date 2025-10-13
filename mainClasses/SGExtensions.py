@@ -61,108 +61,153 @@ def _extend_qt_colors():
     
     # Thematic colors - Blues
     Qt.lightblue = QColor.fromRgb(173, 216, 230)  # Light Blue
+    Qt.lightBlue = Qt.lightblue  # CamelCase variant
     Qt.darkblue = QColor.fromRgb(0, 0, 139)  # Dark Blue
+    Qt.darkBlue = Qt.darkblue  # CamelCase variant
     
     # Thematic colors - Reds
     Qt.crimson = QColor.fromRgb(220, 20, 60)  # Crimson
     Qt.darkred = QColor.fromRgb(139, 0, 0)  # Dark Red
+    Qt.darkRed = Qt.darkred  # CamelCase variant
     Qt.lightcoral = QColor.fromRgb(240, 128, 128)  # Light Coral
+    Qt.lightCoral = Qt.lightcoral  # CamelCase variant
     
     # Thematic colors - Greens
     Qt.darkgreen = QColor.fromRgb(0, 100, 0)  # Dark Green
+    Qt.darkGreen = Qt.darkgreen  # CamelCase variant
     Qt.lightgreen = QColor.fromRgb(144, 238, 144)  # Light Green
+    Qt.lightGreen = Qt.lightgreen  # CamelCase variant
     Qt.forestgreen = QColor.fromRgb(34, 139, 34)  # Forest Green
+    Qt.forestGreen = Qt.forestgreen  # CamelCase variant
     Qt.seagreen = QColor.fromRgb(46, 139, 87)  # Sea Green
+    Qt.seaGreen = Qt.seagreen  # CamelCase variant
     
     # Thematic colors - Yellows/Oranges
     Qt.gold = QColor.fromRgb(255, 215, 0)  # Gold
     Qt.darkorange = QColor.fromRgb(255, 140, 0)  # Dark Orange
+    Qt.darkOrange = Qt.darkorange  # CamelCase variant
     Qt.lightyellow = QColor.fromRgb(255, 255, 224)  # Light Yellow
+    Qt.lightYellow = Qt.lightyellow  # CamelCase variant
     Qt.khaki = QColor.fromRgb(240, 230, 140)  # Khaki
     
     # Thematic colors - Violets/Magentas
     Qt.darkviolet = QColor.fromRgb(148, 0, 211)  # Dark Violet
+    Qt.darkViolet = Qt.darkviolet  # CamelCase variant
     Qt.plum = QColor.fromRgb(221, 160, 221)  # Plum
     Qt.lavender = QColor.fromRgb(230, 230, 250)  # Lavender
     
     # Thematic colors - Grays
     Qt.lightgray = QColor.fromRgb(211, 211, 211)  # Light Gray
+    Qt.lightGray = Qt.lightgray  # CamelCase variant
     Qt.silver = QColor.fromRgb(192, 192, 192)  # Silver
     Qt.slategray = QColor.fromRgb(112, 128, 144)  # Slate Gray
+    Qt.slateGray = Qt.slategray  # CamelCase variant
     
     # Missing basic colors
     Qt.purple = QColor.fromRgb(128, 0, 128)  # Purple
     Qt.steelblue = QColor.fromRgb(70, 130, 180)  # Steel Blue
+    Qt.steelBlue = Qt.steelblue  # CamelCase variant
     
     # Additional thematic colors - Blues
     Qt.navy = QColor.fromRgb(0, 0, 128)  # Navy
     Qt.royalblue = QColor.fromRgb(65, 105, 225)  # Royal Blue
+    Qt.royalBlue = Qt.royalblue  # CamelCase variant
     Qt.skyblue = QColor.fromRgb(135, 206, 235)  # Sky Blue
+    Qt.skyBlue = Qt.skyblue  # CamelCase variant
     Qt.powderblue = QColor.fromRgb(176, 224, 230)  # Powder Blue
+    Qt.powderBlue = Qt.powderblue  # CamelCase variant
     
     # Additional thematic colors - Reds
     Qt.firebrick = QColor.fromRgb(178, 34, 34)  # Fire Brick
+    Qt.fireBrick = Qt.firebrick  # CamelCase variant
     Qt.indianred = QColor.fromRgb(205, 92, 92)  # Indian Red
+    Qt.indianRed = Qt.indianred  # CamelCase variant
     Qt.salmon = QColor.fromRgb(250, 128, 114)  # Salmon
     Qt.rosybrown = QColor.fromRgb(188, 143, 143)  # Rosy Brown
+    Qt.rosyBrown = Qt.rosybrown  # CamelCase variant
     
     # Additional thematic colors - Greens
     Qt.olive = QColor.fromRgb(128, 128, 0)  # Olive
     Qt.olivedrab = QColor.fromRgb(107, 142, 35)  # Olive Drab
+    Qt.oliveDrab = Qt.olivedrab  # CamelCase variant
     Qt.springgreen = QColor.fromRgb(0, 255, 127)  # Spring Green
+    Qt.springGreen = Qt.springgreen  # CamelCase variant
     Qt.palegreen = QColor.fromRgb(152, 251, 152)  # Pale Green
+    Qt.paleGreen = Qt.palegreen  # CamelCase variant
     
     # Additional thematic colors - Yellows/Oranges
     Qt.peachpuff = QColor.fromRgb(255, 218, 185)  # Peach Puff
+    Qt.peachPuff = Qt.peachpuff  # CamelCase variant
     Qt.moccasin = QColor.fromRgb(255, 228, 181)  # Moccasin
     Qt.papayawhip = QColor.fromRgb(255, 239, 213)  # Papaya Whip
+    Qt.papayaWhip = Qt.papayawhip  # CamelCase variant
     
     # Additional thematic colors - Purples/Magentas
     Qt.orchid = QColor.fromRgb(218, 112, 214)  # Orchid
     Qt.thistle = QColor.fromRgb(216, 191, 216)  # Thistle
     Qt.mediumorchid = QColor.fromRgb(186, 85, 211)  # Medium Orchid
+    Qt.mediumOrchid = Qt.mediumorchid  # CamelCase variant
     Qt.mediumpurple = QColor.fromRgb(147, 112, 219)  # Medium Purple
+    Qt.mediumPurple = Qt.mediumpurple  # CamelCase variant
     
     # Additional thematic colors - Grays
     Qt.dimgray = QColor.fromRgb(105, 105, 105)  # Dim Gray
+    Qt.dimGray = Qt.dimgray  # CamelCase variant
     Qt.gainsboro = QColor.fromRgb(220, 220, 220)  # Gainsboro
     Qt.whitesmoke = QColor.fromRgb(245, 245, 245)  # White Smoke
+    Qt.whiteSmoke = Qt.whitesmoke  # CamelCase variant
     Qt.darkslategray = QColor.fromRgb(47, 79, 79)  # Dark Slate Gray
+    Qt.darkSlateGray = Qt.darkslategray  # CamelCase variant
     
     # Additional thematic colors - Browns
     Qt.saddlebrown = QColor.fromRgb(139, 69, 19)  # Saddle Brown
+    Qt.saddleBrown = Qt.saddlebrown  # CamelCase variant
     Qt.sienna = QColor.fromRgb(160, 82, 45)  # Sienna
     Qt.chocolate = QColor.fromRgb(210, 105, 30)  # Chocolate
     Qt.peru = QColor.fromRgb(205, 133, 63)  # Peru
     Qt.burlywood = QColor.fromRgb(222, 184, 135)  # Burlywood
+    Qt.burlyWood = Qt.burlywood  # CamelCase variant
     Qt.tan = QColor.fromRgb(210, 180, 140)  # Tan
     Qt.wheat = QColor.fromRgb(245, 222, 179)  # Wheat
     Qt.cornsilk = QColor.fromRgb(255, 248, 220)  # Cornsilk
+    Qt.cornSilk = Qt.cornsilk  # CamelCase variant
     
     # Red gradient colors
     Qt.maroon = QColor.fromRgb(128, 0, 0)  # Maroon
     Qt.orangered = QColor.fromRgb(255, 69, 0)  # Orange Red
+    Qt.orangeRed = Qt.orangered  # CamelCase variant
     Qt.coral = QColor.fromRgb(255, 127, 80)  # Coral
     Qt.lightsalmon = QColor.fromRgb(255, 160, 122)  # Light Salmon
+    Qt.lightSalmon = Qt.lightsalmon  # CamelCase variant
     Qt.mistyrose = QColor.fromRgb(255, 228, 225)  # Misty Rose
+    Qt.mistyRose = Qt.mistyrose  # CamelCase variant
     
     # Blue gradient colors
     Qt.midnightblue = QColor.fromRgb(25, 25, 112)  # Midnight Blue
+    Qt.midnightBlue = Qt.midnightblue  # CamelCase variant
     Qt.mediumblue = QColor.fromRgb(0, 0, 205)  # Medium Blue
+    Qt.mediumBlue = Qt.mediumblue  # CamelCase variant
     Qt.cornflowerblue = QColor.fromRgb(100, 149, 237)  # Cornflower Blue
+    Qt.cornflowerBlue = Qt.cornflowerblue  # CamelCase variant
     Qt.aliceblue = QColor.fromRgb(240, 248, 255)  # Alice Blue
+    Qt.aliceBlue = Qt.aliceblue  # CamelCase variant
     
     # Yellow gradient colors
     Qt.darkgoldenrod = QColor.fromRgb(184, 134, 11)  # Dark Goldenrod
+    Qt.darkGoldenrod = Qt.darkgoldenrod  # CamelCase variant
     Qt.goldenrod = QColor.fromRgb(218, 165, 32)  # Goldenrod
     Qt.lemonchiffon = QColor.fromRgb(255, 250, 205)  # Lemon Chiffon
+    Qt.lemonChiffon = Qt.lemonchiffon  # CamelCase variant
     Qt.ivory = QColor.fromRgb(255, 255, 240)  # Ivory
     
     # Additional colors
     Qt.turquoise = QColor.fromRgb(64, 224, 208)  # Turquoise
     Qt.hotpink = QColor.fromRgb(255, 105, 180)  # Hot Pink
+    Qt.hotPink = Qt.hotpink  # CamelCase variant
     Qt.limegreen = QColor.fromRgb(50, 205, 50)  # Lime Green
+    Qt.limeGreen = Qt.limegreen  # CamelCase variant
     Qt.darkorange = QColor.fromRgb(255, 140, 0)  # Dark Orange
+    Qt.darkOrange = Qt.darkorange  # CamelCase variant
 
 # Initialize the color extensions
 _extend_qt_colors()

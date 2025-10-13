@@ -1847,15 +1847,21 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aDashBoard
 
     # To create a new end game rule
-    def newEndGameRule(self, title='EndGame Rules', numberRequired=1):
+    def newEndGameRule(self, title='EndGame Rules', numberRequired=1, displayRefresh='instantaneous', isDisplay=True, borderColor=Qt.black, backgroundColor=Qt.lightGray, layout="vertical", textColor=Qt.black):
         """
         Create the EndGame Rule Board of the game
 
         Args:
             title (str) : header of the board, displayed (default : EndGame Rules)
             numberRequired (int) : number of completed conditions to trigger EndGame
+            displayRefresh (str) : refresh mode (default : instantaneous)
+            isDisplay (bool) : whether to display (default : True)
+            borderColor (QColor) : border color (default : Qt.black)
+            backgroundColor (QColor) : background color (default : Qt.lightGray)
+            layout (str) : layout orientation (default : vertical)
+            textColor (QColor) : text color (default : Qt.black)
         """
-        aEndGameRule = SGEndGameRule(self, title, numberRequired)
+        aEndGameRule = SGEndGameRule(self, title, numberRequired, displayRefresh, isDisplay, borderColor, backgroundColor, layout, textColor)
         self.gameSpaces[title] = aEndGameRule
         self.endGameRule = aEndGameRule
 
@@ -1863,6 +1869,24 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layoutOfModel.addGameSpace(aEndGameRule)
 
         return aEndGameRule
+
+    # To create a new void widget
+    def newVoid(self, name, sizeX=200, sizeY=200):
+        """
+        Create a void widget for layout management.
+
+        Args:
+            name (str): Name of the void widget
+            sizeX (int): Width in pixels (default: 200)
+            sizeY (int): Height in pixels (default: 200)
+        """
+        aVoid = SGVoid(self, name, sizeX, sizeY)
+        self.gameSpaces[name] = aVoid
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aVoid)
+
+        return aVoid
 
     
     # To create a new progress gauge

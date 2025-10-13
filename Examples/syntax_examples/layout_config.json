@@ -53,6 +53,114 @@
       "model_name": "Enhanced Grid Layout Test Model",
       "timestamp": "2025-09-17 22:27:10",
       "version": "1.0"
+    },
+    "basic arrangement": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 3,
+      "gameSpaces": {
+        "grid1": {
+          "layoutOrder": 1,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            26
+          ],
+          "manual_override": false
+        },
+        "Test TextBox": {
+          "layoutOrder": 2,
+          "position_type": "mixed",
+          "manual_position": [
+            508,
+            228
+          ],
+          "manual_override": true
+        },
+        "Test Rules": {
+          "layoutOrder": 3,
+          "position_type": "mixed",
+          "manual_position": [
+            498,
+            320
+          ],
+          "manual_override": true
+        },
+        "userSelector": {
+          "layoutOrder": 4,
+          "position_type": "mixed",
+          "manual_position": [
+            80,
+            513
+          ],
+          "manual_override": true
+        },
+        "SGDashBoard#1": {
+          "layoutOrder": 5,
+          "position_type": "mixed",
+          "manual_position": [
+            505,
+            167
+          ],
+          "manual_override": true
+        },
+        "Game Time": {
+          "layoutOrder": 6,
+          "position_type": "mixed",
+          "manual_position": [
+            506,
+            34
+          ],
+          "manual_override": true
+        },
+        "Test Void": {
+          "layoutOrder": 7,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            456
+          ],
+          "manual_override": false
+        },
+        "Actions du Joueur 1": {
+          "layoutOrder": 8,
+          "position_type": "mixed",
+          "manual_position": [
+            42,
+            424
+          ],
+          "manual_override": true
+        },
+        "Actions du Joueur 2": {
+          "layoutOrder": 9,
+          "position_type": "mixed",
+          "manual_position": [
+            345,
+            424
+          ],
+          "manual_override": true
+        },
+        "SGProgressGauge#1": {
+          "layoutOrder": 10,
+          "position_type": "mixed",
+          "manual_position": [
+            507,
+            96
+          ],
+          "manual_override": true
+        },
+        "Legend": {
+          "layoutOrder": 11,
+          "position_type": "mixed",
+          "manual_position": [
+            376,
+            27
+          ],
+          "manual_override": true
+        }
+      },
+      "model_name": null,
+      "timestamp": "2025-10-13 22:36:43",
+      "version": "1.0"
     }
   }
 }

@@ -98,3 +98,101 @@ class SGTimeLabel(SGGameSpace):
         for label in self.labels:
             somme += label.height()  + self.verticalGapBetweenLabels
         return somme
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setTitleText(self, text):
+        """
+        Set the title text of the time label.
+        
+        Args:
+            text (str): The title text
+        """
+        self.textTitle = text
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setText(text)
+            self.labelTitle.adjustSize()
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayTitle(self, display):
+        """
+        Set whether to display the title.
+        
+        Args:
+            display (bool): Whether to display the title
+        """
+        self.displayTitle = display
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayRoundNumber(self, display):
+        """
+        Set whether to display the round number.
+        
+        Args:
+            display (bool): Whether to display the round number
+        """
+        self.displayRoundNumber = display
+        if hasattr(self, 'labelRoundNumber') and self.labelRoundNumber:
+            self.labelRoundNumber.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayPhaseNumber(self, display):
+        """
+        Set whether to display the phase number.
+        
+        Args:
+            display (bool): Whether to display the phase number
+        """
+        self.displayPhaseNumber = display
+        if hasattr(self, 'labelPhaseNumber') and self.labelPhaseNumber:
+            self.labelPhaseNumber.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayPhaseName(self, display):
+        """
+        Set whether to display the phase name.
+        
+        Args:
+            display (bool): Whether to display the phase name
+        """
+        self.displayPhaseName = display
+        if hasattr(self, 'labelPhaseName') and self.labelPhaseName:
+            self.labelPhaseName.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setLabelStyle(self, style_dict):
+        """
+        Set the style of all labels.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties for labels
+        """
+        for label in self.labels:
+            style_parts = []
+            for key, value in style_dict.items():
+                if key == 'color':
+                    style_parts.append(f"color: {value}")
+                elif key == 'font_size':
+                    style_parts.append(f"font-size: {value}px")
+                elif key == 'font_family':
+                    style_parts.append(f"font-family: {value}")
+                elif key == 'font_weight':
+                    style_parts.append(f"font-weight: {value}")
+            
+            if style_parts:
+                label.setStyleSheet("; ".join(style_parts))
+        self.updateLabelsandWidgetSize()
+        self.update()

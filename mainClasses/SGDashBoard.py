@@ -334,4 +334,88 @@ class SGDashBoard(SGGameSpace):
     def getSizeYGlobal(self):
         return getattr(self, 'sizeYGlobal', 10)
 
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setTitleText(self, text):
+        """
+        Set the title text of the dashboard.
+        
+        Args:
+            text (str): The title text
+        """
+        self.textTitle = text
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setText(text)
+            self.labelTitle.adjustSize()
+        self.update()
+        
+    def setDisplayTitle(self, display):
+        """
+        Set whether to display the title.
+        
+        Args:
+            display (bool): Whether to display the title
+        """
+        self.displayTitle = display
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setVisible(display)
+        self.update()
+        
+    def setLayoutOrientation(self, orientation):
+        """
+        Set the layout orientation of the dashboard.
+        
+        Args:
+            orientation (str): 'vertical' or 'horizontal'
+        """
+        if orientation in ['vertical', 'horizontal']:
+            # Recreate layout with new orientation
+            if orientation == 'vertical':
+                self.layout = QtWidgets.QVBoxLayout()
+            else:
+                self.layout = QtWidgets.QHBoxLayout()
+            
+            # Re-add all widgets to new layout
+            if self.displayTitle and hasattr(self, 'labelTitle'):
+                self.layout.addWidget(self.labelTitle)
+            for indicator in self.indicators:
+                if indicator.isDisplay and hasattr(indicator, 'label'):
+                    self.layout.addWidget(indicator.label)
+            
+            self.setLayout(self.layout)
+            self.updateLabelsandWidgetSize()
+        else:
+            raise ValueError("Orientation must be 'vertical' or 'horizontal'")
+        
+    def setIndicatorStyle(self, style_dict):
+        """
+        Set the style of all indicators.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties for indicators
+        """
+        for indicator in self.indicators:
+            if hasattr(indicator, 'label') and indicator.label:
+                style_parts = []
+                for key, value in style_dict.items():
+                    if key == 'color':
+                        style_parts.append(f"color: {value}")
+                    elif key == 'font_size':
+                        style_parts.append(f"font-size: {value}px")
+                    elif key == 'font_family':
+                        style_parts.append(f"font-family: {value}")
+                    elif key == 'font_weight':
+                        style_parts.append(f"font-weight: {value}")
+                
+                if style_parts:
+                    indicator.label.setStyleSheet("; ".join(style_parts))
+        self.updateLabelsandWidgetSize()
+        self.update()
+
     
