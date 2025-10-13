@@ -61,10 +61,26 @@ class SGGrid(SGGameSpace):
             # Width: columns * size + columns * gap + half hexagon for offset + frame margins
             # Height: rows * (size * 0.75) + gap + frame margins
             new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
-            new_height = int(self.rows * (self.size * 0.75) + self.gap + 2 * self.frameMargin)
-            self.setMinimumSize(new_width, new_height)
+            # Mathematical calculation for "Pointy-top hex grid with even-r offset"
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+            self.setFixedSize(new_width, new_height)
         painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
         painter.end()
+
+    def _calculate_hexagonal_adaptive_factor(self):
+        """
+        Calculate adaptive factor for hexagonal grid height calculation.
+        Based on number of rows to prevent clipping with few rows.
+        
+        Returns:
+            float: Adaptive factor for hex_height calculation
+        """
+        if self.rows >= 10:
+            return 0.78  # Stable value for grids with many rows
+        else:
+            return 0.78 + abs(10 - self.rows) * 0.025  # Progressive growth for few rows
 
     # ============================================================================
     # ZOOM FUNCTIONALITY
@@ -138,11 +154,14 @@ class SGGrid(SGGameSpace):
             new_height = int(self.rows * self.size + (self.rows + 1) * self.gap) + 1 + 2 * self.frameMargin
         elif self.cellShape == "hexagonal":
             # Width: columns * size + columns * gap + half hexagon for offset + frame margins
-            # Height: rows * (size * 0.75) + gap + frame margins
+            # Height: rows * (size * 0.75) + (rows-1) * gap + frame margins
             new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
-            new_height = int(self.rows * (self.size * 0.75) + self.gap + 2 * self.frameMargin)
+            # Mathematical calculation for "Pointy-top hex grid with even-r offset"
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
         
-        self.setMinimumSize(new_width, new_height)
+        self.setFixedSize(new_width, new_height)
         
         # Update all cells first
         for cell in self.getCells():
@@ -251,9 +270,29 @@ class SGGrid(SGGameSpace):
 
     def getSizeYGlobal(self):
         if (self.cellShape == "square"):
-            return int(self.rows*self.size+(self.rows+1)*self.gap)
+            return int(self.rows*self.size+(self.rows+1)*self.gap + 2 * self.frameMargin)
         if (self.cellShape == "hexagonal"):
-            return int(self.rows*(self.size*0.75) + self.gap)
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            return int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+
+    def sizeHint(self):
+        """Return the recommended size for the grid widget"""
+        if (self.cellShape == "square"):
+            width = int(self.columns*self.size+(self.columns+1)*self.gap + 2*self.frameMargin)
+            height = int(self.rows*self.size+(self.rows+1)*self.gap + 2*self.frameMargin)
+        elif (self.cellShape == "hexagonal"):
+            width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+        else:
+            width = height = 100  # Default fallback
+        return QSize(width, height)
+
+    def minimumSizeHint(self):
+        """Return the minimum size for the grid widget"""
+        return self.sizeHint()
 
     # To get all the values possible for Legend
     def getValuesForLegend(self):
