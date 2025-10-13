@@ -1726,9 +1726,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             #Case for action on a Entity
             aType = self.getEntityType(object_type)
         # if aType is None : raise ValueError('Wrong format of entityDef')
-        # todo these 2 lines are useless
-        # if isinstance(aType,SGEntityDef) and setControllerContextualMenu:
-        #     aType.updateMenu=True
+
 
         aActivateAction = SGActivate(aType, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
 
@@ -1806,6 +1804,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aModelAction.id = self.id_modelActions
         return aModelAction
 
+    # To create a new simulation variable
+    def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):
+        aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
+        self.simulationVariables.append(aSimVar)
+        return aSimVar
+
+# ============================================================================
+# NEW GAME SPACES (apart from grids)
+# ============================================================================
+
     # To create a new dashboard
     def newDashBoard(self, title=None, borderColor=Qt.black, borderSize=1, backgroundColor=QColor(230, 230, 230), textColor=Qt.black, layout ='vertical'):
         """  Qt.lightGray
@@ -1844,11 +1852,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return aEndGameRule
 
-    # To create a new simulation variable
-    def newSimVariable(self,name,initValue,color=Qt.black,isDisplay=True):
-        aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
-        self.simulationVariables.append(aSimVar)
-        return aSimVar
     
     # To create a new progress gauge
     def newProgressGauge(self,simVar,minimum=0,maximum=100, title=None,orientation="horizontal",colorRanges=None,unit="",

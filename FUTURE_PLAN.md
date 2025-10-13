@@ -15,6 +15,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Main window auto resize
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
 - [ ] create a "Theme system" to apply ready-to-use gs_aspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
+- [ ] Uniformize font style management across all GameSpaces classes (see UNIFORMIZE_FONT_STYLES_GAMESPACES.md for analysis)
 
 ### POV System & Visual Elements
 - [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies

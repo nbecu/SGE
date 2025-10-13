@@ -16,9 +16,6 @@ squareCell.newPov("base", "terrain", {
     "rock": Qt.darkGray
 })
 
-# Position the grid
-squareCell.grid.moveToCoords(50, 50)
-
 # Create agents with different locations
 # Top-left agents
 TopLeftAgents = myModel.newAgentType("TopLeft", "triangleAgent1", defaultSize=8, defaultColor=Qt.red, locationInEntity="topLeft")
@@ -57,7 +54,6 @@ CenterAgents.newAgentsAtRandom(3, squareCell, condition=lambda c: c.isValue("ter
 
 # Create a legend
 aLegend = myModel.newLegend()
-aLegend.moveToCoords(400, 50)
 
 # Create instructions
 aTextBox = myModel.newTextBox(
@@ -66,9 +62,8 @@ aTextBox = myModel.newTextBox(
     "Magenta = bottomRight, White = center\n"
     "Move mouse over the grid and use mouse wheel to zoom in/out.\n"
     "Check that all agents maintain their relative positions.",
-    title="Multi-Location Agent Zoom Test", sizeY=120
+    title="Multi-Location Agent Zoom Test"
 )
-aTextBox.moveToCoords(400, 200)
-
+aTextBox.setTextFormat(fontName="Arial", size=10)
 myModel.launch()
 sys.exit(monApp.exec_())

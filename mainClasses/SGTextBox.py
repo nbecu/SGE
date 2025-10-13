@@ -42,6 +42,7 @@ class SGTextBox(SGGameSpace):
         self.gs_aspect.border_size = 1
         self.sizeX = sizeX
         self.sizeY = sizeY
+        self.min_height_for_long_text = 100  # Minimum height for text longer than 100 characters
         self.y1 = 0
         self.labels = 0
         self.moveable = True
@@ -67,13 +68,12 @@ class SGTextBox(SGGameSpace):
             self.textWidget.setPlainText(self.textToWrite)
             self.textWidget.setReadOnly(True)
             self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.textWidget.setStyleSheet(
-                "border: none;background-color: lightgray;")
         else:  # Use QLabel for short texts
             self.textWidget = QtWidgets.QLabel(self.textToWrite)
             self.textWidget.setWordWrap(True)
-            self.textWidget.setStyleSheet(
-                "border: none;background-color: lightgray;")
+        
+        # Apply common styling
+        self.textWidget.setStyleSheet("border: none;background-color: lightgray;")
         
         # Store reference for compatibility
         self.textEdit = self.textWidget
@@ -125,22 +125,31 @@ class SGTextBox(SGGameSpace):
         # Use manual size if specified
         if self.sizeY is not None:
             return self.sizeY
-            
-        # Use actual layout size if available
-        if hasattr(self, 'textLayout') and self.textLayout:
-            # Force layout to calculate its size
-            self.textLayout.activate()
-            size_hint = self.textLayout.sizeHint()
-            if size_hint and size_hint.isValid():
-                return max(size_hint.height() + self.size_manager.vertical_gap_between_labels, self.size_manager.min_height)
         
-        # Fallback: use size_manager to calculate height based on content
+        # Always use font-based calculation for accurate height
         if hasattr(self, 'textEdit') and self.textEdit:
             if hasattr(self.textEdit, 'toPlainText'):
                 text_content = self.textEdit.toPlainText()
             else:
                 text_content = self.textEdit.text()
-            return self.calculateContentHeight(text_content=text_content)
+            
+            # Get the actual font from the text widget for accurate height calculation
+            text_font = self.textEdit.font() if hasattr(self.textEdit, 'font') else None
+            calculated_height = self.calculateContentHeight(text_content=text_content, font=text_font)
+            
+            # Add height for title if it exists
+            if hasattr(self, 'labelTitle') and self.labelTitle:
+                title_font = self.labelTitle.font()
+                # Use QFontMetrics for accurate title height calculation
+                title_metrics = QFontMetrics(title_font)
+                title_height = title_metrics.height() + self.size_manager.vertical_gap_between_labels
+                calculated_height += title_height
+            
+            # Use higher minimum height for long text
+            min_height = self.min_height_for_long_text if len(text_content) > 100 else self.size_manager.min_height
+            
+            return max(calculated_height, min_height)
+        
         return self.size_manager.min_height
 
     def paintEvent(self, event):
@@ -223,7 +232,8 @@ class SGTextBox(SGGameSpace):
             newText = self.textEdit.text() + self.new_text
             self.textEdit.setText(newText)
         # Automatically adjust size to new content
-        self.adjustSizeToContent(text_content=newText)
+        text_font = self.textEdit.font() if hasattr(self.textEdit, 'font') else None
+        self.adjustSizeToContent(text_content=newText, font=text_font)
         #self.history.append(self.textForHistory)
 
     def setNewText(self, text):
@@ -239,7 +249,8 @@ class SGTextBox(SGGameSpace):
         else:
             self.textEdit.setText(text)
         # Automatically adjust size to new content
-        self.adjustSizeToContent(text_content=text)
+        text_font = self.textEdit.font() if hasattr(self.textEdit, 'font') else None
+        self.adjustSizeToContent(text_content=text, font=text_font)
 
     def setTitle(self, title):
         """
@@ -264,6 +275,25 @@ class SGTextBox(SGGameSpace):
         """
         font = QFont(fontName, size)
         self.textEdit.setFont(font)
+        
+        # Force layout to recalculate its size with new font
+        if hasattr(self, 'textLayout') and self.textLayout:
+            self.textLayout.activate()
+            # Force widgets to update their size hints
+            self.textEdit.updateGeometry()
+            self.labelTitle.updateGeometry()
+        
+        # Recalculate height after font change
+        if hasattr(self.textEdit, 'toPlainText'):
+            text_content = self.textEdit.toPlainText()
+        else:
+            text_content = self.textEdit.text()
+        
+        # Adjust size to new font
+        self.adjustSizeToContent(text_content=text_content, font=font)
+        
+        # Force repaint to update visual appearance
+        self.update()
 
     def setTitleColor(self, color='red'):
         """

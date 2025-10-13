@@ -254,7 +254,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     # SIZE MANAGEMENT METHODS
     # ============================================================================
     
-    def adjustSizeToContent(self, content_widgets=None, content_items=None, text_content=None):
+    def adjustSizeToContent(self, content_widgets=None, content_items=None, text_content=None, font=None):
         """
         Adjust game_space size to its content using the size_manager.
         
@@ -262,9 +262,10 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             content_widgets (list, optional): Content widgets
             content_items (list, optional): Content items  
             text_content (str, optional): Text content
+            font (QFont, optional): Font to use for text height calculation
         """
         self.size_manager.adjust_game_space_to_content(
-            self, content_widgets, content_items, text_content
+            self, content_widgets, content_items, text_content, font
         )
     
     def calculateContentWidth(self, content_widgets=None, text_content=None):
@@ -285,13 +286,14 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         else:
             return self.size_manager.min_width
     
-    def calculateContentHeight(self, content_items=None, text_content=None):
+    def calculateContentHeight(self, content_items=None, text_content=None, font=None):
         """
         Calculate necessary height for content.
         
         Args:
             content_items (list, optional): Content items
             text_content (str, optional): Text content
+            font (QFont, optional): Font to use for text height calculation
             
         Returns:
             int: Calculated height in pixels
@@ -299,7 +301,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         if content_items:
             return self.size_manager.calculate_content_height(content_items)
         elif text_content:
-            return self.size_manager.calculate_text_height(text_content)
+            return self.size_manager.calculate_text_height(text_content, font)
         else:
             return self.size_manager.min_height
     
