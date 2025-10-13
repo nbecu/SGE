@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(650, 600, windowTitle="Test zoom - two different grids")
+myModel = SGModel(650, 600, windowTitle="Test zoom - two different grids",nb_columns=2)
 
 
 # Create a second  grid
@@ -21,7 +21,6 @@ SeaCell.newPov("base", "seascape", {
     "littoral": QColor.fromRgb(238, 214, 171), # Approximation for "sandy" color 
     "seamount": QColor.fromRgb(139, 69, 19)    # Qt.brown
 })
-SeaCell.grid.moveToCoords(20, 50)
 
 
 # Create a first  grid
@@ -30,7 +29,6 @@ LandCell.setEntities("landForm", "plain")
 LandCell.setRandomEntities("landForm", "mountain", 4)
 LandCell.newPov("base", "landForm", {"plain": Qt.green, "mountain": Qt.darkGray})
 
-LandCell.grid.moveToCoords(20, 410)
 
 # Create some agents
 Cows = myModel.newAgentType("Cows", "rectAgent1", defaultSize=25, defaultColor=Qt.white, locationInEntity="bottomLeft")
@@ -52,14 +50,12 @@ Fishes.newAgentsAtRandom(7, SeaCell)
 
 
 aLegend = myModel.newLegend()
-aLegend.moveToCoords(300, 25)
 
 aTextBox = myModel.newTextBox(
     "Test zoom on the different grids.\n"
     "Move the mouse over the grids and use the mouse wheel to zoom in/out.",
     title="Zoom Instructions", sizeY=100
 )
-aTextBox.moveToCoords(350, 250)
 
 myModel.launch()
 sys.exit(monApp.exec_())

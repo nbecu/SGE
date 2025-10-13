@@ -11,7 +11,6 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Refactor SGModel: Extract Game Action Export (lines 458-824) and Layout Management (lines 1271-1424) methods into separate classes using composition pattern
 
 ### User Interface & Display
-- [ ] Correct the zoom model menu 
 - [ ] Main window auto resize
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
 - [ ] create a "Theme system" to apply ready-to-use gs_aspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
@@ -51,6 +50,13 @@ This document contains the planned improvements and features for the SGE (Simula
 
 
 ## Completed Items
+
+- [x] Correct the zoom model menu (Dec 2024)
+  - ✅ Implemented zoomPlusModel() to zoom in all grids
+  - ✅ Implemented zoomLessModel() to zoom out all grids  
+  - ✅ Implemented zoomFitModel() to reset zoom for all grids
+  - ✅ Connected menu bar icons to working zoom functionality
+  - ✅ Used getGrids() method to iterate through all model grids
 
 - [x] Create a system to extract automatically all modeler methods, to generate a SGE methods Glossary (kind of user technical guide) (Sept 2025)
 

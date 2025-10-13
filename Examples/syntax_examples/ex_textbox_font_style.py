@@ -17,43 +17,49 @@ squareCell.newPov("base", "terrain", {
 # Test text content
 testText = "Font Style Test:\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5"
 
-# Create TextBox with Arial font size 12
+# Create TextBox with Arial font size 12 - Title left aligned (default)
 textBox1 = myModel.newTextBox(
     testText,
-    title="1. Arial 12"
+    title="1. Arial 12 Left",
+    titleAlignment='left'
 )
 textBox1.setTextFormat(fontName="Arial", size=12)
 
-# Create TextBox with Times New Roman font size 12
+# Create TextBox with Times New Roman font size 12 - Title centered
 textBox2 = myModel.newTextBox(
     testText,
-    title="2. Times New Roman 12"
+    title="2. Times New Roman 12 Center",
+    titleAlignment='center'
 )
 textBox2.setTextFormat(fontName="Times New Roman", size=12)
 
-# Create TextBox with Verdana font size 12
+# Create TextBox with Verdana font size 12 - Title right aligned
 textBox3 = myModel.newTextBox(
     testText,
-    title="3. Verdana 12"
+    title="3. Verdana 12 Right",
+    titleAlignment='right'
 )
 textBox3.setTextFormat(fontName="Verdana", size=12)
 
-# Create TextBox with different sizes of same font
+# Create TextBox with different sizes of same font - All centered for comparison
 textBox4 = myModel.newTextBox(
     testText,
-    title="4. Arial 10"
+    title="4. Arial 10 Center",
+    titleAlignment='center'
 )
 textBox4.setTextFormat(fontName="Arial", size=10)
 
 textBox5 = myModel.newTextBox(
     testText,
-    title="5. Arial 16"
+    title="5. Arial 16 Center",
+    titleAlignment='center'
 )
 textBox5.setTextFormat(fontName="Arial", size=16)
 
 textBox6 = myModel.newTextBox(
     testText,
-    title="6. Arial 20"
+    title="6. Arial 20 Center",
+    titleAlignment='center'
 )
 textBox6.setTextFormat(fontName="Arial", size=20)
 
@@ -62,8 +68,9 @@ longText1 = "This is a very long text that should cause automatic line wrapping 
 
 textBox7 = myModel.newTextBox(
     longText1,
-    title="7. Long Text Arial 12",
-    sizeY=150
+    title="7. Long Text Arial 12 Left",
+    sizeY=150,
+    titleAlignment='left'
 )
 textBox7.setTextFormat(fontName="Arial", size=12)
 
@@ -71,7 +78,8 @@ longText2 = "Another extremely long text example with different content that wil
 
 textBox8 = myModel.newTextBox(
     longText2,
-    title="8. Long Text Arial 14"
+    title="8. Long Text Arial 14 Center",
+    titleAlignment='center'
 )
 textBox8.setTextFormat(fontName="Arial", size=14)
 
@@ -79,7 +87,8 @@ longText3 = "This is the third long text example with even more content to test 
 
 textBox9 = myModel.newTextBox(
     longText3,
-    title="9. Long Text Arial 16"
+    title="9. Long Text Arial 16 Right",
+    titleAlignment='right'
 )
 textBox9.setTextFormat(fontName="Arial", size=16)
 
@@ -91,8 +100,10 @@ instructions = myModel.newTextBox(
     "TextBox Height Test - Report format:\n"
     "Use: 'Box X: OK' or 'Box X: rogné haut' or 'Box X: rogné bas' or 'Box X: rogné haut+bas'\n"
     "Example: 'Box 1: OK, Box 2: rogné bas, Box 3: rogné haut+bas'\n"
-    "Test Box 7-9 for long text wrapping behavior.",
-    title="Instructions"
+    "Test Box 7-9 for long text wrapping behavior.\n"
+    "NEW: Test title alignment - Box 1: Left, Box 2: Center, Box 3: Right",
+    title="Instructions",
+    titleAlignment='center'
 )
 instructions.setTextFormat(fontName="Arial", size=12)
 

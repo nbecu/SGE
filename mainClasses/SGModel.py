@@ -923,13 +923,25 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # Zoom
     def zoomPlusModel(self):
-        pass
+        """
+        Zoom in all grids in the model
+        """
+        for grid in self.getGrids():
+            grid.newZoomIn()
 
     def zoomLessModel(self):
-        pass
+        """
+        Zoom out all grids in the model
+        """
+        for grid in self.getGrids():
+            grid.newZoomOut()
 
     def zoomFitModel(self):
-        pass
+        """
+        Reset zoom for all grids in the model
+        """
+        for grid in self.getGrids():
+            grid.resetZoom()
 
     # open graph windows
     def openLinearGraph(self):
@@ -1992,7 +2004,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # To create a Text Box
     def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None,
-     borderColor=Qt.black, backgroundColor=Qt.lightGray):
+     borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
         """
         Create a text box with full customization options.
 
@@ -2003,11 +2015,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             sizeY (int, optional): Manual height override for the text box
             borderColor (QColor): Border color of the text box (default: Qt.black)
             backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
+            titleAlignment (str): Title alignment - 'left', 'center', or 'right' (default: 'left')
 
         Returns:
             SGTextBox: The created text box widget
         """
-        aTextBox = SGTextBox(self, textToWrite, title, sizeX, sizeY, borderColor, backgroundColor)
+        aTextBox = SGTextBox(self, textToWrite, title, sizeX, sizeY, borderColor, backgroundColor, titleAlignment)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
 

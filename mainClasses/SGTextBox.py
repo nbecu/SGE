@@ -32,7 +32,7 @@ class SGTextBox(SGGameSpace):
         borderColor (QColor): Border color (default: Qt.black)
         backgroundColor (QColor): Background color (default: Qt.lightGray)
     """
-    def __init__(self, parent, textToWrite, title, sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray):
+    def __init__(self, parent, textToWrite, title, sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.title = title
         self.id = title
@@ -42,7 +42,8 @@ class SGTextBox(SGGameSpace):
         self.gs_aspect.border_size = 1
         self.sizeX = sizeX
         self.sizeY = sizeY
-        self.min_height_for_long_text = 100  # Minimum height for text longer than 100 characters
+        self.min_height_for_long_text = 150  # Minimum height for text longer than 100 characters
+        self.titleAlignment = titleAlignment
         self.y1 = 0
         self.labels = 0
         self.moveable = True
@@ -61,19 +62,51 @@ class SGTextBox(SGGameSpace):
         font.setPixelSize(14)
         font.setBold(True)
         self.labelTitle.setFont(font)
+        
+        # Set title alignment
+        if self.titleAlignment == 'center':
+            self.labelTitle.setAlignment(Qt.AlignCenter)
+        elif self.titleAlignment == 'right':
+            self.labelTitle.setAlignment(Qt.AlignRight)
+        else:  # default to 'left'
+            self.labelTitle.setAlignment(Qt.AlignLeft)
 
         # Create appropriate widget based on text length
         if len(self.textToWrite) > 100:  # Use QTextEdit for long texts
             self.textWidget = QtWidgets.QTextEdit()
             self.textWidget.setPlainText(self.textToWrite)
             self.textWidget.setReadOnly(True)
-            self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # Show scrollbar when needed
         else:  # Use QLabel for short texts
             self.textWidget = QtWidgets.QLabel(self.textToWrite)
             self.textWidget.setWordWrap(True)
         
         # Apply common styling
-        self.textWidget.setStyleSheet("border: none;background-color: lightgray;")
+        if len(self.textToWrite) > 100:  # QTextEdit styling
+            self.textWidget.setStyleSheet("""
+                QTextEdit {
+                    border: none;
+                    background-color: lightgray;
+                }
+                QTextEdit QScrollBar:vertical {
+                    background: rgba(200, 200, 200, 100);
+                    width: 6px;
+                    border-radius: 3px;
+                }
+                QTextEdit QScrollBar::handle:vertical {
+                    background: rgba(150, 150, 150, 150);
+                    border-radius: 3px;
+                    min-height: 15px;
+                }
+                QTextEdit QScrollBar::handle:vertical:hover {
+                    background: rgba(120, 120, 120, 200);
+                }
+                QTextEdit QScrollBar::add-line:vertical, QTextEdit QScrollBar::sub-line:vertical {
+                    height: 0px;
+                }
+            """)
+        else:  # QLabel styling
+            self.textWidget.setStyleSheet("border: none; background-color: lightgray;")
         
         # Store reference for compatibility
         self.textEdit = self.textWidget
