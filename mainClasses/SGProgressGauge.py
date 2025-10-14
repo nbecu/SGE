@@ -74,19 +74,33 @@ class SGProgressGauge(SGGameSpace):
         # Init UI
         self.init_ui()
 
+        # Apply text aspects to labels and compute initial size
+        try:
+            self.onTextAspectsChanged()
+        except Exception:
+            pass
+
         # Initial value update
         self.checkAndUpdate()
 
-         # adjust the size of the label according to its style font and border. Then redefine the size of the widget according to the size of the geometry of the label 
-        self.adjustSize()   
-        self.setFixedSize(self.geometry().size())
+        # Prefer layout-based sizing
+        try:
+            if hasattr(self, 'layout') and self.layout is not None:
+                self.updateSizeFromLayout(self.layout)
+        except Exception:
+            pass
 
 
     def init_ui(self):
         """Initialize the progress gauge UI components."""
         layout = QVBoxLayout() if self.orientation == 'vertical' else QHBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
-        layout.setContentsMargins(5, 5, 5, 5)  # margin for border
+        # Marges cohérentes avec les autres GameSpaces
+        try:
+            layout.setContentsMargins(4, 0, self.rightMargin, self.verticalGapBetweenLabels)
+            layout.setSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
 
         # Title label
         if self.title_text is not None:
@@ -147,18 +161,46 @@ class SGProgressGauge(SGGameSpace):
             if self.title_text is not None and self.title_position == 'below' : vbox.addWidget(self.title_label)
             layout.addLayout(vbox)
 
+        # Conserver une référence pour updateSizeFromLayout
+        self.layout = layout
         self.setLayout(layout)
 
     def paintEvent(self, event):
-        """Custom paint to draw a border around the widget."""
+        """Custom container rendering: background (with transparency), border style and radius."""
         super().paintEvent(event)
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        pen = QPen(self.gs_aspect.getBorderColorValue())
-        pen.setWidth(self.gs_aspect.getBorderSize())
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        # Background with transparency
+        bg = self.gs_aspect.getBackgroundColorValue()
+        if bg.alpha() == 0:
+            painter.setBrush(Qt.NoBrush)
+        else:
+            painter.setBrush(QBrush(bg, Qt.SolidPattern))
+
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
         painter.setPen(pen)
-        painter.setBrush(QBrush(Qt.NoBrush))
-        painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        w = max(0, getattr(self, 'sizeXGlobal', self.width()) - 1)
+        h = max(0, getattr(self, 'sizeYGlobal', self.height()) - 1)
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, w, h, radius, radius)
+        else:
+            painter.drawRect(0, 0, w, h)
 
     def checkAndUpdate(self):
         """Update the progress bar according to the current SimVariable value."""
@@ -210,11 +252,11 @@ class SGProgressGauge(SGGameSpace):
 
     def getSizeXGlobal(self):
         """Return the global X size of the gauge."""
-        return self.width()
+        return getattr(self, 'sizeXGlobal', self.width())
 
     def getSizeYGlobal(self):
         """Return the global Y size of the gauge."""
-        return self.height()
+        return getattr(self, 'sizeYGlobal', self.height())
 
     # ============================================================================
     # MODELER METHODS
@@ -231,7 +273,7 @@ class SGProgressGauge(SGGameSpace):
         Args:
             color (QColor or Qt.GlobalColor): The border color
         """
-        self.gs_aspect.border_color = color
+        super().setBorderColor(color)
         
     def setBorderSize(self, size):
         """
@@ -240,7 +282,7 @@ class SGProgressGauge(SGGameSpace):
         Args:
             size (int): The border size in pixels
         """
-        self.gs_aspect.border_size = size
+        super().setBorderSize(size)
         
     def setBackgroundColor(self, color):
         """
@@ -249,8 +291,95 @@ class SGProgressGauge(SGGameSpace):
         Args:
             color (QColor or Qt.GlobalColor): The background color
         """
-        self.gs_aspect.background_color = color
-        # Update the progress bar palette
-        palette = self.progress_bar.palette()
-        palette.setColor(QPalette.Base, self.gs_aspect.getBackgroundColorValue())
-        self.progress_bar.setPalette(palette)
+        super().setBackgroundColor(color)
+        # Update the progress bar palette to reflect container background when relevant
+        try:
+            palette = self.progress_bar.palette()
+            palette.setColor(QPalette.Base, self.gs_aspect.getBackgroundColorValue())
+            self.progress_bar.setPalette(palette)
+        except Exception:
+            pass
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        # Title styling (title1_aspect)
+        if hasattr(self, 'title_label') and self.title_label is not None:
+            css_parts = []
+            if self.title1_aspect.color:
+                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
+            td = getattr(self.title1_aspect, 'text_decoration', None)
+            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+            f = self.title_label.font()
+            if self.title1_aspect.font:
+                f.setFamily(self.title1_aspect.font)
+            if self.title1_aspect.size:
+                try:
+                    f.setPixelSize(int(self.title1_aspect.size))
+                except Exception:
+                    pass
+            if self.title1_aspect.font_weight:
+                w = str(self.title1_aspect.font_weight).lower()
+                if w == 'bold':
+                    f.setBold(True)
+                elif w == 'normal':
+                    f.setBold(False)
+                else:
+                    try:
+                        f.setWeight(int(self.title1_aspect.font_weight))
+                    except Exception:
+                        pass
+            if self.title1_aspect.font_style:
+                s = str(self.title1_aspect.font_style).lower()
+                f.setItalic(s in ('italic', 'oblique'))
+            self.title_label.setFont(f)
+            self.title_label.setStyleSheet("; ".join(css_parts))
+
+        # Value label styling (text1_aspect)
+        if hasattr(self, 'value_label') and self.value_label is not None:
+            css_parts = []
+            if self.text1_aspect.color:
+                css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
+            td = getattr(self.text1_aspect, 'text_decoration', None)
+            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+            f = self.value_label.font()
+            if self.text1_aspect.font:
+                f.setFamily(self.text1_aspect.font)
+            if self.text1_aspect.size:
+                try:
+                    f.setPixelSize(int(self.text1_aspect.size))
+                except Exception:
+                    pass
+            if self.text1_aspect.font_weight:
+                w = str(self.text1_aspect.font_weight).lower()
+                if w == 'bold':
+                    f.setBold(True)
+                elif w == 'normal':
+                    f.setBold(False)
+                else:
+                    try:
+                        f.setWeight(int(self.text1_aspect.font_weight))
+                    except Exception:
+                        pass
+            if self.text1_aspect.font_style:
+                s = str(self.text1_aspect.font_style).lower()
+                f.setItalic(s in ('italic', 'oblique'))
+            self.value_label.setFont(f)
+            self.value_label.setStyleSheet("; ".join(css_parts))
+
+        # Resize to content
+        if hasattr(self, 'layout') and self.layout is not None:
+            self.updateSizeFromLayout(self.layout)
+        self.update()
+
+    # =========================
+    # SIZE UPDATE UTILITIES
+    # =========================
+    def updateLabelsandWidgetSize(self):
+        if hasattr(self, 'layout') and self.layout is not None:
+            self.updateSizeFromLayout(self.layout)

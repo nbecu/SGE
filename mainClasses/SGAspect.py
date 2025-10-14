@@ -253,6 +253,12 @@ class SGAspect():
     #     return self.background_color
     
     def getBackgroundColorValue(self):
+        if self.background_color is None:
+            return QColor(Qt.transparent)
+        if isinstance(self.background_color, str) and self.background_color.lower() == 'transparent':
+            c = QColor(0, 0, 0)
+            c.setAlpha(0)
+            return c
         return QColor(self.background_color)
     
     def getBackgroundColorValue_whenDisactivated(self):
@@ -337,6 +343,9 @@ class SGAspect():
         if color is None:
             return None
         try:
+            # Explicit transparent support
+            if isinstance(color, str) and color.lower() == 'transparent':
+                return 'transparent'
             # If it's already a QColor, get its name
             if hasattr(color, 'name'):
                 return color.name()

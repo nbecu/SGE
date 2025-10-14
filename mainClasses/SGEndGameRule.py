@@ -40,11 +40,11 @@ class SGEndGameRule(SGGameSpace):
         if self.isDisplay:
             layout = self.layout
 
-            title = QtWidgets.QLabel(self.id)
+            self.titleLabel = QtWidgets.QLabel(self.id)
             font = QFont()
             font.setBold(True)
-            title.setFont(font)
-            layout.addWidget(title)
+            self.titleLabel.setFont(font)
+            layout.addWidget(self.titleLabel)
             for condition in self.endGameConditions:
                 layout.addLayout(condition.conditionLayout)
 
@@ -56,6 +56,8 @@ class SGEndGameRule(SGGameSpace):
                 layout.addWidget(self.button)
 
             self.setLayout(layout)
+            # Apply text aspects (title1/text1) now that widgets exist
+            self.onTextAspectsChanged()
             # Adjust size after layout configuration
             self.adjustSizeAfterLayout()
             self.show()
@@ -142,23 +144,39 @@ class SGEndGameRule(SGGameSpace):
 
     def paintEvent(self, event):
         if self.checkDisplay():
-            painter = QPainter()
-            painter.begin(self)
-            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-            
-            # Dynamic size calculation based on actual layout
-            width = self.getSizeXGlobal()
-            height = self.getSizeYGlobal()
-            
-            # Adjust widget size to calculated content
-            self.setMinimumSize(width, height)
-            self.resize(width, height)
-            
-            # Draw the corner of the DB
-            painter.drawRect(0, 0, width - 1, height - 1)
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing, True)
 
-            painter.end()
+            # Background (support transparent)
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+
+            # Pen with style mapping
+            pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+            style_map = {
+                'solid': Qt.SolidLine,
+                'dotted': Qt.DotLine,
+                'dashed': Qt.DashLine,
+                'double': Qt.SolidLine,
+                'groove': Qt.SolidLine,
+                'ridge': Qt.SolidLine,
+                'inset': Qt.SolidLine,
+            }
+            bs = getattr(self.gs_aspect, 'border_style', None)
+            if isinstance(bs, str) and bs.lower() in style_map:
+                pen.setStyle(style_map[bs.lower()])
+            painter.setPen(pen)
+
+            width = max(0, self.getSizeXGlobal() - 1)
+            height = max(0, self.getSizeYGlobal() - 1)
+            radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+            if radius > 0:
+                painter.drawRoundedRect(0, 0, width, height, radius, radius)
+            else:
+                painter.drawRect(0, 0, width, height)
 
     def checkDisplay(self):
         if self.isDisplay:
@@ -182,6 +200,103 @@ class SGEndGameRule(SGGameSpace):
                 # Apply calculated size
                 self.setMinimumSize(width, height)
                 self.resize(width, height)
+
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
+
+        def _map_alignment(al):
+            if not isinstance(al, str):
+                return None
+            a = al.lower()
+            if a == 'left':
+                return Qt.AlignLeft | Qt.AlignVCenter
+            if a == 'right':
+                return Qt.AlignRight | Qt.AlignVCenter
+            if a in ('center', 'hcenter'):
+                return Qt.AlignHCenter | Qt.AlignVCenter
+            if a == 'top':
+                return Qt.AlignTop | Qt.AlignHCenter
+            if a == 'bottom':
+                return Qt.AlignBottom | Qt.AlignHCenter
+            if a == 'vcenter':
+                return Qt.AlignVCenter | Qt.AlignHCenter
+            if a == 'justify':
+                return Qt.AlignJustify
+            return None
+
+        def _apply_aspect_to_label(lbl: QtWidgets.QLabel, aspect: SGAspect):
+            try:
+                f = lbl.font()
+                if aspect.font:
+                    f.setFamily(aspect.font)
+                if aspect.size:
+                    try:
+                        f.setPixelSize(int(aspect.size))
+                    except Exception:
+                        pass
+                # font weight
+                if aspect.font_weight:
+                    w = str(aspect.font_weight).lower()
+                    if w == 'bold':
+                        f.setBold(True)
+                    elif w == 'normal':
+                        f.setBold(False)
+                    else:
+                        try:
+                            num = int(aspect.font_weight)
+                            # map 100-900 roughly to QFont weights
+                            f.setWeight(num)
+                        except Exception:
+                            pass
+                # font style
+                if aspect.font_style:
+                    s = str(aspect.font_style).lower()
+                    if s in ('italic', 'oblique'):
+                        f.setItalic(True)
+                    elif s == 'normal':
+                        f.setItalic(False)
+                lbl.setFont(f)
+
+                # alignment
+                al = _map_alignment(getattr(aspect, 'alignment', None))
+                if al is not None:
+                    lbl.setAlignment(al)
+
+                # stylesheet for color and text-decoration (always write decoration)
+                css_parts = []
+                if aspect.color:
+                    css_parts.append(f"color: {SGAspect()._qt_color_to_css(aspect.color)}")
+                td = getattr(aspect, 'text_decoration', None)
+                if td and str(td).lower() != 'none':
+                    css_parts.append(f"text-decoration: {td}")
+                else:
+                    css_parts.append("text-decoration: none")
+                lbl.setStyleSheet("; ".join(css_parts))
+            except Exception:
+                pass
+
+        # Title styling from title1_aspect
+        if hasattr(self, 'titleLabel') and self.titleLabel is not None:
+            _apply_aspect_to_label(self.titleLabel, self.title1_aspect)
+
+        # Apply text1_aspect to all other labels (conditions text)
+        for lbl in self.findChildren(QtWidgets.QLabel):
+            if hasattr(self, 'titleLabel') and lbl is self.titleLabel:
+                continue
+            _apply_aspect_to_label(lbl, self.text1_aspect)
+
+        # Request layout/size update
+        try:
+            if hasattr(self, 'layout') and self.layout:
+                self.layout.activate()
+            self.adjustSizeAfterLayout()
+        except Exception:
+            pass
+        self.update()
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):

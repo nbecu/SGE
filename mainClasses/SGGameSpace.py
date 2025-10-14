@@ -46,6 +46,12 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.size_manager = SGGameSpaceSizeManager()
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
+        # QSS object name (avoid '#') for id-specific styling on container only
+        self._qss_object_name = self.id.replace('#', '_')
+        self.setObjectName(self._qss_object_name)
+        # Theme tracking
+        self.current_theme_name = None
+        self.theme_overridden = False
         
         # Enhanced Grid Layout system
         self.layoutOrder = None  # Position ID for Enhanced Grid Layout
@@ -234,21 +240,25 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
     #Function to set the color of the background of the gameSpace 
     def setColor(self,aColor):
         self.gs_aspect.background_color=aColor
+        self.theme_overridden = True
         
         
     def setTitlesAndTextsColor(self, textColor):
         self.setTitlesColor(textColor)
         self.setTextsColor(textColor)
+        self.theme_overridden = True
 
     # Apply textColor to each title
     def setTitlesColor(self, textColor):
         for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect]:
             aspect.color = textColor  
+        self.theme_overridden = True
 
     # Apply textColor to each text
     def setTextsColor(self, textColor):
         for aspect in [self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.color = textColor 
+        self.theme_overridden = True
     
     # ============================================================================
     # SIZE MANAGEMENT METHODS
@@ -418,8 +428,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             color (QColor or Qt.GlobalColor): The border color
         """
         self.gs_aspect.border_color = color
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.applyContainerAspectStyle()
         self.update()
+        self.theme_overridden = True
         
     def setBorderSize(self, size):
         """
@@ -429,8 +440,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             size (int): The border size in pixels
         """
         self.gs_aspect.border_size = size
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.applyContainerAspectStyle()
         self.update()
+        self.theme_overridden = True
         
     def setBackgroundColor(self, color):
         """
@@ -440,8 +452,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             color (QColor or Qt.GlobalColor): The background color
         """
         self.gs_aspect.background_color = color
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.applyContainerAspectStyle()
         self.update()
+        self.theme_overridden = True
         
     def setTextColor(self, color):
         """
@@ -452,8 +465,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.color = color
         self.setTitlesAndTextsColor(color)
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
         self.update()
+        self.theme_overridden = True
         
     def setTitleAlignment(self, alignment):
         """
@@ -464,6 +477,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.alignment = alignment
         self.update()
+        self.theme_overridden = True
         
     def setFontFamily(self, font_family):
         """
@@ -476,6 +490,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                       self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.font = font_family
         self.update()
+        self.theme_overridden = True
         
     def setFontSize(self, size):
         """
@@ -488,8 +503,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
                       self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.size = size
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
         self.update()
+        self.theme_overridden = True
         
     def setFontWeight(self, weight):
         """
@@ -502,8 +517,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
                       self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.font_weight = weight
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
         self.update()
+        self.theme_overridden = True
         
     def setFontStyle(self, style):
         """
@@ -516,6 +531,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                       self.text1_aspect, self.text2_aspect, self.text3_aspect]:
             aspect.font_style = style
         self.update()
+        self.theme_overridden = True
         
     def setBorderRadius(self, radius):
         """
@@ -525,8 +541,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             radius (int): The border radius in pixels
         """
         self.gs_aspect.border_radius = radius
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.applyContainerAspectStyle()
         self.update()
+        self.theme_overridden = True
         
     def setPadding(self, padding):
         """
@@ -536,8 +553,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             padding (int): The padding in pixels
         """
         self.gs_aspect.padding = padding
-        self.setStyleSheet(self.gs_aspect.getExtendedStyle())
+        self.applyContainerAspectStyle()
         self.update()
+        self.theme_overridden = True
         
     def setMinWidth(self, width):
         """
@@ -548,6 +566,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.min_width = width
         self.update()
+        self.theme_overridden = True
         
     def setMinHeight(self, height):
         """
@@ -558,6 +577,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.min_height = height
         self.update()
+        self.theme_overridden = True
         
     def setWordWrap(self, wrap):
         """
@@ -568,6 +588,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.word_wrap = wrap
         self.update()
+        self.theme_overridden = True
         
     def setBackgroundImage(self, image_path):
         """
@@ -578,6 +599,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.background_image = image_path
         self.update()
+        self.theme_overridden = True
         
     def setStyle(self, style_dict):
         """
@@ -619,7 +641,115 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.setWordWrap(value)
             elif key == 'background_image':
                 self.setBackgroundImage(value)
+        self.applyContainerAspectStyle()
         self.update()
+
+    # =========================
+    # SIZE UPDATE UTILITIES
+    # =========================
+    def updateSizeFromLayout(self, layout):
+        """Generic helper to resize the GameSpace from a Qt layout sizeHint.
+
+        Adds margins using SGGameSpaceSizeManager when available, otherwise
+        falls back to local attributes (rightMargin, verticalGapBetweenLabels).
+        """
+        if not layout:
+            return
+        try:
+            layout.activate()
+            size_hint = layout.sizeHint()
+            if size_hint and size_hint.isValid():
+                right_margin = getattr(getattr(self, 'size_manager', None), 'right_margin', getattr(self, 'rightMargin', 0))
+                vertical_gap = getattr(getattr(self, 'size_manager', None), 'vertical_gap_between_labels', getattr(self, 'verticalGapBetweenLabels', 0))
+                border_padding = getattr(getattr(self, 'size_manager', None), 'border_padding', 0)
+                width = size_hint.width() + right_margin + border_padding
+                height = size_hint.height() + vertical_gap + border_padding
+                # Propagate computed sizes to attributes used by paintEvent/getters
+                self.sizeXGlobal = width
+                self.sizeYGlobal = height
+                self.setMinimumSize(width, height)
+                self.resize(width, height)
+        except Exception:
+            pass
+
+    def updateSizeFromLabels(self, labels):
+        """Generic helper to resize the GameSpace from a list of QLabel/QWidget.
+
+        Mirrors SGTimeLabel.updateLabelsandWidgetSize().
+        """
+        if not labels:
+            return
+        try:
+            for w in labels:
+                if hasattr(w, 'fontMetrics') and hasattr(w, 'text'):
+                    fm = w.fontMetrics()
+                    br = fm.boundingRect(w.text())
+                    w.setFixedWidth(br.width())
+                    w.setFixedHeight(br.height())
+                if hasattr(w, 'adjustSize'):
+                    w.adjustSize()
+
+            try:
+                max_right = max(w.geometry().right() for w in labels)
+            except Exception:
+                max_right = sum((w.sizeHint().width() for w in labels if w.sizeHint().isValid()), 0)
+
+            try:
+                total_height = sum((w.height() for w in labels))
+            except Exception:
+                total_height = sum((w.sizeHint().height() for w in labels if w.sizeHint().isValid()), 0)
+
+            right_margin = getattr(self, 'rightMargin', getattr(getattr(self, 'size_manager', None), 'right_margin', 0))
+            vertical_gap = getattr(self, 'verticalGapBetweenLabels', getattr(getattr(self, 'size_manager', None), 'vertical_gap_between_labels', 0))
+            num = len([w for w in labels])
+
+            width = max_right + right_margin
+            # Add vertical gap between rows and a bottom margin (gap) similar to previous behavior
+            height = total_height + vertical_gap * (num + 1)
+            # Propagate computed sizes to attributes used by paintEvent/getters
+            self.sizeXGlobal = width
+            self.sizeYGlobal = height
+            self.setFixedSize(QSize(width, height))
+        except Exception:
+            pass
+    def _getContainerStyle(self):
+        """Build Qt stylesheet string limited to container (no text/font properties)."""
+        style_parts = []
+        # Background
+        if self.gs_aspect.background_color:
+            css_color = SGAspect()._qt_color_to_css(self.gs_aspect.background_color)
+            style_parts.append(f"background-color: {css_color}")
+        else:
+            # Force transparency to avoid default black background when only border is set
+            style_parts.append("background-color: transparent")
+        if self.gs_aspect.background_image:
+            style_parts.append(f"background-image: url({self.gs_aspect.background_image})")
+        # Border
+        if self.gs_aspect.border_size and self.gs_aspect.border_style and self.gs_aspect.border_color:
+            css_color = SGAspect()._qt_color_to_css(self.gs_aspect.border_color)
+            style_parts.append(f"border: {self.gs_aspect.border_size}px {self.gs_aspect.border_style} {css_color}")
+        if self.gs_aspect.border_radius:
+            style_parts.append(f"border-radius: {self.gs_aspect.border_radius}px")
+        # Dimensions/padding
+        if self.gs_aspect.min_width:
+            style_parts.append(f"min-width: {self.gs_aspect.min_width}px")
+        if self.gs_aspect.min_height:
+            style_parts.append(f"min-height: {self.gs_aspect.min_height}px")
+        if self.gs_aspect.padding:
+            style_parts.append(f"padding: {self.gs_aspect.padding}px")
+        return "; ".join(style_parts)
+
+    def _applyContainerStyle(self):
+        style = self._getContainerStyle()
+        if style:
+            self.setStyleSheet(f"#{self._qss_object_name} {{{style}}}")
+        else:
+            self.setStyleSheet("")
+
+    def applyContainerAspectStyle(self):
+        """Hook to apply container style; subclasses may override to no-op."""
+        self._applyContainerStyle()
+        self.theme_overridden = True
         
     def applyTheme(self, theme_name):
         """
@@ -638,6 +768,25 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             'green': SGAspect.green,
             'gray': SGAspect.gray
         }
+        # Merge runtime registered themes if provided on model
+        model = getattr(self, 'model', None)
+        if model is not None and hasattr(model, '_runtime_themes'):
+            for tname, spec in model._runtime_themes.items():
+                def _factory(spec_dict=spec):
+                    inst = SGAspect()
+                    base = spec_dict.get('base', spec_dict)
+                    inst.background_color = base.get('background_color')
+                    inst.border_color = base.get('border_color')
+                    inst.border_size = base.get('border_size')
+                    inst.border_style = base.get('border_style')
+                    inst.color = base.get('color')
+                    inst.font = base.get('font')
+                    inst.size = base.get('size')
+                    inst.font_weight = base.get('font_weight')
+                    inst.border_radius = base.get('border_radius')
+                    inst.padding = base.get('padding')
+                    return inst
+                theme_methods[tname] = _factory
         
         if theme_name in theme_methods:
             theme_aspect = theme_methods[theme_name]()
@@ -656,7 +805,42 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 aspect.font = theme_aspect.font
                 aspect.size = theme_aspect.size
                 aspect.font_weight = theme_aspect.font_weight
+            # If runtime theme includes text_aspects overrides, apply them
+            if model is not None and hasattr(model, '_runtime_themes') and theme_name in model._runtime_themes:
+                text_specs = model._runtime_themes[theme_name].get('text_aspects', {})
+                mapping = {
+                    'title1': self.title1_aspect,
+                    'title2': self.title2_aspect,
+                    'title3': self.title3_aspect,
+                    'text1': self.text1_aspect,
+                    'text2': self.text2_aspect,
+                    'text3': self.text3_aspect,
+                }
+                for key, asp in mapping.items():
+                    spec = text_specs.get(key)
+                    if not spec:
+                        continue
+                    if 'color' in spec:
+                        asp.color = spec['color']
+                    if 'font' in spec:
+                        asp.font = spec['font']
+                    if 'size' in spec:
+                        asp.size = spec['size']
+                    if 'font_weight' in spec:
+                        asp.font_weight = spec['font_weight']
+                    if 'font_style' in spec:
+                        asp.font_style = spec['font_style']
+                    if 'text_decoration' in spec:
+                        asp.text_decoration = spec['text_decoration']
                 
+            # Track current theme name for UI dialogs (e.g., Edit Themes)
+            self.current_theme_name = theme_name
+            self.theme_overridden = False
+
+            # Apply container-only style (no text cascade to children)
+            if hasattr(self, '_applyContainerStyle'):
+                self._applyContainerStyle()
+
             self.update()
         else:
             raise ValueError(f"Unknown theme: {theme_name}. Available themes: {list(theme_methods.keys())}")

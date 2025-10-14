@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog, QInputDialog
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -56,6 +56,9 @@ from mainClasses.layout.SGGridLayout import *
 from mainClasses.layout.SGHorizontalLayout import *
 from mainClasses.layout.SGVerticalLayout import *
 from mainClasses.layout.SGLayoutConfigManager import SGLayoutConfigManager
+from mainClasses.theme.SGThemeConfigManagerDialog import SGThemeConfigManagerDialog
+from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
+from mainClasses.theme.SGThemeEditTableDialog import SGThemeEditTableDialog
 from mainClasses.gameAction.SGActivate import *
 from mainClasses.gameAction.SGCreate import *
 from mainClasses.gameAction.SGDelete import *
@@ -453,6 +456,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.createGraphMenu()
 
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
+        # Create Enhanced Grid Layout submenu and Theme Manager entries
+        self.createEnhancedGridLayoutMenu()
+        self.createThemeManagerMenu()
         
     # ============================================================================
     # GAME ACTION LOGS EXPORT METHODS
@@ -1008,6 +1014,66 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             for gameSpace in self.gameSpaces.values():
                 gameSpace._enhanced_grid_tooltip_enabled = checked
 
+    def createThemeManagerMenu(self):
+        """Create Theme Manager entries in Settings menu"""
+        self.themeMenu = self.settingsMenu.addMenu("&Themes")
+        # Apply Global Theme (quick)
+        applyGlobalThemeAction = QAction("&Apply Global Theme...", self)
+        applyGlobalThemeAction.triggered.connect(self.openApplyGlobalThemeDialog)
+        self.themeMenu.addAction(applyGlobalThemeAction)
+
+        # Manage Theme Configurations (dialog)
+        manageThemeAction = QAction("&Manage Theme Configurations...", self)
+        manageThemeAction.triggered.connect(self.openThemeConfigManagerDialog)
+        self.themeMenu.addAction(manageThemeAction)
+
+        # Edit per-GameSpace themes (table)
+        editThemesAction = QAction("&Edit Themes...", self)
+        editThemesAction.triggered.connect(self.openThemeEditTableDialog)
+        self.themeMenu.addAction(editThemesAction)
+
+    def openThemeConfigManagerDialog(self):
+        """Open the Theme Configuration Manager dialog."""
+        dialog = SGThemeConfigManagerDialog(self)
+        dialog.exec_()
+
+    def openThemeEditTableDialog(self):
+        """Open the per-GameSpace theme assignment dialog (table)."""
+        dialog = SGThemeEditTableDialog(self)
+        dialog.exec_()
+
+    def openApplyGlobalThemeDialog(self):
+        """Prompt a theme name and apply it to all GameSpaces."""
+        theme, ok = QInputDialog.getText(self, "Apply Global Theme", "Enter theme name (modern/minimal/colorful/blue/green/gray):")
+        if ok and isinstance(theme, str) and theme.strip():
+            self.applyThemeToAllGameSpaces(theme.strip())
+            self.update()
+
+    def applyThemeToAllGameSpaces(self, theme_name: str, include_types=None, exclude_types=None, priority: str = "global_then_individual") -> None:
+        """Apply a theme to all GameSpaces; individual overrides remain in effect.
+
+        Args:
+            theme_name (str): Theme to apply ('modern','minimal','colorful','blue','green','gray')
+            include_types (list|None): Optional list of classes to include
+            exclude_types (list|None): Optional list of classes to exclude
+            priority (str): Reserved for future conflict resolution
+        """
+        for gs in self.gameSpaces.values():
+            if include_types and not any(isinstance(gs, t) for t in include_types):
+                continue
+            if exclude_types and any(isinstance(gs, t) for t in exclude_types):
+                continue
+            if hasattr(gs, 'applyTheme'):
+                try:
+                    gs.applyTheme(theme_name)
+                except Exception:
+                    pass
+
+    def loadThemeConfig(self, config_name: str) -> bool:
+        """Load theme configuration and apply it to listed GameSpaces only."""
+        manager = SGThemeConfigManager(self)
+        return manager.loadConfig(config_name)
+
     def getSubmenuSymbology(self, submenuName):
         # return the submenu
         return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == submenuName), None)
@@ -1248,7 +1314,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getUsers_withGameActions(self):
         """
         Get list of players who have gameActions
-        
         Returns:
             list: List of player names who have gameActions
         """

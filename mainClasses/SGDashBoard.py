@@ -31,6 +31,13 @@ class SGDashBoard(SGGameSpace):
             self.layout = QtWidgets.QVBoxLayout()
         elif layout == 'horizontal':
             self.layout = QtWidgets.QHBoxLayout()
+        # Set layout margins to include right/bottom space so frame doesn't crop text
+        try:
+            # Add 4px left margin so title and indicators aren't flush to the border
+            self.layout.setContentsMargins(4, 0, self.rightMargin, self.verticalGapBetweenLabels)
+            self.layout.setSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
         
         self.initLabels()
         # self.updateLabelsandWidgetSize()
@@ -42,8 +49,7 @@ class SGDashBoard(SGGameSpace):
         if self.displayTitle:
             self.labelTitle = QtWidgets.QLabel(self)
             self.labelTitle.setText(self.textTitle)
-            self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
-            self.labelTitle.adjustSize()
+            # Styles applied via onTextAspectsChanged
             self.labels.append(self.labelTitle)
             self.layout.addWidget(self.labelTitle)
             # The label of indicators are added afterwards
@@ -67,6 +73,9 @@ class SGDashBoard(SGGameSpace):
         self.updateLabelsandWidgetSize()
         #set layout
         self.setLayout(self.layout)
+
+        # Apply text aspects now that widgets exist
+        self.onTextAspectsChanged()
 
 
     def addIndicator(self, name,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True, displayName=True, conditionsOnEntities=[]):
@@ -305,27 +314,43 @@ class SGDashBoard(SGGameSpace):
         # Drawing the DB
     def paintEvent(self, event):
         if self.isDisplay and len(self.indicators) != 0:
-            painter = QPainter()
-            painter.begin(self)
-            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-            # Draw the corner of the DB
-            # self.setMinimumSize(self.getSizeXGlobal(), self.getSizeYGlobal())
-            painter.drawRect(0, 0, self.getSizeXGlobal()-1, self.getSizeYGlobal()-1)
-            painter.end()
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            # Background with transparency
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+            # Border with style mapping
+            pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+            style_map = {
+                'solid': Qt.SolidLine,
+                'dotted': Qt.DotLine,
+                'dashed': Qt.DashLine,
+                'double': Qt.SolidLine,
+                'groove': Qt.SolidLine,
+                'ridge': Qt.SolidLine,
+                'inset': Qt.SolidLine,
+            }
+            bs = getattr(self.gs_aspect, 'border_style', None)
+            if isinstance(bs, str) and bs.lower() in style_map:
+                pen.setStyle(style_map[bs.lower()])
+            painter.setPen(pen)
+            radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+            w = max(0, self.getSizeXGlobal()-1)
+            h = max(0, self.getSizeYGlobal()-1)
+            if radius > 0:
+                painter.drawRoundedRect(0, 0, w, h, radius, radius)
+            else:
+                painter.drawRect(0, 0, w, h)
 
     def updateLabelsandWidgetSize(self):
-        # Recalculer les dimensions en fonction du texte et du styleSheet utilisé dans les QLabel
-        for aLabel in self.labels:
-            aLabel.setFixedWidth(aLabel.fontMetrics().boundingRect(aLabel.text()).width()+5)
-            aLabel.setFixedHeight(aLabel.fontMetrics().boundingRect(aLabel.text()).height())
-            aLabel.adjustSize()
-            
-        max_width = max([aLabel.width() for aLabel in self.labels])
-        self.sizeXGlobal = max_width +self.rightMargin
-        self.sizeYGlobal = sum([aLabel.height() + self.verticalGapBetweenLabels for aLabel in self.labels])
-        self.sizeYGlobal = max([self.sizeYGlobal ,30]) #todo (need to refactor): Line temporarely added to manage the case when only one label and no title
-        self.setFixedSize(QSize(self.getSizeXGlobal() , self.getSizeYGlobal()))
+        # Prefer layout-based sizing to include layout margins/paddings
+        if hasattr(self, 'layout') and self.layout is not None:
+            self.updateSizeFromLayout(self.layout)
+        else:
+            self.updateSizeFromLabels(self.labels)
     
 
     def getSizeXGlobal(self):
@@ -353,6 +378,83 @@ class SGDashBoard(SGGameSpace):
         if hasattr(self, 'labelTitle') and self.labelTitle:
             self.labelTitle.setText(text)
             self.labelTitle.adjustSize()
+        self.update()
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        # Apply title1 to title
+        if hasattr(self, 'labelTitle') and self.labelTitle is not None:
+            css_parts = []
+            if self.title1_aspect.color:
+                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
+            td = getattr(self.title1_aspect, 'text_decoration', None)
+            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+            f = self.labelTitle.font()
+            if self.title1_aspect.font:
+                f.setFamily(self.title1_aspect.font)
+            if self.title1_aspect.size:
+                try:
+                    f.setPixelSize(int(self.title1_aspect.size))
+                except Exception:
+                    pass
+            if self.title1_aspect.font_weight:
+                w = str(self.title1_aspect.font_weight).lower()
+                if w == 'bold':
+                    f.setBold(True)
+                elif w == 'normal':
+                    f.setBold(False)
+                else:
+                    try:
+                        f.setWeight(int(self.title1_aspect.font_weight))
+                    except Exception:
+                        pass
+            if self.title1_aspect.font_style:
+                s = str(self.title1_aspect.font_style).lower()
+                f.setItalic(s in ('italic', 'oblique'))
+            self.labelTitle.setFont(f)
+            self.labelTitle.setStyleSheet("; ".join(css_parts))
+        # Apply text1 to indicators labels
+        for ind in self.indicators:
+            if hasattr(ind, 'label') and ind.label:
+                lbl = ind.label
+                css_parts = []
+                if self.text1_aspect.color:
+                    css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
+                td = getattr(self.text1_aspect, 'text_decoration', None)
+                css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+                f = lbl.font()
+                if self.text1_aspect.font:
+                    f.setFamily(self.text1_aspect.font)
+                if self.text1_aspect.size:
+                    try:
+                        f.setPixelSize(int(self.text1_aspect.size))
+                    except Exception:
+                        pass
+                if self.text1_aspect.font_weight:
+                    w = str(self.text1_aspect.font_weight).lower()
+                    if w == 'bold':
+                        f.setBold(True)
+                    elif w == 'normal':
+                        f.setBold(False)
+                    else:
+                        try:
+                            f.setWeight(int(self.text1_aspect.font_weight))
+                        except Exception:
+                            pass
+                if self.text1_aspect.font_style:
+                    s = str(self.text1_aspect.font_style).lower()
+                    f.setItalic(s in ('italic', 'oblique'))
+                lbl.setFont(f)
+                lbl.setStyleSheet("; ".join(css_parts))
+
+        # Resize
+        self.updateLabelsandWidgetSize()
         self.update()
         
     def setDisplayTitle(self, display):

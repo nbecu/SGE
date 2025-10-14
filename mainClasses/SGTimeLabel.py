@@ -57,12 +57,52 @@ class SGTimeLabel(SGGameSpace):
 
 
     def paintEvent(self, event):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-        painter.drawRect(0, 0, self.getSizeXGlobal() -1, self.getSizeYGlobal() -1)
-        painter.end()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background
+        bg = self.gs_aspect.getBackgroundColorValue()
+        if bg.alpha() == 0:
+            painter.setBrush(Qt.NoBrush)
+        else:
+            painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Pen with style
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+        # Rounded rect if radius provided
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        w = max(0, self.getSizeXGlobal() - 1)
+        h = max(0, self.getSizeYGlobal() - 1)
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, w, h, radius, radius)
+        else:
+            painter.drawRect(0, 0, w, h)
+
+    def onTextAspectsChanged(self):
+        """Reapply text styles from current aspects to labels and resize."""
+        # Apply text1_aspect to non-title labels
+        for aLabel in getattr(self, 'labels', []) or []:
+            aLabel.setStyleSheet(self.text1_aspect.getTextStyle())
+        # Apply title1_aspect to title if present
+        if getattr(self, 'displayTitle', False) and hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
+        self.updateLabelsandWidgetSize()
+        self.update()
+
+    # Override to prevent container QSS from interfering; rely solely on paintEvent
+    def applyContainerAspectStyle(self):
+        pass
 
     def updateTimeLabel(self):
         self.labelRoundNumber.setText('Round Number : {}'.format(

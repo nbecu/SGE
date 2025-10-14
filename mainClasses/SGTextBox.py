@@ -58,10 +58,7 @@ class SGTextBox(SGGameSpace):
     def initUI(self):
         # Create a title
         self.labelTitle = QtWidgets.QLabel(self.title)
-        font = QFont()
-        font.setPixelSize(14)
-        font.setBold(True)
-        self.labelTitle.setFont(font)
+        # font and styles will be applied from title1_aspect in onTextAspectsChanged()
         
         # Set title alignment
         if self.titleAlignment == 'center':
@@ -81,32 +78,11 @@ class SGTextBox(SGGameSpace):
             self.textWidget = QtWidgets.QLabel(self.textToWrite)
             self.textWidget.setWordWrap(True)
         
-        # Apply common styling
-        if len(self.textToWrite) > 100:  # QTextEdit styling
-            self.textWidget.setStyleSheet("""
-                QTextEdit {
-                    border: none;
-                    background-color: lightgray;
-                }
-                QTextEdit QScrollBar:vertical {
-                    background: rgba(200, 200, 200, 100);
-                    width: 6px;
-                    border-radius: 3px;
-                }
-                QTextEdit QScrollBar::handle:vertical {
-                    background: rgba(150, 150, 150, 150);
-                    border-radius: 3px;
-                    min-height: 15px;
-                }
-                QTextEdit QScrollBar::handle:vertical:hover {
-                    background: rgba(120, 120, 120, 200);
-                }
-                QTextEdit QScrollBar::add-line:vertical, QTextEdit QScrollBar::sub-line:vertical {
-                    height: 0px;
-                }
-            """)
-        else:  # QLabel styling
-            self.textWidget.setStyleSheet("border: none; background-color: lightgray;")
+        # Remove hard-coded backgrounds to let container paintEvent manage it
+        if len(self.textToWrite) > 100:  # QTextEdit: keep border none; bg transparent handled by container
+            self.textWidget.setStyleSheet("QTextEdit { border: none; background: transparent; }")
+        else:
+            self.textWidget.setStyleSheet("border: none;")
         
         # Store reference for compatibility
         self.textEdit = self.textWidget
@@ -120,7 +96,7 @@ class SGTextBox(SGGameSpace):
         self.setLayout(self.textLayout)
         
         # Adjust size after layout configuration
-        self.adjustSizeAfterLayout()
+        self.onTextAspectsChanged()
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_contextMenu)
@@ -186,44 +162,45 @@ class SGTextBox(SGGameSpace):
         return self.size_manager.min_height
 
     def paintEvent(self, event):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-        
-        # Dynamic size calculation based on actual layout
-        width = self.getSizeXGlobal()
-        height = self.getSizeYGlobal()
-        
-        # Adjust widget size to calculated content
-        self.setMinimumSize(width, height)
-        self.resize(width, height)
-        
-        # Draw the border
-        if self.sizeX == None or self.sizeY == None:
-            painter.drawRect(0, 0, width - 1, height - 1)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background with transparency support
+        bg = self.gs_aspect.getBackgroundColorValue()
+        if bg.alpha() == 0:
+            painter.setBrush(Qt.NoBrush)
         else:
-            # Use manually defined sizes
-            painter.drawRect(0, 0, self.sizeX, self.sizeY)
+            painter.setBrush(QBrush(bg, Qt.SolidPattern))
 
-        painter.end()
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+
+        width = max(0, self.getSizeXGlobal() - 1)
+        height = max(0, self.getSizeYGlobal() - 1)
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, width, height, radius, radius)
+        else:
+            painter.drawRect(0, 0, width, height)
     
     def adjustSizeAfterLayout(self):
         """
         Adjust widget size after layout configuration.
         """
         if hasattr(self, 'textLayout') and self.textLayout:
-            # Force layout to calculate its size
-            self.textLayout.activate()
-            size_hint = self.textLayout.sizeHint()
-            if size_hint and size_hint.isValid():
-                # Add margins for border
-                width = size_hint.width() + self.size_manager.right_margin + self.size_manager.border_padding
-                height = size_hint.height() + self.size_manager.vertical_gap_between_labels + self.size_manager.border_padding
-                
-                # Apply calculated size
-                self.setMinimumSize(width, height)
-                self.resize(width, height)
+            self.updateSizeFromLayout(self.textLayout)
 
     # contextual menu (opened on a right click)
     def show_contextMenu(self, point):
@@ -350,6 +327,145 @@ class SGTextBox(SGGameSpace):
 
     def deleteText(self):
         del self.textEdit
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        """Apply title1_aspect to title and text1_aspect to content, then resize."""
+        # Map alignment helper
+        def _map_alignment(al):
+            if not isinstance(al, str):
+                return None
+            a = al.lower()
+            if a == 'left':
+                return Qt.AlignLeft | Qt.AlignVCenter
+            if a == 'right':
+                return Qt.AlignRight | Qt.AlignVCenter
+            if a in ('center', 'hcenter'):
+                return Qt.AlignHCenter | Qt.AlignVCenter
+            if a == 'top':
+                return Qt.AlignTop | Qt.AlignHCenter
+            if a == 'bottom':
+                return Qt.AlignBottom | Qt.AlignHCenter
+            if a == 'vcenter':
+                return Qt.AlignVCenter | Qt.AlignHCenter
+            if a == 'justify':
+                return Qt.AlignJustify
+            return None
+
+        # Title label
+        if hasattr(self, 'labelTitle') and self.labelTitle is not None:
+            f = self.labelTitle.font()
+            if self.title1_aspect.font:
+                f.setFamily(self.title1_aspect.font)
+            if self.title1_aspect.size:
+                try:
+                    f.setPixelSize(int(self.title1_aspect.size))
+                except Exception:
+                    pass
+            if self.title1_aspect.font_weight:
+                w = str(self.title1_aspect.font_weight).lower()
+                if w == 'bold':
+                    f.setBold(True)
+                elif w == 'normal':
+                    f.setBold(False)
+                else:
+                    try:
+                        f.setWeight(int(self.title1_aspect.font_weight))
+                    except Exception:
+                        pass
+            if self.title1_aspect.font_style:
+                s = str(self.title1_aspect.font_style).lower()
+                f.setItalic(s in ('italic', 'oblique'))
+            self.labelTitle.setFont(f)
+            # alignment
+            al = _map_alignment(getattr(self.title1_aspect, 'alignment', None))
+            if al is not None:
+                self.labelTitle.setAlignment(al)
+            # color/decoration
+            css_parts = []
+            if self.title1_aspect.color:
+                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
+            td = getattr(self.title1_aspect, 'text_decoration', None)
+            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+            self.labelTitle.setStyleSheet("; ".join(css_parts))
+
+        # Text content
+        target = self.textWidget
+        if target is not None:
+            if isinstance(target, QtWidgets.QLabel):
+                f = target.font()
+                if self.text1_aspect.font:
+                    f.setFamily(self.text1_aspect.font)
+                if self.text1_aspect.size:
+                    try:
+                        f.setPixelSize(int(self.text1_aspect.size))
+                    except Exception:
+                        pass
+                if self.text1_aspect.font_weight:
+                    w = str(self.text1_aspect.font_weight).lower()
+                    if w == 'bold':
+                        f.setBold(True)
+                    elif w == 'normal':
+                        f.setBold(False)
+                    else:
+                        try:
+                            f.setWeight(int(self.text1_aspect.font_weight))
+                        except Exception:
+                            pass
+                if self.text1_aspect.font_style:
+                    s = str(self.text1_aspect.font_style).lower()
+                    f.setItalic(s in ('italic', 'oblique'))
+                target.setFont(f)
+                al = _map_alignment(getattr(self.text1_aspect, 'alignment', None))
+                if al is not None:
+                    target.setAlignment(al)
+                css_parts = []
+                if self.text1_aspect.color:
+                    css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
+                td = getattr(self.text1_aspect, 'text_decoration', None)
+                css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+                target.setStyleSheet("; ".join(css_parts))
+            else:
+                # QTextEdit: apply font and color via stylesheet/palette, background transparent
+                f = target.font()
+                if self.text1_aspect.font:
+                    f.setFamily(self.text1_aspect.font)
+                if self.text1_aspect.size:
+                    try:
+                        f.setPixelSize(int(self.text1_aspect.size))
+                    except Exception:
+                        pass
+                if self.text1_aspect.font_weight:
+                    w = str(self.text1_aspect.font_weight).lower()
+                    if w == 'bold':
+                        f.setBold(True)
+                    elif w == 'normal':
+                        f.setBold(False)
+                    else:
+                        try:
+                            f.setWeight(int(self.text1_aspect.font_weight))
+                        except Exception:
+                            pass
+                if self.text1_aspect.font_style:
+                    s = str(self.text1_aspect.font_style).lower()
+                    f.setItalic(s in ('italic', 'oblique'))
+                target.setFont(f)
+                color_css = QColor(self.text1_aspect.color).name() if self.text1_aspect.color else None
+                if color_css:
+                    target.setStyleSheet(f"QTextEdit {{ border: none; background: transparent; color: {color_css}; }}")
+                else:
+                    target.setStyleSheet("QTextEdit { border: none; background: transparent; }")
+
+        # Resize based on layout
+        if hasattr(self, 'textLayout') and self.textLayout:
+            self.updateSizeFromLayout(self.textLayout)
+        self.update()
 
     # ============================================================================
     # MODELER METHODS

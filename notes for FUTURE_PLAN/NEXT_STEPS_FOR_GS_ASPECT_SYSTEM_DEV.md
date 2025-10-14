@@ -1,4 +1,4 @@
-# GS_ASPECT_SYSTEM_STATUS.md
+# GS_ASPECT_SYSTEM DEV 
 
 ## État d'avancement du système gs_aspect
 
