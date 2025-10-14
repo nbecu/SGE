@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush
+from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush, QFont
 from mainClasses.SGGameSpace import SGGameSpace
 
 class SGProgressGauge(SGGameSpace):
@@ -309,6 +309,11 @@ class SGProgressGauge(SGGameSpace):
 
     def onTextAspectsChanged(self):
         # Title styling (title1_aspect)
+        def _apply_weight_to_font(font_obj: QFont, weight_value):
+            try:
+                self.applyFontWeightToQFont(font_obj, weight_value)
+            except Exception:
+                pass
         if hasattr(self, 'title_label') and self.title_label is not None:
             css_parts = []
             if self.title1_aspect.color:
@@ -323,17 +328,7 @@ class SGProgressGauge(SGGameSpace):
                     f.setPixelSize(int(self.title1_aspect.size))
                 except Exception:
                     pass
-            if self.title1_aspect.font_weight:
-                w = str(self.title1_aspect.font_weight).lower()
-                if w == 'bold':
-                    f.setBold(True)
-                elif w == 'normal':
-                    f.setBold(False)
-                else:
-                    try:
-                        f.setWeight(int(self.title1_aspect.font_weight))
-                    except Exception:
-                        pass
+            _apply_weight_to_font(f, getattr(self.title1_aspect, 'font_weight', None))
             if self.title1_aspect.font_style:
                 s = str(self.title1_aspect.font_style).lower()
                 f.setItalic(s in ('italic', 'oblique'))
@@ -355,17 +350,7 @@ class SGProgressGauge(SGGameSpace):
                     f.setPixelSize(int(self.text1_aspect.size))
                 except Exception:
                     pass
-            if self.text1_aspect.font_weight:
-                w = str(self.text1_aspect.font_weight).lower()
-                if w == 'bold':
-                    f.setBold(True)
-                elif w == 'normal':
-                    f.setBold(False)
-                else:
-                    try:
-                        f.setWeight(int(self.text1_aspect.font_weight))
-                    except Exception:
-                        pass
+            _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
             if self.text1_aspect.font_style:
                 s = str(self.text1_aspect.font_style).lower()
                 f.setItalic(s in ('italic', 'oblique'))

@@ -15,6 +15,11 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
 - [ ] create a "Theme system" to apply ready-to-use gs_aspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
 - [ ] Uniformize font style management across all GameSpaces classes (see UNIFORMIZE_FONT_STYLES_GAMESPACES.md for analysis)
+ - [ ] Background images in GameSpaces: add scaling modes (cover/contain/stretch) and generalize background image support via gs_aspect across all GameSpaces
+   - Objective: allow using an image instead of a color for any GameSpace background through `gs_aspect.background_image`
+   - Add `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
+   - Implement rendering logic in each GameSpace `paintEvent` without breaking existing zoom/rendu (notably `SGGrid`)
+   - Expose modeler API: `setStyle({ 'background_image': 'path', 'background_image_mode': 'cover' })`
 
 ### POV System & Visual Elements
 - [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies

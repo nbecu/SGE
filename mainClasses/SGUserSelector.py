@@ -20,14 +20,29 @@ class SGUserSelector(SGGameSpace):
             self.userLayout = QVBoxLayout()
         else:  # horizontal (default)
             self.userLayout = QHBoxLayout()
+        # Marges cohérentes et espacement
+        try:
+            # Augmente les marges haut/bas pour éviter que le contenu colle aux bords
+            self.userLayout.setContentsMargins(4, self.verticalGapBetweenLabels, self.rightMargin, self.verticalGapBetweenLabels*2)
+            self.userLayout.setSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
         
         self.checkboxes = []
-        title = QLabel("User Selector")
-        # Use gs_aspect system instead of hardcoded font
-        title.setStyleSheet(self.title1_aspect.getTextStyle())
-        self.userLayout.addWidget(title)
+        self.titleLabel = QLabel("User Selector")
+        self.userLayout.addWidget(self.titleLabel)
+        # Espace supplémentaire entre le titre et le premier item
+        try:
+            self.userLayout.addSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
         self.updateUI(self.userLayout)
         self.setLayout(self.userLayout)
+        # Appliquer styles textes et dimensionner
+        try:
+            self.onTextAspectsChanged()
+        except Exception:
+            pass
         # Adjust size after layout configuration
         self.adjustSizeAfterLayout()
 
@@ -39,9 +54,19 @@ class SGUserSelector(SGGameSpace):
             layout.addWidget(checkbox)
             layout.addSpacing(5)
         for checkbox in self.checkboxes:
-                if checkbox.text() !="Admin":
-                    checkbox.setEnabled(False)
-                    checkbox.setChecked(False)
+            if checkbox.text() !="Admin":
+                checkbox.setEnabled(False)
+                checkbox.setChecked(False)
+        # Espace de fond supplémentaire
+        try:
+            layout.addSpacing(self.verticalGapBetweenLabels*2)
+        except Exception:
+            pass
+        # Espacement bas supplémentaire pour une marge visuelle confortable
+        try:
+            layout.addSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
     
     def updateOnNewPhase(self):
         players=self.getAuthorizedPlayers()
@@ -145,14 +170,108 @@ class SGUserSelector(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background with transparency
+        bg = self.gs_aspect.getBackgroundColorValue()
+        if bg.alpha() == 0:
+            painter.setBrush(Qt.NoBrush)
+        else:
+            painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
 
-        # Draw the corner of the US
-        self.setMinimumSize(self.getSizeXGlobal()+15, self.getSizeYGlobal()+5)  # Reduced vertical padding
-        painter.drawRect(0, 0, self.getSizeXGlobal(), self.getSizeYGlobal())
+        # Compute sizes and draw
+        try:
+            if hasattr(self, 'userLayout') and self.userLayout:
+                self.updateSizeFromLayout(self.userLayout)
+        except Exception:
+            pass
+        w = max(0, self.getSizeXGlobal() - 1)
+        h = max(0, self.getSizeYGlobal() - 1)
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, w, h, radius, radius)
+        else:
+            painter.drawRect(0, 0, w, h)
 
         painter.end()
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        # Title styling from title1_aspect
+        if hasattr(self, 'titleLabel') and self.titleLabel is not None:
+            f = self.titleLabel.font()
+            if self.title1_aspect.font:
+                f.setFamily(self.title1_aspect.font)
+            if self.title1_aspect.size:
+                try:
+                    f.setPixelSize(int(self.title1_aspect.size))
+                except Exception:
+                    pass
+            try:
+                self.applyFontWeightToQFont(f, getattr(self.title1_aspect, 'font_weight', None))
+            except Exception:
+                pass
+            if self.title1_aspect.font_style:
+                s = str(self.title1_aspect.font_style).lower()
+                f.setItalic(s in ('italic', 'oblique'))
+            self.titleLabel.setFont(f)
+            css_parts = []
+            if self.title1_aspect.color:
+                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
+            td = getattr(self.title1_aspect, 'text_decoration', None)
+            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+            self.titleLabel.setStyleSheet("; ".join(css_parts))
+
+        # Checkboxes styling from text1_aspect
+        for checkbox in getattr(self, 'checkboxes', []) or []:
+            f = checkbox.font()
+            if self.text1_aspect.font:
+                f.setFamily(self.text1_aspect.font)
+            if self.text1_aspect.size:
+                try:
+                    f.setPixelSize(int(self.text1_aspect.size))
+                except Exception:
+                    pass
+            try:
+                self.applyFontWeightToQFont(f, getattr(self.text1_aspect, 'font_weight', None))
+            except Exception:
+                pass
+            if self.text1_aspect.font_style:
+                s = str(self.text1_aspect.font_style).lower()
+                f.setItalic(s in ('italic', 'oblique'))
+            checkbox.setFont(f)
+            css_parts = []
+            if self.text1_aspect.color:
+                css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
+            # text-decoration may not affect QCheckBox text; still set to clear prior styles
+            td = getattr(self.text1_aspect, 'text_decoration', None)
+            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+            checkbox.setStyleSheet("; ".join(css_parts))
+
+        # Resize to layout
+        if hasattr(self, 'userLayout') and self.userLayout:
+            self.updateSizeFromLayout(self.userLayout)
+        self.update()
 
     # ============================================================================
     # MODELER METHODS
@@ -169,8 +288,10 @@ class SGUserSelector(SGGameSpace):
         Args:
             text (str): The title text
         """
-        if hasattr(self, 'userLayout') and self.userLayout:
-            # Find and update the title label
+        if hasattr(self, 'titleLabel') and self.titleLabel is not None:
+            self.titleLabel.setText(text)
+        elif hasattr(self, 'userLayout') and self.userLayout:
+            # Fallback: Find and update the first QLabel
             for i in range(self.userLayout.count()):
                 item = self.userLayout.itemAt(i)
                 if item and item.widget() and isinstance(item.widget(), QLabel):

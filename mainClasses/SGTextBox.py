@@ -358,6 +358,14 @@ class SGTextBox(SGGameSpace):
                 return Qt.AlignJustify
             return None
 
+        # Font weight helper (supports 'bold', 'normal', 'bolder', 'lighter', and numeric strings)
+        def _apply_weight_to_font(font_obj: QFont, weight_value):
+            # Delegate to SGGameSpace helper
+            try:
+                self.applyFontWeightToQFont(font_obj, weight_value)
+            except Exception:
+                pass
+
         # Title label
         if hasattr(self, 'labelTitle') and self.labelTitle is not None:
             f = self.labelTitle.font()
@@ -368,17 +376,7 @@ class SGTextBox(SGGameSpace):
                     f.setPixelSize(int(self.title1_aspect.size))
                 except Exception:
                     pass
-            if self.title1_aspect.font_weight:
-                w = str(self.title1_aspect.font_weight).lower()
-                if w == 'bold':
-                    f.setBold(True)
-                elif w == 'normal':
-                    f.setBold(False)
-                else:
-                    try:
-                        f.setWeight(int(self.title1_aspect.font_weight))
-                    except Exception:
-                        pass
+            _apply_weight_to_font(f, getattr(self.title1_aspect, 'font_weight', None))
             if self.title1_aspect.font_style:
                 s = str(self.title1_aspect.font_style).lower()
                 f.setItalic(s in ('italic', 'oblique'))
@@ -407,17 +405,7 @@ class SGTextBox(SGGameSpace):
                         f.setPixelSize(int(self.text1_aspect.size))
                     except Exception:
                         pass
-                if self.text1_aspect.font_weight:
-                    w = str(self.text1_aspect.font_weight).lower()
-                    if w == 'bold':
-                        f.setBold(True)
-                    elif w == 'normal':
-                        f.setBold(False)
-                    else:
-                        try:
-                            f.setWeight(int(self.text1_aspect.font_weight))
-                        except Exception:
-                            pass
+                _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
                 if self.text1_aspect.font_style:
                     s = str(self.text1_aspect.font_style).lower()
                     f.setItalic(s in ('italic', 'oblique'))
@@ -441,17 +429,7 @@ class SGTextBox(SGGameSpace):
                         f.setPixelSize(int(self.text1_aspect.size))
                     except Exception:
                         pass
-                if self.text1_aspect.font_weight:
-                    w = str(self.text1_aspect.font_weight).lower()
-                    if w == 'bold':
-                        f.setBold(True)
-                    elif w == 'normal':
-                        f.setBold(False)
-                    else:
-                        try:
-                            f.setWeight(int(self.text1_aspect.font_weight))
-                        except Exception:
-                            pass
+                _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
                 if self.text1_aspect.font_style:
                     s = str(self.text1_aspect.font_style).lower()
                     f.setItalic(s in ('italic', 'oblique'))

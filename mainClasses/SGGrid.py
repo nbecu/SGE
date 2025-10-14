@@ -41,16 +41,45 @@ class SGGrid(SGGameSpace):
         self.countPaintEvent += 1
         painter = QPainter()
         painter.begin(self)
-        if self.backgroundImage != None:
+        # Background: prefer explicit image, then gs_aspect.background_image, else color/pattern with transparency handling
+        if self.backgroundImage is not None:
             rect = QRect(0, 0, self.width(), self.height())
             painter.drawPixmap(rect, self.backgroundImage)
+        elif getattr(self.gs_aspect, 'background_image', None):
+            rect = QRect(0, 0, self.width(), self.height())
+            try:
+                pix = QPixmap(self.gs_aspect.background_image)
+                if not pix.isNull():
+                    painter.drawPixmap(rect, pix)
+                else:
+                    # Fallback to color if pixmap invalid
+                    bg = self.gs_aspect.getBackgroundColorValue()
+                    painter.setBrush(QBrush(bg, Qt.SolidPattern) if bg.alpha() != 0 else Qt.NoBrush)
+            except Exception:
+                bg = self.gs_aspect.getBackgroundColorValue()
+                painter.setBrush(QBrush(bg, Qt.SolidPattern) if bg.alpha() != 0 else Qt.NoBrush)
         else:
-            # painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
             if self.isActive:
-                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
+                bg = self.gs_aspect.getBackgroundColorValue()
+                painter.setBrush(QBrush(bg, Qt.SolidPattern) if bg.alpha() != 0 else Qt.NoBrush)
             else:
                 painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue_whenDisactivated(), self.gs_aspect.getBrushPattern_whenDisactivated()))
-        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
+
+        # Pen with border style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
@@ -66,7 +95,11 @@ class SGGrid(SGGameSpace):
             hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
             new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
             self.setFixedSize(new_width, new_height)
-        painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, max(0, self.minimumWidth()-1), max(0, self.minimumHeight()-1), radius, radius)
+        else:
+            painter.drawRect(0, 0, self.minimumWidth()-1, self.minimumHeight()-1)
         painter.end()
 
     def _calculate_hexagonal_adaptive_factor(self):

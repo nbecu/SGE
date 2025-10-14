@@ -238,20 +238,11 @@ class SGEndGameRule(SGGameSpace):
                         f.setPixelSize(int(aspect.size))
                     except Exception:
                         pass
-                # font weight
-                if aspect.font_weight:
-                    w = str(aspect.font_weight).lower()
-                    if w == 'bold':
-                        f.setBold(True)
-                    elif w == 'normal':
-                        f.setBold(False)
-                    else:
-                        try:
-                            num = int(aspect.font_weight)
-                            # map 100-900 roughly to QFont weights
-                            f.setWeight(num)
-                        except Exception:
-                            pass
+                # font weight (robuste)
+                try:
+                    self.applyFontWeightToQFont(f, getattr(aspect, 'font_weight', None))
+                except Exception:
+                    pass
                 # font style
                 if aspect.font_style:
                     s = str(aspect.font_style).lower()

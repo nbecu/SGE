@@ -712,6 +712,47 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             self.setFixedSize(QSize(width, height))
         except Exception:
             pass
+    
+    # =========================
+    # FONT UTILITIES
+    # =========================
+    def applyFontWeightToQFont(self, font_obj: QFont, weight_value):
+        """Apply font weight to a QFont, supporting 'bold', 'normal', 'bolder', 'lighter', or numeric.
+
+        Args:
+            font_obj (QFont): target font
+            weight_value (Any): string ('bold','normal','bolder','lighter' or numeric-like)
+        """
+        if weight_value is None:
+            return
+        try:
+            w = str(weight_value).lower()
+        except Exception:
+            w = str(weight_value)
+        if w == 'bold':
+            font_obj.setBold(True)
+            return
+        if w == 'normal':
+            font_obj.setBold(False)
+            return
+        if w == 'bolder':
+            try:
+                font_obj.setWeight(QFont.DemiBold)
+            except Exception:
+                font_obj.setBold(True)
+            return
+        if w == 'lighter':
+            try:
+                font_obj.setWeight(QFont.Light)
+            except Exception:
+                font_obj.setBold(False)
+            return
+        try:
+            num = int(weight_value)
+            num = max(0, min(99, num))
+            font_obj.setWeight(num)
+        except Exception:
+            pass
     def _getContainerStyle(self):
         """Build Qt stylesheet string limited to container (no text/font properties)."""
         style_parts = []
