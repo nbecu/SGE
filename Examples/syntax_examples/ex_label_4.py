@@ -19,13 +19,13 @@ textStyle_specs2 = "font-family: Comic Sans MS; font-size: 33px; color: yellow; 
 borderStyle_specs2 = "border: 5px dashed gold;"
 backgroundColor_specs2 = "background-color: teal;"
 
-textStyle_specs3 = "font-family: Papyrus; font-size: 16px; color: rgb(0, 255, 0); text-decoration: blink; font-weight: lighter; font-style: oblique;"
+textStyle_specs3 = "font-family: Papyrus; font-size: 16px; color: rgba(0, 255, 0, 0.6); font-weight: bold;"
 borderStyle_specs3 = "border: 5px inset orange;"
 backgroundColor_specs3 = "background-color: black;"
 
 textStyle_specs4 = 'font-family: Comic Sans MS; font-size: 17px; color: brown; text-decoration: none; font-weight: normal; font-style: italic;'
-borderStyle_specs4 = 'border: 4px double rgba(154, 20, 8, 0.5);'
-backgroundColor_specs4 = 'background-color: pink;'
+borderStyle_specs4 = 'border: 4px double rgb(140, 100, 80);'
+backgroundColor_specs4 = 'background-color: rgba(140, 100, 80,0.5);'
 
 text = 'This is a text in a label'
 fixed_width = 300

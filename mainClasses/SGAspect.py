@@ -247,7 +247,7 @@ class SGAspect():
     #     return self.border_color
 
     def getBorderColorValue(self):
-        return QColor(self.border_color)
+        return self._css_to_qcolor(self.border_color)
     
     # def getBackgroundColor(self):
     #     return self.background_color
@@ -259,7 +259,7 @@ class SGAspect():
             c = QColor(0, 0, 0)
             c.setAlpha(0)
             return c
-        return QColor(self.background_color)
+        return self._css_to_qcolor(self.background_color)
     
     def getBackgroundColorValue_whenDisactivated(self):
         return QColor(QColor(100, 100, 100)) #Gray color
@@ -362,6 +362,58 @@ class SGAspect():
                     return str(color)
         except:
             return str(color)
+    
+    def _css_to_qcolor(self, value):
+        """Convert CSS-like color strings (e.g., rgb(), rgba()) or Qt color values to QColor."""
+        try:
+            # Direct QColor
+            if hasattr(value, 'isValid'):
+                return value if value.isValid() else QColor()
+            if value is None:
+                return QColor()
+            if isinstance(value, str):
+                s = value.strip().lower()
+                if s == 'transparent':
+                    c = QColor(0, 0, 0)
+                    c.setAlpha(0)
+                    return c
+                if s.startswith('rgba(') and s.endswith(')'):
+                    inner = s[5:-1]
+                    parts = [p.strip() for p in inner.split(',')]
+                    if len(parts) == 4:
+                        r = int(float(parts[0]))
+                        g = int(float(parts[1]))
+                        b = int(float(parts[2]))
+                        a_part = parts[3]
+                        # alpha may be 0-1 or 0-255
+                        a = float(a_part)
+                        if a <= 1:
+                            a = int(round(a * 255))
+                        else:
+                            a = int(round(a))
+                        c = QColor(r, g, b, max(0, min(255, a)))
+                        return c
+                if s.startswith('rgb(') and s.endswith(')'):
+                    inner = s[4:-1]
+                    parts = [p.strip() for p in inner.split(',')]
+                    if len(parts) == 3:
+                        r = int(float(parts[0]))
+                        g = int(float(parts[1]))
+                        b = int(float(parts[2]))
+                        return QColor(r, g, b)
+                # Fallback to QColor parser (names, hex, etc.)
+                qc = QColor(value)
+                if qc.isValid():
+                    return qc
+                return QColor()
+            # Fallback any type
+            return QColor(value)
+        except Exception:
+            try:
+                qc = QColor(value)
+                return qc if qc.isValid() else QColor()
+            except Exception:
+                return QColor()
     
     def getExtendedStyle(self):
         """Get complete style including extended attributes"""

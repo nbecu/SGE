@@ -2138,6 +2138,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         aLabel = SGLabel(self, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
         aLabel.move(position[0], position[1])
+        # self.gameSpaces[aLabel.id] = aLabel
+        # self.layoutOfModel.addGameSpace(aLabel)
+        # aLabel.moveToCoords(position[0], position[1])
         return aLabel
 
     # To create a new styled label
