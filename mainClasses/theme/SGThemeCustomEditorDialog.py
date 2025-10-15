@@ -323,9 +323,12 @@ class SGThemeCustomEditorDialog(QDialog):
                 asp.alignment = spec_t['alignment']
         self.gs.theme_overridden = True
         self.gs.current_theme_name = None
-        # Apply container-only style if available to avoid cascading text styles
-        if hasattr(self.gs, '_applyContainerStyle'):
-            self.gs._applyContainerStyle()
+        # Apply container-only style via public hook (subclasses may no-op to avoid QSS cascade)
+        if hasattr(self.gs, 'applyContainerAspectStyle'):
+            try:
+                self.gs.applyContainerAspectStyle()
+            except Exception:
+                pass
         # If the target GameSpace exposes a hook to refresh text styling, call it
         if hasattr(self.gs, 'onTextAspectsChanged'):
             try:
@@ -365,6 +368,7 @@ class SGThemeCustomEditorDialog(QDialog):
                 'font_weight': asp.font_weight,
                 'font_style': asp.font_style,
                 'text_decoration': asp.text_decoration,
+                'alignment': getattr(asp, 'alignment', None),
             }
         return {'base': base, 'text_aspects': text_aspects}
 
@@ -372,11 +376,23 @@ class SGThemeCustomEditorDialog(QDialog):
         self._apply_spec_to_gs(self._orig_spec)
         self.gs.current_theme_name = self._orig_flags.get('current_theme_name')
         self.gs.theme_overridden = self._orig_flags.get('theme_overridden', False)
+        # Clean any residual QSS and reapply container/text via hooks to avoid cascade
         try:
-            self.gs.setStyleSheet(self.gs.gs_aspect.getExtendedStyle())
+            self.gs.setStyleSheet("")
         except Exception:
             pass
-        self.gs.update()
+        if hasattr(self.gs, 'applyContainerAspectStyle'):
+            try:
+                self.gs.applyContainerAspectStyle()
+            except Exception:
+                pass
+        if hasattr(self.gs, 'onTextAspectsChanged'):
+            try:
+                self.gs.onTextAspectsChanged()
+            except Exception:
+                self.gs.update()
+        else:
+            self.gs.update()
 
     def reject(self):
         self._restore_original()
