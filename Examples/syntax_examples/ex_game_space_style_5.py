@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(960, 620, windowTitle="Test gs_aspect System - Mixed Approach")
+myModel=SGModel(800, 660, windowTitle="Test gs_aspect System - Mixed Approach")
 
 # Create a grid
 Cell=myModel.newCellsOnGrid(8,8,"square",size=40, gap=2)
@@ -53,7 +53,7 @@ dashboard.setLayoutOrder(3)
 dashboard.setTitleText("Custom Dashboard")
 
 timeLabel = myModel.newTimeLabel("Game Time", backgroundColor=Qt.cyan, textColor=Qt.cyan)
-timeLabel.setTitleText("Custom Time")
+timeLabel.setTitleText("Time")
 
 void = myModel.newVoid("Test Void", 150, 100)
 
@@ -72,6 +72,12 @@ progressGauge = myModel.newProgressGauge(score1, minimum=0, maximum=100, title="
 progressGauge.setLayoutOrder(3)
 
 theFirstLegend=myModel.newLegend()
+
+aLabel=myModel.newLabel("Test Label")
+aLabel.setLayoutOrder(3)
+
+aButton=myModel.newButton(lambda: print('hello'),"Test Button")
+aButton.setLayoutOrder(3)
 
 # Mixed approach: Start with theme, then customize
 print("Applying mixed approach...")

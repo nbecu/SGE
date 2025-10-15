@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(760, 620, windowTitle="Test gs_aspect System - Theme System")
+myModel=SGModel(760, 680, windowTitle="Test gs_aspect System - Theme System")
 
 # Create a grid
 Cell=myModel.newCellsOnGrid(8,8,"square",size=40, gap=2)

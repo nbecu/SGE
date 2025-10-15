@@ -77,7 +77,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.shape=="square") :   
-                painter.drawRect(0, 0, 20, 20)
+                painter.drawRect(0, 0, 18, 18)
                 if self.type == 'delete':
                     # draw a red cross inside
                     pen = QPen(Qt.red, 2)
@@ -171,34 +171,58 @@ class SGLegendItem(QtWidgets.QWidget):
                 aColor = getattr(getattr(self.legend, 'title2_aspect', None), 'color', None)
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
-                painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
+                base_x = 15
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, Qt.AlignLeft)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
             elif self.type == "Title1":
                 aFont = QFont()
                 aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'title1_aspect', type('x', (), {})()))
                 aColor = getattr(getattr(self.legend, 'title1_aspect', None), 'color', None)
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
-                painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
+                base_x = 15
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, Qt.AlignLeft)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
             elif self.type == "Title2":
                 aFont = QFont()
                 aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'title2_aspect', type('x', (), {})()))
                 aColor = getattr(getattr(self.legend, 'title2_aspect', None), 'color', None)
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
-                painter.drawTextAutoSized(10, 0, self.text, aFont, Qt.AlignLeft)
+                base_x = 10
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, Qt.AlignLeft)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
             elif self.type =='delete':
                 aFont = QFont()
                 aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'text1_aspect', type('x', (), {})()))
-                painter.drawTextAutoSized(30, 3, self.text, aFont, Qt.AlignLeft)
+                base_x = 30
+                painter.drawTextAutoSized(base_x, 3, self.text, aFont, Qt.AlignLeft)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
             else :
                 font = QFont()
                 font = apply_font_from_aspect(font, getattr(self.legend, 'text1_aspect', type('x', (), {})()))
                 aColor = getattr(getattr(self.legend, 'text1_aspect', None), 'color', None)
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
-                painter.drawTextAutoSized(30, 3, self.text, font, Qt.AlignLeft)
-            self.setMinimumSize(self.legend.getSizeXGlobal()-40,10)
-            self.move(10,self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
+                base_x = 30
+                painter.drawTextAutoSized(base_x, 3, self.text, font, Qt.AlignLeft)
+                fm = QFontMetrics(font)
+                text_w = fm.boundingRect(self.text).width()
+            # Compute minimum width from measured text + base_x and a small padding
+            try:
+                right_pad = 6
+                min_w = int(base_x + max(0, text_w) + right_pad)
+            except Exception:
+                min_w = 60
+            self.setMinimumSize(min_w,10)
+            # Position items using panel paddings
+            left_pad = getattr(self.legend, 'leftPadding', 10)
+            top_pad = getattr(self.legend, 'topPadding', 0)
+            self.move(left_pad, top_pad + self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
             painter.end()
             
     

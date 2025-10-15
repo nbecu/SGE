@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 # STEP1 Model
 
-myModel = SGModel(1100, 900,  windowTitle="Game example")
+myModel = SGModel(1100, 820,  windowTitle="Game example")
 
 
 # STEP2 Grid and Cells

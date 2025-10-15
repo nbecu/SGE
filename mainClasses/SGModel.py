@@ -2120,7 +2120,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         
     # To create a Text Box
-    def newLabel(self, text, position, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
+    def newLabel(self, text, position=None, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
         """Display a text at a given position
 
         Args:
@@ -2139,7 +2139,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aLabel = SGLabel(self, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
         self.gameSpaces[aLabel.id] = aLabel
         self.layoutOfModel.addGameSpace(aLabel)
-        aLabel.moveToCoords(position[0], position[1])
+        if position: aLabel.moveToCoords(position[0], position[1])
         return aLabel
 
     # To create a new styled label
@@ -2178,7 +2178,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aLabel
     
     # To create a Push Button
-    def newButton(self, method, text, position,
+    def newButton(self, method, text, position=None,
                     background_color='white',
                     background_image=None,
                     border_size=1,
@@ -2248,7 +2248,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Enregistrer comme un GameSpace et l'ajouter au layout
         self.gameSpaces[aButton.id] = aButton
         self.layoutOfModel.addGameSpace(aButton)
-        aButton.moveToCoords(position[0], position[1])
+        if position: aButton.moveToCoords(position[0], position[1])
         return aButton
 
 

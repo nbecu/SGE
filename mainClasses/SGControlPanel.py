@@ -42,6 +42,16 @@ class SGControlPanel(SGGameSpace):
         # Initialize theme aspects for different states
         self.inactive_aspect = SGAspect.inactive()
         self.haveADeleteButton = False
+        # Paddings for panel rendering and item positioning
+        self.topPadding = 8
+        self.leftPadding = 10
+        # Reduce right margin for this panel specifically
+        try:
+            self.rightMargin = 8
+        except Exception:
+            pass
+        # Bottom padding to control space under last item
+        self.bottomPadding = 3
         
         # Initialize UI with game actions
         gameActions = aPlayer.gameActions
@@ -58,30 +68,15 @@ class SGControlPanel(SGGameSpace):
         else:
             self.defaultSelection = None
 
-    @classmethod
-    def forPlayer(cls, aPlayer, panelTitle, backgroundColor=Qt.transparent, borderColor=Qt.black, defaultActionSelected=None):
-        """
-        Legacy class method for backward compatibility.
-        Creates a ControlPanel using the new __init__ constructor.
-        
-        Args:
-            aPlayer: The player who owns this control panel
-            panelTitle: Title/name of the control panel
-            backgroundColor: Background color (default: transparent)
-            borderColor: Border color (default: black)
-            defaultActionSelected: Default game action to select (optional)
-            
-        Returns:
-            SGControlPanel: The created control panel instance
-        """
-        return cls(aPlayer, panelTitle, backgroundColor, borderColor, defaultActionSelected)
-
 
     def initUI_withGameActions(self,gameActions):
         self.posYOfItems = 0
         self.legendItems = []
-        self.heightOfLabels = 20
+        # Vertical spacing between items; also controls top margin feel
+        self.heightOfLabels = 22  # slightly larger to increase top margin perception
         anItem=SGLegendItem(self,'Title1',self.id) #self.id is equivalent to name
+        # Ensure Title1 participates in width/size computations
+        self.legendItems.append(anItem)
         
         # Filter out actions that can't be properly sorted (like model actions)
         sortableActions = []
@@ -141,12 +136,25 @@ class SGControlPanel(SGGameSpace):
         return lMax*12+10
     
     def getSizeX_fromAllWidgets(self):
-        if self.legendItems:  # Vérifier si la liste n'est pas vide
-            max_size_item = max(self.legendItems, key=lambda item: item.geometry().size().width())
-            max_width = max_size_item.geometry().size().width()
-        else:
-            max_width = 30  # Ou une autre valeur par défaut
-        return max_width + 10
+        """Compute content width from children min sizes (text-measured), not the previous geometry.
+
+        This reduces the spurious extra right margin and adapts to text length.
+        """
+        try:
+            if self.legendItems:
+                widths = []
+                for it in self.legendItems:
+                    try:
+                        w = it.minimumSize().width()
+                    except Exception:
+                        w = it.sizeHint().width()
+                    widths.append(w)
+                max_width = max(widths) if widths else 30
+            else:
+                max_width = 30
+            return int(max_width)
+        except Exception:
+            return 60
     
     def getSizeYGlobal(self):
         return (self.heightOfLabels)*(len(self.legendItems)+1)
@@ -158,19 +166,24 @@ class SGControlPanel(SGGameSpace):
             painter.begin(self)
             if self.isActive:
                 bg_color = self.gs_aspect.getBackgroundColorValue()
-                print(f"SGControlPanel paintEvent - isActive=True, bg_color={bg_color}")
                 painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
             else:
                 # Use inactive theme instead of hardcoded color
                 bg_color = self.inactive_aspect.getBackgroundColorValue()
-                print(f"SGControlPanel paintEvent - isActive=False, bg_color={bg_color}")
                 painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
             painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
             #Draw the corner of the Legend
             # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
-            self.setMinimumSize(self.getSizeX_fromAllWidgets(), self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeX_fromAllWidgets()-1, self.getSizeYGlobal())
+            # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())
+            # Compute width/height including paddings
+            content_width = max(0, self.getSizeX_fromAllWidgets())
+            drawn_width = int(self.leftPadding + content_width + max(0, getattr(self, 'rightMargin', 0)))
+            # Height: use number of items (no extra +1 row) plus explicit bottom padding
+            items_count = len(self.legendItems)
+            content_height = int(self.heightOfLabels * items_count)
+            drawn_height = int(self.topPadding + content_height + max(0, getattr(self, 'bottomPadding', 0)))
+            self.setMinimumSize(drawn_width, drawn_height)
+            painter.drawRect(0,0, drawn_width-1, drawn_height-1)
 
             painter.end()
 
