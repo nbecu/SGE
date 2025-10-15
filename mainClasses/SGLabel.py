@@ -28,8 +28,13 @@ class SGLabel(SGGameSpace):
             self.label.setFixedHeight(fixedHeight)
         try:
             self.label.setAlignment(getattr(Qt, "Align"+alignement))
+            # Enregistrer l'intention du modéliseur dans l'aspect texte
+            self.text1_aspect.alignment = alignement
+            # Preserve initial alignment preference passed by the modeler
+            self._initial_alignment = alignement
         except Exception:
             self.label.setAlignment(Qt.AlignLeft)
+            self._initial_alignment = None
 
         # Parse legacy CSS specs into gs_aspect/text aspect (backward compatibility)
         try:
@@ -53,6 +58,37 @@ class SGLabel(SGGameSpace):
         except Exception:
             pass
         self._resize_to_layout_or_label()
+
+    # =========================
+    # SIZE GETTERS (required by layouts)
+    # =========================
+    def getSizeXGlobal(self):
+        try:
+            # Prefer computed size if available
+            if hasattr(self, 'sizeXGlobal') and isinstance(self.sizeXGlobal, int):
+                return self.sizeXGlobal
+        except Exception:
+            pass
+        # Fallback to current widget width/sizeHint
+        try:
+            w = self.sizeHint().width()
+            return int(w) if w is not None else int(self.width())
+        except Exception:
+            return int(self.width())
+
+    def getSizeYGlobal(self):
+        try:
+            # Prefer computed size if available
+            if hasattr(self, 'sizeYGlobal') and isinstance(self.sizeYGlobal, int):
+                return self.sizeYGlobal
+        except Exception:
+            pass
+        # Fallback to current widget height/sizeHint
+        try:
+            h = self.sizeHint().height()
+            return int(h) if h is not None else int(self.height())
+        except Exception:
+            return int(self.height())
 
     def _resize_to_layout_or_label(self):
         try:
@@ -156,6 +192,27 @@ class SGLabel(SGGameSpace):
 
     def onTextAspectsChanged(self):
         # Apply text1_aspect to internal label
+        # Map alignment helper (same convention as other GameSpaces)
+        def _map_alignment(al):
+            if not isinstance(al, str):
+                return None
+            a = al.lower()
+            if a == 'left':
+                return Qt.AlignLeft | Qt.AlignVCenter
+            if a == 'right':
+                return Qt.AlignRight | Qt.AlignVCenter
+            if a in ('center', 'hcenter'):
+                return Qt.AlignHCenter | Qt.AlignVCenter
+            if a == 'top':
+                return Qt.AlignTop | Qt.AlignHCenter
+            if a == 'bottom':
+                return Qt.AlignBottom | Qt.AlignHCenter
+            if a == 'vcenter':
+                return Qt.AlignVCenter | Qt.AlignHCenter
+            if a == 'justify':
+                return Qt.AlignJustify
+            return None
+
         f = self.label.font()
         if self.text1_aspect.font:
             f.setFamily(self.text1_aspect.font)
@@ -172,6 +229,19 @@ class SGLabel(SGGameSpace):
             s = str(self.text1_aspect.font_style).lower()
             f.setItalic(s in ('italic', 'oblique'))
         self.label.setFont(f)
+        # Apply alignment from aspect if provided
+        # Apply alignment from aspect if explicitly set or if a theme/override is active.
+        aspect_alignment = getattr(self.text1_aspect, 'alignment', None)
+        al = _map_alignment(aspect_alignment) if aspect_alignment else None
+        if al is not None:
+            # If aspect alignment is the default 'left' but no theme/override is active,
+            # preserve the initial alignment provided by the modeler.
+            if (str(aspect_alignment).lower() == 'left'
+                and getattr(self, '_initial_alignment', None)
+                and (self.current_theme_name is None and not getattr(self, 'theme_overridden', False))):
+                pass
+            else:
+                self.label.setAlignment(al)
         css_parts = []
         if self.text1_aspect.color:
             try:

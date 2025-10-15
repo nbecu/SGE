@@ -318,6 +318,9 @@ class SGThemeCustomEditorDialog(QDialog):
                 asp.font_style = spec_t['font_style']
             if 'text_decoration' in spec_t and spec_t['text_decoration'] is not None:
                 asp.text_decoration = spec_t['text_decoration']
+            # NEW: apply alignment from editor when provided
+            if 'alignment' in spec_t and spec_t['alignment'] is not None and spec_t['alignment'] != "":
+                asp.alignment = spec_t['alignment']
         self.gs.theme_overridden = True
         self.gs.current_theme_name = None
         # Apply container-only style if available to avoid cascading text styles

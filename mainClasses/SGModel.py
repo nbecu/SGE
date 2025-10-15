@@ -2137,14 +2137,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             SGLabel: An instance of SGLabel with the specified properties.
         """
         aLabel = SGLabel(self, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
-        aLabel.move(position[0], position[1])
-        # self.gameSpaces[aLabel.id] = aLabel
-        # self.layoutOfModel.addGameSpace(aLabel)
-        # aLabel.moveToCoords(position[0], position[1])
+        self.gameSpaces[aLabel.id] = aLabel
+        self.layoutOfModel.addGameSpace(aLabel)
+        aLabel.moveToCoords(position[0], position[1])
         return aLabel
 
     # To create a new styled label
     def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", alignement= "Left", border_style="solid", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):
+        #todo: could be obsolete since newLabel method has been plugged to the game spaces system
         """Display a text at a given position and allow setting the style of the text, border, and background.
 
         Args:
@@ -2245,8 +2245,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                         disabled_color=disabled_color,
                         word_wrap=word_wrap,
                         fixed_width=fixed_width)
-        # aButton = SGButton(self, method, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, fixedWidth, fixedHeight)
-        aButton.move(position[0], position[1])
+        # Enregistrer comme un GameSpace et l'ajouter au layout
+        self.gameSpaces[aButton.id] = aButton
+        self.layoutOfModel.addGameSpace(aButton)
+        aButton.moveToCoords(position[0], position[1])
         return aButton
 
 
