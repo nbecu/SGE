@@ -163,7 +163,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 # Note: overline not directly supported on QFont; ignored
                 return font
 
-            # Choose color/aspect based on item type
+            # Choose color/aspect based on item type (also apply alignment if provided)
             if self.type == "None":
                 # Use title2 as a neutral default with underline
                 aFont = QFont()
@@ -172,7 +172,26 @@ class SGLegendItem(QtWidgets.QWidget):
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
                 base_x = 15
-                painter.drawTextAutoSized(base_x, 0, self.text, aFont, Qt.AlignLeft)
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'title2_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, align)
                 fm = QFontMetrics(aFont)
                 text_w = fm.boundingRect(self.text).width()
             elif self.type == "Title1":
@@ -182,7 +201,26 @@ class SGLegendItem(QtWidgets.QWidget):
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
                 base_x = 15
-                painter.drawTextAutoSized(base_x, 0, self.text, aFont, Qt.AlignLeft)
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'title1_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, align)
                 fm = QFontMetrics(aFont)
                 text_w = fm.boundingRect(self.text).width()
             elif self.type == "Title2":
@@ -192,14 +230,52 @@ class SGLegendItem(QtWidgets.QWidget):
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
                 base_x = 10
-                painter.drawTextAutoSized(base_x, 0, self.text, aFont, Qt.AlignLeft)
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'title2_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, align)
                 fm = QFontMetrics(aFont)
                 text_w = fm.boundingRect(self.text).width()
             elif self.type =='delete':
                 aFont = QFont()
                 aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'text1_aspect', type('x', (), {})()))
                 base_x = 30
-                painter.drawTextAutoSized(base_x, 3, self.text, aFont, Qt.AlignLeft)
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'text1_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 3, self.text, aFont, align)
                 fm = QFontMetrics(aFont)
                 text_w = fm.boundingRect(self.text).width()
             else :
@@ -209,7 +285,26 @@ class SGLegendItem(QtWidgets.QWidget):
                 if aColor:
                     painter.setPen(QPen(QColor(aColor)))
                 base_x = 30
-                painter.drawTextAutoSized(base_x, 3, self.text, font, Qt.AlignLeft)
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'text1_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 3, self.text, font, align)
                 fm = QFontMetrics(font)
                 text_w = fm.boundingRect(self.text).width()
             # Compute minimum width from measured text + base_x and a small padding

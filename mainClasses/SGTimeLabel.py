@@ -94,9 +94,47 @@ class SGTimeLabel(SGGameSpace):
         # Apply text1_aspect to non-title labels
         for aLabel in getattr(self, 'labels', []) or []:
             aLabel.setStyleSheet(self.text1_aspect.getTextStyle())
+            # Alignment from text1_aspect
+            try:
+                al = getattr(self.text1_aspect, 'alignment', None)
+                if isinstance(al, str) and al:
+                    a = al.strip().lower()
+                    align_map = {
+                        'left': Qt.AlignLeft,
+                        'right': Qt.AlignRight,
+                        'center': Qt.AlignHCenter,
+                        'hcenter': Qt.AlignHCenter,
+                        'top': Qt.AlignTop,
+                        'bottom': Qt.AlignBottom,
+                        'vcenter': Qt.AlignVCenter,
+                        'justify': Qt.AlignJustify,
+                    }
+                    if a in align_map:
+                        aLabel.setAlignment(align_map[a])
+            except Exception:
+                pass
         # Apply title1_aspect to title if present
         if getattr(self, 'displayTitle', False) and hasattr(self, 'labelTitle') and self.labelTitle:
             self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
+            # Alignment from title1_aspect
+            try:
+                al = getattr(self.title1_aspect, 'alignment', None)
+                if isinstance(al, str) and al:
+                    a = al.strip().lower()
+                    align_map = {
+                        'left': Qt.AlignLeft,
+                        'right': Qt.AlignRight,
+                        'center': Qt.AlignHCenter,
+                        'hcenter': Qt.AlignHCenter,
+                        'top': Qt.AlignTop,
+                        'bottom': Qt.AlignBottom,
+                        'vcenter': Qt.AlignVCenter,
+                        'justify': Qt.AlignJustify,
+                    }
+                    if a in align_map:
+                        self.labelTitle.setAlignment(align_map[a])
+            except Exception:
+                pass
         self.updateLabelsandWidgetSize()
         self.update()
 

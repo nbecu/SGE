@@ -414,6 +414,25 @@ class SGDashBoard(SGGameSpace):
                 f.setItalic(s in ('italic', 'oblique'))
             self.labelTitle.setFont(f)
             self.labelTitle.setStyleSheet("; ".join(css_parts))
+            # Alignment from title1_aspect
+            try:
+                al = getattr(self.title1_aspect, 'alignment', None)
+                if isinstance(al, str) and al:
+                    a = al.strip().lower()
+                    align_map = {
+                        'left': Qt.AlignLeft,
+                        'right': Qt.AlignRight,
+                        'center': Qt.AlignHCenter,
+                        'hcenter': Qt.AlignHCenter,
+                        'top': Qt.AlignTop,
+                        'bottom': Qt.AlignBottom,
+                        'vcenter': Qt.AlignVCenter,
+                        'justify': Qt.AlignJustify,
+                    }
+                    if a in align_map:
+                        self.labelTitle.setAlignment(align_map[a])
+            except Exception:
+                pass
         # Apply text1 to indicators labels
         for ind in self.indicators:
             if hasattr(ind, 'label') and ind.label:
@@ -437,6 +456,25 @@ class SGDashBoard(SGGameSpace):
                     f.setItalic(s in ('italic', 'oblique'))
                 lbl.setFont(f)
                 lbl.setStyleSheet("; ".join(css_parts))
+                # Alignment from text1_aspect
+                try:
+                    al = getattr(self.text1_aspect, 'alignment', None)
+                    if isinstance(al, str) and al:
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            lbl.setAlignment(align_map[a])
+                except Exception:
+                    pass
 
         # Resize
         self.updateLabelsandWidgetSize()

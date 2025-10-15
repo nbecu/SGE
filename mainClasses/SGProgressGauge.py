@@ -52,6 +52,12 @@ class SGProgressGauge(SGGameSpace):
         self.gs_aspect.border_color = borderColor
         self.gs_aspect.border_size = 2
         self.gs_aspect.background_color = backgroundColor
+        # Default alignment for value label
+        try:
+            self.text1_aspect.alignement = 'center'
+            self.text1_aspect.alignment = 'center'
+        except Exception:
+            pass
         self.bar_width = bar_width if isinstance(bar_width,(int, float)) else None
         if bar_width == 'fit title size' and self.orientation == 'vertical' :
             if self.title_text is None : raise ValueError ('bar_width cannot be fit title size, if the title is None')
@@ -334,6 +340,25 @@ class SGProgressGauge(SGGameSpace):
                 f.setItalic(s in ('italic', 'oblique'))
             self.title_label.setFont(f)
             self.title_label.setStyleSheet("; ".join(css_parts))
+            # Alignment
+            try:
+                al = getattr(self.title1_aspect, 'alignment', None)
+                if isinstance(al, str) and al:
+                    a = al.strip().lower()
+                    align_map = {
+                        'left': Qt.AlignLeft,
+                        'right': Qt.AlignRight,
+                        'center': Qt.AlignHCenter,
+                        'hcenter': Qt.AlignHCenter,
+                        'top': Qt.AlignTop,
+                        'bottom': Qt.AlignBottom,
+                        'vcenter': Qt.AlignVCenter,
+                        'justify': Qt.AlignJustify,
+                    }
+                    if a in align_map:
+                        self.title_label.setAlignment(align_map[a])
+            except Exception:
+                pass
 
         # Value label styling (text1_aspect)
         if hasattr(self, 'value_label') and self.value_label is not None:
@@ -356,6 +381,26 @@ class SGProgressGauge(SGGameSpace):
                 f.setItalic(s in ('italic', 'oblique'))
             self.value_label.setFont(f)
             self.value_label.setStyleSheet("; ".join(css_parts))
+            # Alignment
+            try:
+                al = getattr(self.text1_aspect, 'alignment', None)
+                if isinstance(al, str) and al:
+                    a = al.strip().lower()
+                    align_map = {
+                        'left': Qt.AlignLeft,
+                        'right': Qt.AlignRight,
+                        'center': Qt.AlignHCenter,
+                        'hcenter': Qt.AlignHCenter,
+                        'top': Qt.AlignTop,
+                        'bottom': Qt.AlignBottom,
+                        'vcenter': Qt.AlignVCenter,
+                        'justify': Qt.AlignJustify,
+                    }
+                    if a in align_map:
+                        self.value_label.setAlignment(align_map[a])
+            except Exception:
+                pass
+            # Default now set during __init__ via text1_aspect.alignment = 'center'
 
         # Resize to content
         if hasattr(self, 'layout') and self.layout is not None:

@@ -69,6 +69,38 @@ class SGThemeEditTableDialog(QDialog):
 
         self.setLayout(layout)
 
+    def showEvent(self, event):
+        """Position the dialog docked to the right of the main window when shown."""
+        super().showEvent(event)
+        try:
+            parent = self.parent() if isinstance(self.parent(), QWidget) else None
+            if parent is None and hasattr(self, 'model') and isinstance(self.model, QWidget):
+                parent = self.model
+            if parent is None:
+                return
+            # Parent frame geometry is already in global coords
+            pg = parent.frameGeometry() if hasattr(parent, 'frameGeometry') else parent.geometry()
+            # Compute desired to-the-right position
+            target_x = pg.right()
+            target_y = pg.top()
+            # Fit inside available screen geometry of the parent's screen
+            desk = QApplication.desktop()
+            try:
+                screen_num = desk.screenNumber(parent)
+                available = desk.availableGeometry(screen_num)
+            except Exception:
+                available = desk.availableGeometry()
+            w = self.width()
+            h = self.height()
+            # Adjust if overflowing to the right/bottom
+            if target_x + w > available.right():
+                target_x = max(available.left(), available.right() - w)
+            if target_y + h > available.bottom():
+                target_y = max(available.top(), available.bottom() - h)
+            self.move(target_x, target_y)
+        except Exception:
+            pass
+
     def populateTable(self):
         self.table.setRowCount(len(self._gs_cache))
         # Extend theme list with runtime themes saved in model

@@ -67,7 +67,7 @@ userSelector = myModel.newUserSelector()
 userSelector.setLayoutOrder(1)
 userSelector.setTitleText("User Selection")
 
-score1= myModel.newSimVariable("Global Score:",0)
+score1= myModel.newSimVariable("Global Score",0)
 progressGauge = myModel.newProgressGauge(score1, minimum=0, maximum=100, title="Progress")
 progressGauge.setLayoutOrder(3)
 
