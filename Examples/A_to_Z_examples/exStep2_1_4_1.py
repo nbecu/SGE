@@ -9,7 +9,6 @@ myModel=SGModel(700,700, windowTitle="Create your grid with a custom background 
 
 # First thing first: define the size of the grid (x, y), the shape of cells, their size, and other parameters
 Cell = myModel.newCellsOnGrid(10, 10, "square", size=50,gap=8,color=Qt.blue)
-
 # Then set the value of the cells for a given parameter
 # In this example the parameter is landUse, and the values given are 'grass', 'forest' and 'shrub'
 # The method setEntities() sets the value of all cells

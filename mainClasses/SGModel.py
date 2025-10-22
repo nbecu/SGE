@@ -233,8 +233,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # self.reorganizeEnhancedGridLayoutOrders()
         self.applyAutomaticLayout()
 
-        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
-        self.createEnhancedGridLayoutMenu()
 
         # Show admin control panel if needed
         if self.shouldDisplayAdminControlPanel:
@@ -1017,6 +1015,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def createThemeManagerMenu(self):
         """Create Theme Manager entries in Settings menu"""
         self.themeMenu = self.settingsMenu.addMenu("&Themes")
+
+        # Edit per-GameSpace themes (table)
+        editThemesAction = QAction("&Edit Themes...", self)
+        editThemesAction.triggered.connect(self.openThemeEditTableDialog)
+        self.themeMenu.addAction(editThemesAction)
+        
         # Apply Global Theme (quick)
         applyGlobalThemeAction = QAction("&Apply Global Theme...", self)
         applyGlobalThemeAction.triggered.connect(self.openApplyGlobalThemeDialog)
@@ -1026,11 +1030,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         manageThemeAction = QAction("&Manage Theme Configurations...", self)
         manageThemeAction.triggered.connect(self.openThemeConfigManagerDialog)
         self.themeMenu.addAction(manageThemeAction)
-
-        # Edit per-GameSpace themes (table)
-        editThemesAction = QAction("&Edit Themes...", self)
-        editThemesAction.triggered.connect(self.openThemeEditTableDialog)
-        self.themeMenu.addAction(editThemesAction)
 
     def openThemeConfigManagerDialog(self):
         """Open the Theme Configuration Manager dialog."""

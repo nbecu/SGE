@@ -1,0 +1,22 @@
+{
+  "configurations": {
+    "center": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 3,
+      "gameSpaces": {
+        "grid1": {
+          "layoutOrder": 1,
+          "position_type": "mixed",
+          "manual_position": [
+            87,
+            61
+          ],
+          "manual_override": true
+        }
+      },
+      "model_name": null,
+      "timestamp": "2025-10-18 13:16:00",
+      "version": "1.0"
+    }
+  }
+}

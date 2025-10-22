@@ -34,6 +34,7 @@ class SGTextBox(SGGameSpace):
     """
     def __init__(self, parent, textToWrite, title, sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
+        self._debug_sizes = True
         self.title = title
         self.id = title
         self.model = parent
@@ -73,7 +74,14 @@ class SGTextBox(SGGameSpace):
             self.textWidget = QtWidgets.QTextEdit()
             self.textWidget.setPlainText(self.textToWrite)
             self.textWidget.setReadOnly(True)
-            self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # Show scrollbar when needed
+            # Force word-wrap behavior at widget width
+            try:
+                self.textWidget.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+                self.textWidget.setWordWrapMode(QTextOption.WordWrap)
+                self.textWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            except Exception:
+                pass
         else:  # Use QLabel for short texts
             self.textWidget = QtWidgets.QLabel(self.textToWrite)
             self.textWidget.setWordWrap(True)
@@ -89,6 +97,12 @@ class SGTextBox(SGGameSpace):
 
         # Create a QVBoxLayout to hold the QTextEdit and QPushButton
         self.textLayout = QtWidgets.QVBoxLayout()
+        try:
+            # Revenir à une marge basse légère (+2)
+            self.textLayout.setContentsMargins(4, 2, self.rightMargin, self.verticalGapBetweenLabels + 2)
+            self.textLayout.setSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
         self.textLayout.addWidget(self.labelTitle)
         self.textLayout.addWidget(self.textEdit)
 
@@ -133,7 +147,20 @@ class SGTextBox(SGGameSpace):
     def getSizeYGlobal(self):
         # Use manual size if specified
         if self.sizeY is not None:
+            if getattr(self, '_debug_sizes', False):
+                try:
+                    print(f"SGTextBox[{self.title}] getSizeYGlobal -> manual sizeY={self.sizeY}")
+                except Exception:
+                    pass
             return self.sizeY
+        # Prefer layout-computed global size when available
+        if hasattr(self, 'sizeYGlobal') and getattr(self, 'sizeYGlobal', None):
+            try:
+                if getattr(self, '_debug_sizes', False):
+                    print(f"SGTextBox[{self.title}] getSizeYGlobal -> cached sizeYGlobal={int(self.sizeYGlobal)}")
+                return int(self.sizeYGlobal)
+            except Exception:
+                pass
         
         # Always use font-based calculation for accurate height
         if hasattr(self, 'textEdit') and self.textEdit:
@@ -157,7 +184,13 @@ class SGTextBox(SGGameSpace):
             # Use higher minimum height for long text
             min_height = self.min_height_for_long_text if len(text_content) > 100 else self.size_manager.min_height
             
-            return max(calculated_height, min_height)
+            res = max(calculated_height, min_height)
+            if getattr(self, '_debug_sizes', False):
+                try:
+                    print(f"SGTextBox[{self.title}] getSizeYGlobal -> calc: text_h={calculated_height}, min_h={min_height}, res={res}")
+                except Exception:
+                    pass
+            return res
         
         return self.size_manager.min_height
 
@@ -439,10 +472,87 @@ class SGTextBox(SGGameSpace):
                     target.setStyleSheet(f"QTextEdit {{ border: none; background: transparent; color: {color_css}; }}")
                 else:
                     target.setStyleSheet("QTextEdit { border: none; background: transparent; }")
+                # Ensure wrapping is enforced on runtime changes
+                try:
+                    target.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+                    target.setWordWrapMode(QTextOption.WordWrap)
+                    target.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                except Exception:
+                    pass
 
-        # Resize based on layout
-        if hasattr(self, 'textLayout') and self.textLayout:
+        # Resize: QLabel -> metrics-based; QTextEdit -> layout-based
+        target = getattr(self, 'textWidget', None)
+        if isinstance(target, QtWidgets.QLabel) and hasattr(self, 'labelTitle'):
+            try:
+                # Calcul précis basé sur QFontMetrics via utilitaire générique
+                self.updateSizeFromLabels([self.labelTitle, target])
+                if getattr(self, '_debug_sizes', False):
+                    lt = self.labelTitle
+                    tg = target
+                    print(f"SGTextBox[{self.title}] labels sizing: title={(lt.width(), lt.height())}, text={(tg.width(), tg.height())}, sizeGlobal={(getattr(self,'sizeXGlobal',None), getattr(self,'sizeYGlobal',None))}")
+            except Exception:
+                # Fallback au layout si nécessaire
+                if hasattr(self, 'textLayout') and self.textLayout:
+                    self.updateSizeFromLayout(self.textLayout)
+        elif hasattr(self, 'textLayout') and self.textLayout:
+            # S'assurer que les hints sont à jour avant le calcul layout
+            try:
+                if hasattr(self, 'labelTitle') and self.labelTitle is not None:
+                    self.labelTitle.adjustSize()
+                if isinstance(target, QtWidgets.QLabel):
+                    target.adjustSize()
+            except Exception:
+                pass
+            if getattr(self, '_debug_sizes', False):
+                try:
+                    sh = self.textLayout.sizeHint() if hasattr(self.textLayout, 'sizeHint') else None
+                    lt = self.labelTitle if hasattr(self, 'labelTitle') else None
+                    tg = target
+                    print(f"SGTextBox[{self.title}] before layout: sh={(sh.width(), sh.height()) if sh and sh.isValid() else None}, title={(lt.width() if lt else None, lt.height() if lt else None)}, text={(tg.width() if tg else None, tg.height() if tg else None)}, widget={(self.width(), self.height())}")
+                except Exception:
+                    pass
             self.updateSizeFromLayout(self.textLayout)
+            if getattr(self, '_debug_sizes', False):
+                try:
+                    lt = self.labelTitle if hasattr(self, 'labelTitle') else None
+                    tg = target
+                    print(f"SGTextBox[{self.title}] after layout: sizeGlobal={(getattr(self,'sizeXGlobal',None), getattr(self,'sizeYGlobal',None))}, title={(lt.width() if lt else None, lt.height() if lt else None)}, text={(tg.width() if tg else None, tg.height() if tg else None)}, widget={(self.width(), self.height())}")
+                except Exception:
+                    pass
+            # Après calcul du layout, forcer le word-wrap des QTextEdit à la largeur disponible
+            try:
+                if isinstance(target, QtWidgets.QTextEdit):
+                    # Largeur disponible = largeur cadre - marges/gaps internes
+                    m = self.textLayout.contentsMargins() if hasattr(self.textLayout, 'contentsMargins') else None
+                    lm_left = m.left() if m else 0
+                    lm_right = m.right() if m else 0
+                    right_margin = getattr(self.size_manager, 'right_margin', 9)
+                    left_margin = 4
+                    border_padding = getattr(self.size_manager, 'border_padding', 3)
+                    avail_w = int(max(120, self.getSizeXGlobal() - (lm_left + lm_right + right_margin + left_margin + border_padding)))
+                    target.setWordWrapMode(QTextOption.WordWrap)
+                    target.setLineWrapMode(QtWidgets.QTextEdit.FixedPixelWidth)
+                    target.setLineWrapColumnOrWidth(avail_w)
+                    target.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                    # Si aucune hauteur fixe n'est imposée, recalculer la hauteur en fonction du wrapping
+                    if getattr(self, 'sizeY', None) is None:
+                        # Utilise QTextDocument pour une hauteur précise post-wrap, en tenant compte du frame/contenu
+                        doc = target.document()
+                        try:
+                            doc.setTextWidth(float(avail_w))
+                            doc.adjustSize()
+                        except Exception:
+                            pass
+                        frame_w = getattr(target, 'frameWidth', lambda: 0)()
+                        margins = getattr(target, 'contentsMargins', lambda: QMargins(0,0,0,0))()
+                        doc_h = doc.size().height()
+                        text_h = int(doc_h + 2*frame_w + margins.top() + margins.bottom() + 8)  # marge sécurité
+                        target.setFixedWidth(avail_w)
+                        target.setFixedHeight(text_h)
+                        # Propager via une passe layout pour ajuster le cadre (inclut marges/gaps)
+                        self.updateSizeFromLayout(self.textLayout)
+            except Exception:
+                pass
         self.update()
 
     # ============================================================================
