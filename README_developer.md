@@ -371,7 +371,19 @@ For more information about SGE usage and modeling, see `README_modeler.md`.
 
 ---
 
-## 10. Future Plan
+## 10. Architecture Diagnostic
+
+For a comprehensive architectural analysis and diagnostic of the SGE platform, including points forts, areas for improvement, and prioritized recommendations, see [ARCHITECTURE_DIAGNOSTIC.md](docs/ARCHITECTURE_DIAGNOSTIC.md).
+
+This document provides:
+- Confirmed architectural strengths
+- Identified improvement areas
+- Prioritized recommendations for development
+- Context about current state and ongoing work
+
+---
+
+## 11. Future Plan
 
 For the complete list of planned improvements and features, see [FUTURE_PLAN.md](FUTURE_PLAN.md).
 
