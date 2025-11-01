@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from mainClasses.SGSGE import *
-from PyQt5.QtWidgets import QInputDialog
-from PyQt5.QtCore import QPoint
+# from PyQt5.QtWidgets import QInputDialog
+# from PyQt5.QtCore import QPoint
 import random
 monApp=QtWidgets.QApplication([])
 
@@ -14,7 +14,7 @@ myModel=SGModel(1700,1020, name="CarbonPolis", nb_columns=7)
     
 #********************************************************************
 
-nbJoueurs = 8 #Entre 5 et 8
+nbJoueurs = 6 #Entre 5 et 8
 
 # Def des joueurs
 joueurs_potentiels = {

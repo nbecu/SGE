@@ -104,3 +104,6 @@ __pycache__/
 # Specific cache directories in mainClasses
 mainClasses/*/__pycache__/
 mainClasses/*/*/__pycache__/
+
+# Article and draft files (not for git)
+_valo/
