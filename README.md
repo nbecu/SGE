@@ -6,6 +6,22 @@ Welcome to SGE!
 > - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/SGE_methods/sge_methods_catalog.html)
 > - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/archi_diagrams/index.html)
 
+## Installation
+
+Pour installer SGE avec toutes ses dépendances, vous avez deux options :
+
+### Option 1 : Installation avec pip (recommandé)
+```bash
+pip install .
+```
+Cette commande installera automatiquement SGE ainsi que toutes les dépendances listées dans `pyproject.toml`.
+
+### Option 2 : Installation des dépendances uniquement
+```bash
+pip install -r requirements.txt
+```
+Cette commande installe uniquement les dépendances sans installer le package SGE lui-même.
+
 
 
 SGE (Simulation Game Editor) is a simulation game editor. It enables the modeling of a simulated environment and the integration of players who interact with the simulation elements through game actions. To enhance the user experience, SGE supports the addition of UI/UX game components—such as buttons, menus, dashboards, graphs, and end-game rules.
