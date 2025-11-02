@@ -91,8 +91,8 @@ endGameRule.addEndGameCondition_onEntity(
 endGameRule.showEndGameConditions()
 
 # STEP7 TextBox
-TextBox = myModel.newTextBox(
-    title='Your game is starting...', textToWrite="Welcome !")
+TextBox = myModel.newTextBoxLarge(
+    title='Your game is starting...', textToWrite="Welcome !",width=150,height=60,titleAlignment='center')
 
 myModel.setCurrentPlayer("Player 1")
 myModel.launch()

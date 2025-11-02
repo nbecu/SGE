@@ -47,6 +47,7 @@ from mainClasses.SGProgressGauge import *
 from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGTextBox import *
+from mainClasses.SGTextBoxLarge import *
 from mainClasses.SGLabel import *
 from mainClasses.SGButton import *
 from mainClasses.SGTimeLabel import *
@@ -2118,6 +2119,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layoutOfModel.addGameSpace(aTextBox)
 
         return aTextBox
+
+    # To create a Large Text Box (optimized for long texts with scrolling)
+    def newTextBoxLarge(self, textToWrite='', title='', width=None, height=None,
+                       borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
+        """
+        Create a large text box optimized for long texts with scrollable content.
+
+        Args:
+            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
+            title (str): Name of the widget (default: "Text Box Large")
+            width (int, optional): Custom width in pixels (default: 250)
+            height (int, optional): Custom height in pixels (default: 150)
+            borderColor (QColor): Border color of the text box (default: Qt.black)
+            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
+            titleAlignment (str): Title alignment - 'left', 'center', or 'right' (default: 'left')
+
+        Returns:
+            SGTextBoxLarge: The created large text box widget
+        """
+        aTextBoxLarge = SGTextBoxLarge(self, textToWrite, title, width, height, borderColor, backgroundColor, titleAlignment)
+        self.TextBoxes.append(aTextBoxLarge)
+        self.gameSpaces[title] = aTextBoxLarge
+
+        # Apply title alignment using setter from SGGameSpace if provided
+        if titleAlignment:
+            aTextBoxLarge.setTitleAlignment(titleAlignment)
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aTextBoxLarge)
+
+        return aTextBoxLarge
 
         
     # To create a Text Box

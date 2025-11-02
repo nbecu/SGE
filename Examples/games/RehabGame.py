@@ -123,8 +123,8 @@ GameRounds = myModel.newTimeLabel(None, Qt.white, Qt.black, Qt.red)
 
 userSelector=myModel.newUserSelector()
 
-TextBox = myModel.newTextBox(
-    title='Info', textToWrite="Welcome to ReHab game !")
+TextBox = myModel.newTextBoxLarge(
+    title='Info', textToWrite="Welcome to ReHab game !",width=180,height=60,titleAlignment='center')
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator(Cell, "sumAtt", attribute='biomass',color=Qt.black, title='Total biomass')

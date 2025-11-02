@@ -726,7 +726,23 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         Args:
             alignment (str): The title alignment ('left', 'center', 'right')
         """
-        self.gs_aspect.alignment = alignment
+        # Map common alignment values to proper format
+        alignment_map = {
+            'left': 'Left',
+            'center': 'Center',
+            'hcenter': 'Center',
+            'right': 'Right'
+        }
+        mapped_alignment = alignment_map.get(alignment.lower() if isinstance(alignment, str) else str(alignment).lower(), alignment)
+        
+        # Update both gs_aspect and title1_aspect for consistency
+        self.gs_aspect.alignment = mapped_alignment
+        if hasattr(self, 'title1_aspect') and self.title1_aspect:
+            self.title1_aspect.alignment = mapped_alignment
+        
+        # Trigger text aspects update to apply alignment
+        if hasattr(self, 'onTextAspectsChanged'):
+            self.onTextAspectsChanged()
         self.update()
         self.theme_overridden = True
         
@@ -735,7 +751,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         Set the font family of the gameSpace.
         
         Args:
-            font_family (str): The font family name
+                font_family (str): The font family (e.g. "Times New Roman", "Georgia", "Garamond", "Baskerville", "Arial", "Helvetica", "Verdana", "Tahoma", "Trebuchet MS", "Courier New", "Lucida Console", "Monaco", "Consolas", "Comic Sans MS", "Papyrus", "Impact").
         """
         for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
                       self.text1_aspect, self.text2_aspect, self.text3_aspect]:

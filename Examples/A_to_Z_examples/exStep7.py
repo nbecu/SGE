@@ -65,8 +65,8 @@ endGameRule.showEndGameConditions()
 
 # You can add TextBoxes to your game
 # You can cuztomize the text, the title color and font by using the proper functions.
-TextBox = myModel.newTextBox(
-    title='Your game is starting...', textToWrite="Welcome !")
+TextBox = myModel.newLabel(
+    text="Your game is starting...\nWelcome !",alignement='Center')
 
 myModel.setCurrentPlayer("Player1")
 myModel.launch()

@@ -60,12 +60,13 @@ Player2.addGameAction(Update1)
 Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
 
-theTextBox=myModel.newTextBox("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?",sizeX=220)
+theTextBox=myModel.newTextBoxLarge("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?",
+width=200,height=80)
 
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
     nbCellsMer=len(CellsMer)
-    nbNavireEquivalentEffortRefZone=len(myModel.getAgentsOfSpecie("Navire"))
+    nbNavireEquivalentEffortRefZone=len(myModel.getAgentsOfType("Navire"))
     for Species in EspècesHalieutiques:
         for cell in CellsMer:
             cell.setValue("txPrésence"+Species.name,Species.value(cell.value("sédim"))/(nbCellsMer*nbNavireEquivalentEffortRefZone))
