@@ -316,12 +316,17 @@ class SGDashBoard(SGGameSpace):
         if self.isDisplay and len(self.indicators) != 0:
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
-            # Background with transparency
-            bg = self.gs_aspect.getBackgroundColorValue()
-            if bg.alpha() == 0:
-                painter.setBrush(Qt.NoBrush)
+            # Background: prefer image, else color with transparency
+            bg_pixmap = self.getBackgroundImagePixmap()
+            if bg_pixmap is not None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.drawPixmap(rect, bg_pixmap)
             else:
-                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+                bg = self.gs_aspect.getBackgroundColorValue()
+                if bg.alpha() == 0:
+                    painter.setBrush(Qt.NoBrush)
+                else:
+                    painter.setBrush(QBrush(bg, Qt.SolidPattern))
             # Border with style mapping
             pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
             style_map = {

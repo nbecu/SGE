@@ -164,13 +164,19 @@ class SGControlPanel(SGGameSpace):
         if self.checkDisplay():
             painter = QPainter() 
             painter.begin(self)
-            if self.isActive:
-                bg_color = self.gs_aspect.getBackgroundColorValue()
-                painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
+            # Background: prefer image, else color (active/inactive)
+            bg_pixmap = self.getBackgroundImagePixmap()
+            if bg_pixmap is not None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.drawPixmap(rect, bg_pixmap)
             else:
-                # Use inactive theme instead of hardcoded color
-                bg_color = self.inactive_aspect.getBackgroundColorValue()
-                painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
+                if self.isActive:
+                    bg_color = self.gs_aspect.getBackgroundColorValue()
+                    painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
+                else:
+                    # Use inactive theme instead of hardcoded color
+                    bg_color = self.inactive_aspect.getBackgroundColorValue()
+                    painter.setBrush(QBrush(bg_color, Qt.SolidPattern))
             painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
             #Draw the corner of the Legend
             # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)

@@ -44,6 +44,8 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.text3_aspect = SGAspect.text3()
         # Size manager for game_spaces
         self.size_manager = SGGameSpaceSizeManager()
+        # Store QPixmap directly if provided (alternative to file path in gs_aspect.background_image)
+        self._background_pixmap = None
         # Assign the unique ID to the instance
         self.id = self.__class__.nextId()
         # QSS object name (avoid '#') for id-specific styling on container only
@@ -378,6 +380,7 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                     inst = SGAspect()
                     base = spec_dict.get('base', spec_dict)
                     inst.background_color = base.get('background_color')
+                    inst.background_image = base.get('background_image')
                     inst.border_color = base.get('border_color')
                     inst.border_size = base.get('border_size')
                     inst.border_style = base.get('border_style')
@@ -399,6 +402,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             self.gs_aspect.border_style = theme_aspect.border_style
             self.gs_aspect.border_radius = theme_aspect.border_radius
             self.gs_aspect.padding = theme_aspect.padding
+            # Apply background image if present in theme
+            if hasattr(theme_aspect, 'background_image') and theme_aspect.background_image:
+                self.setBackgroundImage(theme_aspect.background_image)
             
             # Apply theme properties to text aspects
             for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
@@ -434,14 +440,26 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                         asp.font_style = spec['font_style']
                     if 'text_decoration' in spec:
                         asp.text_decoration = spec['text_decoration']
+                    if 'alignment' in spec and spec['alignment'] not in (None, ""):
+                        asp.alignment = spec['alignment']
                 
             # Track current theme name for UI dialogs (e.g., Edit Themes)
             self.current_theme_name = theme_name
             self.theme_overridden = False
 
             # Apply container-only style (no text cascade to children)
-            if hasattr(self, '_applyContainerStyle'):
-                self._applyContainerStyle()
+            if hasattr(self, 'applyContainerAspectStyle'):
+                try:
+                    self.applyContainerAspectStyle()
+                except Exception:
+                    pass
+
+            # Apply text aspects to internal widgets (if hook exists)
+            if hasattr(self, 'onTextAspectsChanged'):
+                try:
+                    self.onTextAspectsChanged()
+                except Exception:
+                    pass
 
             self.update()
         else:
@@ -583,16 +601,47 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self.gs_aspect.background_color=aColor
         self.theme_overridden = True
 
-    def setBackgroundImage(self, image_path):
+    def setBackgroundImage(self, image):
         """
         Set the background image of the gameSpace.
         
         Args:
-            image_path (str): The path to the background image
+            image (str or QPixmap): The path to the background image (str) or a QPixmap object
         """
-        self.gs_aspect.background_image = image_path
+        if isinstance(image, QPixmap):
+            # Store QPixmap directly
+            self._background_pixmap = image
+            self.gs_aspect.background_image = None  # Clear path to avoid confusion
+        elif isinstance(image, str):
+            # Store file path
+            self.gs_aspect.background_image = image
+            self._background_pixmap = None  # Clear pixmap to avoid confusion
+        else:
+            # Clear both if None or invalid
+            self.gs_aspect.background_image = None
+            self._background_pixmap = None
         self.update()
-        self.theme_overridden = True    
+        self.theme_overridden = True
+    
+    def getBackgroundImagePixmap(self):
+        """
+        Get the background image as a QPixmap.
+        
+        Returns:
+            QPixmap or None: The background image as QPixmap, or None if no image is set
+        """
+        # First, check if a QPixmap is stored directly
+        if self._background_pixmap is not None:
+            return self._background_pixmap
+        # Otherwise, try to load from file path
+        if self.gs_aspect.background_image:
+            try:
+                pix = QPixmap(self.gs_aspect.background_image)
+                if not pix.isNull():
+                    return pix
+            except Exception:
+                pass
+        return None    
 
     def setBorderColor(self, color):
         """

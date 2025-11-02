@@ -34,30 +34,20 @@ class SGGrid(SGGameSpace):
 
         if aColor != "None":
             self.setColor(aColor)
-        self.backgroundImage=backGroundImage
+        # Store background image via gs_aspect (supports both QPixmap and file path)
+        if backGroundImage is not None:
+            self.setBackgroundImage(backGroundImage)
     
     # Drawing the game board with the cell
     def paintEvent(self, event): 
         self.countPaintEvent += 1
         painter = QPainter()
         painter.begin(self)
-        # Background: prefer explicit image, then gs_aspect.background_image, else color/pattern with transparency handling
-        if self.backgroundImage is not None:
+        # Background: prefer image (via gs_aspect), else color/pattern with transparency handling
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
             rect = QRect(0, 0, self.width(), self.height())
-            painter.drawPixmap(rect, self.backgroundImage)
-        elif getattr(self.gs_aspect, 'background_image', None):
-            rect = QRect(0, 0, self.width(), self.height())
-            try:
-                pix = QPixmap(self.gs_aspect.background_image)
-                if not pix.isNull():
-                    painter.drawPixmap(rect, pix)
-                else:
-                    # Fallback to color if pixmap invalid
-                    bg = self.gs_aspect.getBackgroundColorValue()
-                    painter.setBrush(QBrush(bg, Qt.SolidPattern) if bg.alpha() != 0 else Qt.NoBrush)
-            except Exception:
-                bg = self.gs_aspect.getBackgroundColorValue()
-                painter.setBrush(QBrush(bg, Qt.SolidPattern) if bg.alpha() != 0 else Qt.NoBrush)
+            painter.drawPixmap(rect, bg_pixmap)
         else:
             if self.isActive:
                 bg = self.gs_aspect.getBackgroundColorValue()

@@ -42,7 +42,7 @@ class SGButton(SGGameSpace):
         # Map legacy parameters to aspects
         self.gs_aspect.background_color = background_color
         if background_image is not None:
-            self.gs_aspect.background_image = background_image
+            self.setBackgroundImage(background_image)
         self.gs_aspect.border_size = border_size
         self.gs_aspect.border_style = border_style
         self.gs_aspect.border_color = border_color
@@ -250,17 +250,22 @@ class SGButton(SGGameSpace):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        # Background (use hover color if hovered)
-        bg = self.gs_aspect.getBackgroundColorValue()
-        if self._hovered and isinstance(self._hover_background_color, str):
-            try:
-                bg = SGAspect()._css_to_qcolor(self._hover_background_color)
-            except Exception:
-                pass
-        if bg.alpha() == 0:
-            painter.setBrush(Qt.NoBrush)
+        # Background: prefer image, else color (use hover color if hovered)
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
         else:
-            painter.setBrush(QBrush(bg, Qt.SolidPattern))
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if self._hovered and isinstance(self._hover_background_color, str):
+                try:
+                    bg = SGAspect()._css_to_qcolor(self._hover_background_color)
+                except Exception:
+                    pass
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
         # Border
         pen_color = self.gs_aspect.getBorderColorValue()
         if self._hovered and isinstance(self._hover_border_color, str):

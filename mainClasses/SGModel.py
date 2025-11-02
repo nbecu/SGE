@@ -17,6 +17,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
 from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog, QInputDialog
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -46,7 +48,7 @@ from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGTextBox import *
 from mainClasses.SGLabel import *
-from mainClasses.SGButton import*
+from mainClasses.SGButton import *
 from mainClasses.SGTimeLabel import *
 from mainClasses.SGTimeManager import *
 from mainClasses.SGTimePhase import *

@@ -147,12 +147,17 @@ class SGEndGameRule(SGGameSpace):
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
 
-            # Background (support transparent)
-            bg = self.gs_aspect.getBackgroundColorValue()
-            if bg.alpha() == 0:
-                painter.setBrush(Qt.NoBrush)
+            # Background: prefer image, else color (support transparent)
+            bg_pixmap = self.getBackgroundImagePixmap()
+            if bg_pixmap is not None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.drawPixmap(rect, bg_pixmap)
             else:
-                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+                bg = self.gs_aspect.getBackgroundColorValue()
+                if bg.alpha() == 0:
+                    painter.setBrush(Qt.NoBrush)
+                else:
+                    painter.setBrush(QBrush(bg, Qt.SolidPattern))
 
             # Pen with style mapping
             pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())

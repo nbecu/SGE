@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush, QFont
 from mainClasses.SGGameSpace import SGGameSpace
 
@@ -177,12 +177,17 @@ class SGProgressGauge(SGGameSpace):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Background with transparency
-        bg = self.gs_aspect.getBackgroundColorValue()
-        if bg.alpha() == 0:
-            painter.setBrush(Qt.NoBrush)
+        # Background: prefer image, else color with transparency
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
         else:
-            painter.setBrush(QBrush(bg, Qt.SolidPattern))
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
 
         # Border with style mapping
         pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
