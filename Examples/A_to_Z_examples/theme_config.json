@@ -33,6 +33,23 @@
           "theme": "green"
         }
       }
+    },
+    "blue and pink": {
+      "model_name": null,
+      "timestamp": "2025-11-03 19:07:11",
+      "version": "1.0",
+      "global_theme": null,
+      "gameSpaces": {
+        "grid1": {
+          "theme": "blue_custom"
+        },
+        "Legend": {
+          "theme": "blue_custom2"
+        },
+        "Admin": {
+          "theme": "pink 3"
+        }
+      }
     }
   },
   "custom_themes": {
@@ -157,6 +174,71 @@
         },
         "text3": {
           "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
+    },
+    "pink 3": {
+      "base": {
+        "background_color": "#ffaaff",
+        "border_color": "transparent",
+        "border_size": 1,
+        "border_style": "solid",
+        "border_radius": 3
+      },
+      "text_aspects": {
+        "title1": {
+          "color": "#424242",
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "title2": {
+          "color": "#424242",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "underline",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#424242",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#424242",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#424242",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#424242",
           "font": "Arial",
           "size": 12,
           "font_weight": "normal",

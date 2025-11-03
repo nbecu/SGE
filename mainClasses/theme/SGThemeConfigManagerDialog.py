@@ -42,8 +42,8 @@ class SGThemeConfigManagerDialog(QDialog):
         location_label.setStyleSheet("QLabel { padding: 4px; background-color: #e8f4fd; border: 1px solid #b3d9ff; border-radius: 2px; font-family: monospace; font-size: 9pt; }")
         layout.addWidget(location_label)
 
-        # Config list + Actions (side by side)
-        list_actions_layout = QHBoxLayout()
+        # Config list + Actions/Details (side by side)
+        list_right_layout = QHBoxLayout()
         
         # Config list (left side)
         list_container = QVBoxLayout()
@@ -56,9 +56,13 @@ class SGThemeConfigManagerDialog(QDialog):
         list_container.addWidget(self.config_list)
         list_widget = QWidget()
         list_widget.setLayout(list_container)
-        list_actions_layout.addWidget(list_widget, stretch=2)
+        list_right_layout.addWidget(list_widget, stretch=1)  # 50% of width
 
-        # Actions (right side)
+        # Right side: Actions + Details + Apply buttons (vertical)
+        right_container = QVBoxLayout()
+        right_container.setSpacing(8)
+        
+        # Actions (top)
         action_group = QGroupBox("Actions")
         action_group_layout = QVBoxLayout()
         action_group_layout.setSpacing(6)  # Reduced spacing
@@ -78,14 +82,10 @@ class SGThemeConfigManagerDialog(QDialog):
         action_group_layout.addWidget(self.save_button)
         action_group_layout.addWidget(self.rename_button)
         action_group_layout.addWidget(self.delete_button)
-        action_group_layout.addStretch()
         action_group.setLayout(action_group_layout)
-        action_group.setMaximumWidth(200)  # Limit width
-        list_actions_layout.addWidget(action_group, stretch=1)
+        right_container.addWidget(action_group)
 
-        layout.addLayout(list_actions_layout)
-
-        # Details (compact, at the bottom)
+        # Details (middle)
         details_group = QGroupBox("Configuration Details")
         details_group_layout = QVBoxLayout()
         self.details_text = QTextEdit()
@@ -93,10 +93,11 @@ class SGThemeConfigManagerDialog(QDialog):
         self.details_text.setMaximumHeight(100)  # Reduced height
         details_group_layout.addWidget(self.details_text)
         details_group.setLayout(details_group_layout)
-        layout.addWidget(details_group)
-
-        # Footer buttons
-        footer = QHBoxLayout()
+        right_container.addWidget(details_group)
+        
+        # Apply buttons (bottom)
+        apply_buttons_layout = QHBoxLayout()
+        apply_buttons_layout.setSpacing(6)
         
         self.apply_button = QPushButton("Apply")
         self.apply_button.clicked.connect(self.applyConfig)
@@ -108,10 +109,17 @@ class SGThemeConfigManagerDialog(QDialog):
         self.apply_and_close_button.setEnabled(False)
         self.apply_and_close_button.setDefault(True)
         
-        footer.addStretch()
-        footer.addWidget(self.apply_button)
-        footer.addWidget(self.apply_and_close_button)
-        layout.addLayout(footer)
+        apply_buttons_layout.addWidget(self.apply_button)
+        apply_buttons_layout.addWidget(self.apply_and_close_button)
+        right_container.addLayout(apply_buttons_layout)
+        
+        right_container.addStretch()  # Push all content to top
+        
+        right_widget = QWidget()
+        right_widget.setLayout(right_container)
+        list_right_layout.addWidget(right_widget, stretch=1)  # 50% of width
+
+        layout.addLayout(list_right_layout)
 
         self.setLayout(layout)
 
