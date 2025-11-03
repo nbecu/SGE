@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from mainClasses.theme.SGThemeCustomEditorDialog import SGThemeCustomEditorDialog
+from mainClasses.theme.SGThemeCodeGeneratorDialog import SGThemeCodeGeneratorDialog
 
 
 class SGThemeEditTableDialog(QDialog):
@@ -13,11 +14,48 @@ class SGThemeEditTableDialog(QDialog):
     def __init__(self, model, parent=None):
         super().__init__(parent)
         self.model = model
-        self._themes = ["modern", "minimal", "colorful", "blue", "green", "gray"]
+        self._themes = self._discoverPredefinedThemes()
         self._gs_cache = list(self.model.gameSpaces.values())
         self._id_to_gs = {gs.id: gs for gs in self._gs_cache}
         self.setupUI()
         self.populateTable()
+    
+    def _discoverPredefinedThemes(self):
+        """Discover all predefined themes in SGAspect dynamically."""
+        from mainClasses.SGAspect import SGAspect
+        # Known utility methods that are NOT themes
+        excluded_methods = {
+            'baseBorder', 'title1', 'title2', 'title3', 
+            'text1', 'text2', 'text3', 'success', 'inactive'
+        }
+        themes = []
+        # Inspect all class methods
+        for name in dir(SGAspect):
+            if name.startswith('_'):
+                continue
+            attr = getattr(SGAspect, name, None)
+            if attr and callable(attr):
+                # Exclude known utility methods
+                if name in excluded_methods:
+                    continue
+                # Only consider classmethods (not instance methods)
+                # When accessing @classmethod via getattr on the class, Python returns
+                # a bound method (type 'method'), not a classmethod object
+                # Try calling it without arguments - classmethods work, instance methods need self
+                try:
+                    # Skip getter methods (they start with 'get' and are instance methods)
+                    if name.startswith('get'):
+                        continue
+                    instance = attr()
+                    if isinstance(instance, SGAspect):
+                        themes.append(name)
+                except TypeError:
+                    # Needs arguments (likely an instance method), skip it
+                    continue
+                except Exception:
+                    # Any other error, skip it
+                    continue
+        return sorted(themes)
 
     def setupUI(self):
         self.setWindowTitle("Theme Assignment - GameSpaces")
@@ -26,12 +64,21 @@ class SGThemeEditTableDialog(QDialog):
 
         layout = QVBoxLayout()
 
+        # Header with instructions and Theme code button
+        header_layout = QHBoxLayout()
         instructions = QLabel(
             "Assign a theme to each GameSpace. Leave blank to keep it unchanged."
         )
         instructions.setWordWrap(True)
         instructions.setStyleSheet("QLabel { padding: 10px; background-color: #f0f0f0; border-radius: 5px; }")
-        layout.addWidget(instructions)
+        header_layout.addWidget(instructions, 1)
+        
+        theme_code_btn = QPushButton("Theme code...")
+        theme_code_btn.setToolTip("Generate Python code for custom themes (for developers)")
+        theme_code_btn.clicked.connect(self._openThemeCodeGenerator)
+        header_layout.addWidget(theme_code_btn)
+        
+        layout.addLayout(header_layout)
 
         # Table
         self.table = QTableWidget()
@@ -194,5 +241,10 @@ class SGThemeEditTableDialog(QDialog):
                         pass
         if hasattr(self.model, 'update'):
             self.model.update()
+
+    def _openThemeCodeGenerator(self):
+        """Open the Theme Code Generator dialog."""
+        dialog = SGThemeCodeGeneratorDialog(self.model, self)
+        dialog.exec_()
 
 

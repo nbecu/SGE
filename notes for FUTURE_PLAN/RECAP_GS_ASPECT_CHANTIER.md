@@ -114,6 +114,22 @@
 
 ---
 
+### 7. Amélioration du système de thèmes ✅
+**Fichiers** : `mainClasses/SGAspect.py`, `mainClasses/SGGameSpace.py`, `mainClasses/theme/SGThemeCodeGeneratorDialog.py`, `mainClasses/theme/SGThemeEditTableDialog.py`
+
+- ✅ **Ajout de text_aspects aux thèmes prédéfinis** : Tous les thèmes prédéfinis (`modern`, `minimal`, `colorful`, `blue`, `green`, `gray`) incluent maintenant une structure `_text_aspects` avec des valeurs différenciées pour `title1`, `title2`, `title3`, `text1`, `text2`, `text3`
+- ✅ **Création du dialogue "Generate Theme Code"** : Nouveau dialogue `SGThemeCodeGeneratorDialog` permettant de générer le code Python pour un thème custom, pour le promouvoir en thème prédéfini
+- ✅ **Bouton "Theme code..."** : Ajouté dans `SGThemeEditTableDialog` (en haut à droite) pour accéder au générateur de code
+- ✅ **Découverte dynamique des thèmes prédéfinis** : Implémentation de `_getPredefinedThemeMethods()` et `_discoverPredefinedThemes()` pour détecter automatiquement tous les thèmes prédéfinis dans `SGAspect` (plus besoin de liste codée en dur)
+- ✅ **Application des text_aspects différenciés** : Modification de `SGGameSpace.applyTheme()` pour appliquer les `text_aspects` différenciés quand ils existent dans un thème prédéfini
+
+**Points clés** :
+- Les nouveaux thèmes prédéfinis ajoutés manuellement dans `SGAspect.py` (comme `test`) sont automatiquement détectés et disponibles
+- Le code généré par "Generate Theme Code" suit exactement le format des thèmes prédéfinis, incluant les `text_aspects`
+- Le système est maintenant extensible : ajouter un thème dans `SGAspect.py` le rend immédiatement disponible
+
+---
+
 ## 🔄 TRAVAIL EN ATTENTE / PROBLÈMES IDENTIFIÉS
 
 ### 1. SGTextBox : hauteur et word-wrap ⚠️
@@ -135,26 +151,21 @@
 ---
 
 ### 2. Sauvegarde/chargement des custom themes ⚠️
-**Problème identifié** :
-- ❌ Lors de la sauvegarde d'un thème via Custom Theme Editor puis chargement dans un autre GameSpace, certains paramètres ne s'appliquent pas (ex: `text_color` ne s'applique pas, mais `bgcolor` fonctionne)
+**État actuel** :
+- ✅ Les thèmes custom peuvent être créés et utilisés pendant la session
+- ✅ Les paramètres `text_aspects` sont correctement appliqués (problème précédemment identifié résolu)
+- ❌ **Les thèmes custom ne sont pas persistés sur disque** : Ils sont stockés uniquement dans `model._runtime_themes` (mémoire) et sont perdus à la fermeture de l'application
 
 **Fichiers concernés** :
-- `mainClasses/theme/SGThemeCustomEditorDialog.py` : Méthode `_onSave()` et `_apply_spec_to_gs()`
-- `mainClasses/theme/SGThemeConfigManager.py` : Système de gestion des thèmes
+- `mainClasses/theme/SGThemeCustomEditorDialog.py` : Sauvegarde dans `model._runtime_themes` (ligne 411)
+- `mainClasses/theme/SGThemeConfigManager.py` : Sauvegarde uniquement les assignments (GameSpace → thème), pas les définitions des thèmes custom
+- `theme_config.json` : Contient uniquement les configurations (assignments), pas les définitions des thèmes custom
 
-**Action requise** : Investigation et correction de la logique de sauvegarde/chargement pour garantir que tous les paramètres du `gs_aspect` sont correctement sérialisés et désérialisés.
-
----
-
-### 3. Système de sauvegarde des custom themes et Manage Theme Configuration ⚠️
-**Problème identifié** :
-- ❌ Le système actuel de sauvegarde/chargement des thèmes personnalisés n'est pas optimal
-- ❌ La fenêtre "Manage Theme Configuration" nécessite un repensage
-
-**Action requise** : Repenser l'architecture de sauvegarde des thèmes pour garantir :
-- Persistance entre sessions
-- Export/import de configurations
-- Gestion des conflits de noms
+**Action requise** : Implémenter la persistance des thèmes custom dans `theme_config.json` :
+- Modifier `SGThemeConfigManager` pour sauvegarder les définitions complètes des thèmes custom
+- Charger ces définitions au démarrage dans `model._runtime_themes`
+- Vérifier que les noms de thèmes custom n'entrent pas en conflit avec les thèmes prédéfinis
+- Ajouter une distinction visuelle entre thèmes prédéfinis et custom dans l'interface
 
 ---
 
@@ -218,9 +229,13 @@
 ## 🎯 PRIORITÉS RECOMMANDÉES
 
 ### Court terme (prochaines sessions)
-1. **Corriger SGTextBox** (word-wrap et hauteur) ⚠️
-2. **Corriger la sauvegarde/chargement des custom themes** ⚠️
-3. **Repenser Manage Theme Configuration** ⚠️
+1. **Implémenter la persistance des thèmes custom** ⚠️ **EN COURS**
+   - Sauvegarder les définitions complètes des thèmes custom dans `theme_config.json`
+   - Charger ces définitions au démarrage
+   - Protection contre conflits de noms avec les thèmes prédéfinis
+   - Distinction visuelle prédéfinis vs custom dans l'interface
+2. **Corriger SGTextBox** (word-wrap et hauteur) ⚠️ (laissé en attente)
+3. **Repenser Manage Theme Configuration** ⚠️ (partiellement résolu avec Generate Theme Code)
 
 ### Moyen terme
 4. **Réduire la duplication de code** (refactor `onTextAspectsChanged`)
@@ -252,8 +267,9 @@
 
 ### Dialogues et thèmes
 - ✅ `mainClasses/theme/SGThemeCustomEditorDialog.py` : Correction fuite de bordures, prise en charge de l'alignement
-- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Positionnement de la fenêtre
-- `mainClasses/theme/SGThemeConfigManager.py` : À investiguer pour la sauvegarde/chargement
+- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Positionnement de la fenêtre, découverte dynamique des thèmes, bouton "Theme code..."
+- ✅ `mainClasses/theme/SGThemeCodeGeneratorDialog.py` : Nouveau dialogue pour générer le code Python des thèmes custom
+- ⚠️ `mainClasses/theme/SGThemeConfigManager.py` : À modifier pour sauvegarder les définitions des thèmes custom (actuellement sauvegarde uniquement les assignments)
 
 ### Classes en attente
 - ⚠️ `mainClasses/SGTextBox.py` : Problèmes de hauteur/word-wrap à corriger
@@ -284,8 +300,11 @@
 ### Fonctionnalités
 - ✅ Alignement via `gs_aspect` : 8/12 GameSpaces
 - ✅ PaintEvent avec `gs_aspect` : 10/12 GameSpaces
-- ✅ Custom Theme Editor fonctionnel : Oui (avec bugs mineurs à corriger)
-- ✅ Theme Assignment Dialog : Fonctionnel avec positionnement
+- ✅ Custom Theme Editor fonctionnel : Oui (création et édition de thèmes custom)
+- ✅ Theme Assignment Dialog : Fonctionnel avec positionnement et découverte dynamique
+- ✅ Generate Theme Code : Fonctionnel (génération du code Python pour promouvoir un thème custom)
+- ✅ Thèmes prédéfinis avec text_aspects : Tous les thèmes prédéfinis incluent maintenant text_aspects différenciés
+- ❌ Persistance des thèmes custom : Les thèmes custom ne sont pas sauvegardés sur disque (perdus entre sessions)
 
 ---
 

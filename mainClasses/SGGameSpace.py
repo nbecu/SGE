@@ -360,18 +360,13 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         Apply a predefined theme to the gameSpace.
         
         Args:
-            theme_name (str): The name of the theme ('modern', 'minimal', 'colorful', 'blue', 'green', 'gray')
+            theme_name (str): The name of the theme (e.g., 'modern', 'minimal', 'colorful', 'blue', 'green', 'gray', 'test')
         """
         from mainClasses.SGAspect import SGAspect
         
-        theme_methods = {
-            'modern': SGAspect.modern,
-            'minimal': SGAspect.minimal,
-            'colorful': SGAspect.colorful,
-            'blue': SGAspect.blue,
-            'green': SGAspect.green,
-            'gray': SGAspect.gray
-        }
+        # Discover predefined themes dynamically
+        theme_methods = self._getPredefinedThemeMethods(SGAspect)
+        
         # Merge runtime registered themes if provided on model
         model = getattr(self, 'model', None)
         if model is not None and hasattr(model, '_runtime_themes'):
@@ -407,12 +402,44 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                 self.setBackgroundImage(theme_aspect.background_image)
             
             # Apply theme properties to text aspects
-            for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
-                          self.text1_aspect, self.text2_aspect, self.text3_aspect]:
-                aspect.color = theme_aspect.color
-                aspect.font = theme_aspect.font
-                aspect.size = theme_aspect.size
-                aspect.font_weight = theme_aspect.font_weight
+            # Check if theme has _text_aspects (predefined themes with text_aspects)
+            if hasattr(theme_aspect, '_text_aspects') and theme_aspect._text_aspects:
+                # Apply differentiated text_aspects from predefined theme
+                text_specs = theme_aspect._text_aspects
+                mapping = {
+                    'title1': self.title1_aspect,
+                    'title2': self.title2_aspect,
+                    'title3': self.title3_aspect,
+                    'text1': self.text1_aspect,
+                    'text2': self.text2_aspect,
+                    'text3': self.text3_aspect,
+                }
+                for key, asp in mapping.items():
+                    spec = text_specs.get(key)
+                    if not spec:
+                        continue
+                    if 'color' in spec and spec['color'] is not None:
+                        asp.color = spec['color']
+                    if 'font' in spec and spec['font'] is not None:
+                        asp.font = spec['font']
+                    if 'size' in spec and spec['size'] is not None:
+                        asp.size = spec['size']
+                    if 'font_weight' in spec and spec['font_weight'] is not None:
+                        asp.font_weight = spec['font_weight']
+                    if 'font_style' in spec and spec['font_style'] is not None:
+                        asp.font_style = spec['font_style']
+                    if 'text_decoration' in spec and spec['text_decoration'] is not None:
+                        asp.text_decoration = spec['text_decoration']
+                    if 'alignment' in spec and spec['alignment'] not in (None, ""):
+                        asp.alignment = spec['alignment']
+            else:
+                # Fallback: apply base theme properties to all text aspects (backward compatibility)
+                for aspect in [self.title1_aspect, self.title2_aspect, self.title3_aspect, 
+                              self.text1_aspect, self.text2_aspect, self.text3_aspect]:
+                    aspect.color = theme_aspect.color
+                    aspect.font = theme_aspect.font
+                    aspect.size = theme_aspect.size
+                    aspect.font_weight = theme_aspect.font_weight
             # If runtime theme includes text_aspects overrides, apply them
             if model is not None and hasattr(model, '_runtime_themes') and theme_name in model._runtime_themes:
                 text_specs = model._runtime_themes[theme_name].get('text_aspects', {})
@@ -460,10 +487,47 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
                     self.onTextAspectsChanged()
                 except Exception:
                     pass
-
             self.update()
         else:
             raise ValueError(f"Unknown theme: {theme_name}. Available themes: {list(theme_methods.keys())}")
+    
+    @staticmethod
+    def _getPredefinedThemeMethods(SGAspect):
+        """Discover all predefined theme classmethods in SGAspect dynamically."""
+        # Known utility methods that are NOT themes
+        excluded_methods = {
+            'baseBorder', 'title1', 'title2', 'title3', 
+            'text1', 'text2', 'text3', 'success', 'inactive'
+        }
+        theme_methods = {}
+        # Inspect all class methods
+        for name in dir(SGAspect):
+            if name.startswith('_'):
+                continue
+            attr = getattr(SGAspect, name, None)
+            if not attr or not callable(attr):
+                continue
+            # Exclude known utility methods
+            if name in excluded_methods:
+                continue
+            # Only consider classmethods (not instance methods)
+            # When accessing @classmethod via getattr on the class, Python returns
+            # a bound method (type 'method'), not a classmethod object
+            # Try calling it without arguments - classmethods work, instance methods need self
+            try:
+                # Skip getter methods (they start with 'get' and are instance methods)
+                if name.startswith('get'):
+                    continue
+                instance = attr()
+                if isinstance(instance, SGAspect):
+                    theme_methods[name] = attr
+            except TypeError:
+                # Needs arguments (likely an instance method), skip it
+                continue
+            except Exception:
+                # Any other error, skip it
+                continue
+        return theme_methods
 
 
     def setToAbsolute(self):

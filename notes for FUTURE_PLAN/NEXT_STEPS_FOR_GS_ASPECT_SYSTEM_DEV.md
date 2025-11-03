@@ -133,11 +133,21 @@
 - [ ] **SGLegend** : Utilise SGLegendItem, adapter l'approche
 - [ ] **SGGrid** : Classe complexe avec fonctionnalités avancées, traiter avec précaution
 
+#### Système de thèmes personnalisés (partiellement fait)
+- ✅ **Dialogue Custom Theme Editor** : Création et édition de thèmes custom en mémoire
+- ✅ **Thèmes custom en mémoire** : Stockage dans `model._runtime_themes` pendant la session
+- ✅ **Generate Theme Code** : Génération du code Python pour promouvoir un thème custom en prédéfini
+- ✅ **Découverte dynamique des thèmes** : Les thèmes prédéfinis sont détectés automatiquement (plus de liste codée)
+- ✅ **text_aspects dans thèmes prédéfinis** : Tous les thèmes prédéfinis incluent maintenant `text_aspects`
+- ❌ **Persistance des thèmes custom** : Les thèmes custom ne sont pas sauvegardés sur disque (perdus à la fermeture)
+- ❌ **Sauvegarde dans theme_config.json** : Seuls les assignments sont sauvegardés, pas les définitions des thèmes custom
+- ❌ **Distinction visuelle** : Pas de distinction claire entre thèmes prédéfinis et custom dans l'interface
+- ❌ **Protection contre conflits** : Pas de vérification que les noms de thèmes custom n'entrent pas en conflit avec les prédéfinis
+
 #### Améliorations possibles
 - [ ] Ajouter plus de thèmes prédéfinis
-- [ ] Système de thèmes personnalisés par le modeler
 - [ ] Export/import de configurations de thèmes
-- [ ] Interface graphique pour la gestion des thèmes
+- [ ] Interface graphique améliorée pour la gestion des thèmes (améliorer "Manage Theme Configuration")
 - [ ] **Corriger les erreurs de stylesheet des indicateurs du dashboard**
 - [ ] **Utiliser l'analyse HARDCODED_STYLES_ANALYSIS.md** pour définir les styles par défaut
 - [ ] **Déprécier les paramètres de style dans les constructeurs** des factory methods

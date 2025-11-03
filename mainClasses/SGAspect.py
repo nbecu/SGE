@@ -140,6 +140,15 @@ class SGAspect():
         instance.size = 12
         instance.border_radius = 4
         instance.padding = 8
+        # Add text_aspects structure for differentiated text styling
+        instance._text_aspects = {
+            'title1': {'color': '#495057', 'font': 'Arial', 'size': 14, 'font_weight': 'bold'},
+            'title2': {'color': '#495057', 'font': 'Arial', 'size': 12},
+            'title3': {'color': '#495057', 'font': 'Arial', 'size': 11, 'font_weight': 'bold'},
+            'text1': {'color': '#495057', 'font': 'Arial', 'size': 12},
+            'text2': {'color': '#495057', 'font': 'Arial', 'size': 12},
+            'text3': {'color': '#495057', 'font': 'Arial', 'size': 12, 'font_style': 'italic'}
+        }
         return instance
 
     @classmethod
@@ -152,6 +161,15 @@ class SGAspect():
         instance.font = 'Arial'
         instance.size = 12
         instance.padding = 4
+        # Add text_aspects structure for differentiated text styling
+        instance._text_aspects = {
+            'title1': {'color': '#212529', 'font': 'Arial', 'size': 14, 'font_weight': 'bold'},
+            'title2': {'color': '#212529', 'font': 'Arial', 'size': 12},
+            'title3': {'color': '#212529', 'font': 'Arial', 'size': 11, 'font_weight': 'bold'},
+            'text1': {'color': '#212529', 'font': 'Arial', 'size': 12},
+            'text2': {'color': '#212529', 'font': 'Arial', 'size': 12},
+            'text3': {'color': '#212529', 'font': 'Arial', 'size': 12, 'font_style': 'italic'}
+        }
         return instance
 
     @classmethod
@@ -168,6 +186,15 @@ class SGAspect():
         instance.font_weight = 'bold'
         instance.border_radius = 6
         instance.padding = 10
+        # Add text_aspects structure for differentiated text styling
+        instance._text_aspects = {
+            'title1': {'color': '#1976d2', 'font': 'Arial', 'size': 14, 'font_weight': 'bold'},
+            'title2': {'color': '#1976d2', 'font': 'Arial', 'size': 12, 'font_weight': 'bold'},
+            'title3': {'color': '#1976d2', 'font': 'Arial', 'size': 11, 'font_weight': 'bold'},
+            'text1': {'color': '#1976d2', 'font': 'Arial', 'size': 12, 'font_weight': 'bold'},
+            'text2': {'color': '#1976d2', 'font': 'Arial', 'size': 12, 'font_weight': 'bold'},
+            'text3': {'color': '#1976d2', 'font': 'Arial', 'size': 12, 'font_weight': 'bold', 'font_style': 'italic'}
+        }
         return instance
 
     @classmethod
@@ -183,6 +210,15 @@ class SGAspect():
         instance.size = 12
         instance.border_radius = 3
         instance.padding = 6
+        # Add text_aspects structure for differentiated text styling
+        instance._text_aspects = {
+            'title1': {'color': '#01579b', 'font': 'Arial', 'size': 14, 'font_weight': 'bold'},
+            'title2': {'color': '#01579b', 'font': 'Arial', 'size': 12},
+            'title3': {'color': '#01579b', 'font': 'Arial', 'size': 11, 'font_weight': 'bold'},
+            'text1': {'color': '#01579b', 'font': 'Arial', 'size': 12},
+            'text2': {'color': '#01579b', 'font': 'Arial', 'size': 12},
+            'text3': {'color': '#01579b', 'font': 'Arial', 'size': 12, 'font_style': 'italic'}
+        }
         return instance
 
     @classmethod
@@ -198,6 +234,15 @@ class SGAspect():
         instance.size = 12
         instance.border_radius = 3
         instance.padding = 6
+        # Add text_aspects structure for differentiated text styling
+        instance._text_aspects = {
+            'title1': {'color': '#1b5e20', 'font': 'Arial', 'size': 14, 'font_weight': 'bold'},
+            'title2': {'color': '#1b5e20', 'font': 'Arial', 'size': 12},
+            'title3': {'color': '#1b5e20', 'font': 'Arial', 'size': 11, 'font_weight': 'bold'},
+            'text1': {'color': '#1b5e20', 'font': 'Arial', 'size': 12},
+            'text2': {'color': '#1b5e20', 'font': 'Arial', 'size': 12},
+            'text3': {'color': '#1b5e20', 'font': 'Arial', 'size': 12, 'font_style': 'italic'}
+        }
         return instance
 
     @classmethod
@@ -213,9 +258,20 @@ class SGAspect():
         instance.size = 12
         instance.border_radius = 3
         instance.padding = 6
+        # Add text_aspects structure for differentiated text styling
+        instance._text_aspects = {
+            'title1': {'color': '#424242', 'font': 'Arial', 'size': 14, 'font_weight': 'bold'},
+            'title2': {'color': '#424242', 'font': 'Arial', 'size': 12},
+            'title3': {'color': '#424242', 'font': 'Arial', 'size': 11, 'font_weight': 'bold'},
+            'text1': {'color': '#424242', 'font': 'Arial', 'size': 12},
+            'text2': {'color': '#424242', 'font': 'Arial', 'size': 12},
+            'text3': {'color': '#424242', 'font': 'Arial', 'size': 12, 'font_style': 'italic'}
+        }
         return instance
+    # ------------------------------------------------------------------------------------------------
+   
 
-    # Méthodes pour obtenir les paramètres
+    # Methods to get the parameters
     def getFont(self):
         return self.font
 
