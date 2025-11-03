@@ -53,6 +53,9 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         # User-specified dimensions (if None, use defaults)
         self.custom_width = width
         self.custom_height = height
+        # Compatibility attributes (for backward compatibility with SGTextBox API)
+        self.sizeX = width  # Alias for custom_width
+        self.sizeY = height  # Alias for custom_height
         
         # Shrinked mode configuration
         self.shrinked = shrinked
@@ -269,8 +272,9 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         
         if not self.shrinked:
             # Standard mode: fixed dimensions
-            final_width = self.custom_width if self.custom_width is not None else self.default_width
-            final_height = self.custom_height if self.custom_height is not None else self.default_height
+            # Check sizeX/sizeY first for compatibility, then custom_width/custom_height
+            final_width = self.sizeX if (hasattr(self, 'sizeX') and self.sizeX is not None) else (self.custom_width if self.custom_width is not None else self.default_width)
+            final_height = self.sizeY if (hasattr(self, 'sizeY') and self.sizeY is not None) else (self.custom_height if self.custom_height is not None else self.default_height)
             
             # Adjust width if title is wider
             title_width = self._calculateTitleWidth()
@@ -279,12 +283,15 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
                 final_width = title_total_width
         else:
             # Shrinked mode: dynamic dimensions
-            # Determine maximum height
-            max_height = self.custom_height if self.custom_height is not None else self.max_height_default
+            # Determine maximum height (check sizeY first for compatibility, then custom_height)
+            max_height = self.sizeY if (hasattr(self, 'sizeY') and self.sizeY is not None) else (self.custom_height if self.custom_height is not None else self.max_height_default)
             
-            if self.custom_width is not None:
+            # Check sizeX first for compatibility, then custom_width
+            width_specified = self.sizeX if (hasattr(self, 'sizeX') and self.sizeX is not None) else self.custom_width
+            
+            if width_specified is not None:
                 # Width is fixed by user
-                final_width = self.custom_width
+                final_width = width_specified
                 # Title will be cropped if it exceeds this width (no word-wrap for title)
                 
                 # Calculate available width for text
@@ -372,12 +379,26 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
     
     def getSizeXGlobal(self):
         """Return the calculated width."""
+        # Use manual size if specified (compatibility with SGTextBox API)
+        if hasattr(self, 'sizeX') and self.sizeX is not None:
+            return self.sizeX
+        # Use custom_width if specified
+        if self.custom_width is not None:
+            return self.custom_width
+        # Use calculated size if available
         if hasattr(self, 'sizeXGlobal'):
             return self.sizeXGlobal
         return self.default_width
     
     def getSizeYGlobal(self):
         """Return the calculated height."""
+        # Use manual size if specified (compatibility with SGTextBox API)
+        if hasattr(self, 'sizeY') and self.sizeY is not None:
+            return self.sizeY
+        # Use custom_height if specified
+        if self.custom_height is not None:
+            return self.custom_height
+        # Use calculated size if available
         if hasattr(self, 'sizeYGlobal'):
             return self.sizeYGlobal
         return self.default_height
@@ -390,6 +411,8 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
             width (int): Width in pixels
         """
         self.custom_width = width
+        # Update compatibility attribute
+        self.sizeX = width
         # Recalculate size (especially important in shrinked mode)
         self.updateSize()
     
@@ -401,6 +424,8 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
             height (int): Height in pixels
         """
         self.custom_height = height
+        # Update compatibility attribute
+        self.sizeY = height
         # Recalculate size (especially important in shrinked mode where height becomes max)
         self.updateSize()
     
@@ -414,6 +439,9 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         """
         self.custom_width = width
         self.custom_height = height
+        # Update compatibility attributes
+        self.sizeX = width
+        self.sizeY = height
         # Recalculate size (especially important in shrinked mode)
         self.updateSize()
     
@@ -583,8 +611,11 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
             pen.setStyle(style_map[bs.lower()])
         painter.setPen(pen)
         
-        width = max(0, self.getSizeXGlobal() - 1)
-        height = max(0, self.getSizeYGlobal() - 1)
+        # Use actual widget size (self.width/height) with fallback to getSizeX/YGlobal
+        # This ensures the border is drawn within the actual widget bounds
+        # even if the layout has resized the widget differently than calculated
+        width = max(0, getattr(self, 'sizeXGlobal', self.width()) - 1)
+        height = max(0, getattr(self, 'sizeYGlobal', self.height()) - 1)
         radius = getattr(self.gs_aspect, 'border_radius', None) or 0
         if radius > 0:
             painter.drawRoundedRect(0, 0, width, height, radius, radius)
@@ -696,4 +727,168 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         info += f"Size: {self.getSizeXGlobal()}x{self.getSizeYGlobal()}\n"
         info += f"Text length: {len(self.textToWrite)} characters"
         QMessageBox.information(self, "Inspect", info)
+    
+    # ============================================================================
+    # COMPATIBILITY METHODS (for backward compatibility with SGTextBox API)
+    # ============================================================================
+    
+    def addText(self, text, toTheLine=False):
+        """
+        Add text to the text box (compatibility method).
+        
+        Args:
+            text (str): Text to add
+            toTheLine (bool): If True, skip a line before adding
+        """
+        if toTheLine:
+            new_text = "\n\n" + text
+        else:
+            new_text = text
+        
+        # Get current text and append new text
+        if hasattr(self, 'textWidget') and self.textWidget:
+            current_text = self.textWidget.toPlainText()
+            new_full_text = current_text + new_text
+            self.textWidget.setPlainText(new_full_text)
+            # Update textToWrite
+            self.textToWrite = new_full_text
+            # Add to history
+            if hasattr(self, 'history'):
+                self.history.append(text)
+            # Recalculate size if in shrinked mode
+            if self.shrinked:
+                self.updateSize()
+    
+    def updateText(self):
+        """
+        Update the text widget content (compatibility method).
+        This method is called by addText() but can also be called directly.
+        """
+        # In SGTextBoxLargeShrinkable, text is updated directly in addText()
+        # This method exists for compatibility but may not be needed
+        # Force size update if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
+    
+    def setNewText(self, text):
+        """
+        Replace the text by a new text (compatibility method, alias of setText).
+        
+        Args:
+            text (str): New text to display
+        """
+        # Use setText() which already handles everything
+        self.setText(text)
+    
+    def setTitleColor(self, color='red'):
+        """
+        Set the color of the title (compatibility method).
+        
+        Args:
+            color (str or QColor): Desired color (can be color name string or QColor)
+        """
+        if hasattr(self, 'title1_aspect') and self.title1_aspect:
+            # Convert string color to QColor if needed
+            if isinstance(color, str):
+                # Try to get QColor from string (e.g., 'red', '#FF0000')
+                try:
+                    qcolor = QColor(color)
+                    if qcolor.isValid():
+                        self.title1_aspect.color = qcolor
+                    else:
+                        # Fallback: set via stylesheet
+                        if hasattr(self, 'labelTitle') and self.labelTitle:
+                            self.labelTitle.setStyleSheet(f"color: {color};")
+                except Exception:
+                    # Fallback: set via stylesheet
+                    if hasattr(self, 'labelTitle') and self.labelTitle:
+                        self.labelTitle.setStyleSheet(f"color: {color};")
+            else:
+                # It's already a QColor
+                self.title1_aspect.color = color
+            # Apply the change
+            self.onTextAspectsChanged()
+        else:
+            # Fallback: set via stylesheet
+            if hasattr(self, 'labelTitle') and self.labelTitle:
+                self.labelTitle.setStyleSheet(f"color: {color};")
+    
+    def setTitleSize(self, size="20px"):
+        """
+        Set the size of the title (compatibility method).
+        
+        Args:
+            size (str or int): Desired size (e.g., "20px" or 20)
+        """
+        # Extract numeric value from string if needed
+        if isinstance(size, str):
+            # Remove 'px' if present
+            size_str = size.replace('px', '').strip()
+            try:
+                size_int = int(size_str)
+            except ValueError:
+                size_int = 20  # Default fallback
+        else:
+            size_int = int(size)
+        
+        # Use setTitleFormat to set the size (preserving current font)
+        current_font = "Verdana"  # Default
+        if hasattr(self, 'title1_aspect') and self.title1_aspect and self.title1_aspect.font:
+            current_font = self.title1_aspect.font
+        
+        self.setTitleFormat(fontName=current_font, size=size_int)
+    
+    def deleteTitle(self):
+        """
+        Delete the title (compatibility method).
+        Note: This removes the title label from the widget.
+        """
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            # Remove from layout
+            if hasattr(self, 'textLayout') and self.textLayout:
+                self.textLayout.removeWidget(self.labelTitle)
+            # Delete the widget
+            self.labelTitle.deleteLater()
+            self.labelTitle = None
+            # Recalculate size if in shrinked mode
+            if self.shrinked:
+                self.updateSize()
+    
+    def deleteText(self):
+        """
+        Delete the text (compatibility method).
+        Note: This removes the text widget from the widget.
+        """
+        if hasattr(self, 'textWidget') and self.textWidget:
+            # Remove from layout
+            if hasattr(self, 'textLayout') and self.textLayout:
+                self.textLayout.removeWidget(self.textWidget)
+            # Delete the widget
+            self.textWidget.deleteLater()
+            self.textWidget = None
+            # Clear text content
+            self.textToWrite = ""
+            # Recalculate size if in shrinked mode
+            if self.shrinked:
+                self.updateSize()
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the text box (compatibility method).
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        self.update()  # Force repaint
+    
+    def setBorderSize(self, size):
+        """
+        Set the border size of the text box (compatibility method).
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        self.update()  # Force repaint
 
