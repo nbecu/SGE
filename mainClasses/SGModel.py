@@ -191,6 +191,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Load custom themes from persistent storage
         self._loadCustomThemes()
 
+        # Store pending theme configuration to load after initBeforeShowing
+        self._pending_theme_config = None
+        # Store pending layout configuration to apply after initBeforeShowing
+        self._pending_layout_config = None
+
         self.initUI()
 
         self.initModelActions()
@@ -274,6 +279,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Set up dashboards
         self.setDashboards()
+        
+        # Load pending theme configuration if one was memorized by applyThemeConfig()
+        if self._pending_theme_config:
+            config_name = self._pending_theme_config
+            self._pending_theme_config = None  # Clear to avoid reloading
+            manager = SGThemeConfigManager(self)
+            manager.loadConfig(config_name, suppress_dialogs=True)
+        
+        # Apply pending layout configuration if one was memorized by applyLayoutConfig()
+        if self._pending_layout_config:
+            config_name = self._pending_layout_config
+            self._pending_layout_config = None  # Clear to avoid reapplying
+            config_manager = SGLayoutConfigManager(self)
+            config_manager.loadConfig(config_name)
 
     def initAfterOpening(self):
         if self.currentPlayerName is None:
@@ -1155,10 +1174,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # If loading fails, just keep empty dict
             self._runtime_themes = {}
 
-    def loadThemeConfig(self, config_name: str) -> bool:
-        """Load theme configuration and apply it to listed GameSpaces only."""
-        manager = SGThemeConfigManager(self)
-        return manager.loadConfig(config_name)
 
     def getSubmenuSymbology(self, submenuName):
         # return the submenu
@@ -1513,33 +1528,41 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return success
 
-    def loadLayoutConfig(self, config_name):
+    def applyLayoutConfig(self, config_name):
         """
-        Load a saved Enhanced Grid Layout configuration.
+        Apply a saved Enhanced Grid Layout configuration.
+
+        This method memorizes the configuration name and applies it automatically
+        at the end of initBeforeShowing() (called by launch()). This ensures all
+        GameSpaces are created before applying the layout configuration.
 
         Args:
-            config_name (str): Name of the configuration to load
+            config_name (str): Name of the configuration to apply
 
         Returns:
-            bool: True if successful, False otherwise
+            bool: True if configuration name was memorized, False otherwise
 
         Example:
-            model.loadLayoutConfig("my_layout")
-            model.loadLayoutConfig("default_setup")
+            # Apply a saved layout configuration (will be applied when launch() is called)
+            model.applyLayoutConfig("my_layout")
+            model.launch()  # Layout will be applied after all GameSpaces are created
+            
+            # Check before applying
+            if model.hasLayoutConfig("setup1"):
+                model.applyLayoutConfig("setup1")
         """
         if self.typeOfLayout != "enhanced_grid":
-            QMessageBox.warning(self, "Warning",
-                            "Layout configuration can only be loaded for Enhanced Grid Layout")
             return False
 
+        # Verify the configuration exists before memorizing
         config_manager = SGLayoutConfigManager(self)
-        success = config_manager.loadConfig(config_name)
+        if not config_manager.configExists(config_name):
+            print(f"Layout config '{config_name}' does not exist")
+            return False
 
-        if not success:
-            QMessageBox.critical(self, "Error",
-                            f"Failed to load layout configuration '{config_name}'")
-
-        return success
+        # Memorize the configuration name for loading at the end of initBeforeShowing
+        self._pending_layout_config = config_name
+        return True
 
     def hasLayoutConfig(self, config_name):
         """
@@ -1553,7 +1576,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         Example:
             if model.hasLayoutConfig("my_layout"):
-                model.loadLayoutConfig("my_layout")
+                model.applyLayoutConfig("my_layout")
         """
         config_manager = SGLayoutConfigManager(self)
         return config_manager.configExists(config_name)
@@ -1571,6 +1594,38 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         config_manager = SGLayoutConfigManager(self)
         return config_manager.getAvailableConfigs()
+
+    def hasThemeConfig(self, config_name: str) -> bool:
+        """
+        Check if a theme configuration exists.
+
+        Args:
+            config_name (str): Name of the configuration to check
+
+        Returns:
+            bool: True if configuration exists, False otherwise
+
+        Example:
+            if model.hasThemeConfig("my_config"):
+                model.applyThemeConfig("my_config")
+        """
+        manager = SGThemeConfigManager(self)
+        return manager.configExists(config_name)
+
+    def getAvailableThemeConfigs(self) -> list:
+        """
+        Get list of available theme configurations for the current model.
+
+        Returns:
+            list: List of configuration names
+
+        Example:
+            configs = model.getAvailableThemeConfigs()
+            print(f"Available configs: {configs}")
+            # Output: ['setup1', 'setup2', 'default']
+        """
+        manager = SGThemeConfigManager(self)
+        return manager.getAvailableConfigs()
 
     def openSaveLayoutConfigDialog(self):
         """Open the save layout configuration dialog."""
@@ -2533,8 +2588,41 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def __MODELER_METHODS__DO_DISPLAY__(self):
         pass
 
-
-
+    def applyThemeConfig(self, config_name: str) -> bool:
+        """
+        Apply a saved theme configuration to listed GameSpaces.
+        
+        This method memorizes the configuration name and applies it automatically
+        at the end of initBeforeShowing() (called by launch()). This ensures all
+        GameSpaces are created before applying themes.
+        
+        This method is silent (no dialog boxes) and designed for script usage.
+        Use the UI dialog "Manage Theme Configurations" for interactive loading.
+        
+        Args:
+            config_name (str): Name of the configuration to apply
+        
+        Returns:
+            bool: True if configuration name was memorized, False otherwise
+        
+        Example:
+            # Apply a saved theme configuration (will be applied when launch() is called)
+            model.applyThemeConfig("my_theme_setup")
+            model.launch()  # Theme will be applied after all GameSpaces are created
+            
+            # Check before applying
+            if model.hasThemeConfig("setup1"):
+                model.applyThemeConfig("setup1")
+        """
+        # Verify the configuration exists before memorizing
+        manager = SGThemeConfigManager(self)
+        if not manager.configExists(config_name):
+            print(f"Theme config '{config_name}' does not exist")
+            return False
+        
+        # Memorize the configuration name for loading at the end of initBeforeShowing
+        self._pending_theme_config = config_name
+        return True
 
     def displayTimeInWindowTitle(self, setting=True):
         """

@@ -161,6 +161,114 @@
       "model_name": null,
       "timestamp": "2025-10-13 22:36:43",
       "version": "1.0"
+    },
+    "layout_config_ex7": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 3,
+      "gameSpaces": {
+        "grid1": {
+          "layoutOrder": 1,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            26
+          ],
+          "manual_override": false
+        },
+        "Test TextBox": {
+          "layoutOrder": 2,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            360,
+            26
+          ],
+          "manual_override": false
+        },
+        "Test Rules": {
+          "layoutOrder": 3,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            499,
+            26
+          ],
+          "manual_override": false
+        },
+        "SGDashBoard#1": {
+          "layoutOrder": 3,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            499,
+            106
+          ],
+          "manual_override": false
+        },
+        "Game Time": {
+          "layoutOrder": 5,
+          "position_type": "mixed",
+          "manual_position": [
+            504,
+            252
+          ],
+          "manual_override": true
+        },
+        "Test Void": {
+          "layoutOrder": 6,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            499,
+            231
+          ],
+          "manual_override": false
+        },
+        "Actions du Joueur 1": {
+          "layoutOrder": 1,
+          "position_type": "mixed",
+          "manual_position": [
+            -4,
+            431
+          ],
+          "manual_override": true
+        },
+        "Actions du Joueur 2": {
+          "layoutOrder": 1,
+          "position_type": "mixed",
+          "manual_position": [
+            176,
+            428
+          ],
+          "manual_override": true
+        },
+        "userSelector": {
+          "layoutOrder": 1,
+          "position_type": "mixed",
+          "manual_position": [
+            5,
+            390
+          ],
+          "manual_override": true
+        },
+        "SGProgressGauge#1": {
+          "layoutOrder": 3,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            499,
+            152
+          ],
+          "manual_override": false
+        },
+        "Legend": {
+          "layoutOrder": 2,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            360,
+            102
+          ],
+          "manual_override": false
+        }
+      },
+      "model_name": null,
+      "timestamp": "2025-11-03 19:56:53",
+      "version": "1.0"
     }
   }
 }

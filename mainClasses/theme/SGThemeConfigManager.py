@@ -105,33 +105,37 @@ class SGThemeConfigManager(QObject):
             QMessageBox.critical(None, "Error", f"Failed to save theme configuration: {e}")
             return False
 
-    def loadConfig(self, config_name):
+    def loadConfig(self, config_name, suppress_dialogs=False):
         """
         Load a saved Theme configuration and apply it to listed GameSpaces only.
 
         Args:
             config_name (str): Name of the configuration to load
+            suppress_dialogs (bool): If True, suppress QMessageBox dialogs (default: False)
         Returns:
             bool: True if successful, False otherwise
         """
         if not os.path.exists(self.config_path):
-            QMessageBox.warning(None, "Warning", f"Configuration file not found: {self.config_path}")
+            if not suppress_dialogs:
+                QMessageBox.warning(None, "Warning", f"Configuration file not found: {self.config_path}")
             return False
 
         try:
             all_configs = self._loadAllConfigurations()
             if config_name not in all_configs["configurations"]:
-                QMessageBox.warning(None, "Warning", f"Configuration '{config_name}' not found")
+                if not suppress_dialogs:
+                    QMessageBox.warning(None, "Warning", f"Configuration '{config_name}' not found")
                 return False
 
             config_data = all_configs["configurations"][config_name]
             current_model_name = self._getCurrentModelName()
 
             if config_data.get("model_name") != current_model_name:
-                QMessageBox.warning(None, "Warning", f"Configuration '{config_name}' does not belong to the current model '{current_model_name}'")
+                if not suppress_dialogs:
+                    QMessageBox.warning(None, "Warning", f"Configuration '{config_name}' does not belong to the current model '{current_model_name}'")
                 return False
 
-            if not self._validateConfig(config_data):
+            if not self._validateConfig(config_data, suppress_dialogs):
                 return False
 
             mapping = config_data.get("gameSpaces", {})
@@ -141,6 +145,7 @@ class SGThemeConfigManager(QObject):
                 theme_name = gs_cfg.get("theme")
                 if not theme_name:
                     continue
+                
                 # Find GameSpace by id or by name key
                 target = self._findGameSpaceByIdOrName(gs_id)
                 if target is not None and hasattr(target, 'applyTheme'):
@@ -152,9 +157,11 @@ class SGThemeConfigManager(QObject):
 
             if applied_any and hasattr(self.model, 'update'):
                 self.model.update()
-            return True
+            
+            return applied_any
         except Exception as e:
-            QMessageBox.critical(None, "Error", f"Failed to load theme configuration: {e}")
+            if not suppress_dialogs:
+                QMessageBox.critical(None, "Error", f"Failed to load theme configuration: {e}")
             return False
 
     def _findGameSpaceByIdOrName(self, key):
@@ -232,14 +239,37 @@ class SGThemeConfigManager(QObject):
             QMessageBox.critical(None, "Error", f"Failed to delete configuration: {e}")
             return False
 
-    def _validateConfig(self, config_data):
+    def _validateConfig(self, config_data, suppress_dialogs=False):
         # Minimal validation (mapping may be empty)
         required_keys = ['model_name', 'gameSpaces']
         for key in required_keys:
             if key not in config_data:
-                QMessageBox.critical(None, "Error", f"Invalid configuration: missing '{key}'")
+                if not suppress_dialogs:
+                    QMessageBox.critical(None, "Error", f"Invalid configuration: missing '{key}'")
                 return False
         return True
+
+    def configExists(self, config_name):
+        """
+        Check if a theme configuration exists for the current model.
+        
+        Args:
+            config_name (str): Name of the configuration to check
+        
+        Returns:
+            bool: True if configuration exists, False otherwise
+        """
+        try:
+            all_configs = self._loadAllConfigurations()
+            if config_name not in all_configs["configurations"]:
+                return False
+            
+            config_data = all_configs["configurations"][config_name]
+            current_model_name = self._getCurrentModelName()
+            
+            return config_data.get("model_name") == current_model_name
+        except Exception:
+            return False
 
     def _getPredefinedThemeNames(self):
         """

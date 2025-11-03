@@ -2,7 +2,8 @@
 
 ## État d'avancement du système gs_aspect
 
-**Date** : 15/10/2025
+**Date** : 15/10/2025  
+**Dernière mise à jour** : [Date actuelle]
 
 ### 🚨 INFORMATIONS POUR LE PROCHAIN CHATBOT
 
@@ -23,8 +24,7 @@
 **PROBLÈMES IDENTIFIÉS À RÉSOUDRE** :
 1. **Contournement du système** : Les paramètres de style dans les constructeurs (ex: `newTimeLabel("Title", Qt.white, Qt.black)`)
 2. **Double voie** : Le modeler peut utiliser soit les paramètres du constructeur, soit les méthodes modeler
-3. **Classes restantes** : SGLegend et SGGrid pas encore traitées
-4. **Erreurs de stylesheet** : Avec les indicateurs du dashboard
+3. **Erreurs de stylesheet** : Avec les indicateurs du dashboard
 
 **FICHIERS CLÉS À EXAMINER** :
 - `mainClasses/SGAspect.py` : Classe centrale avec thèmes prédéfinis
@@ -36,8 +36,8 @@
 **PRIORITÉS** :
 1. Déprécier les paramètres de style dans les constructeurs
 2. Faire la "chasse" aux méthodes set de styles qui contournent `gs_aspect`
-3. Finaliser SGLegend et SGGrid
-4. Utiliser l'analyse HARDCODED_STYLES_ANALYSIS.md pour les styles par défaut
+3. Utiliser l'analyse HARDCODED_STYLES_ANALYSIS.md pour les styles par défaut
+4. Corriger les erreurs de stylesheet des indicateurs du dashboard
 
 ---
 
@@ -63,8 +63,12 @@
 - ✅ **SGProgressGauge** : Utilise déjà `gs_aspect`, méthodes modeler existantes
 - ✅ **SGTimeLabel** : Utilise déjà `gs_aspect`, méthodes modeler ajoutées
 - ✅ **SGVoid** : Méthodes modeler ajoutées
-- ✅ **SGTextBox** : Utilise déjà `gs_aspect` avec `setTextFormat()`
+- ✅ **SGTextBox** : Remplacement par SGTextBoxLargeShrinkable (nouvelle implémentation robuste avec `gs_aspect`)
 - ✅ **SGEndGameRule** : Utilise déjà `gs_aspect` avec méthodes modeler complètes
+- ✅ **SGLabel** : Migration complète vers SGGameSpace
+- ✅ **SGButton** : Migration complète vers SGGameSpace
+- ✅ **SGLegend** : Migration vers `gs_aspect` (utilise `gs_aspect` pour container, SGLegendItem utilise text_aspects)
+- ✅ **SGGrid** : Migration vers `gs_aspect` (utilise `gs_aspect` pour container et background image)
 
 #### Corrections et améliorations
 - ✅ Correction de `SGModel.newEndGameRule()` pour accepter les paramètres de style
@@ -81,6 +85,7 @@
 - ⚠️ **Problème identifié** : Erreurs de stylesheet avec les indicateurs du dashboard (`Could not parse stylesheet of object QLabel`)
 - ⚠️ **Note importante** : L'analyse `HARDCODED_STYLES_ANALYSIS.md` n'a pas été utilisée comme guide d'implémentation
 - ⚠️ **Problème majeur** : Les paramètres de style dans les constructeurs contournent le système `gs_aspect`
+- ✅ **SGTextBox** : Problèmes de hauteur/word-wrap résolus avec la nouvelle implémentation SGTextBoxLargeShrinkable
   - Exemple : `myModel.newTimeLabel("Title", Qt.white, Qt.black, Qt.black)`
   - Exemple : `myModel.newDashBoard('Title', borderColor=Qt.black, textColor=Qt.black)`
   - **Conséquence** : Double voie pour définir les styles (constructeur vs méthodes modeler)
@@ -99,7 +104,7 @@
    - Inconvénients : Plus de code pour application globale
 
 2. **Application globale** : `model.applyThemeToAllGameSpaces('modern')`
-   - ❌ Pas encore implémenté
+   - ✅ Déjà implémenté et fonctionnel
    - Avantages : Une ligne pour changer toute l'interface
    - Inconvénients : Moins de flexibilité
 
@@ -116,10 +121,11 @@
 
 ### 📋 Travail restant
 
-#### Phase 4 : Système de thèmes global (si souhaité)
-- [ ] Implémenter `model.applyThemeToAllGameSpaces(theme_name)`
-- [ ] Définir la logique de priorité (global vs individuel)
-- [ ] Gérer les exclusions (types de GameSpaces à ignorer)
+#### Phase 4 : Système de thèmes global
+- ✅ **TERMINÉ** : `model.applyThemeToAllGameSpaces(theme_name)` implémenté
+- ✅ **TERMINÉ** : Bouton "Apply to All..." ajouté dans Theme Assignment Dialog
+- [ ] Définir la logique de priorité (global vs individuel) - documentation
+- [ ] Gérer les exclusions (types de GameSpaces à ignorer) - optionnel
 - [ ] Tests du système global
 
 #### Phase 5 : Conversion SGLabel/SGButton en GameSpaces
@@ -128,24 +134,28 @@
 - ✅ **TERMINÉ** : Compatibilité maintenue avec les méthodes existantes
 
 #### Classes GameSpaces restantes à traiter
-- [ ] **SGLegend** : Utilise SGLegendItem, adapter l'approche
-- [ ] **SGGrid** : Classe complexe avec fonctionnalités avancées, traiter avec précaution
+- ✅ **SGLegend** : Migration vers `gs_aspect` terminée
+- ✅ **SGGrid** : Migration vers `gs_aspect` terminée
 
-#### Système de thèmes personnalisés (partiellement fait)
+#### Système de thèmes personnalisés ✅ **TERMINÉ**
 - ✅ **Dialogue Custom Theme Editor** : Création et édition de thèmes custom en mémoire
 - ✅ **Thèmes custom en mémoire** : Stockage dans `model._runtime_themes` pendant la session
 - ✅ **Generate Theme Code** : Génération du code Python pour promouvoir un thème custom en prédéfini
 - ✅ **Découverte dynamique des thèmes** : Les thèmes prédéfinis sont détectés automatiquement (plus de liste codée)
 - ✅ **text_aspects dans thèmes prédéfinis** : Tous les thèmes prédéfinis incluent maintenant `text_aspects`
-- ❌ **Persistance des thèmes custom** : Les thèmes custom ne sont pas sauvegardés sur disque (perdus à la fermeture)
-- ❌ **Sauvegarde dans theme_config.json** : Seuls les assignments sont sauvegardés, pas les définitions des thèmes custom
-- ❌ **Distinction visuelle** : Pas de distinction claire entre thèmes prédéfinis et custom dans l'interface
-- ❌ **Protection contre conflits** : Pas de vérification que les noms de thèmes custom n'entrent pas en conflit avec les prédéfinis
+- ✅ **Persistance des thèmes custom** : Les thèmes custom sont sauvegardés dans `theme_config.json` et chargés au démarrage
+- ✅ **Distinction visuelle** : Préfixe "📝 " pour les thèmes custom dans l'interface
+- ✅ **Protection contre conflits** : Vérification que les noms de thèmes custom n'entrent pas en conflit avec les prédéfinis
+- ✅ **Méthodes modeler** : `applyThemeConfig()` et `applyLayoutConfig()` pour charger les configurations via script (comportement retardé)
 
 #### Améliorations possibles
 - [ ] Ajouter plus de thèmes prédéfinis
 - [ ] Export/import de configurations de thèmes
-- [ ] Interface graphique améliorée pour la gestion des thèmes (améliorer "Manage Theme Configuration")
+- ✅ **Interface graphique améliorée** : "Manage Theme Configuration" améliorée (layout compact, boutons réorganisés)
+- ✅ **Support d'image en background** : Implémenté pour tous les GameSpaces via `gs_aspect.background_image`
+- ✅ **Menu "Change window background color"** : Ajouté dans le menu Themes
+- ✅ **Refactorisation du positionnement des dialogs** : Fonction utilitaire `position_dialog_to_right()` dans `SGExtensions.py`
+- ✅ **Bouton "Apply to All"** : Ajouté dans Theme Assignment Dialog
 - [ ] **Corriger les erreurs de stylesheet des indicateurs du dashboard**
 - [ ] **Utiliser l'analyse HARDCODED_STYLES_ANALYSIS.md** pour définir les styles par défaut
 - [ ] **Déprécier les paramètres de style dans les constructeurs** des factory methods
@@ -210,13 +220,15 @@ gameSpace.applyTheme('modern')
 
 ### 🎯 Prochaines étapes
 
-1. **Implémenter la persistance des thèmes custom** ⚠️ **PRIORITÉ ACTUELLE**
-   - Modifier `SGThemeConfigManager` pour sauvegarder les définitions complètes des thèmes custom dans `theme_config.json`
-   - Charger ces définitions au démarrage de l'application
-   - Vérifier que les noms de thèmes custom n'entrent pas en conflit avec les thèmes prédéfinis
-   - Ajouter une distinction visuelle entre thèmes prédéfinis et custom dans l'interface
-2. **Finalisation des classes restantes** : SGLegend et SGGrid
-3. **Tests complets** : Validation de toutes les fonctionnalités
+1. **Nettoyage et consolidation** ⚠️ **PRIORITÉ ACTUELLE**
+   - Déprécier les paramètres de style dans les constructeurs des factory methods
+   - Faire la "chasse" aux méthodes set de styles qui contournent `gs_aspect`
+2. **Corrections de bugs**
+   - Corriger les erreurs de stylesheet des indicateurs du dashboard
+   - ✅ SGTextBox : problèmes de hauteur/word-wrap résolus
+3. **Améliorations techniques**
+   - Réduire la duplication de code : refactoriser `onTextAspectsChanged()` dans `SGGameSpace`
+   - Utiliser l'analyse `HARDCODED_STYLES_ANALYSIS.md` pour définir les styles par défaut
 4. **Documentation** : Mise à jour des README et guides
 
 ---
@@ -225,8 +237,8 @@ gameSpace.applyTheme('modern')
 
 #### Classes principales
 - ✅ `mainClasses/SGAspect.py` : Extension avec attributs et thèmes, ajout de `text_aspects` aux thèmes prédéfinis
-- ✅ `mainClasses/SGGameSpace.py` : Méthodes modeler communes, découverte dynamique des thèmes, application des text_aspects différenciés
-- ✅ `mainClasses/SGModel.py` : Correction newEndGameRule, ajout newVoid, migration newLabel et newButton vers SGGameSpace
+- ✅ `mainClasses/SGGameSpace.py` : Méthodes modeler communes, découverte dynamique des thèmes, application des text_aspects différenciés, support background_image
+- ✅ `mainClasses/SGModel.py` : Correction newEndGameRule, ajout newVoid, migration newLabel et newButton vers SGGameSpace, méthodes `applyThemeConfig()` et `applyLayoutConfig()`, menu "Change window background color"
 
 #### Classes GameSpaces
 - ✅ `mainClasses/SGUserSelector.py` : Migration vers gs_aspect
@@ -236,7 +248,9 @@ gameSpace.applyTheme('modern')
 - ✅ `mainClasses/SGLabel.py` : Migration complète vers SGGameSpace
 - ✅ `mainClasses/SGButton.py` : Migration complète vers SGGameSpace
 - ✅ `mainClasses/SGProgressGauge.py` : Application de l'alignement
-- ✅ `mainClasses/SGTextBox.py` : Remplacement par SGTextBoxLargeShrinkable (nouvelle implémentation robuste)
+- ✅ `mainClasses/SGTextBox.py` : Remplacement par SGTextBoxLargeShrinkable (nouvelle implémentation robuste, problèmes de hauteur/word-wrap résolus)
+- ✅ `mainClasses/SGLegend.py` : Migration vers gs_aspect (container + background image)
+- ✅ `mainClasses/SGGrid.py` : Migration vers gs_aspect (container + background image)
 
 #### Exemples de test
 - `examples/syntax_examples/ex_game_space_style_2.py` : Test méthodes individuelles
@@ -245,10 +259,12 @@ gameSpace.applyTheme('modern')
 - `examples/syntax_examples/ex_game_space_style_5.py` : Test approche mixte
 
 #### Dialogues et gestion des thèmes
-- ✅ `mainClasses/theme/SGThemeCustomEditorDialog.py` : Création et édition de thèmes custom
-- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Assignment de thèmes, découverte dynamique, bouton "Theme code..."
+- ✅ `mainClasses/theme/SGThemeCustomEditorDialog.py` : Création et édition de thèmes custom, persistance, améliorations UI
+- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Assignment de thèmes, découverte dynamique, bouton "Theme code...", "Apply to All..."
 - ✅ `mainClasses/theme/SGThemeCodeGeneratorDialog.py` : Génération du code Python pour promouvoir un thème custom
-- ⚠️ `mainClasses/theme/SGThemeConfigManager.py` : À modifier pour sauvegarder les définitions des thèmes custom
+- ✅ `mainClasses/theme/SGThemeConfigManager.py` : Persistance des thèmes custom dans `theme_config.json`, chargement au démarrage
+- ✅ `mainClasses/theme/SGThemeConfigManagerDialog.py` : Interface améliorée (layout compact, boutons réorganisés)
+- ✅ `mainClasses/SGExtensions.py` : Fonction utilitaire `position_dialog_to_right()` pour positionnement des dialogs
 
 #### Documentation
 - `notes for FUTURE_PLAN/HARDCODED_STYLES_ANALYSIS.md` : Analyse des styles hardcodés

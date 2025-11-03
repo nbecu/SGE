@@ -1,5 +1,44 @@
 {
-  "configurations": {},
+  "configurations": {
+    "Theme_config_ex7": {
+      "model_name": null,
+      "timestamp": "2025-11-03 19:53:38",
+      "version": "1.0",
+      "global_theme": null,
+      "gameSpaces": {
+        "grid1": {
+          "theme": "modern"
+        },
+        "Test TextBox": {
+          "theme": "blue"
+        },
+        "Test Rules": {
+          "theme": "blue"
+        },
+        "SGDashBoard#1": {
+          "theme": "blue"
+        },
+        "Game Time": {
+          "theme": "blue"
+        },
+        "Actions du Joueur 1": {
+          "theme": "gray"
+        },
+        "Actions du Joueur 2": {
+          "theme": "gray"
+        },
+        "userSelector": {
+          "theme": "blue"
+        },
+        "SGProgressGauge#1": {
+          "theme": "blue"
+        },
+        "Legend": {
+          "theme": "blue_custom"
+        }
+      }
+    }
+  },
   "custom_themes": {
     "test1": {
       "base": {
@@ -122,6 +161,136 @@
         },
         "text3": {
           "color": "#1b5e20",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
+    },
+    "blue_custom": {
+      "base": {
+        "background_color": "#008299",
+        "border_color": "#0277bd",
+        "border_size": 1,
+        "border_style": "solid",
+        "border_radius": 3
+      },
+      "text_aspects": {
+        "title1": {
+          "color": "#ffffff",
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "title2": {
+          "color": "#dddddd",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "underline",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#dddddd",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
+    },
+    "blue_custom2": {
+      "base": {
+        "background_color": "#e1f5fe",
+        "border_color": "#0277bd",
+        "border_size": 1,
+        "border_style": "solid",
+        "border_radius": 5
+      },
+      "text_aspects": {
+        "title1": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Center"
+        },
+        "title2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "underline",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#ff0000",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#01579b",
           "font": "Arial",
           "size": 12,
           "font_weight": "normal",

@@ -6,6 +6,7 @@ from mainClasses.SGSGE import *
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(580,300, windowTitle="Add agents to your simulation/game")
+myModel.applyThemeConfig('blue and green')
 
 Cell=myModel.newCellsOnGrid(6,4,"square",gap=2,size=40)
 

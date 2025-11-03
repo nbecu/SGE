@@ -1,7 +1,8 @@
 # RÉCAPITULATIF DU CHANTIER GS_ASPECT_SYSTEM
 
 **Date du récapitulatif** : Après 2 semaines de pause  
-**Date de référence du fichier NEXT_STEPS** : 15/10/2025
+**Date de référence du fichier NEXT_STEPS** : 15/10/2025  
+**Dernière mise à jour** : [Date actuelle]
 
 ---
 
@@ -130,42 +131,35 @@
 
 ---
 
-## 🔄 TRAVAIL EN ATTENTE / PROBLÈMES IDENTIFIÉS
+## ✅ TRAVAIL TERMINÉ (suite)
 
-### 1. SGTextBox : hauteur et word-wrap ⚠️
+### 10. Correction de SGTextBox : hauteur et word-wrap ✅ **TERMINÉ**
 **Fichier** : `mainClasses/SGTextBox.py`  
-**Exemple de test** : `ex_textbox_font_style.py`
+**Solution** : Remplacement par SGTextBoxLargeShrinkable (nouvelle implémentation robuste)
 
-**Problèmes identifiés** :
-- ❌ Les textBox 7, 8, 9 (avec texte long et `QTextEdit`) : le texte déborde par le bas du cadre
-- ❌ Le word-wrap ne semble pas toujours s'appliquer correctement pour les `QTextEdit`
-- ❌ La hauteur calculée automatiquement ne prend pas toujours en compte tout le texte wrappé
+**Problèmes résolus** :
+- ✅ Word-wrap correctement appliqué pour les textes longs
+- ✅ Hauteur calculée automatiquement pour prendre en compte tout le texte wrappé
+- ✅ Support du paramètre `shrinked` pour ajustement dynamique de la taille
+- ✅ Scrollbar vertical automatique si le texte dépasse la hauteur maximale
+- ✅ Ajustement automatique de la largeur si le titre est plus long que prévu
+- ✅ Intégration complète avec le système `gs_aspect`
 
-**Tentatives précédentes** :
-- Configuration explicite de `setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)` et `setWordWrapMode(QTextOption.WordWrap)`
-- Recalcul de la hauteur via `QTextDocument.setTextWidth()` et `doc.size().height()`
-- Ajout de padding pour prendre en compte les marges du layout et du frame
-
-**Statut** : ⏸️ Laissé en attente par décision utilisateur. À corriger plus tard.
+**Points clés** :
+- Nouvelle implémentation basée sur `QTextEdit` avec gestion robuste du word-wrap
+- Calcul précis de la hauteur nécessaire via `QTextDocument` et `QFontMetrics`
+- Support des paramètres `width` et `height` avec comportement dynamique si `shrinked=True`
 
 ---
 
-### 2. Sauvegarde/chargement des custom themes ⚠️
-**État actuel** :
-- ✅ Les thèmes custom peuvent être créés et utilisés pendant la session
-- ✅ Les paramètres `text_aspects` sont correctement appliqués (problème précédemment identifié résolu)
-- ❌ **Les thèmes custom ne sont pas persistés sur disque** : Ils sont stockés uniquement dans `model._runtime_themes` (mémoire) et sont perdus à la fermeture de l'application
+### 8. Persistance des thèmes custom ✅ **TERMINÉ**
+**Fichiers** : `mainClasses/theme/SGThemeConfigManager.py`, `mainClasses/theme/SGThemeCustomEditorDialog.py`, `mainClasses/SGModel.py`
 
-**Fichiers concernés** :
-- `mainClasses/theme/SGThemeCustomEditorDialog.py` : Sauvegarde dans `model._runtime_themes` (ligne 411)
-- `mainClasses/theme/SGThemeConfigManager.py` : Sauvegarde uniquement les assignments (GameSpace → thème), pas les définitions des thèmes custom
-- `theme_config.json` : Contient uniquement les configurations (assignments), pas les définitions des thèmes custom
-
-**Action requise** : Implémenter la persistance des thèmes custom dans `theme_config.json` :
-- Modifier `SGThemeConfigManager` pour sauvegarder les définitions complètes des thèmes custom
-- Charger ces définitions au démarrage dans `model._runtime_themes`
-- Vérifier que les noms de thèmes custom n'entrent pas en conflit avec les thèmes prédéfinis
-- Ajouter une distinction visuelle entre thèmes prédéfinis et custom dans l'interface
+- ✅ **Sauvegarde dans `theme_config.json`** : Les définitions complètes des thèmes custom sont sauvegardées dans `theme_config.json` sous la clé `"custom_themes"`
+- ✅ **Chargement au démarrage** : Les thèmes custom sont chargés au démarrage dans `model._runtime_themes` via `SGThemeConfigManager.loadCustomThemes()`
+- ✅ **Protection contre conflits** : Vérification que les noms de thèmes custom n'entrent pas en conflit avec les thèmes prédéfinis
+- ✅ **Distinction visuelle** : Préfixe "📝 " pour les thèmes custom dans l'interface Theme Assignment Dialog
+- ✅ **Confirmation d'écrasement** : Dialog de confirmation lorsque l'utilisateur sauvegarde un thème avec un nom existant
 
 ---
 
@@ -185,8 +179,8 @@
 - ✅ **TERMINÉ** : Compatibilité maintenue avec les méthodes existantes
 
 #### Classes GameSpaces restantes à traiter
-- [ ] **SGLegend** : Utilise SGLegendItem, adapter l'approche
-- [ ] **SGGrid** : Classe complexe avec fonctionnalités avancées, traiter avec précaution
+- ✅ **SGLegend** : Migration vers `gs_aspect` terminée (container via `gs_aspect`, text_aspects via SGLegendItem)
+- ✅ **SGGrid** : Migration vers `gs_aspect` terminée (container via `gs_aspect`, support background_image)
 
 #### Améliorations possibles
 - [ ] Ajouter plus de thèmes prédéfinis
@@ -200,12 +194,13 @@
 
 ---
 
-### Nouvelles tâches ajoutées (d'après la TODO actuelle)
+### 9. Support d'image en background ✅ **TERMINÉ**
+**Fichiers** : `mainClasses/SGAspect.py`, `mainClasses/SGGameSpace.py`, `mainClasses/SGLegend.py`, `mainClasses/SGGrid.py`, et autres GameSpaces
 
-#### 1. Support d'image en background ⏸️
-- [ ] Ajouter la prise en charge d'image en background à la place d'une couleur
-- **Priorité** : Ajoutée en 3ème position dans la TODO
-- **Fichiers concernés** : `SGAspect.py`, `SGGameSpace.py`, GameSpaces qui utilisent `background_image`
+- ✅ **Support dans `SGGameSpace`** : Méthode `setBackgroundImage()` pour définir une image en background (chemin de fichier ou QPixmap)
+- ✅ **Support dans `paintEvent`** : Méthode `getBackgroundImagePixmap()` pour récupérer l'image, avec fallback sur la couleur de background
+- ✅ **Extension à tous les GameSpaces** : Tous les GameSpaces utilisant `paintEvent` supportent maintenant les images en background
+- ✅ **Intégration avec `gs_aspect`** : L'image est stockée dans `gs_aspect.background_image` et `_background_pixmap`
 
 #### 2. Réduction de duplication de code 📝
 - [ ] Réduire duplication de logique texte entre GameSpaces via héritage/refactor
@@ -229,23 +224,23 @@
 ## 🎯 PRIORITÉS RECOMMANDÉES
 
 ### Court terme (prochaines sessions)
-1. **Implémenter la persistance des thèmes custom** ⚠️ **EN COURS**
-   - Sauvegarder les définitions complètes des thèmes custom dans `theme_config.json`
-   - Charger ces définitions au démarrage
-   - Protection contre conflits de noms avec les thèmes prédéfinis
-   - Distinction visuelle prédéfinis vs custom dans l'interface
-2. **Corriger SGTextBox** (word-wrap et hauteur) ⚠️ (laissé en attente)
-3. **Repenser Manage Theme Configuration** ⚠️ (partiellement résolu avec Generate Theme Code)
+1. **Nettoyage et consolidation** ⚠️ **PRIORITÉ ACTUELLE**
+   - Déprécier les paramètres de style dans les constructeurs des factory methods
+   - Faire la "chasse" aux méthodes set de styles qui contournent `gs_aspect`
+2. **Corrections de bugs**
+   - Corriger les erreurs de stylesheet des indicateurs du dashboard
+   - ✅ SGTextBox : problèmes de hauteur/word-wrap résolus
 
 ### Moyen terme
-4. **Réduire la duplication de code** (refactor `onTextAspectsChanged`)
-5. **Ajouter support d'image en background**
-6. **Nettoyer les méthodes modeler** (déprécier paramètres de style dans constructeurs)
+3. **Améliorations techniques**
+   - Réduire la duplication de code (refactor `onTextAspectsChanged`)
+   - Utiliser l'analyse `HARDCODED_STYLES_ANALYSIS.md` pour définir les styles par défaut
 
 ### Long terme
-7. **Finaliser SGLegend et SGGrid**
-8. **Système de thèmes global** (si souhaité)
-9. **Documentation complète**
+4. **Documentation complète**
+   - Guide pour les modelers sur l'utilisation de `gs_aspect`
+   - Documentation technique de l'architecture
+   - Mise à jour des README existants
 
 ---
 
@@ -253,8 +248,8 @@
 
 ### Classes principales
 - ✅ `mainClasses/SGAspect.py` : Ajout de `text_aspects` à tous les thèmes prédéfinis, découverte dynamique des thèmes
-- ✅ `mainClasses/SGGameSpace.py` : Découverte dynamique des thèmes prédéfinis, application des text_aspects différenciés
-- ✅ `mainClasses/SGModel.py` : Factory methods `newLabel()` et `newButton()` modifiées
+- ✅ `mainClasses/SGGameSpace.py` : Découverte dynamique des thèmes prédéfinis, application des text_aspects différenciés, support background_image via `setBackgroundImage()` et `getBackgroundImagePixmap()`
+- ✅ `mainClasses/SGModel.py` : Factory methods `newLabel()` et `newButton()` modifiées, méthodes `applyThemeConfig()` et `applyLayoutConfig()` (comportement retardé), menu "Change window background color", méthodes helper `hasThemeConfig()` et `getAvailableThemeConfigs()`
 
 ### Classes GameSpaces migrées récemment
 - ✅ `mainClasses/SGLabel.py` : Migration complète vers SGGameSpace
@@ -266,15 +261,17 @@
 - ✅ `mainClasses/SGLegendItem.py` : Respect de l'alignement
 
 ### Dialogues et thèmes
-- ✅ `mainClasses/theme/SGThemeCustomEditorDialog.py` : Correction fuite de bordures, prise en charge de l'alignement
-- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Positionnement de la fenêtre, découverte dynamique des thèmes, bouton "Theme code..."
+- ✅ `mainClasses/theme/SGThemeCustomEditorDialog.py` : Correction fuite de bordures, prise en charge de l'alignement, persistance, améliorations UI (suppression Preview, demande nom via dialog)
+- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Positionnement de la fenêtre, découverte dynamique des thèmes, bouton "Theme code...", "Apply to All..."
 - ✅ `mainClasses/theme/SGThemeCodeGeneratorDialog.py` : Nouveau dialogue pour générer le code Python des thèmes custom
-- ⚠️ `mainClasses/theme/SGThemeConfigManager.py` : À modifier pour sauvegarder les définitions des thèmes custom (actuellement sauvegarde uniquement les assignments)
+- ✅ `mainClasses/theme/SGThemeConfigManager.py` : Persistance des thèmes custom dans `theme_config.json`, chargement au démarrage, méthodes `configExists()`, `saveCustomTheme()`, `loadCustomThemes()`
+- ✅ `mainClasses/theme/SGThemeConfigManagerDialog.py` : Interface améliorée (layout compact, boutons réorganisés, "Apply" et "Apply & Close")
+- ✅ `mainClasses/SGExtensions.py` : Fonction utilitaire `position_dialog_to_right()` pour positionnement des dialogs
 
-### Classes en attente
-- ⚠️ `mainClasses/SGTextBox.py` : Problèmes de hauteur/word-wrap à corriger
-- [ ] `mainClasses/SGLegend.py` : À traiter
-- [ ] `mainClasses/SGGrid.py` : À traiter
+### Classes récemment migrées
+- ✅ `mainClasses/SGLegend.py` : Migration vers gs_aspect terminée
+- ✅ `mainClasses/SGGrid.py` : Migration vers gs_aspect terminée
+- ✅ `mainClasses/SGTextBox.py` : Nouvelle implémentation robuste (SGTextBoxLargeShrinkable) avec problèmes de hauteur/word-wrap résolus
 
 ---
 
@@ -282,29 +279,31 @@
 
 ### Classes GameSpaces
 - **Total** : 12 classes GameSpaces identifiées
-- **Migrées vers gs_aspect** : 10 ✅
+- **Migrées vers gs_aspect** : 12/12 ✅ **100% COMPLET**
   - SGUserSelector ✅
   - SGDashBoard ✅
   - SGControlPanel ✅
   - SGProgressGauge ✅
   - SGTimeLabel ✅
   - SGVoid ✅
-  - SGTextBox ✅ (partiellement, problèmes de hauteur/word-wrap)
+  - SGTextBox ✅ (nouvelle implémentation robuste avec SGTextBoxLargeShrinkable, problèmes de hauteur/word-wrap résolus)
   - SGEndGameRule ✅
-  - SGLabel ✅ (récemment)
-  - SGButton ✅ (récemment)
-- **En attente** : 2
-  - SGLegend
-  - SGGrid
+  - SGLabel ✅
+  - SGButton ✅
+  - SGLegend ✅
+  - SGGrid ✅
 
 ### Fonctionnalités
-- ✅ Alignement via `gs_aspect` : 8/12 GameSpaces
-- ✅ PaintEvent avec `gs_aspect` : 10/12 GameSpaces
-- ✅ Custom Theme Editor fonctionnel : Oui (création et édition de thèmes custom)
-- ✅ Theme Assignment Dialog : Fonctionnel avec positionnement et découverte dynamique
+- ✅ Alignement via `gs_aspect` : 12/12 GameSpaces
+- ✅ PaintEvent avec `gs_aspect` : 12/12 GameSpaces
+- ✅ Custom Theme Editor fonctionnel : Oui (création, édition et persistance des thèmes custom)
+- ✅ Theme Assignment Dialog : Fonctionnel avec positionnement, découverte dynamique, "Apply to All..."
 - ✅ Generate Theme Code : Fonctionnel (génération du code Python pour promouvoir un thème custom)
 - ✅ Thèmes prédéfinis avec text_aspects : Tous les thèmes prédéfinis incluent maintenant text_aspects différenciés
-- ❌ Persistance des thèmes custom : Les thèmes custom ne sont pas sauvegardés sur disque (perdus entre sessions)
+- ✅ Persistance des thèmes custom : Les thèmes custom sont sauvegardés dans `theme_config.json` et chargés au démarrage
+- ✅ Support d'image en background : Tous les GameSpaces supportent les images en background via `gs_aspect`
+- ✅ Méthodes modeler pour configurations : `applyThemeConfig()` et `applyLayoutConfig()` avec comportement retardé
+- ✅ Menu "Change window background color" : Ajouté dans le menu Themes
 
 ---
 
