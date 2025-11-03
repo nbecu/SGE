@@ -201,15 +201,73 @@ catalog.add_category_tags_to_methods(dry_run=False, target_classes=["AttributeAn
 
 ---
 
-## 5. Model-View Architecture
+## 5. GS_Aspect System Architecture
 
 ### 5.1 Overview
+SGE implements a unified styling system (`gs_aspect`) to standardize style management across all GameSpaces. This system provides:
+- **Consistent styling API** across all GameSpaces
+- **Theme system** with predefined and custom themes
+- **Unified style application** through the `SGAspect` class
+- **Flexible syntax** for modelers (factory parameters, setter methods, or mix)
+
+### 5.2 Architecture
+- **`SGAspect`**: Central class defining style attributes (colors, fonts, borders, background images, etc.) and predefined themes
+- **`SGGameSpace`**: Base class for all GameSpaces with common styling methods and `gs_aspect` integration
+- **GameSpaces**: Specific implementations (SGTextBox, SGDashBoard, etc.) that inherit from `SGGameSpace`
+
+### 5.3 Key Methods
+- **`applyContainerAspectStyle()`**: Applies container styles (background, border) via stylesheet or `paintEvent()`
+- **`onTextAspectsChanged()`**: Hook for applying text styles (`text1_aspect`, `title1_aspect`, etc.) to labels/widgets
+- **`applyTheme(theme_name)`**: Applies a predefined or custom theme to a GameSpace
+- **`setBackgroundColor()`, `setTextColor()`, etc.**: Individual style setter methods
+
+### 5.4 Integrating New GameSpaces
+
+When creating a new GameSpace, follow these steps to integrate with `gs_aspect`:
+
+1. **Inherit from `SGGameSpace`**
+   ```python
+   class MyNewGameSpace(SGGameSpace):
+       def __init__(self, parent, ...):
+           super().__init__(parent, ...)
+   ```
+
+2. **Implement `onTextAspectsChanged()`** (if the GameSpace displays text)
+   ```python
+   def onTextAspectsChanged(self):
+       """Apply text aspects to labels/widgets."""
+       if hasattr(self, 'labelTitle') and self.labelTitle:
+           self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+   ```
+
+3. **Use `paintEvent()` for container** (background, border)
+   ```python
+   def paintEvent(self, event):
+       painter = QPainter(self)
+       # Use self.gs_aspect for background and border
+       # Use self.getBackgroundImagePixmap() for background images
+   ```
+
+4. **Use helper methods** from `SGGameSpace`:
+   - `_applyAspectToLabel(label, aspect)`: Applies aspect styling to a QLabel
+   - Use `SGExtensions.mapAlignmentStringToQtFlags()` for alignment mapping
+   - Use `SGAspect.applyToQLabel()` for complete label styling
+
+5. **Never bypass `gs_aspect`**: Always use setter methods (`setBackgroundColor()`, etc.) instead of direct attribute access
+
+For detailed guidelines, see `CONTEXT_SGE_FOR_CHATBOT.md` section 23.
+
+---
+
+## 6. Model-View Architecture
+
+### 6.1 Overview
 SGE implements a Model-View architecture to separate data/logic (Model) from UI/display (View) for core entities. This separation enables:
 - **Fluid agent movement** without losing state
 - **Better code organization** and maintainability
 - **Cleaner separation of concerns** between game logic and UI
 
-### 5.2 Core Classes
+### 6.2 Core Classes
 
 #### Model Classes (Data & Logic)
 - **`SGAgent`**: Agent model containing game logic, attributes, and behavior
@@ -219,13 +277,13 @@ SGE implements a Model-View architecture to separate data/logic (Model) from UI/
 - **`SGAgentView`**: Agent view handling UI rendering, mouse events, and visual interactions
 - **`SGCellView`**: Cell view handling cell rendering, click events, and visual display
 
-### 5.3 Model-View Relationship
+### 6.3 Model-View Relationship
 - Each **Model** has a corresponding **View** instance
 - Models contain the **game logic** and **data**
 - Views handle **UI rendering** and **user interactions**
 - Views delegate **game actions** back to their corresponding models
 
-### 5.4 Key Methods
+### 6.4 Key Methods
 
 #### `show()` Method
 The `show()` method is crucial for proper UI display:
@@ -238,7 +296,7 @@ The `show()` method is crucial for proper UI display:
 - **`repaint()`**: Forces immediate repaint (synchronous, blocking)
 - **Best Practice**: Use `update()` for better performance and responsiveness
 
-### 5.5 Implementation Guidelines
+### 6.5 Implementation Guidelines
 
 #### Creating Model-View Pairs
 ```python
@@ -274,7 +332,7 @@ SGE provides built-in zoom functionality for grids:
 - **Agent Positioning**: Agents are recreated during zoom to maintain proper positioning
 - **Grid Types**: Supports both square and hexagonal grids
 
-### 5.6 Coordinate System
+### 6.6 Coordinate System
 
 **Important Convention**: SGE uses a 1-based coordinate system for grid cells.
 
@@ -307,7 +365,7 @@ This convention is consistent throughout SGE and must be respected in all coordi
 
 ---
 
-## 6. Type Identification Attributes
+## 7. Type Identification Attributes
 
 Use boolean attributes with the `is` prefix to identify the type of object and enable different behaviors:
 
@@ -321,7 +379,7 @@ These attributes help separate responsibilities and enable type-specific behavio
 
 ---
 
-## 7. API Ergonomics and Delegation
+## 8. API Ergonomics and Delegation
 
 ### Delegation Methods
 Prefer creating delegation methods in core classes (`SGModel`, `SGEntityDef`, `SGEntity`, `SGPlayer`) to simplify the API for modelers:
@@ -357,7 +415,7 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 8. General Recommendations
+## 9. General Recommendations
 
 - All docstrings and comments must be written in English.
 - Be consistent with naming and terminology throughout the codebase.
@@ -365,13 +423,13 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 
 ---
 
-## 9. Additional Information
+## 10. Additional Information
 
 For more information about SGE usage and modeling, see `README_modeler.md`.
 
 ---
 
-## 10. Future Plan
+## 11. Future Plan
 
 For the complete list of planned improvements and features, see [FUTURE_PLAN.md](FUTURE_PLAN.md).
 

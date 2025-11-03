@@ -888,3 +888,250 @@ git checkout -b project_NewGame_2025
 # Fonctionnalité expérimentale
 git checkout -b experimental_new_algorithm
 ```
+
+## 23. GS_Aspect System Architecture (CRITIQUE pour chatbots)
+
+### 23.1 Overview
+**Le système `gs_aspect` est OBLIGATOIRE** pour uniformiser la gestion des styles dans tous les GameSpaces de SGE.
+
+**Architecture** :
+- **`SGAspect`** : Classe centrale définissant les attributs de style (couleurs, polices, bordures, images de background, etc.) et les thèmes prédéfinis
+- **`SGGameSpace`** : Classe mère de tous les GameSpaces avec méthodes modeler communes et intégration `gs_aspect`
+- **GameSpaces spécifiques** : SGTextBox, SGDashBoard, SGEndGameRule, etc. héritent de `SGGameSpace`
+
+**Objectif** : Tous les styles passent par le système `gs_aspect` pour garantir un comportement cohérent et permettre l'application de thèmes.
+
+### 23.2 Structure des Aspects
+
+Chaque GameSpace a plusieurs aspects :
+- **`gs_aspect`** : Styles du container (background, border, padding, etc.)
+- **`title1_aspect`, `title2_aspect`, `title3_aspect`** : Styles pour les titres
+- **`text1_aspect`, `text2_aspect`, `text3_aspect`** : Styles pour les textes de contenu
+
+### 23.3 Integrating New GameSpaces (OBLIGATOIRE)
+
+**RÈGLE ABSOLUE** : Suivre ces étapes pour intégrer un nouveau GameSpace à l'architecture SGE.
+
+#### Étape 1 : Hériter de SGGameSpace
+```python
+class MyNewGameSpace(SGGameSpace):
+    def __init__(self, parent, ...):
+        super().__init__(parent, startXBase, startYBase, posXInLayout, posYInLayout, ...)
+        # Initialisation spécifique
+```
+
+#### Étape 2 : Implémenter onTextAspectsChanged() (si le GameSpace affiche du texte)
+```python
+def onTextAspectsChanged(self):
+    """Apply text aspects (color, font, size, weight, style, decoration, alignment)."""
+    # Utiliser le helper _applyAspectToLabel pour les QLabel
+    if hasattr(self, 'labelTitle') and self.labelTitle:
+        self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+    
+    # Pour les widgets spéciaux (QTextEdit, QCheckBox, QPushButton), utiliser les méthodes spécifiques
+    if hasattr(self, 'textWidget') and self.textWidget:
+        # QTextEdit - utiliser applyToQFont() et getStyleSheetForColorAndDecoration()
+        f = self.textWidget.font()
+        self.text1_aspect.applyToQFont(f, self)
+        self.textWidget.setFont(f)
+        # ... appliquer alignment et stylesheet
+```
+
+#### Étape 3 : Utiliser paintEvent() pour le container (background, border)
+```python
+def paintEvent(self, event):
+    painter = QPainter(self)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    
+    # Background: préférer image, sinon couleur
+    bg_pixmap = self.getBackgroundImagePixmap()
+    if bg_pixmap is not None:
+        painter.drawPixmap(QRect(0, 0, self.width(), self.height()), bg_pixmap)
+    else:
+        bg = self.gs_aspect.getBackgroundColorValue()
+        if bg.alpha() > 0:
+            painter.setBrush(QBrush(bg, Qt.SolidPattern))
+            painter.drawRect(0, 0, self.width(), self.height())
+    
+    # Border
+    if self.gs_aspect.border_size and self.gs_aspect.border_color:
+        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.border_size))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
+```
+
+#### Étape 4 : Utiliser les helpers de SGGameSpace
+- **`_applyAspectToLabel(label, aspect)`** : Helper pour appliquer un aspect à un QLabel (utilise `aspect.applyToQLabel()`)
+- **`SGExtensions.mapAlignmentStringToQtFlags(alignment_str)`** : Mapper les chaînes d'alignement vers les flags Qt
+- **`SGAspect.applyToQFont(font_obj, game_space_instance)`** : Appliquer les propriétés de police
+- **`SGAspect.getStyleSheetForColorAndDecoration()`** : Générer le CSS pour couleur et text_decoration
+- **`SGAspect.applyToQLabel(label, game_space_instance)`** : Appliquer le style complet à un QLabel
+
+#### Étape 5 : Ne JAMAIS contourner gs_aspect
+**INTERDIT** :
+```python
+# ❌ INCORRECT - Contourne gs_aspect
+self.labelTitle.setStyleSheet("color: red;")  # Direct stylesheet
+self.labelTitle.setFont(QFont("Arial", 12))   # Direct font
+```
+
+**OBLIGATOIRE** :
+```python
+# ✅ CORRECT - Passe par gs_aspect
+self.setTextColor(Qt.red)                    # Utilise setter
+self.setFontSize(12)                          # Utilise setter
+self.setFontFamily("Arial")                  # Utilise setter
+# Ou utiliser le helper
+self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+```
+
+### 23.4 Key Methods
+
+#### applyContainerAspectStyle()
+Applique les styles du container via stylesheet. Certains GameSpaces la surchargent en `pass` pour utiliser `paintEvent()` à la place (évite la cascade QSS).
+
+```python
+def applyContainerAspectStyle(self):
+    """Avoid QSS cascade; rely on paintEvent for container rendering."""
+    pass
+```
+
+#### onTextAspectsChanged()
+Hook OBLIGATOIRE pour appliquer les styles texte. Doit être implémentée par chaque GameSpace qui affiche du texte.
+
+```python
+def onTextAspectsChanged(self):
+    """Apply text aspects (color, font, size, weight, style, decoration, alignment)."""
+    # Utiliser _applyAspectToLabel() pour les QLabel
+    # Utiliser applyToQFont() et getStyleSheetForColorAndDecoration() pour les widgets spéciaux
+```
+
+#### applyTheme(theme_name)
+Applique un thème prédéfini ou custom. Les thèmes prédéfinis sont découverts automatiquement depuis `SGAspect.py`.
+
+```python
+gameSpace.applyTheme('modern')  # Thème prédéfini
+gameSpace.applyTheme('my_custom_theme')  # Thème custom (depuis model._runtime_themes)
+```
+
+### 23.5 Theme System
+
+#### Predefined Themes
+Les thèmes prédéfinis sont des méthodes de classe dans `SGAspect.py` :
+- `modern()`, `minimal()`, `colorful()`, `blue()`, `green()`, `gray()`, etc.
+- Découverte automatique via `_getPredefinedThemeMethods()` dans `SGGameSpace`
+- Tous incluent maintenant `_text_aspects` pour différencier les styles de texte (title1, title2, text1, etc.)
+
+#### Custom Themes
+Les thèmes custom sont stockés dans `model._runtime_themes` pendant la session et persistés dans `theme_config.json` :
+- Création via `SGThemeCustomEditorDialog`
+- Persistance automatique lors de la sauvegarde
+- Chargement automatique au démarrage via `SGThemeConfigManager.loadCustomThemes()`
+- Protection contre conflits avec les thèmes prédéfinis
+
+#### Theme Configurations
+Les configurations de thèmes (assignments de thèmes aux GameSpaces) sont sauvegardées dans `theme_config.json` :
+- Sauvegarde via `SGThemeConfigManager.saveConfig()`
+- Chargement via `SGThemeConfigManager.loadConfig()`
+- Méthodes modeler : `applyThemeConfig(config_name)` avec comportement retardé (appliqué à la fin de `initBeforeShowing()`)
+
+### 23.6 Code Reduction and Helpers
+
+**RÈGLE** : Utiliser les helpers centralisés pour éviter la duplication de code.
+
+#### Helpers disponibles
+- **`SGExtensions.mapAlignmentStringToQtFlags(alignment_str)`** : Mapper les chaînes d'alignement
+- **`SGAspect.applyToQFont(font_obj, game_space_instance)`** : Appliquer propriétés de police
+- **`SGAspect.getStyleSheetForColorAndDecoration()`** : Générer CSS couleur + text_decoration
+- **`SGAspect.applyToQLabel(label, game_space_instance)`** : Appliquer style complet à QLabel
+- **`SGGameSpace._applyAspectToLabel(label, aspect)`** : Helper pour appliquer un aspect à un QLabel
+
+#### Exemple de refactorisation
+**Avant** (code dupliqué) :
+```python
+def _map_alignment(al):
+    if al == 'left':
+        return Qt.AlignLeft | Qt.AlignVCenter
+    # ... 50 lignes de duplication
+    
+def onTextAspectsChanged(self):
+    f = self.labelTitle.font()
+    if self.title1_aspect.font:
+        f.setFamily(self.title1_aspect.font)
+    # ... 80 lignes de duplication
+```
+
+**Après** (utilisant helpers) :
+```python
+def onTextAspectsChanged(self):
+    """Apply text aspects."""
+    if hasattr(self, 'labelTitle') and self.labelTitle:
+        self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+```
+
+### 23.7 Points d'attention pour chatbots
+
+**OBLIGATOIRE** :
+- ✅ Utiliser `_applyAspectToLabel()` pour les QLabel
+- ✅ Utiliser `applyToQFont()` et `getStyleSheetForColorAndDecoration()` pour les widgets spéciaux
+- ✅ Utiliser `paintEvent()` pour le container (background, border)
+- ✅ Implémenter `onTextAspectsChanged()` si le GameSpace affiche du texte
+- ✅ Utiliser les setters (`setBackgroundColor()`, etc.) au lieu d'accès direct
+- ✅ Utiliser `mapAlignmentStringToQtFlags()` au lieu de dupliquer la logique
+
+**INTERDIT** :
+- ❌ Contourner `gs_aspect` avec accès direct aux attributs
+- ❌ Dupliquer la logique d'application de styles (utiliser les helpers)
+- ❌ Oublier `onTextAspectsChanged()` si le GameSpace affiche du texte
+- ❌ Utiliser QSS directement pour le container (utiliser `paintEvent()` ou `applyContainerAspectStyle()`)
+
+### 23.8 Fichiers clés
+
+- **`mainClasses/SGAspect.py`** : Classe centrale avec thèmes prédéfinis et méthodes d'application
+- **`mainClasses/SGGameSpace.py`** : Classe mère avec méthodes communes et helpers
+- **`mainClasses/SGExtensions.py`** : `mapAlignmentStringToQtFlags()` et autres utilitaires
+- **`mainClasses/SGModel.py`** : Factory methods avec paramètres de style (passent par setters)
+- **`mainClasses/theme/SGThemeConfigManager.py`** : Gestion persistance thèmes custom et configurations
+- **`mainClasses/theme/SGThemeCustomEditorDialog.py`** : Interface création/édition thèmes custom
+- **`mainClasses/theme/SGThemeEditTableDialog.py`** : Interface assignment de thèmes aux GameSpaces
+
+### 23.9 Exemples de code
+
+#### ✅ CORRECT - Intégration complète
+```python
+class MyNewGameSpace(SGGameSpace):
+    def __init__(self, parent, title):
+        super().__init__(parent, 0, 0, 0, 0, isDraggable=True)
+        self.labelTitle = QLabel(title, self)
+        # ... autres initialisations
+    
+    def onTextAspectsChanged(self):
+        """Apply text aspects."""
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+    
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        # Background
+        bg = self.gs_aspect.getBackgroundColorValue()
+        painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        painter.drawRect(0, 0, self.width(), self.height())
+        # Border
+        if self.gs_aspect.border_size:
+            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.border_size))
+            painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
+```
+
+#### ❌ INCORRECT - Contourne gs_aspect
+```python
+class MyNewGameSpace(SGGameSpace):
+    def __init__(self, parent, title):
+        super().__init__(parent, 0, 0, 0, 0)
+        self.labelTitle = QLabel(title, self)
+        self.labelTitle.setStyleSheet("color: red;")  # ERROR: Contourne gs_aspect
+    
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setBrush(QBrush(Qt.red, Qt.SolidPattern))  # ERROR: Contourne gs_aspect
+        painter.drawRect(0, 0, self.width(), self.height())
+```
