@@ -3,17 +3,17 @@
   "custom_themes": {
     "test1": {
       "base": {
-        "background_color": "#ff557f",
-        "border_color": "#dee2e6",
+        "background_color": "#ffff00",
+        "border_color": "transparent",
         "border_size": 1,
         "border_style": "solid",
-        "border_radius": 4
+        "border_radius": 8
       },
       "text_aspects": {
         "title1": {
           "color": "#495057",
           "font": "Arial",
-          "size": 14,
+          "size": 16,
           "font_weight": "bold",
           "font_style": "normal",
           "text_decoration": "none",
@@ -22,7 +22,7 @@
         "title2": {
           "color": "#495057",
           "font": "Arial",
-          "size": 12,
+          "size": 16,
           "font_weight": "normal",
           "font_style": "normal",
           "text_decoration": "underline",
@@ -31,16 +31,16 @@
         "title3": {
           "color": "#495057",
           "font": "Arial",
-          "size": 11,
+          "size": 16,
           "font_weight": "bold",
           "font_style": "normal",
           "text_decoration": "none",
           "alignment": "Left"
         },
         "text1": {
-          "color": "#495057",
-          "font": "Arial",
-          "size": 12,
+          "color": "#ff0000",
+          "font": "Tahoma",
+          "size": 14,
           "font_weight": "normal",
           "font_style": "normal",
           "text_decoration": "none",
@@ -49,7 +49,7 @@
         "text2": {
           "color": "#495057",
           "font": "Arial",
-          "size": 12,
+          "size": 16,
           "font_weight": "normal",
           "font_style": "normal",
           "text_decoration": "none",
@@ -58,7 +58,7 @@
         "text3": {
           "color": "#495057",
           "font": "Arial",
-          "size": 12,
+          "size": 16,
           "font_weight": "normal",
           "font_style": "italic",
           "text_decoration": "none",
@@ -68,7 +68,7 @@
     },
     "test4": {
       "base": {
-        "background_color": "#90ee90",
+        "background_color": "#aaff7f",
         "border_color": "#006400",
         "border_size": 4,
         "border_style": "dashed",

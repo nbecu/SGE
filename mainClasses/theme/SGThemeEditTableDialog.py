@@ -96,22 +96,22 @@ class SGThemeEditTableDialog(QDialog):
         self.table.setColumnWidth(3, 60)
         layout.addWidget(self.table)
 
-        # Buttons
+        # Buttons - Order: Cancel, Apply, Apply & Close
         button_layout = QHBoxLayout()
-        self.apply_button = QPushButton("Apply")
-        self.apply_button.clicked.connect(self.applyChanges)
-
-        self.ok_button = QPushButton("OK")
-        self.ok_button.clicked.connect(self.accept)
-        self.ok_button.setDefault(True)
-
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.reject)
 
+        self.apply_button = QPushButton("Apply")
+        self.apply_button.clicked.connect(self.applyChanges)
+
+        self.ok_button = QPushButton("Apply & Close")
+        self.ok_button.clicked.connect(self.accept)
+        self.ok_button.setDefault(True)
+
         button_layout.addStretch()
+        button_layout.addWidget(self.cancel_button)
         button_layout.addWidget(self.apply_button)
         button_layout.addWidget(self.ok_button)
-        button_layout.addWidget(self.cancel_button)
         layout.addLayout(button_layout)
 
         self.setLayout(layout)

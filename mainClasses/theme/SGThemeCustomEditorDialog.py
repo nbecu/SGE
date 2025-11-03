@@ -35,17 +35,21 @@ class SGThemeCustomEditorDialog(QDialog):
     def _buildUI(self):
         layout = QVBoxLayout()
 
-        # Context info
-        info = QLabel(f"Editing: {self.gs.__class__.__name__} / {getattr(self.gs, 'id', '')}")
+        # Context info - include theme name if editing an existing theme
+        info_text = f"Editing: {self.gs.__class__.__name__} / {getattr(self.gs, 'id', '')}"
+        if self.init_theme:
+            # Check if it's a predefined theme or custom theme
+            from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
+            manager = SGThemeConfigManager(self.model)
+            predefined_names = manager._getPredefinedThemeNames()
+            if self.init_theme in predefined_names:
+                theme_type = "predefined"
+            else:
+                theme_type = "custom"
+            info_text += f" | Theme: {self.init_theme} ({theme_type})"
+        info = QLabel(info_text)
         info.setStyleSheet("color: #555;")
         layout.addWidget(info)
-
-        # Theme name
-        name_layout = QHBoxLayout()
-        name_layout.addWidget(QLabel("Theme name:"))
-        self.name_edit = QLineEdit()
-        name_layout.addWidget(self.name_edit)
-        layout.addLayout(name_layout)
 
         tabs = QTabWidget()
         tabs.setContentsMargins(0, 0, 0, 0)
@@ -55,18 +59,15 @@ class SGThemeCustomEditorDialog(QDialog):
         tabs.addTab(self._buildTextTab(), "Titles & Texts")
         layout.addWidget(tabs)
 
-        # Buttons
+        # Buttons - Preview removed, order: Cancel then Save
         btns = QHBoxLayout()
         btns.addStretch()
-        preview_btn = QPushButton("Preview")
-        preview_btn.clicked.connect(self._onPreview)
-        save_btn = QPushButton("Save")
-        save_btn.clicked.connect(self._onSave)
         cancel_btn = QPushButton("Cancel")
         cancel_btn.clicked.connect(self.reject)
-        btns.addWidget(preview_btn)
-        btns.addWidget(save_btn)
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self._onSave)
         btns.addWidget(cancel_btn)
+        btns.addWidget(save_btn)
         layout.addLayout(btns)
 
         self.setLayout(layout)
@@ -461,10 +462,32 @@ class SGThemeCustomEditorDialog(QDialog):
         super().reject()
 
     def _onSave(self):
-        name = self.name_edit.text().strip()
-        if not name:
-            QMessageBox.warning(self, "Theme", "Please enter a theme name")
+        # Ask for theme name via input dialog
+        # Pre-fill with init_theme if available, otherwise empty
+        # If editing a predefined theme, add '_custom' suffix
+        default_name = ""
+        if self.init_theme:
+            from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
+            manager = SGThemeConfigManager(self.model)
+            predefined_names = manager._getPredefinedThemeNames()
+            if self.init_theme in predefined_names:
+                # Predefined theme: add '_custom' suffix
+                default_name = f"{self.init_theme}_custom"
+            else:
+                # Custom theme: use as-is
+                default_name = self.init_theme
+        
+        name, ok = QInputDialog.getText(
+            self,
+            "Save Custom Theme",
+            "Enter theme name:",
+            QLineEdit.Normal,
+            default_name
+        )
+        if not ok or not name.strip():
+            # User cancelled or entered empty name
             return
+        name = name.strip()
         # Build theme spec from form using the same builder as Preview
         theme_spec = self._build_spec_from_form(compact=True)
 
