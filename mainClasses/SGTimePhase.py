@@ -28,7 +28,7 @@ class SGTimePhase():
     
     def notifyNewText(self):
         for aTextBox, aText in self.observers.items():
-            aTextBox.setNewText(aText)
+            aTextBox.setText(aText)
 
     def setNextStepAction(self, nextStepAction):
         self.nextStepAction = nextStepAction

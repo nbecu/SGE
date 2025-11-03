@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 # STEP1 Model
 
-myModel = SGModel(1100, 900,  windowTitle="Game example")
+myModel = SGModel(1100, 820,  windowTitle="Game example")
 
 
 # STEP2 Grid and Cells
@@ -91,7 +91,7 @@ endGameRule.showEndGameConditions()
 
 # STEP7 TextBox
 TextBox = myModel.newTextBox(
-    title='Your game is starting...', textToWrite="Welcome !")
+    title='Your game is starting...', textToWrite="Welcome !",titleAlignment='center')
 
 myModel.setCurrentPlayer("Player 1")
 myModel.launch()

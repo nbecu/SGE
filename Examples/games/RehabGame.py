@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    750, 500, nb_columns=5, windowTitle="Rehab Game")
+    830, 500, nb_columns=5, windowTitle="Rehab Game")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')
@@ -119,12 +119,13 @@ def renewBiomass(cell):
 
 
 GameRounds = myModel.newTimeLabel(None, Qt.white, Qt.black, Qt.red)
+GameRounds.setLayoutOrder(3)
 
 
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
-    title='Info', textToWrite="Welcome to ReHab game !")
+    title='Info', textToWrite="Welcome to ReHab game !",titleAlignment='center')
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator(Cell, "sumAtt", attribute='biomass',color=Qt.black, title='Total biomass')

@@ -77,7 +77,7 @@ class SGLegendItem(QtWidgets.QWidget):
                 painter.setBrush(QBrush(Qt.transparent, Qt.SolidPattern))
             #Square cell
             if(self.shape=="square") :   
-                painter.drawRect(0, 0, 20, 20)
+                painter.drawRect(0, 0, 18, 18)
                 if self.type == 'delete':
                     # draw a red cross inside
                     pen = QPen(Qt.red, 2)
@@ -139,25 +139,185 @@ class SGLegendItem(QtWidgets.QWidget):
                 ])
                 painter.drawPolygon(points)
             
-            if self.type =="None":
-                aFont=QFont("Verdana",10, underline=True)
-                painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
-            elif self.type =="Title1":
+            # Text styling derived from legend's gs_aspect text aspects
+            def apply_font_from_aspect(font: QFont, aspect):
+                if getattr(aspect, 'font', None):
+                    font.setFamily(aspect.font)
+                if getattr(aspect, 'size', None):
+                    try:
+                        font.setPixelSize(int(aspect.size))
+                    except Exception:
+                        pass
+                try:
+                    # delegate to parent helper if available
+                    if hasattr(self.legend, 'applyFontWeightToQFont'):
+                        self.legend.applyFontWeightToQFont(font, getattr(aspect, 'font_weight', 'normal'))
+                except Exception:
+                    pass
+                s = str(getattr(aspect, 'font_style', 'normal')).lower()
+                font.setItalic(s in ('italic', 'oblique'))
+                # Decorations
+                td = str(getattr(aspect, 'text_decoration', 'none')).lower()
+                font.setUnderline(td == 'underline')
+                font.setStrikeOut(td in ('line-through', 'strike', 'strike-through'))
+                # Note: overline not directly supported on QFont; ignored
+                return font
+
+            # Choose color/aspect based on item type (also apply alignment if provided)
+            if self.type == "None":
+                # Use title2 as a neutral default with underline
                 aFont = QFont()
-                aFont.setBold(True)
-                aFont.setPixelSize(14)
-                painter.drawTextAutoSized(15, 0, self.text, aFont, Qt.AlignLeft)
-            elif self.type =="Title2":
-                aFont=QFont("Verdana",10)
-                painter.drawTextAutoSized(10, 0, self.text, aFont, Qt.AlignLeft)
+                aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'title2_aspect', type('x', (), {})()))
+                aColor = getattr(getattr(self.legend, 'title2_aspect', None), 'color', None)
+                if aColor:
+                    painter.setPen(QPen(QColor(aColor)))
+                base_x = 15
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'title2_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, align)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
+            elif self.type == "Title1":
+                aFont = QFont()
+                aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'title1_aspect', type('x', (), {})()))
+                aColor = getattr(getattr(self.legend, 'title1_aspect', None), 'color', None)
+                if aColor:
+                    painter.setPen(QPen(QColor(aColor)))
+                base_x = 15
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'title1_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, align)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
+            elif self.type == "Title2":
+                aFont = QFont()
+                aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'title2_aspect', type('x', (), {})()))
+                aColor = getattr(getattr(self.legend, 'title2_aspect', None), 'color', None)
+                if aColor:
+                    painter.setPen(QPen(QColor(aColor)))
+                base_x = 10
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'title2_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 0, self.text, aFont, align)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
             elif self.type =='delete':
-                aFont = QFont("Verdana",8)
-                painter.drawTextAutoSized(30, 3, self.text, aFont, Qt.AlignLeft)
+                aFont = QFont()
+                aFont = apply_font_from_aspect(aFont, getattr(self.legend, 'text1_aspect', type('x', (), {})()))
+                base_x = 30
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'text1_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 3, self.text, aFont, align)
+                fm = QFontMetrics(aFont)
+                text_w = fm.boundingRect(self.text).width()
             else :
-                font = QFont("Verdana",8)
-                painter.drawTextAutoSized(30, 3, self.text, font, Qt.AlignLeft)
-            self.setMinimumSize(self.legend.getSizeXGlobal()-40,10)
-            self.move(10,self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
+                font = QFont()
+                font = apply_font_from_aspect(font, getattr(self.legend, 'text1_aspect', type('x', (), {})()))
+                aColor = getattr(getattr(self.legend, 'text1_aspect', None), 'color', None)
+                if aColor:
+                    painter.setPen(QPen(QColor(aColor)))
+                base_x = 30
+                align = Qt.AlignLeft
+                try:
+                    al = getattr(self.legend, 'text1_aspect').alignment
+                    if isinstance(al, str):
+                        a = al.strip().lower()
+                        align_map = {
+                            'left': Qt.AlignLeft,
+                            'right': Qt.AlignRight,
+                            'center': Qt.AlignHCenter,
+                            'hcenter': Qt.AlignHCenter,
+                            'top': Qt.AlignTop,
+                            'bottom': Qt.AlignBottom,
+                            'vcenter': Qt.AlignVCenter,
+                            'justify': Qt.AlignJustify,
+                        }
+                        if a in align_map:
+                            align = align_map[a]
+                except Exception:
+                    pass
+                painter.drawTextAutoSized(base_x, 3, self.text, font, align)
+                fm = QFontMetrics(font)
+                text_w = fm.boundingRect(self.text).width()
+            # Compute minimum width from measured text + base_x and a small padding
+            try:
+                right_pad = 6
+                min_w = int(base_x + max(0, text_w) + right_pad)
+            except Exception:
+                min_w = 60
+            self.setMinimumSize(min_w,10)
+            # Position items using panel paddings
+            left_pad = getattr(self.legend, 'leftPadding', 10)
+            top_pad = getattr(self.legend, 'topPadding', 0)
+            self.move(left_pad, top_pad + self.posY * self.legend.heightOfLabels) #self.legend.heightOfLabels = 25 de base. mais pour CarbonPolis c'est 20
             painter.end()
             
     

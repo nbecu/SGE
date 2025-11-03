@@ -40,11 +40,11 @@ class SGEndGameRule(SGGameSpace):
         if self.isDisplay:
             layout = self.layout
 
-            title = QtWidgets.QLabel(self.id)
+            self.titleLabel = QtWidgets.QLabel(self.id)
             font = QFont()
             font.setBold(True)
-            title.setFont(font)
-            layout.addWidget(title)
+            self.titleLabel.setFont(font)
+            layout.addWidget(self.titleLabel)
             for condition in self.endGameConditions:
                 layout.addLayout(condition.conditionLayout)
 
@@ -56,6 +56,8 @@ class SGEndGameRule(SGGameSpace):
                 layout.addWidget(self.button)
 
             self.setLayout(layout)
+            # Apply text aspects (title1/text1) now that widgets exist
+            self.onTextAspectsChanged()
             # Adjust size after layout configuration
             self.adjustSizeAfterLayout()
             self.show()
@@ -142,23 +144,44 @@ class SGEndGameRule(SGGameSpace):
 
     def paintEvent(self, event):
         if self.checkDisplay():
-            painter = QPainter()
-            painter.begin(self)
-            painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-            painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-            
-            # Dynamic size calculation based on actual layout
-            width = self.getSizeXGlobal()
-            height = self.getSizeYGlobal()
-            
-            # Adjust widget size to calculated content
-            self.setMinimumSize(width, height)
-            self.resize(width, height)
-            
-            # Draw the corner of the DB
-            painter.drawRect(0, 0, width - 1, height - 1)
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing, True)
 
-            painter.end()
+            # Background: prefer image, else color (support transparent)
+            bg_pixmap = self.getBackgroundImagePixmap()
+            if bg_pixmap is not None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.drawPixmap(rect, bg_pixmap)
+            else:
+                bg = self.gs_aspect.getBackgroundColorValue()
+                if bg.alpha() == 0:
+                    painter.setBrush(Qt.NoBrush)
+                else:
+                    painter.setBrush(QBrush(bg, Qt.SolidPattern))
+
+            # Pen with style mapping
+            pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+            style_map = {
+                'solid': Qt.SolidLine,
+                'dotted': Qt.DotLine,
+                'dashed': Qt.DashLine,
+                'double': Qt.SolidLine,
+                'groove': Qt.SolidLine,
+                'ridge': Qt.SolidLine,
+                'inset': Qt.SolidLine,
+            }
+            bs = getattr(self.gs_aspect, 'border_style', None)
+            if isinstance(bs, str) and bs.lower() in style_map:
+                pen.setStyle(style_map[bs.lower()])
+            painter.setPen(pen)
+
+            width = max(0, self.getSizeXGlobal() - 1)
+            height = max(0, self.getSizeYGlobal() - 1)
+            radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+            if radius > 0:
+                painter.drawRoundedRect(0, 0, width, height, radius, radius)
+            else:
+                painter.drawRect(0, 0, width, height)
 
     def checkDisplay(self):
         if self.isDisplay:
@@ -182,6 +205,31 @@ class SGEndGameRule(SGGameSpace):
                 # Apply calculated size
                 self.setMinimumSize(width, height)
                 self.resize(width, height)
+
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
+        # Title styling from title1_aspect
+        if hasattr(self, 'titleLabel') and self.titleLabel is not None:
+            self._applyAspectToLabel(self.titleLabel, self.title1_aspect)
+
+        # Apply text1_aspect to all other labels (conditions text)
+        for lbl in self.findChildren(QtWidgets.QLabel):
+            if hasattr(self, 'titleLabel') and lbl is self.titleLabel:
+                continue
+            self._applyAspectToLabel(lbl, self.text1_aspect)
+
+        # Request layout/size update
+        try:
+            if hasattr(self, 'layout') and self.layout:
+                self.layout.activate()
+            self.adjustSizeAfterLayout()
+        except Exception:
+            pass
+        self.update()
 
     # *Functions to have the global size of a gameSpace
     def getSizeXGlobal(self):

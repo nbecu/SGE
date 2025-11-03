@@ -527,7 +527,7 @@ def constructZH(typeZH, coords=None): #typeZH est le nom de la ZH (ex. vasiere o
     nbCases = (0 if ZHs[typeZH]["potentiel accueil actions1"] is None else 4) + len(ZHs[typeZH]["cases actions2"]) + len(ZHs[typeZH].get("cases actions2 en plus", []))
     nbCols = 4
     nbLines = -(-nbCases // nbCols)  # Arrondir au nombre entier supérieur
-    pZH[typeZH]=myModel.newCellsOnGrid(nbCols,nbLines,"square",size=30,gap=2,name=typeZH,color=ZHs[typeZH]["couleur"])
+    pZH[typeZH]=myModel.newCellsOnGrid(nbCols,nbLines,"square",size=30,gap=2,name=typeZH,backgroundColor=ZHs[typeZH]["couleur"])
     pZH[typeZH].setEntities('potentiel accueil',0)
     pZH[typeZH].setEntities('frequentation',0) 
     pZH[typeZH].setEntities('surfrequentation',0) #0 si la cpacité d'accueil n'est passé  / 1 si la cpacité d'accueil est dépassé

@@ -92,7 +92,7 @@ endGameRule.showEndGameConditions()
 
 # STEP7 TextBox
 TextBox = myModel.newTextBox(
-    title='Your game is starting...', textToWrite="Welcome !")
+    title='Your game is starting...', textToWrite="Welcome !",titleAlignment='center')
 
 myModel.setCurrentPlayer("Player 1")
 myModel.launch()

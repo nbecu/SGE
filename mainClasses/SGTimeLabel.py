@@ -7,7 +7,7 @@ from mainClasses.SGGameSpace import SGGameSpace
 
 
 class SGTimeLabel(SGGameSpace):
-    def __init__(self, parent, title, backgroundColor=Qt.darkGray, borderColor=Qt.black, textColor=Qt.red):
+    def __init__(self, parent, title, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
         self.timeManager = self.model.timeManager
@@ -57,12 +57,85 @@ class SGTimeLabel(SGGameSpace):
 
 
     def paintEvent(self, event):
-        painter = QPainter()
-        painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-        painter.drawRect(0, 0, self.getSizeXGlobal() -1, self.getSizeYGlobal() -1)
-        painter.end()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background: prefer image, else color
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Pen with style
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+        # Rounded rect if radius provided
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        w = max(0, self.getSizeXGlobal() - 1)
+        h = max(0, self.getSizeYGlobal() - 1)
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, w, h, radius, radius)
+        else:
+            painter.drawRect(0, 0, w, h)
+
+    def onTextAspectsChanged(self):
+        """Reapply text styles from current aspects to labels and resize."""
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
+        
+        # Apply text1_aspect to non-title labels
+        for aLabel in getattr(self, 'labels', []) or []:
+            # Apply font properties
+            f = aLabel.font()
+            self.text1_aspect.applyToQFont(f, self)
+            aLabel.setFont(f)
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                aLabel.setStyleSheet(stylesheet)
+            # Alignment from text1_aspect
+            al = getattr(self.text1_aspect, 'alignment', None)
+            if isinstance(al, str) and al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    aLabel.setAlignment(qt_alignment)
+        # Apply title1_aspect to title if present
+        if getattr(self, 'displayTitle', False) and hasattr(self, 'labelTitle') and self.labelTitle:
+            # Apply font properties
+            f = self.labelTitle.font()
+            self.title1_aspect.applyToQFont(f, self)
+            self.labelTitle.setFont(f)
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.title1_aspect.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                self.labelTitle.setStyleSheet(stylesheet)
+            # Alignment from title1_aspect
+            al = getattr(self.title1_aspect, 'alignment', None)
+            if isinstance(al, str) and al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    self.labelTitle.setAlignment(qt_alignment)
+        self.updateLabelsandWidgetSize()
+        self.update()
+
+    # Override to prevent container QSS from interfering; rely solely on paintEvent
+    def applyContainerAspectStyle(self):
+        pass
 
     def updateTimeLabel(self):
         self.labelRoundNumber.setText('Round Number : {}'.format(
@@ -98,3 +171,101 @@ class SGTimeLabel(SGGameSpace):
         for label in self.labels:
             somme += label.height()  + self.verticalGapBetweenLabels
         return somme
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setTitleText(self, text):
+        """
+        Set the title text of the time label.
+        
+        Args:
+            text (str): The title text
+        """
+        self.textTitle = text
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setText(text)
+            self.labelTitle.adjustSize()
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayTitle(self, display):
+        """
+        Set whether to display the title.
+        
+        Args:
+            display (bool): Whether to display the title
+        """
+        self.displayTitle = display
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayRoundNumber(self, display):
+        """
+        Set whether to display the round number.
+        
+        Args:
+            display (bool): Whether to display the round number
+        """
+        self.displayRoundNumber = display
+        if hasattr(self, 'labelRoundNumber') and self.labelRoundNumber:
+            self.labelRoundNumber.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayPhaseNumber(self, display):
+        """
+        Set whether to display the phase number.
+        
+        Args:
+            display (bool): Whether to display the phase number
+        """
+        self.displayPhaseNumber = display
+        if hasattr(self, 'labelPhaseNumber') and self.labelPhaseNumber:
+            self.labelPhaseNumber.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayPhaseName(self, display):
+        """
+        Set whether to display the phase name.
+        
+        Args:
+            display (bool): Whether to display the phase name
+        """
+        self.displayPhaseName = display
+        if hasattr(self, 'labelPhaseName') and self.labelPhaseName:
+            self.labelPhaseName.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setLabelStyle(self, style_dict):
+        """
+        Set the style of all labels.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties for labels
+        """
+        for label in self.labels:
+            style_parts = []
+            for key, value in style_dict.items():
+                if key == 'color':
+                    style_parts.append(f"color: {value}")
+                elif key == 'font_size':
+                    style_parts.append(f"font-size: {value}px")
+                elif key == 'font_family':
+                    style_parts.append(f"font-family: {value}")
+                elif key == 'font_weight':
+                    style_parts.append(f"font-weight: {value}")
+            
+            if style_parts:
+                label.setStyleSheet("; ".join(style_parts))
+        self.updateLabelsandWidgetSize()
+        self.update()

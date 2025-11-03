@@ -16,7 +16,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtSvg import *
-from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog
+from PyQt5.QtWidgets import QAction, QMenu, QMainWindow, QMessageBox, QApplication, QActionGroup, QFileDialog, QInputDialog
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
 from PyQt5 import QtWidgets
 from paho.mqtt import client as mqtt_client
 from pyrsistent import s
@@ -46,7 +48,7 @@ from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGTextBox import *
 from mainClasses.SGLabel import *
-from mainClasses.SGButton import*
+from mainClasses.SGButton import *
 from mainClasses.SGTimeLabel import *
 from mainClasses.SGTimeManager import *
 from mainClasses.SGTimePhase import *
@@ -56,6 +58,9 @@ from mainClasses.layout.SGGridLayout import *
 from mainClasses.layout.SGHorizontalLayout import *
 from mainClasses.layout.SGVerticalLayout import *
 from mainClasses.layout.SGLayoutConfigManager import SGLayoutConfigManager
+from mainClasses.theme.SGThemeConfigManagerDialog import SGThemeConfigManagerDialog
+from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
+from mainClasses.theme.SGThemeEditTableDialog import SGThemeEditTableDialog
 from mainClasses.gameAction.SGActivate import *
 from mainClasses.gameAction.SGCreate import *
 from mainClasses.gameAction.SGDelete import *
@@ -77,7 +82,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
+    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True,windowBackgroundColor=None):
         """
         Declaration of a new model
 
@@ -90,6 +95,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             name (str, optional): the name of the model. (default:"Simulation")
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
             createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
+            windowBackgroundColor (QColor or Qt.GlobalColor, optional): The background color of the main window (default:None)
         """
         super().__init__()
         # Definition the size of the window ( temporary here)
@@ -111,6 +117,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Definition of the title of the window
         self.windowTitle_prefix = (windowTitle or self.name or ' ') # if windowTitle  is None, the name of the model is used as prefix for window title
         self.setWindowTitle(self.windowTitle_prefix)
+        self.windowBackgroundColor = windowBackgroundColor
         # Option to display time (round and phase) in window title
         self.isTimeDisplayedInWindowTitle = False
         
@@ -179,6 +186,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize MQTT Manager
         self.mqttManager = SGMQTTManager(self)
 
+        # Initialize runtime themes dictionary for custom themes
+        self._runtime_themes = {}
+        # Load custom themes from persistent storage
+        self._loadCustomThemes()
+
+        # Store pending theme configuration to load after initBeforeShowing
+        self._pending_theme_config = None
+        # Store pending layout configuration to apply after initBeforeShowing
+        self._pending_layout_config = None
+
         self.initUI()
 
         self.initModelActions()
@@ -205,6 +222,31 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layout = QtWidgets.QGridLayout()
         self.setCentralWidget(self.window)
         self.window.setLayout(self.layout)
+        # Set background color for main window
+        # Use QPalette instead of stylesheet to avoid cascading to child widgets
+        if self.windowBackgroundColor:
+            # Normalize color to QColor
+            from PyQt5.QtGui import QColor, QPalette
+            if isinstance(self.windowBackgroundColor, QColor):
+                bg_color = self.windowBackgroundColor
+            elif isinstance(self.windowBackgroundColor, str):
+                bg_color = QColor(self.windowBackgroundColor)
+                if not bg_color.isValid():
+                    bg_color = QColor("#ffffff")
+            else:
+                # Qt.GlobalColor or other - convert to QColor
+                try:
+                    bg_color = QColor(self.windowBackgroundColor)
+                    if not bg_color.isValid():
+                        bg_color = QColor("#ffffff")
+                except Exception:
+                    bg_color = QColor("#ffffff")  # Fallback to white
+            
+            # Use QPalette to set background without affecting child widgets
+            palette = self.window.palette()
+            palette.setColor(QPalette.Window, bg_color)
+            self.window.setPalette(palette)
+            self.window.setAutoFillBackground(True)
         # Definition of the toolbar via a menu and the ac
         self.symbologyMenu = None  # init in case no menu is created
         self.createMenu()
@@ -230,8 +272,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # self.reorganizeEnhancedGridLayoutOrders()
         self.applyAutomaticLayout()
 
-        # Initialize Enhanced Grid Layout menu if using enhanced_grid layout
-        self.createEnhancedGridLayoutMenu()
 
         # Show admin control panel if needed
         if self.shouldDisplayAdminControlPanel:
@@ -239,6 +279,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # Set up dashboards
         self.setDashboards()
+        
+        # Load pending theme configuration if one was memorized by applyThemeConfig()
+        if self._pending_theme_config:
+            config_name = self._pending_theme_config
+            self._pending_theme_config = None  # Clear to avoid reloading
+            manager = SGThemeConfigManager(self)
+            manager.loadConfig(config_name, suppress_dialogs=True)
+        
+        # Apply pending layout configuration if one was memorized by applyLayoutConfig()
+        if self._pending_layout_config:
+            config_name = self._pending_layout_config
+            self._pending_layout_config = None  # Clear to avoid reapplying
+            config_manager = SGLayoutConfigManager(self)
+            config_manager.loadConfig(config_name)
 
     def initAfterOpening(self):
         if self.currentPlayerName is None:
@@ -453,6 +507,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.createGraphMenu()
 
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
+        # Create Enhanced Grid Layout submenu and Theme Manager entries
+        self.createEnhancedGridLayoutMenu()
+        self.createThemeManagerMenu()
         
     # ============================================================================
     # GAME ACTION LOGS EXPORT METHODS
@@ -1008,6 +1065,116 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             for gameSpace in self.gameSpaces.values():
                 gameSpace._enhanced_grid_tooltip_enabled = checked
 
+    def createThemeManagerMenu(self):
+        """Create Theme Manager entries in Settings menu"""
+        self.themeMenu = self.settingsMenu.addMenu("&Themes")
+
+        # Edit per-GameSpace themes (table)
+        editThemesAction = QAction("&Edit Themes...", self)
+        editThemesAction.triggered.connect(self.openThemeEditTableDialog)
+        self.themeMenu.addAction(editThemesAction)
+
+        # Manage Theme Configurations (dialog)
+        manageThemeAction = QAction("&Manage Theme Configurations...", self)
+        manageThemeAction.triggered.connect(self.openThemeConfigManagerDialog)
+        self.themeMenu.addAction(manageThemeAction)
+
+        # Change window background color
+        changeBgColorAction = QAction("&Change window background color...", self)
+        changeBgColorAction.triggered.connect(self.openWindowBackgroundColorDialog)
+        self.themeMenu.addAction(changeBgColorAction)
+
+    def openThemeConfigManagerDialog(self):
+        """Open the Theme Configuration Manager dialog."""
+        dialog = SGThemeConfigManagerDialog(self)
+        dialog.exec_()
+
+    def openThemeEditTableDialog(self):
+        """Open the per-GameSpace theme assignment dialog (table)."""
+        dialog = SGThemeEditTableDialog(self)
+        dialog.exec_()
+
+    def openWindowBackgroundColorDialog(self):
+        """Open a color dialog to change the window background color."""
+        from PyQt5.QtWidgets import QColorDialog, QWidget
+        from PyQt5.QtGui import QColor
+        from PyQt5.QtCore import Qt
+        
+        # Get current color if set, otherwise default to white
+        if self.windowBackgroundColor:
+            if isinstance(self.windowBackgroundColor, QColor):
+                current_color = self.windowBackgroundColor
+            elif isinstance(self.windowBackgroundColor, str):
+                # Parse CSS color string (hex format like "#ffffff" or named colors)
+                current_color = QColor(self.windowBackgroundColor)
+                if not current_color.isValid():
+                    current_color = QColor("#ffffff")
+            else:
+                # Qt.GlobalColor (like Qt.white, Qt.black, etc.) or other types
+                try:
+                    current_color = QColor(self.windowBackgroundColor)
+                    if not current_color.isValid():
+                        current_color = QColor("#ffffff")
+                except Exception:
+                    current_color = QColor("#ffffff")
+        else:
+            # No color set, check if styleSheet has a background color
+            # Otherwise default to white
+            current_color = QColor("#ffffff")
+        
+        # Create a QColorDialog and position it to the right of main window
+        dialog = QColorDialog(current_color, self)
+        dialog.setWindowTitle("Select Window Background Color")
+        
+        # Position dialog to the right of main window
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(dialog, self)
+        
+        # Open dialog
+        if dialog.exec_() == QColorDialog.Accepted:
+            color = dialog.currentColor()
+            if color.isValid():
+                # Store as QColor object for consistency
+                self.windowBackgroundColor = color.name()  # Store as hex string for serialization
+                # Use QPalette to set background without affecting child widgets
+                from PyQt5.QtGui import QPalette
+                palette = self.window.palette()
+                palette.setColor(QPalette.Window, color)
+                self.window.setPalette(palette)
+                self.window.setAutoFillBackground(True)
+                self.update()
+
+    def applyThemeToAllGameSpaces(self, theme_name: str, include_types=None, exclude_types=None, priority: str = "global_then_individual") -> None:
+        """Apply a theme to all GameSpaces; individual overrides remain in effect.
+
+        Args:
+            theme_name (str): Theme to apply ('modern','minimal','colorful','blue','green','gray')
+            include_types (list|None): Optional list of classes to include
+            exclude_types (list|None): Optional list of classes to exclude
+            priority (str): Reserved for future conflict resolution
+        """
+        for gs in self.gameSpaces.values():
+            if include_types and not any(isinstance(gs, t) for t in include_types):
+                continue
+            if exclude_types and any(isinstance(gs, t) for t in exclude_types):
+                continue
+            if hasattr(gs, 'applyTheme'):
+                try:
+                    gs.applyTheme(theme_name)
+                except Exception:
+                    pass
+
+    def _loadCustomThemes(self):
+        """Load custom themes from persistent storage into _runtime_themes."""
+        try:
+            manager = SGThemeConfigManager(self)
+            custom_themes = manager.loadCustomThemes()
+            self._runtime_themes = custom_themes.copy()
+        except Exception:
+            # If loading fails, just keep empty dict
+            self._runtime_themes = {}
+
+
     def getSubmenuSymbology(self, submenuName):
         # return the submenu
         return next((item for item in self.symbologiesInSubmenus.keys() if item.title() == submenuName), None)
@@ -1248,7 +1415,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getUsers_withGameActions(self):
         """
         Get list of players who have gameActions
-        
         Returns:
             list: List of player names who have gameActions
         """
@@ -1362,33 +1528,41 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return success
 
-    def loadLayoutConfig(self, config_name):
+    def applyLayoutConfig(self, config_name):
         """
-        Load a saved Enhanced Grid Layout configuration.
+        Apply a saved Enhanced Grid Layout configuration.
+
+        This method memorizes the configuration name and applies it automatically
+        at the end of initBeforeShowing() (called by launch()). This ensures all
+        GameSpaces are created before applying the layout configuration.
 
         Args:
-            config_name (str): Name of the configuration to load
+            config_name (str): Name of the configuration to apply
 
         Returns:
-            bool: True if successful, False otherwise
+            bool: True if configuration name was memorized, False otherwise
 
         Example:
-            model.loadLayoutConfig("my_layout")
-            model.loadLayoutConfig("default_setup")
+            # Apply a saved layout configuration (will be applied when launch() is called)
+            model.applyLayoutConfig("my_layout")
+            model.launch()  # Layout will be applied after all GameSpaces are created
+            
+            # Check before applying
+            if model.hasLayoutConfig("setup1"):
+                model.applyLayoutConfig("setup1")
         """
         if self.typeOfLayout != "enhanced_grid":
-            QMessageBox.warning(self, "Warning",
-                            "Layout configuration can only be loaded for Enhanced Grid Layout")
             return False
 
+        # Verify the configuration exists before memorizing
         config_manager = SGLayoutConfigManager(self)
-        success = config_manager.loadConfig(config_name)
+        if not config_manager.configExists(config_name):
+            print(f"Layout config '{config_name}' does not exist")
+            return False
 
-        if not success:
-            QMessageBox.critical(self, "Error",
-                            f"Failed to load layout configuration '{config_name}'")
-
-        return success
+        # Memorize the configuration name for loading at the end of initBeforeShowing
+        self._pending_layout_config = config_name
+        return True
 
     def hasLayoutConfig(self, config_name):
         """
@@ -1402,7 +1576,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         Example:
             if model.hasLayoutConfig("my_layout"):
-                model.loadLayoutConfig("my_layout")
+                model.applyLayoutConfig("my_layout")
         """
         config_manager = SGLayoutConfigManager(self)
         return config_manager.configExists(config_name)
@@ -1420,6 +1594,38 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         """
         config_manager = SGLayoutConfigManager(self)
         return config_manager.getAvailableConfigs()
+
+    def hasThemeConfig(self, config_name: str) -> bool:
+        """
+        Check if a theme configuration exists.
+
+        Args:
+            config_name (str): Name of the configuration to check
+
+        Returns:
+            bool: True if configuration exists, False otherwise
+
+        Example:
+            if model.hasThemeConfig("my_config"):
+                model.applyThemeConfig("my_config")
+        """
+        manager = SGThemeConfigManager(self)
+        return manager.configExists(config_name)
+
+    def getAvailableThemeConfigs(self) -> list:
+        """
+        Get list of available theme configurations for the current model.
+
+        Returns:
+            list: List of configuration names
+
+        Example:
+            configs = model.getAvailableThemeConfigs()
+            print(f"Available configs: {configs}")
+            # Output: ['setup1', 'setup2', 'default']
+        """
+        manager = SGThemeConfigManager(self)
+        return manager.getAvailableConfigs()
 
     def openSaveLayoutConfigDialog(self):
         """Open the save layout configuration dialog."""
@@ -1523,7 +1729,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # NEW/ADD METHODS
 # ============================================================================
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None,neighborhood='moore',boundaries='open'):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open'):
         """
         Create a grid that contains cells
 
@@ -1535,7 +1741,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 - Note that the hexagonal grid is "Pointy-top hex grid with even-r offset".
             size (int, optional): size of the cells. Defaults to 30.
             gap (int, optional): gap size between cells. Defaults to 0.
-            color (a color, optional): background color of the grid . Defaults to Qt.gray.
+            backgroundColor (Qt.Color, optional): background color of the grid. Defaults to Qt.gray.
+            borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
             name (st): name of the grid.
             backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
@@ -1555,8 +1762,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             name = f'grid{str(self.numberOfGrids()+1)}'
             if name in self.gameSpaces:
                 name = name + 'bis'
-        # Create a grid
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage,neighborhood,boundaries)
+        # Create a grid with default values (will be overridden by setters below)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, None, moveable, backGroundImage, neighborhood, boundaries)
+        
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aGrid.setBackgroundColor(backgroundColor)
+        aGrid.setBorderColor(borderColor)
+        # Background image is already set in SGGrid.__init__ if provided
 
         # Create a CellDef and populate the grid with cells from the newly created CellDef
         aCellDef = self.generateCellsForGrid(aGrid,defaultCellImage,name)
@@ -1837,32 +2049,68 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         borderColor (Qt Color, default very light gray) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
-        aDashBoard = SGDashBoard(
-            self, title, borderColor, borderSize, backgroundColor, textColor, layout)
+        # Create with default values (will be overridden by setters below)
+        aDashBoard = SGDashBoard(self, title, Qt.black, 1, QColor(230, 230, 230), Qt.black, layout)
         self.gameSpaces[aDashBoard.id] = aDashBoard
         
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aDashBoard.setBackgroundColor(backgroundColor)
+        aDashBoard.setBorderColor(borderColor)
+        aDashBoard.setBorderSize(borderSize)
+        aDashBoard.setTextColor(textColor)
+
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aDashBoard)
 
         return aDashBoard
 
     # To create a new end game rule
-    def newEndGameRule(self, title='EndGame Rules', numberRequired=1):
+    def newEndGameRule(self, title='EndGame Rules', numberRequired=1, displayRefresh='instantaneous', isDisplay=True, borderColor=Qt.black, backgroundColor=Qt.lightGray, layout="vertical", textColor=Qt.black):
         """
         Create the EndGame Rule Board of the game
 
         Args:
             title (str) : header of the board, displayed (default : EndGame Rules)
             numberRequired (int) : number of completed conditions to trigger EndGame
+            displayRefresh (str) : refresh mode (default : instantaneous)
+            isDisplay (bool) : whether to display (default : True)
+            borderColor (QColor) : border color (default : Qt.black)
+            backgroundColor (QColor) : background color (default : Qt.lightGray)
+            layout (str) : layout orientation (default : vertical)
+            textColor (QColor) : text color (default : Qt.black)
         """
-        aEndGameRule = SGEndGameRule(self, title, numberRequired)
+        # Create with default values (will be overridden by setters below)
+        aEndGameRule = SGEndGameRule(self, title, numberRequired, displayRefresh, isDisplay)
         self.gameSpaces[title] = aEndGameRule
         self.endGameRule = aEndGameRule
+
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aEndGameRule.setBackgroundColor(backgroundColor)
+        aEndGameRule.setBorderColor(borderColor)
+        aEndGameRule.setTextColor(textColor)
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aEndGameRule)
 
         return aEndGameRule
+
+    # To create a new void widget
+    def newVoid(self, name, sizeX=200, sizeY=200):
+        """
+        Create a void widget for layout management.
+
+        Args:
+            name (str): Name of the void widget
+            sizeX (int): Width in pixels (default: 200)
+            sizeY (int): Height in pixels (default: 200)
+        """
+        aVoid = SGVoid(self, name, sizeX, sizeY)
+        self.gameSpaces[name] = aVoid
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aVoid)
+
+        return aVoid
 
     
     # To create a new progress gauge
@@ -1901,7 +2149,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             SGProgressGauge: The created SGProgressGauge instance.
         """
 
-        # Create the ProgressGauge with same defaults as the class
+        # Create the ProgressGauge with default style values (will be overridden by setters below)
         aProgressGauge = SGProgressGauge(
             parent=self,
             simVar=simVar,
@@ -1911,13 +2159,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             orientation=orientation,
             colorRanges=colorRanges,
             unit=unit,
-            borderColor=borderColor,
-            backgroundColor=backgroundColor,
             bar_width=bar_width,
             bar_length=bar_length,
             title_position=title_position,
             display_value_on_top=display_value_on_top
         )
+        
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aProgressGauge.setBackgroundColor(backgroundColor)
+        aProgressGauge.setBorderColor(borderColor)
         
         # Register the gauge in the model
         self.gameSpaces[title] = aProgressGauge
@@ -1992,10 +2242,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         borderColor (Qt Color) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
-        aTimeLabel = SGTimeLabel(
-            self, title, backgroundColor, borderColor, textColor)
+        # Create with default values (will be overridden by setters below)
+        aTimeLabel = SGTimeLabel(self, title)
         self.myTimeLabel = aTimeLabel
         self.gameSpaces[title] = aTimeLabel
+
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aTimeLabel.setBackgroundColor(backgroundColor)
+        aTimeLabel.setBorderColor(borderColor)
+        aTimeLabel.setTextColor(textColor)
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aTimeLabel)
@@ -2003,35 +2258,42 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aTimeLabel
 
     # To create a Text Box
-    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', sizeX=None, sizeY=None,
-     borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
+    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', width=None, height=None,
+     borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left', shrinked=True):
         """
         Create a text box with full customization options.
 
         Args:
             textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
             title (str): Name of the widget (default: "Text Box")
-            sizeX (int, optional): Manual width override for the text box
-            sizeY (int, optional): Manual height override for the text box
+            width (int, optional): Width of the text box in pixels
+            height (int, optional): Height of the text box in pixels
             borderColor (QColor): Border color of the text box (default: Qt.black)
             backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
             titleAlignment (str): Title alignment - 'left', 'center', or 'right' (default: 'left')
+            shrinked (bool, optional): If True, the text box will be shrinked to fit content (default: True)
 
         Returns:
             SGTextBox: The created text box widget
         """
-        aTextBox = SGTextBox(self, textToWrite, title, sizeX, sizeY, borderColor, backgroundColor, titleAlignment)
+        
+        # Create with default style values (will be overridden by setters below)
+        aTextBox = SGTextBox(self, textToWrite, title, width, height, shrinked, Qt.black, Qt.lightGray, titleAlignment)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
+
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aTextBox.setBackgroundColor(backgroundColor)
+        aTextBox.setBorderColor(borderColor)
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aTextBox)
 
         return aTextBox
 
-        
+     
     # To create a Text Box
-    def newLabel(self, text, position, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
+    def newLabel(self, text, position=None, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
         """Display a text at a given position
 
         Args:
@@ -2048,11 +2310,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             SGLabel: An instance of SGLabel with the specified properties.
         """
         aLabel = SGLabel(self, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, alignement, fixedWidth, fixedHeight)
-        aLabel.move(position[0], position[1])
+        self.gameSpaces[aLabel.id] = aLabel
+        self.layoutOfModel.addGameSpace(aLabel)
+        if position: aLabel.moveToCoords(position[0], position[1])
         return aLabel
 
     # To create a new styled label
     def newLabel_stylised(self, text, position, font=None, size=None, color=None, text_decoration="none", font_weight="normal", font_style="normal", alignement= "Left", border_style="solid", border_size=0, border_color=None, background_color=None, fixedWidth=None, fixedHeight=None):
+        #todo: could be obsolete since newLabel method has been plugged to the game spaces system
         """Display a text at a given position and allow setting the style of the text, border, and background.
 
         Args:
@@ -2086,7 +2351,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aLabel
     
     # To create a Push Button
-    def newButton(self, method, text, position,
+    def newButton(self, method, text, position=None,
                     background_color='white',
                     background_image=None,
                     border_size=1,
@@ -2153,8 +2418,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                         disabled_color=disabled_color,
                         word_wrap=word_wrap,
                         fixed_width=fixed_width)
-        # aButton = SGButton(self, method, text, textStyle_specs, borderStyle_specs, backgroundColor_specs, fixedWidth, fixedHeight)
-        aButton.move(position[0], position[1])
+        # Enregistrer comme un GameSpace et l'ajouter au layout
+        self.gameSpaces[aButton.id] = aButton
+        self.layoutOfModel.addGameSpace(aButton)
+        if position: aButton.moveToCoords(position[0], position[1])
         return aButton
 
 
@@ -2351,8 +2618,41 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def __MODELER_METHODS__DO_DISPLAY__(self):
         pass
 
-
-
+    def applyThemeConfig(self, config_name: str) -> bool:
+        """
+        Apply a saved theme configuration to listed GameSpaces.
+        
+        This method memorizes the configuration name and applies it automatically
+        at the end of initBeforeShowing() (called by launch()). This ensures all
+        GameSpaces are created before applying themes.
+        
+        This method is silent (no dialog boxes) and designed for script usage.
+        Use the UI dialog "Manage Theme Configurations" for interactive loading.
+        
+        Args:
+            config_name (str): Name of the configuration to apply
+        
+        Returns:
+            bool: True if configuration name was memorized, False otherwise
+        
+        Example:
+            # Apply a saved theme configuration (will be applied when launch() is called)
+            model.applyThemeConfig("my_theme_setup")
+            model.launch()  # Theme will be applied after all GameSpaces are created
+            
+            # Check before applying
+            if model.hasThemeConfig("setup1"):
+                model.applyThemeConfig("setup1")
+        """
+        # Verify the configuration exists before memorizing
+        manager = SGThemeConfigManager(self)
+        if not manager.configExists(config_name):
+            print(f"Theme config '{config_name}' does not exist")
+            return False
+        
+        # Memorize the configuration name for loading at the end of initBeforeShowing
+        self._pending_theme_config = config_name
+        return True
 
     def displayTimeInWindowTitle(self, setting=True):
         """

@@ -102,6 +102,12 @@ class SGLayoutOrderTableDialog(QDialog):
         
         # Connect the signal after initialization is complete
         self.column_spinbox.valueChanged.connect(self.onColumnCountChanged)
+
+    def showEvent(self, event):
+        """Position the dialog docked to the right of the main window when shown."""
+        super().showEvent(event)
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(self)
         
     def onColumnCountChanged(self, new_count):
         """

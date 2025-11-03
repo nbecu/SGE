@@ -105,7 +105,7 @@ def constructPlateau():
 
 def constructVillageNord():
     """Permet de construire le village Nord de Solutré"""
-    VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=2,name="VillageNord",color=QColor.fromRgb(135,206,235))
+    VillageNord=myModel.newCellsOnGrid(4,3,"hexagonal",size=80,gap=2,name="VillageNord",backgroundColor=QColor.fromRgb(135,206,235))
     VillageNord.deleteEntity(VillageNord.getEntity(1,1))
     VillageNord.deleteEntity(VillageNord.getEntity(2,1))
     VillageNord.deleteEntity(VillageNord.getEntity(4,2))
@@ -122,7 +122,7 @@ def constructVillageNord():
     
 def constructVillageSud():
     """Permet de construire le village Sud de Solutré"""
-    VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=2,name="VillageSud",color=QColor.fromRgb(176,224,230))
+    VillageSud=myModel.newCellsOnGrid(4,5,"hexagonal",size=80,gap=2,name="VillageSud",backgroundColor=QColor.fromRgb(176,224,230))
     VillageSud.deleteEntity(VillageSud.getEntity(1,1))
     VillageSud.deleteEntity(VillageSud.getEntity(3,1))
     VillageSud.deleteEntity(VillageSud.getEntity(4,1))
@@ -147,7 +147,7 @@ def constructVillageSud():
     
 def constructVillageEst():
     """Permet de construire le village Est de Solutré"""
-    VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=2,name="VillageEst",color=QColor.fromRgb(0,191,255))
+    VillageEst=myModel.newCellsOnGrid(5,4,"hexagonal",size=80,gap=2,name="VillageEst",backgroundColor=QColor.fromRgb(0,191,255))
     VillageEst.deleteEntity(VillageEst.getEntity(1,1))
     VillageEst.deleteEntity(VillageEst.getEntity(2,1))
     VillageEst.deleteEntity(VillageEst.getEntity(3,1))
@@ -737,7 +737,7 @@ def getObjectif(aCardName):
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
         text = "\n".join([f"{key}: {value}" if "Unnamed" not in key else f"{value}" for key, value in objectif_dict.items()])
-        textBoxObj = myModel.newTextBox(textToWrite=text, title=title)
+        textBoxObj = myModel.newTextBox(textToWrite=text, title=title,borderColor=getColorByPlayer(player),backgroundColor=Qt.white,titleAlignment='center')
         return textBoxObj
     else:
         return ValueError("Le nom d'objectif n'est pas correct ou le joueur n'a pas été spécifié.")
@@ -752,7 +752,7 @@ def getRandomObjectif():
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
         text = "\n".join([f"{key}: {value}" if "Unnamed" not in key else f"{value}" for key, value in objectif_dict.items()])
-        textBoxObj=myModel.newTextBox(textToWrite=text, title=title)
+        textBoxObj = myModel.newTextBox(textToWrite=text, title=title,borderColor=getColorByPlayer(player),backgroundColor=Qt.white,titleAlignment='center')
         return textBoxObj
     else:
         return ValueError("Le joueur n'a pas été spécifié.")

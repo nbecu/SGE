@@ -79,6 +79,40 @@ model.loadLayoutConfig("my_layout")
 configs = model.getAvailableLayoutConfigs()
 ```
 
+## Styling GameSpaces
+
+SGE provides a unified styling system (`gs_aspect`) that allows you to style GameSpaces using different syntaxes:
+
+### Syntax Options
+
+**1. Style parameters in factory method:**
+```python
+timeLabel = myModel.newTimeLabel("Game Time", backgroundColor=Qt.cyan, textColor=Qt.darkBlue, borderColor=Qt.blue)
+dashboard = myModel.newDashBoard("Scores", borderColor=Qt.red, backgroundColor=Qt.yellow, textColor=Qt.black)
+```
+
+**2. Style methods after creation:**
+```python
+timeLabel = myModel.newTimeLabel("Game Time")
+timeLabel.setBackgroundColor(Qt.cyan)
+timeLabel.setTextColor(Qt.darkBlue)
+timeLabel.setBorderColor(Qt.blue)
+```
+
+**3. Mix both syntaxes:**
+```python
+timeLabel = myModel.newTimeLabel("Game Time", backgroundColor=Qt.cyan, textColor=Qt.blue)
+timeLabel.setBorderColor(Qt.darkCyan)  # Modify after creation
+```
+
+All syntaxes pass through the unified `gs_aspect` system, ensuring consistent styling behavior. You can also use themes to apply predefined styles:
+
+```python
+gameSpace.applyTheme('modern')  # Apply a predefined theme
+```
+
+See `examples/syntax_examples/ex_game_space_style_various_syntax.py` for complete examples.
+
 ## Method Catalog
 
 SGE provides a comprehensive method catalog to help modelers discover and use available methods:

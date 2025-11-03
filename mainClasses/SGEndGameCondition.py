@@ -28,27 +28,39 @@ class SGEndGameCondition(QtWidgets.QWidget):
     def initUI(self):
         if self.isDisplay:
             self.conditionLayout = QtWidgets.QHBoxLayout()
-            # Use QLabel instead of QTextEdit for more appropriate sizing
+            self.conditionLayout.setContentsMargins(0, 0, 0, 0)
+            self.conditionLayout.setSpacing(6)
+            # Status/check label (initially hidden)
+            self.statusLabel = QtWidgets.QLabel("")
+            self.statusLabel.setVisible(False)
+            self.statusLabel.setStyleSheet("color: #2e7d32; font-weight: bold;")
+            self.conditionLayout.addWidget(self.statusLabel)
+            # Main text label
             self.label = QtWidgets.QLabel(self.name)
             # Enable word wrap if text is too long
             if len(self.name) > 50:  # Arbitrary threshold to decide on word wrapping
                 self.label.setWordWrap(True)
             else:
                 self.label.setWordWrap(False)
-            color = self.endGameRule.title1_aspect.color
-            color_string = f"color: {color};"
-            self.label.setStyleSheet(
-                color_string+"border: none;background-color: lightgray;")
+            # Do not force background on child label; container handles background in paintEvent
+            self.label.setStyleSheet("border: none;")
             self.conditionLayout.addWidget(self.label)
 
     def updateText(self):
         self.verifStatus()
         if self.checkStatus:
-            # Use success theme instead of hardcoded color
+            # Indicate validation with a green check mark label on the left
             color = self.endGameRule.success_aspect.color
-            color_string = f"color: {color};"
-            self.label.setStyleSheet(
-                color_string+"border: none;background-color: lightgray;")
+            self.statusLabel.setText("✓")
+            # Apply green from success aspect if available
+            self.statusLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
+            self.statusLabel.setVisible(True)
+        else:
+            self.statusLabel.setVisible(False)
+        # Ask parent to update its size from layout
+        if hasattr(self.endGameRule, 'updateSizeFromLayout'):
+            self.endGameRule.updateSizeFromLayout(self.endGameRule.layout)
+        self.endGameRule.update()
 
     def getUpdatePermission(self):
         if self.endGameRule.displayRefresh == 'instantaneous':
@@ -57,23 +69,36 @@ class SGEndGameCondition(QtWidgets.QWidget):
             return True
 
     def getSizeXGlobal(self):
-        # Calculate more appropriate size based on actual content
-        if hasattr(self, 'label') and self.label:
-            # Use size suggested by QLabel
-            size_hint = self.label.sizeHint()
+        # Prefer layout size if available
+        if hasattr(self, 'conditionLayout') and self.conditionLayout:
+            self.conditionLayout.activate()
+            size_hint = self.conditionLayout.sizeHint()
             if size_hint.isValid():
-                return size_hint.width() + 20  # Add small margin
-        # Fallback: calculation based on text length
-        return min(len(self.name) * 8 + 20, 200)  # Limit maximum size
+                return size_hint.width() + 10
+        # Fallback: include status label + text label
+        width = 0
+        if hasattr(self, 'statusLabel') and self.statusLabel:
+            sh = self.statusLabel.sizeHint()
+            if sh.isValid():
+                width += sh.width() + 6
+        if hasattr(self, 'label') and self.label:
+            sh = self.label.sizeHint()
+            if sh.isValid():
+                width += sh.width()
+        return max(width, 100)
     
     def getSizeYGlobal(self):
-        # Calculate appropriate height
-        if hasattr(self, 'label') and self.label:
-            # Use size suggested by QLabel
-            size_hint = self.label.sizeHint()
+        # Prefer layout height if available
+        if hasattr(self, 'conditionLayout') and self.conditionLayout:
+            self.conditionLayout.activate()
+            size_hint = self.conditionLayout.sizeHint()
             if size_hint.isValid():
-                return size_hint.height() + 10  # Add small margin
-        # Fallback: standard height for one line of text
+                return size_hint.height() + 6
+        # Fallback
+        if hasattr(self, 'label') and self.label:
+            sh = self.label.sizeHint()
+            if sh.isValid():
+                return sh.height() + 6
         return 25
 
     def byCalcType(self):

@@ -40,12 +40,12 @@ Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 Player2=myModel.newPlayer("Player 2",{"Sheeps in good health":0})
 Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":100},4))
 Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
+Player1ControlPanel.moveToCoords(610,25)
 Player2ControlPanel=Player2.newControlPanel("Actions du Joueur 2")
-
-Player2ControlPanel.moveToCoords(600,100)
+Player2ControlPanel.moveToCoords(610,100)
 
 userSelector=myModel.newUserSelector()
-userSelector.moveToCoords(600,180)
+userSelector.moveToCoords(610,180)
 
 
 myModel.newPlayPhase('Phase 1', [Player1,Player2])
@@ -74,7 +74,7 @@ GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 GameRounds.moveToCoords(650,250)
 
 DashBoard = myModel.newDashBoard('Indicators !!',borderColor=Qt.black, textColor=Qt.black)
-DashBoard.moveToCoords(600,350)
+DashBoard.moveToCoords(610,350)
 
 score1= myModel.newSimVariable("Global Score:",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1)
@@ -97,7 +97,7 @@ endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "greater", 90, name="Score greater than 90")
 endGameRule.showEndGameConditions()
-endGameRule.moveToCoords(600,450)
+endGameRule.moveToCoords(610,450)
 
 
 myModel.setCurrentPlayer("Player1")

@@ -3,37 +3,262 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
-# from PyQt5.QtWidgets import QStyleFactory
-# from mainClasses.SGGameSpace import SGGameSpace
+from mainClasses.SGGameSpace import SGGameSpace
+from mainClasses.SGAspect import SGAspect
+import re
 
-
-class SGLabel(QtWidgets.QWidget):
+class SGLabel(SGGameSpace):
     def __init__(self, parent, text, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="",  alignement= "Left", fixedWidth=None, fixedHeight=None):
-        super().__init__(parent)
+        # Parse background color from specs for base constructor
+        bg_color = self._extract_background_color(backgroundColor_specs)
+        super().__init__(parent, 0, 60, 0, 0, true, bg_color if bg_color is not None else Qt.transparent)
         self.model = parent
         self.moveable = True
         self.isDisplay = True
-        
-        label = QtWidgets.QLabel(text, self)
-        
+        self._textStyle_specs = textStyle_specs or ""
+        self._borderStyle_specs = borderStyle_specs or ""
+        self._backgroundColor_specs = backgroundColor_specs or ""
+
+        # Content label
+        self.label = QtWidgets.QLabel(text, self)
         if fixedWidth is not None:
-            label.setFixedWidth(fixedWidth)
-            label.setWordWrap(True)  # Allow line wrapping if the text is too long
-
+            self.label.setFixedWidth(fixedWidth)
+            self.label.setWordWrap(True)
         if fixedHeight is not None:
-            label.setFixedHeight(fixedHeight)
-        
-        label.setAlignment(getattr(Qt, "Align"+alignement)) 
+            self.label.setFixedHeight(fixedHeight)
+        try:
+            self.label.setAlignment(getattr(Qt, "Align"+alignement))
+            # Enregistrer l'intention du modéliseur dans l'aspect texte
+            self.text1_aspect.alignment = alignement
+            # Preserve initial alignment preference passed by the modeler
+            self._initial_alignment = alignement
+        except Exception:
+            self.label.setAlignment(Qt.AlignLeft)
+            self._initial_alignment = None
 
+        # Parse legacy CSS specs into gs_aspect/text aspect (backward compatibility)
+        try:
+            self._apply_specs_to_aspects(self._textStyle_specs, self._borderStyle_specs, self._backgroundColor_specs)
+        except Exception:
+            pass
+
+        # Layout and sizing
+        self.layout = QtWidgets.QVBoxLayout()
+        try:
+            self.layout.setContentsMargins(4, 0, self.rightMargin, self.verticalGapBetweenLabels)
+            self.layout.setSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
+
+        # Apply text aspects and compute size
+        try:
+            self.onTextAspectsChanged()
+        except Exception:
+            pass
+        self._resize_to_layout_or_label()
+
+    # =========================
+    # SIZE GETTERS (required by layouts)
+    # =========================
+    def getSizeXGlobal(self):
+        try:
+            # Prefer computed size if available
+            if hasattr(self, 'sizeXGlobal') and isinstance(self.sizeXGlobal, int):
+                return self.sizeXGlobal
+        except Exception:
+            pass
+        # Fallback to current widget width/sizeHint
+        try:
+            w = self.sizeHint().width()
+            return int(w) if w is not None else int(self.width())
+        except Exception:
+            return int(self.width())
+
+    def getSizeYGlobal(self):
+        try:
+            # Prefer computed size if available
+            if hasattr(self, 'sizeYGlobal') and isinstance(self.sizeYGlobal, int):
+                return self.sizeYGlobal
+        except Exception:
+            pass
+        # Fallback to current widget height/sizeHint
+        try:
+            h = self.sizeHint().height()
+            return int(h) if h is not None else int(self.height())
+        except Exception:
+            return int(self.height())
+
+    def _resize_to_layout_or_label(self):
+        try:
+            if hasattr(self, 'layout') and self.layout is not None:
+                self.updateSizeFromLayout(self.layout)
+            else:
+                self.label.adjustSize()
+                self.setMinimumSize(self.label.geometry().size())
+        except Exception:
+            pass
+
+    def _extract_background_color(self, bg_specs: str):
+        if not bg_specs:
+            return None
+        try:
+            items = [p.strip() for p in bg_specs.split(';') if p.strip()]
+            for it in items:
+                if it.lower().startswith('background-color'):
+                    val = it.split(':', 1)[1].strip()
+                    # return raw string; parsing handled by SGAspect.getBackgroundColorValue
+                    return val
+        except Exception:
+            return None
+        return None
+
+    def _apply_specs_to_aspects(self, text_specs: str, border_specs: str, bg_specs: str):
+        # Text specs
+        if text_specs:
+            kv = self._parse_css_kv(text_specs)
+            if 'font-family' in kv:
+                self.text1_aspect.font = kv['font-family']
+            if 'font-size' in kv:
+                try:
+                    self.text1_aspect.size = int(str(kv['font-size']).replace('px','').strip())
+                except Exception:
+                    pass
+            if 'color' in kv:
+                self.text1_aspect.color = kv['color']
+            if 'text-decoration' in kv:
+                self.text1_aspect.text_decoration = kv['text-decoration']
+            if 'font-weight' in kv:
+                self.text1_aspect.font_weight = kv['font-weight']
+            if 'font-style' in kv:
+                self.text1_aspect.font_style = kv['font-style']
+
+        # Border specs (expect unified 'border: size style color')
+        if border_specs:
+            kv = self._parse_css_kv(border_specs)
+            val = kv.get('border')
+            if val:
+                # Regex: border: <size>px <style> <color...>
+                m = re.match(r"^\s*(\d+)px\s+([a-zA-Z]+)\s+(.+?)\s*$", val)
+                if m:
+                    try:
+                        self.gs_aspect.border_size = int(m.group(1))
+                    except Exception:
+                        pass
+                    st = m.group(2).lower()
+                    if st in ('solid','dotted','dashed','double','groove','ridge','inset'):
+                        self.gs_aspect.border_style = st
+                    color_str = m.group(3)
+                    # Preserve full rgb()/rgba()/hex/name string
+                    self.gs_aspect.border_color = color_str
+                else:
+                    # Fallback old splitter (may fail on rgba but better than nothing)
+                    parts = [x.strip() for x in val.split(' ') if x.strip()]
+                    for part in parts:
+                        if part.endswith('px'):
+                            try:
+                                self.gs_aspect.border_size = int(part.replace('px',''))
+                            except Exception:
+                                pass
+                        elif part.lower() in ('solid','dotted','dashed','double','groove','ridge','inset'):
+                            self.gs_aspect.border_style = part.lower()
+                        else:
+                            self.gs_aspect.border_color = part
+
+        # Background color
+        bg = self._extract_background_color(bg_specs)
+        if bg is not None:
+            self.gs_aspect.background_color = bg
+
+    def _parse_css_kv(self, css: str):
+        res = {}
+        try:
+            items = [x.strip() for x in css.split(';') if x.strip()]
+            for it in items:
+                if ':' in it:
+                    k, v = it.split(':', 1)
+                    res[k.strip().lower()] = v.strip()
+        except Exception:
+            return res
+        return res
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        """Apply text1_aspect to internal label."""
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
         
-        # Build the complete stylesheet
-        complete_style = f"{backgroundColor_specs}{textStyle_specs}{borderStyle_specs}"
-        label.setStyleSheet(complete_style)
-        # label.setFont(QFont('Arial', 18)) -> Other way to set the Font
+        # Apply font properties
+        f = self.label.font()
+        self.text1_aspect.applyToQFont(f, self)
+        self.label.setFont(f)
         
-        # ajust the size of the label according to its style font and border. Then redefine the size of the widget according to the size of the geometry of the label 
-        label.adjustSize()   
-        self.setMinimumSize(label.geometry().size())
+        # Apply alignment from aspect if provided (with special logic to preserve initial alignment)
+        aspect_alignment = getattr(self.text1_aspect, 'alignment', None)
+        if aspect_alignment:
+            qt_alignment = mapAlignmentStringToQtFlags(aspect_alignment)
+            if qt_alignment is not None:
+                # If aspect alignment is the default 'left' but no theme/override is active,
+                # preserve the initial alignment provided by the modeler.
+                if (str(aspect_alignment).lower() == 'left'
+                    and getattr(self, '_initial_alignment', None)
+                    and (self.current_theme_name is None and not getattr(self, 'theme_overridden', False))):
+                    pass
+                else:
+                    self.label.setAlignment(qt_alignment)
+        
+        # Apply stylesheet for color and text decoration
+        stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+        if stylesheet:
+            self.label.setStyleSheet(stylesheet)
+        
+        self._resize_to_layout_or_label()
+
+    # =========================
+    # RENDERING
+    # =========================
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background: prefer image, else color with transparency
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+        width = max(0, getattr(self, 'sizeXGlobal', self.width()) - 1)
+        height = max(0, getattr(self, 'sizeYGlobal', self.height()) - 1)
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, width, height, radius, radius)
+        else:
+            painter.drawRect(0, 0, width, height)
  
   
 

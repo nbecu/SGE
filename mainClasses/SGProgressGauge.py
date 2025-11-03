@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush
+from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtGui import QPalette, QColor, QPainter, QPen, QBrush, QFont
 from mainClasses.SGGameSpace import SGGameSpace
 
 class SGProgressGauge(SGGameSpace):
@@ -52,6 +52,12 @@ class SGProgressGauge(SGGameSpace):
         self.gs_aspect.border_color = borderColor
         self.gs_aspect.border_size = 2
         self.gs_aspect.background_color = backgroundColor
+        # Default alignment for value label
+        try:
+            self.text1_aspect.alignement = 'center'
+            self.text1_aspect.alignment = 'center'
+        except Exception:
+            pass
         self.bar_width = bar_width if isinstance(bar_width,(int, float)) else None
         if bar_width == 'fit title size' and self.orientation == 'vertical' :
             if self.title_text is None : raise ValueError ('bar_width cannot be fit title size, if the title is None')
@@ -74,19 +80,33 @@ class SGProgressGauge(SGGameSpace):
         # Init UI
         self.init_ui()
 
+        # Apply text aspects to labels and compute initial size
+        try:
+            self.onTextAspectsChanged()
+        except Exception:
+            pass
+
         # Initial value update
         self.checkAndUpdate()
 
-         # adjust the size of the label according to its style font and border. Then redefine the size of the widget according to the size of the geometry of the label 
-        self.adjustSize()   
-        self.setFixedSize(self.geometry().size())
+        # Prefer layout-based sizing
+        try:
+            if hasattr(self, 'layout') and self.layout is not None:
+                self.updateSizeFromLayout(self.layout)
+        except Exception:
+            pass
 
 
     def init_ui(self):
         """Initialize the progress gauge UI components."""
         layout = QVBoxLayout() if self.orientation == 'vertical' else QHBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
-        layout.setContentsMargins(5, 5, 5, 5)  # margin for border
+        # Marges cohérentes avec les autres GameSpaces
+        try:
+            layout.setContentsMargins(4, 0, self.rightMargin, self.verticalGapBetweenLabels)
+            layout.setSpacing(self.verticalGapBetweenLabels)
+        except Exception:
+            pass
 
         # Title label
         if self.title_text is not None:
@@ -147,18 +167,51 @@ class SGProgressGauge(SGGameSpace):
             if self.title_text is not None and self.title_position == 'below' : vbox.addWidget(self.title_label)
             layout.addLayout(vbox)
 
+        # Conserver une référence pour updateSizeFromLayout
+        self.layout = layout
         self.setLayout(layout)
 
     def paintEvent(self, event):
-        """Custom paint to draw a border around the widget."""
+        """Custom container rendering: background (with transparency), border style and radius."""
         super().paintEvent(event)
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        pen = QPen(self.gs_aspect.getBorderColorValue())
-        pen.setWidth(self.gs_aspect.getBorderSize())
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        # Background: prefer image, else color with transparency
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
         painter.setPen(pen)
-        painter.setBrush(QBrush(Qt.NoBrush))
-        painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        w = max(0, getattr(self, 'sizeXGlobal', self.width()) - 1)
+        h = max(0, getattr(self, 'sizeYGlobal', self.height()) - 1)
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, w, h, radius, radius)
+        else:
+            painter.drawRect(0, 0, w, h)
 
     def checkAndUpdate(self):
         """Update the progress bar according to the current SimVariable value."""
@@ -210,11 +263,11 @@ class SGProgressGauge(SGGameSpace):
 
     def getSizeXGlobal(self):
         """Return the global X size of the gauge."""
-        return self.width()
+        return getattr(self, 'sizeXGlobal', self.width())
 
     def getSizeYGlobal(self):
         """Return the global Y size of the gauge."""
-        return self.height()
+        return getattr(self, 'sizeYGlobal', self.height())
 
     # ============================================================================
     # MODELER METHODS
@@ -231,7 +284,7 @@ class SGProgressGauge(SGGameSpace):
         Args:
             color (QColor or Qt.GlobalColor): The border color
         """
-        self.gs_aspect.border_color = color
+        super().setBorderColor(color)
         
     def setBorderSize(self, size):
         """
@@ -240,7 +293,7 @@ class SGProgressGauge(SGGameSpace):
         Args:
             size (int): The border size in pixels
         """
-        self.gs_aspect.border_size = size
+        super().setBorderSize(size)
         
     def setBackgroundColor(self, color):
         """
@@ -249,8 +302,41 @@ class SGProgressGauge(SGGameSpace):
         Args:
             color (QColor or Qt.GlobalColor): The background color
         """
-        self.gs_aspect.background_color = color
-        # Update the progress bar palette
-        palette = self.progress_bar.palette()
-        palette.setColor(QPalette.Base, self.gs_aspect.getBackgroundColorValue())
-        self.progress_bar.setPalette(palette)
+        super().setBackgroundColor(color)
+        # Update the progress bar palette to reflect container background when relevant
+        try:
+            palette = self.progress_bar.palette()
+            palette.setColor(QPalette.Base, self.gs_aspect.getBackgroundColorValue())
+            self.progress_bar.setPalette(palette)
+        except Exception:
+            pass
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
+        # Title styling (title1_aspect)
+        if hasattr(self, 'title_label') and self.title_label is not None:
+            self._applyAspectToLabel(self.title_label, self.title1_aspect)
+
+        # Value label styling (text1_aspect)
+        if hasattr(self, 'value_label') and self.value_label is not None:
+            self._applyAspectToLabel(self.value_label, self.text1_aspect)
+            # Default now set during __init__ via text1_aspect.alignment = 'center'
+
+        # Resize to content
+        if hasattr(self, 'layout') and self.layout is not None:
+            self.updateSizeFromLayout(self.layout)
+        self.update()
+
+    # =========================
+    # SIZE UPDATE UTILITIES
+    # =========================
+    def updateLabelsandWidgetSize(self):
+        if hasattr(self, 'layout') and self.layout is not None:
+            self.updateSizeFromLayout(self.layout)

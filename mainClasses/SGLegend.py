@@ -124,17 +124,70 @@ class SGLegend(SGGameSpace):
         
     #Drawing the Legend
     def paintEvent(self,event):
-        painter = QPainter() 
+        painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue(), Qt.SolidPattern))
-        painter.setPen(QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize()))
-        #Draw the corner of the Legend
-        # self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-        # painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
-        self.setMinimumSize(self.getSizeX_fromAllWidgets(), self.getSizeYGlobal()+3)
-        painter.drawRect(0,0,self.getSizeX_fromAllWidgets()-1, self.getSizeYGlobal())
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background: prefer image, else color with transparency
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+
+        # Compute and cache sizes for consistency
+        w = max(0, self.getSizeX_fromAllWidgets())
+        h = max(0, self.getSizeYGlobal()+3)
+        try:
+            self.sizeXGlobal = w
+            self.sizeYGlobal = h
+        except Exception:
+            pass
+        self.setMinimumSize(w, h)
+
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, max(0, w-1), max(0, h-1), radius, radius)
+        else:
+            painter.drawRect(0, 0, max(0, w-1), max(0, h-1))
 
         painter.end()
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        # Trigger repaint of all items so they use current aspects
+        try:
+            for it in self.legendItems:
+                if hasattr(it, 'update'):
+                    it.update()
+        except Exception:
+            pass
+        self.update()
 
     # ============================================================================
     # MODELER METHODS
@@ -151,7 +204,7 @@ class SGLegend(SGGameSpace):
         Args:
             color (QColor or Qt.GlobalColor): The border color
         """
-        self.gs_aspect.border_color = color
+        super().setBorderColor(color)
         
     def setBorderSize(self, size):
         """
@@ -160,7 +213,7 @@ class SGLegend(SGGameSpace):
         Args:
             size (int): The border size in pixels
         """
-        self.gs_aspect.border_size = size
+        super().setBorderSize(size)
 
     #obsolete function
     # def checkSpecie(self,item_key,items):

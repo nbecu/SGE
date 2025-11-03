@@ -28,7 +28,7 @@ AgentsA.newAgentAtCoords(Cells,3,3,{"category":"cat_2"})
 
 
 # A second hexagonal grid with square agents
-CellsHex = myModel.newCellsOnGrid(4, 4, "hexagonal", gap=0, size=70, color=Qt.white)  # Créer une grille hexagonale
+CellsHex = myModel.newCellsOnGrid(4, 4, "hexagonal", gap=0, size=70, backgroundColor=Qt.white)  # Créer une grille hexagonale
 CellsHex.setEntities("type", "type1")
 CellsHex.setRandomEntities("type", "type2", 4)
 CellsHex.setRandomEntities("type", "type3", 3)

@@ -1121,8 +1121,9 @@ class SGCellType(SGEntityType):
     def __init__(self, grid, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.white, name='Cell', defaultCellImage=None):
         super().__init__(grid.model, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
+        from mainClasses.SGGrid import SGGrid
         self.isCellType = True
-        self.grid = grid
+        self.grid: 'SGGrid' = grid
         self.deletedCells = []
         self.defaultImage = defaultCellImage
 
