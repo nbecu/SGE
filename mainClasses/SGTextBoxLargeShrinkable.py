@@ -313,12 +313,14 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
                 final_height = max(self.min_height, min(calculated_height, max_height))
                 
                 # Configure scrollbar based on whether height exceeds max
-                if calculated_height > max_height:
-                    # Need scrollbar
-                    self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-                else:
-                    # No scrollbar needed
-                    self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                # Only if textWidget exists
+                if hasattr(self, 'textWidget') and self.textWidget:
+                    if calculated_height > max_height:
+                        # Need scrollbar
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                    else:
+                        # No scrollbar needed
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             else:
                 # Width is dynamic: calculate minimum needed
                 title_width = self._calculateTitleWidth()
@@ -354,12 +356,14 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
                 final_height = max(self.min_height, min(calculated_height, max_height))
                 
                 # Configure scrollbar based on whether height exceeds max
-                if calculated_height > max_height:
-                    # Need scrollbar
-                    self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-                else:
-                    # No scrollbar needed
-                    self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                # Only if textWidget exists
+                if hasattr(self, 'textWidget') and self.textWidget:
+                    if calculated_height > max_height:
+                        # Need scrollbar
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                    else:
+                        # No scrollbar needed
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
         # Store calculated sizes
         self.sizeXGlobal = final_width
@@ -370,12 +374,14 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         self.resize(final_width, final_height)
         
         # Update text widget width for proper wrapping
-        avail_text_width = final_width - layout_left - layout_right - border_padding
-        if avail_text_width > 0:
-            # Set document text width for proper wrapping
-            doc = self.textWidget.document()
-            if doc:
-                doc.setTextWidth(float(avail_text_width))
+        # Only if textWidget exists
+        if hasattr(self, 'textWidget') and self.textWidget:
+            avail_text_width = final_width - layout_left - layout_right - border_padding
+            if avail_text_width > 0:
+                # Set document text width for proper wrapping
+                doc = self.textWidget.document()
+                if doc:
+                    doc.setTextWidth(float(avail_text_width))
     
     def getSizeXGlobal(self):
         """Return the calculated width."""
@@ -448,6 +454,9 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
     def resizeEvent(self, event):
         """Override resize event to update text widget width for proper wrapping."""
         super().resizeEvent(event)
+        # Only update if textWidget exists
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            return
         new_width = event.size().width()
         # Update text widget document width for proper wrapping
         avail_text_width = new_width - 4 - 9 - 3  # Account for margins
@@ -636,6 +645,38 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         
         menu.exec_(self.mapToGlobal(position))
     
+    def _recreateTextWidget(self):
+        """
+        Recreate the text widget if it was deleted.
+        This is a safety method in case the widget is somehow missing.
+        """
+        # Create text widget (same configuration as in initUI)
+        self.textWidget = QtWidgets.QTextEdit()
+        self.textWidget.setPlainText(self.textToWrite)
+        self.textWidget.setReadOnly(True)
+        
+        # Configure word-wrap and scrolling
+        self.textWidget.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+        self.textWidget.setWordWrapMode(QTextOption.WordWrap)
+        self.textWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        
+        # Remove borders and set transparent background
+        self.textWidget.setStyleSheet("QTextEdit { border: none; background: transparent; }")
+        
+        # Add to layout (after title if title exists, otherwise at index 0)
+        if hasattr(self, 'textLayout') and self.textLayout:
+            if hasattr(self, 'labelTitle') and self.labelTitle:
+                # Insert after title
+                self.textLayout.addWidget(self.textWidget)
+            else:
+                # No title, add at beginning
+                self.textLayout.insertWidget(0, self.textWidget)
+        
+        # Apply text aspects if they exist
+        if hasattr(self, 'text1_aspect') and self.text1_aspect:
+            self.onTextAspectsChanged()
+    
     def setText(self, text):
         """
         Replace the text by a new text.
@@ -643,9 +684,12 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         Args:
             text (str): New text to display
         """
+        # Recreate textWidget if it was deleted
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            self._recreateTextWidget()
+        
         self.textToWrite = text
-        if hasattr(self, 'textWidget') and self.textWidget:
-            self.textWidget.setPlainText(text)
+        self.textWidget.setPlainText(text)
         # Add to history for tracking
         if hasattr(self, 'history'):
             self.history.append(text)
@@ -740,24 +784,27 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
             text (str): Text to add
             toTheLine (bool): If True, skip a line before adding
         """
+        # Recreate textWidget if it was deleted
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            self._recreateTextWidget()
+        
         if toTheLine:
             new_text = "\n\n" + text
         else:
             new_text = text
         
         # Get current text and append new text
-        if hasattr(self, 'textWidget') and self.textWidget:
-            current_text = self.textWidget.toPlainText()
-            new_full_text = current_text + new_text
-            self.textWidget.setPlainText(new_full_text)
-            # Update textToWrite
-            self.textToWrite = new_full_text
-            # Add to history
-            if hasattr(self, 'history'):
-                self.history.append(text)
-            # Recalculate size if in shrinked mode
-            if self.shrinked:
-                self.updateSize()
+        current_text = self.textWidget.toPlainText()
+        new_full_text = current_text + new_text
+        self.textWidget.setPlainText(new_full_text)
+        # Update textToWrite
+        self.textToWrite = new_full_text
+        # Add to history
+        if hasattr(self, 'history'):
+            self.history.append(text)
+        # Recalculate size if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
     
     def updateText(self):
         """
@@ -777,7 +824,7 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
         Args:
             text (str): New text to display
         """
-        # Use setText() which already handles everything
+        # Use setText() which already handles everything (including widget recreation)
         self.setText(text)
     
     def setTitleColor(self, color='red'):
@@ -854,23 +901,27 @@ class SGTextBoxLargeShrinkable(SGGameSpace):
             if self.shrinked:
                 self.updateSize()
     
+    def eraseText(self):
+        """
+        Erase the text content (compatibility method).
+        Note: This clears the text but keeps the widget intact.
+        """
+        # Clear text content
+        self.textToWrite = ""
+        # Update widget if it exists
+        if hasattr(self, 'textWidget') and self.textWidget:
+            self.textWidget.setPlainText("")
+        # Recalculate size if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
+    
     def deleteText(self):
         """
-        Delete the text (compatibility method).
-        Note: This removes the text widget from the widget.
+        Delete the text widget (compatibility method, deprecated).
+        Use eraseText() instead to clear text without removing the widget.
         """
-        if hasattr(self, 'textWidget') and self.textWidget:
-            # Remove from layout
-            if hasattr(self, 'textLayout') and self.textLayout:
-                self.textLayout.removeWidget(self.textWidget)
-            # Delete the widget
-            self.textWidget.deleteLater()
-            self.textWidget = None
-            # Clear text content
-            self.textToWrite = ""
-            # Recalculate size if in shrinked mode
-            if self.shrinked:
-                self.updateSize()
+        # For backward compatibility, call eraseText
+        self.eraseText()
     
     def setBorderColor(self, color):
         """

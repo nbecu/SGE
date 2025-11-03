@@ -1,5 +1,7 @@
 """
-Test example for SGTextBoxLarge - optimized for long texts with scrolling.
+Test example for SGTextBoxLargeShrinkable - demonstrates compatibility methods.
+This example shows how to use addText, setNewText, deleteTitle, and eraseText methods
+through interactive buttons.
 """
 import sys
 from pathlib import Path
@@ -8,73 +10,130 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # Create model
-myModel = SGModel(name="TextBoxLarge Test", windowTitle="SGTextBoxLarge Test")
+myModel = SGModel(name="TextBox Update Test", windowTitle="SGTextBoxLargeShrinkable - Update Methods Test")
 
-# Test text - long text that requires scrolling
-longText = """This is a very long text that demonstrates the SGTextBoxLarge widget.
-SGTextBoxLarge is specifically designed for displaying long texts with automatic
-word-wrapping and vertical scrolling when the content exceeds the widget height.
+# Initial test text
+initialText = """This is the initial text in the text box.
+You can interact with the buttons below to test different update methods.
 
-Key features:
-- Default width and height (400x300 pixels)
-- Automatic width adjustment if title is wider than default width
-- Automatic word-wrapping for text content
-- Vertical scrolling when text exceeds height (via mouse wheel and scrollbar)
-- User-configurable width and height
+Try clicking the buttons to see how the text box content changes."""
 
-You can scroll this text using the mouse wheel or the scrollbar on the right side.
-The text will automatically wrap to fit the width of the text box.
-
-This is the end of the test text. If you can see this line, scrolling is working correctly!"""
-
-# Create a large text box with default dimensions
-textBox1 = myModel.newTextBoxLargeShrinkable(
-    longText,
-    title="1. Default Size (400x300)",
-    titleAlignment='left',
-    shrinked=True
-)
-
-
-
-# Create a large text box with a very long title to test width adjustment
-textBox5 = myModel.newTextBoxLargeShrinkable(
-    longText,
-    title="5. Very Long Title That Should Extend The Widget Width Automatically",
-    titleAlignment='left',
-    shrinked=True
-)
-
-# Create a large text box with various aspect customizations
-textBox6 = myModel.newTextBoxLargeShrinkable(
-    longText,
-    title="6. Custom Aspects",
-    width=500,
-    height=350,
+# Create a text box to test update methods
+testTextBox = myModel.newTextBoxLargeShrinkable(
+    initialText,
+    title="Test TextBox - Click buttons to update",
+    width=600,
+    height=400,
     titleAlignment='center',
     shrinked=True
 )
-textBox6.moveToCoords(10, 200)
-# Apply various aspect customizations using SGGameSpace setters
-textBox6.setBorderColor(Qt.darkGreen)
-textBox6.setBorderSize(3)
-textBox6.setBorderRadius(10)
-textBox6.setBackgroundColor(Qt.lightYellow)
+testTextBox.moveToCoords(10, 30)
 
-# Customize title and text aspects
-textBox6.title1_aspect.font = "Times New Roman"
-textBox6.title1_aspect.size = 16
-textBox6.title1_aspect.font_weight = "bold"
-textBox6.title1_aspect.color = Qt.darkBlue
-textBox6.title1_aspect.text_decoration = "underline"
+# Callback functions for buttons
+def addTextSimple():
+    """Add text without line break"""
+    testTextBox.addText(" [Text added!]")
+    print("Added text without line break")
 
-textBox6.text1_aspect.font = "Georgia"
-textBox6.text1_aspect.size = 11
-textBox6.text1_aspect.color = Qt.darkRed
-textBox6.text1_aspect.font_style = "italic"
+def addTextWithLine():
+    """Add text with line break"""
+    testTextBox.addText("New paragraph added via addText!", toTheLine=True)
+    print("Added text with line break")
 
-# Apply the changes
-textBox6.onTextAspectsChanged()
+def setNewText():
+    """Replace all text with new text"""
+    newContent = """This is completely new content!
+The previous text has been replaced using setNewText().
+
+You can see that all the original content is gone."""
+    testTextBox.setNewText(newContent)
+    print("Text replaced using setNewText()")
+
+def deleteTitle():
+    """Delete the title"""
+    testTextBox.deleteTitle()
+    print("Title deleted")
+
+def eraseText():
+    """Erase the text content"""
+    testTextBox.eraseText()
+    print("Text content erased")
+
+def resetTextBox():
+    """Reset text box to initial state"""
+    # Recreate title if deleted
+    if not hasattr(testTextBox, 'labelTitle') or testTextBox.labelTitle is None:
+        from PyQt5.QtWidgets import QLabel
+        testTextBox.labelTitle = QLabel("Test TextBox - Click buttons to update", testTextBox)
+        testTextBox.labelTitle.setAlignment(Qt.AlignCenter)
+        testTextBox.textLayout.insertWidget(0, testTextBox.labelTitle)
+        testTextBox.title = "Test TextBox - Click buttons to update"
+    
+    # Reset text (widget should still exist since eraseText() doesn't delete it)
+    testTextBox.setText(initialText)
+    testTextBox.onTextAspectsChanged()
+    print("Text box reset to initial state")
+
+# Create buttons to test the methods
+myModel.newButton(
+    lambda: addTextSimple(),
+    "Add Text",
+    (650, 30),
+    background_color='lightblue',
+    border_size=2,
+    border_color='blue',
+    border_radius=5
+)
+
+myModel.newButton(
+    lambda: addTextWithLine(),
+    "Add Text (New Line)",
+    (650, 80),
+    background_color='lightgreen',
+    border_size=2,
+    border_color='green',
+    border_radius=5
+)
+
+myModel.newButton(
+    lambda: setNewText(),
+    "Replace Text",
+    (650, 130),
+    background_color='lightyellow',
+    border_size=2,
+    border_color='orange',
+    border_radius=5
+)
+
+myModel.newButton(
+    lambda: deleteTitle(),
+    "Delete Title",
+    (650, 180),
+    background_color='lightcoral',
+    border_size=2,
+    border_color='red',
+    border_radius=5
+)
+
+myModel.newButton(
+    lambda: eraseText(),
+    "Erase Text",
+    (650, 230),
+    background_color='lightpink',
+    border_size=2,
+    border_color='darkred',
+    border_radius=5
+)
+
+myModel.newButton(
+    lambda: resetTextBox(),
+    "Reset",
+    (650, 280),
+    background_color='lightgray',
+    border_size=2,
+    border_color='gray',
+    border_radius=5
+)
 
 # Launch the model
 myModel.launch()
