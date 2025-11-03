@@ -64,7 +64,7 @@ class SGThemeEditTableDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        # Header with instructions and Theme code button
+        # Header with instructions and buttons
         header_layout = QHBoxLayout()
         instructions = QLabel(
             "Assign a theme to each GameSpace. Leave blank to keep it unchanged."
@@ -72,6 +72,12 @@ class SGThemeEditTableDialog(QDialog):
         instructions.setWordWrap(True)
         instructions.setStyleSheet("QLabel { padding: 10px; background-color: #f0f0f0; border-radius: 5px; }")
         header_layout.addWidget(instructions, 1)
+        
+        # Apply to all button
+        apply_all_btn = QPushButton("Apply to All...")
+        apply_all_btn.setToolTip("Apply a selected theme to all GameSpaces")
+        apply_all_btn.clicked.connect(self._openApplyToAllDialog)
+        header_layout.addWidget(apply_all_btn)
         
         theme_code_btn = QPushButton("Theme code...")
         theme_code_btn.setToolTip("Generate Python code for custom themes (for developers)")
@@ -272,6 +278,65 @@ class SGThemeEditTableDialog(QDialog):
                         pass
         if hasattr(self.model, 'update'):
             self.model.update()
+
+    def _openApplyToAllDialog(self):
+        """Open dialog to select a theme and apply it to all GameSpaces."""
+        # Get list of available themes (predefined + custom)
+        runtime = []
+        if hasattr(self.model, '_runtime_themes') and isinstance(self.model._runtime_themes, dict):
+            runtime = sorted(list(self.model._runtime_themes.keys()))
+        
+        # Separate predefined and custom themes
+        predefined_themes = self._themes
+        custom_themes = [t for t in runtime if t not in self._themes]
+        
+        # Build theme list for combo box
+        all_themes = [""]  # Empty option
+        all_themes.extend(predefined_themes)
+        for t in custom_themes:
+            all_themes.append(f"📝 {t}")
+        
+        # Create dialog with combo box
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Apply Theme to All GameSpaces")
+        dialog.setModal(True)
+        
+        layout = QVBoxLayout()
+        
+        label = QLabel("Select a theme to apply to all GameSpaces:")
+        layout.addWidget(label)
+        
+        combo = QComboBox()
+        combo.addItems(all_themes)
+        layout.addWidget(combo)
+        
+        buttons = QHBoxLayout()
+        buttons.addStretch()
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.clicked.connect(dialog.reject)
+        apply_btn = QPushButton("Apply to All")
+        apply_btn.clicked.connect(dialog.accept)
+        apply_btn.setDefault(True)
+        buttons.addWidget(cancel_btn)
+        buttons.addWidget(apply_btn)
+        layout.addLayout(buttons)
+        
+        dialog.setLayout(layout)
+        dialog.resize(400, 120)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            theme = combo.currentText().strip()
+            if theme:
+                # Remove custom theme prefix if present
+                if theme.startswith("📝 "):
+                    theme = theme[2:]
+                
+                # Apply theme to all GameSpaces
+                if hasattr(self.model, 'applyThemeToAllGameSpaces'):
+                    self.model.applyThemeToAllGameSpaces(theme)
+                    self.model.update()
+                    # Refresh table to reflect changes
+                    self.populateTable()
 
     def _openThemeCodeGenerator(self):
         """Open the Theme Code Generator dialog."""

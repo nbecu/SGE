@@ -82,7 +82,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     JsonManagedDataTypes=(dict,list,tuple,str,int,float,bool)
 
-    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True):
+    def __init__(self, width=1800, height=900, typeOfLayout="enhanced_grid", nb_columns=3, y=3, name=None, windowTitle=None, createAdminPlayer=True,windowBackgroundColor=None):
         """
         Declaration of a new model
 
@@ -95,6 +95,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             name (str, optional): the name of the model. (default:"Simulation")
             windowTitle (str, optional): the title of the main window of the simulation (default:"myGame")
             createAdminPlayer (boolean, optional): Automatically create a Admin player (default:True), that can perform all possible gameActions
+            windowBackgroundColor (QColor or Qt.GlobalColor, optional): The background color of the main window (default:None)
         """
         super().__init__()
         # Definition the size of the window ( temporary here)
@@ -116,6 +117,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Definition of the title of the window
         self.windowTitle_prefix = (windowTitle or self.name or ' ') # if windowTitle  is None, the name of the model is used as prefix for window title
         self.setWindowTitle(self.windowTitle_prefix)
+        self.windowBackgroundColor = windowBackgroundColor
         # Option to display time (round and phase) in window title
         self.isTimeDisplayedInWindowTitle = False
         
@@ -215,6 +217,31 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layout = QtWidgets.QGridLayout()
         self.setCentralWidget(self.window)
         self.window.setLayout(self.layout)
+        # Set background color for main window
+        # Use QPalette instead of stylesheet to avoid cascading to child widgets
+        if self.windowBackgroundColor:
+            # Normalize color to QColor
+            from PyQt5.QtGui import QColor, QPalette
+            if isinstance(self.windowBackgroundColor, QColor):
+                bg_color = self.windowBackgroundColor
+            elif isinstance(self.windowBackgroundColor, str):
+                bg_color = QColor(self.windowBackgroundColor)
+                if not bg_color.isValid():
+                    bg_color = QColor("#ffffff")
+            else:
+                # Qt.GlobalColor or other - convert to QColor
+                try:
+                    bg_color = QColor(self.windowBackgroundColor)
+                    if not bg_color.isValid():
+                        bg_color = QColor("#ffffff")
+                except Exception:
+                    bg_color = QColor("#ffffff")  # Fallback to white
+            
+            # Use QPalette to set background without affecting child widgets
+            palette = self.window.palette()
+            palette.setColor(QPalette.Window, bg_color)
+            self.window.setPalette(palette)
+            self.window.setAutoFillBackground(True)
         # Definition of the toolbar via a menu and the ac
         self.symbologyMenu = None  # init in case no menu is created
         self.createMenu()
@@ -1027,16 +1054,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         editThemesAction = QAction("&Edit Themes...", self)
         editThemesAction.triggered.connect(self.openThemeEditTableDialog)
         self.themeMenu.addAction(editThemesAction)
-        
-        # Apply Global Theme (quick)
-        applyGlobalThemeAction = QAction("&Apply Global Theme...", self)
-        applyGlobalThemeAction.triggered.connect(self.openApplyGlobalThemeDialog)
-        self.themeMenu.addAction(applyGlobalThemeAction)
 
         # Manage Theme Configurations (dialog)
         manageThemeAction = QAction("&Manage Theme Configurations...", self)
         manageThemeAction.triggered.connect(self.openThemeConfigManagerDialog)
         self.themeMenu.addAction(manageThemeAction)
+
+        # Change window background color
+        changeBgColorAction = QAction("&Change window background color...", self)
+        changeBgColorAction.triggered.connect(self.openWindowBackgroundColorDialog)
+        self.themeMenu.addAction(changeBgColorAction)
 
     def openThemeConfigManagerDialog(self):
         """Open the Theme Configuration Manager dialog."""
@@ -1048,11 +1075,45 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         dialog = SGThemeEditTableDialog(self)
         dialog.exec_()
 
-    def openApplyGlobalThemeDialog(self):
-        """Prompt a theme name and apply it to all GameSpaces."""
-        theme, ok = QInputDialog.getText(self, "Apply Global Theme", "Enter theme name (modern/minimal/colorful/blue/green/gray):")
-        if ok and isinstance(theme, str) and theme.strip():
-            self.applyThemeToAllGameSpaces(theme.strip())
+    def openWindowBackgroundColorDialog(self):
+        """Open a color dialog to change the window background color."""
+        from PyQt5.QtWidgets import QColorDialog
+        from PyQt5.QtGui import QColor
+        
+        # Get current color if set, otherwise default to white
+        if self.windowBackgroundColor:
+            if isinstance(self.windowBackgroundColor, QColor):
+                current_color = self.windowBackgroundColor
+            elif isinstance(self.windowBackgroundColor, str):
+                # Parse CSS color string (hex format like "#ffffff" or named colors)
+                current_color = QColor(self.windowBackgroundColor)
+                if not current_color.isValid():
+                    current_color = QColor("#ffffff")
+            else:
+                # Qt.GlobalColor (like Qt.white, Qt.black, etc.) or other types
+                try:
+                    current_color = QColor(self.windowBackgroundColor)
+                    if not current_color.isValid():
+                        current_color = QColor("#ffffff")
+                except Exception:
+                    current_color = QColor("#ffffff")
+        else:
+            # No color set, check if styleSheet has a background color
+            # Otherwise default to white
+            current_color = QColor("#ffffff")
+        
+        # Open color dialog
+        color = QColorDialog.getColor(current_color, self, "Select Window Background Color")
+        
+        if color.isValid():
+            # Store as QColor object for consistency
+            self.windowBackgroundColor = color.name()  # Store as hex string for serialization
+            # Use QPalette to set background without affecting child widgets
+            from PyQt5.QtGui import QPalette
+            palette = self.window.palette()
+            palette.setColor(QPalette.Window, color)
+            self.window.setPalette(palette)
+            self.window.setAutoFillBackground(True)
             self.update()
 
     def applyThemeToAllGameSpaces(self, theme_name: str, include_types=None, exclude_types=None, priority: str = "global_then_individual") -> None:
