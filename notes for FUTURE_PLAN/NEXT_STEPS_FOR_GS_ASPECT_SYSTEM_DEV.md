@@ -224,21 +224,31 @@ gameSpace.applyTheme('modern')
 ### 📁 Fichiers modifiés
 
 #### Classes principales
-- `mainClasses/SGAspect.py` : Extension avec attributs et thèmes
-- `mainClasses/SGGameSpace.py` : Méthodes modeler communes
-- `mainClasses/SGModel.py` : Correction newEndGameRule, ajout newVoid
+- ✅ `mainClasses/SGAspect.py` : Extension avec attributs et thèmes, ajout de `text_aspects` aux thèmes prédéfinis
+- ✅ `mainClasses/SGGameSpace.py` : Méthodes modeler communes, découverte dynamique des thèmes, application des text_aspects différenciés
+- ✅ `mainClasses/SGModel.py` : Correction newEndGameRule, ajout newVoid, migration newLabel et newButton vers SGGameSpace
 
 #### Classes GameSpaces
-- `mainClasses/SGUserSelector.py` : Migration vers gs_aspect
-- `mainClasses/SGDashBoard.py` : Méthodes modeler ajoutées
-- `mainClasses/SGTimeLabel.py` : Méthodes modeler ajoutées
-- `mainClasses/SGVoid.py` : Méthodes modeler ajoutées
+- ✅ `mainClasses/SGUserSelector.py` : Migration vers gs_aspect
+- ✅ `mainClasses/SGDashBoard.py` : Méthodes modeler ajoutées, application de l'alignement
+- ✅ `mainClasses/SGTimeLabel.py` : Méthodes modeler ajoutées, application de l'alignement
+- ✅ `mainClasses/SGVoid.py` : Méthodes modeler ajoutées
+- ✅ `mainClasses/SGLabel.py` : Migration complète vers SGGameSpace
+- ✅ `mainClasses/SGButton.py` : Migration complète vers SGGameSpace
+- ✅ `mainClasses/SGProgressGauge.py` : Application de l'alignement
+- ✅ `mainClasses/SGTextBox.py` : Remplacement par SGTextBoxLargeShrinkable (nouvelle implémentation robuste)
 
 #### Exemples de test
 - `examples/syntax_examples/ex_game_space_style_2.py` : Test méthodes individuelles
 - `examples/syntax_examples/ex_game_space_style_3.py` : Test style dictionary
 - `examples/syntax_examples/ex_game_space_style_4.py` : Test système de thèmes
 - `examples/syntax_examples/ex_game_space_style_5.py` : Test approche mixte
+
+#### Dialogues et gestion des thèmes
+- ✅ `mainClasses/theme/SGThemeCustomEditorDialog.py` : Création et édition de thèmes custom
+- ✅ `mainClasses/theme/SGThemeEditTableDialog.py` : Assignment de thèmes, découverte dynamique, bouton "Theme code..."
+- ✅ `mainClasses/theme/SGThemeCodeGeneratorDialog.py` : Génération du code Python pour promouvoir un thème custom
+- ⚠️ `mainClasses/theme/SGThemeConfigManager.py` : À modifier pour sauvegarder les définitions des thèmes custom
 
 #### Documentation
 - `notes for FUTURE_PLAN/HARDCODED_STYLES_ANALYSIS.md` : Analyse des styles hardcodés
