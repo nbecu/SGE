@@ -780,7 +780,11 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         """
         self.gs_aspect.color = color
         self.setTitlesAndTextsColor(color)
-        self.update()
+        # Apply text aspects to update visual appearance of labels/widgets
+        if hasattr(self, 'onTextAspectsChanged'):
+            self.onTextAspectsChanged()
+        else:
+            self.update()
         self.theme_overridden = True
         
     def setTitleAlignment(self, alignment):

@@ -11,7 +11,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(1080,960,"Agent examples")
 
-Cells=myModel.newCellsOnGrid(5,2,"square",size=50,color=Qt.gray)
+Cells=myModel.newCellsOnGrid(5,2,"square",size=50,backgroundColor=Qt.gray)
 
 CircleAgent=myModel.newAgentType("Circle","circleAgent")
 CircleAgent.newAgentAtCoords(Cells,1,1)

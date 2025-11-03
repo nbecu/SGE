@@ -1729,7 +1729,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # NEW/ADD METHODS
 # ============================================================================
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, color=Qt.gray,moveable=True,name=None,backGroundImage=None,defaultCellImage=None,neighborhood='moore',boundaries='open'):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open'):
         """
         Create a grid that contains cells
 
@@ -1741,7 +1741,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 - Note that the hexagonal grid is "Pointy-top hex grid with even-r offset".
             size (int, optional): size of the cells. Defaults to 30.
             gap (int, optional): gap size between cells. Defaults to 0.
-            color (a color, optional): background color of the grid . Defaults to Qt.gray.
+            backgroundColor (Qt.Color, optional): background color of the grid. Defaults to Qt.gray.
+            borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
             name (st): name of the grid.
             backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
@@ -1761,8 +1762,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             name = f'grid{str(self.numberOfGrids()+1)}'
             if name in self.gameSpaces:
                 name = name + 'bis'
-        # Create a grid
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, color, moveable,backGroundImage,neighborhood,boundaries)
+        # Create a grid with default values (will be overridden by setters below)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, None, moveable, backGroundImage, neighborhood, boundaries)
+        
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aGrid.setBackgroundColor(backgroundColor)
+        aGrid.setBorderColor(borderColor)
+        # Background image is already set in SGGrid.__init__ if provided
 
         # Create a CellDef and populate the grid with cells from the newly created CellDef
         aCellDef = self.generateCellsForGrid(aGrid,defaultCellImage,name)
@@ -2043,10 +2049,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         borderColor (Qt Color, default very light gray) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
-        aDashBoard = SGDashBoard(
-            self, title, borderColor, borderSize, backgroundColor, textColor, layout)
+        # Create with default values (will be overridden by setters below)
+        aDashBoard = SGDashBoard(self, title, Qt.black, 1, QColor(230, 230, 230), Qt.black, layout)
         self.gameSpaces[aDashBoard.id] = aDashBoard
         
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aDashBoard.setBackgroundColor(backgroundColor)
+        aDashBoard.setBorderColor(borderColor)
+        aDashBoard.setBorderSize(borderSize)
+        aDashBoard.setTextColor(textColor)
+
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aDashBoard)
 
@@ -2067,9 +2079,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             layout (str) : layout orientation (default : vertical)
             textColor (QColor) : text color (default : Qt.black)
         """
-        aEndGameRule = SGEndGameRule(self, title, numberRequired, displayRefresh, isDisplay, borderColor, backgroundColor, layout, textColor)
+        # Create with default values (will be overridden by setters below)
+        aEndGameRule = SGEndGameRule(self, title, numberRequired, displayRefresh, isDisplay)
         self.gameSpaces[title] = aEndGameRule
         self.endGameRule = aEndGameRule
+
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aEndGameRule.setBackgroundColor(backgroundColor)
+        aEndGameRule.setBorderColor(borderColor)
+        aEndGameRule.setTextColor(textColor)
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aEndGameRule)
@@ -2131,7 +2149,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             SGProgressGauge: The created SGProgressGauge instance.
         """
 
-        # Create the ProgressGauge with same defaults as the class
+        # Create the ProgressGauge with default style values (will be overridden by setters below)
         aProgressGauge = SGProgressGauge(
             parent=self,
             simVar=simVar,
@@ -2141,13 +2159,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             orientation=orientation,
             colorRanges=colorRanges,
             unit=unit,
-            borderColor=borderColor,
-            backgroundColor=backgroundColor,
             bar_width=bar_width,
             bar_length=bar_length,
             title_position=title_position,
             display_value_on_top=display_value_on_top
         )
+        
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aProgressGauge.setBackgroundColor(backgroundColor)
+        aProgressGauge.setBorderColor(borderColor)
         
         # Register the gauge in the model
         self.gameSpaces[title] = aProgressGauge
@@ -2222,10 +2242,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         borderColor (Qt Color) : color of the border (default : Qt.black)
         textColor (Qt Color) : color of the text (default : Qt.black)
         """
-        aTimeLabel = SGTimeLabel(
-            self, title, backgroundColor, borderColor, textColor)
+        # Create with default values (will be overridden by setters below)
+        aTimeLabel = SGTimeLabel(self, title)
         self.myTimeLabel = aTimeLabel
         self.gameSpaces[title] = aTimeLabel
+
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aTimeLabel.setBackgroundColor(backgroundColor)
+        aTimeLabel.setBorderColor(borderColor)
+        aTimeLabel.setTextColor(textColor)
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aTimeLabel)
@@ -2252,9 +2277,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             SGTextBox: The created text box widget
         """
         
-        aTextBox = SGTextBox(self, textToWrite, title, width, height, shrinked, borderColor, backgroundColor, titleAlignment)
+        # Create with default style values (will be overridden by setters below)
+        aTextBox = SGTextBox(self, textToWrite, title, width, height, shrinked, Qt.black, Qt.lightGray, titleAlignment)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
+
+        # Apply styles via modeler methods (ensures everything goes through gs_aspect)
+        aTextBox.setBackgroundColor(backgroundColor)
+        aTextBox.setBorderColor(borderColor)
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aTextBox)

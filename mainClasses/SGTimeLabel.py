@@ -7,7 +7,7 @@ from mainClasses.SGGameSpace import SGGameSpace
 
 
 class SGTimeLabel(SGGameSpace):
-    def __init__(self, parent, title, backgroundColor=Qt.darkGray, borderColor=Qt.black, textColor=Qt.red):
+    def __init__(self, parent, title, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
         self.timeManager = self.model.timeManager

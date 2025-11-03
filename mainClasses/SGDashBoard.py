@@ -313,7 +313,7 @@ class SGDashBoard(SGGameSpace):
 #############################
         # Drawing the DB
     def paintEvent(self, event):
-        if self.isDisplay and len(self.indicators) != 0:
+        if self.isDisplay:
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
             # Background: prefer image, else color with transparency

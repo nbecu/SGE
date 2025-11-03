@@ -74,7 +74,7 @@ def eat(aSheep):
 
 
 GameRounds = myModel.newTimeLabel("My Game Time")
-GameRounds.setBackgroundColor(Qt.red)
+GameRounds.setBackgroundColor(Qt.green)
 
 DashBoard = myModel.newDashBoard('Indicators !!')
 DashBoard.setLayoutOrder(2)
