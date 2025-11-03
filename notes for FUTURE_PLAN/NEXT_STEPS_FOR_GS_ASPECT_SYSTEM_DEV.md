@@ -123,11 +123,9 @@
 - [ ] Tests du système global
 
 #### Phase 5 : Conversion SGLabel/SGButton en GameSpaces
-- [ ] Analyser la faisabilité de la conversion
-- [ ] Étendre SGAspect avec les styles manquants de SGLabel/SGButton
-- [ ] Convertir SGLabel en GameSpace (si possible)
-- [ ] Convertir SGButton en GameSpace (si possible)
-- [ ] Maintenir la compatibilité avec les méthodes existantes
+- ✅ **TERMINÉ** : SGLabel migré vers SGGameSpace
+- ✅ **TERMINÉ** : SGButton migré vers SGGameSpace
+- ✅ **TERMINÉ** : Compatibilité maintenue avec les méthodes existantes
 
 #### Classes GameSpaces restantes à traiter
 - [ ] **SGLegend** : Utilise SGLegendItem, adapter l'approche
@@ -212,11 +210,14 @@ gameSpace.applyTheme('modern')
 
 ### 🎯 Prochaines étapes
 
-1. **Décision sur le système de thèmes** : Individuel, global, ou hybride ?
+1. **Implémenter la persistance des thèmes custom** ⚠️ **PRIORITÉ ACTUELLE**
+   - Modifier `SGThemeConfigManager` pour sauvegarder les définitions complètes des thèmes custom dans `theme_config.json`
+   - Charger ces définitions au démarrage de l'application
+   - Vérifier que les noms de thèmes custom n'entrent pas en conflit avec les thèmes prédéfinis
+   - Ajouter une distinction visuelle entre thèmes prédéfinis et custom dans l'interface
 2. **Finalisation des classes restantes** : SGLegend et SGGrid
-3. **Conversion SGLabel/SGButton** : Analyser et implémenter si faisable
-4. **Tests complets** : Validation de toutes les fonctionnalités
-5. **Documentation** : Mise à jour des README et guides
+3. **Tests complets** : Validation de toutes les fonctionnalités
+4. **Documentation** : Mise à jour des README et guides
 
 ---
 

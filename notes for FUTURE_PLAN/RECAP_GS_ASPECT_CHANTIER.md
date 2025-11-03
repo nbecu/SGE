@@ -252,9 +252,9 @@
 ## 📁 FICHIERS MODIFIÉS (récents)
 
 ### Classes principales
-- `mainClasses/SGAspect.py` : Classe centrale (inchangée récemment)
-- `mainClasses/SGGameSpace.py` : Méthodes modeler communes (inchangée récemment)
-- `mainClasses/SGModel.py` : Factory methods `newLabel()` et `newButton()` modifiées
+- ✅ `mainClasses/SGAspect.py` : Ajout de `text_aspects` à tous les thèmes prédéfinis, découverte dynamique des thèmes
+- ✅ `mainClasses/SGGameSpace.py` : Découverte dynamique des thèmes prédéfinis, application des text_aspects différenciés
+- ✅ `mainClasses/SGModel.py` : Factory methods `newLabel()` et `newButton()` modifiées
 
 ### Classes GameSpaces migrées récemment
 - ✅ `mainClasses/SGLabel.py` : Migration complète vers SGGameSpace
