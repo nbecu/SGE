@@ -14,6 +14,7 @@ class SGThemeCustomEditorDialog(QDialog):
         super().__init__(parent)
         self.model = model
         self.gs = gameSpace
+        self.init_theme = init_theme.strip() if isinstance(init_theme, str) and init_theme.strip() else None
         self.setWindowTitle("Custom Theme Editor")
         self.resize(720, 560)
         # Snapshot original state for cancel
@@ -23,10 +24,10 @@ class SGThemeCustomEditorDialog(QDialog):
             'theme_overridden': getattr(self.gs, 'theme_overridden', False),
         }
         # If asked to initialize from a theme, temporarily apply it AFTER snapshot
-        if isinstance(init_theme, str) and init_theme.strip():
+        if self.init_theme:
             try:
                 if hasattr(self.gs, 'applyTheme'):
-                    self.gs.applyTheme(init_theme.strip())
+                    self.gs.applyTheme(self.init_theme)
             except Exception:
                 pass
         self._buildUI()
@@ -72,6 +73,9 @@ class SGThemeCustomEditorDialog(QDialog):
         # Reduce dialog to its minimum height based on contents
         layout.setSizeConstraint(QLayout.SetFixedSize)
         self.adjustSize()
+        
+        # Setup automatic preview updates
+        self._setupAutoPreview()
 
     def _buildBaseTab(self):
         w = QWidget()
@@ -220,6 +224,60 @@ class SGThemeCustomEditorDialog(QDialog):
         except Exception:
             return default
 
+    def _setupAutoPreview(self):
+        """Connect all widgets to automatically trigger preview on change."""
+        # Use a timer to debounce rapid changes (wait 150ms after last change)
+        self._preview_timer = QTimer()
+        self._preview_timer.setSingleShot(True)
+        self._preview_timer.timeout.connect(self._onPreview)
+        
+        # Connect base tab widgets
+        # ColorPickerField: connect to colorChanged signal
+        if hasattr(self, 'base_background_color') and self.base_background_color:
+            self.base_background_color.colorChanged.connect(self._triggerAutoPreview)
+        
+        if hasattr(self, 'base_border_color') and self.base_border_color:
+            self.base_border_color.colorChanged.connect(self._triggerAutoPreview)
+        
+        if hasattr(self, 'base_border_size'):
+            self.base_border_size.valueChanged.connect(self._triggerAutoPreview)
+        
+        if hasattr(self, 'base_border_style'):
+            self.base_border_style.currentTextChanged.connect(self._triggerAutoPreview)
+        
+        if hasattr(self, 'base_border_radius'):
+            self.base_border_radius.valueChanged.connect(self._triggerAutoPreview)
+        
+        # Connect text tab widgets
+        if hasattr(self, 'text_controls'):
+            for name, controls in self.text_controls.items():
+                if 'color' in controls and controls['color']:
+                    # ColorPickerField for text aspects - connect to colorChanged signal
+                    controls['color'].colorChanged.connect(self._triggerAutoPreview)
+                
+                if 'font' in controls:
+                    controls['font'].currentTextChanged.connect(self._triggerAutoPreview)
+                
+                if 'size' in controls:
+                    controls['size'].valueChanged.connect(self._triggerAutoPreview)
+                
+                if 'font_weight' in controls:
+                    controls['font_weight'].currentTextChanged.connect(self._triggerAutoPreview)
+                
+                if 'font_style' in controls:
+                    controls['font_style'].currentTextChanged.connect(self._triggerAutoPreview)
+                
+                if 'text_decoration' in controls:
+                    controls['text_decoration'].currentTextChanged.connect(self._triggerAutoPreview)
+                
+                if 'alignment' in controls:
+                    controls['alignment'].currentTextChanged.connect(self._triggerAutoPreview)
+
+    def _triggerAutoPreview(self):
+        """Trigger a debounced preview update."""
+        self._preview_timer.stop()  # Cancel previous timer
+        self._preview_timer.start(150)  # Wait 150ms before applying preview
+
     def _onPreview(self):
         """Apply form changes temporarily to the target GameSpace (no save)."""
         try:
@@ -237,6 +295,8 @@ class SGThemeCustomEditorDialog(QDialog):
         elif hasattr(self.base_background_color, 'line') and self.base_background_color.line is not None:
             self.base_background_color.line.setText('transparent')
             self.base_background_color._update_preview()
+        # Trigger auto preview
+        self._triggerAutoPreview()
 
     def _on_border_transparent(self):
         if hasattr(self.base_border_color, 'set_value'):
@@ -244,6 +304,8 @@ class SGThemeCustomEditorDialog(QDialog):
         elif hasattr(self.base_border_color, 'line') and self.base_border_color.line is not None:
             self.base_border_color.line.setText('transparent')
             self.base_border_color._update_preview()
+        # Trigger auto preview
+        self._triggerAutoPreview()
 
     def _build_spec_from_form(self, compact=False):
         base = {
@@ -456,6 +518,9 @@ class SGThemeCustomEditorDialog(QDialog):
 
 class ColorPickerField(QWidget):
     """Simple color picker with preview and optional text/clear controls."""
+    # Signal emitted when color changes
+    colorChanged = pyqtSignal()
+    
     def __init__(self, initial_text="", parent=None, show_line=True, show_clear=True):
         super().__init__(parent)
         self._color = self._parse_color(initial_text)
@@ -536,16 +601,26 @@ class ColorPickerField(QWidget):
             if self.line is not None:
                 self.line.setText(c.name())
             self._update_preview()
+            # Emit signal to notify color change
+            self.colorChanged.emit()
 
     def _line_changed(self):
+        old_color = self._color
         self._color = self._parse_color(self.line.text().strip())
         self._update_preview()
+        # Emit signal if color actually changed
+        if old_color != self._color:
+            self.colorChanged.emit()
 
     def _clear(self):
+        old_color = self._color
         self._color = None
         if self.line is not None:
             self.line.setText("")
         self._update_preview()
+        # Emit signal if color actually changed
+        if old_color != self._color:
+            self.colorChanged.emit()
 
     def value_text(self):
         # Prefer explicit text (e.g., 'transparent') if present
@@ -562,9 +637,13 @@ class ColorPickerField(QWidget):
 
     def set_value(self, text):
         """Programmatically set the color (supports 'transparent' and hex)."""
+        old_color = self._color
         if self.line is not None:
             self.line.setText(text or "")
         self._color = self._parse_color(text)
         self._update_preview()
+        # Emit signal if color actually changed
+        if old_color != self._color:
+            self.colorChanged.emit()
 
 
