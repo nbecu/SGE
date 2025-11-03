@@ -99,7 +99,13 @@ class SGLayoutConfigSaveDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        
+
+    def showEvent(self, event):
+        """Position the dialog docked to the right of the main window when shown."""
+        super().showEvent(event)
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(self)
+
     def onNameChanged(self, text):
         """Handle name input changes"""
         text = text.strip()

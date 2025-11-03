@@ -158,13 +158,20 @@ class SGThemeConfigManager(QObject):
             return False
 
     def _findGameSpaceByIdOrName(self, key):
-        # Try by id property
+        # Try by id property (handle both string and numeric comparisons)
         for gs in self.model.gameSpaces.values():
-            if getattr(gs, 'id', None) == key:
-                return gs
+            gs_id = getattr(gs, 'id', None)
+            if gs_id is not None:
+                # Compare as strings for flexibility (IDs can be strings or numbers)
+                if str(gs_id) == str(key):
+                    return gs
         # Try by dict key (name used in gameSpaces mapping)
+        # Also try string conversion for dict key lookup
         if key in self.model.gameSpaces:
             return self.model.gameSpaces[key]
+        # Try with string key if key was numeric
+        if str(key) in self.model.gameSpaces:
+            return self.model.gameSpaces[str(key)]
         return None
 
     def getAvailableConfigs(self):

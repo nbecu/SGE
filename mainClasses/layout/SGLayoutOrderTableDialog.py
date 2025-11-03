@@ -104,32 +104,10 @@ class SGLayoutOrderTableDialog(QDialog):
         self.column_spinbox.valueChanged.connect(self.onColumnCountChanged)
 
     def showEvent(self, event):
-        """Dock the dialog to the right of the main window when shown."""
+        """Position the dialog docked to the right of the main window when shown."""
         super().showEvent(event)
-        try:
-            parent = self.parent() if isinstance(self.parent(), QWidget) else None
-            if parent is None and hasattr(self, 'model') and isinstance(self.model, QWidget):
-                parent = self.model
-            if parent is None:
-                return
-            pg = parent.frameGeometry() if hasattr(parent, 'frameGeometry') else parent.geometry()
-            target_x = pg.right()
-            target_y = pg.top()
-            desk = QApplication.desktop()
-            try:
-                screen_num = desk.screenNumber(parent)
-                available = desk.availableGeometry(screen_num)
-            except Exception:
-                available = desk.availableGeometry()
-            w = self.width()
-            h = self.height()
-            if target_x + w > available.right():
-                target_x = max(available.left(), available.right() - w)
-            if target_y + h > available.bottom():
-                target_y = max(available.top(), available.bottom() - h)
-            self.move(target_x, target_y)
-        except Exception:
-            pass
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(self)
         
     def onColumnCountChanged(self, new_count):
         """

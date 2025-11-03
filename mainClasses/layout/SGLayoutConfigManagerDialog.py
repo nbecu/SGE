@@ -112,7 +112,13 @@ class SGLayoutConfigManagerDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        
+
+    def showEvent(self, event):
+        """Position the dialog docked to the right of the main window when shown."""
+        super().showEvent(event)
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(self)
+
     def refreshConfigList(self):
         """Refresh the list of available configurations"""
         self.config_list.clear()

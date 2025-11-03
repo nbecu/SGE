@@ -1,11 +1,170 @@
 {
   "configurations": {
-    "tempTheme": {
+    "blue and gray": {
       "model_name": null,
-      "timestamp": "2025-10-18 13:12:50",
+      "timestamp": "2025-11-03 18:44:01",
       "version": "1.0",
-      "global_theme": "test1",
-      "gameSpaces": {}
+      "global_theme": null,
+      "gameSpaces": {
+        "grid1": {
+          "theme": "blue_custom"
+        },
+        "Legend": {
+          "theme": "blue_custom2"
+        },
+        "Admin": {
+          "theme": "gray"
+        }
+      }
+    },
+    "blue and green renamed": {
+      "model_name": null,
+      "timestamp": "2025-11-03 18:50:45",
+      "version": "1.0",
+      "global_theme": null,
+      "gameSpaces": {
+        "grid1": {
+          "theme": "blue_custom"
+        },
+        "Legend": {
+          "theme": "blue_custom2"
+        },
+        "Admin": {
+          "theme": "green"
+        }
+      }
+    }
+  },
+  "custom_themes": {
+    "blue_custom": {
+      "base": {
+        "background_color": "#e1f5fe",
+        "border_color": "#55aaff",
+        "border_size": 3,
+        "border_style": "solid",
+        "border_radius": 6
+      },
+      "text_aspects": {
+        "title1": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "title2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "underline",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
+    },
+    "blue_custom2": {
+      "base": {
+        "background_color": "#f6f3fe",
+        "border_color": "#0277bd",
+        "border_size": 3,
+        "border_style": "solid",
+        "border_radius": 3
+      },
+      "text_aspects": {
+        "title1": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "title2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "underline",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#01579b",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
     }
   }
 }

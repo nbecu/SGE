@@ -21,47 +21,47 @@ class SGThemeConfigManagerDialog(QDialog):
     def setupUI(self):
         self.setWindowTitle("Manage Theme Configurations")
         self.setModal(True)
-        self.resize(700, 480)
+        self.resize(650, 420)  # Reduced size for more compact interface
 
         layout = QVBoxLayout()
+        layout.setSpacing(8)  # Reduce spacing between elements
 
+        # Compact instructions
         instructions = QLabel(
-            "Manage your saved Theme configurations.\n"
-            "A theme config is global and may target only a subset of GameSpaces.\n"
-            "You can view details, save, rename, delete or load configurations."
+            "Manage your saved Theme configurations. Save, rename, delete or apply configurations."
         )
         instructions.setWordWrap(True)
-        instructions.setStyleSheet("QLabel { padding: 10px; background-color: #f0f0f0; border-radius: 5px; }")
+        instructions.setStyleSheet("QLabel { padding: 6px; background-color: #f0f0f0; border-radius: 3px; font-size: 10pt; }")
         layout.addWidget(instructions)
 
-        # File location
+        # Compact file location
         config_manager = SGThemeConfigManager(self.model)
         config_path = config_manager.config_path
-        location_label = QLabel(f"Theme configuration file:\n{config_path}")
+        location_label = QLabel(f"Config file: {config_path}")
         location_label.setWordWrap(True)
-        location_label.setStyleSheet("QLabel { padding: 8px; background-color: #e8f4fd; border: 1px solid #b3d9ff; border-radius: 3px; font-family: monospace; }")
+        location_label.setStyleSheet("QLabel { padding: 4px; background-color: #e8f4fd; border: 1px solid #b3d9ff; border-radius: 2px; font-family: monospace; font-size: 9pt; }")
         layout.addWidget(location_label)
 
-        # Config list
+        # Config list + Actions (side by side)
+        list_actions_layout = QHBoxLayout()
+        
+        # Config list (left side)
+        list_container = QVBoxLayout()
+        list_label = QLabel("Configurations:")
+        list_label.setStyleSheet("QLabel { font-weight: bold; }")
+        list_container.addWidget(list_label)
         self.config_list = QListWidget()
         self.config_list.setSelectionMode(QAbstractItemView.SingleSelection)
         self.config_list.itemSelectionChanged.connect(self.onSelectionChanged)
-        layout.addWidget(self.config_list)
+        list_container.addWidget(self.config_list)
+        list_widget = QWidget()
+        list_widget.setLayout(list_container)
+        list_actions_layout.addWidget(list_widget, stretch=2)
 
-        # Details + actions
-        details_layout = QHBoxLayout()
-
-        details_group = QGroupBox("Configuration Details")
-        details_group_layout = QVBoxLayout()
-        self.details_text = QTextEdit()
-        self.details_text.setReadOnly(True)
-        self.details_text.setMaximumHeight(180)
-        details_group_layout.addWidget(self.details_text)
-        details_group.setLayout(details_group_layout)
-        details_layout.addWidget(details_group)
-
+        # Actions (right side)
         action_group = QGroupBox("Actions")
         action_group_layout = QVBoxLayout()
+        action_group_layout.setSpacing(6)  # Reduced spacing
 
         self.save_button = QPushButton("Save Current Mapping…")
         self.save_button.clicked.connect(self.saveCurrentMapping)
@@ -75,39 +75,51 @@ class SGThemeConfigManagerDialog(QDialog):
         self.delete_button.setEnabled(False)
         self.delete_button.setStyleSheet("QPushButton { background-color: #ff6b6b; color: white; }")
 
-        self.load_button = QPushButton("Load")
-        self.load_button.clicked.connect(self.loadConfig)
-        self.load_button.setEnabled(False)
-        self.load_button.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; }")
-
-        self.apply_all_button = QPushButton("Apply Global Theme…")
-        self.apply_all_button.clicked.connect(self.applyGlobalTheme)
-
-        self.refresh_button = QPushButton("Refresh")
-        self.refresh_button.clicked.connect(self.refreshConfigList)
-
         action_group_layout.addWidget(self.save_button)
         action_group_layout.addWidget(self.rename_button)
         action_group_layout.addWidget(self.delete_button)
-        action_group_layout.addWidget(self.load_button)
-        action_group_layout.addWidget(self.apply_all_button)
-        action_group_layout.addWidget(self.refresh_button)
         action_group_layout.addStretch()
         action_group.setLayout(action_group_layout)
-        details_layout.addWidget(action_group)
+        action_group.setMaximumWidth(200)  # Limit width
+        list_actions_layout.addWidget(action_group, stretch=1)
 
-        layout.addLayout(details_layout)
+        layout.addLayout(list_actions_layout)
+
+        # Details (compact, at the bottom)
+        details_group = QGroupBox("Configuration Details")
+        details_group_layout = QVBoxLayout()
+        self.details_text = QTextEdit()
+        self.details_text.setReadOnly(True)
+        self.details_text.setMaximumHeight(100)  # Reduced height
+        details_group_layout.addWidget(self.details_text)
+        details_group.setLayout(details_group_layout)
+        layout.addWidget(details_group)
 
         # Footer buttons
         footer = QHBoxLayout()
-        self.close_button = QPushButton("Close")
-        self.close_button.clicked.connect(self.accept)
-        self.close_button.setDefault(True)
+        
+        self.apply_button = QPushButton("Apply")
+        self.apply_button.clicked.connect(self.applyConfig)
+        self.apply_button.setEnabled(False)
+        self.apply_button.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; }")
+        
+        self.apply_and_close_button = QPushButton("Apply & Close")
+        self.apply_and_close_button.clicked.connect(self.applyConfigAndClose)
+        self.apply_and_close_button.setEnabled(False)
+        self.apply_and_close_button.setDefault(True)
+        
         footer.addStretch()
-        footer.addWidget(self.close_button)
+        footer.addWidget(self.apply_button)
+        footer.addWidget(self.apply_and_close_button)
         layout.addLayout(footer)
 
         self.setLayout(layout)
+
+    def showEvent(self, event):
+        """Position the dialog docked to the right of the main window when shown."""
+        super().showEvent(event)
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(self)
 
     def refreshConfigList(self):
         self.config_list.clear()
@@ -117,7 +129,8 @@ class SGThemeConfigManagerDialog(QDialog):
         self.details_text.clear()
         self.rename_button.setEnabled(False)
         self.delete_button.setEnabled(False)
-        self.load_button.setEnabled(False)
+        self.apply_button.setEnabled(False)
+        self.apply_and_close_button.setEnabled(False)
 
     def onSelectionChanged(self):
         current_item = self.config_list.currentItem()
@@ -125,12 +138,14 @@ class SGThemeConfigManagerDialog(QDialog):
             self.showConfigDetails(current_item.text())
             self.rename_button.setEnabled(True)
             self.delete_button.setEnabled(True)
-            self.load_button.setEnabled(True)
+            self.apply_button.setEnabled(True)
+            self.apply_and_close_button.setEnabled(True)
         else:
             self.details_text.clear()
             self.rename_button.setEnabled(False)
             self.delete_button.setEnabled(False)
-            self.load_button.setEnabled(False)
+            self.apply_button.setEnabled(False)
+            self.apply_and_close_button.setEnabled(False)
 
     def showConfigDetails(self, config_name):
         try:
@@ -165,15 +180,44 @@ class SGThemeConfigManagerDialog(QDialog):
                 current_item.setText(new.strip())
                 self.showConfigDetails(new.strip())
 
-    def loadConfig(self):
+    def applyConfig(self):
+        """Apply the selected configuration without closing the dialog"""
         current_item = self.config_list.currentItem()
         if not current_item:
             return
-        name = current_item.text()
-        manager = SGThemeConfigManager(self.model)
-        ok = manager.loadConfig(name)
-        if ok:
-            self.accept()
+        
+        config_name = current_item.text()
+        
+        try:
+            # Load and apply the configuration
+            config_manager = SGThemeConfigManager(self.model)
+            config_manager.loadConfig(config_name)
+            # No confirmation dialog - silently apply
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error applying configuration: {e}")
+
+    def applyConfigAndClose(self):
+        """Apply the selected configuration and close the dialog"""
+        current_item = self.config_list.currentItem()
+        if not current_item:
+            return
+        
+        config_name = current_item.text()
+        
+        try:
+            # Load and apply the configuration
+            config_manager = SGThemeConfigManager(self.model)
+            success = config_manager.loadConfig(config_name)
+            
+            if success:
+                # Close the dialog after successful apply
+                self.accept()
+            else:
+                QMessageBox.warning(self, "Apply Failed", 
+                                   f"Failed to apply configuration '{config_name}'.")
+                
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error applying configuration: {e}")
 
     def deleteConfig(self):
         current_item = self.config_list.currentItem()
@@ -189,29 +233,30 @@ class SGThemeConfigManagerDialog(QDialog):
         name, ok = QInputDialog.getText(self, "Save Theme Configuration", "Enter configuration name:")
         if not ok or not name.strip():
             return
-        # Build mapping: list current GameSpaces with a selected theme where applicable
+        
+        # Build mapping: collect current GameSpaces with their assigned themes
         mapping = {}
         for key, gs in self.model.gameSpaces.items():
-            # We do not introspect current theme name reliably; provide a minimal UX: ask theme name
-            # In a complete UX, the dialog would allow picking theme per GS. Here we prompt once.
-            pass
-        # Prompt a global theme (optional)
-        global_theme, ok2 = QInputDialog.getText(self, "Global Theme (optional)", "Enter theme name (modern/minimal/colorful/blue/green/gray) or leave empty:")
-        if not ok2:
-            return
+            # Get GameSpace ID (prefer gs.id, fallback to key)
+            gs_id = getattr(gs, 'id', None) or key
+            
+            # Only include GameSpaces that have a theme assigned (not overridden)
+            # If theme_overridden is True, the GameSpace has custom styling, not a theme
+            if hasattr(gs, 'current_theme_name') and gs.current_theme_name:
+                # Check if theme is still valid (not overridden with custom styling)
+                if not getattr(gs, 'theme_overridden', True):
+                    mapping[str(gs_id)] = {"theme": gs.current_theme_name}
+        
+        # Save configuration without global_theme (it's not used during loading anyway)
+        # global_theme was stored as metadata but never actually applied when loading configurations
         manager = SGThemeConfigManager(self.model)
-        if manager.saveConfig(name.strip(), mapping=mapping, global_theme=(global_theme.strip() or None)):
-            QMessageBox.information(self, "Save", "Theme configuration saved.")
+        if manager.saveConfig(name.strip(), mapping=mapping, global_theme=None):
+            count = len(mapping)
+            if count > 0:
+                msg = f"Theme configuration saved with {count} GameSpace(s)."
+            else:
+                msg = "Theme configuration saved (no GameSpaces with assigned themes found)."
+            QMessageBox.information(self, "Save", msg)
             self.refreshConfigList()
-
-    def applyGlobalTheme(self):
-        theme, ok = QInputDialog.getText(self, "Apply Global Theme", "Enter theme name (modern/minimal/colorful/blue/green/gray):")
-        if not ok or not theme.strip():
-            return
-        theme = theme.strip()
-        if hasattr(self.model, 'applyThemeToAllGameSpaces'):
-            self.model.applyThemeToAllGameSpaces(theme)
-            self.model.update()
-            QMessageBox.information(self, "Apply Theme", f"Applied '{theme}' to all GameSpaces.")
 
 

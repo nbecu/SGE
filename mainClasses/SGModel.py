@@ -1077,8 +1077,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def openWindowBackgroundColorDialog(self):
         """Open a color dialog to change the window background color."""
-        from PyQt5.QtWidgets import QColorDialog
+        from PyQt5.QtWidgets import QColorDialog, QWidget
         from PyQt5.QtGui import QColor
+        from PyQt5.QtCore import Qt
         
         # Get current color if set, otherwise default to white
         if self.windowBackgroundColor:
@@ -1102,19 +1103,27 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             # Otherwise default to white
             current_color = QColor("#ffffff")
         
-        # Open color dialog
-        color = QColorDialog.getColor(current_color, self, "Select Window Background Color")
+        # Create a QColorDialog and position it to the right of main window
+        dialog = QColorDialog(current_color, self)
+        dialog.setWindowTitle("Select Window Background Color")
         
-        if color.isValid():
-            # Store as QColor object for consistency
-            self.windowBackgroundColor = color.name()  # Store as hex string for serialization
-            # Use QPalette to set background without affecting child widgets
-            from PyQt5.QtGui import QPalette
-            palette = self.window.palette()
-            palette.setColor(QPalette.Window, color)
-            self.window.setPalette(palette)
-            self.window.setAutoFillBackground(True)
-            self.update()
+        # Position dialog to the right of main window
+        from mainClasses.SGExtensions import position_dialog_to_right
+        position_dialog_to_right(dialog, self)
+        
+        # Open dialog
+        if dialog.exec_() == QColorDialog.Accepted:
+            color = dialog.currentColor()
+            if color.isValid():
+                # Store as QColor object for consistency
+                self.windowBackgroundColor = color.name()  # Store as hex string for serialization
+                # Use QPalette to set background without affecting child widgets
+                from PyQt5.QtGui import QPalette
+                palette = self.window.palette()
+                palette.setColor(QPalette.Window, color)
+                self.window.setPalette(palette)
+                self.window.setAutoFillBackground(True)
+                self.update()
 
     def applyThemeToAllGameSpaces(self, theme_name: str, include_types=None, exclude_types=None, priority: str = "global_then_individual") -> None:
         """Apply a theme to all GameSpaces; individual overrides remain in effect.

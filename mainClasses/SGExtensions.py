@@ -495,3 +495,53 @@ def serialize_any_object(obj):
     else:
         return str(obj)
 
+
+def position_dialog_to_right(dialog, parent=None):
+    """
+    Position a dialog to the right of a parent window.
+    
+    This utility function positions a dialog window to the right edge of a parent window,
+    with automatic adjustment if the dialog would overflow the screen boundaries.
+    
+    :param dialog: The dialog widget to position (QDialog, QColorDialog, etc.)
+    :param parent: The parent window to position relative to. If None, attempts to find parent
+                   from dialog.parent() or dialog.model (if available). If still None, no positioning is done.
+    """
+    from PyQt5.QtWidgets import QWidget, QApplication
+    
+    try:
+        # Try to get parent from various sources
+        if parent is None:
+            parent = dialog.parent() if isinstance(dialog.parent(), QWidget) else None
+        if parent is None and hasattr(dialog, 'model') and isinstance(dialog.model, QWidget):
+            parent = dialog.model
+        if parent is None:
+            return
+        
+        # Parent frame geometry is already in global coords
+        pg = parent.frameGeometry() if hasattr(parent, 'frameGeometry') else parent.geometry()
+        
+        # Compute desired to-the-right position
+        target_x = pg.right()
+        target_y = pg.top()
+        
+        # Fit inside available screen geometry of the parent's screen
+        desk = QApplication.desktop()
+        try:
+            screen_num = desk.screenNumber(parent)
+            available = desk.availableGeometry(screen_num)
+        except Exception:
+            available = desk.availableGeometry()
+        
+        w = dialog.width()
+        h = dialog.height()
+        
+        # Adjust if overflowing to the right/bottom
+        if target_x + w > available.right():
+            target_x = max(available.left(), available.right() - w)
+        if target_y + h > available.bottom():
+            target_y = max(available.top(), available.bottom() - h)
+        
+        dialog.move(target_x, target_y)
+    except Exception:
+        pass
