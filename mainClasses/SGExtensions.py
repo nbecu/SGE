@@ -496,6 +496,41 @@ def serialize_any_object(obj):
         return str(obj)
 
 
+def mapAlignmentStringToQtFlags(alignment_str):
+    """
+    Map alignment string to Qt alignment flags.
+    
+    This utility function converts alignment string values (e.g., 'left', 'center', 'right')
+    to Qt alignment flag combinations suitable for use with QLabel, QTextEdit, etc.
+    
+    Args:
+        alignment_str (str): Alignment string ('left', 'right', 'center', 'hcenter', 
+                           'top', 'bottom', 'vcenter', 'justify')
+    
+    Returns:
+        Qt.AlignmentFlag or None: Qt alignment flags combination, or None if invalid
+    """
+    if not isinstance(alignment_str, str):
+        return None
+    
+    a = alignment_str.lower()
+    if a == 'left':
+        return Qt.AlignLeft | Qt.AlignVCenter
+    if a == 'right':
+        return Qt.AlignRight | Qt.AlignVCenter
+    if a in ('center', 'hcenter'):
+        return Qt.AlignHCenter | Qt.AlignVCenter
+    if a == 'top':
+        return Qt.AlignTop | Qt.AlignHCenter
+    if a == 'bottom':
+        return Qt.AlignBottom | Qt.AlignHCenter
+    if a == 'vcenter':
+        return Qt.AlignVCenter | Qt.AlignHCenter
+    if a == 'justify':
+        return Qt.AlignJustify
+    return None
+
+
 def position_dialog_to_right(dialog, parent=None):
     """
     Position a dialog to the right of a parent window.

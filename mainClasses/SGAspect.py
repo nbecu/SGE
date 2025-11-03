@@ -544,5 +544,104 @@ class SGAspect():
             states.append(f"QPushButton:disabled {{ background-color: {css_color} }}")
         
         return " ".join(states)
+    
+    def applyToQFont(self, font_obj, game_space_instance=None):
+        """
+        Apply font properties from this aspect to a QFont object.
+        
+        Args:
+            font_obj (QFont): QFont instance to modify
+            game_space_instance (SGGameSpace, optional): GameSpace instance for applyFontWeightToQFont
+        """
+        try:
+            if self.font:
+                font_obj.setFamily(self.font)
+            if self.size:
+                try:
+                    font_obj.setPixelSize(int(self.size))
+                except Exception:
+                    pass
+            # Font weight (requires game_space_instance for applyFontWeightToQFont)
+            if game_space_instance and hasattr(game_space_instance, 'applyFontWeightToQFont'):
+                try:
+                    game_space_instance.applyFontWeightToQFont(font_obj, getattr(self, 'font_weight', None))
+                except Exception:
+                    pass
+            # Font style
+            if self.font_style:
+                s = str(self.font_style).lower()
+                if s in ('italic', 'oblique'):
+                    font_obj.setItalic(True)
+                elif s == 'normal':
+                    font_obj.setItalic(False)
+        except Exception:
+            pass
+    
+    def getStyleSheetForColorAndDecoration(self):
+        """
+        Generate CSS stylesheet string for color and text_decoration only.
+        
+        Returns:
+            str: CSS stylesheet string (e.g., "color: #000000; text-decoration: none")
+        """
+        css_parts = []
+        if self.color:
+            try:
+                css_color = self._qt_color_to_css(self.color)
+                if css_color:
+                    css_parts.append(f"color: {css_color}")
+            except Exception:
+                # Fallback to QColor.name() if _qt_color_to_css fails
+                try:
+                    from PyQt5.QtGui import QColor
+                    css_color = QColor(self.color).name()
+                    if css_color:
+                        css_parts.append(f"color: {css_color}")
+                except Exception:
+                    pass
+        # Text decoration (always write, even if 'none')
+        td = getattr(self, 'text_decoration', None)
+        if td and str(td).lower() != 'none':
+            css_parts.append(f"text-decoration: {td}")
+        else:
+            css_parts.append("text-decoration: none")
+        return "; ".join(css_parts)
+    
+    def applyToQLabel(self, label, game_space_instance=None):
+        """
+        Apply complete aspect styling to a QLabel (font + stylesheet + alignment).
+        
+        This method applies all font properties, color, text decoration, and alignment
+        from this aspect to the given QLabel widget.
+        
+        Args:
+            label (QLabel): QLabel instance to style
+            game_space_instance (SGGameSpace, optional): GameSpace instance for applyFontWeightToQFont
+        """
+        from PyQt5.QtWidgets import QLabel
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
+        
+        if not isinstance(label, QLabel):
+            return
+        
+        try:
+            # Apply font properties
+            f = label.font()
+            self.applyToQFont(f, game_space_instance)
+            label.setFont(f)
+            
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                label.setStyleSheet(stylesheet)
+            
+            # Apply alignment
+            al = getattr(self, 'alignment', None)
+            if al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    label.setAlignment(qt_alignment)
+        except Exception:
+            pass
 
     

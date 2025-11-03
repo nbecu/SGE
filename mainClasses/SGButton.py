@@ -132,23 +132,14 @@ class SGButton(SGGameSpace):
         pass
 
     def onTextAspectsChanged(self):
-        # Apply text1_aspect to button text
+        """Apply text1_aspect to button text (QPushButton - needs special handling)."""
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
+        
+        # Apply font properties (use helper for basic font, but handle text_decoration specially)
         f = self.button.font()
-        if self.text1_aspect.font:
-            f.setFamily(self.text1_aspect.font)
-        if self.text1_aspect.size:
-            try:
-                f.setPixelSize(int(self.text1_aspect.size))
-            except Exception:
-                pass
-        try:
-            self.applyFontWeightToQFont(f, getattr(self.text1_aspect, 'font_weight', None))
-        except Exception:
-            pass
-        if self.text1_aspect.font_style:
-            s = str(self.text1_aspect.font_style).lower()
-            f.setItalic(s in ('italic', 'oblique'))
-        # text_decoration: underline/overline/line-through/none
+        self.text1_aspect.applyToQFont(f, self)
+        
+        # text_decoration: underline/overline/line-through/none (special handling for QPushButton)
         try:
             dec = getattr(self.text1_aspect, 'text_decoration', None)
             # reset all first
@@ -178,13 +169,14 @@ class SGButton(SGGameSpace):
 
         # Build stylesheet for text color and alignment
         css_parts = ["QPushButton { background: transparent; border: none; }"]
-        if self.text1_aspect.color:
-            try:
-                css_color = SGAspect()._qt_color_to_css(self.text1_aspect.color)
-            except Exception:
-                css_color = QColor(self.text1_aspect.color).name()
-            if css_color:
-                css_parts.append(f"QPushButton {{ color: {css_color}; }}")
+        # Color from aspect
+        stylesheet_color = self.text1_aspect.getStyleSheetForColorAndDecoration()
+        if stylesheet_color:
+            # Extract color part (remove text-decoration)
+            color_part = stylesheet_color.split(';')[0] if ';' in stylesheet_color else stylesheet_color
+            if 'color:' in color_part:
+                css_parts.append(f"QPushButton {{ {color_part}; }}")
+        # Alignment
         al = getattr(self.text1_aspect, 'alignment', None)
         if isinstance(al, str) and al:
             a = al.lower()
@@ -205,19 +197,9 @@ class SGButton(SGGameSpace):
                         self._text_label.setStyleSheet(f"QLabel {{ color: {css_color}; background: transparent; }}")
                 # alignment
                 if isinstance(al, str) and al:
-                    a = al.strip().lower()
-                    align_map = {
-                        'left': Qt.AlignLeft,
-                        'right': Qt.AlignRight,
-                        'center': Qt.AlignHCenter,
-                        'hcenter': Qt.AlignHCenter,
-                        'top': Qt.AlignTop,
-                        'bottom': Qt.AlignBottom,
-                        'vcenter': Qt.AlignVCenter,
-                        'justify': Qt.AlignJustify,
-                    }
-                    if a in align_map:
-                        self._text_label.setAlignment(align_map[a])
+                    qt_alignment = mapAlignmentStringToQtFlags(al)
+                    if qt_alignment is not None:
+                        self._text_label.setAlignment(qt_alignment)
             except Exception:
                 pass
         # Preserve existing hover/pressed/disabled rules (append after base)

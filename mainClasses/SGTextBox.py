@@ -402,112 +402,44 @@ class SGTextBox(SGGameSpace):
         Apply text styling from aspects (title1_aspect and text1_aspect).
         This is called automatically when aspects change.
         """
-        # Font weight helper
-        def _apply_weight_to_font(font_obj: QFont, weight_value):
-            try:
-                self.applyFontWeightToQFont(font_obj, weight_value)
-            except Exception:
-                pass
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
         
-        # Alignment mapping helper
-        def _map_alignment(al):
-            if not isinstance(al, str):
-                return None
-            a = al.lower()
-            if a == 'left':
-                return Qt.AlignLeft | Qt.AlignVCenter
-            if a == 'right':
-                return Qt.AlignRight | Qt.AlignVCenter
-            if a in ('center', 'hcenter'):
-                return Qt.AlignHCenter | Qt.AlignVCenter
-            if a == 'top':
-                return Qt.AlignTop | Qt.AlignHCenter
-            if a == 'bottom':
-                return Qt.AlignBottom | Qt.AlignHCenter
-            if a == 'vcenter':
-                return Qt.AlignVCenter | Qt.AlignHCenter
-            if a == 'justify':
-                return Qt.AlignJustify
-            return None
-        
-        # Apply title styling
+        # Apply title styling (QLabel - can use helper)
         if hasattr(self, 'labelTitle') and self.labelTitle:
-            f = self.labelTitle.font()
             if hasattr(self, 'title1_aspect') and self.title1_aspect:
-                # Font family
-                if self.title1_aspect.font:
-                    f.setFamily(self.title1_aspect.font)
-                # Font size
-                if self.title1_aspect.size:
-                    try:
-                        f.setPixelSize(int(self.title1_aspect.size))
-                    except Exception:
-                        pass
-                # Font weight
-                _apply_weight_to_font(f, getattr(self.title1_aspect, 'font_weight', None))
-                # Font style (italic/oblique)
-                if self.title1_aspect.font_style:
-                    s = str(self.title1_aspect.font_style).lower()
-                    f.setItalic(s in ('italic', 'oblique'))
-                self.labelTitle.setFont(f)
+                # Use helper for font, color, decoration
+                self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
                 
-                # Alignment: use title1_aspect.alignment (set via setTitleAlignment or directly)
-                aspect_alignment = getattr(self.title1_aspect, 'alignment', None)
-                if aspect_alignment:
-                    al = _map_alignment(aspect_alignment)
-                    if al is not None:
-                        self.labelTitle.setAlignment(al)
                 # Fallback to titleAlignment parameter if aspect alignment not set
-                elif hasattr(self, 'titleAlignment') and self.titleAlignment:
+                aspect_alignment = getattr(self.title1_aspect, 'alignment', None)
+                if not aspect_alignment and hasattr(self, 'titleAlignment') and self.titleAlignment:
                     if self.titleAlignment == 'center':
                         self.labelTitle.setAlignment(Qt.AlignCenter)
                     elif self.titleAlignment == 'right':
                         self.labelTitle.setAlignment(Qt.AlignRight)
                     else:  # 'left' or default
                         self.labelTitle.setAlignment(Qt.AlignLeft)
-                
-                # Color and text decoration via stylesheet
-                css_parts = []
-                if self.title1_aspect.color:
-                    css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
-                td = getattr(self.title1_aspect, 'text_decoration', None)
-                css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-                if css_parts:
-                    self.labelTitle.setStyleSheet("; ".join(css_parts))
         
-        # Apply text styling
+        # Apply text styling (QTextEdit - needs special handling)
         if hasattr(self, 'textWidget') and self.textWidget:
-            f = self.textWidget.font()
             if hasattr(self, 'text1_aspect') and self.text1_aspect:
-                # Font family
-                if self.text1_aspect.font:
-                    f.setFamily(self.text1_aspect.font)
-                # Font size
-                if self.text1_aspect.size:
-                    try:
-                        f.setPixelSize(int(self.text1_aspect.size))
-                    except Exception:
-                        pass
-                # Font weight
-                _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
-                # Font style (italic/oblique)
-                if self.text1_aspect.font_style:
-                    s = str(self.text1_aspect.font_style).lower()
-                    f.setItalic(s in ('italic', 'oblique'))
+                # Apply font properties
+                f = self.textWidget.font()
+                self.text1_aspect.applyToQFont(f, self)
                 self.textWidget.setFont(f)
                 
                 # Alignment for QTextEdit
-                al = _map_alignment(getattr(self.text1_aspect, 'alignment', None))
-                if al is not None:
-                    self.textWidget.setAlignment(al)
+                al = getattr(self.text1_aspect, 'alignment', None)
+                if al:
+                    qt_alignment = mapAlignmentStringToQtFlags(al)
+                    if qt_alignment is not None:
+                        self.textWidget.setAlignment(qt_alignment)
                 
-                # Color and text decoration via stylesheet
+                # Color and text decoration via stylesheet (with QTextEdit base styles)
                 css_parts = []
-                if self.text1_aspect.color:
-                    css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
-                td = getattr(self.text1_aspect, 'text_decoration', None)
-                if td and str(td).lower() != 'none':
-                    css_parts.append(f"text-decoration: {td}")
+                stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+                if stylesheet:
+                    css_parts.append(stylesheet)
                 # QTextEdit base styles
                 css_base = "QTextEdit { border: none; background: transparent; "
                 if css_parts:

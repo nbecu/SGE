@@ -96,50 +96,40 @@ class SGTimeLabel(SGGameSpace):
 
     def onTextAspectsChanged(self):
         """Reapply text styles from current aspects to labels and resize."""
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
+        
         # Apply text1_aspect to non-title labels
         for aLabel in getattr(self, 'labels', []) or []:
-            aLabel.setStyleSheet(self.text1_aspect.getTextStyle())
+            # Apply font properties
+            f = aLabel.font()
+            self.text1_aspect.applyToQFont(f, self)
+            aLabel.setFont(f)
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                aLabel.setStyleSheet(stylesheet)
             # Alignment from text1_aspect
-            try:
-                al = getattr(self.text1_aspect, 'alignment', None)
-                if isinstance(al, str) and al:
-                    a = al.strip().lower()
-                    align_map = {
-                        'left': Qt.AlignLeft,
-                        'right': Qt.AlignRight,
-                        'center': Qt.AlignHCenter,
-                        'hcenter': Qt.AlignHCenter,
-                        'top': Qt.AlignTop,
-                        'bottom': Qt.AlignBottom,
-                        'vcenter': Qt.AlignVCenter,
-                        'justify': Qt.AlignJustify,
-                    }
-                    if a in align_map:
-                        aLabel.setAlignment(align_map[a])
-            except Exception:
-                pass
+            al = getattr(self.text1_aspect, 'alignment', None)
+            if isinstance(al, str) and al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    aLabel.setAlignment(qt_alignment)
         # Apply title1_aspect to title if present
         if getattr(self, 'displayTitle', False) and hasattr(self, 'labelTitle') and self.labelTitle:
-            self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
+            # Apply font properties
+            f = self.labelTitle.font()
+            self.title1_aspect.applyToQFont(f, self)
+            self.labelTitle.setFont(f)
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.title1_aspect.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                self.labelTitle.setStyleSheet(stylesheet)
             # Alignment from title1_aspect
-            try:
-                al = getattr(self.title1_aspect, 'alignment', None)
-                if isinstance(al, str) and al:
-                    a = al.strip().lower()
-                    align_map = {
-                        'left': Qt.AlignLeft,
-                        'right': Qt.AlignRight,
-                        'center': Qt.AlignHCenter,
-                        'hcenter': Qt.AlignHCenter,
-                        'top': Qt.AlignTop,
-                        'bottom': Qt.AlignBottom,
-                        'vcenter': Qt.AlignVCenter,
-                        'justify': Qt.AlignJustify,
-                    }
-                    if a in align_map:
-                        self.labelTitle.setAlignment(align_map[a])
-            except Exception:
-                pass
+            al = getattr(self.title1_aspect, 'alignment', None)
+            if isinstance(al, str) and al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    self.labelTitle.setAlignment(qt_alignment)
         self.updateLabelsandWidgetSize()
         self.update()
 

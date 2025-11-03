@@ -316,6 +316,24 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
             font_obj.setWeight(num)
         except Exception:
             pass
+    
+    def _applyAspectToLabel(self, label, aspect):
+        """
+        Helper method to apply aspect styling to a QLabel.
+        
+        This is a convenience wrapper for aspect.applyToQLabel() that passes
+        the current GameSpace instance for font weight application.
+        
+        Args:
+            label (QLabel): QLabel instance to style
+            aspect (SGAspect): Aspect instance with styling properties
+        """
+        if label is None or aspect is None:
+            return
+        try:
+            aspect.applyToQLabel(label, self)
+        except Exception:
+            pass
     def _getContainerStyle(self):
         """Build Qt stylesheet string limited to container (no text/font properties)."""
         style_parts = []

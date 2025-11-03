@@ -191,68 +191,33 @@ class SGLabel(SGGameSpace):
         pass
 
     def onTextAspectsChanged(self):
-        # Apply text1_aspect to internal label
-        # Map alignment helper (same convention as other GameSpaces)
-        def _map_alignment(al):
-            if not isinstance(al, str):
-                return None
-            a = al.lower()
-            if a == 'left':
-                return Qt.AlignLeft | Qt.AlignVCenter
-            if a == 'right':
-                return Qt.AlignRight | Qt.AlignVCenter
-            if a in ('center', 'hcenter'):
-                return Qt.AlignHCenter | Qt.AlignVCenter
-            if a == 'top':
-                return Qt.AlignTop | Qt.AlignHCenter
-            if a == 'bottom':
-                return Qt.AlignBottom | Qt.AlignHCenter
-            if a == 'vcenter':
-                return Qt.AlignVCenter | Qt.AlignHCenter
-            if a == 'justify':
-                return Qt.AlignJustify
-            return None
-
+        """Apply text1_aspect to internal label."""
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
+        
+        # Apply font properties
         f = self.label.font()
-        if self.text1_aspect.font:
-            f.setFamily(self.text1_aspect.font)
-        if self.text1_aspect.size:
-            try:
-                f.setPixelSize(int(self.text1_aspect.size))
-            except Exception:
-                pass
-        try:
-            self.applyFontWeightToQFont(f, getattr(self.text1_aspect, 'font_weight', None))
-        except Exception:
-            pass
-        if self.text1_aspect.font_style:
-            s = str(self.text1_aspect.font_style).lower()
-            f.setItalic(s in ('italic', 'oblique'))
+        self.text1_aspect.applyToQFont(f, self)
         self.label.setFont(f)
-        # Apply alignment from aspect if provided
-        # Apply alignment from aspect if explicitly set or if a theme/override is active.
+        
+        # Apply alignment from aspect if provided (with special logic to preserve initial alignment)
         aspect_alignment = getattr(self.text1_aspect, 'alignment', None)
-        al = _map_alignment(aspect_alignment) if aspect_alignment else None
-        if al is not None:
-            # If aspect alignment is the default 'left' but no theme/override is active,
-            # preserve the initial alignment provided by the modeler.
-            if (str(aspect_alignment).lower() == 'left'
-                and getattr(self, '_initial_alignment', None)
-                and (self.current_theme_name is None and not getattr(self, 'theme_overridden', False))):
-                pass
-            else:
-                self.label.setAlignment(al)
-        css_parts = []
-        if self.text1_aspect.color:
-            try:
-                css_color = SGAspect()._qt_color_to_css(self.text1_aspect.color)
-            except Exception:
-                css_color = QColor(self.text1_aspect.color).name()
-            if css_color:
-                css_parts.append(f"color: {css_color}")
-        td = getattr(self.text1_aspect, 'text_decoration', None)
-        css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-        self.label.setStyleSheet("; ".join(css_parts))
+        if aspect_alignment:
+            qt_alignment = mapAlignmentStringToQtFlags(aspect_alignment)
+            if qt_alignment is not None:
+                # If aspect alignment is the default 'left' but no theme/override is active,
+                # preserve the initial alignment provided by the modeler.
+                if (str(aspect_alignment).lower() == 'left'
+                    and getattr(self, '_initial_alignment', None)
+                    and (self.current_theme_name is None and not getattr(self, 'theme_overridden', False))):
+                    pass
+                else:
+                    self.label.setAlignment(qt_alignment)
+        
+        # Apply stylesheet for color and text decoration
+        stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+        if stylesheet:
+            self.label.setStyleSheet(stylesheet)
+        
         self._resize_to_layout_or_label()
 
     # =========================

@@ -222,56 +222,25 @@ class SGUserSelector(SGGameSpace):
         pass
 
     def onTextAspectsChanged(self):
-        # Title styling from title1_aspect
+        """Apply title and text aspects (color, font, size, weight, style, decoration)."""
+        # Title styling from title1_aspect (QLabel - can use helper)
         if hasattr(self, 'titleLabel') and self.titleLabel is not None:
-            f = self.titleLabel.font()
-            if self.title1_aspect.font:
-                f.setFamily(self.title1_aspect.font)
-            if self.title1_aspect.size:
-                try:
-                    f.setPixelSize(int(self.title1_aspect.size))
-                except Exception:
-                    pass
-            try:
-                self.applyFontWeightToQFont(f, getattr(self.title1_aspect, 'font_weight', None))
-            except Exception:
-                pass
-            if self.title1_aspect.font_style:
-                s = str(self.title1_aspect.font_style).lower()
-                f.setItalic(s in ('italic', 'oblique'))
-            self.titleLabel.setFont(f)
-            css_parts = []
-            if self.title1_aspect.color:
-                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
-            td = getattr(self.title1_aspect, 'text_decoration', None)
-            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-            self.titleLabel.setStyleSheet("; ".join(css_parts))
+            self._applyAspectToLabel(self.titleLabel, self.title1_aspect)
 
-        # Checkboxes styling from text1_aspect
+        # Checkboxes styling from text1_aspect (QCheckBox - needs special handling)
         for checkbox in getattr(self, 'checkboxes', []) or []:
-            f = checkbox.font()
-            if self.text1_aspect.font:
-                f.setFamily(self.text1_aspect.font)
-            if self.text1_aspect.size:
-                try:
-                    f.setPixelSize(int(self.text1_aspect.size))
-                except Exception:
-                    pass
             try:
-                self.applyFontWeightToQFont(f, getattr(self.text1_aspect, 'font_weight', None))
+                # Apply font properties
+                f = checkbox.font()
+                self.text1_aspect.applyToQFont(f, self)
+                checkbox.setFont(f)
+                # Apply stylesheet for color and text-decoration
+                # Note: text-decoration may not affect QCheckBox text; still set to clear prior styles
+                stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+                if stylesheet:
+                    checkbox.setStyleSheet(stylesheet)
             except Exception:
                 pass
-            if self.text1_aspect.font_style:
-                s = str(self.text1_aspect.font_style).lower()
-                f.setItalic(s in ('italic', 'oblique'))
-            checkbox.setFont(f)
-            css_parts = []
-            if self.text1_aspect.color:
-                css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
-            # text-decoration may not affect QCheckBox text; still set to clear prior styles
-            td = getattr(self.text1_aspect, 'text_decoration', None)
-            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-            checkbox.setStyleSheet("; ".join(css_parts))
 
         # Resize to layout
         if hasattr(self, 'userLayout') and self.userLayout:

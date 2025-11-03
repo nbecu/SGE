@@ -212,78 +212,15 @@ class SGEndGameRule(SGGameSpace):
 
     def onTextAspectsChanged(self):
         """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
-
-        def _map_alignment(al):
-            if not isinstance(al, str):
-                return None
-            a = al.lower()
-            if a == 'left':
-                return Qt.AlignLeft | Qt.AlignVCenter
-            if a == 'right':
-                return Qt.AlignRight | Qt.AlignVCenter
-            if a in ('center', 'hcenter'):
-                return Qt.AlignHCenter | Qt.AlignVCenter
-            if a == 'top':
-                return Qt.AlignTop | Qt.AlignHCenter
-            if a == 'bottom':
-                return Qt.AlignBottom | Qt.AlignHCenter
-            if a == 'vcenter':
-                return Qt.AlignVCenter | Qt.AlignHCenter
-            if a == 'justify':
-                return Qt.AlignJustify
-            return None
-
-        def _apply_aspect_to_label(lbl: QtWidgets.QLabel, aspect: SGAspect):
-            try:
-                f = lbl.font()
-                if aspect.font:
-                    f.setFamily(aspect.font)
-                if aspect.size:
-                    try:
-                        f.setPixelSize(int(aspect.size))
-                    except Exception:
-                        pass
-                # font weight (robuste)
-                try:
-                    self.applyFontWeightToQFont(f, getattr(aspect, 'font_weight', None))
-                except Exception:
-                    pass
-                # font style
-                if aspect.font_style:
-                    s = str(aspect.font_style).lower()
-                    if s in ('italic', 'oblique'):
-                        f.setItalic(True)
-                    elif s == 'normal':
-                        f.setItalic(False)
-                lbl.setFont(f)
-
-                # alignment
-                al = _map_alignment(getattr(aspect, 'alignment', None))
-                if al is not None:
-                    lbl.setAlignment(al)
-
-                # stylesheet for color and text-decoration (always write decoration)
-                css_parts = []
-                if aspect.color:
-                    css_parts.append(f"color: {SGAspect()._qt_color_to_css(aspect.color)}")
-                td = getattr(aspect, 'text_decoration', None)
-                if td and str(td).lower() != 'none':
-                    css_parts.append(f"text-decoration: {td}")
-                else:
-                    css_parts.append("text-decoration: none")
-                lbl.setStyleSheet("; ".join(css_parts))
-            except Exception:
-                pass
-
         # Title styling from title1_aspect
         if hasattr(self, 'titleLabel') and self.titleLabel is not None:
-            _apply_aspect_to_label(self.titleLabel, self.title1_aspect)
+            self._applyAspectToLabel(self.titleLabel, self.title1_aspect)
 
         # Apply text1_aspect to all other labels (conditions text)
         for lbl in self.findChildren(QtWidgets.QLabel):
             if hasattr(self, 'titleLabel') and lbl is self.titleLabel:
                 continue
-            _apply_aspect_to_label(lbl, self.text1_aspect)
+            self._applyAspectToLabel(lbl, self.text1_aspect)
 
         # Request layout/size update
         try:

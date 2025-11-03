@@ -393,93 +393,15 @@ class SGDashBoard(SGGameSpace):
         pass
 
     def onTextAspectsChanged(self):
-        # Apply title1 to title
-        def _apply_weight_to_font(font_obj: QFont, weight_value):
-            try:
-                self.applyFontWeightToQFont(font_obj, weight_value)
-            except Exception:
-                pass
+        """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
+        # Apply title1_aspect to title
         if hasattr(self, 'labelTitle') and self.labelTitle is not None:
-            css_parts = []
-            if self.title1_aspect.color:
-                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
-            td = getattr(self.title1_aspect, 'text_decoration', None)
-            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-            f = self.labelTitle.font()
-            if self.title1_aspect.font:
-                f.setFamily(self.title1_aspect.font)
-            if self.title1_aspect.size:
-                try:
-                    f.setPixelSize(int(self.title1_aspect.size))
-                except Exception:
-                    pass
-            _apply_weight_to_font(f, getattr(self.title1_aspect, 'font_weight', None))
-            if self.title1_aspect.font_style:
-                s = str(self.title1_aspect.font_style).lower()
-                f.setItalic(s in ('italic', 'oblique'))
-            self.labelTitle.setFont(f)
-            self.labelTitle.setStyleSheet("; ".join(css_parts))
-            # Alignment from title1_aspect
-            try:
-                al = getattr(self.title1_aspect, 'alignment', None)
-                if isinstance(al, str) and al:
-                    a = al.strip().lower()
-                    align_map = {
-                        'left': Qt.AlignLeft,
-                        'right': Qt.AlignRight,
-                        'center': Qt.AlignHCenter,
-                        'hcenter': Qt.AlignHCenter,
-                        'top': Qt.AlignTop,
-                        'bottom': Qt.AlignBottom,
-                        'vcenter': Qt.AlignVCenter,
-                        'justify': Qt.AlignJustify,
-                    }
-                    if a in align_map:
-                        self.labelTitle.setAlignment(align_map[a])
-            except Exception:
-                pass
-        # Apply text1 to indicators labels
+            self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+        
+        # Apply text1_aspect to indicators labels
         for ind in self.indicators:
             if hasattr(ind, 'label') and ind.label:
-                lbl = ind.label
-                css_parts = []
-                if self.text1_aspect.color:
-                    css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
-                td = getattr(self.text1_aspect, 'text_decoration', None)
-                css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-                f = lbl.font()
-                if self.text1_aspect.font:
-                    f.setFamily(self.text1_aspect.font)
-                if self.text1_aspect.size:
-                    try:
-                        f.setPixelSize(int(self.text1_aspect.size))
-                    except Exception:
-                        pass
-                _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
-                if self.text1_aspect.font_style:
-                    s = str(self.text1_aspect.font_style).lower()
-                    f.setItalic(s in ('italic', 'oblique'))
-                lbl.setFont(f)
-                lbl.setStyleSheet("; ".join(css_parts))
-                # Alignment from text1_aspect
-                try:
-                    al = getattr(self.text1_aspect, 'alignment', None)
-                    if isinstance(al, str) and al:
-                        a = al.strip().lower()
-                        align_map = {
-                            'left': Qt.AlignLeft,
-                            'right': Qt.AlignRight,
-                            'center': Qt.AlignHCenter,
-                            'hcenter': Qt.AlignHCenter,
-                            'top': Qt.AlignTop,
-                            'bottom': Qt.AlignBottom,
-                            'vcenter': Qt.AlignVCenter,
-                            'justify': Qt.AlignJustify,
-                        }
-                        if a in align_map:
-                            lbl.setAlignment(align_map[a])
-                except Exception:
-                    pass
+                self._applyAspectToLabel(ind.label, self.text1_aspect)
 
         # Resize
         self.updateLabelsandWidgetSize()
