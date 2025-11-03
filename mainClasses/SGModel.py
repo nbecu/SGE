@@ -48,6 +48,7 @@ from mainClasses.SGSimulationVariable import *
 from mainClasses.SGTestGetData import SGTestGetData
 from mainClasses.SGTextBox import *
 from mainClasses.SGTextBoxLarge import *
+from mainClasses.SGTextBoxLargeShrinkable import *
 from mainClasses.SGLabel import *
 from mainClasses.SGButton import *
 from mainClasses.SGTimeLabel import *
@@ -2151,6 +2152,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         return aTextBoxLarge
 
+
+    def newTextBoxLargeShrinkable(self, textToWrite='', title='', width=None, height=None, shrinked=False,
+                       borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
+        """
+        Create a large text box optimized for long texts with scrollable content.
+
+        Args:
+            textToWrite (str): Displayed text in the widget (default: "Welcome in the game!")
+            title (str): Name of the widget (default: "Text Box Large")
+            width (int, optional): Custom width in pixels (default: 250)
+            height (int, optional): Custom height in pixels (default: 150)
+            shrinked (bool, optional): If True, the text box will be shrinked to a smaller size (default: False)
+            borderColor (QColor): Border color of the text box (default: Qt.black)
+            backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
+            titleAlignment (str): Title alignment - 'left', 'center', or 'right' (default: 'left')
+
+        Returns:
+            SGTextBoxLargeShrinkable: The created text box widget
+        """
+        aTextBoxLarge = SGTextBoxLargeShrinkable(self, textToWrite, title, width, height, shrinked, borderColor, backgroundColor, titleAlignment)
+        self.TextBoxes.append(aTextBoxLarge)
+        self.gameSpaces[title] = aTextBoxLarge
+
+        # Apply title alignment using setter from SGGameSpace if provided
+        if titleAlignment:
+            aTextBoxLarge.setTitleAlignment(titleAlignment)
+
+        # add the gamespace to the layout
+        self.layoutOfModel.addGameSpace(aTextBoxLarge)
+
+        return aTextBoxLarge
         
     # To create a Text Box
     def newLabel(self, text, position=None, textStyle_specs="", borderStyle_specs="", backgroundColor_specs="", alignement="Left", fixedWidth=None, fixedHeight=None):
