@@ -154,7 +154,18 @@ class SGThemeEditTableDialog(QDialog):
         runtime = []
         if hasattr(self.model, '_runtime_themes') and isinstance(self.model._runtime_themes, dict):
             runtime = sorted(list(self.model._runtime_themes.keys()))
-        all_themes = [""] + ["custom"] + self._themes + [t for t in runtime if t not in self._themes]
+        
+        # Separate predefined and custom themes for visual distinction
+        predefined_themes = self._themes
+        custom_themes = [t for t in runtime if t not in self._themes]
+        
+        # Build theme list with visual distinction: predefined first, then custom with prefix
+        all_themes = [""]  # Empty option
+        all_themes.extend(predefined_themes)  # Predefined themes
+        # Custom themes with visual indicator
+        for t in custom_themes:
+            all_themes.append(f"📝 {t}")  # Custom themes with icon indicator
+        
         for row, gs in enumerate(self._gs_cache):
             # Type
             type_item = QTableWidgetItem(gs.__class__.__name__)
@@ -176,9 +187,20 @@ class SGThemeEditTableDialog(QDialog):
             current = getattr(gs, 'current_theme_name', None)
             overridden = getattr(gs, 'theme_overridden', False)
             if overridden:
-                combo.setCurrentText("custom")
-            elif current and current in all_themes:
-                combo.setCurrentText(current)
+                # Try to find custom theme name with prefix
+                if current and current in custom_themes:
+                    combo.setCurrentText(f"📝 {current}")
+                else:
+                    # Fallback: select empty
+                    combo.setCurrentIndex(0)
+            elif current:
+                # Check if it's a predefined theme
+                if current in predefined_themes:
+                    combo.setCurrentText(current)
+                # Check if it's a custom theme (add prefix for matching)
+                elif current in custom_themes:
+                    combo.setCurrentText(f"📝 {current}")
+                # If not found, leave empty
             self.table.setCellWidget(row, 2, combo)
 
             # Actions: always show an Edit button to open the Custom Editor
@@ -209,7 +231,11 @@ class SGThemeEditTableDialog(QDialog):
             if isinstance(combo, QComboBox):
                 t = combo.currentText().strip()
                 if t and t != "custom":
-                    init_theme = t
+                    # Remove custom theme prefix if present
+                    if t.startswith("📝 "):
+                        init_theme = t[2:]  # Remove "📝 " prefix
+                    else:
+                        init_theme = t
         editor = SGThemeCustomEditorDialog(self.model, gs, self, init_theme=init_theme)
         editor.exec_()
         # After closing editor, refresh table to reflect new runtime themes and selection
@@ -233,10 +259,15 @@ class SGThemeEditTableDialog(QDialog):
             theme = combo.currentText().strip()
             # Skip blank and "custom" (custom means keep overridden styles)
             if theme and theme != "custom":
+                # Remove custom theme prefix if present
+                if theme.startswith("📝 "):
+                    theme = theme[2:]  # Remove "📝 " prefix
                 gs = self._id_to_gs.get(gs_id)
                 if gs and hasattr(gs, 'applyTheme'):
                     try:
                         gs.applyTheme(theme)
+                        gs.current_theme_name = theme
+                        gs.theme_overridden = False
                     except Exception:
                         pass
         if hasattr(self.model, 'update'):

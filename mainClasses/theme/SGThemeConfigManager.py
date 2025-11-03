@@ -51,18 +51,20 @@ class SGThemeConfigManager(QObject):
         Load all theme configurations from the JSON file.
 
         Returns:
-            dict: {"configurations": {name: data}}
+            dict: {"configurations": {name: data}, "custom_themes": {name: spec}}
         """
         if os.path.exists(self.config_path):
             try:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     if "configurations" not in data:
-                        return {"configurations": {}}
+                        data["configurations"] = {}
+                    if "custom_themes" not in data:
+                        data["custom_themes"] = {}
                     return data
             except Exception:
                 pass
-        return {"configurations": {}}
+        return {"configurations": {}, "custom_themes": {}}
 
     def _getCurrentTimestamp(self):
         from datetime import datetime
@@ -231,5 +233,165 @@ class SGThemeConfigManager(QObject):
                 QMessageBox.critical(None, "Error", f"Invalid configuration: missing '{key}'")
                 return False
         return True
+
+    def _getPredefinedThemeNames(self):
+        """
+        Get list of predefined theme names by inspecting SGAspect.
+        
+        Returns:
+            list: List of predefined theme names
+        """
+        from mainClasses.SGAspect import SGAspect
+        excluded_methods = {
+            '__init__', '__new__', '__repr__', '__str__', '__eq__', '__hash__',
+            'baseBorder', 'title1', 'title2', 'title3',
+            'text1', 'text2', 'text3', 'success', 'inactive'
+        }
+        theme_names = []
+        for name in dir(SGAspect):
+            if name.startswith('_') or name in excluded_methods:
+                continue
+            attr = getattr(SGAspect, name, None)
+            if not attr or not callable(attr):
+                continue
+            if name.startswith('get'):
+                continue
+            try:
+                instance = attr()
+                if isinstance(instance, SGAspect):
+                    theme_names.append(name)
+            except (TypeError, Exception):
+                continue
+        return theme_names
+
+    def saveCustomTheme(self, theme_name, theme_spec, overwrite=False):
+        """
+        Save a custom theme definition to theme_config.json.
+        
+        Args:
+            theme_name (str): Name of the custom theme
+            theme_spec (dict): Theme specification with 'base' and optional 'text_aspects'
+            overwrite (bool): If True, overwrite existing theme without confirmation
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        if not self._ensureDirectory():
+            return False
+
+        # Check for conflicts with predefined themes
+        predefined_names = self._getPredefinedThemeNames()
+        if theme_name in predefined_names:
+            QMessageBox.warning(
+                None, 
+                "Theme Name Conflict", 
+                f"Theme name '{theme_name}' conflicts with a predefined theme. "
+                "Please choose a different name."
+            )
+            return False
+
+        try:
+            all_data = self._loadAllConfigurations()
+            
+            # Ensure custom_themes exists
+            if "custom_themes" not in all_data:
+                all_data["custom_themes"] = {}
+            
+            # Check if theme already exists (but allow overwrite if explicitly requested)
+            if theme_name in all_data["custom_themes"] and not overwrite:
+                # Return special code to indicate need for confirmation
+                return None
+            
+            # Save the theme spec
+            all_data["custom_themes"][theme_name] = theme_spec
+            
+            # Save to file
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(all_data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"Failed to save custom theme: {e}")
+            return False
+
+    def loadCustomThemes(self):
+        """
+        Load all custom theme definitions from theme_config.json.
+        
+        Returns:
+            dict: Dictionary of custom theme specifications {name: spec}
+        """
+        try:
+            all_data = self._loadAllConfigurations()
+            return all_data.get("custom_themes", {})
+        except Exception:
+            return {}
+
+    def deleteCustomTheme(self, theme_name):
+        """
+        Delete a custom theme from theme_config.json.
+        
+        Args:
+            theme_name (str): Name of the custom theme to delete
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            all_data = self._loadAllConfigurations()
+            if "custom_themes" not in all_data or theme_name not in all_data["custom_themes"]:
+                QMessageBox.warning(None, "Warning", f"Custom theme '{theme_name}' not found")
+                return False
+            
+            del all_data["custom_themes"][theme_name]
+            
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(all_data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"Failed to delete custom theme: {e}")
+            return False
+
+    def renameCustomTheme(self, old_name, new_name):
+        """
+        Rename a custom theme in theme_config.json.
+        
+        Args:
+            old_name (str): Current name of the custom theme
+            new_name (str): New name for the custom theme
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        # Check for conflicts with predefined themes
+        predefined_names = self._getPredefinedThemeNames()
+        if new_name in predefined_names:
+            QMessageBox.warning(
+                None,
+                "Theme Name Conflict",
+                f"Theme name '{new_name}' conflicts with a predefined theme. "
+                "Please choose a different name."
+            )
+            return False
+
+        try:
+            all_data = self._loadAllConfigurations()
+            if "custom_themes" not in all_data or old_name not in all_data["custom_themes"]:
+                QMessageBox.warning(None, "Warning", f"Custom theme '{old_name}' not found")
+                return False
+            
+            if new_name in all_data["custom_themes"]:
+                QMessageBox.warning(None, "Warning", f"Custom theme '{new_name}' already exists")
+                return False
+            
+            theme_spec = all_data["custom_themes"][old_name]
+            del all_data["custom_themes"][old_name]
+            all_data["custom_themes"][new_name] = theme_spec
+            
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(all_data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"Failed to rename custom theme: {e}")
+            return False
 
 

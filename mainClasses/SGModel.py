@@ -184,6 +184,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize MQTT Manager
         self.mqttManager = SGMQTTManager(self)
 
+        # Initialize runtime themes dictionary for custom themes
+        self._runtime_themes = {}
+        # Load custom themes from persistent storage
+        self._loadCustomThemes()
+
         self.initUI()
 
         self.initModelActions()
@@ -1069,6 +1074,16 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     gs.applyTheme(theme_name)
                 except Exception:
                     pass
+
+    def _loadCustomThemes(self):
+        """Load custom themes from persistent storage into _runtime_themes."""
+        try:
+            manager = SGThemeConfigManager(self)
+            custom_themes = manager.loadCustomThemes()
+            self._runtime_themes = custom_themes.copy()
+        except Exception:
+            # If loading fails, just keep empty dict
+            self._runtime_themes = {}
 
     def loadThemeConfig(self, config_name: str) -> bool:
         """Load theme configuration and apply it to listed GameSpaces only."""

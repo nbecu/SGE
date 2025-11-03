@@ -406,9 +406,41 @@ class SGThemeCustomEditorDialog(QDialog):
         # Build theme spec from form using the same builder as Preview
         theme_spec = self._build_spec_from_form(compact=True)
 
+        # Save to persistent storage via SGThemeConfigManager
+        from mainClasses.theme.SGThemeConfigManager import SGThemeConfigManager
+        from PyQt5.QtWidgets import QMessageBox
+        manager = SGThemeConfigManager(self.model)
+        
+        # Try to save (returns None if theme exists and needs confirmation)
+        result = manager.saveCustomTheme(name, theme_spec, overwrite=False)
+        
+        if result is None:
+            # Theme already exists, ask for confirmation
+            reply = QMessageBox.question(
+                self,
+                "Theme Already Exists",
+                f"A custom theme named '{name}' already exists.\n\n"
+                "Do you want to overwrite it?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.Yes:
+                # User confirmed, save with overwrite=True
+                if not manager.saveCustomTheme(name, theme_spec, overwrite=True):
+                    # Error already displayed by saveCustomTheme, but don't proceed
+                    return
+            else:
+                # User cancelled, don't save
+                return
+        elif not result:
+            # Error occurred (already displayed by saveCustomTheme), don't proceed
+            return
+
+        # Also save in memory for immediate use
         if not hasattr(self.model, '_runtime_themes'):
             self.model._runtime_themes = {}
         self.model._runtime_themes[name] = theme_spec
+        
         QMessageBox.information(self, "Theme", f"Custom theme '{name}' saved.")
         # Apply the newly saved theme to the current GameSpace and reset override state
         try:

@@ -1,0 +1,70 @@
+{
+  "configurations": {},
+  "custom_themes": {
+    "test1": {
+      "base": {
+        "background_color": "#ff557f",
+        "border_color": "#dee2e6",
+        "border_size": 1,
+        "border_style": "solid",
+        "border_radius": 4
+      },
+      "text_aspects": {
+        "title1": {
+          "color": "#495057",
+          "font": "Arial",
+          "size": 14,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Center"
+        },
+        "title2": {
+          "color": "#495057",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "underline",
+          "alignment": "Left"
+        },
+        "title3": {
+          "color": "#495057",
+          "font": "Arial",
+          "size": 11,
+          "font_weight": "bold",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text1": {
+          "color": "#495057",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text2": {
+          "color": "#495057",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "normal",
+          "text_decoration": "none",
+          "alignment": "Left"
+        },
+        "text3": {
+          "color": "#495057",
+          "font": "Arial",
+          "size": 12,
+          "font_weight": "normal",
+          "font_style": "italic",
+          "text_decoration": "none",
+          "alignment": "Left"
+        }
+      }
+    }
+  }
+}
