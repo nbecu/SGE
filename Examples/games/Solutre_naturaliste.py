@@ -752,7 +752,7 @@ def getRandomObjectif():
         objectif_dict = objectif.to_dict(orient='records')[0]
         title = objectif_dict.pop('Nom')
         text = "\n".join([f"{key}: {value}" if "Unnamed" not in key else f"{value}" for key, value in objectif_dict.items()])
-        textBoxObj = myModel.newTextBoxLargeShrinkable(textToWrite=text, shrinked=True, title=title,borderColor=getColorByPlayer(player),backgroundColor=Qt.white,titleAlignment='center')
+        textBoxObj = myModel.newTextBox(textToWrite=text, title=title,borderColor=getColorByPlayer(player),backgroundColor=Qt.white,titleAlignment='center')
         return textBoxObj
     else:
         return ValueError("Le joueur n'a pas été spécifié.")

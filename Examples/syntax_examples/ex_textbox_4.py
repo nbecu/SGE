@@ -1,6 +1,3 @@
-"""
-Test example for SGTextBoxLarge - optimized for long texts with scrolling.
-"""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -8,11 +5,10 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # Create model
-myModel = SGModel(name="TextBoxLarge Test", windowTitle="SGTextBoxLarge Test")
+myModel = SGModel(name="TextBox Test", windowTitle="SGTextBox Test")
 
 # Test text - long text that requires scrolling
-longText = """This is a very long text that demonstrates the SGTextBoxLarge widget.
-SGTextBoxLarge is specifically designed for displaying long texts with automatic
+longText = """This is a very long text that demonstrates how textBox display long texts with automatic
 word-wrapping and vertical scrolling when the content exceeds the widget height.
 
 Key features:
@@ -28,7 +24,7 @@ The text will automatically wrap to fit the width of the text box.
 This is the end of the test text. If you can see this line, scrolling is working correctly!"""
 
 # Create a large text box with default dimensions
-textBox1 = myModel.newTextBoxLarge(
+textBox1 = myModel.newTextBox(
     longText,
     title="1. Default Size (400x300)",
     titleAlignment='left'
@@ -36,25 +32,25 @@ textBox1 = myModel.newTextBoxLarge(
 textBox1.moveToCoords(10, 30)
 
 # Create a large text box with custom width (wider)
-textBox2 = myModel.newTextBoxLarge(
+textBox2 = myModel.newTextBox(
     longText,
     title="2. Custom Width (600x300)",
     width=600,
     titleAlignment='center'
 )
-textBox2.moveToCoords(450, 30)
+textBox2.moveToCoords(280, 30)
 
 # Create a large text box with custom height (taller)
-textBox3 = myModel.newTextBoxLarge(
+textBox3 = myModel.newTextBox(
     longText,
     title="3. Custom Height (400x400)",
     height=400,
     titleAlignment='right'
 )
-textBox3.moveToCoords(1100, 30)
+textBox3.moveToCoords(900, 30)
 
 # Create a large text box with custom width and height
-textBox4 = myModel.newTextBoxLarge(
+textBox4 = myModel.newTextBox(
     longText,
     title="4. Custom Size (500x350) and colors",
     width=500,
@@ -63,25 +59,25 @@ textBox4 = myModel.newTextBoxLarge(
     backgroundColor=Qt.pink,
     titleAlignment='center'
 )
-textBox4.moveToCoords(10, 370)
+textBox4.moveToCoords(10, 200)
 
 # Create a large text box with a very long title to test width adjustment
-textBox5 = myModel.newTextBoxLarge(
+textBox5 = myModel.newTextBox(
     longText,
     title="5. Very Long Title That Should Extend The Widget Width Automatically",
     titleAlignment='left'
 )
-textBox5.moveToCoords(550, 370)
+textBox5.moveToCoords(550, 200)
 
 # Create a large text box with various aspect customizations
-textBox6 = myModel.newTextBoxLarge(
+textBox6 = myModel.newTextBox(
     longText,
     title="6. Custom Aspects",
     width=500,
     height=350,
     titleAlignment='center'
 )
-textBox6.moveToCoords(1050, 370)
+textBox6.moveToCoords(820, 370)
 
 # Apply various aspect customizations using SGGameSpace setters
 textBox6.setBorderColor(Qt.darkGreen)

@@ -60,8 +60,8 @@ Player2.addGameAction(Update1)
 Player2.addGameAction(Update2)
 Player2ControlPanel = Player2.newControlPanel("Actions Gestionnaire")
 
-theTextBox=myModel.newTextBoxLarge("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?",
-width=200,height=80)
+theTextBox=myModel.newTextBox("Le jeu n'a pas encore commencé. Avance d'un tour pour commencer","Comment jouer ?",
+width=200)
 
 def tx_présence():
     CellsMer=[cell for cell in myModel.getCells(Cells) if (cell.value('type') in ['mer', 'grandFond'])]
@@ -84,7 +84,7 @@ def feedbackPêche():
     sommePêcheMerlu=0
     sommePêcheSole=0
     
-    for navire in myModel.getAgentsOfSpecie("Navire"):
+    for navire in myModel.getAgentsOfType("Navire"):
         sommePêcheMerlu=sommePêcheMerlu+navire.value('Quantité_pêchée_Merlu')
         sommePêcheSole=sommePêcheSole+navire.value('Quantité_pêchée_Sole')
             
@@ -98,7 +98,7 @@ def renouvellementStock_port():
     sommeRevenus=0
     malus=0
     bonus=0
-    for navire in myModel.getAgentsOfSpecie("Navire"):
+    for navire in myModel.getAgentsOfType("Navire"):
         revenusBateau=navire.value('Quantité_pêchée_Merlu')*Merlus.value("prix")+navire.value('Quantité_pêchée_Sole')*Soles.value("prix")
         sommeRevenus=sommeRevenus+revenusBateau
         if navire.value('lastIncitationValue')=="bonus":
@@ -127,7 +127,7 @@ def reset():
     revenuMalus.setValue(0)
     revenuTour.setValue(0)
     benefice.setValue(0)
-    for navire in myModel.getAgentsOfSpecie("Navire"):
+    for navire in myModel.getAgentsOfType("Navire"):
         navire.setValue("lastIncitationValue","neutre")
 
 

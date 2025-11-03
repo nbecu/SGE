@@ -1,8 +1,4 @@
-"""
-Test example for SGTextBoxLargeShrinkable - demonstrates compatibility methods.
-This example shows how to use addText, setNewText, deleteTitle, and eraseText methods
-through interactive buttons.
-"""
+
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -10,7 +6,8 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # Create model
-myModel = SGModel(name="TextBox Update Test", windowTitle="SGTextBoxLargeShrinkable - Update Methods Test")
+myModel = SGModel(name="TextBox Update example", windowTitle="TextBox- Update Methods Test"
+,width=850, height=350)
 
 # Initial test text
 initialText = """This is the initial text in the text box.
@@ -19,13 +16,11 @@ You can interact with the buttons below to test different update methods.
 Try clicking the buttons to see how the text box content changes."""
 
 # Create a text box to test update methods
-testTextBox = myModel.newTextBoxLargeShrinkable(
+testTextBox = myModel.newTextBox(
     initialText,
     title="Test TextBox - Click buttons to update",
-    width=600,
-    height=400,
     titleAlignment='center',
-    shrinked=True
+    width=550
 )
 testTextBox.moveToCoords(10, 30)
 

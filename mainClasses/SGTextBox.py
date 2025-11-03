@@ -3,63 +3,97 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from sqlalchemy import true
 from PyQt5.QtWidgets import QMenu, QAction
-
 from mainClasses.SGGameSpace import SGGameSpace
+from mainClasses.SGAspect import SGAspect
 
 
 class SGTextBox(SGGameSpace):
     """
-    A text display widget for SGE games that can show titles and text content.
+    A text display widget that allows long texts with scrollable content and shrinked functionality.
     
-    SGTextBox provides a flexible text display solution that automatically adapts
-    its widget type based on content length:
-    - Short texts (≤100 chars): Uses QLabel for compact display
-    - Long texts (>100 chars): Uses QTextEdit for better text handling
-    
-    Features:
-    - Dynamic sizing based on content using SGGameSpaceSizeManager
-    - Automatic layout management with QVBoxLayout
-    - Context menu support (Inspect, Close)
-    - Text history tracking
-    - Customizable styling through gs_aspect system
+    It provides a flexible text display solution that can adapt to long text or to shorter one with a shrinked functionality.
+
+    SGTextBox provides a simpler and more reliable implementation for displaying
+    long texts with the following features:
+    - Default width and height (250x150 pixels)
+    - Automatic width adjustment if title is wider than default width and shrinked functionality
+    - Automatic word-wrapping for text content
+    - Vertical scrolling when text exceeds height (via mouse wheel and scrollbar)
+    - User-configurable width and height and shrinked functionality
     
     Args:
         parent: The parent widget/model
         textToWrite (str): Initial text content to display
         title (str): Title displayed above the text content
-        sizeX (int, optional): Manual width override
-        sizeY (int, optional): Manual height override  
+        width (int, optional): Custom width in pixels (default: 250)
+        height (int, optional): Custom height in pixels (default: 150)
+        shrinked (bool, optional): If True, the text box will be shrinked to fit content (default: True)
         borderColor (QColor): Border color (default: Qt.black)
         backgroundColor (QColor): Background color (default: Qt.lightGray)
+        titleAlignment (str): Title alignment - 'left', 'center', or 'right' (default: 'left')
     """
-    def __init__(self, parent, textToWrite, title, sizeX=None, sizeY=None, borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
+    
+    def __init__(self, parent, textToWrite, title, width=None, height=None, shrinked=True,
+                 borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
-        self._resize_in_progress = False  # Flag to prevent infinite loops in resize
+        
         self.title = title
         self.id = title
         self.model = parent
-        # Configure border using gs_aspect instead of self.borderColor
+        self.textToWrite = textToWrite
+        
+        # Configure border using gs_aspect
         self.gs_aspect.border_color = borderColor
         self.gs_aspect.border_size = 1
-        self.sizeX = sizeX
-        self.sizeY = sizeY
-        self.min_height_for_long_text = 150  # Minimum height for text longer than 100 characters
+        
+        # Default dimensions
+        self.default_width = 250
+        self.default_height = 150
+        
+        # User-specified dimensions (if None, use defaults)
+        self.custom_width = width
+        self.custom_height = height
+        # Compatibility attributes (for backward compatibility with SGTextBox API)
+        self.sizeX = width  # Alias for custom_width
+        self.sizeY = height  # Alias for custom_height
+        
+        # Shrinked mode configuration
+        self.shrinked = shrinked
+        self.max_width_default = 250  # Default maximum width when shrinked=True (only applies if width not specified)
+        self.max_height_default = 150  # Default maximum height when shrinked=True
+        self.min_width = 100  # Minimum width when shrinked=True
+        self.min_height = 50  # Minimum height when shrinked=True
+        
         self.titleAlignment = titleAlignment
-        self.y1 = 0
-        self.labels = 0
-        self.moveable = True
-        self.haveToBeClose = False
-        self.isDisplay = True
+        
+        # Initialize history for text tracking (compatibility with SGModel.getTextBoxHistory)
         self.history = []
-        self.textToWrite = textToWrite
-        self.new_text = None
-        self.theLayout = None
+        if textToWrite:
+            self.history.append(textToWrite)
+        
+        # Initialize UI
         self.initUI()
-
+        
+        # Apply title alignment using setter from SGGameSpace
+        if titleAlignment:
+            self.setTitleAlignment(titleAlignment)
+        
+        # Apply text aspects styling (this will call updateSize() at the end)
+        self.onTextAspectsChanged()
+        
+        # Recalculate size after styles are applied to ensure title width is accurate
+        # This is important because font changes can affect title width
+        self.updateSize()
+        
+        # Set context menu
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_contextMenu)
+    
     def initUI(self):
-        # Create a title
+        """Initialize the UI components: title label and text edit widget."""
+        # Create title label
         self.labelTitle = QtWidgets.QLabel(self.title)
-        # font and styles will be applied from title1_aspect in onTextAspectsChanged()
+        self.labelTitle.setWordWrap(False)  # Title on single line
         
         # Set title alignment
         if self.titleAlignment == 'center':
@@ -68,498 +102,382 @@ class SGTextBox(SGGameSpace):
             self.labelTitle.setAlignment(Qt.AlignRight)
         else:  # default to 'left'
             self.labelTitle.setAlignment(Qt.AlignLeft)
-
-        # Create appropriate widget based on text length
-        if len(self.textToWrite) > 100:  # Use QTextEdit for long texts
-            self.textWidget = QtWidgets.QTextEdit()
-            self.textWidget.setPlainText(self.textToWrite)
-            self.textWidget.setReadOnly(True)
-            # Force word-wrap behavior at widget width
-            try:
-                self.textWidget.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
-                self.textWidget.setWordWrapMode(QTextOption.WordWrap)
-                self.textWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-            except Exception:
-                pass
-        else:  # Use QLabel for short texts
-            self.textWidget = QtWidgets.QLabel(self.textToWrite)
-            self.textWidget.setWordWrap(True)
         
-        # Remove hard-coded backgrounds to let container paintEvent manage it
-        if len(self.textToWrite) > 100:  # QTextEdit: keep border none; bg transparent handled by container
-            self.textWidget.setStyleSheet("QTextEdit { border: none; background: transparent; }")
-        else:
-            self.textWidget.setStyleSheet("border: none;")
+        # Create text widget (always QTextEdit for long texts)
+        self.textWidget = QtWidgets.QTextEdit()
+        self.textWidget.setPlainText(self.textToWrite)
+        self.textWidget.setReadOnly(True)
         
-        # Store reference for compatibility
-        self.textEdit = self.textWidget
-
-        # Create a QVBoxLayout to hold the QTextEdit and QPushButton
+        # Configure word-wrap and scrolling
+        self.textWidget.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+        self.textWidget.setWordWrapMode(QTextOption.WordWrap)
+        self.textWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # No horizontal scroll
+        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # Vertical scroll when needed
+        
+        # Mouse wheel scrolling is enabled by default in QTextEdit
+        
+        # Remove borders and set transparent background (container will paint background)
+        self.textWidget.setStyleSheet("QTextEdit { border: none; background: transparent; }")
+        
+        # Create layout
         self.textLayout = QtWidgets.QVBoxLayout()
-        try:
-            # Revenir à une marge basse légère (+2)
-            self.textLayout.setContentsMargins(4, 2, self.rightMargin, self.verticalGapBetweenLabels + 2)
-            self.textLayout.setSpacing(self.verticalGapBetweenLabels)
-        except Exception:
-            pass
+        self.textLayout.setContentsMargins(4, 2, 9, 7)  # left, top, right, bottom
+        self.textLayout.setSpacing(5)
         self.textLayout.addWidget(self.labelTitle)
-        self.textLayout.addWidget(self.textEdit)
-
-        # Set the QVBoxLayout as the main layout for the widget
+        self.textLayout.addWidget(self.textWidget)
+        
         self.setLayout(self.textLayout)
         
-        # Adjust size after layout configuration
-        self.onTextAspectsChanged()
-
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_contextMenu)
-        # Store text content for history
-        if hasattr(self.textEdit, 'toPlainText'):
-            self.history.append(self.textEdit.toPlainText())
-        else:
-            self.history.append(self.textEdit.text())
-
-    # Function to have the global size of a gameSpace
-
-    def getSizeXGlobal(self):
-        # Use manual size if specified
-        if self.sizeX is not None:
-            return self.sizeX
-            
-        # First, check if title width requires more space (important for cases 2 and 6 with long titles)
-        # This must be done BEFORE layout calculation to ensure title is not cropped
-        title_based_width = None
-        if hasattr(self, 'labelTitle') and self.labelTitle:
-            try:
-                # Get title preferred width
-                self.labelTitle.adjustSize()
-                title_width = self.labelTitle.sizeHint().width()
-                if title_width > 0:
-                    # Add layout margins, right margin, and border padding
-                    m = self.textLayout.contentsMargins() if hasattr(self, 'textLayout') and self.textLayout else None
-                    lm_left = m.left() if m else 4
-                    lm_right = m.right() if m else 9
-                    right_margin = getattr(self.size_manager, 'right_margin', 9)
-                    border_padding = getattr(self.size_manager, 'border_padding', 3)
-                    title_based_width = title_width + lm_left + lm_right + right_margin + border_padding
-            except Exception:
-                pass
+        # Calculate and set initial size
+        self.updateSize()
+    
+    def _calculateTitleWidth(self):
+        """Calculate the width needed for the title."""
+        if not hasattr(self, 'labelTitle') or not self.labelTitle:
+            return 0
         
-        # Use actual layout size if available
-        layout_based_width = None
-        if hasattr(self, 'textLayout') and self.textLayout:
-            # Force layout to calculate its size
-            self.textLayout.activate()
-            size_hint = self.textLayout.sizeHint()
-            if size_hint and size_hint.isValid() and size_hint.width() > 0:
-                # Add right margin and border padding to ensure border is not cropped
-                right_margin = getattr(self.size_manager, 'right_margin', 9)
-                border_padding = getattr(self.size_manager, 'border_padding', 3)
-                layout_based_width = max(size_hint.width() + right_margin + border_padding, self.size_manager.min_width)
-                # Sanity check: if width is absurdly large (> 5000px), something went wrong
-                if layout_based_width >= 5000:
-                    layout_based_width = None
+        try:
+            # Force label to calculate its size
+            self.labelTitle.adjustSize()
+            actual_title_width = self.labelTitle.sizeHint().width()
+            if actual_title_width > 0:
+                return actual_title_width
+        except:
+            pass
         
-        # Use the larger of title-based or layout-based width to ensure nothing is cropped
-        if title_based_width is not None and layout_based_width is not None:
-            return max(title_based_width, layout_based_width)
-        elif title_based_width is not None:
-            return title_based_width
-        elif layout_based_width is not None:
-            return layout_based_width
-        
-        # For QTextEdit, don't use calculateContentWidth() as it calculates unwrapped width
-        # Instead, use widget width if available, or a reasonable default
-        if hasattr(self, 'textEdit') and isinstance(self.textEdit, QtWidgets.QTextEdit):
-            # If widget has a valid width, use it
-            if self.width() > 0 and self.width() < 5000:
-                # Add border padding to ensure border is not cropped
-                border_padding = getattr(self.size_manager, 'border_padding', 3)
-                return self.width() + border_padding
-            # Otherwise, use cached sizeXGlobal if it's reasonable
-            if hasattr(self, 'sizeXGlobal') and isinstance(self.sizeXGlobal, int) and 0 < self.sizeXGlobal < 5000:
-                return self.sizeXGlobal
-            # Default reasonable width for text boxes (can be overridden by layout)
-            border_padding = getattr(self.size_manager, 'border_padding', 3)
-            return 280 + border_padding  # Reasonable default for text boxes
-        
-        # For QLabel, fallback to size_manager calculation
-        if hasattr(self, 'textWidget') and isinstance(self.textWidget, QtWidgets.QLabel):
-            if hasattr(self.textWidget, 'text'):
-                text_content = self.textWidget.text()
-            calculated_width = self.calculateContentWidth(text_content=text_content)
-            # Add border padding to ensure border is not cropped
-            border_padding = getattr(self.size_manager, 'border_padding', 3)
-            return calculated_width + border_padding
-        
-        # Fallback: minimum width with border padding
-        border_padding = getattr(self.size_manager, 'border_padding', 3)
-        return self.size_manager.min_width + border_padding
-
-    def getSizeYGlobal(self):
-        # Use manual size if specified
-        if self.sizeY is not None:
-            return self.sizeY
-        # Prefer layout-computed global size when available
-        if hasattr(self, 'sizeYGlobal') and getattr(self, 'sizeYGlobal', None):
-            try:
-                return int(self.sizeYGlobal)
-            except Exception:
-                pass
-        
-        # Calculate height based on content
-        if hasattr(self, 'textEdit') and self.textEdit:
-            if hasattr(self.textEdit, 'toPlainText'):
-                text_content = self.textEdit.toPlainText()
-            else:
-                text_content = self.textEdit.text()
-            
-            # Get the actual font from the text widget for accurate height calculation
-            text_font = self.textEdit.font() if hasattr(self.textEdit, 'font') else None
-            
-            # For QTextEdit with long text, use QTextDocument to calculate wrapped height
-            if isinstance(self.textEdit, QtWidgets.QTextEdit) and len(text_content) > 100:
+        # Fallback: Manual calculation using QFontMetrics
+        if hasattr(self, 'title1_aspect') and self.title1_aspect.font:
+            temp_font = QFont(self.title1_aspect.font)
+            if self.title1_aspect.size:
                 try:
-                    # Calculate available width for wrapping
-                    m = self.textLayout.contentsMargins() if hasattr(self, 'textLayout') and self.textLayout else None
-                    lm_left = m.left() if m else 4
-                    lm_right = m.right() if m else 9
-                    right_margin = getattr(self.size_manager, 'right_margin', 9)
-                    left_margin = 4
-                    border_padding = getattr(self.size_manager, 'border_padding', 3)
-                    
-                    # Use actual width if widget is already sized, otherwise estimate from getSizeXGlobal
-                    if self.width() > 0:
-                        avail_w = max(120, self.width() - (lm_left + lm_right + left_margin + border_padding))
-                    else:
-                        # Estimate width from content or use default
-                        estimated_width = self.getSizeXGlobal() if hasattr(self, 'getSizeXGlobal') else 250
-                        avail_w = max(120, estimated_width - (lm_left + lm_right + right_margin + left_margin + border_padding))
-                    
-                    # Use QTextDocument to calculate real wrapped height
-                    doc = self.textEdit.document()
-                    if doc:
-                        # Set document width to enable wrapping calculation
-                        doc.setTextWidth(float(avail_w))
-                        doc.adjustSize()
-                        doc_height = doc.size().height()
-                        
-                        # Add frame width and margins for QTextEdit
-                        frame_w = self.textEdit.frameWidth() if hasattr(self.textEdit, 'frameWidth') else 0
-                        margins = self.textEdit.contentsMargins() if hasattr(self.textEdit, 'contentsMargins') else QMargins(0, 0, 0, 0)
-                        text_h = int(doc_height + 2 * frame_w + margins.top() + margins.bottom() + 4)  # Small safety margin
-                        
-                        calculated_height = text_h
-                    else:
-                        # Fallback to simple calculation if document not available
-                        calculated_height = self.calculateContentHeight(text_content=text_content, font=text_font)
-                except Exception:
-                    # Fallback to simple calculation
-                    calculated_height = self.calculateContentHeight(text_content=text_content, font=text_font)
-            else:
-                # For QLabel or short text, calculate height with word-wrap consideration
-                if isinstance(self.textEdit, QtWidgets.QLabel):
-                    # QLabel with word-wrap: calculate height using QFontMetrics.boundingRect
-                    try:
-                        if text_font is None:
-                            text_font = self.textEdit.font()
-                        
-                        # Get available width for wrapping
-                        m = self.textLayout.contentsMargins() if hasattr(self, 'textLayout') and self.textLayout else None
-                        lm_left = m.left() if m else 4
-                        lm_right = m.right() if m else 9
-                        right_margin = getattr(self.size_manager, 'right_margin', 9)
-                        border_padding = getattr(self.size_manager, 'border_padding', 3)
-                        
-                        # Use actual width if available, otherwise estimate
-                        if self.width() > 0:
-                            available_width = max(120, self.width() - (lm_left + lm_right + border_padding))
-                        else:
-                            estimated_width = self.getSizeXGlobal() if hasattr(self, 'getSizeXGlobal') else 250
-                            available_width = max(120, estimated_width - (lm_left + lm_right + right_margin + border_padding))
-                        
-                        # Calculate wrapped height using QFontMetrics
-                        metrics = QFontMetrics(text_font)
-                        wrapped_rect = metrics.boundingRect(
-                            QRect(0, 0, int(available_width), 10**6),  # Large height for wrapping
-                            Qt.TextWordWrap,
-                            text_content
-                        )
-                        calculated_height = wrapped_rect.height()
-                    except Exception:
-                        # Fallback to standard calculation
-                        calculated_height = self.calculateContentHeight(text_content=text_content, font=text_font)
-                else:
-                    # For other widget types, use standard calculation
-                    calculated_height = self.calculateContentHeight(text_content=text_content, font=text_font)
-            
-            # Add height for title if it exists
-            if hasattr(self, 'labelTitle') and self.labelTitle:
-                title_font = self.labelTitle.font()
-                # Use QFontMetrics for accurate title height calculation
-                title_metrics = QFontMetrics(title_font)
-                title_height = title_metrics.height() + self.size_manager.vertical_gap_between_labels
-                calculated_height += title_height
-            
-            # Add layout margins and spacing
-            if hasattr(self, 'textLayout') and self.textLayout:
-                try:
-                    m = self.textLayout.contentsMargins()
-                    calculated_height += m.top() + m.bottom()
-                    calculated_height += self.textLayout.spacing() if hasattr(self.textLayout, 'spacing') else 0
+                    temp_font.setPixelSize(int(self.title1_aspect.size))
                 except Exception:
                     pass
-            
-            # Add border padding and safety margin to ensure border is not cropped and text doesn't overflow
-            border_padding = getattr(self.size_manager, 'border_padding', 3)
-            safety_margin = 6  # Extra pixels to prevent text overflow at bottom
-            calculated_height += border_padding + safety_margin
-            
-            # Use higher minimum height for long text
-            min_height = self.min_height_for_long_text if len(text_content) > 100 else self.size_manager.min_height
-            
-            res = max(calculated_height, min_height)
-            return res
+            font_metrics = QFontMetrics(temp_font)
+        else:
+            font_metrics = QFontMetrics(self.labelTitle.font())
         
-        return self.size_manager.min_height
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        # Background: prefer image, else color with transparency support
-        bg_pixmap = self.getBackgroundImagePixmap()
-        if bg_pixmap is not None:
-            rect = QRect(0, 0, self.width(), self.height())
-            painter.drawPixmap(rect, bg_pixmap)
-        else:
-            bg = self.gs_aspect.getBackgroundColorValue()
-            if bg.alpha() == 0:
-                painter.setBrush(Qt.NoBrush)
-            else:
-                painter.setBrush(QBrush(bg, Qt.SolidPattern))
-
-        # Border with style mapping
-        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
-        style_map = {
-            'solid': Qt.SolidLine,
-            'dotted': Qt.DotLine,
-            'dashed': Qt.DashLine,
-            'double': Qt.SolidLine,
-            'groove': Qt.SolidLine,
-            'ridge': Qt.SolidLine,
-            'inset': Qt.SolidLine,
-        }
-        bs = getattr(self.gs_aspect, 'border_style', None)
-        if isinstance(bs, str) and bs.lower() in style_map:
-            pen.setStyle(style_map[bs.lower()])
-        painter.setPen(pen)
-
-        # Use calculated global sizes to ensure border is fully visible
-        width = max(0, self.getSizeXGlobal() - 1)
-        height = max(0, self.getSizeYGlobal() - 1)
-        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
-        if radius > 0:
-            painter.drawRoundedRect(0, 0, width, height, radius, radius)
-        else:
-            painter.drawRect(0, 0, width, height)
+        try:
+            return font_metrics.horizontalAdvance(self.title)
+        except AttributeError:
+            return font_metrics.boundingRect(self.title).width()
     
-    def resize(self, w, h):
+    def _calculateMinTextWidth(self):
         """
-        Override resize to force layout recalculation after resize for QTextEdit widgets.
-        This ensures that word-wrap is recalculated with the correct width.
+        Calculate the absolute minimum width needed for the text content.
+        This finds the longest line in the text (considering line breaks) without word-wrap.
+        
+        Returns:
+            int: Minimum width needed for the text (longest line width)
         """
-        # Call parent resize
-        super().resize(w, h)
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            return 0
         
-        # Only recalculate if not already in progress (prevent infinite loops)
-        if self._resize_in_progress:
-            return
-        
-        # Force recalculation for QTextEdit after resize
-        if hasattr(self, 'textEdit') and isinstance(self.textEdit, QtWidgets.QTextEdit):
+        try:
+            # Get text content
+            text_content = self.textWidget.toPlainText()
+            if not text_content:
+                return 0
+            
+            # Get font from text widget
+            text_font = self.textWidget.font()
+            metrics = QFontMetrics(text_font)
+            
+            # Split by line breaks and find the longest line
+            lines = text_content.split('\n')
+            max_line_width = 0
+            
+            for line in lines:
+                if line.strip():  # Skip empty lines
+                    line_width = metrics.horizontalAdvance(line) if hasattr(metrics, 'horizontalAdvance') else metrics.boundingRect(line).width()
+                    max_line_width = max(max_line_width, line_width)
+            
+            return max_line_width
+        except Exception:
+            # Fallback: estimate based on text length
             try:
-                self._resize_in_progress = True
+                text_content = self.textWidget.toPlainText()
+                text_font = self.textWidget.font()
+                metrics = QFontMetrics(text_font)
+                # Estimate: average character width * text length / 2 (rough estimate)
+                avg_char_width = metrics.horizontalAdvance('M') if hasattr(metrics, 'horizontalAdvance') else metrics.boundingRect('M').width()
+                estimated_width = int(avg_char_width * len(text_content) / 2)
+                return max(estimated_width, 50)  # Minimum 50px
+            except Exception:
+                return 100  # Default fallback
+    
+    def _calculateTextHeight(self, available_width):
+        """
+        Calculate the exact height needed for the text content after word-wrap.
+        
+        Args:
+            available_width (int): Available width for text wrapping
+            
+        Returns:
+            int: Height needed for the wrapped text
+        """
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            return 0
+        
+        try:
+            # Get document and set width for wrapping calculation
+            doc = self.textWidget.document()
+            if not doc:
+                return 0
+            
+            # Set document width to enable wrapping calculation
+            doc.setTextWidth(float(available_width))
+            doc.adjustSize()
+            
+            # Get document height
+            doc_height = doc.size().height()
+            
+            # Add frame width and margins for QTextEdit
+            frame_w = self.textWidget.frameWidth() if hasattr(self.textWidget, 'frameWidth') else 0
+            margins = self.textWidget.contentsMargins() if hasattr(self.textWidget, 'contentsMargins') else QMargins(0, 0, 0, 0)
+            text_h = int(doc_height + 2 * frame_w + margins.top() + margins.bottom())
+            
+            return text_h
+        except Exception:
+            # Fallback: estimate using font metrics
+            try:
+                text_content = self.textWidget.toPlainText()
+                text_font = self.textWidget.font()
+                metrics = QFontMetrics(text_font)
+                wrapped_rect = metrics.boundingRect(
+                    QRect(0, 0, available_width, 10**6),
+                    Qt.TextWordWrap,
+                    text_content
+                )
+                return wrapped_rect.height()
+            except Exception:
+                return 100  # Default fallback height
+    
+    def updateSize(self):
+        """
+        Calculate and set the widget size.
+        
+        Behavior depends on shrinked mode:
+        - If shrinked=False: Use fixed dimensions (custom or default)
+        - If shrinked=True: Calculate dynamic dimensions based on content
+        """
+        # Get layout margins
+        layout_left = 4  # Layout left margin
+        layout_right = 9  # Layout right margin
+        layout_top = 2  # Layout top margin
+        layout_bottom = 7  # Layout bottom margin
+        layout_spacing = 5  # Layout spacing between title and text
+        right_margin = getattr(self.size_manager, 'right_margin', 9)
+        border_padding = getattr(self.size_manager, 'border_padding', 3)
+        
+        if not self.shrinked:
+            # Standard mode: fixed dimensions
+            # Check sizeX/sizeY first for compatibility, then custom_width/custom_height
+            final_width = self.sizeX if (hasattr(self, 'sizeX') and self.sizeX is not None) else (self.custom_width if self.custom_width is not None else self.default_width)
+            final_height = self.sizeY if (hasattr(self, 'sizeY') and self.sizeY is not None) else (self.custom_height if self.custom_height is not None else self.default_height)
+            
+            # Adjust width if title is wider
+            title_width = self._calculateTitleWidth()
+            title_total_width = title_width + layout_left + layout_right + right_margin + border_padding + 5
+            if title_total_width > final_width:
+                final_width = title_total_width
+        else:
+            # Shrinked mode: dynamic dimensions
+            # Determine maximum height (check sizeY first for compatibility, then custom_height)
+            max_height = self.sizeY if (hasattr(self, 'sizeY') and self.sizeY is not None) else (self.custom_height if self.custom_height is not None else self.max_height_default)
+            
+            # Check sizeX first for compatibility, then custom_width
+            width_specified = self.sizeX if (hasattr(self, 'sizeX') and self.sizeX is not None) else self.custom_width
+            
+            if width_specified is not None:
+                # Width is fixed by user
+                final_width = width_specified
+                # Title will be cropped if it exceeds this width (no word-wrap for title)
                 
-                # Force layout update with new dimensions
-                if hasattr(self, 'textLayout') and self.textLayout:
-                    # Update QTextEdit document width based on new available width
-                    m = self.textLayout.contentsMargins() if hasattr(self.textLayout, 'contentsMargins') else None
-                    lm_left = m.left() if m else 4
-                    lm_right = m.right() if m else 9
-                    left_margin = 4
-                    border_padding = getattr(self.size_manager, 'border_padding', 3)
-                    
-                    avail_w = max(120, w - (lm_left + lm_right + left_margin + border_padding))
-                    
-                    # Update document width for proper wrapping
-                    doc = self.textEdit.document()
-                    if doc:
-                        doc.setTextWidth(float(avail_w))
-                        doc.adjustSize()
-                        
-                        # Recalculate height
-                        doc_height = doc.size().height()
-                        frame_w = self.textEdit.frameWidth() if hasattr(self.textEdit, 'frameWidth') else 0
-                        margins = self.textEdit.contentsMargins() if hasattr(self.textEdit, 'contentsMargins') else QMargins(0, 0, 0, 0)
-                        text_h = int(doc_height + 2 * frame_w + margins.top() + margins.bottom() + 4)
-                        
-                        # Update minimum size
-                        self.textEdit.setMinimumWidth(avail_w)
-                        self.textEdit.setMinimumHeight(text_h)
-                    
-                    # Force layout to recalculate
-                    self.textLayout.activate()
-                    self.updateGeometry()
-                    
+                # Calculate available width for text
+                avail_text_width = final_width - layout_left - layout_right - border_padding
+                
+                # Calculate height needed
+                title_height = 0
+                if hasattr(self, 'labelTitle') and self.labelTitle:
+                    title_font = self.labelTitle.font()
+                    title_metrics = QFontMetrics(title_font)
+                    title_height = title_metrics.height()
+                
+                text_height = self._calculateTextHeight(avail_text_width)
+                
+                # Total height = title + spacing + text + layout margins + border padding
+                calculated_height = title_height + layout_spacing + text_height + layout_top + layout_bottom + border_padding
+                
+                # Apply minimum and maximum
+                final_height = max(self.min_height, min(calculated_height, max_height))
+                
+                # Configure scrollbar based on whether height exceeds max
+                # Only if textWidget exists
+                if hasattr(self, 'textWidget') and self.textWidget:
+                    if calculated_height > max_height:
+                        # Need scrollbar
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                    else:
+                        # No scrollbar needed
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            else:
+                # Width is dynamic: calculate minimum needed
+                title_width = self._calculateTitleWidth()
+                
+                # Calculate minimum text width needed (longest line in text)
+                min_text_width = self._calculateMinTextWidth()
+                
+                # Final content width = max(title_width, min_text_width)
+                # This is the minimum width needed for content
+                content_width = max(title_width, min_text_width)
+                
+                # Final width = content width + all margins and paddings
+                final_width = content_width + layout_left + layout_right + right_margin + border_padding + 5
+                final_width = max(final_width, self.min_width)  # Apply minimum
+                final_width = min(final_width, self.max_width_default)  # Apply maximum (250px)
+                
+                # Calculate available width for text wrapping
+                avail_text_width = final_width - layout_left - layout_right - border_padding
+                
+                # Calculate height needed
+                title_height = 0
+                if hasattr(self, 'labelTitle') and self.labelTitle:
+                    title_font = self.labelTitle.font()
+                    title_metrics = QFontMetrics(title_font)
+                    title_height = title_metrics.height()
+                
+                text_height = self._calculateTextHeight(avail_text_width)
+                
+                # Total height = title + spacing + text + layout margins + border padding
+                calculated_height = title_height + layout_spacing + text_height + layout_top + layout_bottom + border_padding
+                
+                # Apply minimum and maximum
+                final_height = max(self.min_height, min(calculated_height, max_height))
+                
+                # Configure scrollbar based on whether height exceeds max
+                # Only if textWidget exists
+                if hasattr(self, 'textWidget') and self.textWidget:
+                    if calculated_height > max_height:
+                        # Need scrollbar
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+                    else:
+                        # No scrollbar needed
+                        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        
+        # Store calculated sizes
+        self.sizeXGlobal = final_width
+        self.sizeYGlobal = final_height
+        
+        # Set minimum and actual size
+        self.setMinimumSize(final_width, final_height)
+        self.resize(final_width, final_height)
+        
+        # Update text widget width for proper wrapping
+        # Only if textWidget exists
+        if hasattr(self, 'textWidget') and self.textWidget:
+            avail_text_width = final_width - layout_left - layout_right - border_padding
+            if avail_text_width > 0:
+                # Set document text width for proper wrapping
+                doc = self.textWidget.document()
+                if doc:
+                    doc.setTextWidth(float(avail_text_width))
+    
+    def getSizeXGlobal(self):
+        """Return the calculated width."""
+        # Use manual size if specified (compatibility with SGTextBox API)
+        if hasattr(self, 'sizeX') and self.sizeX is not None:
+            return self.sizeX
+        # Use custom_width if specified
+        if self.custom_width is not None:
+            return self.custom_width
+        # Use calculated size if available
+        if hasattr(self, 'sizeXGlobal'):
+            return self.sizeXGlobal
+        return self.default_width
+    
+    def getSizeYGlobal(self):
+        """Return the calculated height."""
+        # Use manual size if specified (compatibility with SGTextBox API)
+        if hasattr(self, 'sizeY') and self.sizeY is not None:
+            return self.sizeY
+        # Use custom_height if specified
+        if self.custom_height is not None:
+            return self.custom_height
+        # Use calculated size if available
+        if hasattr(self, 'sizeYGlobal'):
+            return self.sizeYGlobal
+        return self.default_height
+    
+    def setWidth(self, width):
+        """
+        Set custom width for the text box.
+        
+        Args:
+            width (int): Width in pixels
+        """
+        self.custom_width = width
+        # Update compatibility attribute
+        self.sizeX = width
+        # Recalculate size (especially important in shrinked mode)
+        self.updateSize()
+    
+    def setHeight(self, height):
+        """
+        Set custom height for the text box.
+        
+        Args:
+            height (int): Height in pixels
+        """
+        self.custom_height = height
+        # Update compatibility attribute
+        self.sizeY = height
+        # Recalculate size (especially important in shrinked mode where height becomes max)
+        self.updateSize()
+    
+    def setSize(self, width, height):
+        """
+        Set custom width and height for the text box.
+        
+        Args:
+            width (int): Width in pixels
+            height (int): Height in pixels
+        """
+        self.custom_width = width
+        self.custom_height = height
+        # Update compatibility attributes
+        self.sizeX = width
+        self.sizeY = height
+        # Recalculate size (especially important in shrinked mode)
+        self.updateSize()
+    
+    def resizeEvent(self, event):
+        """Override resize event to update text widget width for proper wrapping."""
+        super().resizeEvent(event)
+        # Only update if textWidget exists
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            return
+        new_width = event.size().width()
+        # Update text widget document width for proper wrapping
+        avail_text_width = new_width - 4 - 9 - 3  # Account for margins
+        if avail_text_width > 0:
+            doc = self.textWidget.document()
+            if doc:
+                doc.setTextWidth(float(avail_text_width))
+    
+    def onTextAspectsChanged(self):
+        """
+        Apply text styling from aspects (title1_aspect and text1_aspect).
+        This is called automatically when aspects change.
+        """
+        # Font weight helper
+        def _apply_weight_to_font(font_obj: QFont, weight_value):
+            try:
+                self.applyFontWeightToQFont(font_obj, weight_value)
             except Exception:
                 pass
-            finally:
-                self._resize_in_progress = False
-    
-    def adjustSizeAfterLayout(self):
-        """
-        Adjust widget size after layout configuration.
-        """
-        if hasattr(self, 'textLayout') and self.textLayout:
-            self.updateSizeFromLayout(self.textLayout)
-
-    # contextual menu (opened on a right click)
-    def show_contextMenu(self, point):
-        menu = QMenu(self)
-
-        option1 = QAction("Inspect", self)
-        option1.triggered.connect(lambda: print(
-            "One day this will inspected something"))
-        menu.addAction(option1)
-
-        option2 = QAction("Close", self)
-        option2.triggered.connect(self.close)
-        menu.addAction(option2)
-
-        if self.rect().contains(point):
-            menu.exec_(self.mapToGlobal(point))
-
-    def addText(self, text, toTheLine=False):
-        """
-        Add text in a text box.
-
-        args:
-            - text (str) : displayed text
-            - toTheLine (bool) : if true, skip a line before adding
-        """
-        self.textForHistory = text
-        if toTheLine == True:
-            self.new_text = "\n\n"+text
-        else:
-            self.new_text = text
-        self.updateText()
-
-    def updateText(self):
-        # Update the text widget content
-        if hasattr(self.textEdit, 'toPlainText'):
-            newText = self.textEdit.toPlainText() + self.new_text
-            self.textEdit.setPlainText(newText)
-        else:
-            newText = self.textEdit.text() + self.new_text
-            self.textEdit.setText(newText)
-        # Automatically adjust size to new content
-        text_font = self.textEdit.font() if hasattr(self.textEdit, 'font') else None
-        self.adjustSizeToContent(text_content=newText, font=text_font)
-        #self.history.append(self.textForHistory)
-
-    def setNewText(self, text):
-        """
-        Replace the text by a new text.
-
-        args :
-            - text (str) : new text
-        """
-        self.new_text = text
-        if hasattr(self.textEdit, 'setPlainText'):
-            self.textEdit.setPlainText(text)
-        else:
-            self.textEdit.setText(text)
-        # Automatically adjust size to new content
-        text_font = self.textEdit.font() if hasattr(self.textEdit, 'font') else None
-        self.adjustSizeToContent(text_content=text, font=text_font)
-
-    def setTitle(self, title):
-        """
-        Replace the title by a new title.
-
-        args:
-            -title (str) : new title
-        """
-        self.title = title
-
-    def setSize(self, x, y):
-        self.sizeX = x
-        self.sizeY = y
-
-    def setTextFormat(self, fontName='Verdana', size=12):
-        """
-        Customize the font and the size of the text
-
-        args :
-            - fontName (str) : desired font
-            - size (int) : desired size of the text
-        """
-        font = QFont(fontName, size)
-        self.textEdit.setFont(font)
         
-        # Force layout to recalculate its size with new font
-        if hasattr(self, 'textLayout') and self.textLayout:
-            self.textLayout.activate()
-            # Force widgets to update their size hints
-            self.textEdit.updateGeometry()
-            self.labelTitle.updateGeometry()
-        
-        # Recalculate height after font change
-        if hasattr(self.textEdit, 'toPlainText'):
-            text_content = self.textEdit.toPlainText()
-        else:
-            text_content = self.textEdit.text()
-        
-        # Adjust size to new font
-        self.adjustSizeToContent(text_content=text_content, font=font)
-        
-        # Force repaint to update visual appearance
-        self.update()
-
-    def setTitleColor(self, color='red'):
-        """
-        Set the color
-
-        args:
-            - color (str) : desired color
-        """
-        self.labelTitle.setStyleSheet("color: "+color+';')
-
-    def setTitleSize(self, size="20px"):
-        """Set the size
-        
-        args:
-            - size (int) : desired size
-        """
-        self.labelTitle.setStyleSheet("color: "+size+';')
-
-    def deleteTitle(self):
-        del self.labelTitle
-
-    def deleteText(self):
-        del self.textEdit
-
-    # =========================
-    # STYLE/APPLY HOOKS
-    # =========================
-    def applyContainerAspectStyle(self):
-        """Avoid QSS cascade; rely on paintEvent for container rendering."""
-        pass
-
-    def onTextAspectsChanged(self):
-        """Apply title1_aspect to title and text1_aspect to content, then resize."""
-        # Map alignment helper
+        # Alignment mapping helper
         def _map_alignment(al):
             if not isinstance(al, str):
                 return None
@@ -579,287 +497,439 @@ class SGTextBox(SGGameSpace):
             if a == 'justify':
                 return Qt.AlignJustify
             return None
-
-        # Font weight helper (supports 'bold', 'normal', 'bolder', 'lighter', and numeric strings)
-        def _apply_weight_to_font(font_obj: QFont, weight_value):
-            # Delegate to SGGameSpace helper
-            try:
-                self.applyFontWeightToQFont(font_obj, weight_value)
-            except Exception:
-                pass
-
-        # Title label
-        if hasattr(self, 'labelTitle') and self.labelTitle is not None:
+        
+        # Apply title styling
+        if hasattr(self, 'labelTitle') and self.labelTitle:
             f = self.labelTitle.font()
-            if self.title1_aspect.font:
-                f.setFamily(self.title1_aspect.font)
-            if self.title1_aspect.size:
-                try:
-                    f.setPixelSize(int(self.title1_aspect.size))
-                except Exception:
-                    pass
-            _apply_weight_to_font(f, getattr(self.title1_aspect, 'font_weight', None))
-            if self.title1_aspect.font_style:
-                s = str(self.title1_aspect.font_style).lower()
-                f.setItalic(s in ('italic', 'oblique'))
-            self.labelTitle.setFont(f)
-            # alignment
-            al = _map_alignment(getattr(self.title1_aspect, 'alignment', None))
-            if al is not None:
-                self.labelTitle.setAlignment(al)
-            # color/decoration
-            css_parts = []
-            if self.title1_aspect.color:
-                css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
-            td = getattr(self.title1_aspect, 'text_decoration', None)
-            css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-            self.labelTitle.setStyleSheet("; ".join(css_parts))
-
-        # Text content
-        target = self.textWidget
-        if target is not None:
-            if isinstance(target, QtWidgets.QLabel):
-                f = target.font()
+            if hasattr(self, 'title1_aspect') and self.title1_aspect:
+                # Font family
+                if self.title1_aspect.font:
+                    f.setFamily(self.title1_aspect.font)
+                # Font size
+                if self.title1_aspect.size:
+                    try:
+                        f.setPixelSize(int(self.title1_aspect.size))
+                    except Exception:
+                        pass
+                # Font weight
+                _apply_weight_to_font(f, getattr(self.title1_aspect, 'font_weight', None))
+                # Font style (italic/oblique)
+                if self.title1_aspect.font_style:
+                    s = str(self.title1_aspect.font_style).lower()
+                    f.setItalic(s in ('italic', 'oblique'))
+                self.labelTitle.setFont(f)
+                
+                # Alignment: use title1_aspect.alignment (set via setTitleAlignment or directly)
+                aspect_alignment = getattr(self.title1_aspect, 'alignment', None)
+                if aspect_alignment:
+                    al = _map_alignment(aspect_alignment)
+                    if al is not None:
+                        self.labelTitle.setAlignment(al)
+                # Fallback to titleAlignment parameter if aspect alignment not set
+                elif hasattr(self, 'titleAlignment') and self.titleAlignment:
+                    if self.titleAlignment == 'center':
+                        self.labelTitle.setAlignment(Qt.AlignCenter)
+                    elif self.titleAlignment == 'right':
+                        self.labelTitle.setAlignment(Qt.AlignRight)
+                    else:  # 'left' or default
+                        self.labelTitle.setAlignment(Qt.AlignLeft)
+                
+                # Color and text decoration via stylesheet
+                css_parts = []
+                if self.title1_aspect.color:
+                    css_parts.append(f"color: {QColor(self.title1_aspect.color).name()}")
+                td = getattr(self.title1_aspect, 'text_decoration', None)
+                css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
+                if css_parts:
+                    self.labelTitle.setStyleSheet("; ".join(css_parts))
+        
+        # Apply text styling
+        if hasattr(self, 'textWidget') and self.textWidget:
+            f = self.textWidget.font()
+            if hasattr(self, 'text1_aspect') and self.text1_aspect:
+                # Font family
                 if self.text1_aspect.font:
                     f.setFamily(self.text1_aspect.font)
+                # Font size
                 if self.text1_aspect.size:
                     try:
                         f.setPixelSize(int(self.text1_aspect.size))
                     except Exception:
                         pass
+                # Font weight
                 _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
+                # Font style (italic/oblique)
                 if self.text1_aspect.font_style:
                     s = str(self.text1_aspect.font_style).lower()
                     f.setItalic(s in ('italic', 'oblique'))
-                target.setFont(f)
+                self.textWidget.setFont(f)
+                
+                # Alignment for QTextEdit
                 al = _map_alignment(getattr(self.text1_aspect, 'alignment', None))
                 if al is not None:
-                    target.setAlignment(al)
+                    self.textWidget.setAlignment(al)
+                
+                # Color and text decoration via stylesheet
                 css_parts = []
                 if self.text1_aspect.color:
                     css_parts.append(f"color: {QColor(self.text1_aspect.color).name()}")
                 td = getattr(self.text1_aspect, 'text_decoration', None)
-                css_parts.append(f"text-decoration: {td}" if td and str(td).lower() != 'none' else "text-decoration: none")
-                target.setStyleSheet("; ".join(css_parts))
+                if td and str(td).lower() != 'none':
+                    css_parts.append(f"text-decoration: {td}")
+                # QTextEdit base styles
+                css_base = "QTextEdit { border: none; background: transparent; "
+                if css_parts:
+                    css_base += "; ".join(css_parts) + "; "
+                css_base += "}"
+                self.textWidget.setStyleSheet(css_base)
+        
+        # Recalculate size in case title width or text height changed
+        # (especially important in shrinked mode)
+        self.updateSize()
+    
+    def paintEvent(self, event):
+        """Paint the background, border, and content."""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        
+        # Background: prefer image, else color
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
             else:
-                # QTextEdit: apply font and color via stylesheet/palette, background transparent
-                f = target.font()
-                if self.text1_aspect.font:
-                    f.setFamily(self.text1_aspect.font)
-                if self.text1_aspect.size:
-                    try:
-                        f.setPixelSize(int(self.text1_aspect.size))
-                    except Exception:
-                        pass
-                _apply_weight_to_font(f, getattr(self.text1_aspect, 'font_weight', None))
-                if self.text1_aspect.font_style:
-                    s = str(self.text1_aspect.font_style).lower()
-                    f.setItalic(s in ('italic', 'oblique'))
-                target.setFont(f)
-                color_css = QColor(self.text1_aspect.color).name() if self.text1_aspect.color else None
-                if color_css:
-                    target.setStyleSheet(f"QTextEdit {{ border: none; background: transparent; color: {color_css}; }}")
-                else:
-                    target.setStyleSheet("QTextEdit { border: none; background: transparent; }")
-                # Ensure wrapping is enforced on runtime changes
-                try:
-                    target.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
-                    target.setWordWrapMode(QTextOption.WordWrap)
-                    target.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                except Exception:
-                    pass
-
-        # Resize: QLabel -> metrics-based with word-wrap; QTextEdit -> layout-based
-        target = getattr(self, 'textWidget', None)
-        if isinstance(target, QtWidgets.QLabel) and hasattr(self, 'labelTitle'):
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        
+        # Border
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+        
+        # Use actual widget size (self.width/height) with fallback to getSizeX/YGlobal
+        # This ensures the border is drawn within the actual widget bounds
+        # even if the layout has resized the widget differently than calculated
+        width = max(0, getattr(self, 'sizeXGlobal', self.width()) - 1)
+        height = max(0, getattr(self, 'sizeYGlobal', self.height()) - 1)
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, width, height, radius, radius)
+        else:
+            painter.drawRect(0, 0, width, height)
+    
+    def show_contextMenu(self, position):
+        """Show context menu with Inspect and Close options."""
+        menu = QMenu(self)
+        
+        inspect_action = QAction("Inspect", self)
+        inspect_action.triggered.connect(self.show_inspect_dialog)
+        menu.addAction(inspect_action)
+        
+        close_action = QAction("Close", self)
+        close_action.triggered.connect(self.close)
+        menu.addAction(close_action)
+        
+        menu.exec_(self.mapToGlobal(position))
+    
+    def _recreateTextWidget(self):
+        """
+        Recreate the text widget if it was deleted.
+        This is a safety method in case the widget is somehow missing.
+        """
+        # Create text widget (same configuration as in initUI)
+        self.textWidget = QtWidgets.QTextEdit()
+        self.textWidget.setPlainText(self.textToWrite)
+        self.textWidget.setReadOnly(True)
+        
+        # Configure word-wrap and scrolling
+        self.textWidget.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
+        self.textWidget.setWordWrapMode(QTextOption.WordWrap)
+        self.textWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.textWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        
+        # Remove borders and set transparent background
+        self.textWidget.setStyleSheet("QTextEdit { border: none; background: transparent; }")
+        
+        # Add to layout (after title if title exists, otherwise at index 0)
+        if hasattr(self, 'textLayout') and self.textLayout:
+            if hasattr(self, 'labelTitle') and self.labelTitle:
+                # Insert after title
+                self.textLayout.addWidget(self.textWidget)
+            else:
+                # No title, add at beginning
+                self.textLayout.insertWidget(0, self.textWidget)
+        
+        # Apply text aspects if they exist
+        if hasattr(self, 'text1_aspect') and self.text1_aspect:
+            self.onTextAspectsChanged()
+    
+    def setText(self, text):
+        """
+        Replace the text by a new text.
+        
+        Args:
+            text (str): New text to display
+        """
+        # Recreate textWidget if it was deleted
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            self._recreateTextWidget()
+        
+        self.textToWrite = text
+        self.textWidget.setPlainText(text)
+        # Add to history for tracking
+        if hasattr(self, 'history'):
+            self.history.append(text)
+        # Recalculate size if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
+    
+    def setTitle(self, title):
+        """
+        Replace the title by a new title.
+        
+        Args:
+            title (str): New title
+        """
+        self.title = title
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setText(title)
+        # Recalculate size as title width may have changed
+        # (especially important in shrinked mode)
+        self.updateSize()
+    
+    def setTextFormat(self, fontName='Verdana', size=12):
+        """
+        Customize the font and the size of the text.
+        
+        Args:
+            fontName (str): Desired font name (default: 'Verdana')
+            size (int): Desired font size in pixels (default: 12)
+        """
+        # Update text1_aspect
+        if hasattr(self, 'text1_aspect') and self.text1_aspect:
+            self.text1_aspect.font = fontName
+            self.text1_aspect.size = size
+        
+        # Apply the font immediately
+        if hasattr(self, 'textWidget') and self.textWidget:
+            font = QFont(fontName)
             try:
-                # For QLabel with word-wrap, we need to calculate dimensions manually
-                # First, ensure widgets have correct sizes
-                self.labelTitle.adjustSize()
-                target.adjustSize()
-                
-                # Calculate width: max of title width and text width (considering word-wrap)
-                title_width = self.labelTitle.sizeHint().width()
-                
-                # Get layout margins
-                m = self.textLayout.contentsMargins() if hasattr(self, 'textLayout') and self.textLayout else None
-                lm_left = m.left() if m else 4
-                lm_right = m.right() if m else 9
-                right_margin = getattr(self.size_manager, 'right_margin', 9)
-                border_padding = getattr(self.size_manager, 'border_padding', 3)
-                
-                # Calculate text width needed (for word-wrap, we use a reasonable width)
-                # But we must ensure title fits - use title width as base if it's longer
-                estimated_text_width = 240  # Reasonable default for text
-                # If title is longer, use it as the base width (important for cases 2 and 6)
-                # Add a small margin to ensure title doesn't get cropped
-                title_margin = 5  # Extra pixels to prevent title cropping
-                if title_width > estimated_text_width:
-                    content_width = title_width + title_margin
-                else:
-                    content_width = estimated_text_width
-                
-                # Set text label width to enable word-wrap calculation
-                target.setFixedWidth(content_width)
-                target.updateGeometry()
-                
-                # Calculate height using QFontMetrics with word-wrap
-                text_font = target.font()
-                metrics = QFontMetrics(text_font)
-                text_content = target.text()
-                wrapped_rect = metrics.boundingRect(
-                    QRect(0, 0, content_width, 10**6),
-                    Qt.TextWordWrap,
-                    text_content
-                )
-                text_height = wrapped_rect.height()
-                
-                # Title height
-                title_font = self.labelTitle.font()
-                title_metrics = QFontMetrics(title_font)
-                title_height = title_metrics.height()
-                
-                # Total dimensions
-                total_width = content_width + lm_left + lm_right + right_margin + border_padding
-                vertical_gap = getattr(self.size_manager, 'vertical_gap_between_labels', 5)
-                # Add extra safety margin for text wrapping and border visibility
-                safety_margin = 6  # Extra pixels to prevent text overflow and border cropping
-                total_height = title_height + vertical_gap + text_height + m.top() + m.bottom() + border_padding + safety_margin
-                
-                # Update cached sizes
-                self.sizeXGlobal = total_width
-                self.sizeYGlobal = total_height
-                
-                # Apply sizes
-                self.setMinimumSize(total_width, total_height)
-                self.resize(total_width, total_height)
+                font.setPixelSize(int(size))
             except Exception:
-                # Fallback au layout si nécessaire
-                if hasattr(self, 'textLayout') and self.textLayout:
-                    self.updateSizeFromLayout(self.textLayout)
-        elif hasattr(self, 'textLayout') and self.textLayout:
-            # S'assurer que les hints sont à jour avant le calcul layout
+                font.setPointSize(int(size))
+            self.textWidget.setFont(font)
+        
+        # Recalculate size if in shrinked mode (font change affects height)
+        if self.shrinked:
+            self.updateSize()
+    
+    def setTitleFormat(self, fontName='Verdana', size=14):
+        """
+        Customize the font and the size of the title.
+        
+        Args:
+            fontName (str): Desired font name (default: 'Verdana')
+            size (int): Desired font size in pixels (default: 14)
+        """
+        # Update title1_aspect
+        if hasattr(self, 'title1_aspect') and self.title1_aspect:
+            self.title1_aspect.font = fontName
+            self.title1_aspect.size = size
+        
+        # Apply the font immediately
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            font = QFont(fontName)
             try:
-                if hasattr(self, 'labelTitle') and self.labelTitle is not None:
-                    self.labelTitle.adjustSize()
-                if isinstance(target, QtWidgets.QLabel):
-                    target.adjustSize()
+                font.setPixelSize(int(size))
             except Exception:
-                pass
-            self.updateSizeFromLayout(self.textLayout)
-            # Après calcul du layout, forcer le word-wrap des QTextEdit à la largeur disponible
-            try:
-                if isinstance(target, QtWidgets.QTextEdit):
-                    # Largeur disponible = largeur cadre - marges/gaps internes
-                    m = self.textLayout.contentsMargins() if hasattr(self.textLayout, 'contentsMargins') else None
-                    lm_left = m.left() if m else 4
-                    lm_right = m.right() if m else 9
-                    right_margin = getattr(self.size_manager, 'right_margin', 9)
-                    left_margin = 4
-                    border_padding = getattr(self.size_manager, 'border_padding', 3)
-                    
-                    # Calculate available width for wrapping
-                    if self.width() > 0 and self.width() < 5000:
-                        avail_w = max(120, self.width() - (lm_left + lm_right + left_margin + border_padding))
-                    else:
-                        # Use a reasonable default instead of calling getSizeXGlobal() recursively
-                        # which might return an enormous value from calculateContentWidth()
-                        estimated_width = 280  # Reasonable default for text boxes
-                        avail_w = max(120, estimated_width - (lm_left + lm_right + right_margin + left_margin + border_padding))
-                    
-                    # Configure wrapping
-                    target.setWordWrapMode(QTextOption.WordWrap)
-                    target.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
-                    target.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                    target.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-                    
-                    # Update document width for proper wrapping calculation
-                    doc = target.document()
-                    if doc:
-                        doc.setTextWidth(float(avail_w))
-                        doc.adjustSize()
-                        # Calculate text height from wrapped document
-                        doc_height = doc.size().height()
-                        frame_w = target.frameWidth() if hasattr(target, 'frameWidth') else 0
-                        margins = target.contentsMargins() if hasattr(target, 'contentsMargins') else QMargins(0, 0, 0, 0)
-                        text_h = int(doc_height + 2 * frame_w + margins.top() + margins.bottom() + 4)
-                        
-                        # Set size policy to allow vertical expansion
-                        target.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-                        # Set minimum size to ensure proper layout calculation
-                        target.setMinimumWidth(avail_w)
-                        target.setMinimumHeight(text_h)
-                    
-                    # Force layout to recalculate with new text widget sizes
-                    self.textLayout.activate()
-                    # Get the layout's size hint after all widgets are properly sized
-                    layout_size = self.textLayout.sizeHint()
-                    if layout_size and layout_size.isValid():
-                        # Calculate final widget size including margins
-                        right_margin = getattr(self.size_manager, 'right_margin', 9)
-                        border_padding = getattr(self.size_manager, 'border_padding', 3)
-                        vertical_gap = getattr(self.size_manager, 'vertical_gap_between_labels', 5)
-                        
-                        # Calculate final dimensions with all margins and padding
-                        # Width: layout width + right margin + border padding
-                        # Add safety margin for title width (important for cases 2 and 6)
-                        safety_margin_width = 5  # Extra pixels to prevent title cropping
-                        final_width = layout_size.width() + right_margin + border_padding + safety_margin_width
-                        # Height: layout height + vertical gap + border padding (to prevent bottom cropping)
-                        # Add safety margin to prevent text overflow
-                        safety_margin_height = 6  # Extra pixels to prevent text overflow
-                        final_height = layout_size.height() + vertical_gap + border_padding + safety_margin_height
-                        
-                        # Sanity check: ensure reasonable values
-                        if final_width > 5000:
-                            final_width = 280  # Fallback to reasonable default
-                        if final_height < 50:
-                            # Recalculate height using getSizeYGlobal if layout height seems too small
-                            calculated_height = self.getSizeYGlobal()
-                            if calculated_height > final_height:
-                                final_height = calculated_height
-                        
-                        # Update cached sizes
-                        self.sizeXGlobal = final_width
-                        self.sizeYGlobal = final_height
-                        
-                        # Apply the calculated size
-                        self.setMinimumSize(final_width, final_height)
-                        self.resize(final_width, final_height)
-                    else:
-                        # Fallback: use getSizeYGlobal() if layout size hint is invalid
-                        final_height = self.getSizeYGlobal()
-                        final_width = max(280, self.width() if self.width() < 5000 else 280)
-                        self.sizeXGlobal = final_width
-                        self.sizeYGlobal = final_height
-                        self.setMinimumSize(final_width, final_height)
-                        self.resize(final_width, final_height)
-            except Exception:
-                pass
-        self.update()
-
-    # ============================================================================
-    # MODELER METHODS
-    # ============================================================================
+                font.setPointSize(int(size))
+            self.labelTitle.setFont(font)
+        
+        # Recalculate size as title width may have changed
+        # (especially important in shrinked mode)
+        self.updateSize()
+    
+    def show_inspect_dialog(self):
+        """Show inspection dialog with widget information."""
+        from PyQt5.QtWidgets import QMessageBox
+        info = f"Widget ID: {self.id}\n"
+        info += f"Title: {self.title}\n"
+        info += f"Size: {self.getSizeXGlobal()}x{self.getSizeYGlobal()}\n"
+        info += f"Text length: {len(self.textToWrite)} characters"
+        QMessageBox.information(self, "Inspect", info)
     
     # ============================================================================
-    # NEW/ADD/SET METHODS
+    # COMPATIBILITY METHODS (for backward compatibility with SGTextBox API)
     # ============================================================================
+    
+    def addText(self, text, toTheLine=False):
+        """
+        Add text to the text box (compatibility method).
+        
+        Args:
+            text (str): Text to add
+            toTheLine (bool): If True, skip a line before adding
+        """
+        # Recreate textWidget if it was deleted
+        if not hasattr(self, 'textWidget') or not self.textWidget:
+            self._recreateTextWidget()
+        
+        if toTheLine:
+            new_text = "\n\n" + text
+        else:
+            new_text = text
+        
+        # Get current text and append new text
+        current_text = self.textWidget.toPlainText()
+        new_full_text = current_text + new_text
+        self.textWidget.setPlainText(new_full_text)
+        # Update textToWrite
+        self.textToWrite = new_full_text
+        # Add to history
+        if hasattr(self, 'history'):
+            self.history.append(text)
+        # Recalculate size if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
+    
+    def updateText(self):
+        """
+        Update the text widget content (compatibility method).
+        This method is called by addText() but can also be called directly.
+        """
+        # This method exists for compatibility but may not be needed
+        # Force size update if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
+    
+    def setNewText(self, text):
+        """
+        Replace the text by a new text (compatibility method, alias of setText).
+        
+        Args:
+            text (str): New text to display
+        """
+        # Use setText() which already handles everything (including widget recreation)
+        self.setText(text)
+    
+    def setTitleColor(self, color='red'):
+        """
+        Set the color of the title (compatibility method).
+        
+        Args:
+            color (str or QColor): Desired color (can be color name string or QColor)
+        """
+        if hasattr(self, 'title1_aspect') and self.title1_aspect:
+            # Convert string color to QColor if needed
+            if isinstance(color, str):
+                # Try to get QColor from string (e.g., 'red', '#FF0000')
+                try:
+                    qcolor = QColor(color)
+                    if qcolor.isValid():
+                        self.title1_aspect.color = qcolor
+                    else:
+                        # Fallback: set via stylesheet
+                        if hasattr(self, 'labelTitle') and self.labelTitle:
+                            self.labelTitle.setStyleSheet(f"color: {color};")
+                except Exception:
+                    # Fallback: set via stylesheet
+                    if hasattr(self, 'labelTitle') and self.labelTitle:
+                        self.labelTitle.setStyleSheet(f"color: {color};")
+            else:
+                # It's already a QColor
+                self.title1_aspect.color = color
+            # Apply the change
+            self.onTextAspectsChanged()
+        else:
+            # Fallback: set via stylesheet
+            if hasattr(self, 'labelTitle') and self.labelTitle:
+                self.labelTitle.setStyleSheet(f"color: {color};")
+    
+    def setTitleSize(self, size="20px"):
+        """
+        Set the size of the title (compatibility method).
+        
+        Args:
+            size (str or int): Desired size (e.g., "20px" or 20)
+        """
+        # Extract numeric value from string if needed
+        if isinstance(size, str):
+            # Remove 'px' if present
+            size_str = size.replace('px', '').strip()
+            try:
+                size_int = int(size_str)
+            except ValueError:
+                size_int = 20  # Default fallback
+        else:
+            size_int = int(size)
+        
+        # Use setTitleFormat to set the size (preserving current font)
+        current_font = "Verdana"  # Default
+        if hasattr(self, 'title1_aspect') and self.title1_aspect and self.title1_aspect.font:
+            current_font = self.title1_aspect.font
+        
+        self.setTitleFormat(fontName=current_font, size=size_int)
+    
+    def deleteTitle(self):
+        """
+        Delete the title (compatibility method).
+        Note: This removes the title label from the widget.
+        """
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            # Remove from layout
+            if hasattr(self, 'textLayout') and self.textLayout:
+                self.textLayout.removeWidget(self.labelTitle)
+            # Delete the widget
+            self.labelTitle.deleteLater()
+            self.labelTitle = None
+            # Recalculate size if in shrinked mode
+            if self.shrinked:
+                self.updateSize()
+    
+    def eraseText(self):
+        """
+        Erase the text content (compatibility method).
+        Note: This clears the text but keeps the widget intact.
+        """
+        # Clear text content
+        self.textToWrite = ""
+        # Update widget if it exists
+        if hasattr(self, 'textWidget') and self.textWidget:
+            self.textWidget.setPlainText("")
+        # Recalculate size if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
     
     def setBorderColor(self, color):
         """
-        Set the border color of the text box.
+        Set the border color of the text box (compatibility method).
         
         Args:
             color (QColor or Qt.GlobalColor): The border color
         """
         self.gs_aspect.border_color = color
-        
+        self.update()  # Force repaint
+    
     def setBorderSize(self, size):
         """
-        Set the border size of the text box.
+        Set the border size of the text box (compatibility method).
         
         Args:
             size (int): The border size in pixels
         """
         self.gs_aspect.border_size = size
+        self.update()  # Force repaint
