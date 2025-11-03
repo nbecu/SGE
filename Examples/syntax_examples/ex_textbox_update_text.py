@@ -35,14 +35,14 @@ def addTextWithLine():
     testTextBox.addText("New paragraph added via addText!", toTheLine=True)
     print("Added text with line break")
 
-def setNewText():
+def setText():
     """Replace all text with new text"""
     newContent = """This is completely new content!
-The previous text has been replaced using setNewText().
+The previous text has been replaced using setext().
 
 You can see that all the original content is gone."""
-    testTextBox.setNewText(newContent)
-    print("Text replaced using setNewText()")
+    testTextBox.setText(newContent)
+    print("Text replaced using setText()")
 
 def deleteTitle():
     """Delete the title"""
@@ -91,7 +91,7 @@ myModel.newButton(
 )
 
 myModel.newButton(
-    lambda: setNewText(),
+    lambda: setText(),
     "Replace Text",
     (650, 130),
     background_color='lightyellow',

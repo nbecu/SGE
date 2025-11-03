@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # Create model
-myModel = SGModel(name="TextBox Test", windowTitle="SGTextBox Test")
+myModel = SGModel(name="TextBox Test", windowTitle="SGTextBox Test",width=1170, height=650)
 
 # Test text - long text that requires scrolling
 longText = """This is a very long text that demonstrates how textBox display long texts with automatic
@@ -77,7 +77,7 @@ textBox6 = myModel.newTextBox(
     height=350,
     titleAlignment='center'
 )
-textBox6.moveToCoords(820, 370)
+textBox6.moveToCoords(520, 370)
 
 # Apply various aspect customizations using SGGameSpace setters
 textBox6.setBorderColor(Qt.darkGreen)

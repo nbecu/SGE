@@ -383,74 +383,6 @@ class SGTextBox(SGGameSpace):
                 if doc:
                     doc.setTextWidth(float(avail_text_width))
     
-    def getSizeXGlobal(self):
-        """Return the calculated width."""
-        # Use manual size if specified (compatibility with SGTextBox API)
-        if hasattr(self, 'sizeX') and self.sizeX is not None:
-            return self.sizeX
-        # Use custom_width if specified
-        if self.custom_width is not None:
-            return self.custom_width
-        # Use calculated size if available
-        if hasattr(self, 'sizeXGlobal'):
-            return self.sizeXGlobal
-        return self.default_width
-    
-    def getSizeYGlobal(self):
-        """Return the calculated height."""
-        # Use manual size if specified (compatibility with SGTextBox API)
-        if hasattr(self, 'sizeY') and self.sizeY is not None:
-            return self.sizeY
-        # Use custom_height if specified
-        if self.custom_height is not None:
-            return self.custom_height
-        # Use calculated size if available
-        if hasattr(self, 'sizeYGlobal'):
-            return self.sizeYGlobal
-        return self.default_height
-    
-    def setWidth(self, width):
-        """
-        Set custom width for the text box.
-        
-        Args:
-            width (int): Width in pixels
-        """
-        self.custom_width = width
-        # Update compatibility attribute
-        self.sizeX = width
-        # Recalculate size (especially important in shrinked mode)
-        self.updateSize()
-    
-    def setHeight(self, height):
-        """
-        Set custom height for the text box.
-        
-        Args:
-            height (int): Height in pixels
-        """
-        self.custom_height = height
-        # Update compatibility attribute
-        self.sizeY = height
-        # Recalculate size (especially important in shrinked mode where height becomes max)
-        self.updateSize()
-    
-    def setSize(self, width, height):
-        """
-        Set custom width and height for the text box.
-        
-        Args:
-            width (int): Width in pixels
-            height (int): Height in pixels
-        """
-        self.custom_width = width
-        self.custom_height = height
-        # Update compatibility attributes
-        self.sizeX = width
-        self.sizeY = height
-        # Recalculate size (especially important in shrinked mode)
-        self.updateSize()
-    
     def resizeEvent(self, event):
         """Override resize event to update text widget width for proper wrapping."""
         super().resizeEvent(event)
@@ -677,6 +609,49 @@ class SGTextBox(SGGameSpace):
         if hasattr(self, 'text1_aspect') and self.text1_aspect:
             self.onTextAspectsChanged()
     
+    def getSizeXGlobal(self):
+        """Return the calculated width."""
+        # Use manual size if specified (compatibility with SGTextBox API)
+        if hasattr(self, 'sizeX') and self.sizeX is not None:
+            return self.sizeX
+        # Use custom_width if specified
+        if self.custom_width is not None:
+            return self.custom_width
+        # Use calculated size if available
+        if hasattr(self, 'sizeXGlobal'):
+            return self.sizeXGlobal
+        return self.default_width
+    
+    def getSizeYGlobal(self):
+        """Return the calculated height."""
+        # Use manual size if specified (compatibility with SGTextBox API)
+        if hasattr(self, 'sizeY') and self.sizeY is not None:
+            return self.sizeY
+        # Use custom_height if specified
+        if self.custom_height is not None:
+            return self.custom_height
+        # Use calculated size if available
+        if hasattr(self, 'sizeYGlobal'):
+            return self.sizeYGlobal
+        return self.default_height
+    
+    def show_inspect_dialog(self):
+        """Show inspection dialog with widget information."""
+        from PyQt5.QtWidgets import QMessageBox
+        info = f"Widget ID: {self.id}\n"
+        info += f"Title: {self.title}\n"
+        info += f"Size: {self.getSizeXGlobal()}x{self.getSizeYGlobal()}\n"
+        info += f"Text length: {len(self.textToWrite)} characters"
+        QMessageBox.information(self, "Inspect", info)
+    
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
     def setText(self, text):
         """
         Replace the text by a new text.
@@ -763,22 +738,51 @@ class SGTextBox(SGGameSpace):
         # (especially important in shrinked mode)
         self.updateSize()
     
-    def show_inspect_dialog(self):
-        """Show inspection dialog with widget information."""
-        from PyQt5.QtWidgets import QMessageBox
-        info = f"Widget ID: {self.id}\n"
-        info += f"Title: {self.title}\n"
-        info += f"Size: {self.getSizeXGlobal()}x{self.getSizeYGlobal()}\n"
-        info += f"Text length: {len(self.textToWrite)} characters"
-        QMessageBox.information(self, "Inspect", info)
+    def setWidth(self, width):
+        """
+        Set custom width for the text box.
+        
+        Args:
+            width (int): Width in pixels
+        """
+        self.custom_width = width
+        # Update compatibility attribute
+        self.sizeX = width
+        # Recalculate size (especially important in shrinked mode)
+        self.updateSize()
     
-    # ============================================================================
-    # COMPATIBILITY METHODS (for backward compatibility with SGTextBox API)
-    # ============================================================================
+    def setHeight(self, height):
+        """
+        Set custom height for the text box.
+        
+        Args:
+            height (int): Height in pixels
+        """
+        self.custom_height = height
+        # Update compatibility attribute
+        self.sizeY = height
+        # Recalculate size (especially important in shrinked mode where height becomes max)
+        self.updateSize()
+    
+    def setSize(self, width, height):
+        """
+        Set custom width and height for the text box.
+        
+        Args:
+            width (int): Width in pixels
+            height (int): Height in pixels
+        """
+        self.custom_width = width
+        self.custom_height = height
+        # Update compatibility attributes
+        self.sizeX = width
+        self.sizeY = height
+        # Recalculate size (especially important in shrinked mode)
+        self.updateSize()
     
     def addText(self, text, toTheLine=False):
         """
-        Add text to the text box (compatibility method).
+        Add text to the text box.
         
         Args:
             text (str): Text to add
@@ -806,29 +810,10 @@ class SGTextBox(SGGameSpace):
         if self.shrinked:
             self.updateSize()
     
-    def updateText(self):
-        """
-        Update the text widget content (compatibility method).
-        This method is called by addText() but can also be called directly.
-        """
-        # This method exists for compatibility but may not be needed
-        # Force size update if in shrinked mode
-        if self.shrinked:
-            self.updateSize()
-    
-    def setNewText(self, text):
-        """
-        Replace the text by a new text (compatibility method, alias of setText).
-        
-        Args:
-            text (str): New text to display
-        """
-        # Use setText() which already handles everything (including widget recreation)
-        self.setText(text)
     
     def setTitleColor(self, color='red'):
         """
-        Set the color of the title (compatibility method).
+        Set the color of the title.
         
         Args:
             color (str or QColor): Desired color (can be color name string or QColor)
@@ -861,7 +846,7 @@ class SGTextBox(SGGameSpace):
     
     def setTitleSize(self, size="20px"):
         """
-        Set the size of the title (compatibility method).
+        Set the size of the title.
         
         Args:
             size (str or int): Desired size (e.g., "20px" or 20)
@@ -884,9 +869,33 @@ class SGTextBox(SGGameSpace):
         
         self.setTitleFormat(fontName=current_font, size=size_int)
     
+    def setBorderColor(self, color):
+        """
+        Set the border color of the text box.
+        
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        self.gs_aspect.border_color = color
+        self.update()  # Force repaint
+    
+    def setBorderSize(self, size):
+        """
+        Set the border size of the text box.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        self.gs_aspect.border_size = size
+        self.update()  # Force repaint
+    
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+    
     def deleteTitle(self):
         """
-        Delete the title (compatibility method).
+        Delete the title.
         Note: This removes the title label from the widget.
         """
         if hasattr(self, 'labelTitle') and self.labelTitle:
@@ -902,7 +911,7 @@ class SGTextBox(SGGameSpace):
     
     def eraseText(self):
         """
-        Erase the text content (compatibility method).
+        Erase the text content.
         Note: This clears the text but keeps the widget intact.
         """
         # Clear text content
@@ -914,22 +923,15 @@ class SGTextBox(SGGameSpace):
         if self.shrinked:
             self.updateSize()
     
-    def setBorderColor(self, color):
-        """
-        Set the border color of the text box (compatibility method).
-        
-        Args:
-            color (QColor or Qt.GlobalColor): The border color
-        """
-        self.gs_aspect.border_color = color
-        self.update()  # Force repaint
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
     
-    def setBorderSize(self, size):
+    def updateText(self):
         """
-        Set the border size of the text box (compatibility method).
-        
-        Args:
-            size (int): The border size in pixels
+        Update the text widget content.
+        This method is called by addText() but can also be called directly.
         """
-        self.gs_aspect.border_size = size
-        self.update()  # Force repaint
+        # Force size update if in shrinked mode
+        if self.shrinked:
+            self.updateSize()
