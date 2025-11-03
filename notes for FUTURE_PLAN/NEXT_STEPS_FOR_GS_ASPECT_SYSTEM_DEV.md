@@ -227,7 +227,20 @@ gameSpace.applyTheme('modern')
    - Corriger les erreurs de stylesheet des indicateurs du dashboard
    - ✅ SGTextBox : problèmes de hauteur/word-wrap résolus
 3. **Améliorations techniques**
-   - Réduire la duplication de code : refactoriser `onTextAspectsChanged()` dans `SGGameSpace`
+   - 🔄 **EN COURS** : Réduire la duplication de code : refactoriser `onTextAspectsChanged()` dans `SGGameSpace`
+     - **Plan de refactorisation** :
+       - Créer `mapAlignmentStringToQtFlags()` dans `SGExtensions.py` (méthode générique)
+       - Créer `applyToQFont()`, `getStyleSheetForColorAndDecoration()`, `applyToQLabel()` dans `SGAspect` (méthodes d'instance)
+       - Créer `_applyAspectToLabel()` helper dans `SGGameSpace` (DEVELOPER METHODS section)
+       - Refactoriser toutes les classes filles pour utiliser ces méthodes
+       - Supprimer les `_map_alignment()` locaux dupliqués
+       - Chaque classe gère ses propres boucles pour application multiple (Option A)
+     - **Décisions** :
+       - Option A pour helper dans SGGameSpace (méthode `_applyAspectToLabel()`)
+       - Option A pour application multiple (chaque classe gère ses boucles)
+       - Conserver l'ordre d'application actuel (ne pas changer)
+       - Conserver la robustesse (try/except)
+       - Supprimer directement les `_map_alignment()` locaux
    - Utiliser l'analyse `HARDCODED_STYLES_ANALYSIS.md` pour définir les styles par défaut
 4. **Documentation** : Mise à jour des README et guides
 
