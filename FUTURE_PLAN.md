@@ -13,10 +13,7 @@ This document contains the planned improvements and features for the SGE (Simula
 ### User Interface & Display
 - [ ] Main window auto resize
 - [ ] Integrate two features from Enhanced Grid layout that are still missing : position readjsuted to save space (shrinked), and move up/down to control overlapping 
-- [ ] create a "Theme system" to apply ready-to-use gs_aspect to all gameSpaces (and a menu to edit, save and load themes of sgAspect)
-- [ ] Uniformize font style management across all GameSpaces classes (see UNIFORMIZE_FONT_STYLES_GAMESPACES.md for analysis)
-- [ ] Background images in GameSpaces: add scaling modes (cover/contain/stretch) and generalize background image support via gs_aspect across all GameSpaces
-   - Objective: allow using an image instead of a color for any GameSpace background through `gs_aspect.background_image`
+- [ ] Background images in GameSpaces: add scaling modes (cover/contain/stretch)
    - Add `gs_aspect.background_image_mode` with values: `cover`, `contain`, `stretch` (default: `stretch`)
    - Implement rendering logic in each GameSpace `paintEvent` without breaking existing zoom/rendu (notably `SGGrid`)
    - Expose modeler API: `setStyle({ 'background_image': 'path', 'background_image_mode': 'cover' })`
@@ -161,6 +158,34 @@ This document contains the planned improvements and features for the SGE (Simula
   - ✅ Unified inheritance styling between classes and methods
   - ✅ Fixed header overlap with proper spacing (200px margin)
   - ✅ All changes integrated into source code for persistence
+
+- [x] Create a "Theme system" to apply ready-to-use gs_aspect to all gameSpaces (Jan 2025)
+  - ✅ Implemented complete theme system with predefined themes (modern, minimal, colorful, blue, green, gray)
+  - ✅ Created Custom Theme Editor dialog for creating and editing custom themes
+  - ✅ Added theme persistence in `theme_config.json` with automatic loading at startup
+  - ✅ Implemented Theme Assignment dialog for assigning themes to GameSpaces
+  - ✅ Added dynamic discovery of predefined themes from `SGAspect.py`
+  - ✅ Implemented "Apply to All..." functionality for global theme application
+  - ✅ Added theme code generation for promoting custom themes to predefined
+  - ✅ All GameSpaces support theme application via `applyTheme(theme_name)`
+  - ✅ Theme configurations can be saved and loaded via `applyThemeConfig(config_name)`
+
+- [x] Uniformize font style management across all GameSpaces classes (Jan 2025)
+  - ✅ Migrated all 12 GameSpaces to use unified `gs_aspect` system
+  - ✅ Refactored `onTextAspectsChanged()` methods to use centralized helpers
+  - ✅ Created helper methods: `_applyAspectToLabel()`, `mapAlignmentStringToQtFlags()`, `applyToQFont()`, `applyToQLabel()`
+  - ✅ Reduced code duplication by ~60-70% across all GameSpaces
+  - ✅ All GameSpaces support consistent style methods: `setTextColor()`, `setFontSize()`, `setFontFamily()`, etc.
+  - ✅ Unified style application through `gs_aspect` for both container and text styles
+  - ✅ All styles pass through `gs_aspect` ensuring consistent behavior
+
+- [x] Generalize background image support via gs_aspect across all GameSpaces (Jan 2025)
+  - ✅ Implemented `setBackgroundImage()` method in `SGGameSpace` base class
+  - ✅ Added `gs_aspect.background_image` attribute support
+  - ✅ Implemented `getBackgroundImagePixmap()` helper method with fallback to background color
+  - ✅ Extended background image support to all GameSpaces using `paintEvent()` (SGTextBox, SGDashBoard, SGEndGameRule, SGUserSelector, SGProgressGauge, SGTimeLabel, SGVoid, SGLabel, SGButton, SGLegend, SGGrid)
+  - ✅ Background images can be set via `setBackgroundImage(path_or_qpixmap)` or `setStyle({ 'background_image': 'path' })`
+  - ✅ All GameSpaces now support using images instead of colors for background
 
 ## Git Branch Organization Convention
 
