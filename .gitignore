@@ -1,3 +1,7 @@
 *.pyc
 __pycache__/
 .vscode/
+_valo/*
+SGE.egg-info/*
+venv/*
+examples/syntax_examples/venv/*
