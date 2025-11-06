@@ -12,7 +12,7 @@ Square.setEntities("status",'black')
 Square.setEntities("status",'white',lambda c: c.id%2==0)
 Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QColor.fromRgb(254, 254, 226)})
 
-Pawn=myModel.newAgentSpecies(name="Pawn",shape='circleAgent',defaultSize=8,defaultColor=QColor.fromRgb(196,88,36))
+Pawn=myModel.newAgentType(name="Pawn",shape='circleAgent',defaultSize=8,defaultColor=QColor.fromRgb(196,88,36))
 
 Pawn.setDefaultValue('age',(lambda: random.randint(12, 99)))
 
@@ -25,7 +25,7 @@ def step2():
         a1.incValue('age',2)
         a2=Pawn.getEntity(2)
         a2.incValue('age')
-myModel.timeManager.newModelPhase(lambda: step2())
+myModel.newModelPhase(lambda: step2())
 
 scores = myModel.newDashBoard()
 scores.addIndicatorOnEntity(Pawn.getEntity(1),'age')

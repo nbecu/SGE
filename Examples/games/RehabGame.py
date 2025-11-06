@@ -9,7 +9,7 @@ monApp = QtWidgets.QApplication([])
 
 
 myModel = SGModel(
-    900, 900, x=5, windowTitle="dev project : Rehab Game - Player 1", typeOfLayout="grid")
+    830, 500, nb_columns=5, windowTitle="Rehab Game")
 
 Cell = myModel.newCellsOnGrid(5, 4, "square", size=60, gap=0,
                         name='grid1')
@@ -34,59 +34,60 @@ Cell.newPov("biomass", "biomass", {
 Cell.newBorderPov("Parc info", "ProtectionLevel", {
                      "Reserve": Qt.magenta, "Free": Qt.black})
 
-harvesters = myModel.newAgentSpecies(
+Cell.displayBorderPov('Parc info')
+
+harvesters = myModel.newAgentType(
     "harvesters", "triangleAgent1", {'total harvest':{0},'harvest':{0}})
 harvesters.setDefaultValue('harvest',0)
 harvesters.setDefaultValue('total harvest',0)
 
-Bird = myModel.newAgentSpecies("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, defaultColor=Qt.yellow)
+Bird = myModel.newAgentType("Bird", "triangleAgent2", {'nb reproduction':{0,1,2}}, defaultColor=Qt.yellow)
 
 Bird.setDefaultValue('nb reproduction',0)
 
-Chick = myModel.newAgentSpecies("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
+Chick = myModel.newAgentType("Chick","triangleAgent2", defaultSize=5, defaultColor=QColorConstants.Magenta)
 
-
+myModel.newLegend()
 
 Clans = myModel.newPlayer("Clan")
-Clans.addGameAction(myModel.newCreateAction(harvesters, 20))
+Clans.addGameAction(myModel.newCreateAction(harvesters, aNumber=20))
 
-Player1ControlPanel = Clans.newControlPanel(showAgentsWithNoAtt=True)
+Player1ControlPanel = Clans.newControlPanel()
 
 Parc = myModel.newPlayer("Parc")
 
-Parc.addGameAction(myModel.newUpdateAction(
-    "Cell", "infinite", {"ProtectionLevel": "Reserve"}
-    ,[lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
-Parc.addGameAction(myModel.newUpdateAction(
-    "Cell", "infinite", {"ProtectionLevel": "Free"}))
-Player2ControlPanel = Parc.newControlPanel()
+aGA = Parc.addGameAction(myModel.newModifyAction(
+    Cell, {"ProtectionLevel": "Reserve"}, conditions = [lambda: Cell.nb_withValue("ProtectionLevel","Reserve")<3]))
+Parc.addGameAction(myModel.newModifyAction(
+    Cell, {"ProtectionLevel": "Free"}))
+Player2ControlPanel = Parc.newControlPanel(defaultActionSelected=aGA)
 
 
-firstPhase = myModel.timeManager.newModelPhase(name='Birds Settle')
+firstPhase = myModel.newModelPhase(name='Birds Settle')
 firstPhase.addAction(lambda: harvesters.setEntities('harvest',0))
 settleAction= myModel.newModelAction_onCells(lambda cell: cell.newAgentHere(Bird),(lambda cell: cell.value('biomass')>=2))
 firstPhase.addAction(settleAction)
 
-myModel.timeManager.newGamePhase('Parc actions', [Parc])
-myModel.timeManager.newGamePhase('Clans actions', [Clans])
+myModel.newPlayPhase('Parc actions', [Parc])
+myModel.newPlayPhase('Clans actions', [Clans])
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)),name='harvest updated')
+myModel.newModelPhase(myModel.newModelAction_onCells(lambda cell: allocateHarvests(cell)),name='harvest updated')
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onAgents('Bird',lambda bird: reproduce(bird)),name='Bird reproduction')
+myModel.newModelPhase(myModel.newModelAction_onAgents('Bird',lambda bird: reproduce(bird)),name='Bird reproduction')
 
 
 def reproduce(aBird):
     if aBird.cell.nbAgents('harvesters') == 0 :
-        listQuietNeighbours = [aCell for aCell in aBird.cell.getNeighborCells() if aCell.nbAgents('harvesters') == 0 ]
+        listQuietNeighbours = [aCell for aCell in aBird.getNeighborCells() if aCell.nbAgents('harvesters') == 0 ]
         nbQuietNeighbours = len(listQuietNeighbours)
-        ratioQuietness = float(nbQuietNeighbours / len(aBird.cell.getNeighborCells()))
+        ratioQuietness = float(nbQuietNeighbours / len(aBird.getNeighborCells()))
         if (ratioQuietness > 0.5) & (ratioQuietness < 0.8) : aBird.setValue('nb reproduction',1)
         elif ratioQuietness >= 0.8 : aBird.setValue('nb reproduction',2)
     for i in range(aBird.value('nb reproduction')):
         aBird.cell.newAgentHere(Chick)
 
-myModel.timeManager.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='biomass updated')
-myModel.timeManager.newModelPhase(lambda : myModel.deleteAllAgents(),name='gameboard cleared')
+myModel.newModelPhase(myModel.newModelAction_onCells(lambda cell: renewBiomass(cell)),name='biomass updated')
+myModel.newModelPhase(lambda : myModel.deleteAllAgents(),name='gameboard cleared')
 
 
 def updateNoHarvestPeriod(cell):
@@ -118,12 +119,13 @@ def renewBiomass(cell):
 
 
 GameRounds = myModel.newTimeLabel(None, Qt.white, Qt.black, Qt.red)
+GameRounds.setLayoutOrder(3)
 
 
 userSelector=myModel.newUserSelector()
 
 TextBox = myModel.newTextBox(
-    title='Info', textToWrite="Welcome to ReHab game !")
+    title='Info', textToWrite="Welcome to ReHab game !",titleAlignment='center')
 
 DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.red)
 i1 = DashBoard.addIndicator(Cell, "sumAtt", attribute='biomass',color=Qt.black, title='Total biomass')

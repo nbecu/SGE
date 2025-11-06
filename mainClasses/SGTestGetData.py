@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 
 from mainClasses.SGModel import*
-from mainClasses.SGEntity import*
-from mainClasses.SGEntityDef import*
+from mainClasses.SGEntity import *
+from mainClasses.SGEntityType import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
 from mainClasses.SGModelAction import*
@@ -12,6 +12,10 @@ from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTimeManager import*
 
 
+""" ---------------------------------------------------------------------------
+This class is currently under construction.
+Do not rely on its current implementation.
+"""
 class SGTestGetData():
     def __init__(self, model):
         self.model = model
@@ -24,8 +28,8 @@ class SGTestGetData():
             h = aEntity.getHistoryDataJSON()
             historyData.append(h)
             dictOfData[aEntity.getObjectIdentiferForJsonDumps] = aEntity.history["value"]
-            """print("id: {}, entityName: {}, entityDef: {}, value: {}".
-                  format(h['id'], h['entityName'], h['entityDef'], h['value']))"""
+            """print("id: {}, name: {}, entityDef: {}, value: {}".
+                  format(h['id'], h['name'], h['entityDef'], h['value']))"""
 
             # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
         print(historyData)
@@ -36,5 +40,5 @@ class SGTestGetData():
         # self.model.getAllCells  --> These two lines are equivalent to self.modelgetAllEntities
 
         # In addition to data carried by the entities, there are are also data carried by :
-        #      - SGEntityDef, SimVariable and SGPlayer --> Those data are in the form of attribute and values
+        #      - SGEntityType, SimVariable and SGPlayer --> Those data are in the form of attribute and values
         #      - GameActions  --> Those data are the number of actions performed or left at each round

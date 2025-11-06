@@ -6,6 +6,7 @@ from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="Production and Consumption")
+myModel.displayTimeInWindowTitle()
 
 score=myModel.newSimVariable('Score',0)
 
@@ -16,21 +17,16 @@ ProductionUnits.setEntities("production system",(lambda: random.choice(['constan
 ProductionUnits.setEntities("energy",lambda: random.randint(2,4)*10)
 
     # Define pov 
-def interpolate_color(value_min, value_max, color_min, color_max, a_value):
-    # Assurez-vous que la valeur intermédiaire se trouve entre les valeurs min et max
-    a_value = max(min(a_value, value_max), value_min)
-    # convertir les color_min et color_max en  un format rgb 
-    color_min_rgb = QColor(color_min).getRgb()
-    color_max_rgb = QColor(color_max).getRgb()
-    # Interpoler les composantes RGB
-    proportion = (a_value - value_min) / (value_max - value_min)
-    aList=[]
-    for i in range(0,3):
-        aList.append(int(color_min_rgb[i] + proportion * (color_max_rgb[i] - color_min_rgb[i])))
-    return QColor(*aList)
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,QColor.fromRgb(239, 255, 232),QColor.fromRgb(1,50,32),aVal) 
+aDict = generate_color_gradient(
+    QColor.fromRgb(239, 255, 232),QColor.fromRgb(1,50,32),
+    mapping={"values": list(range(0, 100, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
+aDict = generate_color_gradient(
+    QColor.fromRgb(239, 255, 232),QColor.fromRgb(1,50,32),
+    mapping={"values": list(range(0, 100, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
 ProductionUnits.newPov("energy","energy",aDict)
 
 ProductionUnits.newPov("prod system","production system",{"constant":Qt.green,"not constant":Qt.blue,"boosted":QColor.fromRgb(255,127,0)})
@@ -48,19 +44,21 @@ def produce(aPU):
         score.incValue(1) 
 
 ## Define Consumers
-Consumers=myModel.newAgentSpecies("Consumer","triangleAgent1")
+Consumers=myModel.newAgentType("Consumer","triangleAgent1")
 Consumers.setDefaultValues({"energy":50})
 Consumers.newAgentsAtRandom(20,ProductionUnits,{"strategy":(lambda: random.choice(['restrained','unrestrained']))})
 
     #define pov
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,Qt.red,Qt.blue,aVal) 
+aDict = generate_color_gradient(
+    Qt.red, Qt.blue,
+    mapping={"values": list(range(0, 110, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
 Consumers.newPov("energy","energy",aDict)
 
     # Define methods
 def move(aConsumer):
-    dest = sorted(list(aConsumer.cell.getNeighborCells()),  key=lambda x:x.value('energy'))[-1]
+    dest = sorted(list(aConsumer.getNeighborCells()),  key=lambda x:x.value('energy'))[-1]
     return aConsumer.moveTo(dest)
 
 def moveAndConsume(aConsumer):
@@ -90,7 +88,7 @@ def reproAndDie(aConsumer):
         score.decValue(1)
 
 ## Define Regulator
-Regulators=myModel.newAgentSpecies("Regulator","circleAgent")
+Regulators=myModel.newAgentType("Regulator","circleAgent")
 Regulators.setValue("satisf constant",0)
 Regulators.setValue("satisf not constant",0)
 Regulators.newAgentsAtRandom(5,ProductionUnits)
@@ -100,13 +98,13 @@ Regulators.newAgentsAtRandom(5,ProductionUnits)
 def evaluate(aRegulator):
     aCell = aRegulator.cell
     if aCell.value('production system') == 'boosted' and aCell.value('energy') == 100:
-        if aRegulator.entDef.value("satisf constant") == aRegulator.entDef.value("satisf not constant"):
+        if aRegulator.type.value("satisf constant") == aRegulator.type.value("satisf not constant"):
             if random.random() < 0.5:
                 newS = 'constant'
             else :
                 newS = 'not constant'
         else :
-            ratio = aRegulator.entDef.value("satisf constant") / (aRegulator.entDef.value("satisf constant") + aRegulator.entDef.value("satisf not constant"))
+            ratio = aRegulator.type.value("satisf constant") / (aRegulator.type.value("satisf constant") + aRegulator.type.value("satisf not constant"))
             if random.random < ratio :
                 newS = 'constant'
             else :
@@ -114,14 +112,14 @@ def evaluate(aRegulator):
             aCell.setValue('production system',newS)
 
     if aCell.value('production system') == 'constant' and aCell.value('energy') == 100:
-        aRegulator.classDef.incValue("satisf constant",1)
+        aRegulator.type.incValue("satisf constant",1)
     if aCell.value('production system') == 'not constant' and aCell.value('energy') == 100:
-        aRegulator.classDef.incValue("satisf not constant",1)
+        aRegulator.type.incValue("satisf not constant",1)
     if aCell.value('production system') == 'constant' and aCell.value('energy') <= 10:
-        aRegulator.classDef.decValue("satisf constant",1)
+        aRegulator.type.decValue("satisf constant",1)
         aRegulator.cell.setValue('production system','boosted')
     if aCell.value('production system') == 'not constant' and aCell.value('energy') <= 10:
-        aRegulator.classDef.decValue("satisf not constant",1)
+        aRegulator.type.decValue("satisf not constant",1)
         aRegulator.cell.setValue('production system','boosted')
 
 
@@ -155,12 +153,12 @@ modelAction6=myModel.newModelAction_onAgents("Regulator",(lambda aRegulator: eva
 modelAction7=myModel.newModelAction_onCells((lambda aCell: evaluateCell(aCell)))
 
 
-myModel.timeManager.newModelPhase([modelAction1,modelAction2,modelAction4,modelAction5,modelAction6,modelAction7])
+myModel.newModelPhase([modelAction1,modelAction2,modelAction4,modelAction5,modelAction6,modelAction7])
 
 
 # def rdCustom():
 #     if random.random() < 0.2 : score.incValue(2)
-# myModel.timeManager.newModelPhase([lambda : rdCustom()])
+# myModel.newModelPhase([lambda : rdCustom()])
 
 ## Define other interface widgets
 myModel.newLegend()
@@ -175,6 +173,6 @@ DashBoard.showIndicators()
 ## open the simulation
 
 # dataTest = SGTestGetData(myModel)
-# myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
+# myModel.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
 myModel.launch()
 sys.exit(monApp.exec_())

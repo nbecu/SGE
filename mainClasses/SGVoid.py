@@ -32,3 +32,46 @@ class SGVoid(SGGameSpace):
     # To choose the inital pov
     def displayPov(self, nameOfPov):
         return True
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setSize(self, width, height):
+        """
+        Set the size of the void widget.
+        
+        Args:
+            width (int): The width in pixels
+            height (int): The height in pixels
+        """
+        self.sizeX = width
+        self.sizeY = height
+        self.setFixedSize(width, height)
+        self.update()
+        
+    def setWidth(self, width):
+        """
+        Set the width of the void widget.
+        
+        Args:
+            width (int): The width in pixels
+        """
+        self.sizeX = width
+        self.setFixedWidth(width)
+        self.update()
+        
+    def setHeight(self, height):
+        """
+        Set the height of the void widget.
+        
+        Args:
+            height (int): The height in pixels
+        """
+        self.sizeY = height
+        self.setFixedHeight(height)
+        self.update()

@@ -6,7 +6,10 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+""" ---------------------------------------------------------------------------
+This class is a work in progress.
+It is no used yet in SGE.
+"""
 class SGMultiGraphMixte():
     def __init__(self):
         self.initView()

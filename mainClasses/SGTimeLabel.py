@@ -6,144 +6,266 @@ from sqlalchemy import true
 from mainClasses.SGGameSpace import SGGameSpace
 
 
-# Class who is responsible of the Legend creation
 class SGTimeLabel(SGGameSpace):
-    def __init__(self, parent, title, backgroundColor=Qt.darkGray, borderColor=Qt.black, textColor=Qt.red):
+    def __init__(self, parent, title, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
-        self.timeManager = parent.timeManager
-        self.borderColor = borderColor
-        self.textColor = textColor
-        self.y1 = 0
-        self.labels = 0
+        self.timeManager = self.model.timeManager
+        self.gs_aspect.border_color = borderColor
+        self.setTitlesAndTextsColor(textColor)
         self.moveable = True
-        self.displayPhaseNumber = False
-        self.displayPhaseName = False
+        self.textTitle  = title
+        self.displayTitle = self.textTitle is not None
         self.displayRoundNumber = True
-        self.displayTitle = True
-        self.initUI()
+        self.displayPhaseNumber = self.timeManager.numberOfPhases() >= 2
+        self.displayPhaseName = self.timeManager.numberOfPhases() >= 2
 
-    def initUI(self):
+        self.initLabels()
 
-        # Créer deux labels
-        self.labelTitle = QtWidgets.QLabel(self)
-        self.label1 = QtWidgets.QLabel(self)
-        self.label2 = QtWidgets.QLabel(self)
-        self.label3 = QtWidgets.QLabel(self)
+    
+    def initLabels(self):
+        self.labels =[]
+ 
+        if self.displayTitle:
+            self.labelTitle = QtWidgets.QLabel(self)
+            self.labelTitle.setText(self.textTitle)
+            self.labels.append(self.labelTitle)
+        if self.displayRoundNumber:
+            self.labelRoundNumber = QtWidgets.QLabel(self)
+            self.labelRoundNumber.setText('Not yet started')
+            self.labels.append(self.labelRoundNumber)
+        if self.displayPhaseNumber:
+            self.labelPhaseNumber = QtWidgets.QLabel(self)
+            self.labels.append(self.labelPhaseNumber)
+        if self.displayPhaseName:
+            self.labelPhaseName = QtWidgets.QLabel(self)
+            self.labels.append(self.labelPhaseName)
 
-        if self.id is not None:
-            self.labelTitle.setText(self.id)
-            font = QFont()
-            font.setBold(True)
-            font.setPixelSize(14)
-            self.labelTitle.setFont(font)
-        self.label1.setText('Round Number: Not started')
-        self.label2.setText('Phase Number: Not started')
-        currentPhaseNumber = self.timeManager.phases[int(self.timeManager.currentPhaseNumber)-1]
-        self.label3.setText('Game not yet started')
-
-        color = QColor(self.textColor)
-        color_string = f"color: {color.name()};"
-        self.labelTitle.setStyleSheet(color_string)
-        self.label1.setStyleSheet(color_string)
-        self.label2.setStyleSheet(color_string)
-        self.label3.setStyleSheet(color_string)
-
-        self.labels = ['IN-GAME TIME', 'Round number: 0',
-                       'Phase number: 0', 'Phase name']
-
-        self.label1.setFixedHeight(
-            self.label1.fontMetrics().boundingRect(self.label1.text()).height())
-        self.label1.setFixedWidth(
-            self.label1.fontMetrics().boundingRect(self.label1.text()).width())
-
-        self.label2.setFixedHeight(
-            self.label2.fontMetrics().boundingRect(self.label2.text()).height())
-        self.label2.setFixedWidth(
-            self.label2.fontMetrics().boundingRect(self.label2.text()).width())
-
-        self.label3.setFixedHeight(
-            self.label3.fontMetrics().boundingRect(self.label3.text()).height())
-        self.label3.setFixedWidth(
-            self.label3.fontMetrics().boundingRect(self.label3.text()).width())
-
-        self.labelTitle.setFixedHeight(
-            self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).height())
-        self.labelTitle.setFixedWidth(
-            self.labelTitle.fontMetrics().boundingRect(self.labelTitle.text()).width())
+        for aLabel in self.labels:
+            aLabel.setStyleSheet(self.text1_aspect.getTextStyle())
+        if self.displayTitle:
+            self.labelTitle.setStyleSheet(self.title1_aspect.getTextStyle())
 
         # Créer un layout vertical
         layout = QtWidgets.QVBoxLayout()
-
-        # Ajouter les widgets au layout avec un espace de 10 pixels entre eux
-        layout.addWidget(self.labelTitle)
-        layout.addWidget(self.label1)
-        layout.addWidget(self.label2)
-        layout.addWidget(self.label3)
-
-        # Définir le layout pour le widget
+        for aLabel in self.labels:
+            layout.addWidget(aLabel)
         self.setLayout(layout)
-        self.displayUpdate()
+
         self.show()
+        self.updateLabelsandWidgetSize()
 
-    # Function to have the global size of a gameSpace
-    def getSizeXGlobal(self):
-        return 70+len(self.getLongest())*5
-
-    def getLongest(self):
-        longest_word = ''
-        for word in self.labels:
-            if len(word) > len(longest_word):
-                longest_word = word
-        return longest_word
-
-    def getSizeYGlobal(self):
-        somme = 30
-        for word in self.labels:
-            somme = somme + 2*len(word)
-        return somme
 
     def paintEvent(self, event):
-        if len(self.labels) != 0:
-            painter = QPainter()
-            painter.begin(self)
-            painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor, 1))
-            # Draw the corner of the Legend
-            self.setMinimumSize(self.getSizeXGlobal()+3,
-                                self.getSizeYGlobal()+3)
-            painter.drawRect(0, 0, self.getSizeXGlobal(),
-                             self.getSizeYGlobal())
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background: prefer image, else color
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Pen with style
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
+        # Rounded rect if radius provided
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        w = max(0, self.getSizeXGlobal() - 1)
+        h = max(0, self.getSizeYGlobal() - 1)
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, w, h, radius, radius)
+        else:
+            painter.drawRect(0, 0, w, h)
 
-            painter.end()
+    def onTextAspectsChanged(self):
+        """Reapply text styles from current aspects to labels and resize."""
+        from mainClasses.SGExtensions import mapAlignmentStringToQtFlags
+        
+        # Apply text1_aspect to non-title labels
+        for aLabel in getattr(self, 'labels', []) or []:
+            # Apply font properties
+            f = aLabel.font()
+            self.text1_aspect.applyToQFont(f, self)
+            aLabel.setFont(f)
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.text1_aspect.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                aLabel.setStyleSheet(stylesheet)
+            # Alignment from text1_aspect
+            al = getattr(self.text1_aspect, 'alignment', None)
+            if isinstance(al, str) and al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    aLabel.setAlignment(qt_alignment)
+        # Apply title1_aspect to title if present
+        if getattr(self, 'displayTitle', False) and hasattr(self, 'labelTitle') and self.labelTitle:
+            # Apply font properties
+            f = self.labelTitle.font()
+            self.title1_aspect.applyToQFont(f, self)
+            self.labelTitle.setFont(f)
+            # Apply stylesheet for color and text decoration
+            stylesheet = self.title1_aspect.getStyleSheetForColorAndDecoration()
+            if stylesheet:
+                self.labelTitle.setStyleSheet(stylesheet)
+            # Alignment from title1_aspect
+            al = getattr(self.title1_aspect, 'alignment', None)
+            if isinstance(al, str) and al:
+                qt_alignment = mapAlignmentStringToQtFlags(al)
+                if qt_alignment is not None:
+                    self.labelTitle.setAlignment(qt_alignment)
+        self.updateLabelsandWidgetSize()
+        self.update()
+
+    # Override to prevent container QSS from interfering; rely solely on paintEvent
+    def applyContainerAspectStyle(self):
+        pass
 
     def updateTimeLabel(self):
-        self.label1.setText('Round Number : {}'.format(
+        self.labelRoundNumber.setText('Round Number : {}'.format(
             self.timeManager.currentRoundNumber))
-        self.label2.setText('Phase Number : {}'.format(
-            self.timeManager.currentPhaseNumber))
-        self.label3.setText(self.timeManager.getCurrentPhase().name)
+        if self.displayPhaseNumber:
+            self.labelPhaseNumber.setText('Phase Number : {}'.format(
+                self.timeManager.currentPhaseNumber))
+            self.labelPhaseName.setText(self.timeManager.getCurrentPhase().name)
 
-        self.label1.setFixedHeight(
-            self.label1.fontMetrics().boundingRect(self.label1.text()).height())
-        self.label1.setFixedWidth(
-            self.label1.fontMetrics().boundingRect(self.label1.text()).width())
+        self.updateLabelsandWidgetSize()
 
-        self.label2.setFixedHeight(
-            self.label2.fontMetrics().boundingRect(self.label2.text()).height())
-        self.label2.setFixedWidth(
-            self.label2.fontMetrics().boundingRect(self.label2.text()).width())
 
-        self.label3.setFixedHeight(
-            self.label3.fontMetrics().boundingRect(self.label3.text()).height())
-        self.label3.setFixedWidth(
-            self.label3.fontMetrics().boundingRect(self.label3.text()).width())
+    def updateLabelsandWidgetSize(self):
+        # Recalculer les dimensions en fonction du texte et du styleSheet utilisé dans les QLabel
+        for aLabel in self.labels:
+            aLabel.setFixedWidth(aLabel.fontMetrics().boundingRect(aLabel.text()).width())
+            aLabel.setFixedHeight(aLabel.fontMetrics().boundingRect(aLabel.text()).height())
+            aLabel.adjustSize()
+        
+        max_right = max(aLabel.geometry().right() for aLabel in self.labels)
+        max_bottom = max(aLabel.geometry().bottom() for aLabel in self.labels)
+        
+        self.sizeXGlobal = max_right +self.rightMargin
+        self.setFixedSize(QSize(self.getSizeXGlobal() , self.getSizeYGlobal()))
+    
 
-    def displayUpdate(self):
-        if len(self.model.timeManager.phases) > 2:
-            self.displayPhaseName = True
-            self.displayPhaseNumber = True
-        self.label3.setVisible(self.displayPhaseName)
-        self.label2.setVisible(self.displayPhaseNumber)
-        self.label1.setVisible(self.displayRoundNumber)
-        self.labelTitle.setVisible(self.displayTitle)
+    def getSizeXGlobal(self):
+        return self.sizeXGlobal
+    
+    
+    def getSizeYGlobal(self):
+        somme = 10
+        for label in self.labels:
+            somme += label.height()  + self.verticalGapBetweenLabels
+        return somme
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setTitleText(self, text):
+        """
+        Set the title text of the time label.
+        
+        Args:
+            text (str): The title text
+        """
+        self.textTitle = text
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setText(text)
+            self.labelTitle.adjustSize()
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayTitle(self, display):
+        """
+        Set whether to display the title.
+        
+        Args:
+            display (bool): Whether to display the title
+        """
+        self.displayTitle = display
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayRoundNumber(self, display):
+        """
+        Set whether to display the round number.
+        
+        Args:
+            display (bool): Whether to display the round number
+        """
+        self.displayRoundNumber = display
+        if hasattr(self, 'labelRoundNumber') and self.labelRoundNumber:
+            self.labelRoundNumber.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayPhaseNumber(self, display):
+        """
+        Set whether to display the phase number.
+        
+        Args:
+            display (bool): Whether to display the phase number
+        """
+        self.displayPhaseNumber = display
+        if hasattr(self, 'labelPhaseNumber') and self.labelPhaseNumber:
+            self.labelPhaseNumber.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayPhaseName(self, display):
+        """
+        Set whether to display the phase name.
+        
+        Args:
+            display (bool): Whether to display the phase name
+        """
+        self.displayPhaseName = display
+        if hasattr(self, 'labelPhaseName') and self.labelPhaseName:
+            self.labelPhaseName.setVisible(display)
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setLabelStyle(self, style_dict):
+        """
+        Set the style of all labels.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties for labels
+        """
+        for label in self.labels:
+            style_parts = []
+            for key, value in style_dict.items():
+                if key == 'color':
+                    style_parts.append(f"color: {value}")
+                elif key == 'font_size':
+                    style_parts.append(f"font-size: {value}px")
+                elif key == 'font_family':
+                    style_parts.append(f"font-family: {value}")
+                elif key == 'font_weight':
+                    style_parts.append(f"font-weight: {value}")
+            
+            if style_parts:
+                label.setStyleSheet("; ".join(style_parts))
+        self.updateLabelsandWidgetSize()
+        self.update()

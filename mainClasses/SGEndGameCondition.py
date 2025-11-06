@@ -28,22 +28,39 @@ class SGEndGameCondition(QtWidgets.QWidget):
     def initUI(self):
         if self.isDisplay:
             self.conditionLayout = QtWidgets.QHBoxLayout()
-            self.label = QtWidgets.QTextEdit(self.name)
-            self.label.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.label.setReadOnly(True)
-            color = QColor(self.endGameRule.textColor)
-            color_string = f"color: {color.name()};"
-            self.label.setStyleSheet(
-                color_string+"border: none;background-color: lightgray;")
+            self.conditionLayout.setContentsMargins(0, 0, 0, 0)
+            self.conditionLayout.setSpacing(6)
+            # Status/check label (initially hidden)
+            self.statusLabel = QtWidgets.QLabel("")
+            self.statusLabel.setVisible(False)
+            self.statusLabel.setStyleSheet("color: #2e7d32; font-weight: bold;")
+            self.conditionLayout.addWidget(self.statusLabel)
+            # Main text label
+            self.label = QtWidgets.QLabel(self.name)
+            # Enable word wrap if text is too long
+            if len(self.name) > 50:  # Arbitrary threshold to decide on word wrapping
+                self.label.setWordWrap(True)
+            else:
+                self.label.setWordWrap(False)
+            # Do not force background on child label; container handles background in paintEvent
+            self.label.setStyleSheet("border: none;")
             self.conditionLayout.addWidget(self.label)
 
     def updateText(self):
         self.verifStatus()
         if self.checkStatus:
-            color = QColor(Qt.darkGreen)
-            color_string = f"color: {color.name()};"
-            self.label.setStyleSheet(
-                color_string+"border: none;background-color: lightgray;")
+            # Indicate validation with a green check mark label on the left
+            color = self.endGameRule.success_aspect.color
+            self.statusLabel.setText("✓")
+            # Apply green from success aspect if available
+            self.statusLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
+            self.statusLabel.setVisible(True)
+        else:
+            self.statusLabel.setVisible(False)
+        # Ask parent to update its size from layout
+        if hasattr(self.endGameRule, 'updateSizeFromLayout'):
+            self.endGameRule.updateSizeFromLayout(self.endGameRule.layout)
+        self.endGameRule.update()
 
     def getUpdatePermission(self):
         if self.endGameRule.displayRefresh == 'instantaneous':
@@ -52,7 +69,37 @@ class SGEndGameCondition(QtWidgets.QWidget):
             return True
 
     def getSizeXGlobal(self):
-        return 150+len(self.name)*5
+        # Prefer layout size if available
+        if hasattr(self, 'conditionLayout') and self.conditionLayout:
+            self.conditionLayout.activate()
+            size_hint = self.conditionLayout.sizeHint()
+            if size_hint.isValid():
+                return size_hint.width() + 10
+        # Fallback: include status label + text label
+        width = 0
+        if hasattr(self, 'statusLabel') and self.statusLabel:
+            sh = self.statusLabel.sizeHint()
+            if sh.isValid():
+                width += sh.width() + 6
+        if hasattr(self, 'label') and self.label:
+            sh = self.label.sizeHint()
+            if sh.isValid():
+                width += sh.width()
+        return max(width, 100)
+    
+    def getSizeYGlobal(self):
+        # Prefer layout height if available
+        if hasattr(self, 'conditionLayout') and self.conditionLayout:
+            self.conditionLayout.activate()
+            size_hint = self.conditionLayout.sizeHint()
+            if size_hint.isValid():
+                return size_hint.height() + 6
+        # Fallback
+        if hasattr(self, 'label') and self.label:
+            sh = self.label.sizeHint()
+            if sh.isValid():
+                return sh.height() + 6
+        return 25
 
     def byCalcType(self):
         if self.calcType == 'onIndicator':
@@ -78,6 +125,14 @@ class SGEndGameCondition(QtWidgets.QWidget):
             valueToCheck = self.endGameRule.model.timeManager.currentRoundNumber
             if self.logicalTests(valueToCheck, self.method, self.objective):
                 self.checkStatus = True
+                return
+        if self.calcType == "onLambda":
+            if callable(self.method):
+                if self.method():
+                    self.checkStatus = True
+                    return
+            else:
+                print("Error, method is not callable")
                 return
 
     def logicalTests(self, valueToCheck, logicalTest, objective):

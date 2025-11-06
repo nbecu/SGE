@@ -6,7 +6,7 @@ monApp=QtWidgets.QApplication([])
 
 myModel=SGModel(860,700, windowTitle="EndGame Conditions and Scores")
 
-Cell=myModel.newCellsOnGrid(10,10,"square",size=60, gap=2)
+Cell=myModel.newCellsOnGrid(10,10,"square",size=40, gap=2)
 Cell.setEntities("landUse","grass")
 Cell.setEntities_withColumn("landUse","forest",1)
 Cell.setEntities_withColumn("landUse","forest",2)
@@ -15,26 +15,28 @@ Cell.setRandomEntities("landUse","shrub",10)
 Cell.newPov("ICanSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 Cell.newPov("ICantSeeShrub","landUse",{"grass":Qt.green,"shrub":Qt.green,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-Sheeps.newPov("Sheeps -> Health","health",{'good':Qt.blue,'bad':Qt.red})
-Sheeps.newPov("Sheeps -> Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
-m1=Sheeps.newAgentAtCoords(Cell,4,2,{"health":"good","hunger":"bad"})
-m2=Sheeps.newAgentAtCoords(Cell,5,2)
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1")
+Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
+Sheeps.newPov("Hunger","hunger",{'good':Qt.green,'bad':Qt.yellow})
+m1=Sheeps.newAgentAtCoords(Cell,4,4,{"health":"good","hunger":"bad"})
+m2=Sheeps.newAgentAtCoords(Cell,5,4)
 
 theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1",showAgentsWithNoAtt=True)
+Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
 
 userSelector=myModel.newUserSelector()
 
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1])
-aModelAction5=myModel.newModelAction(lambda: Sheeps.getEntity(1).moveAgent(method="cardinal",direction="South"))
-myModel.timeManager.newModelPhase(aModelAction5)
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1])
+aModelAction5=myModel.newModelAction([lambda: Sheeps.getEntity(1).moveAgent(method="direction",target="down"),
+                                      lambda: Sheeps.getEntity(2).moveAgent(method="direction",target="up")
+                                      ])
+myModel.newModelPhase(aModelAction5)
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction1=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot("landUse","forest",2,"landUse","forest"))
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
@@ -42,17 +44,18 @@ aModelAction3=myModel.newModelAction(lambda: Cell.setRandomEntities_withValueNot
 
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 
-myModel.timeManager.newModelPhase(aModelAction2)
+
+myModel.newModelPhase(aModelAction2)
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
 
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
+DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black,title='Scores')
 score1= myModel.newSimVariable("Score",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1) 
 i2 = DashBoard.addIndicator(Cell,"nbEqualTo",  attribute='landUse',value='forest',color=Qt.black)
 # Here is the way to add feedback on score on ModelAction
-aModelAction4.addFeedback(lambda: score1.incValue(5))
-myModel.timeManager.newModelPhase(aModelAction4, name="Score Time!")
+aModelAction4.addFeedback(lambda: score1.incValue(30))
+myModel.newModelPhase(aModelAction4, name="Score Time!")
 
 
 # Here you can add a Widget to show the EndGame Conditions of your game

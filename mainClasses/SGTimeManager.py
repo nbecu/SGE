@@ -1,5 +1,4 @@
-from mainClasses.SGTimePhase import SGTimePhase
-from mainClasses.SGTimePhase import SGModelPhase
+from mainClasses.SGTimePhase import *
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -20,32 +19,44 @@ class SGTimeManager():
         
     # To increment the time of the game
     def nextPhase(self):
-        if len(self.phases) == 0:
-            print('warning : should we handle the case when there is no phases defined ?')
+        if self.numberOfPhases() == 0:
+            # TODO: should we handle differently the case when there is no phases defined ?
             return
         
+        # Record the data of the step in dataRecorded
         self.model.dataRecorder.calculateStepStats()
+
+        # Process the conditions of game ending
         isEndGame = self.checkEndGame()
         if isEndGame : return
 
-        if self.currentRoundNumber ==0:     #This case is to quit the Initialization phase at the begining of the game
+        # set the values of currentRoundNumber and currentPhaseNumber
+        ## This case is to quit the Initialization phase at the begining of the game
+        if self.currentRoundNumber ==0:     
             self.currentRoundNumber = 1
             self.currentPhaseNumber = 1
-        elif self.isCurrentPhase_Last():    #This case is when  there is no nextphase after the current one. Therefor it is a next round
+        ## This case is when  there is no nextphase after the current one. Therefor it is a next round
+        elif self.isItTheLastPhase():    
             self.currentRoundNumber += 1
             self.currentPhaseNumber = 1
             #reset GameActions count
             for action in self.model.getAllGameActions():
                 action.reset()
-        else :                              #This case is to advance to the next phase wthin the same round
+        ## This case is to advance to the next phase wthin the same round
+        else :
             self.currentPhaseNumber += 1
         
-        # Process the widgets for this next phase/round
+        # Process the timeLabel widgets for this next phase/round
         if self.model.myTimeLabel is not None:
             self.model.myTimeLabel.updateTimeLabel()
+        self.model.updateWindowTitle()
+
+        # Process the useSelector widgets for this next phase/round
         if self.model.userSelector is not None:
-            # self.model.userSelector.updateUI(QHBoxLayout())
             self.model.userSelector.updateOnNewPhase()
+
+        # Update control panels based on current phase type
+        self.updateControlPanelsForCurrentPhase()
 
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()
@@ -55,69 +66,31 @@ class SGTimeManager():
         for aGraph in self.model.openedGraphs:
             aGraph.toolbar.refresh_data()
 
-        if self.getCurrentPhase().autoForwardOn:
-            if self.getCurrentPhase().messageAutoForward:
-                # a encapsuler ds une méthode
-                msg_box = QMessageBox(self.model)
-                msg_box.setIcon(QMessageBox.Information)
-                msg_box.setWindowTitle("SGE Time Manager Message")
-                if isinstance(self.getCurrentPhase().messageAutoForward,str):
-                    aText = self.getCurrentPhase().messageAutoForward
-                else:
-                    aText = "The phase '"+self.getCurrentPhase().name+"' has been completed. The simulation now moves on to "+ ("the next round" if self.isCurrentPhase_Last() else ("the next phase: '"+self.getNextPhase().name+"'")) 
-                msg_box.setText(aText)
-                msg_box.setStandardButtons(QMessageBox.Ok)
-                msg_box.setDefaultButton(QMessageBox.Ok)
-                msg_box.exec_()
-            self.nextPhase()
+        # La phase gère elle-même son passage automatique
+        self.getCurrentPhase().handleAutoForward()
 
+    def updateControlPanelsForCurrentPhase(self):
+        """Update control panels activation based on current phase type"""
+        currentPhase = self.getCurrentPhase()
+        
+        # Check if we're in a model phase (no authorized players)
+        if hasattr(currentPhase, '__class__') and currentPhase.__class__.__name__ == 'SGModelPhase':
+            # In model phase, all control panels should be inactive
+            for controlPanel in self.model.getControlPanels():
+                controlPanel.setActivation(False)
+        else:
+            # In play phase, only the current player's control panel should be active
+            for controlPanel in self.model.getControlPanels():
+                controlPanel.setActivation(controlPanel.playerName == self.model.currentPlayerName)
 
-    """                    #reset GameActions count
-                    for action in self.model.getAllGameActions():
-                        action.reset()
-                    self.currentPhase = 1
-                
-
-                thePhase = self.phases[self.currentPhase]
-                # check conditions for the phase
-                doThePhase = True
-                if self.currentPhase == 1 and len(self.phases) > 1:
-                    self.currentRound += 1
-                    if self.model.myTimeLabel is not None:
-                        self.model.myTimeLabel.updateTimeLabel()
-                    if self.model.userSelector is not None:
-                        self.model.userSelector.updateUI(QHBoxLayout())
-
-                # execute the actions of the phase
-                if doThePhase:
-                    # We can execute the actions
-                    #TODO déplacer l'execution de la phase coté TimePhase
-                    if len(thePhase.modelActions) != 0:
-                        for aAction in thePhase.modelActions:
-                            if callable(aAction):
-                                aAction()  # this command executes aAction
-                            elif isinstance(aAction, SGModelAction):
-                                aAction.execute()
-                    #textbox update
-                    thePhase.notifyNewText()
-                    #watchers update
-                    self.model.checkAndUpdateWatchers()
-                    #mqtt update
-        #The instructions below have been commented temporarily to test a new process for broker msg  
-                    # if self.model.mqttMajType=="Phase" or self.model.mqttMajType=="Instantaneous":
-                    #     self.model.publishEntitiesState()
-                    for aGraph in self.model.openedGraphs:
-                        aGraph.toolbar.refresh_data()
-
-
-                else:
-                    self.nextPhase()"""
-
-    def isCurrentPhase_Last(self):
-        return (self.currentPhaseNumber + 1) > len(self.phases) 
+    def isItTheLastPhase(self):
+        return (self.currentPhaseNumber + 1) > self.numberOfPhases() 
 
     def getCurrentPhase(self):
         return self.phases[self.currentPhaseNumber-1]
+    
+    def numberOfPhases(self):
+        return len(self.phases)
                             
     def getNextPhase(self):
         return self.phases[self.currentPhaseNumber]
@@ -153,32 +126,81 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newGamePhase(self, name, activePlayers):
+    def newPlayPhase(self, name, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         To add a Game Phase in a round.
 
         args:
             name (str): Name displayed on the TimeLabel
-            activePlayers : List of plays concerned about the phase (default:all)
+            activePlayers (list): List of players concerned about the phase. Can contain:
+                - Player instances (SGPlayer objects)
+                - Player names (str) - will be automatically converted to instances
+                - 'Admin' (str) - will be converted to the Admin player instance
+                - None (default:all users)
+            modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+            autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
+            message_auto_forward (bool): Whether to show a message when automatically forwarding to the next phase
+            show_message_box_at_start (bool): Whether to show a message box at the start of the phase
         """
-        #modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
-        modelActions=[]
         if activePlayers == None:
             activePlayers = self.model.users
-        aPhase = SGTimePhase(self, name, activePlayers, modelActions)
+        
+        # Convert player names to player instances
+        processedPlayers = []
+        for player in activePlayers:
+            if isinstance(player, str):
+                if player == 'Admin':
+                    # Handle Admin player
+                    adminPlayer = self.model.getAdminPlayer()
+                    if adminPlayer:
+                        processedPlayers.append(adminPlayer)
+                    else:
+                        # If no adminPlayer exists, skip it
+                        continue
+                else:
+                    # Handle regular players by name
+                    try:
+                        playerInstance = self.model.getPlayer(player)
+                        processedPlayers.append(playerInstance)
+                    except ValueError:
+                        # If player not found, skip it
+                        print(f"Warning: Player '{player}' not found, skipping from active players")
+                        continue
+            else:
+                # Already an instance, keep as is
+                processedPlayers.append(player)
+        
+        activePlayers = processedPlayers
+
+        aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
+                           autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
+                           message_auto_forward=message_auto_forward,
+                           show_message_box_at_start=show_message_box_at_start)
         self.phases = self.phases + [aPhase]
         return aPhase
 
  # To add a new Phase during which the model will execute some instructions
-    def newModelPhase(self, actions=[], condition=[], name='',autoForwardOn=False,messageAutoForward=True,showMessageBoxAtStart=False):
+    def newModelPhase(self,actions=None,condition=None, name='', auto_forward=False, message_auto_forward=True, show_message_box_at_start=False):
         """
-        To add a round phase during which the model will execute some actions (add, delete, move...)
-        args:
-            actions (lambda function): Actions the model performs during the phase (add, delete, move...)
-            condition (lambda function): Actions are performed only if the condition returns true  
-            name (str): Name displayed on the TimeLabel
-            autoForwardOn (bool) : if True, this phase will be automatically executed (default:False)
+        Add a phase during which the model will automatically execute actions.
+
+        Args:
+            actions (SGModelAction, lambda function, or list of SGModelAction/lambda function, optional):
+                The action(s) to be executed during the phase. Can be a single SGModelAction, a lambda function,
+                or a list of either.
+            condition (lambda function, optional):
+                A function returning a boolean. Actions are performed only if this function returns True.
+            name (str, optional):
+                Name displayed on the TimeLabel.
+            auto_forward (bool, optional):
+                If True, this phase will be executed automatically. Default is False.
+            message_auto_forward (bool, optional):
+                If True, a message will be displayed when auto-forwarding. Default is True.
+            show_message_box_at_start (bool, optional):
+                If True, a message box will be shown at the start of the phase. Default is False.
         """
+        if actions is None:
+            actions = []
         modelActions = []
         if isinstance(actions, (SGModelAction,SGModelAction_OnEntities)):
             actions.addCondition(condition)
@@ -202,7 +224,7 @@ class SGTimeManager():
                                 a lambda function (syntax -> (lambda: instruction)),
                                 or an instance of SGModelAction (syntax -> aModel.newModelAction() ) """)
 
-        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,autoForwardOn=autoForwardOn,messageAutoForward=messageAutoForward,showMessageBoxAtStart=showMessageBoxAtStart)
+        aPhase = SGModelPhase(self,modelActions=modelActions, name=name,auto_forward=auto_forward,message_auto_forward=message_auto_forward,show_message_box_at_start=show_message_box_at_start)
         self.phases = self.phases + [aPhase]
         return aPhase
 

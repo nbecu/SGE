@@ -1,0 +1,1984 @@
+{
+  "SGCell.newAgentHere": {
+    "prefix": "sgcell.newAgentHere",
+    "body": [
+      "${1:agent} = ${2:cell}.newAgentHere(${3:agent_type}${4:, adictAttributes=${5:None}})"
+    ],
+    "description": "Create a new Agent from the associated agent type."
+  },
+  "SGCell.deleteAllAgents": {
+    "prefix": "sgcell.deleteAllAgents",
+    "body": [
+      "${1:instance}.deleteAllAgents()"
+    ],
+    "description": "Delete all agents in this cell"
+  },
+  "SGCell.getAgents": {
+    "prefix": "sgcell.getAgents",
+    "body": [
+      "${1:result} = ${2:instance}.getAgents(${3:type_name})"
+    ],
+    "description": "Get all agents in this cell."
+  },
+  "SGCell.getClosestAgentMatching": {
+    "prefix": "sgcell.getClosestAgentMatching",
+    "body": [
+      "${1:result} = ${2:instance}.getClosestAgentMatching(${3:agent_type}, ${4:max_distance}, ${5:conditions_on_agent}, ${6:conditions_on_cell}, ${7:return_all})"
+    ],
+    "description": "Find the closest neighboring cell within a given radius that contains at least one agent"
+  },
+  "SGCell.getClosestNeighborMatching": {
+    "prefix": "sgcell.getClosestNeighborMatching",
+    "body": [
+      "${1:result} = ${2:instance}.getClosestNeighborMatching(${3:max_distance}, ${4:conditions}, ${5:neighborhood})"
+    ],
+    "description": "Get the closest cell within a given radius that matches all given conditions."
+  },
+  "SGCell.getCoords": {
+    "prefix": "sgcell.getCoords",
+    "body": [
+      "${1:result} = ${2:instance}.getCoords()"
+    ],
+    "description": "Get cell coordinates"
+  },
+  "SGCell.getFirstAgentOfSpecie": {
+    "prefix": "sgcell.getFirstAgentOfSpecie",
+    "body": [
+      "${1:result} = ${2:instance}.getFirstAgentOfSpecie(${3:type_name})"
+    ],
+    "description": "Get the first agent of a specific type in this cell."
+  },
+  "SGCell.getId": {
+    "prefix": "sgcell.getId",
+    "body": [
+      "${1:result} = ${2:instance}.getId()"
+    ],
+    "description": "Get cell identifier using numeric ID consistent with cellIdFromCoords"
+  },
+  "SGCell.getNeighborCells": {
+    "prefix": "sgcell.getNeighborCells",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborCells(${3:condition}, ${4:neighborhood})"
+    ],
+    "description": "Get the neighboring cells of the current cell."
+  },
+  "SGCell.getNeighborCells_inRadius": {
+    "prefix": "sgcell.getNeighborCells_inRadius",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborCells_inRadius(${3:max_distance}, ${4:conditions}, ${5:neighborhood})"
+    ],
+    "description": "Get all neighbor cells within a given radius according to the grid's neighborhood type."
+  },
+  "SGCell.getNeighborE": {
+    "prefix": "sgcell.getNeighborE",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborE()"
+    ],
+    "description": "Get neighbor to the East"
+  },
+  "SGCell.getNeighborN": {
+    "prefix": "sgcell.getNeighborN",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborN()"
+    ],
+    "description": "Get neighbor to the North"
+  },
+  "SGCell.getNeighborS": {
+    "prefix": "sgcell.getNeighborS",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborS()"
+    ],
+    "description": "Get neighbor to the South"
+  },
+  "SGCell.getNeighborW": {
+    "prefix": "sgcell.getNeighborW",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborW()"
+    ],
+    "description": "Get neighbor to the West"
+  },
+  "SGCell.getValue": {
+    "prefix": "sgcell.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGCell.nbAgents": {
+    "prefix": "sgcell.nbAgents",
+    "body": [
+      "${1:count} = ${2:instance}.nbAgents(${3:type_name})"
+    ],
+    "description": "Get the number of agents in this cell."
+  },
+  "SGCell.agent_satisfies_conditions": {
+    "prefix": "sgcell.agent_satisfies_conditions",
+    "body": [
+      "${1:result} = ${2:instance}.agent_satisfies_conditions(${3:agent})"
+    ],
+    "description": ""
+  },
+  "SGCell.distanceTo": {
+    "prefix": "sgcell.distanceTo",
+    "body": [
+      "${1:result} = ${2:instance}.distanceTo(${3:otherCell})"
+    ],
+    "description": "Compute Euclidean distance to another cell."
+  },
+  "SGCell.hasAgent": {
+    "prefix": "sgcell.hasAgent",
+    "body": [
+      "if ${1:instance}.hasAgent(${2:agent}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this cell contains a specific agent"
+  },
+  "SGCell.hasAgents": {
+    "prefix": "sgcell.hasAgents",
+    "body": [
+      "if ${1:instance}.hasAgents(${2:type_name}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this cell contains agents of a specific type."
+  },
+  "SGCell.isEmpty": {
+    "prefix": "sgcell.isEmpty",
+    "body": [
+      "if ${1:instance}.isEmpty(${2:type_name}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this cell is empty of agents of a specific type."
+  },
+  "SGCell.isNotValue": {
+    "prefix": "sgcell.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value"
+  },
+  "SGCell.isValue": {
+    "prefix": "sgcell.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value"
+  },
+  "SGCell.calcValue": {
+    "prefix": "sgcell.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGCell.copyValue": {
+    "prefix": "sgcell.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGCell.decValue": {
+    "prefix": "sgcell.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGCell.incValue": {
+    "prefix": "sgcell.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGCell.setValue": {
+    "prefix": "sgcell.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGCell.setValue_randomChoice": {
+    "prefix": "sgcell.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGCell.setValues": {
+    "prefix": "sgcell.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGEntityType.calcValue": {
+    "prefix": "sgentitytype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGEntityType.copyValue": {
+    "prefix": "sgentitytype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGEntityType.decValue": {
+    "prefix": "sgentitytype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGEntityType.incValue": {
+    "prefix": "sgentitytype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGEntityType.setDefaultValue": {
+    "prefix": "sgentitytype.setDefaultValue",
+    "body": [
+      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
+    ],
+    "description": "Set a default value for a specific attribute."
+  },
+  "SGEntityType.setDefaultValues": {
+    "prefix": "sgentitytype.setDefaultValues",
+    "body": [
+      "${1:instance}.setDefaultValues(${2:value})"
+    ],
+    "description": "Set default values for multiple attributes."
+  },
+  "SGEntityType.setDefaultValues_randomChoice": {
+    "prefix": "sgentitytype.setDefaultValues_randomChoice",
+    "body": [
+      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
+    ],
+    "description": "Set default values with automatic random choice conversion for lists/tuples."
+  },
+  "SGEntityType.setDefaultValues_randomNumeric": {
+    "prefix": "sgentitytype.setDefaultValues_randomNumeric",
+    "body": [
+      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
+    ],
+    "description": "Set default numeric values with automatic random distribution conversion."
+  },
+  "SGEntityType.setEntities": {
+    "prefix": "sgentitytype.setEntities",
+    "body": [
+      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut value of all entities"
+  },
+  "SGEntityType.setEntities_randomChoice": {
+    "prefix": "sgentitytype.setEntities_randomChoice",
+    "body": [
+      "${1:instance}.setEntities_randomChoice(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random choice values for all entities matching the condition."
+  },
+  "SGEntityType.setEntities_randomChoicePerEntity": {
+    "prefix": "sgentitytype.setEntities_randomChoicePerEntity",
+    "body": [
+      "${1:instance}.setEntities_randomChoicePerEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random choice values for each entity individually."
+  },
+  "SGEntityType.setEntities_randomNumeric": {
+    "prefix": "sgentitytype.setEntities_randomNumeric",
+    "body": [
+      "${1:instance}.setEntities_randomNumeric(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random numeric values for all entities matching the condition."
+  },
+  "SGEntityType.setEntities_withColumn": {
+    "prefix": "sgentitytype.setEntities_withColumn",
+    "body": [
+      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified column"
+  },
+  "SGEntityType.setEntities_withRow": {
+    "prefix": "sgentitytype.setEntities_withRow",
+    "body": [
+      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified row"
+  },
+  "SGEntityType.setRandomEntities": {
+    "prefix": "sgentitytype.setRandomEntities",
+    "body": [
+      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Applies the same attribut value for a random number of entities"
+  },
+  "SGEntityType.setRandomEntities_withValue": {
+    "prefix": "sgentitytype.setRandomEntities_withValue",
+    "body": [
+      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities with a certain value"
+  },
+  "SGEntityType.setRandomEntities_withValueNot": {
+    "prefix": "sgentitytype.setRandomEntities_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities noty having a certain value"
+  },
+  "SGEntityType.setRandomEntity": {
+    "prefix": "sgentitytype.setRandomEntity",
+    "body": [
+      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Apply a value to a random entity"
+  },
+  "SGEntityType.setRandomEntity_withValue": {
+    "prefix": "sgentitytype.setRandomEntity_withValue",
+    "body": [
+      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity with a certain value"
+  },
+  "SGEntityType.setRandomEntity_withValueNot": {
+    "prefix": "sgentitytype.setRandomEntity_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity not having a certain value"
+  },
+  "SGEntityType.setTooltip": {
+    "prefix": "sgentitytype.setTooltip",
+    "body": [
+      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
+    ],
+    "description": "Set a custom tooltip option for entities of this definition."
+  },
+  "SGEntityType.setValue": {
+    "prefix": "sgentitytype.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGEntityType.setValue_randomChoice": {
+    "prefix": "sgentitytype.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGEntityType.setValues": {
+    "prefix": "sgentitytype.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGEntityType.copyValue_forAllEntities": {
+    "prefix": "sgentitytype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition."
+  },
+  "SGEntityType.generate_random_value": {
+    "prefix": "sgentitytype.generate_random_value",
+    "body": [
+      "${1:result} = ${2:instance}.generate_random_value()"
+    ],
+    "description": ""
+  },
+  "SGEntityType.metricOnEntities": {
+    "prefix": "sgentitytype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities."
+  },
+  "SGEntityType.metricOnEntitiesWithValue": {
+    "prefix": "sgentitytype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value."
+  },
+  "SGEntityType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgentitytype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value."
+  },
+  "SGEntityType.newBorderPov": {
+    "prefix": "sgentitytype.newBorderPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color)."
+  },
+  "SGEntityType.newBorderPovColorAndWidth": {
+    "prefix": "sgentitytype.newBorderPovColorAndWidth",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color)."
+  },
+  "SGEntityType.newModelAction": {
+    "prefix": "sgentitytype.newModelAction",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create an SGModelAction_OnEntities targeting entities of this definition."
+  },
+  "SGEntityType.newPov": {
+    "prefix": "sgentitytype.newPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View for the entityType."
+  },
+  "SGEntityType.getEntities": {
+    "prefix": "sgentitytype.getEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities(${3:condition})"
+    ],
+    "description": "Get all entities, optionally filtered by a condition."
+  },
+  "SGEntityType.getEntities_withValue": {
+    "prefix": "sgentitytype.getEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that have a specific attribute value."
+  },
+  "SGEntityType.getEntities_withValueNot": {
+    "prefix": "sgentitytype.getEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that do not have a specific attribute value."
+  },
+  "SGEntityType.getEntity": {
+    "prefix": "sgentitytype.getEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
+    ],
+    "description": "Return an entity identified by its id or its coordinates on a grid"
+  },
+  "SGEntityType.getRandomEntities": {
+    "prefix": "sgentitytype.getRandomEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a specified number of random entities."
+  },
+  "SGEntityType.getRandomEntities_withValue": {
+    "prefix": "sgentitytype.getRandomEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that have a specific attribute value."
+  },
+  "SGEntityType.getRandomEntities_withValueNot": {
+    "prefix": "sgentitytype.getRandomEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that do not have a specific attribute value."
+  },
+  "SGEntityType.getRandomEntity": {
+    "prefix": "sgentitytype.getRandomEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a random entity from the available entities."
+  },
+  "SGEntityType.getRandomEntity_withValue": {
+    "prefix": "sgentitytype.getRandomEntity_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that has a specific attribute value."
+  },
+  "SGEntityType.getRandomEntity_withValueNot": {
+    "prefix": "sgentitytype.getRandomEntity_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that does not have a specific attribute value."
+  },
+  "SGEntityType.getValue": {
+    "prefix": "sgentitytype.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGEntityType.nb_withValue": {
+    "prefix": "sgentitytype.nb_withValue",
+    "body": [
+      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
+    ],
+    "description": "Get the number of entities that have a specific attribute value."
+  },
+  "SGEntityType.nbOfEntities": {
+    "prefix": "sgentitytype.nbOfEntities",
+    "body": [
+      "${1:count} = ${2:instance}.nbOfEntities()"
+    ],
+    "description": "Get the total number of entities in this definition."
+  },
+  "SGEntityType.deleteAllEntities": {
+    "prefix": "sgentitytype.deleteAllEntities",
+    "body": [
+      "${1:instance}.deleteAllEntities()"
+    ],
+    "description": "Delete all entities of the entity type."
+  },
+  "SGEntityType.displayAttributeValueInContextualMenu": {
+    "prefix": "sgentitytype.displayAttributeValueInContextualMenu",
+    "body": [
+      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:aLabel})"
+    ],
+    "description": "Set an attribute to be displayed in the contextual menu."
+  },
+  "SGEntityType.displayBorderPov": {
+    "prefix": "sgentitytype.displayBorderPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
+    ],
+    "description": "Displays the border symbology for the specified Point of View."
+  },
+  "SGEntityType.displayPov": {
+    "prefix": "sgentitytype.displayPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
+    ],
+    "description": "Displays the symbology for the specified Point of View."
+  },
+  "SGEntityType.displayTooltip": {
+    "prefix": "sgentitytype.displayTooltip",
+    "body": [
+      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
+    ],
+    "description": "Method to control the display of entity tooltips"
+  },
+  "SGEntityType.isNotValue": {
+    "prefix": "sgentitytype.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value"
+  },
+  "SGEntityType.isValue": {
+    "prefix": "sgentitytype.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value"
+  },
+  "SGCellType.calcValue": {
+    "prefix": "sgcelltype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGCellType.copyValue": {
+    "prefix": "sgcelltype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGCellType.decValue": {
+    "prefix": "sgcelltype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGCellType.incValue": {
+    "prefix": "sgcelltype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGCellType.setCell": {
+    "prefix": "sgcelltype.setCell",
+    "body": [
+      "${1:instance}.setCell(${2:x}, ${3:y})"
+    ],
+    "description": ""
+  },
+  "SGCellType.setDefaultValue": {
+    "prefix": "sgcelltype.setDefaultValue",
+    "body": [
+      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
+    ],
+    "description": "Set a default value for a specific attribute."
+  },
+  "SGCellType.setDefaultValues": {
+    "prefix": "sgcelltype.setDefaultValues",
+    "body": [
+      "${1:instance}.setDefaultValues(${2:value})"
+    ],
+    "description": "Set default values for multiple attributes."
+  },
+  "SGCellType.setDefaultValues_randomChoice": {
+    "prefix": "sgcelltype.setDefaultValues_randomChoice",
+    "body": [
+      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
+    ],
+    "description": "Set default values with automatic random choice conversion for lists/tuples."
+  },
+  "SGCellType.setDefaultValues_randomNumeric": {
+    "prefix": "sgcelltype.setDefaultValues_randomNumeric",
+    "body": [
+      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
+    ],
+    "description": "Set default numeric values with automatic random distribution conversion."
+  },
+  "SGCellType.setEntities": {
+    "prefix": "sgcelltype.setEntities",
+    "body": [
+      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut value of all entities"
+  },
+  "SGCellType.setEntities_randomChoice": {
+    "prefix": "sgcelltype.setEntities_randomChoice",
+    "body": [
+      "${1:instance}.setEntities_randomChoice(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random choice values for all entities matching the condition."
+  },
+  "SGCellType.setEntities_randomChoicePerEntity": {
+    "prefix": "sgcelltype.setEntities_randomChoicePerEntity",
+    "body": [
+      "${1:instance}.setEntities_randomChoicePerEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random choice values for each entity individually."
+  },
+  "SGCellType.setEntities_randomNumeric": {
+    "prefix": "sgcelltype.setEntities_randomNumeric",
+    "body": [
+      "${1:instance}.setEntities_randomNumeric(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random numeric values for all entities matching the condition."
+  },
+  "SGCellType.setEntities_withColumn": {
+    "prefix": "sgcelltype.setEntities_withColumn",
+    "body": [
+      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified column"
+  },
+  "SGCellType.setEntities_withRow": {
+    "prefix": "sgcelltype.setEntities_withRow",
+    "body": [
+      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified row"
+  },
+  "SGCellType.setLayoutOrder": {
+    "prefix": "sgcelltype.setLayoutOrder",
+    "body": [
+      "${1:instance}.setLayoutOrder(${2:value})"
+    ],
+    "description": "Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout."
+  },
+  "SGCellType.setRandomEntities": {
+    "prefix": "sgcelltype.setRandomEntities",
+    "body": [
+      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Applies the same attribut value for a random number of entities"
+  },
+  "SGCellType.setRandomEntities_withValue": {
+    "prefix": "sgcelltype.setRandomEntities_withValue",
+    "body": [
+      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities with a certain value"
+  },
+  "SGCellType.setRandomEntities_withValueNot": {
+    "prefix": "sgcelltype.setRandomEntities_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities noty having a certain value"
+  },
+  "SGCellType.setRandomEntity": {
+    "prefix": "sgcelltype.setRandomEntity",
+    "body": [
+      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Apply a value to a random entity"
+  },
+  "SGCellType.setRandomEntity_withValue": {
+    "prefix": "sgcelltype.setRandomEntity_withValue",
+    "body": [
+      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity with a certain value"
+  },
+  "SGCellType.setRandomEntity_withValueNot": {
+    "prefix": "sgcelltype.setRandomEntity_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity not having a certain value"
+  },
+  "SGCellType.setTooltip": {
+    "prefix": "sgcelltype.setTooltip",
+    "body": [
+      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
+    ],
+    "description": "Set a custom tooltip option for entities of this definition."
+  },
+  "SGCellType.setValue": {
+    "prefix": "sgcelltype.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGCellType.setValue_randomChoice": {
+    "prefix": "sgcelltype.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGCellType.setValues": {
+    "prefix": "sgcelltype.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGCellType.getCell": {
+    "prefix": "sgcelltype.getCell",
+    "body": [
+      "${1:result} = ${2:instance}.getCell(${3:x}, ${4:y})"
+    ],
+    "description": "Retrieve a cell object from the grid."
+  },
+  "SGCellType.getEntities": {
+    "prefix": "sgcelltype.getEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities(${3:condition})"
+    ],
+    "description": "Get all entities, optionally filtered by a condition."
+  },
+  "SGCellType.getEntities_withColumn": {
+    "prefix": "sgcelltype.getEntities_withColumn",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withColumn(${3:aColumnNumber})"
+    ],
+    "description": "Get all entities (cells) in a specific column."
+  },
+  "SGCellType.getEntities_withRow": {
+    "prefix": "sgcelltype.getEntities_withRow",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withRow(${3:aRowNumber})"
+    ],
+    "description": "Get all entities (cells) in a specific row."
+  },
+  "SGCellType.getEntities_withValue": {
+    "prefix": "sgcelltype.getEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that have a specific attribute value."
+  },
+  "SGCellType.getEntities_withValueNot": {
+    "prefix": "sgcelltype.getEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that do not have a specific attribute value."
+  },
+  "SGCellType.getEntity": {
+    "prefix": "sgcelltype.getEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
+    ],
+    "description": "Get a single entity (cell) by coordinates."
+  },
+  "SGCellType.getRandomEntities": {
+    "prefix": "sgcelltype.getRandomEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a specified number of random entities."
+  },
+  "SGCellType.getRandomEntities_withValue": {
+    "prefix": "sgcelltype.getRandomEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that have a specific attribute value."
+  },
+  "SGCellType.getRandomEntities_withValueNot": {
+    "prefix": "sgcelltype.getRandomEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that do not have a specific attribute value."
+  },
+  "SGCellType.getRandomEntity": {
+    "prefix": "sgcelltype.getRandomEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a random cell from this grid."
+  },
+  "SGCellType.getRandomEntity_withValue": {
+    "prefix": "sgcelltype.getRandomEntity_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that has a specific attribute value."
+  },
+  "SGCellType.getRandomEntity_withValueNot": {
+    "prefix": "sgcelltype.getRandomEntity_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that does not have a specific attribute value."
+  },
+  "SGCellType.getValue": {
+    "prefix": "sgcelltype.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGCellType.deleteAllEntities": {
+    "prefix": "sgcelltype.deleteAllEntities",
+    "body": [
+      "${1:instance}.deleteAllEntities()"
+    ],
+    "description": "Delete all entities of the entity type."
+  },
+  "SGCellType.deleteEntity": {
+    "prefix": "sgcelltype.deleteEntity",
+    "body": [
+      "${1:instance}.deleteEntity(${2:aCell})"
+    ],
+    "description": "Delete a given cell"
+  },
+  "SGCellType.copyValue_forAllEntities": {
+    "prefix": "sgcelltype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition."
+  },
+  "SGCellType.generate_random_value": {
+    "prefix": "sgcelltype.generate_random_value",
+    "body": [
+      "${1:result} = ${2:instance}.generate_random_value()"
+    ],
+    "description": ""
+  },
+  "SGCellType.metricOnEntities": {
+    "prefix": "sgcelltype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities."
+  },
+  "SGCellType.metricOnEntitiesWithValue": {
+    "prefix": "sgcelltype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value."
+  },
+  "SGCellType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgcelltype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value."
+  },
+  "SGCellType.newBorderPov": {
+    "prefix": "sgcelltype.newBorderPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color)."
+  },
+  "SGCellType.newBorderPovColorAndWidth": {
+    "prefix": "sgcelltype.newBorderPovColorAndWidth",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color)."
+  },
+  "SGCellType.newModelAction": {
+    "prefix": "sgcelltype.newModelAction",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create an SGModelAction_OnEntities targeting entities of this definition."
+  },
+  "SGCellType.newPov": {
+    "prefix": "sgcelltype.newPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View for the entityType."
+  },
+  "SGCellType.nb_withValue": {
+    "prefix": "sgcelltype.nb_withValue",
+    "body": [
+      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
+    ],
+    "description": "Get the number of entities that have a specific attribute value."
+  },
+  "SGCellType.nbOfEntities": {
+    "prefix": "sgcelltype.nbOfEntities",
+    "body": [
+      "${1:count} = ${2:instance}.nbOfEntities()"
+    ],
+    "description": "Get the total number of entities in this definition."
+  },
+  "SGCellType.displayAttributeValueInContextualMenu": {
+    "prefix": "sgcelltype.displayAttributeValueInContextualMenu",
+    "body": [
+      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:aLabel})"
+    ],
+    "description": "Set an attribute to be displayed in the contextual menu."
+  },
+  "SGCellType.displayBorderPov": {
+    "prefix": "sgcelltype.displayBorderPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
+    ],
+    "description": "Displays the border symbology for the specified Point of View."
+  },
+  "SGCellType.displayPov": {
+    "prefix": "sgcelltype.displayPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
+    ],
+    "description": "Displays the symbology for the specified Point of View."
+  },
+  "SGCellType.displayTooltip": {
+    "prefix": "sgcelltype.displayTooltip",
+    "body": [
+      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
+    ],
+    "description": "Method to control the display of entity tooltips"
+  },
+  "SGCellType.isNotValue": {
+    "prefix": "sgcelltype.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value"
+  },
+  "SGCellType.isValue": {
+    "prefix": "sgcelltype.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value"
+  },
+  "SGAgentType.newAgentAtCoords": {
+    "prefix": "sgagenttype.newAgentAtCoords",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a new Agent of a given type."
+  },
+  "SGAgentType.newAgentAtRandom": {
+    "prefix": "sgagenttype.newAgentAtRandom",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a new Agent of a given type and place it on a random cell."
+  },
+  "SGAgentType.newAgentOnCell": {
+    "prefix": "sgagenttype.newAgentOnCell",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a new agent on a specific cell."
+  },
+  "SGAgentType.newAgentsAtCoords": {
+    "prefix": "sgagenttype.newAgentsAtCoords",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a specific number of new Agents of a given type."
+  },
+  "SGAgentType.newAgentsAtRandom": {
+    "prefix": "sgagenttype.newAgentsAtRandom",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a number of Agents of a given type and place them on random cells."
+  },
+  "SGAgentType.newAgentsOnCell": {
+    "prefix": "sgagenttype.newAgentsOnCell",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a specific number of new Agents of a given type on a specific cell."
+  },
+  "SGAgentType.newBorderPov": {
+    "prefix": "sgagenttype.newBorderPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color)."
+  },
+  "SGAgentType.newBorderPovColorAndWidth": {
+    "prefix": "sgagenttype.newBorderPovColorAndWidth",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View (only for border color)."
+  },
+  "SGAgentType.newModelAction": {
+    "prefix": "sgagenttype.newModelAction",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create an SGModelAction_OnEntities targeting entities of this definition."
+  },
+  "SGAgentType.newPov": {
+    "prefix": "sgagenttype.newPov",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Declare a new Point of View for the entityType."
+  },
+  "SGAgentType.getEntities": {
+    "prefix": "sgagenttype.getEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities(${3:condition})"
+    ],
+    "description": "Get all entities, optionally filtered by a condition."
+  },
+  "SGAgentType.getEntities_withValue": {
+    "prefix": "sgagenttype.getEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that have a specific attribute value."
+  },
+  "SGAgentType.getEntities_withValueNot": {
+    "prefix": "sgagenttype.getEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
+    ],
+    "description": "Get all entities that do not have a specific attribute value."
+  },
+  "SGAgentType.getEntity": {
+    "prefix": "sgagenttype.getEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
+    ],
+    "description": "Return an entity identified by its id or its coordinates on a grid"
+  },
+  "SGAgentType.getRandomEntities": {
+    "prefix": "sgagenttype.getRandomEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a specified number of random entities."
+  },
+  "SGAgentType.getRandomEntities_withValue": {
+    "prefix": "sgagenttype.getRandomEntities_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that have a specific attribute value."
+  },
+  "SGAgentType.getRandomEntities_withValueNot": {
+    "prefix": "sgagenttype.getRandomEntities_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
+    ],
+    "description": "Return a specified number of random entities that do not have a specific attribute value."
+  },
+  "SGAgentType.getRandomEntity": {
+    "prefix": "sgagenttype.getRandomEntity",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
+    ],
+    "description": "Return a random agent of this type."
+  },
+  "SGAgentType.getRandomEntity_withValue": {
+    "prefix": "sgagenttype.getRandomEntity_withValue",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that has a specific attribute value."
+  },
+  "SGAgentType.getRandomEntity_withValueNot": {
+    "prefix": "sgagenttype.getRandomEntity_withValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
+    ],
+    "description": "Return a random entity that does not have a specific attribute value."
+  },
+  "SGAgentType.getValue": {
+    "prefix": "sgagenttype.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGAgentType.deleteAllEntities": {
+    "prefix": "sgagenttype.deleteAllEntities",
+    "body": [
+      "${1:instance}.deleteAllEntities()"
+    ],
+    "description": "Delete all entities of the entity type."
+  },
+  "SGAgentType.deleteEntity": {
+    "prefix": "sgagenttype.deleteEntity",
+    "body": [
+      "${1:instance}.deleteEntity(${2:aAgent})"
+    ],
+    "description": "Delete a given agent"
+  },
+  "SGAgentType.copyValue_forAllEntities": {
+    "prefix": "sgagenttype.copyValue_forAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
+    ],
+    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition."
+  },
+  "SGAgentType.generate_random_value": {
+    "prefix": "sgagenttype.generate_random_value",
+    "body": [
+      "${1:result} = ${2:instance}.generate_random_value()"
+    ],
+    "description": ""
+  },
+  "SGAgentType.metricOnEntities": {
+    "prefix": "sgagenttype.metricOnEntities",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
+    ],
+    "description": "Get metrics for all entities."
+  },
+  "SGAgentType.metricOnEntitiesWithValue": {
+    "prefix": "sgagenttype.metricOnEntitiesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that have a specific attribute value."
+  },
+  "SGAgentType.metricOnEntitiesWithValueNot": {
+    "prefix": "sgagenttype.metricOnEntitiesWithValueNot",
+    "body": [
+      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
+    ],
+    "description": "Get metrics for entities that do not have a specific attribute value."
+  },
+  "SGAgentType.moveRandomly": {
+    "prefix": "sgagenttype.moveRandomly",
+    "body": [
+      "${1:result} = ${2:instance}.moveRandomly(${3:numberOfMovement}, ${4:condition})"
+    ],
+    "description": "All agents of this type move randomly."
+  },
+  "SGAgentType.calcValue": {
+    "prefix": "sgagenttype.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGAgentType.copyValue": {
+    "prefix": "sgagenttype.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGAgentType.decValue": {
+    "prefix": "sgagenttype.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGAgentType.incValue": {
+    "prefix": "sgagenttype.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGAgentType.setDefaultValue": {
+    "prefix": "sgagenttype.setDefaultValue",
+    "body": [
+      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
+    ],
+    "description": "Set a default value for a specific attribute."
+  },
+  "SGAgentType.setDefaultValues": {
+    "prefix": "sgagenttype.setDefaultValues",
+    "body": [
+      "${1:instance}.setDefaultValues(${2:value})"
+    ],
+    "description": "Set default values for multiple attributes."
+  },
+  "SGAgentType.setDefaultValues_randomChoice": {
+    "prefix": "sgagenttype.setDefaultValues_randomChoice",
+    "body": [
+      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
+    ],
+    "description": "Set default values with automatic random choice conversion for lists/tuples."
+  },
+  "SGAgentType.setDefaultValues_randomNumeric": {
+    "prefix": "sgagenttype.setDefaultValues_randomNumeric",
+    "body": [
+      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
+    ],
+    "description": "Set default numeric values with automatic random distribution conversion."
+  },
+  "SGAgentType.setEntities": {
+    "prefix": "sgagenttype.setEntities",
+    "body": [
+      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut value of all entities"
+  },
+  "SGAgentType.setEntities_randomChoice": {
+    "prefix": "sgagenttype.setEntities_randomChoice",
+    "body": [
+      "${1:instance}.setEntities_randomChoice(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random choice values for all entities matching the condition."
+  },
+  "SGAgentType.setEntities_randomChoicePerEntity": {
+    "prefix": "sgagenttype.setEntities_randomChoicePerEntity",
+    "body": [
+      "${1:instance}.setEntities_randomChoicePerEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random choice values for each entity individually."
+  },
+  "SGAgentType.setEntities_randomNumeric": {
+    "prefix": "sgagenttype.setEntities_randomNumeric",
+    "body": [
+      "${1:instance}.setEntities_randomNumeric(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set random numeric values for all entities matching the condition."
+  },
+  "SGAgentType.setEntities_withColumn": {
+    "prefix": "sgagenttype.setEntities_withColumn",
+    "body": [
+      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified column"
+  },
+  "SGAgentType.setEntities_withRow": {
+    "prefix": "sgagenttype.setEntities_withRow",
+    "body": [
+      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Set the value of attribut to all entities in a specified row"
+  },
+  "SGAgentType.setRandomEntities": {
+    "prefix": "sgagenttype.setRandomEntities",
+    "body": [
+      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Applies the same attribut value for a random number of entities"
+  },
+  "SGAgentType.setRandomEntities_withValue": {
+    "prefix": "sgagenttype.setRandomEntities_withValue",
+    "body": [
+      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities with a certain value"
+  },
+  "SGAgentType.setRandomEntities_withValueNot": {
+    "prefix": "sgagenttype.setRandomEntities_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to some random entities noty having a certain value"
+  },
+  "SGAgentType.setRandomEntity": {
+    "prefix": "sgagenttype.setRandomEntity",
+    "body": [
+      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
+    ],
+    "description": "Apply a value to a random entity"
+  },
+  "SGAgentType.setRandomEntity_withValue": {
+    "prefix": "sgagenttype.setRandomEntity_withValue",
+    "body": [
+      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity with a certain value"
+  },
+  "SGAgentType.setRandomEntity_withValueNot": {
+    "prefix": "sgagenttype.setRandomEntity_withValueNot",
+    "body": [
+      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
+    ],
+    "description": "To apply a value to a random entity not having a certain value"
+  },
+  "SGAgentType.setTooltip": {
+    "prefix": "sgagenttype.setTooltip",
+    "body": [
+      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
+    ],
+    "description": "Set a custom tooltip option for entities of this definition."
+  },
+  "SGAgentType.setValue": {
+    "prefix": "sgagenttype.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGAgentType.setValue_randomChoice": {
+    "prefix": "sgagenttype.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGAgentType.setValues": {
+    "prefix": "sgagenttype.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGAgentType.nb_withValue": {
+    "prefix": "sgagenttype.nb_withValue",
+    "body": [
+      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
+    ],
+    "description": "Get the number of entities that have a specific attribute value."
+  },
+  "SGAgentType.nbOfEntities": {
+    "prefix": "sgagenttype.nbOfEntities",
+    "body": [
+      "${1:count} = ${2:instance}.nbOfEntities()"
+    ],
+    "description": "Get the total number of entities in this definition."
+  },
+  "SGAgentType.displayAttributeValueInContextualMenu": {
+    "prefix": "sgagenttype.displayAttributeValueInContextualMenu",
+    "body": [
+      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:aLabel})"
+    ],
+    "description": "Set an attribute to be displayed in the contextual menu."
+  },
+  "SGAgentType.displayBorderPov": {
+    "prefix": "sgagenttype.displayBorderPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
+    ],
+    "description": "Displays the border symbology for the specified Point of View."
+  },
+  "SGAgentType.displayPov": {
+    "prefix": "sgagenttype.displayPov",
+    "body": [
+      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
+    ],
+    "description": "Displays the symbology for the specified Point of View."
+  },
+  "SGAgentType.displayTooltip": {
+    "prefix": "sgagenttype.displayTooltip",
+    "body": [
+      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
+    ],
+    "description": "Method to control the display of entity tooltips"
+  },
+  "SGAgentType.isNotValue": {
+    "prefix": "sgagenttype.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value"
+  },
+  "SGAgentType.isValue": {
+    "prefix": "sgagenttype.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value"
+  },
+  "SGAgent.getAgentsHere": {
+    "prefix": "sgagent.getAgentsHere",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentsHere(${3:agent_type})"
+    ],
+    "description": "Get all agents in the same cell as this agent."
+  },
+  "SGAgent.getCell": {
+    "prefix": "sgagent.getCell",
+    "body": [
+      "${1:result} = ${2:instance}.getCell()"
+    ],
+    "description": "Get the current cell of the agent"
+  },
+  "SGAgent.getCellCoordinates": {
+    "prefix": "sgagent.getCellCoordinates",
+    "body": [
+      "${1:result} = ${2:instance}.getCellCoordinates()"
+    ],
+    "description": "Get the coordinates of the current cell"
+  },
+  "SGAgent.getClosestAgentMatching": {
+    "prefix": "sgagent.getClosestAgentMatching",
+    "body": [
+      "${1:result} = ${2:instance}.getClosestAgentMatching(${3:agent_type}, ${4:max_distance}, ${5:conditions_on_agent}, ${6:conditions_on_cell}, ${7:return_all})"
+    ],
+    "description": "Find the closest neighboring agent of a given type from this agent's position,"
+  },
+  "SGAgent.getCoords": {
+    "prefix": "sgagent.getCoords",
+    "body": [
+      "${1:result} = ${2:instance}.getCoords()"
+    ],
+    "description": "Get agent coordinates"
+  },
+  "SGAgent.getId": {
+    "prefix": "sgagent.getId",
+    "body": [
+      "${1:result} = ${2:instance}.getId()"
+    ],
+    "description": "Get agent ID"
+  },
+  "SGAgent.getNeighborAgents": {
+    "prefix": "sgagent.getNeighborAgents",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborAgents(${3:agent_type}, ${4:neighborhood})"
+    ],
+    "description": "Get neighbor agents"
+  },
+  "SGAgent.getNeighborCells": {
+    "prefix": "sgagent.getNeighborCells",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborCells(${3:neighborhood})"
+    ],
+    "description": "Get neighbor cells"
+  },
+  "SGAgent.getNeighborsE": {
+    "prefix": "sgagent.getNeighborsE",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsE(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the East"
+  },
+  "SGAgent.getNeighborsN": {
+    "prefix": "sgagent.getNeighborsN",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsN(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the North"
+  },
+  "SGAgent.getNeighborsS": {
+    "prefix": "sgagent.getNeighborsS",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsS(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the South"
+  },
+  "SGAgent.getNeighborsW": {
+    "prefix": "sgagent.getNeighborsW",
+    "body": [
+      "${1:result} = ${2:instance}.getNeighborsW(${3:agent_type})"
+    ],
+    "description": "Get neighbor agents to the West"
+  },
+  "SGAgent.getValue": {
+    "prefix": "sgagent.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGAgent.nbAgentsHere": {
+    "prefix": "sgagent.nbAgentsHere",
+    "body": [
+      "${1:count} = ${2:instance}.nbAgentsHere(${3:agent_type})"
+    ],
+    "description": "Get the number of agents in the same cell as this agent."
+  },
+  "SGAgent.nbNeighborAgents": {
+    "prefix": "sgagent.nbNeighborAgents",
+    "body": [
+      "${1:count} = ${2:instance}.nbNeighborAgents(${3:agent_type})"
+    ],
+    "description": "Get number of neighbor agents"
+  },
+  "SGAgent.isInCell": {
+    "prefix": "sgagent.isInCell",
+    "body": [
+      "if ${1:instance}.isInCell(${2:cell}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if agent is in a specific cell"
+  },
+  "SGAgent.isNotValue": {
+    "prefix": "sgagent.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value"
+  },
+  "SGAgent.isValue": {
+    "prefix": "sgagent.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value"
+  },
+  "SGAgent.hasAgentsHere": {
+    "prefix": "sgagent.hasAgentsHere",
+    "body": [
+      "if ${1:instance}.hasAgentsHere(${2:specie}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if the cell containing this agent has at least one agent."
+  },
+  "SGAgent.moveAgent": {
+    "prefix": "sgagent.moveAgent",
+    "body": [
+      "${1:result} = ${2:instance}.moveAgent(${3:method}, ${4:target}, ${5:numberOfMovement}, ${6:condition})"
+    ],
+    "description": "Move the agent using predefined movement patterns."
+  },
+  "SGAgent.moveRandomly": {
+    "prefix": "sgagent.moveRandomly",
+    "body": [
+      "${1:result} = ${2:instance}.moveRandomly(${3:numberOfMovement}, ${4:condition})"
+    ],
+    "description": "An agent moves randomly in his direct neighborhood."
+  },
+  "SGAgent.moveTo": {
+    "prefix": "sgagent.moveTo",
+    "body": [
+      "${1:result} = ${2:instance}.moveTo(${3:aDestinationCell})"
+    ],
+    "description": "Move this agent to a specific cell."
+  },
+  "SGAgent.moveTowards": {
+    "prefix": "sgagent.moveTowards",
+    "body": [
+      "${1:result} = ${2:instance}.moveTowards(${3:target}, ${4:condition})"
+    ],
+    "description": "Move the agent one step towards a target cell or another agent."
+  },
+  "SGAgent.dist": {
+    "prefix": "sgagent.dist",
+    "body": [
+      "${1:result} = ${2:instance}.dist(${3:c1}, ${4:c2})"
+    ],
+    "description": ""
+  },
+  "SGAgent.filterByType": {
+    "prefix": "sgagent.filterByType",
+    "body": [
+      "${1:result} = ${2:instance}.filterByType(${3:agent_type}, ${4:agents})"
+    ],
+    "description": "Filter agents by type"
+  },
+  "SGAgent.calcValue": {
+    "prefix": "sgagent.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGAgent.copyValue": {
+    "prefix": "sgagent.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGAgent.decValue": {
+    "prefix": "sgagent.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGAgent.incValue": {
+    "prefix": "sgagent.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGAgent.setValue": {
+    "prefix": "sgagent.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGAgent.setValue_randomChoice": {
+    "prefix": "sgagent.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGAgent.setValues": {
+    "prefix": "sgagent.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGModel.newActivateAction": {
+    "prefix": "sgmodel.newActivateAction",
+    "body": [
+      "${1:result} = ${2:instance}.newActivateAction(${3:})"
+    ],
+    "description": "Add a ActivateAction to the game"
+  },
+  "SGModel.newAgentType": {
+    "prefix": "sgmodel.newAgentType",
+    "body": [
+      "${1:result} = ${2:instance}.newAgentType(${3:})"
+    ],
+    "description": "Create a new specie of Agents."
+  },
+  "SGModel.newButton": {
+    "prefix": "sgmodel.newButton",
+    "body": [
+      "${1:result} = ${2:instance}.newButton(${3:})"
+    ],
+    "description": "Display a button with customizable style."
+  },
+  "SGModel.newCellsOnGrid": {
+    "prefix": "sgmodel.newCellsOnGrid",
+    "body": [
+      "${1:result} = ${2:instance}.newCellsOnGrid(${3:})"
+    ],
+    "description": "Create a grid that contains cells"
+  },
+  "SGModel.newCreateAction": {
+    "prefix": "sgmodel.newCreateAction",
+    "body": [
+      "${1:result} = ${2:instance}.newCreateAction(${3:})"
+    ],
+    "description": "Add a Create GameAction to the game."
+  },
+  "SGModel.newDashBoard": {
+    "prefix": "sgmodel.newDashBoard",
+    "body": [
+      "${1:result} = ${2:instance}.newDashBoard(${3:})"
+    ],
+    "description": "Qt.lightGray"
+  },
+  "SGModel.newDeleteAction": {
+    "prefix": "sgmodel.newDeleteAction",
+    "body": [
+      "${1:result} = ${2:instance}.newDeleteAction(${3:})"
+    ],
+    "description": "Add a Delete GameAction to the game."
+  },
+  "SGModel.newEndGameRule": {
+    "prefix": "sgmodel.newEndGameRule",
+    "body": [
+      "${1:result} = ${2:instance}.newEndGameRule(${3:})"
+    ],
+    "description": "Create the EndGame Rule Board of the game"
+  },
+  "SGModel.newLabel": {
+    "prefix": "sgmodel.newLabel",
+    "body": [
+      "${1:result} = ${2:instance}.newLabel(${3:})"
+    ],
+    "description": "Display a text at a given position"
+  },
+  "SGModel.newLabel_stylised": {
+    "prefix": "sgmodel.newLabel_stylised",
+    "body": [
+      "${1:result} = ${2:instance}.newLabel_stylised(${3:})"
+    ],
+    "description": "Display a text at a given position and allow setting the style of the text, border, and background."
+  },
+  "SGModel.newLegend": {
+    "prefix": "sgmodel.newLegend",
+    "body": [
+      "${1:result} = ${2:instance}.newLegend(${3:})"
+    ],
+    "description": "To create an Admin Legend (with all the cell and agent values)"
+  },
+  "SGModel.newModelAction": {
+    "prefix": "sgmodel.newModelAction",
+    "body": [
+      "${1:result} = ${2:instance}.newModelAction(${3:})"
+    ],
+    "description": "To add a model action which can be executed during a modelPhase"
+  },
+  "SGModel.newModelAction_onAgents": {
+    "prefix": "sgmodel.newModelAction_onAgents",
+    "body": [
+      "${1:result} = ${2:instance}.newModelAction_onAgents(${3:})"
+    ],
+    "description": "To add a model action which can be executed during a modelPhase"
+  },
+  "SGModel.newModelAction_onCells": {
+    "prefix": "sgmodel.newModelAction_onCells",
+    "body": [
+      "${1:result} = ${2:instance}.newModelAction_onCells(${3:})"
+    ],
+    "description": "To add a model action which can be executed during a modelPhase"
+  },
+  "SGModel.newModelPhase": {
+    "prefix": "sgmodel.newModelPhase",
+    "body": [
+      "${1:result} = ${2:instance}.newModelPhase(${3:})"
+    ],
+    "description": "Create a new model phase for the game."
+  },
+  "SGModel.newModifyAction": {
+    "prefix": "sgmodel.newModifyAction",
+    "body": [
+      "${1:result} = ${2:instance}.newModifyAction(${3:})"
+    ],
+    "description": "Add a Modify GameAction to the game."
+  },
+  "SGModel.newModifyActionWithDialog": {
+    "prefix": "sgmodel.newModifyActionWithDialog",
+    "body": [
+      "${1:result} = ${2:instance}.newModifyActionWithDialog(${3:})"
+    ],
+    "description": "Add a ModifyActionWithDialog GameAction to the game."
+  },
+  "SGModel.newMoveAction": {
+    "prefix": "sgmodel.newMoveAction",
+    "body": [
+      "${1:result} = ${2:instance}.newMoveAction(${3:})"
+    ],
+    "description": "Add a MoveAction to the game."
+  },
+  "SGModel.newPlayer": {
+    "prefix": "sgmodel.newPlayer",
+    "body": [
+      "${1:result} = ${2:instance}.newPlayer(${3:})"
+    ],
+    "description": "\""
+  },
+  "SGModel.newPlayPhase": {
+    "prefix": "sgmodel.newPlayPhase",
+    "body": [
+      "${1:result} = ${2:instance}.newPlayPhase(${3:})"
+    ],
+    "description": "Create a new play phase for the game."
+  },
+  "SGModel.newPopUp": {
+    "prefix": "sgmodel.newPopUp",
+    "body": [
+      "${1:result} = ${2:instance}.newPopUp(${3:})"
+    ],
+    "description": ""
+  },
+  "SGModel.newProgressGauge": {
+    "prefix": "sgmodel.newProgressGauge",
+    "body": [
+      "${1:result} = ${2:instance}.newProgressGauge(${3:})"
+    ],
+    "description": "Create a progress gauge widget for monitoring simulation variables."
+  },
+  "SGModel.newSimVariable": {
+    "prefix": "sgmodel.newSimVariable",
+    "body": [
+      "${1:result} = ${2:instance}.newSimVariable(${3:})"
+    ],
+    "description": ""
+  },
+  "SGModel.newTextBox": {
+    "prefix": "sgmodel.newTextBox",
+    "body": [
+      "${1:result} = ${2:instance}.newTextBox(${3:})"
+    ],
+    "description": "Create a text box with full customization options."
+  },
+  "SGModel.newTimeLabel": {
+    "prefix": "sgmodel.newTimeLabel",
+    "body": [
+      "${1:result} = ${2:instance}.newTimeLabel(${3:})"
+    ],
+    "description": "Create the visual time board of the game."
+  },
+  "SGModel.newUserSelector": {
+    "prefix": "sgmodel.newUserSelector",
+    "body": [
+      "${1:result} = ${2:instance}.newUserSelector(${3:})"
+    ],
+    "description": "To create a User Selector in your game. Functions automatically with the players declared in your model."
+  },
+  "SGModel.newWarningPopUp": {
+    "prefix": "sgmodel.newWarningPopUp",
+    "body": [
+      "${1:result} = ${2:instance}.newWarningPopUp(${3:})"
+    ],
+    "description": ""
+  },
+  "SGModel.createVoid": {
+    "prefix": "sgmodel.createVoid",
+    "body": [
+      "${1:result} = ${2:instance}.createVoid(${3:name}, ${4:sizeX}, ${5:sizeY})"
+    ],
+    "description": ""
+  },
+  "SGModel.phaseNumber": {
+    "prefix": "sgmodel.phaseNumber",
+    "body": [
+      "${1:result} = ${2:instance}.phaseNumber()"
+    ],
+    "description": "Return the current ingame phase number"
+  },
+  "SGModel.roundNumber": {
+    "prefix": "sgmodel.roundNumber",
+    "body": [
+      "${1:result} = ${2:instance}.roundNumber()"
+    ],
+    "description": "Return the current ingame round number"
+  },
+  "SGModel.set_gameSpaces_draggability": {
+    "prefix": "sgmodel.set_gameSpaces_draggability",
+    "body": [
+      "${1:instance}.set_gameSpaces_draggability(${2:all_elements}, ${3:include})"
+    ],
+    "description": "Met à jour l'état de \"draggability\" des éléments."
+  },
+  "SGModel.setCurrentPlayer": {
+    "prefix": "sgmodel.setCurrentPlayer",
+    "body": [
+      "${1:instance}.setCurrentPlayer(${2:value})"
+    ],
+    "description": "Set the Active Player at the initialisation"
+  },
+  "SGModel.getAgentsOfType": {
+    "prefix": "sgmodel.getAgentsOfType",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentsOfType(${3:aTypeName})"
+    ],
+    "description": ""
+  },
+  "SGModel.getAgentType": {
+    "prefix": "sgmodel.getAgentType",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentType(${3:aTypeName})"
+    ],
+    "description": ""
+  },
+  "SGModel.getAgentTypes": {
+    "prefix": "sgmodel.getAgentTypes",
+    "body": [
+      "${1:result} = ${2:instance}.getAgentTypes()"
+    ],
+    "description": ""
+  },
+  "SGModel.getAllAgents": {
+    "prefix": "sgmodel.getAllAgents",
+    "body": [
+      "${1:result} = ${2:instance}.getAllAgents()"
+    ],
+    "description": ""
+  },
+  "SGModel.getAllCells": {
+    "prefix": "sgmodel.getAllCells",
+    "body": [
+      "${1:result} = ${2:instance}.getAllCells()"
+    ],
+    "description": ""
+  },
+  "SGModel.getAllEntities": {
+    "prefix": "sgmodel.getAllEntities",
+    "body": [
+      "${1:result} = ${2:instance}.getAllEntities()"
+    ],
+    "description": ""
+  },
+  "SGModel.getCell": {
+    "prefix": "sgmodel.getCell",
+    "body": [
+      "${1:result} = ${2:instance}.getCell(${3:aGrid}, ${4:aId})"
+    ],
+    "description": ""
+  },
+  "SGModel.getCells": {
+    "prefix": "sgmodel.getCells",
+    "body": [
+      "${1:result} = ${2:instance}.getCells(${3:grid})"
+    ],
+    "description": ""
+  },
+  "SGModel.getCellType": {
+    "prefix": "sgmodel.getCellType",
+    "body": [
+      "${1:result} = ${2:instance}.getCellType(${3:aGrid})"
+    ],
+    "description": ""
+  },
+  "SGModel.getEntityType": {
+    "prefix": "sgmodel.getEntityType",
+    "body": [
+      "${1:result} = ${2:instance}.getEntityType(${3:name})"
+    ],
+    "description": ""
+  },
+  "SGModel.getEntityTypes": {
+    "prefix": "sgmodel.getEntityTypes",
+    "body": [
+      "${1:result} = ${2:instance}.getEntityTypes()"
+    ],
+    "description": ""
+  },
+  "SGModel.deleteAllAgents": {
+    "prefix": "sgmodel.deleteAllAgents",
+    "body": [
+      "${1:instance}.deleteAllAgents()"
+    ],
+    "description": ""
+  },
+  "SGModel.displayAdminControlPanel": {
+    "prefix": "sgmodel.displayAdminControlPanel",
+    "body": [
+      "${1:result} = ${2:instance}.displayAdminControlPanel()"
+    ],
+    "description": "Display the Admin Control Panel"
+  },
+  "SGModel.displayTimeInWindowTitle": {
+    "prefix": "sgmodel.displayTimeInWindowTitle",
+    "body": [
+      "${1:result} = ${2:instance}.displayTimeInWindowTitle(${3:setting})"
+    ],
+    "description": "Set whether to display the time (Round number and Phase number) in the window title."
+  }
+}

@@ -1,85 +1,46 @@
-# **SGE - Simulation Game Editor**
+# SGE - Simulation Game Editor
 
-> Have you ever dreamed of an editor that easily turns your simulation grid-based game following an agent-based approach ideas into reality? 
+Welcome to SGE!
 
-Simulation Game Editor (SGE) is a Python-based solution powered by PyQt5. Its aim is to help game modellers create grid-based simulation games using an agent-based approach without having to redevelop the basic interface and calculation functionality. Modelling a game in SGE essentially consists of **defining the various structural elements** of the game and **setting variables**.
+> 📚For detailed documentation:
+> - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/SGE_methods/sge_methods_catalog.html)
+> - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/archi_diagrams/index.html)
 
+## Installation
 
-SGE is unique compared with other pre-existing simulation development tools: it implements the notion of viewpoints, players, game actions and game phases directly into the structure of the model, like ready-to-use packs. SGE makes it possible to create  **distributed asymmetric simulations**: each player can interact with the others according to their skills, their personal understanding of the situation and a specific computer interface running on a chosen computer terminal.
+Pour installer SGE avec toutes ses dépendances, vous avez deux options :
 
-> Calculate, test, develop but faster
-
-## How does it work ?
-
-SGE is like a puzzle, all the pieces are already here, you just need to give it order and custom to create your ideas.
-
-![image](https://github.com/nbecu/SGE/assets/119414220/888f6d78-5434-4b70-8969-0b1e971a4b8e)
-
-## Folder hierarchy
-- Examples
-  - example1.0.py
-- mainClasses
-  - gameActions
-  - layout
-  - SGModel.py
-  - SGGrid.py
-  - ...
-- Game
-  - myGame.py
-
-We encourage you to start your own game with an example to better understand SGE. You can seek the documentation [here](link to online doc)
-
-## Requirements
+### Option 1 : Installation avec pip (recommandé)
+```bash
+pip install .
 ```
-python            3.8+
-numpy             1.24.2
-paho-mqtt         1.6.1
-PyQt5             5.15.9
-PyQt5-Qt5         5.15.2
-PyQt5-sip         12.11.1
-SQLAlchemy        2.0.3
-pyrsistent
-matplotlib
-pywin32
+Cette commande installera automatiquement SGE ainsi que toutes les dépendances listées dans `pyproject.toml`.
+
+### Option 2 : Installation des dépendances uniquement
+```bash
+pip install -r requirements.txt
 ```
+Cette commande installe uniquement les dépendances sans installer le package SGE lui-même.
 
-## Future plan
-- [ ] add a method "displayBorderPov" (similar to SGEntity>displayPov)
-_ [ ] create a POV system to manage groups of symbologies
-- [ ] correct the zoom
-- [ ] unify font style sheets for SGEndGameRule
-- [ ] add a modeler style sheet config methods for gameSpaces who don't have yet
-- [ ] main window auto resize
-- [ ] refractoring auto resize of text spacings in gameSpaces (using geometry)
-- [ ] new gameAction : activate
-- [ ] rename Update gameAction to Modify
-- [ ] unify definition of setValue for the different classes
-- [ ] create a recuperation system for simulation status with updateAtMaj functions
 
-## mqtt version
-SGE can function in mqtt betwenn differents clients. Require a broker like [mosquitto](https://mosquitto.org/download/)
 
-## syntax code of modeler side methods
-- new     create a new entity (ex. newAgentAtCoords(), newAgentSpecies), or create a new game element (ex. newGamePhase())
-- get    collect entities, objects or instances
-- nb     to obtain the number of entities, objects or instances
-- set    to set a value        (ex. setEntities_withColumn(), setDefaultValues())
-- is     to do a test (returns True or false)   (ex. isDeleted())
-- delete	to delete entities from the simulation (ex. deleteAllAgents())
+SGE (Simulation Game Editor) is a simulation game editor. It enables the modeling of a simulated environment and the integration of players who interact with the simulation elements through game actions. To enhance the user experience, SGE supports the addition of UI/UX game components—such as buttons, menus, dashboards, graphs, and end-game rules.
+The three pillars of SGE are:
+- a simulated environment,
+- players,
+- UI/UX game components.
 
-- do_     perform an action on an entity
+These are explicit modeling classes in SGE, which can be manipulated, specified, and parameterized by the modeler.
+Among existing modeling platforms, SGE stands at the intersection of a multi-agent modeling platform and a board game editor. It allows for the modeling of agents and cellular grids in interaction, each with autonomous behavior, as well as the definition of players, game spaces, and rules for placing or moving game pieces.
 
-## Context
-SGE is developped under the supervision of [LIENSs](https://lienss.univ-larochelle.fr/) Laboratory (La Rochelle University, France) within different research projects. 
-SGE answer to an academic need in serious game to have simplier ways to create serious games.
-SGE first version was presented at [ISAGA 2023](https://apps.univ-lr.fr/cgi-bin/WebObjects/Colloque.woa/1/wa/colloque?code=3141).
 
-## Authors and contributors
-@nbecu Nicolas Becu
-@Neraliel Marine Regien
-@aossant Alexis Ossant
+Developing a simulation game in SGE involves writing a script using SGE’s primitives, which automate the creation, specification, and graphical rendering of simulation elements. SGE’s Domain-Specific Language (DSL) is designed so that a modeler can implement a complete simulation game in about forty lines of code.
 
-## License
-SGE is under open-source license (CECILL V2). The license allows modification, copy and distribution along with contract terms. Modified version should preserve CECILL V2 License. 
+When a model is executed in SGE, the platform initializes the simulation entities and automatically generates all graphical elements and user controls, enabling players to interact with the simulation via a point-and-click interface.
+
+The simulation runs turn-by-turn, with the platform automatically managing two distinct types of phases: play phases for player interactions, and model phases for activating agents and other autonomous entities. 
+
+Simulation data and player actions are automatically recorded and can be visualized through various types of graphs (linear, circular, histograms, stack plots).
+
 
 

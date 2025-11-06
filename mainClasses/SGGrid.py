@@ -5,8 +5,10 @@ from mainClasses.SGModel import *
 
 # Class who is responsible of the grid creation
 class SGGrid(SGGameSpace):
-    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True):
+    def __init__(self, parent, name, columns=10, rows=10,cellShape="square", gap=3, size=30, aColor=None, moveable=True, backGroundImage=None,neighborhood='moore',boundaries='open'):
         super().__init__(parent, 0, 60, 0, 0)
+        # Type identification attributes
+        self.isAGrid = True
         # Basic initialize
         self.zoom = 1
         self.model = parent
@@ -17,7 +19,8 @@ class SGGrid(SGGameSpace):
         self.gap = gap
         self.size = size
         self.moveable = moveable
-        self.rule = 'moore'
+        self.neighborhood = neighborhood
+        self.boundary_condition = boundaries
         self.countPaintEvent=0
         self.frameMargin = 8
 
@@ -31,54 +34,210 @@ class SGGrid(SGGameSpace):
 
         if aColor != "None":
             self.setColor(aColor)
+        # Store background image via gs_aspect (supports both QPixmap and file path)
+        if backGroundImage is not None:
+            self.setBackgroundImage(backGroundImage)
     
     # Drawing the game board with the cell
     def paintEvent(self, event): 
         self.countPaintEvent += 1
         painter = QPainter()
         painter.begin(self)
-        painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+        # Background: prefer image (via gs_aspect), else color/pattern with transparency handling
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            if self.isActive:
+                bg = self.gs_aspect.getBackgroundColorValue()
+                painter.setBrush(QBrush(bg, Qt.SolidPattern) if bg.alpha() != 0 else Qt.NoBrush)
+            else:
+                painter.setBrush(QBrush(self.gs_aspect.getBackgroundColorValue_whenDisactivated(), self.gs_aspect.getBrushPattern_whenDisactivated()))
+
+        # Pen with border style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
         # Base of the gameBoard
         if (self.cellShape == "square"):
             # We redefine the minimum size of the widget
             self.setMinimumSize(int(self.columns*self.size+(self.columns+1) * self.gap+1)+2*self.frameMargin,
                                 int(self.rows*self.size+(self.rows+1)*self.gap)+1+2*self.frameMargin)
-            painter.drawRect(0,0,self.minimumWidth()-1,self.minimumHeight()-1)
         elif (self.cellShape == "hexagonal"):
-            self.setMinimumSize(int(self.columns*self.size+(self.columns+1)*self.gap+1+self.size/2+1.5*self.frameMargin),  int(self.size*0.75*self.rows + (self.gap * (self.rows + 1)) + self.size/4 + 2*self.frameMargin))
-            painter.drawRect(0, 0,self.minimumWidth()-1,self.minimumHeight()-1)
+            #Note: The hexagonal grid is "Pointy-top hex grid with even-r offset".
+            # Width: columns * size + columns * gap + half hexagon for offset + frame margins
+            # Height: rows * (size * 0.75) + gap + frame margins
+            new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
+            # Mathematical calculation for "Pointy-top hex grid with even-r offset"
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+            self.setFixedSize(new_width, new_height)
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, max(0, self.minimumWidth()-1), max(0, self.minimumHeight()-1), radius, radius)
+        else:
+            painter.drawRect(0, 0, self.minimumWidth()-1, self.minimumHeight()-1)
         painter.end()
 
-    # Funtion to handle the zoom
-    def zoomIn(self):
-        self.zoom = self.zoom*1.1
-        self.gap = round(self.gap+(self.zoom*1))
-        self.size = round(self.size+(self.zoom*10))
-        for cell in list(self.getCells()):
-            cell.zoomIn()
-            for agent in cell.getAgents():
-                agent.zoomIn(self.zoom)
-        self.update()
+    def _calculate_hexagonal_adaptive_factor(self):
+        """
+        Calculate adaptive factor for hexagonal grid height calculation.
+        Based on number of rows to prevent clipping with few rows.
+        
+        Returns:
+            float: Adaptive factor for hex_height calculation
+        """
+        if self.rows >= 10:
+            return 0.78  # Stable value for grids with many rows
+        else:
+            return 0.78 + abs(10 - self.rows) * 0.025  # Progressive growth for few rows
 
-    def zoomOut(self):
-        self.zoom = self.zoom*0.9
-        self.size = round(self.size-(self.zoom*10))
-        self.gap = round(self.gap-(self.zoom*1))
-        for cell in self.getCells():
-            cell.zoomOut()
-            newX=cell.x()
-            newY=cell.y()
-            for agent in cell.getAgents():
-                agent.zoomOut(self.zoom)
+    # ============================================================================
+    # ZOOM FUNCTIONALITY
+    # ============================================================================
+    
+    def wheelEvent(self, event):
+        """
+        Handle mouse wheel events for zoom functionality
+        """
+        # Only zoom if mouse is over this grid
+        if self.rect().contains(event.pos()):
+            # Get wheel delta (positive = up, negative = down)
+            delta = event.angleDelta().y()
+            
+            if delta > 0:
+                # Wheel up - zoom in
+                self.newZoomIn()
+            elif delta < 0:
+                # Wheel down - zoom out
+                self.newZoomOut()
+            
+            # Accept the event to prevent it from propagating
+            event.accept()
+        else:
+            # Let the event propagate if mouse is not over this grid
+            event.ignore()
+    
+    def newZoomIn(self):
+        """
+        Zoom in the grid by increasing zoom factor
+        """
+        self.zoom = min(self.zoom * 1.1, 3.0)  # Cap at 3x zoom
+        self.updateGridSize()
         self.update()
+    
+    def newZoomOut(self):
+        """
+        Zoom out the grid by decreasing zoom factor
+        """
+        self.zoom = max(self.zoom * 0.9, 0.3)  # Cap at 0.3x zoom
+        self.updateGridSize()
+        self.update()
+    
+    def setZoomLevel(self, zoom_level):
+        """
+        Set specific zoom level
+        """
+        self.zoom = max(0.3, min(zoom_level, 3.0))  # Clamp between 0.3 and 3.0
+        self.updateGridSize()
+        self.update()
+    
+    def resetZoom(self):
+        """
+        Reset zoom to 1.0
+        """
+        self.zoom = 1.0
+        self.updateGridSize()
+        self.update()
+    
+    def updateGridSize(self):
+        """
+        Update grid size based on current zoom level
+        """
+        # Calculate zoomed size and gap from reference values
+        self.size = round(self.saveSize * self.zoom)
+        self.gap = round(self.saveGap * self.zoom)
+        
+        # Update minimum size for the grid widget
+        if self.cellShape == "square":
+            new_width = int(self.columns * self.size + (self.columns + 1) * self.gap + 1) + 2 * self.frameMargin
+            new_height = int(self.rows * self.size + (self.rows + 1) * self.gap) + 1 + 2 * self.frameMargin
+        elif self.cellShape == "hexagonal":
+            # Width: columns * size + columns * gap + half hexagon for offset + frame margins
+            # Height: rows * (size * 0.75) + (rows-1) * gap + frame margins
+            new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
+            # Mathematical calculation for "Pointy-top hex grid with even-r offset"
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+        
+        self.setFixedSize(new_width, new_height)
+        
+        # Update all cells first
         for cell in self.getCells():
-            for agent in cell.getAgents(): 
-                agent.moveAgent("cell",cellID=agent.cell.id)               
+            # Update cell size to match grid zoom
+            cell.size = self.size
+            cell.gap = self.gap
+            
+            # Force cell view to recalculate position
+            cell.view.calculatePosition()  # Force position recalculation
+            cell.view.update()
+        
+        # Force a complete repaint to ensure cells are repositioned
+        self.update()
+        
+        # CRITICAL: Force cells to actually move to their new positions
+        for cell in self.getCells():
+            cell.view.move(cell.view.startX, cell.view.startY)
+        
+        # Now recreate agent views using CURRENT cell positions
+        for cell in self.getCells():
+            # RECREATION SOLUTION: Destroy and recreate agent views
+            for agent in cell.getAgents():
+                # Update agent model zoom
+                agent.updateZoom(self.zoom)
+                
+                # Destroy existing agent view immediately
+                if hasattr(agent, 'view') and agent.view:
+                    agent.view.setParent(None)  # Remove from parent first
+                    agent.view.deleteLater()
+                    agent.view = None
+                
+                # Recreate agent view with current grid as parent
+                from mainClasses.SGAgentView import SGAgentView
+                agent_view = SGAgentView(agent, self)  # self = grid as parent
+                
+                # Link model and view
+                agent.setView(agent_view)
+                
+                # Force the new view to be visible and positioned using CURRENT cell position
+                agent_view.show()
+                current_cell_position = (cell.view.x(), cell.view.y())
+                agent_view.getPositionInEntity(current_cell_position)
+                
         
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):
+        # First, try the new drag & drop implementation from SGGameSpace
+        if self.isDraggable and hasattr(self, 'dragging') and self.dragging:
+            super().mouseMoveEvent(e)
+            return
 
+        # Fallback to the old implementation if moveable is True but not draggable
         if self.moveable == False:
             return
         if e.buttons() != Qt.LeftButton:
@@ -130,13 +289,33 @@ class SGGrid(SGGameSpace):
         if (self.cellShape == "square"):
             return int(self.columns*self.size+(self.columns+1)*self.gap+1)
         if (self.cellShape == "hexagonal"):
-            return int(self.columns*self.size+(self.columns+1)*self.gap+1) + int(self.size/2)
+            return int(self.columns*self.size + self.columns*self.gap + self.size/2)
 
     def getSizeYGlobal(self):
         if (self.cellShape == "square"):
-            return int(self.rows*self.size+(self.rows+1)*self.gap)
+            return int(self.rows*self.size+(self.rows+1)*self.gap + 2 * self.frameMargin)
         if (self.cellShape == "hexagonal"):
-            return int((self.rows+1)*(self.size/3)*2) + self.gap*2
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            return int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+
+    def sizeHint(self):
+        """Return the recommended size for the grid widget"""
+        if (self.cellShape == "square"):
+            width = int(self.columns*self.size+(self.columns+1)*self.gap + 2*self.frameMargin)
+            height = int(self.rows*self.size+(self.rows+1)*self.gap + 2*self.frameMargin)
+        elif (self.cellShape == "hexagonal"):
+            width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
+            height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+        else:
+            width = height = 100  # Default fallback
+        return QSize(width, height)
+
+    def minimumSizeHint(self):
+        """Return the minimum size for the grid widget"""
+        return self.sizeHint()
 
     # To get all the values possible for Legend
     def getValuesForLegend(self):
@@ -147,15 +326,15 @@ class SGGrid(SGGameSpace):
 
     # Return all the cells
     def getCells(self):
-        return self.model.getCells(self)
+        return self.model.getCellType(self).entities
 
     # Return the cell
-    def getCell_withId(self, aCellID):
-        return self.model.getCell(self,aCellID)
+    def getCell_withId(self, cell_id):
+        return self.model.getCell(self,cell_id)
 
     def cellIdFromCoords(self,x,y):
-        if x < 0 or y < 0 : return None
-        return x + (self.columns * (y -1))
+        return self.model.getCellType(self).cellIdFromCoords(x,y)
+    
 
     def getCell_withCoords(self,x,y):
         return self.getCell_withId(self.cellIdFromCoords(x,y))
@@ -167,7 +346,7 @@ class SGGrid(SGGameSpace):
         args:
             columnNumber (int): column number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.xPos== columnNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.xCoord== columnNumber]
         
 
   # Return the cells at a specified row
@@ -177,6 +356,6 @@ class SGGrid(SGGameSpace):
         args:
             rowNumber (int): row number
         """
-        return [ cell for cell in self.model.getCells(self) if cell.yPos== rowNumber]
+        return [ cell for cell in self.model.getCells(self) if cell.yCoord== rowNumber]
 
     

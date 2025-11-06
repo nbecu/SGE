@@ -5,7 +5,7 @@ from mainClasses.SGSGE import *
 from mainClasses.SGTestGetData import SGTestGetData
 monApp=QtWidgets.QApplication([])
 
-myModel=SGModel(860,700, windowTitle="Add a TextBox")
+myModel=SGModel(950,520, windowTitle="Add a TextBox")
 
 Cell=myModel.newCellsOnGrid(10,10,"square",size=45, gap=2)
 Cell.setEntities("landUse","grass")
@@ -15,54 +15,47 @@ Cell.setRandomEntities("landUse","shrub",10)
 
 Cell.newPov("pov","landUse",{"grass":Qt.green,"shrub":Qt.yellow,"forest":Qt.darkGreen})
 
-Sheeps=myModel.newAgentSpecies("Sheeps","triangleAgent1")
-#Sheeps.setDefaultValues({"health":(lambda: random.randint(0,10)*10)})
-Sheeps.setDefaultValues({"health": (lambda: myModel.getDefaultAgentRandomValue(0, 10)*10)})
-
-def interpolate_color(value_min, value_max, color_min, color_max, a_value):
-    # Assurez-vous que la valeur intermédiaire se trouve entre les valeurs min et max
-    a_value = max(min(a_value, value_max), value_min)
-    # convertir les color_min et color_max en  un format rgb 
-    color_min_rgb = QColor(color_min).getRgb()
-    color_max_rgb = QColor(color_max).getRgb()
-    # Interpoler les composantes RGB
-    proportion = (a_value - value_min) / (value_max - value_min)
-    aList=[]
-    for i in range(0,3):
-        aList.append(int(color_min_rgb[i] + proportion * (color_max_rgb[i] - color_min_rgb[i])))
-    return QColor(*aList)
+Sheeps=myModel.newAgentType("Sheeps","triangleAgent1")
+Sheeps.setDefaultValues({"health": (lambda: random.randint(0, 10)*10)})
+Sheeps.setTooltip("Health", "health")
 
 
-aDict={}
-for aVal in list(range(0,110,10)):
-    aDict[aVal]=interpolate_color(0,100,Qt.red,Qt.blue,aVal) 
-Sheeps.newPov("Sheeps -> Health","health",aDict)
+
+aDict = generate_color_gradient(
+    Qt.red, Qt.blue,
+    mapping={"values": list(range(0, 110, 10)), "value_min": 0, "value_max": 100},
+    as_dict=True
+)
+Sheeps.newPov("Health","health",aDict)
 
 
-m1=Sheeps.newAgentAtCoords(Cell,1,1)
-m2=Sheeps.newAgentAtCoords(Cell,5,1)
+m1_model = Sheeps.newAgentAtCoords(Cell,1,1)
+m2_model = Sheeps.newAgentAtCoords(Cell,5,1)
 
 theFirstLegend=myModel.newLegend()
 
 
 Player1=myModel.newPlayer("Player 1",{"Percentage of grass":0})
-Player1.addGameAction(myModel.newUpdateAction('Cell',{"landUse":"grass"},3))
+Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 Player2=myModel.newPlayer("Player 2",{"Sheeps in good health":0})
-Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
-Player1Legend=Player1.newControlPanel("Actions du Joueur 1")
-Player2Legend=Player2.newControlPanel("Actions du Joueur 2")
+Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":100},4))
+Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
+Player1ControlPanel.moveToCoords(610,25)
+Player2ControlPanel=Player2.newControlPanel("Actions du Joueur 2")
+Player2ControlPanel.moveToCoords(610,100)
 
 userSelector=myModel.newUserSelector()
+userSelector.moveToCoords(610,180)
 
 
-myModel.timeManager.newGamePhase('Phase 1', [Player1,Player2])
-myModel.timeManager.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
+myModel.newPlayPhase('Phase 1', [Player1,Player2])
+myModel.newModelPhase([lambda: Cell.setRandomEntities("landUse","forest"),lambda: Cell.setRandomEntities("landUse","shrub",3)])
 
 aModelAction2=myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2,condition=(lambda x: x.value("landUse") != "shrub" and x.value("landUse") != "forest"  )))
-myModel.timeManager.newModelPhase(aModelAction2)
+myModel.newModelPhase(aModelAction2)
 
-myModel.timeManager.newModelPhase(myModel.newModelAction(lambda: Sheeps.moveRandomly()))
-myModel.timeManager.newModelPhase(myModel.newModelAction_onAgents('Sheeps',lambda aSheep: eat(aSheep)))
+myModel.newModelPhase(myModel.newModelAction(lambda: Sheeps.moveRandomly()))
+myModel.newModelPhase(myModel.newModelAction_onAgents('Sheeps',lambda aSheep: eat(aSheep)))
 
 def eat(aSheep):
     if aSheep.cell.value('landUse') == "forest":
@@ -78,31 +71,33 @@ def eat(aSheep):
 
 
 GameRounds = myModel.newTimeLabel("My Game Time", Qt.white, Qt.black, Qt.black)
+GameRounds.moveToCoords(650,250)
 
-DashBoard = myModel.newDashBoard(borderColor=Qt.black, textColor=Qt.black)
+DashBoard = myModel.newDashBoard('Indicators !!',borderColor=Qt.black, textColor=Qt.black)
+DashBoard.moveToCoords(610,350)
 
 score1= myModel.newSimVariable("Global Score:",0)
 i1 = DashBoard.addIndicatorOnSimVariable(score1)
 
 aModelAction4 =myModel.newModelAction(lambda: Cell.setRandomEntities("landUse","forest",2))
 aModelAction4.addCondition(lambda: Cell.nb_withValue("landUse","forest")> 10) 
-aModelAction4.addFeedback(lambda: score1.incValue(3))
-phase6 = myModel.timeManager.newModelPhase(aModelAction4)
+aModelAction4.addFeedback(lambda: score1.incValue(25))
+phase6 = myModel.newModelPhase(aModelAction4)
 phase6.addAction(myModel.newModelAction(lambda: Player1.setValue("Percentage of grass",Cell.nb_withValue("landUse","grass")/Cell.nbOfEntities())))
 phase6.addAction(myModel.newModelAction(lambda: Player2.setValue("Sheeps in good health",Sheeps.nb_withValue("health","good"))))
 
 # dataTest = SGTestGetData(myModel)
-# myModel.timeManager.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
+# myModel.newModelPhase(lambda:dataTest.getAllDataSinceInitialization())
 
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse')
 DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value='forest')
 
-DashBoard.showIndicators()
 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
-    i1, "equal", 90, name="Score equal to 90")
+    i1, "greater", 90, name="Score greater than 90")
 endGameRule.showEndGameConditions()
+endGameRule.moveToCoords(610,450)
 
 
 myModel.setCurrentPlayer("Player1")

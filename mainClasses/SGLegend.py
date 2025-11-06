@@ -1,37 +1,32 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from sqlalchemy import null, true
+from sqlalchemy import true
 
 from mainClasses.SGGameSpace import SGGameSpace
 from mainClasses.SGLegendItem import SGLegendItem
-from mainClasses.SGGrid import SGGrid
-from mainClasses.gameAction.SGDelete import SGDelete
-from mainClasses.gameAction.SGCreate import SGCreate
 
 
 #Class who is responsible of the Legend creation 
 class SGLegend(SGGameSpace):
     def __init__(self, parent,backgroundColor=Qt.transparent):
         super().__init__(parent,0,60,0,0,true,backgroundColor)
-       
-    def initialize(self, model, legendName,listOfSymbologies,playerName,showAgents=False,borderColor=Qt.black):
-        self.id=legendName
+        self.isLegend=True
+        self.isControlPanel=False
+        # self.heightOfLabels= 25 #added for CarbonPolis
+        self.heightOfLabels= 20 #added for CarbonPolis
+
+    #todo change to the normal way to initialize
+    def initialize(self, model, legendName,listOfSymbologies,alwaysDisplayDefaultAgentSymbology=False,borderColor=Qt.black):
+        self.id=legendName #todo should be removed as it is managed by the superclass
         self.model=model
-        self.playerName=playerName
-        self.showAgents=showAgents
+        self.alwaysDisplayDefaultAgentSymbology=alwaysDisplayDefaultAgentSymbology
         self.legendItems={}
-        self.isActive=True
-        self.selected = None # To handle the selection of an item in the legend
-        self.borderColor=borderColor
-        self.haveADeleteButton=False
+        # Configure border using gs_aspect instead of self.borderColor
+        self.gs_aspect.border_color = borderColor
+        self.gs_aspect.border_size = 1
         self.updateWithSymbologies(listOfSymbologies)
         return self
-
-    def isActiveAndSelected(self):
-        return self.isActive and self.selected is not None
     
-    def isAdminLegend(self):
-        return self.playerName=='Admin'
     
     def clearAllLegendItems(self):
         for aItem in self.legendItems:
@@ -42,37 +37,48 @@ class SGLegend(SGGameSpace):
         self.clearAllLegendItems()
         self.listOfSymbologies=listOfSymbologies
         self.posYOfItems = 0
-        anItem=SGLegendItem(self,'Title1',self.id) 
-        for entDef, aDictOfSymbology in self.listOfSymbologies.items():
-            anItem=SGLegendItem(self,'Title2',entDef.entityName)
+        anItem=SGLegendItem(self,'Title1',self.id)
+        self.legendItems.append(anItem)
+        for type, aDictOfSymbology in self.listOfSymbologies.items():
+            anItem=SGLegendItem(self,'Title2',type.name)
             self.legendItems.append(anItem)
             # aDictOfSymbology is a dict with keys 'shape' and 'border'
             aShapeSymbology = aDictOfSymbology['shape']
             aBorderSymbology = aDictOfSymbology['border']
-            if aShapeSymbology is None and aBorderSymbology is None:
-                #In this case, it should return the default shape Symbology
-                anItem=SGLegendItem(self,'symbol','default',entDef,entDef.defaultShapeColor)
+            if aShapeSymbology is None and aBorderSymbology is None:         
+                # Case 1: Default symbology - no POV defined, use entity's default shape color
+                # This case corresponds to entities without any POV defined, showing default appearance
+                anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
                 self.legendItems.append(anItem)
                 continue
             if aShapeSymbology is not None:
-                aAtt = list(entDef.povShapeColor[aShapeSymbology].keys())[0]
-                dictSymbolNameAndColor= list(entDef.povShapeColor[aShapeSymbology].values())[0]
+                # Case 2: Shape symbology - POV for shape color, creates items for each symbol name and color
+                # This case corresponds to entities with shape-based POV (e.g., health status affecting color)
+                if self.alwaysDisplayDefaultAgentSymbology and type.isAgentType:
+                    # Use default symbology for agents without attributes
+                    anItem=SGLegendItem(self,'symbol','default',type,type.defaultShapeColor)
+                    self.legendItems.append(anItem)    
+                aAtt = list(type.povShapeColor[aShapeSymbology].keys())[0]
+                dictSymbolNameAndColor= list(type.povShapeColor[aShapeSymbology].values())[0]
                 for aSymbolName, aColor in dictSymbolNameAndColor.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,aColor,aAtt,aSymbolName)
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,type,aColor,aAtt,aSymbolName)
                     self.legendItems.append(anItem)
             if aBorderSymbology is not None:
-                aPovBorderDef = entDef.povBorderColorAndWidth.get(aBorderSymbology)
+                # Case 3: Border symbology - POV for border color and width, creates items for each symbol name
+                # This case corresponds to entities with border-based POV (e.g., ownership or status borders)
+                aPovBorderDef = type.povBorderColorAndWidth.get(aBorderSymbology)
                 aAtt = list(aPovBorderDef.keys())[0]
                 dictSymbolNameAndColorAndWidth= list(aPovBorderDef.values())[0]
                 for aSymbolName, aDictColorAndWidth in dictSymbolNameAndColorAndWidth.items():
-                    anItem=SGLegendItem(self,'symbol',aSymbolName,entDef,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
+                    anItem=SGLegendItem(self,'symbol',aSymbolName,type,nameOfAttribut=aAtt,valueOfAttribut=aSymbolName,isBorderItem=True,borderColorAndWidth=aDictColorAndWidth)
                     self.legendItems.append(anItem)
-        anItem=SGLegendItem(self,'delete',"Delete","square",Qt.darkGray)
-        self.legendItems.append(anItem)
 
         for anItem in self.legendItems:
+            anItem.adjustSize()  #NEW
             anItem.show()
-        self.setMinimumSize(self.getSizeXGlobal(),10)
+        self.adjustSize()
+        # self.setMinimumSize(self.getSizeXGlobal(),10)
+        self.setMinimumSize(self.getSizeX_fromAllWidgets(),10)
 
     def showLegendItem(self, typeOfPov, aAttribut, aValue, color, aKeyOfGamespace, added_items, added_colors):
         item_key=aAttribut +' '+ str(aValue)
@@ -91,15 +97,21 @@ class SGLegend(SGGameSpace):
     def getSizeXGlobal(self):
         listOfLengths = [len(item.text) for item in self.legendItems]
         listOfLengths.append(len(self.id))
-        if self.haveADeleteButton :
-            listOfLengths.append(len('delete'))
         if len(listOfLengths)==0:
             return 250
         lMax= sorted(listOfLengths,reverse=True)[0]
         return lMax*12+10
     
+    def getSizeX_fromAllWidgets(self):
+        if self.legendItems:  # Vérifier si la liste n'est pas vide
+            max_size_item = max(self.legendItems, key=lambda item: item.geometry().size().width())
+            max_width = max_size_item.geometry().size().width()
+        else:
+            max_width = 30  # Ou une autre valeur par défaut
+        return max_width + 10
+    
     def getSizeYGlobal(self):
-        return 25*(len(self.legendItems)+1)
+        return (self.heightOfLabels)*(len(self.legendItems)+1)
     
     #Funtion to handle the zoom
     def zoomIn(self):
@@ -112,39 +124,100 @@ class SGLegend(SGGameSpace):
         
     #Drawing the Legend
     def paintEvent(self,event):
-        if self.checkDisplay():
-            painter = QPainter() 
-            painter.begin(self)
-            if self.isActive:
-                painter.setBrush(QBrush(self.backgroudColor, Qt.SolidPattern))
+        painter = QPainter()
+        painter.begin(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        # Background: prefer image, else color with transparency
+        bg_pixmap = self.getBackgroundImagePixmap()
+        if bg_pixmap is not None:
+            rect = QRect(0, 0, self.width(), self.height())
+            painter.drawPixmap(rect, bg_pixmap)
+        else:
+            bg = self.gs_aspect.getBackgroundColorValue()
+            if bg.alpha() == 0:
+                painter.setBrush(Qt.NoBrush)
             else:
-                painter.setBrush(QBrush(Qt.darkGray, Qt.SolidPattern))
-            painter.setPen(QPen(self.borderColor,1))
-            #Draw the corner of the Legend
-            self.setMinimumSize(self.getSizeXGlobal()+3, self.getSizeYGlobal()+3)
-            painter.drawRect(0,0,self.getSizeXGlobal(), self.getSizeYGlobal())     
+                painter.setBrush(QBrush(bg, Qt.SolidPattern))
+        # Border with style mapping
+        pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+        style_map = {
+            'solid': Qt.SolidLine,
+            'dotted': Qt.DotLine,
+            'dashed': Qt.DashLine,
+            'double': Qt.SolidLine,
+            'groove': Qt.SolidLine,
+            'ridge': Qt.SolidLine,
+            'inset': Qt.SolidLine,
+        }
+        bs = getattr(self.gs_aspect, 'border_style', None)
+        if isinstance(bs, str) and bs.lower() in style_map:
+            pen.setStyle(style_map[bs.lower()])
+        painter.setPen(pen)
 
+        # Compute and cache sizes for consistency
+        w = max(0, self.getSizeX_fromAllWidgets())
+        h = max(0, self.getSizeYGlobal()+3)
+        try:
+            self.sizeXGlobal = w
+            self.sizeYGlobal = h
+        except Exception:
+            pass
+        self.setMinimumSize(w, h)
 
-            painter.end()
+        radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+        if radius > 0:
+            painter.drawRoundedRect(0, 0, max(0, w-1), max(0, h-1), radius, radius)
+        else:
+            painter.drawRect(0, 0, max(0, w-1), max(0, h-1))
 
+        painter.end()
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        # Trigger repaint of all items so they use current aspects
+        try:
+            for it in self.legendItems:
+                if hasattr(it, 'update'):
+                    it.update()
+        except Exception:
+            pass
+        self.update()
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setBorderColor(self, color):
+        """
+        Set the border color of the legend.
         
-    #Check if it have to be displayed
-    def checkDisplay(self):
-        if self.playerName in self.model.users :
-            return True
-    
-    def checkViability(self,text):
-        thePlayer=self.model.players[self.playerName]
-        for action in thePlayer.gameActions:
-            if isinstance(action,SGCreate) or isinstance(action,SGDelete): 
-                if action.dictAttributs is not None: # case of att+val agents WITH attribut info in Action
-                    stringAttributs = " : ".join([f"{key} : {value}" for key, value in action.dictAttributs.items()])
-                    if stringAttributs in text : 
-                        return True
-        return False
-    
-    def checkSpecie(self,item_key,items):
-        for legendItem in items:
-            if item_key in legendItem.text:
-                return False
-        return True
+        Args:
+            color (QColor or Qt.GlobalColor): The border color
+        """
+        super().setBorderColor(color)
+        
+    def setBorderSize(self, size):
+        """
+        Set the border size of the legend.
+        
+        Args:
+            size (int): The border size in pixels
+        """
+        super().setBorderSize(size)
+
+    #obsolete function
+    # def checkSpecie(self,item_key,items):
+    #     for legendItem in items:
+    #         if item_key in legendItem.text:
+    #             return False
+    #     return True

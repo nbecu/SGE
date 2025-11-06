@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 
 from mainClasses.SGModel import*
-from mainClasses.SGEntity import*
-from mainClasses.SGEntityDef import*
+from mainClasses.SGEntity import *
+from mainClasses.SGEntityType import*
 from mainClasses.SGAgent import*
 from mainClasses.SGCell import*
 from mainClasses.SGModelAction import*
@@ -12,7 +12,10 @@ from mainClasses.SGSimulationVariable import*
 from mainClasses.SGTimeManager import*
 
 
-
+""" ---------------------------------------------------------------------------
+This class is currently under construction.
+Do not rely on its current implementation.
+"""
 class SGFormatDataHistory():
     def __init__(self, model):
         self.model = model
@@ -26,8 +29,8 @@ class SGFormatDataHistory():
             h = aEntity.getHistoryDataJSON()
             historyData.append(h)
             #dictOfData[aEntity.getObjectIdentiferForJsonDumps] = aEntity.history["value"]
-            """print("id: {}, entityName: {}, entityDef: {}, value: {}".
-                  format(h['id'], h['entityName'], h['entityDef'], h['value']))"""
+            """print("id: {}, name: {}, entityDef: {}, value: {}".
+                  format(h['id'], h['name'], h['entityDef'], h['value']))"""
             # ToDo: Here I fetch the raw format of the history["value"] of the entity, but perhaps it would need to be reformated
         #print("historyData : ", len(historyData))
         return historyData
@@ -41,7 +44,7 @@ class SGFormatDataHistory():
         currentRound =self.model.timeManager.currentRoundNumber
         currentPhase = self.model.timeManager.currentPhaseNumber
         for aEntity in self.model.getAllEntities():
-            entName = aEntity.classDef.entityName
+            entName = aEntity.type.name
             entId = aEntity.id
             self.dictOfData.setdefault(entName,{})
             self.dictOfData[entName].setdefault(entId,{})
@@ -72,7 +75,7 @@ class SGFormatDataHistory():
     """
     def collectLastStepData(self):
     currentRound, currentPhase = self.model.timeManager.currentRound, self.model.timeManager.currentPhase
-    self.dictOfData.update({entName: {entId: {aAttribute: [self.dictOfData[entName][entId][aAttribute][-1] if (h := historyList[-1])[0] == currentRound and h[1] == currentPhase else h[2] for aAttribute, historyList in aEntity.history["value"].items()] for entId in [aEntity.id]} for entName, aEntity in ((aEntity.classDef.entityName, aEntity) for aEntity in self.model.getAllEntities())})
+    self.dictOfData.update({entName: {entId: {aAttribute: [self.dictOfData[entName][entId][aAttribute][-1] if (h := historyList[-1])[0] == currentRound and h[1] == currentPhase else h[2] for aAttribute, historyList in aEntity.history["value"].items()] for entId in [aEntity.id]} for entName, aEntity in ((aEntity.type.name, aEntity) for aEntity in self.model.getAllEntities())})
     print(self.dictOfData)
 
 
@@ -80,7 +83,7 @@ class SGFormatDataHistory():
         currentRound, currentPhase = self.model.timeManager.currentRound, self.model.timeManager.currentPhase
     
         for entity in self.model.getAllEntities():
-            ent_name, ent_id = entity.classDef.entityName, entity.id
+            ent_name, ent_id = entity.type.name, entity.id
             data = self.dictOfData.setdefault(ent_name, {}).setdefault(ent_id, {})
     
             for attribute, history_list in entity.history["value"].items():

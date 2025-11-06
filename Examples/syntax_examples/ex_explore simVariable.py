@@ -18,12 +18,12 @@ score2= myModel.newSimVariable('score2',1)
 a1= myModel.newModelAction(lambda: (score1.incValue(1)))
 a2= myModel.newModelAction(lambda: (score2.calcValue(lambda x: x *1.1)))
 
-myModel.timeManager.newModelPhase([a1,a2])
+myModel.newModelPhase([a1,a2])
 
 dashboard = myModel.newDashBoard()
 dashboard.addIndicatorOnSimVariable(score1)
 dashboard.addIndicatorOnSimVariable(score2)
 
-myModel.newTimeLabel()
+myModel.newTimeLabel('Test')
 myModel.launch() 
 sys.exit(monApp.exec_())

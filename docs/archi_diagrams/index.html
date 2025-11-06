@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGE Architecture Diagrams</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        .diagram-section {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .diagram-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .diagram-image {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navigation {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .nav-link {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            background: #0056b3;
+        }
+        .description {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏗️ SGE Architecture Diagrams</h1>
+        <p>Comprehensive architectural documentation for the Simulation Game Editor</p>
+    </div>
+
+    <div class="navigation">
+        <h3>📋 Quick Navigation</h3>
+        <a href="#classes" class="nav-link">Classes Overview</a>
+        <a href="#entities" class="nav-link">Entities Detailed</a>
+        <a href="#gamespaces" class="nav-link">Game Spaces</a>
+        <a href="#gameactions" class="nav-link">Game Actions</a>
+        <a href="#model-view" class="nav-link">Model-View Architecture</a>
+        <a href="#workflow" class="nav-link">Model Development Workflow</a>
+    </div>
+
+    <div id="classes" class="diagram-section">
+        <h2 class="diagram-title">📚 Classes Overview</h2>
+        <div class="description">
+            <strong>Class Hierarchy:</strong> High-level overview of the main classes and their relationships in the SGE framework.
+        </div>
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_entities_detailed_diagram_1.png" 
+                 alt="SGE Classes Overview Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <div id="entities" class="diagram-section">
+        <h2 class="diagram-title">🎯 Entities Detailed Architecture</h2>
+        <div class="description">
+            <strong>Entity System:</strong> Detailed view of how entities (agents and cells) are structured, their relationships, and the factory methods used for creation.
+        </div>
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_entities_detailed_diagram_1.png" 
+                 alt="SGE Entities Detailed Architecture Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <div id="gamespaces" class="diagram-section">
+        <h2 class="diagram-title">🖼️ Game Spaces Architecture</h2>
+        <div class="description">
+            <strong>UI Components:</strong> Structure of game spaces (UI components) that provide the visual interface for SGE simulations.
+        </div>
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_gamespaces_detailed_diagram_1.png" 
+                 alt="SGE Game Spaces Architecture Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <div id="gameactions" class="diagram-section">
+        <h2 class="diagram-title">🎮 Game Actions System</h2>
+        <div class="description">
+            <strong>Action System:</strong> How game actions are structured, created, and executed by players in the SGE framework.
+        </div>
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_gameactions_detailed_diagram_1.png" 
+                 alt="SGE Game Actions System Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <div id="model-view" class="diagram-section">
+        <h2 class="diagram-title">🏛️ Model-View Architecture</h2>
+        <div class="description">
+            <strong>Core Architecture:</strong> SGE implements a strict Model-View architecture where each entity has both a Model (data/logic) and a View (UI/display) component. This separation enables fluid agent movement, better code organization, and cleaner separation of concerns.
+        </div>
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_entities_detailed_diagram_1.png" 
+                 alt="SGE Model-View Architecture Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <div id="workflow" class="diagram-section">
+        <h2 class="diagram-title">🔄 Model Development Workflow</h2>
+        <div class="description">
+            <strong>Development Workflow:</strong> How SGE fits into the model development process for serious games and simulation development.
+        </div>
+        <div class="diagram-image">
+            <img src="https://raw.githubusercontent.com/nbecu/SGE/main_candidate_release_sept_2025/docs/archi_diagrams/images/sge_workflow_academic_diagram_1.png" 
+                 alt="SGE Model Development Workflow Diagram" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+    </div>
+
+    <div class="header">
+        <h3>📖 Additional Resources</h3>
+        <p>
+            <a href="https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/main_candidate_release_sept_2025/docs/SGE_methods/sge_methods_catalog.html" style="color: white; text-decoration: underline;">SGE Methods Catalog</a> |
+            <a href="https://github.com/nbecu/SGE" style="color: white; text-decoration: underline;">GitHub Repository</a>
+        </p>
+    </div>
+
+</body>
+</html>
