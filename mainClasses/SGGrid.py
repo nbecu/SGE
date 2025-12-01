@@ -227,8 +227,17 @@ class SGGrid(SGGameSpace):
                 agent_view.show()
                 current_cell_position = (cell.view.x(), cell.view.y())
                 agent_view.getPositionInEntity(current_cell_position)
-                
         
+        # Update tile positions and sizes when grid size changes
+        for cell in self.getCells():
+            for tile in cell.getTilesHere():
+                # Update tile model zoom
+                tile.updateZoom(self.zoom)
+                
+                # Update tile view position
+                if hasattr(tile, 'view') and tile.view:
+                    tile.view.updatePositionFromCell()
+                    tile.view.update()
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):

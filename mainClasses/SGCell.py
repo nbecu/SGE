@@ -43,6 +43,9 @@ class SGCell(SGEntity):
         # List of agents in this cell
         self.agents = []
         
+        # List of tiles on this cell (organized by position)
+        self.tiles = []  # List of all tiles on this cell
+        
         # Initialize attributes from type
         self.initAttributesAndValuesWith({})
         
@@ -102,6 +105,141 @@ class SGCell(SGEntity):
         """Remove an agent from this cell"""
         if agent in self.agents:
             self.agents.remove(agent)
+    
+    # ============================================================================
+    # TILE MANAGEMENT METHODS
+    # ============================================================================
+    
+    def addTile(self, tile):
+        """Add a tile to this cell"""
+        if tile not in self.tiles:
+            self.tiles.append(tile)
+            # Update tile positions when cell moves
+            if hasattr(self, 'view') and self.view:
+                if hasattr(tile, 'view') and tile.view:
+                    tile.view.updatePositionFromCell()
+    
+    def removeTile(self, tile):
+        """Remove a tile from this cell"""
+        if tile in self.tiles:
+            self.tiles.remove(tile)
+    
+    def getTilesHere(self):
+        """Get all tiles on this cell"""
+        return self.tiles.copy()
+    
+    def getTiles(self, tileType=None):
+        """
+        Get all tiles on this cell, optionally filtered by type
+        
+        Args:
+            tileType: Optional tile type to filter by
+            
+        Returns:
+            list: List of tiles
+        """
+        if tileType is None:
+            return self.tiles.copy()
+        else:
+            return [tile for tile in self.tiles if tile.type == tileType]
+    
+    def nbTiles(self, tileType=None):
+        """
+        Count tiles on this cell, optionally filtered by type
+        
+        Args:
+            tileType: Optional tile type to filter by
+            
+        Returns:
+            int: Number of tiles
+        """
+        if tileType is None:
+            return len(self.tiles)
+        else:
+            return len([tile for tile in self.tiles if tile.type == tileType])
+    
+    def hasTile(self, tileType):
+        """
+        Check if this cell contains a tile of the given type
+        
+        Args:
+            tileType: The tile type to check for
+            
+        Returns:
+            bool: True if cell has a tile of this type
+        """
+        return any(tile.type == tileType for tile in self.tiles)
+    
+    def getTile(self, tileType):
+        """
+        Get the first tile of the given type on this cell
+        
+        Args:
+            tileType: The tile type to get
+            
+        Returns:
+            SGTile or None: The first tile of this type, or None if not found
+        """
+        for tile in self.tiles:
+            if tile.type == tileType:
+                return tile
+        return None
+    
+    def getTilesAtPosition(self, position, tileType=None):
+        """
+        Get all tiles at a specific position on this cell
+        
+        Args:
+            position: Position on the cell ("center", "topLeft", etc.)
+            tileType: Optional tile type to filter by
+            
+        Returns:
+            list: List of tiles at this position
+        """
+        tiles_at_pos = [tile for tile in self.tiles if tile.position == position]
+        if tileType is not None:
+            tiles_at_pos = [tile for tile in tiles_at_pos if tile.type == tileType]
+        return tiles_at_pos
+    
+    def getTopTile(self, position="center"):
+        """
+        Get the top tile (highest layer) at a specific position
+        
+        Args:
+            position: Position on the cell (default: "center")
+            
+        Returns:
+            SGTile or None: The top tile at this position, or None if no tiles
+        """
+        tiles_at_pos = self.getTilesAtPosition(position)
+        if not tiles_at_pos:
+            return None
+        return max(tiles_at_pos, key=lambda t: t.layer)
+    
+    def getStack(self, position="center"):
+        """
+        Get all tiles in the stack at a specific position
+        
+        Args:
+            position: Position on the cell (default: "center")
+            
+        Returns:
+            list: List of tiles in the stack, sorted by layer (lowest to highest)
+        """
+        tiles_at_pos = self.getTilesAtPosition(position)
+        return sorted(tiles_at_pos, key=lambda t: t.layer)
+    
+    def getStackSize(self, position="center"):
+        """
+        Get the number of tiles in the stack at a specific position
+        
+        Args:
+            position: Position on the cell (default: "center")
+            
+        Returns:
+            int: Number of tiles in the stack
+        """
+        return len(self.getTilesAtPosition(position))
 
     def shouldAcceptDropFrom(self, entity):
         """

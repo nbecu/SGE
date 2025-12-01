@@ -67,13 +67,14 @@ class SGEntityType(AttributeAndValueFunctionalities):
         Return the category of entity this type represents.
         
         Returns:
-            str: 'Cell' for cell types, 'Agent' for agent types
+            str: 'Cell' for cell types, 'Agent' for agent types, 'Tile' for tile types
             
         Raises:
             ValueError: If the entity category is not recognized
         """
         if self.isCellType: return 'Cell'
         elif self.isAgentType: return 'Agent'
+        elif self.isTileType: return 'Tile'
         else: raise ValueError('Wrong or new entity type')
 
     # ============================================================================
@@ -1662,18 +1663,19 @@ class SGAgentType(SGEntityType):
 
 class SGTileType(SGEntityType):
     def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, 
-                 defaultPositionOnCell="center", frontImage=None, backImage=None, frontColor=None, backColor=None):
+                 defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=None, backColor=None):
         super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
         # Type identification attribute
         self.isTileType = True
         self.defaultPositionOnCell = defaultPositionOnCell
+        self.defaultFace = defaultFace  # Default face for new tiles ("front" or "back")
         self.frontImage = frontImage
         self.backImage = backImage
         self.frontColor = frontColor if frontColor is not None else defaultColor
         self.backColor = backColor if backColor is not None else defaultColor
 
     # ===================NEW/ADD/SET METHODS DEVELOPER METHODS==============================================  
-    def newTileOnCellWithModelView(self, aCell, attributesAndValues=None, position=None, face="front", 
+    def newTileOnCellWithModelView(self, aCell, attributesAndValues=None, position=None, face=None, 
                                     image=None, popupImage=None):
         """
         Create a new tile using Model-View architecture
@@ -1682,7 +1684,7 @@ class SGTileType(SGEntityType):
             aCell: The cell where the tile will be placed
             attributesAndValues: Initial attributes and values
             position: Position on the cell (optional, uses defaultPositionOnCell if None)
-            face: Initial face ("front" or "back", default: "front")
+            face: Initial face ("front" or "back", optional, uses defaultFace if None)
             image: Default image for the tile (optional)
             popupImage: Not used for tiles, kept for compatibility
             
@@ -1697,6 +1699,10 @@ class SGTileType(SGEntityType):
         # Use default position if not specified
         if position is None:
             position = self.defaultPositionOnCell
+        
+        # Use default face if not specified
+        if face is None:
+            face = self.defaultFace
         
         # Create tile using factory
         tile_model, tile_view = SGEntityFactory.newTileWithModelView(
@@ -1726,7 +1732,7 @@ class SGTileType(SGEntityType):
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
-    def newTileOnCell(self, aCell, attributesAndValues=None, position=None, face="front") -> SGTile:
+    def newTileOnCell(self, aCell, attributesAndValues=None, position=None, face=None) -> SGTile:
         """
         Create a new tile on a specific cell.
         
@@ -1734,7 +1740,7 @@ class SGTileType(SGEntityType):
             aCell (SGCell): Cell where the tile will be placed
             attributesAndValues (dict, optional): Initial attributes and values for the tile
             position (str, optional): Position on the cell ("center", "topLeft", etc.). Uses defaultPositionOnCell if None.
-            face (str, optional): Initial face ("front" or "back", default: "front")
+            face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
             
         Returns:
             SGTile: The created tile model, or None if creation failed
@@ -1754,7 +1760,7 @@ class SGTileType(SGEntityType):
         # Return only the tile for modelers
         return tile_model
 
-    def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None, position=None, face="front"):
+    def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None, position=None, face=None):
         """
         Create a new Tile of a given type.
 
@@ -1764,7 +1770,7 @@ class SGTileType(SGEntityType):
             y (int): Row position in grid (1-indexed)
             attributesAndValues (dict, optional): Initial attributes and values
             position (str, optional): Position on the cell. Uses defaultPositionOnCell if None.
-            face (str, optional): Initial face ("front" or "back", default: "front")
+            face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
         Flexible calling patterns (backward compatible):
             - newTileAtCoords(x, y, ...)
             - newTileAtCoords((x, y), ...)
@@ -1802,14 +1808,14 @@ class SGTileType(SGEntityType):
         locationCell = aCellDef.getCell(x, y)
         return self.newTileOnCell(locationCell, attributesAndValues, position, face)
     
-    def newTileOnTile(self, aTile, attributesAndValues=None, face="front"):
+    def newTileOnTile(self, aTile, attributesAndValues=None, face=None):
         """
         Create a new tile stacked on top of an existing tile (same type only).
         
         Args:
             aTile (SGTile): The tile to stack on top of
             attributesAndValues (dict, optional): Initial attributes and values
-            face (str, optional): Initial face ("front" or "back", default: "front")
+            face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
             
         Returns:
             SGTile: The created tile model, or None if creation failed

@@ -86,6 +86,27 @@ class SGTile(SGEntity):
     # DEVELOPER METHODS
     # ============================================================================
 
+    # ============================================================================
+    # ZOOM METHODS
+    # ============================================================================
+    
+    def updateZoom(self, zoom_factor):
+        """
+        Update tile size based on zoom factor
+        
+        Args:
+            zoom_factor: The zoom factor to apply
+        """
+        # Calculate new size based on saved size and zoom
+        self.size = round(self.saveSize * zoom_factor)
+        
+        # Update view if it exists
+        if self.view:
+            self.view.size = self.size
+            self.view.saveSize = self.saveSize
+            self.view.updatePositionFromCell()
+            self.view.update()
+
     # Model-View specific methods
     def getView(self):
         """Get the tile view"""

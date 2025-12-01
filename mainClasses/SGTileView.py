@@ -78,7 +78,8 @@ class SGTileView(SGEntityView):
         cell_size = self.grid.size if self.grid else current_cell.saveSize
         
         # Calculate relative position based on position attribute
-        tile_size = self.size
+        # Use size from model (updated by zoom)
+        tile_size = self.entity_model.size if hasattr(self.entity_model, 'size') else self.size
         
         if self.position == "full":
             # Tile covers the entire cell
@@ -160,7 +161,8 @@ class SGTileView(SGEntityView):
         tileShape = self.type.shape
         x = self.xCoord
         y = self.yCoord
-        tile_size = self.size
+        # Use size from model (updated by zoom)
+        tile_size = self.entity_model.size if hasattr(self.entity_model, 'size') else self.size
         
         if self.isDisplay == True:
             if tileShape == "rectTile" or tileShape == "imageTile":
@@ -191,6 +193,8 @@ class SGTileView(SGEntityView):
     def updateFromModel(self):
         """Update view properties from model"""
         if self.tile_model:
+            self.size = self.tile_model.size  # Update size from model (for zoom)
+            self.saveSize = self.tile_model.saveSize
             self.face = self.tile_model.face
             self.frontImage = self.tile_model.frontImage
             self.backImage = self.tile_model.backImage

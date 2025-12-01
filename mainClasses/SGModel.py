@@ -27,6 +27,7 @@ from screeninfo import get_monitors
 # --- Project imports ---
 from mainClasses.SGAgent import *
 from mainClasses.SGCell import *
+from mainClasses.SGTile import *
 from mainClasses.SGControlPanel import *
 from mainClasses.SGDashBoard import *
 from mainClasses.SGDataRecorder import *
@@ -132,6 +133,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Definition of the AgentDef and CellDef
         self.agentTypes = {}
         self.cellTypes = {}
+        self.tileTypes = {}
         # Definition of simulation variables
         self.simulationVariables = []
         # definition of layouts and associated parameters
@@ -308,6 +310,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Use QApplication.processEvents() to ensure layouts are processed before positioning
         QApplication.processEvents()
         self.positionAllAgents()
+        self.positionAllTiles()
 
     def launch(self):
         """
@@ -357,6 +360,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     agent.view.getPositionInEntity()
                     # Force update to ensure positioning is applied
                     agent.view.update()
+    
+    def positionAllTiles(self):
+        """Position all tiles after grid layout is applied"""
+        for tile_type in self.getTileTypes():
+            for tile in tile_type.entities:
+                if hasattr(tile, 'view') and tile.view:
+                    # Show the tile view first
+                    tile.view.show()
+                    # Position it (tiles should be below agents)
+                    tile.view.getPositionInCell()
+                    # Force update to ensure positioning is applied
+                    tile.view.update()
+    
+    def getTileTypes(self):
+        """Get all tile types"""
+        return list(self.tileTypes.values())
 
     # ============================================================================
     # UI MANAGEMENT METHODS
@@ -1803,6 +1822,33 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aAgentType = SGAgentType(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,locationInEntity,defaultImage)
         self.agentTypes[name]=aAgentType
         return aAgentType
+
+    def newTileType(self, name, shape, entDefAttributesAndValues=None, defaultSize=20, defaultColor=Qt.black, 
+                    defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=None, backColor=None):
+        """
+        Create a new type of Tiles.
+
+        Args:
+            name (str): the tileType name
+            shape (str): the tileType shape ("rectTile", "circleTile", "ellipseTile", "imageTile")
+            entDefAttributesAndValues (dict, optional): all the tileType attributes with all the values
+            defaultSize (int): the tileType shape size (Default=20)
+            defaultColor (QColor): the default color for the tile (Default=Qt.black)
+            defaultPositionOnCell (str, optional): Position on cell ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full"). Default="center"
+            defaultFace (str, optional): Default face for new tiles ("front" or "back", Default="front")
+            frontImage (QPixmap, optional): Image for the front face
+            backImage (QPixmap, optional): Image for the back face
+            frontColor (QColor, optional): Color for the front face (uses defaultColor if None)
+            backColor (QColor, optional): Color for the back face (uses defaultColor if None)
+        Return:
+            a tileType
+        """
+        if shape not in ["rectTile", "circleTile", "ellipseTile", "imageTile"]:
+            raise ValueError(f"Invalid shape: {shape}. Must be one of: rectTile, circleTile, ellipseTile, imageTile")
+        aTileType = SGTileType(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,
+                              defaultPositionOnCell, defaultFace, frontImage, backImage, frontColor, backColor)
+        self.tileTypes[name] = aTileType
+        return aTileType
 
 
     # To create a player
