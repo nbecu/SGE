@@ -1,9 +1,11 @@
 from mainClasses.SGEntity import SGEntity
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGTile import SGTile
 from mainClasses.SGEntityView import SGEntityView
 from mainClasses.SGCellView import SGCellView
 from mainClasses.SGAgentView import SGAgentView
+from mainClasses.SGTileView import SGTileView
 
 class SGEntityFactory:
     """
@@ -92,5 +94,65 @@ class SGEntityFactory:
             tuple: (cell_model, cell_view)
         """
         return SGEntityFactory.newCellWithModelView(cellDef, x, y)
+    
+    @staticmethod
+    def newTileWithModelView(tileDef, cell, attributesAndValues=None, position="center", face="front",
+                             frontImage=None, backImage=None, frontColor=None, backColor=None):
+        """
+        Create a tile with Model-View architecture
+        
+        Args:
+            tileDef: The tile definition
+            cell: The cell where the tile will be placed
+            attributesAndValues: Initial attributes and values
+            position: Position on the cell
+            face: Initial face ("front" or "back")
+            frontImage: Image for the front face (optional)
+            backImage: Image for the back face (optional)
+            frontColor: Color for the front face (optional)
+            backColor: Color for the back face (optional)
+            
+        Returns:
+            tuple: (tile_model, tile_view)
+        """
+        if cell is None:
+            return None
+        
+        # Use defaults from tileDef if not provided
+        if frontImage is None:
+            frontImage = tileDef.frontImage
+        if backImage is None:
+            backImage = tileDef.backImage
+        if frontColor is None:
+            frontColor = tileDef.frontColor
+        if backColor is None:
+            backColor = tileDef.backColor
+        
+        # Create the tile model
+        tile_model = SGTile(
+            cell, 
+            tileDef.defaultsize, 
+            attributesAndValues, 
+            tileDef.defaultShapeColor, 
+            tileDef, 
+            position,
+            face,
+            frontImage,
+            backImage,
+            frontColor,
+            backColor
+        )
+        
+        # Create the tile view with grid as parent (not cell)
+        grid_parent = cell.type.grid if hasattr(cell, 'type') and hasattr(cell.type, 'grid') else None
+        
+        tile_view = SGTileView(tile_model, grid_parent)
+        
+        # Link model and view
+        tile_model.setView(tile_view)
+        
+        # Note: tile_view.show() will be called later in positionAllTiles() or similar
+        
+        return tile_model, tile_view
     
     

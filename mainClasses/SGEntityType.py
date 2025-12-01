@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from mainClasses.SGCell import SGCell
 from mainClasses.SGAgent import SGAgent
+from mainClasses.SGTile import SGTile
 from mainClasses.SGEntity import SGEntity
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
@@ -33,6 +34,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         # Type identification attributes
         self.isAgentType = False
         self.isCellType = False
+        self.isTileType = False
         self.isAGrid = False
         
         #Define variables to handle the history 
@@ -1654,3 +1656,250 @@ class SGAgentType(SGEntityType):
         
         for aAgent in self.entities[:]: # Need to iterate on a copy of the entities list, because , due to the moveByRecreating, the entities list changes during the loop
             aAgent.moveAgent(numberOfMovement=numberOfMovement,condition=condition)
+
+
+# ********************************************************    
+
+class SGTileType(SGEntityType):
+    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, 
+                 defaultPositionOnCell="center", frontImage=None, backImage=None, frontColor=None, backColor=None):
+        super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+        # Type identification attribute
+        self.isTileType = True
+        self.defaultPositionOnCell = defaultPositionOnCell
+        self.frontImage = frontImage
+        self.backImage = backImage
+        self.frontColor = frontColor if frontColor is not None else defaultColor
+        self.backColor = backColor if backColor is not None else defaultColor
+
+    # ===================NEW/ADD/SET METHODS DEVELOPER METHODS==============================================  
+    def newTileOnCellWithModelView(self, aCell, attributesAndValues=None, position=None, face="front", 
+                                    image=None, popupImage=None):
+        """
+        Create a new tile using Model-View architecture
+        
+        Args:
+            aCell: The cell where the tile will be placed
+            attributesAndValues: Initial attributes and values
+            position: Position on the cell (optional, uses defaultPositionOnCell if None)
+            face: Initial face ("front" or "back", default: "front")
+            image: Default image for the tile (optional)
+            popupImage: Not used for tiles, kept for compatibility
+            
+        Returns:
+            tuple: (tile_model, tile_view) - The tile model and view pair
+        """
+        if aCell == None: 
+            return None
+            
+        from mainClasses.SGEntityFactory import SGEntityFactory
+        
+        # Use default position if not specified
+        if position is None:
+            position = self.defaultPositionOnCell
+        
+        # Create tile using factory
+        tile_model, tile_view = SGEntityFactory.newTileWithModelView(
+            self, aCell, attributesAndValues, position, face, 
+            self.frontImage if image is None else image, 
+            self.backImage, 
+            self.frontColor, 
+            self.backColor
+        )
+        
+        # Add to entities list (store the model)
+        self.entities.append(tile_model)
+        
+        # Update watchers
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
+        
+        # Position and show the tile
+        tile_view.getPositionInCell()
+        tile_view.show()
+        
+        return tile_model, tile_view
+    
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    def newTileOnCell(self, aCell, attributesAndValues=None, position=None, face="front") -> SGTile:
+        """
+        Create a new tile on a specific cell.
+        
+        Args:
+            aCell (SGCell): Cell where the tile will be placed
+            attributesAndValues (dict, optional): Initial attributes and values for the tile
+            position (str, optional): Position on the cell ("center", "topLeft", etc.). Uses defaultPositionOnCell if None.
+            face (str, optional): Initial face ("front" or "back", default: "front")
+            
+        Returns:
+            SGTile: The created tile model, or None if creation failed
+        """
+        if aCell == None:
+            return None
+
+        # Use Model-View method
+        result = self.newTileOnCellWithModelView(aCell, attributesAndValues, position, face)
+
+        if result is None:
+            return None
+
+        # Extract only the model from the tuple
+        tile_model, tile_view = result
+
+        # Return only the tile for modelers
+        return tile_model
+
+    def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None, position=None, face="front"):
+        """
+        Create a new Tile of a given type.
+
+        Args:
+            cellDef_or_grid (instance): the cellDef or grid you want your tile in. If None, the first cellDef and grid will be used
+            x (int): Column position in grid (1-indexed)
+            y (int): Row position in grid (1-indexed)
+            attributesAndValues (dict, optional): Initial attributes and values
+            position (str, optional): Position on the cell. Uses defaultPositionOnCell if None.
+            face (str, optional): Initial face ("front" or "back", default: "front")
+        Flexible calling patterns (backward compatible):
+            - newTileAtCoords(x, y, ...)
+            - newTileAtCoords((x, y), ...)
+            - newTileAtCoords(cellDef_or_grid, x, y, ...)
+        Return:
+            a tile
+        """
+        # Normalize arguments to support calls like newTileAtCoords(3,3) or newTileAtCoords((3,3))
+        if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and x is None and y is None:
+            x, y = int(cellDef_or_grid[0]), int(cellDef_or_grid[1])
+            cellDef_or_grid = None
+        elif isinstance(cellDef_or_grid, int) and isinstance(x, int) and y is None:
+            # Called as newTileAtCoords(x, y, ...)
+            x, y = cellDef_or_grid, x
+            cellDef_or_grid = None
+        elif isinstance(x, (tuple, list)) and len(x) == 2 and y is None:
+            # Called as newTileAtCoords(cellDef_or_grid, (x, y), ...)
+            x, y = int(x[0]), int(x[1])
+
+        # Normalize argument cellDef_or_grid
+        if not cellDef_or_grid:
+            from mainClasses.SGExtensions import first_value
+            aCellDef = first_value(self.model.cellTypes, None)
+        else: 
+            aCellDef = self.model.getCellType(cellDef_or_grid)
+        if aCellDef == None: 
+            return None
+        aGrid = self.model.getGrid(aCellDef)
+
+        if x == None: 
+            import random
+            x = random.randint(1, aGrid.columns)
+        if y == None: 
+            y = random.randint(1, aGrid.rows)
+        locationCell = aCellDef.getCell(x, y)
+        return self.newTileOnCell(locationCell, attributesAndValues, position, face)
+    
+    def newTileOnTile(self, aTile, attributesAndValues=None, face="front"):
+        """
+        Create a new tile stacked on top of an existing tile (same type only).
+        
+        Args:
+            aTile (SGTile): The tile to stack on top of
+            attributesAndValues (dict, optional): Initial attributes and values
+            face (str, optional): Initial face ("front" or "back", default: "front")
+            
+        Returns:
+            SGTile: The created tile model, or None if creation failed
+        """
+        if aTile == None:
+            return None
+        
+        # Check that we're stacking tiles of the same type
+        if aTile.type != self:
+            raise ValueError('Can only stack tiles of the same type')
+        
+        # Get the cell and position from the existing tile
+        cell = aTile.cell
+        position = aTile.position
+        
+        # Get the highest layer in the stack at this position
+        max_layer = aTile.layer
+        if cell and hasattr(cell, 'getTilesAtPosition'):
+            tiles_at_pos = cell.getTilesAtPosition(position, self)
+            if tiles_at_pos:
+                max_layer = max(tile.layer for tile in tiles_at_pos)
+        
+        # Create new tile with layer one higher
+        new_tile = self.newTileOnCell(cell, attributesAndValues, position, face)
+        if new_tile:
+            new_tile.setLayer(max_layer + 1)
+        
+        return new_tile
+
+    # ============================================================================
+    # GET METHODS
+    # ============================================================================
+
+    def getAllTiles(self):
+        """Get all tiles of this type"""
+        return self.entities
+    
+    def getTileById(self, id):
+        """Get a tile by its ID"""
+        for tile in self.entities:
+            if tile.id == id:
+                return tile
+        return None
+    
+    def getTilesOnCell(self, cell):
+        """Get all tiles of this type on a specific cell"""
+        tiles = []
+        for tile in self.entities:
+            if tile.cell == cell:
+                tiles.append(tile)
+        return tiles
+    
+    def getAllStacks(self):
+        """
+        Get all stacks (groups of tiles at the same position on the same cell).
+        
+        Returns:
+            dict: Dictionary mapping (cell, position) tuples to lists of tiles
+        """
+        stacks = {}
+        for tile in self.entities:
+            if tile.cell:
+                key = (tile.cell, tile.position)
+                if key not in stacks:
+                    stacks[key] = []
+                stacks[key].append(tile)
+        return stacks
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+
+    def deleteTile(self, aTile):
+        """
+        Delete a given tile
+        args:
+            aTile (instance): the tile to be deleted
+        """
+        # Remove tile from its cell
+        if hasattr(aTile.cell, 'removeTile'):
+            aTile.cell.removeTile(aTile)
+        
+        # Delete the view if it exists
+        if hasattr(aTile, 'view') and aTile.view:
+            try:
+                aTile.view.deleteLater()
+            except RuntimeError:
+                # View already deleted, ignore the error
+                pass
+            
+        self.entities.remove(aTile)
+        self.updateWatchersOnPop()
+        self.updateWatchersOnAllAttributes()
