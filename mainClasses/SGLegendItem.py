@@ -138,6 +138,13 @@ class SGLegendItem(QtWidgets.QWidget):
                 QPoint(10,  7)
                 ])
                 painter.drawPolygon(points)
+            #Tiles
+            elif self.shape=="rectTile" or self.shape=="imageTile":
+                painter.drawRect(0, 0, 18, 18)
+            elif self.shape=="circleTile":
+                painter.drawEllipse(0, 0, 18, 18)
+            elif self.shape=="ellipseTile":
+                painter.drawEllipse(0, 3, 18, 9)
             
             # Text styling derived from legend's gs_aspect text aspects
             def apply_font_from_aspect(font: QFont, aspect):
@@ -313,7 +320,10 @@ class SGLegendItem(QtWidgets.QWidget):
                 min_w = int(base_x + max(0, text_w) + right_pad)
             except Exception:
                 min_w = 60
-            self.setMinimumSize(min_w,10)
+            # Use heightOfLabels for item height to ensure proper clickable area
+            item_height = getattr(self.legend, 'heightOfLabels', 22)
+            self.setMinimumSize(min_w, item_height)
+            self.resize(min_w, item_height)  # Ensure the widget has the correct size
             # Position items using panel paddings
             left_pad = getattr(self.legend, 'leftPadding', 10)
             top_pad = getattr(self.legend, 'topPadding', 0)

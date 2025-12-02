@@ -1,7 +1,8 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
-from PyQt5.QtGui import QCursor
+from PyQt5.QtGui import QCursor, QDrag
+from PyQt5.QtCore import QMimeData
 from mainClasses.SGEntityView import SGEntityView
 import random
 
@@ -31,7 +32,6 @@ class SGTileView(SGEntityView):
         # Tile-specific properties
         self.cell = tile_model.cell
         self.position = tile_model.position
-        self.face = tile_model.face
         self.frontImage = tile_model.frontImage
         self.backImage = tile_model.backImage
         self.frontColor = tile_model.frontColor
@@ -132,7 +132,7 @@ class SGTileView(SGEntityView):
         painter.setClipRegion(region)
         
         # Get image and color based on current face
-        if self.face == "front":
+        if self.tile_model.face == "front":
             image = self.frontImage if self.frontImage is not None else self.getImage()
             color = self.frontColor if self.frontColor is not None else self.getColor()
         else:  # back
@@ -190,12 +190,80 @@ class SGTileView(SGEntityView):
         """Get the clipping region for the tile"""
         return QRegion(0, 0, self.size, self.size)
     
+    def mousePressEvent(self, event):
+        """Handle mouse press events on tiles"""
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            # Something is selected
+            aLegendItem = self.tile_model.model.getSelectedLegendItem()
+            if aLegendItem is None: 
+                return  # Exit the method
+            
+            # Validate that the click is within the tile bounds
+            click_pos = event.pos()
+            tile_rect = self.rect()
+            tolerance = 2  # 2 pixels tolerance
+            
+            # Check if click is within the tile boundaries with tolerance
+            if (click_pos.x() < -tolerance or click_pos.x() > tile_rect.width() + tolerance or 
+                click_pos.y() < -tolerance or click_pos.y() > tile_rect.height() + tolerance):
+                return  # Exit if click is outside tile bounds
+            
+            # Use the gameAction system for ALL players (including Admin)
+            # Check if the action is a Move action (tiles can be moved via drag & drop)
+            from mainClasses.gameAction.SGMove import SGMove
+            if isinstance(aLegendItem.gameAction, SGMove):
+                # For Move actions, allow drag & drop (like agents)
+                # Don't execute the action here, let drag & drop handle it
+                return
+            
+            # For other actions (like Flip), execute on the tile
+            aLegendItem.gameAction.perform_with(self.tile_model)
+            return
+    
+    def mouseReleaseEvent(self, event):
+        """Handle mouse release events"""
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+    
+    def mouseMoveEvent(self, e):
+        """Handle mouse move events for dragging tiles"""
+        if e.buttons() != Qt.LeftButton:
+            # If no button is pressed, reset dragging state
+            if self.dragging:
+                self.dragging = False
+            return
+
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+
+        # Take a snapshot of the widget (the tile)
+        pixmap = self.grab()
+
+        # Make the pixmap semi-transparent
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        painter.fillRect(pixmap.rect(), QColor(0, 0, 0, 128))  # 128 = 50% opacity
+        painter.end()
+
+        # Set the pixmap as the drag preview
+        drag.setPixmap(pixmap)
+
+        # Keep the cursor aligned with the click point
+        drag.setHotSpot(e.pos())
+
+        # Start the drag operation
+        result = drag.exec_(Qt.CopyAction | Qt.MoveAction)
+        
+        # Reset dragging state after drag operation completes
+        self.dragging = False
+    
     def updateFromModel(self):
         """Update view properties from model"""
         if self.tile_model:
             self.size = self.tile_model.size  # Update size from model (for zoom)
             self.saveSize = self.tile_model.saveSize
-            self.face = self.tile_model.face
             self.frontImage = self.tile_model.frontImage
             self.backImage = self.tile_model.backImage
             self.frontColor = self.tile_model.frontColor

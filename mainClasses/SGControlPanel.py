@@ -85,11 +85,20 @@ class SGControlPanel(SGGameSpace):
                 sortableActions.append(action)
         
         # Sort actions by entity type and name
-        sortedGameActions = sorted(sortableActions, key=lambda x: (0, x.targetType.name) if x.targetType.category() == 'Cell' else (1, x.targetType.name))
+        # Order: Cells (0), Tiles (1), Agents (2)
+        def sort_key(x):
+            if x.targetType.category() == 'Cell':
+                return (0, x.targetType.name)
+            elif x.targetType.category() == 'Tile':
+                return (1, x.targetType.name)
+            else:  # Agent
+                return (2, x.targetType.name)
+        sortedGameActions = sorted(sortableActions, key=sort_key)
 
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:
-            if "Move" == aGameAction.actionType and not aGameAction.setOnController or aGameAction.setControllerContextualMenu:
+            # Skip Move actions that are not set to appear on controller
+            if aGameAction.actionType == "Move" and (not aGameAction.setOnController or aGameAction.setControllerContextualMenu):
                 continue
             if lastEntDefTitle != aGameAction.targetType.name:
                 anItem=SGLegendItem(self,'Title2',aGameAction.targetType.name)
@@ -211,6 +220,16 @@ class SGControlPanel(SGGameSpace):
             
             # Find the clicked item using childAt for more precise detection
             clickedItem = self.childAt(QMouseEvent.pos())
+            
+            # If childAt didn't find a direct child, try to find the parent SGLegendItem
+            if clickedItem is not None and clickedItem not in self.legendItems:
+                # Walk up the parent chain to find a SGLegendItem
+                parent = clickedItem.parent()
+                while parent is not None and parent != self:
+                    if hasattr(parent, 'gameAction') and parent in self.legendItems:
+                        clickedItem = parent
+                        break
+                    parent = parent.parent()
             
             # Check if the clicked item is a SGLegendItem and is in our legendItems list
             if clickedItem is None or not hasattr(clickedItem, 'gameAction') or clickedItem not in self.legendItems:

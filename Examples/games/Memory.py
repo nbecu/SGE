@@ -11,6 +11,7 @@ monApp = QtWidgets.QApplication([])
 
 # Model creation
 myModel = SGModel(800, 800, windowTitle="Memory Game")
+myModel.displayTimeInWindowTitle()
 
 # Create a 4x4 grid for Memory
 Cell = myModel.newCellsOnGrid(4, 4, "square", size=150, gap=5)
@@ -28,12 +29,32 @@ CardTile = myModel.newTileType(
     backColor=QColor("pink")       # Back face: pink (card back)
 )
 
-# Place a tile on each cell, all face down (back) initially
-for x in range(2, 4):  # Columns 1 to 4
+# Place a tile on each cell, alternating face up/down
+
+for x in range(1, 5):  # Columns 1 to 4
     for y in range(1, 5):  # Rows 1 to 4
         cell = Cell.getCell(x, y)
-        # Create a face-down tile on each cell
-        CardTile.newTileOnCell(cell)
+        # Create a tile, alternating between front and back face
+        face = "front" if random.random() < 0.5 else "back"
+        CardTile.newTileOnCell(cell, face=face)
+
+# Create a player to test game actions
+Player1 = myModel.newPlayer("Player 1")
+
+# Add Flip action to test tile flipping
+flipAction = myModel.newFlipAction(CardTile, aNumber='infinite', nameToDisplay="🔄 Flip Card")
+Player1.addGameAction(flipAction)
+Player1.newControlPanel("Player 1 Actions")
+
+# Create a play phase
+myModel.newPlayPhase("Player 1 Turn", [Player1])
+
+# Set current player
+myModel.setCurrentPlayer("Player 1")
+
+myModel.displayAdminControlPanel()
+
+myModel.newUserSelector()
 
 # Launch the game
 myModel.launch()

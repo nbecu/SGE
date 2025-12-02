@@ -58,8 +58,9 @@ class SGMove(SGAbstractAction):
             return super().checkAuthorization(aTargetEntity)
 
     def executeAction(self, aMovingEntity,aDestinationEntity):
-        newCopyOfAgent = aMovingEntity.moveTo(aDestinationEntity)
-        return newCopyOfAgent
+        # Works for both agents and tiles (both have moveTo method)
+        movedEntity = aMovingEntity.moveTo(aDestinationEntity)
+        return movedEntity
     
     def executeFeedbacks(self, feedbackTarget):
         listOfRes = []

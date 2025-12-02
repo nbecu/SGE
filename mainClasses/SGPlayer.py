@@ -178,23 +178,23 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 moveActions.append(aGameAction)
         return moveActions
 
-    def getAuthorizedMoveActionForDrop(self, agent, target_cell):
+    def getAuthorizedMoveActionForDrop(self, entity, target_cell):
         """
         Get the authorized move action for a drop event
         
         Args:
-            agent: The agent being dropped
-            target_cell: The cell where the agent is being dropped
+            entity: The entity (agent or tile) being dropped
+            target_cell: The cell where the entity is being dropped
             
         Returns:
             moveAction: The first authorized move action, or None if none found
         """
-        # Get move actions for this agent
-        moveActions = self.getMoveActionsOn(agent)
+        # Get move actions for this entity (agent or tile)
+        moveActions = self.getMoveActionsOn(entity)
         
         # Find the first authorized move action
         for aMoveAction in moveActions:
-            if aMoveAction.checkAuthorization(agent, target_cell):
+            if aMoveAction.checkAuthorization(entity, target_cell):
                 return aMoveAction
                 
         return None

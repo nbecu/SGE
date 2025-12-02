@@ -251,10 +251,12 @@ class SGCell(SGEntity):
         Returns:
             bool: True if the drop should be accepted, False otherwise
         """
-        # Only accept agents, not all entities
+        # Accept agents and tiles
         has_isAgent = hasattr(entity, 'isAgent')
         is_agent = entity.isAgent if has_isAgent else False
-        return has_isAgent and is_agent
+        has_isTile = hasattr(entity, 'isTile')
+        is_tile = entity.isTile if has_isTile else False
+        return (has_isAgent and is_agent) or (has_isTile and is_tile)
 
     # ============================================================================
     # ZOOM METHODS

@@ -52,6 +52,10 @@ class SGCreate(SGAbstractAction):
                 if deleted_cell:
                     self.targetType.reviveThisCell(deleted_cell)
             return aTargetEntity
+        # in case of tile, we create the tile on the cell
+        elif self.targetType.isTileType:
+            result = self.targetType.newTileOnCell(aTargetEntity, self.dictAttributs)
+            return result
         else:
             raise ValueError(f"Error in executeAction of SGCreate for {self.targetType.name}")
 

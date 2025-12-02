@@ -1909,3 +1909,11 @@ class SGTileType(SGEntityType):
         self.entities.remove(aTile)
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
+    
+    def deleteEntity(self, aTile):
+        """
+        Delete a given tile (alias for deleteTile to match SGEntityType interface)
+        args:
+            aTile (instance): the tile to be deleted
+        """
+        self.deleteTile(aTile)

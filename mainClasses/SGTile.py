@@ -191,6 +191,7 @@ class SGTile(SGEntity):
         else:
             self.face = "front"
         if self.view:
+            print('note : flip view update')
             self.view.update()
     
     def setFace(self, face):

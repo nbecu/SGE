@@ -1976,6 +1976,27 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if aType is None : raise ValueError('Wrong format of entityDef')
         return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
 
+    def newFlipAction(self, tile_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, setControllerContextualMenu=False, setOnController=True):
+        """
+        Create a new Flip action for tiles
+        
+        Args:
+            tile_type: The tile type (SGTileType) to flip
+            aNumber: Number of times the action can be used (default: 'infinite')
+            conditions: List of conditions that must be met
+            feedbacks: List of feedback actions
+            conditionsOfFeedback: List of conditions for feedbacks
+            nameToDisplay: Custom name to display (default: "🔄 Flip")
+            setControllerContextualMenu: Whether to show in contextual menu
+            setOnController: Whether to show on controller
+            
+        Returns:
+            SGFlip: The created flip action
+        """
+        from mainClasses.gameAction.SGFlip import SGFlip
+        aFlipAction = SGFlip(tile_type, aNumber, conditions, feedbacks, conditionsOfFeedback, nameToDisplay, setControllerContextualMenu, setOnController)
+        return aFlipAction
+
     def newActivateAction(self,object_type,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
         """Add a ActivateAction to the game
         Args:
@@ -2580,7 +2601,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return self.timeManager.currentPhaseNumber
     
     def getEntityTypes(self):
-        return list(self.cellTypes.values()) + list(self.agentTypes.values())
+        return list(self.cellTypes.values()) + list(self.agentTypes.values()) + list(self.tileTypes.values())
 
     def getEntityType(self, name):
         if isinstance(name,SGEntityType):

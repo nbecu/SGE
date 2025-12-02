@@ -4,6 +4,7 @@ from mainClasses.gameAction.SGDelete import SGDelete
 from mainClasses.gameAction.SGModify import SGModify
 from mainClasses.gameAction.SGMove import SGMove
 from mainClasses.gameAction.SGActivate import SGActivate
+from mainClasses.gameAction.SGFlip import SGFlip
 
 class SGAdminPlayer(SGPlayer):
     def __init__(self, model):
@@ -34,12 +35,19 @@ class SGAdminPlayer(SGPlayer):
             # Modify actions based on discovered attributes and values
             self._createModifyActionsForEntity(entityDef)
             
-            # Move action (for agents only)
+            # Move action (for agents and tiles)
             if hasattr(entityDef, 'grid'):  # This is a CellDef
                 continue
-            else:  # This is an AgentDef
+            elif entityDef.isAgentType:  # This is an AgentDef
                 moveAction = SGMove(entityDef, 'infinite')
                 self.gameActions.append(moveAction)
+            elif entityDef.isTileType:  # This is a TileDef
+                # Move action for tiles
+                moveAction = SGMove(entityDef, 'infinite')
+                self.gameActions.append(moveAction)
+                # Flip action for tiles
+                flipAction = SGFlip(entityDef, 'infinite')
+                self.gameActions.append(flipAction)
         
         # Activation actions on the model
         activateAction = SGActivate(self.model, None, 'infinite')

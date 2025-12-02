@@ -169,29 +169,32 @@ class SGCellView(SGEntityView):
             return
 
     def dropEvent(self, e):
-        """Handle drop events for agent movement"""
+        """Handle drop events for agent and tile movement"""
         e.acceptProposedAction()
-        aAgentView = e.source()
+        sourceView = e.source()
 
-        # Get the agent model from the view
-        if hasattr(aAgentView, 'agent_model'):
-            aAgent = aAgentView.agent_model
+        # Check if it's an agent or a tile
+        entity = None
+        if hasattr(sourceView, 'agent_model'):
+            entity = sourceView.agent_model
+        elif hasattr(sourceView, 'tile_model'):
+            entity = sourceView.tile_model
         else:
             # Fallback: assume it's already a model
-            aAgent = aAgentView
+            entity = sourceView
 
         # Delegate type checking to the model
-        if not self.cell_model.shouldAcceptDropFrom(aAgent):
+        if not self.cell_model.shouldAcceptDropFrom(entity):
             return
         
         currentPlayer = self.cell_model.model.getCurrentPlayer()
     
         # Get authorized move action from player
-        authorizedMoveAction = currentPlayer.getAuthorizedMoveActionForDrop(aAgent, self.cell_model)
+        authorizedMoveAction = currentPlayer.getAuthorizedMoveActionForDrop(entity, self.cell_model)
         
         # Execute the move action if found
         if authorizedMoveAction is not None:
-            authorizedMoveAction.perform_with(aAgent, self.cell_model)
+            authorizedMoveAction.perform_with(entity, self.cell_model)
             e.setDropAction(Qt.MoveAction)
             return
 
