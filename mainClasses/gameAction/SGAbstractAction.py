@@ -10,7 +10,26 @@ class SGAbstractAction():
     IDincr=0
     instances = []
     action_id_counter = 0  # Global shared counter for execution order
-    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
+    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None):
+        """
+        Initialize an abstract action
+        
+        Args:
+            type: The target entity type or model
+            number: Number of times the action can be used
+            conditions: List of conditions
+            feedbacks: List of feedback actions
+            conditionsOfFeedback: List of conditions for feedbacks
+            nameToDisplay: Display name (legacy parameter, for backward compatibility)
+            aNameToDisplay: Display name (preferred parameter, consistent with SGModel API)
+            setControllerContextualMenu: Whether to show in contextual menu (legacy, use interaction_modes)
+            setOnController: Whether to show on controller (legacy, use interaction_modes)
+            interaction_modes: Dict specifying interaction modes. Defaults:
+                - controlPanel: True (always True by default)
+                - contextMenu: False (except if setControllerContextualMenu=True)
+                - button: False (only for Activate)
+                - autoTrigger: None (except Move="drag", Flip="click")
+        """
         self.id=self.nextId()
         self.__class__.instances.append(self)
         # print('new gameAction: '+str(self.id)) # To test
@@ -28,9 +47,40 @@ class SGAbstractAction():
         self.conditions=copy.deepcopy(conditions) #Is is very important to use deepcopy becasue otherwise conditions are copied from one GameAction to another
                                                  # We should check that this does not ahppen as well for feedbacks and conditionsOfFeedback 
         self.feedbacks=copy.deepcopy(feedbacks)
-        self.conditionsOfFeedback=copy.deepcopy(conditionsOfFeedback) 
-        self.setControllerContextualMenu=setControllerContextualMenu
-        self.setOnController=copy.deepcopy(setOnController)        
+        self.conditionsOfFeedback=copy.deepcopy(conditionsOfFeedback)
+        
+        # Handle interaction_modes with backward compatibility
+        if interaction_modes is None:
+            interaction_modes = {}
+        
+        # Set default values for interaction_modes
+        # Note: directClick defaults will be set by subclasses (Flip=True by default)
+        self.interaction_modes = {
+            "controlPanel": interaction_modes.get("controlPanel", True),  # Always True by default
+            "contextMenu": interaction_modes.get("contextMenu", setControllerContextualMenu),  # Use legacy param if not specified
+            "button": interaction_modes.get("button", False),  # False by default
+            "directClick": interaction_modes.get("directClick", False)  # False by default, will be overridden by subclasses if needed
+        }
+        
+        # Backward compatibility: convert old autoTrigger to directClick
+        if "autoTrigger" in interaction_modes:
+            old_value = interaction_modes["autoTrigger"]
+            if old_value == "click":
+                self.interaction_modes["directClick"] = True
+            elif old_value == "drag":
+                # For Move actions, drag is handled separately, not via directClick
+                # Keep directClick as False for drag-only actions
+                pass
+            elif old_value is None:
+                self.interaction_modes["directClick"] = False
+        
+        # Maintain backward compatibility: set legacy attributes
+        self.setControllerContextualMenu = self.interaction_modes["contextMenu"]
+        self.setOnController = self.interaction_modes["controlPanel"]        
+        
+        # Normalize display name: prefer aNameToDisplay (consistent with SGModel API), fallback to nameToDisplay (legacy)
+        # This allows both parameter names to work for backward compatibility
+        self.nameToDisplay = aNameToDisplay if aNameToDisplay is not None else nameToDisplay
         
         #Define variables to handle the history 
         self.history={}
@@ -87,6 +137,13 @@ class SGAbstractAction():
             # Check if currentPlayer is defined before accessing it
             try:
                 currentPlayer = self.model.getCurrentPlayer()
+                if not currentPlayer.isAdmin:
+                    # Show warning to non-admin users during initialization
+                    self.model.newWarningPopUp(
+                        "Action Not Available",
+                        "Game actions cannot be used during the initialization phase.\n\n"
+                        "Please proceed to the next turn to use actions."
+                    )
                 return currentPlayer.isAdmin
             except ValueError:
                 # Current player not defined yet, only Admin actions should work

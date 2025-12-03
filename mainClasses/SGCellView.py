@@ -144,11 +144,6 @@ class SGCellView(SGEntityView):
     def mousePressEvent(self, event):
         """Handle mouse press events"""
         if event.button() == Qt.LeftButton:
-            # Something is selected
-            aLegendItem = self.cell_model.model.getSelectedLegendItem()
-            if aLegendItem is None: 
-                return  # Exit the method
-
             # Validate that the click is within the cell bounds
             click_pos = event.pos()
             
@@ -161,13 +156,74 @@ class SGCellView(SGEntityView):
                 click_pos.y() < -tolerance or click_pos.y() > cell_rect.height() + tolerance):
                 return  # Exit if click is outside cell bounds
             
+            # First, try to find an action with directClick=True (priority over ControlPanel selection)
+            selected_action = None
+            try:
+                currentPlayer = self.cell_model.model.getCurrentPlayer()
+                if currentPlayer != "Admin":
+                    # Use helper method to find authorized action with directClick=True
+                    selected_action = currentPlayer.getAuthorizedActionWithDirectClick(self.cell_model)
+            except (ValueError, AttributeError):
+                # Current player not defined yet or not a valid player object, skip directClick
+                pass
+            
+            # If no directClick action found, fall back to selected action from ControlPanel
+            if selected_action is None:
+                aLegendItem = self.cell_model.model.getSelectedLegendItem()
+                selected_action = aLegendItem.gameAction if aLegendItem is not None else None
+            
+            if selected_action is None:
+                return  # No action available
+            
+            # Check if this action was triggered via directClick
+            action_was_directclick = (
+                hasattr(selected_action, 'interaction_modes') and
+                selected_action.interaction_modes.get("directClick") == True
+            )
+            
             # Note: We removed the isDisplay check to allow actions on deleted cells
             # This allows create actions to work on deleted cells
             
             # Use the gameAction system for ALL players (including Admin)
-            aLegendItem.gameAction.perform_with(self.cell_model)
+            selected_action.perform_with(self.cell_model)
+            
+            # If action was triggered via directClick, update ControlPanel selection
+            if action_was_directclick:
+                self._updateControlPanelSelection(selected_action)
             return
 
+    def _updateControlPanelSelection(self, action):
+        """
+        Update the ControlPanel selection to reflect the action that was just executed via directClick
+        
+        Args:
+            action: The game action that was just executed
+        """
+        try:
+            currentPlayer = self.cell_model.model.getCurrentPlayer()
+            if currentPlayer is None or currentPlayer == "Admin":
+                return
+            
+            # Find the ControlPanel for the current player
+            controlPanel = currentPlayer.controlPanel
+            if controlPanel is None:
+                return
+            
+            # Find the SGLegendItem corresponding to this action
+            legend_item = next(
+                (item for item in controlPanel.legendItems 
+                 if hasattr(item, 'gameAction') and item.gameAction == action),
+                None
+            )
+            
+            # Update the selection
+            if legend_item is not None:
+                controlPanel.selected = legend_item
+                controlPanel.update()  # Refresh the display
+        except (ValueError, AttributeError):
+            # Current player not defined or other error, skip update
+            pass
+    
     def dropEvent(self, e):
         """Handle drop events for agent and tile movement"""
         e.acceptProposedAction()

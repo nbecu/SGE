@@ -1662,17 +1662,75 @@ class SGAgentType(SGEntityType):
 # ********************************************************    
 
 class SGTileType(SGEntityType):
-    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor=Qt.black, 
-                 defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=None, backColor=None):
-        super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, defaultColor)
+    def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, colorForLegend=None, 
+                 defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray):
+        # Store the explicitly provided colorForLegend (if any) for potential customization
+        # This will be used only if the modeler explicitly wants a different color for legends
+        self._explicitDefaultColor = colorForLegend
+        
+        # frontColor and backColor now have default values in the signature (Qt.lightGray and Qt.darkGray)
+        # No need to check for None anymore
+        
+        # If colorForLegend was not explicitly provided, determine it from defaultFace
+        # This ensures colorForLegend matches the color of the face that is visible by default
+        if colorForLegend is None:
+            # Use the color of the defaultFace
+            if defaultFace == "back":
+                colorForLegend = backColor
+            else:  # defaultFace == "front"
+                colorForLegend = frontColor
+        
+        # Call super with the determined colorForLegend (for initialization, but property will override)
+        super().__init__(sgModel, name, shape, defaultsize, entDefAttributesAndValues, colorForLegend)
+        
         # Type identification attribute
         self.isTileType = True
         self.defaultPositionOnCell = defaultPositionOnCell
         self.defaultFace = defaultFace  # Default face for new tiles ("front" or "back")
         self.frontImage = frontImage
         self.backImage = backImage
-        self.frontColor = frontColor if frontColor is not None else defaultColor
-        self.backColor = backColor if backColor is not None else defaultColor
+        self.frontColor = frontColor
+        self.backColor = backColor
+    
+    @property
+    def defaultShapeColor(self):
+        """
+        Get the default shape color dynamically based on defaultFace.
+        For tiles, this returns the color of the default face (frontColor or backColor).
+        This ensures that legends/ControlPanels show the color of the face that is visible by default.
+        
+        Returns:
+            QColor: The color of the default face
+        """
+        # If explicit defaultColor was provided, use it (for custom legend colors)
+        if self._explicitDefaultColor is not None:
+            return self._explicitDefaultColor
+        
+        # Otherwise, return the color of the defaultFace
+        if self.defaultFace == "back":
+            return self.backColor
+        else:  # defaultFace == "front"
+            return self.frontColor
+    
+    @defaultShapeColor.setter
+    def defaultShapeColor(self, value):
+        """
+        Setter for defaultShapeColor. Stores the value in a private attribute.
+        This allows super().__init__() to set the value, but the property getter
+        will override it with the dynamic value based on defaultFace.
+        """
+        # Store in private attribute (for compatibility with super().__init__)
+        self._defaultShapeColor_stored = value
+    
+    def getDefaultShapeColor(self):
+        """
+        Get the default shape color dynamically based on defaultFace.
+        Alias for defaultShapeColor property for consistency with other entity types.
+        
+        Returns:
+            QColor: The color of the default face
+        """
+        return self.defaultShapeColor
 
     # ===================NEW/ADD/SET METHODS DEVELOPER METHODS==============================================  
     def newTileOnCellWithModelView(self, aCell, attributesAndValues=None, position=None, face=None, 
@@ -1704,10 +1762,13 @@ class SGTileType(SGEntityType):
         if face is None:
             face = self.defaultFace
         
+        # Use provided image or default from tileType
+        front_img = image if image is not None else self.frontImage
+        
         # Create tile using factory
         tile_model, tile_view = SGEntityFactory.newTileWithModelView(
             self, aCell, attributesAndValues, position, face, 
-            self.frontImage if image is None else image, 
+            front_img, 
             self.backImage, 
             self.frontColor, 
             self.backColor
@@ -1732,7 +1793,7 @@ class SGTileType(SGEntityType):
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
-    def newTileOnCell(self, aCell, attributesAndValues=None, position=None, face=None) -> SGTile:
+    def newTileOnCell(self, aCell, attributesAndValues=None, position=None, face=None, frontImage=None, backImage=None) -> SGTile:
         """
         Create a new tile on a specific cell.
         
@@ -1741,6 +1802,8 @@ class SGTileType(SGEntityType):
             attributesAndValues (dict, optional): Initial attributes and values for the tile
             position (str, optional): Position on the cell ("center", "topLeft", etc.). Uses defaultPositionOnCell if None.
             face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
+            frontImage (QPixmap, optional): Image for the front face (overrides tileType default)
+            backImage (QPixmap, optional): Image for the back face (overrides tileType default)
             
         Returns:
             SGTile: The created tile model, or None if creation failed
@@ -1748,14 +1811,22 @@ class SGTileType(SGEntityType):
         if aCell == None:
             return None
 
-        # Use Model-View method
-        result = self.newTileOnCellWithModelView(aCell, attributesAndValues, position, face)
+        # Use Model-View method with image support
+        # Pass frontImage as 'image' parameter to newTileOnCellWithModelView
+        result = self.newTileOnCellWithModelView(aCell, attributesAndValues, position, face, frontImage, None)
 
         if result is None:
             return None
 
         # Extract only the model from the tuple
         tile_model, tile_view = result
+        
+        # Set backImage if provided
+        if backImage is not None:
+            tile_model.backImage = backImage
+            if tile_view:
+                tile_view.backImage = backImage
+                tile_view.update()
 
         # Return only the tile for modelers
         return tile_model
@@ -1844,6 +1915,126 @@ class SGTileType(SGEntityType):
             new_tile.setLayer(max_layer + 1)
         
         return new_tile
+    
+    def newTilesWithImages(self, cells, images_directory, num_images=None, repetitions=2, shuffle=True, face="back", position=None):
+        """
+        Create tiles with images repeated a specified number of times (pairs, triplets, etc.).
+        Automatically loads valid images from a directory, creates groups, shuffles them, and places tiles on cells.
+        
+        Args:
+            cells (list): List of cells where tiles will be placed
+            images_directory (str or Path): Path to directory containing image files
+            num_images (int, optional): Number of unique images to use. If None, uses all available valid images.
+            repetitions (int, optional): Number of times each image should appear (default: 2 for pairs)
+                - 1 = simplets (each image appears once)
+                - 2 = pairs (each image appears twice, useful for Memory games)
+                - 3 = triplets (each image appears three times)
+                - etc.
+            shuffle (bool, optional): Whether to shuffle the images before placing (default: True)
+            face (str, optional): Initial face for tiles ("front" or "back", default: "back")
+            position (str, optional): Position on cells (uses defaultPositionOnCell if None)
+            
+        Returns:
+            list: List of created tiles
+            
+        Example:
+            # Create Memory game tiles with image pairs (8 pairs = 16 tiles)
+            cells = [Cell.getCell(x, y) for x in range(1, 5) for y in range(1, 5)]
+            tiles = CardTile.newTilesWithImages(
+                cells=cells,
+                images_directory="./images/memory",
+                num_images=8,
+                repetitions=2,  # Pairs
+                shuffle=True,
+                face="back"
+            )
+            
+            # Create tiles with triplets (5 images × 3 = 15 tiles)
+            tiles = CardTile.newTilesWithImages(
+                cells=cells[:15],
+                images_directory="./images/memory",
+                num_images=5,
+                repetitions=3,  # Triplets
+                shuffle=True
+            )
+            
+            # Use all available images as simplets (each image once)
+            tiles = CardTile.newTilesWithImages(
+                cells=cells,
+                images_directory="./images/memory",
+                repetitions=1,  # Singlets
+                shuffle=True
+            )
+        """
+        from pathlib import Path
+        from PyQt5.QtGui import QPixmap
+        import random
+        
+        # Convert to Path if string
+        images_dir = Path(images_directory) if isinstance(images_directory, str) else images_directory
+        
+        if not images_dir.exists():
+            raise ValueError(f"Images directory not found: {images_dir}")
+        
+        # Load and validate image files (filter out invalid images)
+        image_extensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".svg"]
+        all_files = []
+        for ext in image_extensions:
+            all_files.extend(list(images_dir.glob(f"*{ext}")))
+            all_files.extend(list(images_dir.glob(f"*{ext.upper()}")))
+        
+        # Remove duplicates (in case filesystem is case-insensitive like Windows)
+        # Use normalized paths to avoid duplicates
+        seen_files = set()
+        unique_files = []
+        for img_file in all_files:
+            normalized_path = str(img_file).lower()
+            if normalized_path not in seen_files:
+                seen_files.add(normalized_path)
+                unique_files.append(img_file)
+        
+        # Validate images by trying to load them
+        valid_images = []
+        for img_file in sorted(unique_files):
+            pixmap = QPixmap(str(img_file))
+            if not pixmap.isNull() and pixmap.width() > 0 and pixmap.height() > 0:
+                valid_images.append(pixmap)
+        
+        if len(valid_images) == 0:
+            raise ValueError(f"No valid image files found in directory: {images_dir}")
+        
+        # Determine number of unique images to use
+        if num_images is None:
+            num_images = len(valid_images)
+        
+        if len(valid_images) < num_images:
+            raise ValueError(f"Not enough valid images found. Expected {num_images}, found {len(valid_images)}")
+        
+        # Calculate total number of tiles needed
+        total_tiles_needed = num_images * repetitions
+        
+        if len(cells) < total_tiles_needed:
+            raise ValueError(f"Not enough cells provided. Expected at least {total_tiles_needed}, got {len(cells)}")
+        
+        # Create image groups: each image appears 'repetitions' times
+        image_list = []
+        for pixmap in valid_images[:num_images]:
+            for _ in range(repetitions):
+                image_list.append(pixmap)
+        
+        # Shuffle if requested
+        if shuffle:
+            random.shuffle(image_list)
+        
+        # Create tiles on cells with assigned images
+        created_tiles = []
+        for i, cell in enumerate(cells[:len(image_list)]):
+            front_image = image_list[i]
+            tile = self.newTileOnCell(cell, position=position, face=face, frontImage=front_image)
+            if tile:
+                created_tiles.append(tile)
+        
+        return created_tiles
 
     # ============================================================================
     # GET METHODS

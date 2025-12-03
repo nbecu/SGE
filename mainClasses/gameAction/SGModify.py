@@ -4,17 +4,17 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
-    def __init__(self,type,dictNewValues,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True, writeAttributeInLabel=False):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,dictNewValues,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None, writeAttributeInLabel=False):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,interaction_modes=interaction_modes)
         self.dictNewValues=dictNewValues
         self.entityDef=type
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
         self.value = self.dictNewValues[self.att]  # Get associate value
-        self.nameToDisplay = (
-            f"{self.att}→{self.value}" if nameToDisplay is None and writeAttributeInLabel
-            else f"{self.value}" if nameToDisplay is None
-            else nameToDisplay
-        )
+        if self.nameToDisplay is None:
+            self.nameToDisplay = (
+                f"{self.att}→{self.value}" if writeAttributeInLabel
+                else f"{self.value}"
+            )
         self.actionType="Modify"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
         self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
@@ -47,10 +47,10 @@ class SGModify(SGAbstractAction):
 class SGModifyActionWithDialog(SGModify):
     """Special ModifyAction that opens a dialog to ask for the value to use"""
     
-    def __init__(self, entityDef, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+    def __init__(self, entityDef, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, interaction_modes=None, writeAttributeInLabel=False):
         # Initialize with a placeholder value to avoid IndexError
         placeholder_dict = {attribute: "placeholder"}
-        super().__init__(entityDef, placeholder_dict, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
+        super().__init__(entityDef, placeholder_dict, aNumber, conditions, feedbacks, conditionsOfFeedback, nameToDisplay=nameToDisplay, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, interaction_modes=interaction_modes, writeAttributeInLabel=writeAttributeInLabel)
         self.dynamicAttribute = attribute
         self.nameToDisplay = f"Modify {attribute} (ask value)"
         

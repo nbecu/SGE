@@ -362,16 +362,36 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     agent.view.update()
     
     def positionAllTiles(self):
-        """Position all tiles after grid layout is applied"""
+        """Position all tiles after grid layout is applied, respecting layer order"""
+        # Collect all tiles with their views
+        all_tiles = []
         for tile_type in self.getTileTypes():
             for tile in tile_type.entities:
                 if hasattr(tile, 'view') and tile.view:
-                    # Show the tile view first
-                    tile.view.show()
-                    # Position it (tiles should be below agents)
-                    tile.view.getPositionInCell()
-                    # Force update to ensure positioning is applied
-                    tile.view.update()
+                    all_tiles.append(tile)
+        
+        # Sort tiles by layer (lower layers first, higher layers last)
+        # This ensures tiles with higher layers are rendered on top
+        all_tiles.sort(key=lambda t: t.layer if hasattr(t, 'layer') else 0)
+        
+        # Position and show tiles in layer order
+        for tile in all_tiles:
+            if hasattr(tile, 'view') and tile.view:
+                # Show the tile view first
+                tile.view.show()
+                # Position it (tiles should be below agents)
+                tile.view.getPositionInCell()
+                # Ensure tiles are rendered in correct z-order
+                # Lower tiles (lower layer) should be rendered first
+                # Higher tiles (higher layer) should be on top
+                tile.view.lower()  # Start by lowering all tiles
+        
+        # Now raise tiles in order of their layer (higher layers on top)
+        for tile in all_tiles:
+            if hasattr(tile, 'view') and tile.view:
+                tile.view.raise_()  # Raise tiles in layer order
+                # Force update to ensure positioning is applied
+                tile.view.update()
     
     def getTileTypes(self):
         """Get all tile types"""
@@ -1748,9 +1768,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # NEW/ADD METHODS
 # ============================================================================
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open'):
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
         """
-        Create a grid that contains cells
+        Create a grid that contains cells.
+        
+        For better clarity, consider using newGridWithCells() instead.
 
         Args:
             columns (int): number of columns (width).
@@ -1774,7 +1796,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 - "closed": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).
 
         Returns:
-            aCellDef: the cellDef that defines the cells that have been placed on a grid
+            SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. 
+                       Note: This is NOT a SGGrid object, but the CellDef that manages the cells on the grid.
         """
         # process the name if not defined by the user. The name has to be uniquer, because it is used to reference the CellDef and the associated grid
         if name is None:
@@ -1799,6 +1822,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.layoutOfModel.addGameSpace(aGrid)
         
         return aCellDef
+    
+    def newGridWithCells(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
+        """
+        Create a grid that contains cells.
+
+        Args:
+            columns (int): number of columns (width).
+            rows (int): number of rows (height).
+            format ("square", "hexagonal"): shape of the cells.
+                - Defaults to "square".
+                - Note that the hexagonal grid is "Pointy-top hex grid with even-r offset".
+            size (int, optional): size of the cells. Defaults to 30.
+            gap (int, optional): gap size between cells. Defaults to 0.
+            backgroundColor (Qt.Color, optional): background color of the grid. Defaults to Qt.gray.
+            borderColor (Qt.Color, optional): border color of the grid. Defaults to Qt.black.
+            moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
+            name (st): name of the grid.
+            backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
+            defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.
+            neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore".
+                - "moore": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).
+                - "neumann": Von Neumann neighborhood (4 neighbors for square cells) , 3 or 4 for hexagonal cells, depending on orientation).
+            boundaries ("mopen","closed"): Boundary condition of the grid. Defaults to "open".
+                - "open": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.
+                - "closed": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).
+
+        Returns:
+            SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. 
+                       Note: This is NOT a SGGrid object, but the CellDef that manages the cells on the grid.
+        """
+        return self.newCellsOnGrid(columns, rows, format, size, gap, backgroundColor, borderColor, moveable, name, backGroundImage, defaultCellImage, neighborhood, boundaries)
 
 
     # To create a New kind of agents
@@ -1823,8 +1877,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.agentTypes[name]=aAgentType
         return aAgentType
 
-    def newTileType(self, name, shape, entDefAttributesAndValues=None, defaultSize=20, defaultColor=Qt.black, 
-                    defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=None, backColor=None):
+    def newTileType(self, name, shape, entDefAttributesAndValues=None, defaultSize=20, 
+                    defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray, colorForLegend=None):
         """
         Create a new type of Tiles.
 
@@ -1833,22 +1887,84 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             shape (str): the tileType shape ("rectTile", "circleTile", "ellipseTile", "imageTile")
             entDefAttributesAndValues (dict, optional): all the tileType attributes with all the values
             defaultSize (int): the tileType shape size (Default=20)
-            defaultColor (QColor): the default color for the tile (Default=Qt.black)
             defaultPositionOnCell (str, optional): Position on cell ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full"). Default="center"
             defaultFace (str, optional): Default face for new tiles ("front" or "back", Default="front")
             frontImage (QPixmap, optional): Image for the front face
             backImage (QPixmap, optional): Image for the back face
-            frontColor (QColor, optional): Color for the front face (uses defaultColor if None)
-            backColor (QColor, optional): Color for the back face (uses defaultColor if None)
+            frontColor (QColor, optional): Color for the front face (default: Qt.lightGray)
+            backColor (QColor, optional): Color for the back face (default: Qt.darkGray)
+            colorForLegend (QColor, optional): Explicit color for legends/ControlPanels. If not specified, 
+                the color is determined dynamically from defaultFace (uses frontColor if defaultFace="front", 
+                backColor if defaultFace="back"). This allows legends to show the color of the visible face by default.
         Return:
             a tileType
         """
         if shape not in ["rectTile", "circleTile", "ellipseTile", "imageTile"]:
             raise ValueError(f"Invalid shape: {shape}. Must be one of: rectTile, circleTile, ellipseTile, imageTile")
-        aTileType = SGTileType(self, name, shape, defaultSize, entDefAttributesAndValues, defaultColor,
+        
+        # Pass colorForLegend=None to let SGTileType determine it dynamically from defaultFace
+        # If colorForLegend is explicitly provided, it will be used (for custom legend colors)
+        # Otherwise, SGTileType will use the color of defaultFace (frontColor or backColor)
+        aTileType = SGTileType(self, name, shape, defaultSize, entDefAttributesAndValues, colorForLegend,
                               defaultPositionOnCell, defaultFace, frontImage, backImage, frontColor, backColor)
         self.tileTypes[name] = aTileType
         return aTileType
+    
+    def loadImagesFromDirectory(self, images_directory):
+        """
+        Load all valid images from a directory.
+        Simple helper method for modelers to easily collect images.
+        
+        Args:
+            images_directory (str or Path): Path to directory containing image files
+            
+        Returns:
+            list: List of QPixmap objects (valid images only)
+            
+        Example:
+            # Load images from directory
+            images = myModel.loadImagesFromDirectory("./images")
+            
+            # Use random image for a tile
+            import random
+            tile = TileType.newTileOnCell(cell, backImage=random.choice(images))
+        """
+        from pathlib import Path
+        from PyQt5.QtGui import QPixmap
+        
+        # Convert to Path if string
+        images_dir = Path(images_directory) if isinstance(images_directory, str) else images_directory
+        
+        if not images_dir.exists():
+            raise ValueError(f"Images directory not found: {images_dir}")
+        
+        # Load and validate image files (filter out invalid images)
+        image_extensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".svg"]
+        all_files = []
+        for ext in image_extensions:
+            all_files.extend(list(images_dir.glob(f"*{ext}")))
+            all_files.extend(list(images_dir.glob(f"*{ext.upper()}")))
+        
+        # Remove duplicates (in case filesystem is case-insensitive like Windows)
+        seen_files = set()
+        unique_files = []
+        for img_file in all_files:
+            normalized_path = str(img_file).lower()
+            if normalized_path not in seen_files:
+                seen_files.add(normalized_path)
+                unique_files.append(img_file)
+        
+        # Validate images by trying to load them
+        valid_images = []
+        for img_file in sorted(unique_files):
+            pixmap = QPixmap(str(img_file))
+            if not pixmap.isNull() and pixmap.width() > 0 and pixmap.height() > 0:
+                valid_images.append(pixmap)
+        
+        if len(valid_images) == 0:
+            raise ValueError(f"No valid image files found in directory: {images_dir}")
+        
+        return valid_images
 
 
     # To create a player
@@ -1899,7 +2015,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # To create game actions
 
-    def newCreateAction(self, entity_type, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False):
+    def newCreateAction(self, entity_type, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False,interaction_modes=None):
         """
         Add a Create GameAction to the game.
 
@@ -1907,13 +2023,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - entity_type : a type of entity (agentType, cellType or name of the entity type)
         - a Number (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
+        - interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, autoTrigger)
 
         """
         aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGCreate(aType,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel)
+        return SGCreate(aType,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel,interaction_modes=interaction_modes)
 
-    def newModifyAction(self, entity_type, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False):
+    def newModifyAction(self, entity_type, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False,interaction_modes=None):
         """
         Add a Modify GameAction to the game.
 
@@ -1921,13 +2038,14 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - entity_type : a type of entity (agentType, cellType or name of the entity type)
         - a Number (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
+        - interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, autoTrigger)
 
         """
         aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGModify(aType, dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel)
+        return SGModify(aType, dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel,interaction_modes=interaction_modes)
 
-    def newModifyActionWithDialog(self, entity_type, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False):
+    def newModifyActionWithDialog(self, entity_type, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False, interaction_modes=None):
         """
         Add a ModifyActionWithDialog GameAction to the game.
         
@@ -1941,29 +2059,30 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             aNameToDisplay (str): custom name to display
             setControllerContextualMenu (bool): whether to show in contextual menu
             writeAttributeInLabel (bool): whether to show attribute in label
+            interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, autoTrigger)
         """
         aType = self.getEntityType(entity_type)
         if aType is None:
             raise ValueError('Wrong format of entityDef')
         
         from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
-        return SGModifyActionWithDialog(aType, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay, setControllerContextualMenu, writeAttributeInLabel)
+        return SGModifyActionWithDialog(aType, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=True, interaction_modes=interaction_modes, writeAttributeInLabel=writeAttributeInLabel)
 
-    def newDeleteAction(self, entity_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False):
+    def newDeleteAction(self, entity_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,interaction_modes=None):
         """
         Add a Delete GameAction to the game.
 
         Args:
         - entity_type : a type of entity (agentType, cellType or name of the entity type)
         - a Number (int) : number of utilisation, could use "infinite"
-        - dictAttributes (dict) : attribute with value concerned, could be None
+        - interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, autoTrigger)
 
         """
         aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGDelete(aType, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        return SGDelete(aType, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,interaction_modes=interaction_modes)
 
-    def newMoveAction(self, agent_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True):
+    def newMoveAction(self, agent_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True,interaction_modes=None):
         """
         Add a MoveAction to the game.
 
@@ -1971,12 +2090,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - agent_type : a type of agent (agentType or name of the agent type)
         - a Number (int) : number of utilisation, could use "infinite"
         - listOfConditions (list of lambda functions) : conditions on the moving Entity
+        - interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, autoTrigger)
         """
         aType = self.getEntityType(agent_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay,setOnController=setOnController)
+        return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay=aNameToDisplay,setOnController=setOnController,interaction_modes=interaction_modes)
 
-    def newFlipAction(self, tile_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, setControllerContextualMenu=False, setOnController=True):
+    def newFlipAction(self, tile_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, interaction_modes=None):
         """
         Create a new Flip action for tiles
         
@@ -1986,18 +2106,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             conditions: List of conditions that must be met
             feedbacks: List of feedback actions
             conditionsOfFeedback: List of conditions for feedbacks
-            nameToDisplay: Custom name to display (default: "🔄 Flip")
-            setControllerContextualMenu: Whether to show in contextual menu
-            setOnController: Whether to show on controller
+            aNameToDisplay: Custom name to display (default: "🔄 Flip")
+            setControllerContextualMenu: Whether to show in contextual menu (legacy, use interaction_modes)
+            setOnController: Whether to show on controller (legacy, use interaction_modes)
+            interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, autoTrigger)
             
         Returns:
             SGFlip: The created flip action
         """
         from mainClasses.gameAction.SGFlip import SGFlip
-        aFlipAction = SGFlip(tile_type, aNumber, conditions, feedbacks, conditionsOfFeedback, nameToDisplay, setControllerContextualMenu, setOnController)
+        # SGAbstractAction now handles aNameToDisplay conversion internally
+        aFlipAction = SGFlip(tile_type, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, interaction_modes=interaction_modes)
         return aFlipAction
 
-    def newActivateAction(self,object_type,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None) :
+    def newActivateAction(self,object_type,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None,interaction_modes=None) :
         """Add a ActivateAction to the game
         Args:
         - object_type : the model itself or a type of entity (agentType, cellType or name of the entity type)
@@ -2007,8 +2129,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - feedbacks (list of lambda functions) : feedbacks to execute after activation
         - conditionsOfFeedback (list of lambda functions) : conditions for feedback execution
         - aNameToDisplay (str) : custom name to display
-        - setControllerContextualMenu (bool) : whether to show in contextual menu
-        - setControllerButton (tuple) : coordinates of the button to set in the controller
+        - setControllerContextualMenu (bool) : whether to show in contextual menu (legacy, use interaction_modes)
+        - setControllerButton (tuple) : coordinates of the button to set in the controller (legacy, use interaction_modes with button=True)
+        - interaction_modes (dict): Interaction modes configuration (controlPanel, contextMenu, button, autoTrigger)
         - """
         #Case for action on the model
         if object_type is None or object_type ==self:
@@ -2018,10 +2141,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             aType = self.getEntityType(object_type)
         # if aType is None : raise ValueError('Wrong format of entityDef')
 
+        # Handle button creation from interaction_modes or legacy setControllerButton
+        if interaction_modes is None:
+            interaction_modes = {}
+        if setControllerButton is not None:
+            # Legacy support: convert setControllerButton to interaction_modes
+            interaction_modes["button"] = True
+            interaction_modes["buttonPosition"] = setControllerButton
 
-        aActivateAction = SGActivate(aType, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu)
+        aActivateAction = SGActivate(aType, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,interaction_modes=interaction_modes)
 
-        if setControllerButton:
+        # Create button if specified
+        if interaction_modes.get("button", False) and "buttonPosition" in interaction_modes:
+            buttonCoord = interaction_modes["buttonPosition"]
+            self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
+        elif setControllerButton:
+            # Legacy support
             buttonCoord = setControllerButton
             self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
         return aActivateAction

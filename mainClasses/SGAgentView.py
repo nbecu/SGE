@@ -262,25 +262,83 @@ class SGAgentView(SGEntityView):
         """Handle mouse press events"""
         if event.button() == Qt.LeftButton:
             self.dragging = True
-            # Something is selected
-            aLegendItem = self.agent_model.model.getSelectedLegendItem()
-            if aLegendItem is None: 
-                return  # Exit the method
+            
+            # First, try to find an action with directClick=True (priority over ControlPanel selection)
+            selected_action = None
+            try:
+                currentPlayer = self.agent_model.model.getCurrentPlayer()
+                if currentPlayer != "Admin":
+                    # Use helper method to find authorized action with directClick=True
+                    selected_action = currentPlayer.getAuthorizedActionWithDirectClick(self.agent_model)
+            except (ValueError, AttributeError):
+                # Current player not defined yet or not a valid player object, skip directClick
+                pass
+            
+            # If no directClick action found, fall back to selected action from ControlPanel
+            if selected_action is None:
+                aLegendItem = self.agent_model.model.getSelectedLegendItem()
+                selected_action = aLegendItem.gameAction if aLegendItem is not None else None
+            
+            if selected_action is None:
+                return  # No action available
+
+            # Check if this action was triggered via directClick
+            action_was_directclick = (
+                hasattr(selected_action, 'interaction_modes') and
+                selected_action.interaction_modes.get("directClick") == True
+            )
 
             # Use the gameAction system for ALL players (including Admin)
             from mainClasses.gameAction.SGMove import SGMove
-            if isinstance(aLegendItem.gameAction, SGMove): 
+            if isinstance(selected_action, SGMove): 
                 return
             from mainClasses.gameAction.SGCreate  import SGCreate
-            if isinstance(aLegendItem.gameAction, SGCreate): 
-                return aLegendItem.gameAction.perform_with(self.agent_model.cell)
-            aLegendItem.gameAction.perform_with(self.agent_model)
+            if isinstance(selected_action, SGCreate): 
+                selected_action.perform_with(self.agent_model.cell)
+            else:
+                selected_action.perform_with(self.agent_model)
+            
+            # If action was triggered via directClick, update ControlPanel selection
+            if action_was_directclick:
+                self._updateControlPanelSelection(selected_action)
             return
 
     def mouseReleaseEvent(self, event):
         """Handle mouse release events"""
         if event.button() == Qt.LeftButton:
             self.dragging = False
+    
+    def _updateControlPanelSelection(self, action):
+        """
+        Update the ControlPanel selection to reflect the action that was just executed via directClick
+        
+        Args:
+            action: The game action that was just executed
+        """
+        try:
+            currentPlayer = self.agent_model.model.getCurrentPlayer()
+            if currentPlayer is None or currentPlayer == "Admin":
+                return
+            
+            # Find the ControlPanel for the current player
+            controlPanel = currentPlayer.controlPanel
+            if controlPanel is None:
+                return
+            
+            # Find the SGLegendItem corresponding to this action
+            legend_item = next(
+                (item for item in controlPanel.legendItems 
+                 if hasattr(item, 'gameAction') and item.gameAction == action),
+                None
+            )
+            
+            # Update the selection
+            if legend_item is not None:
+                controlPanel.selected = legend_item
+                controlPanel.update()  # Refresh the display
+        except (ValueError, AttributeError):
+            # Current player not defined or other error, skip update
+            pass
 
     def mouseMoveEvent(self, e):
         """Handle mouse move events for dragging"""

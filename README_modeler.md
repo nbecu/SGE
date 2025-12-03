@@ -79,6 +79,68 @@ model.loadLayoutConfig("my_layout")
 configs = model.getAvailableLayoutConfigs()
 ```
 
+## Game Actions Interaction Modes
+
+SGE provides multiple ways to trigger game actions. Each action type can be configured with `interaction_modes` to control how it can be triggered:
+
+### Interaction Modes Configuration
+
+The `interaction_modes` parameter is a dictionary that controls where and how actions can be triggered:
+
+- **`controlPanel`** (bool, default: `True`): Action appears in the ControlPanel
+- **`contextMenu`** (bool, default: `False`): Action appears in the right-click context menu
+- **`button`** (bool, default: `False`): Action appears as a button (only for Activate actions)
+- **`directClick`** (bool, default: `False`): Action triggers automatically on left-click without selection in ControlPanel
+  - `True`: Action can be triggered directly by clicking on the entity
+  - `False`: Action requires selection in ControlPanel first
+  - Note: Move actions use drag & drop by default (independent of directClick)
+
+### Game Actions Summary Table
+
+| Type d'Action | Entités Cibles | ControlPanel | Menu Contextuel | Bouton | DirectClick (défaut) | DirectClick (souhaité) | Notes |
+|---------------|----------------|--------------|-----------------|--------|----------------------|------------------------|-------|
+| **Modify** | Agents, Tiles, Cells | ✅ (défaut) | ✅ (optionnel) | ❌ | `False` | - | Pas de directClick |
+| **Activate** | Agents, Tiles, Cells, Model | ✅ (défaut) | ✅ (optionnel) | ✅ (`button=True`) | `False` | `True` | Peut être activé |
+| **Delete** | Agents, Tiles, Cells | ✅ (défaut) | ✅ (optionnel) | ❌ | `False` | `True` | Peut être activé |
+| **Create** | Cells (pour créer Agents/Tiles) | ✅ (défaut) | ❌ | ❌ | `False` | `True` | Peut être activé |
+| **Move** | Agents, Tiles | ✅ (défaut) | ✅ (optionnel) | ❌ | `False` | - | Drag & drop par défaut (indépendant) |
+| **Flip** | Tiles | ✅ (défaut) | ✅ (optionnel) | ❌ | `True` | - | Défaut = directClick |
+
+### Examples
+
+```python
+# Flip with directClick=True (default)
+flipAction = myModel.newFlipAction(
+    tile_type,
+    interaction_modes={
+        "controlPanel": True,
+        "contextMenu": True,
+        "directClick": True  # Default for Flip
+    }
+)
+
+# Activate with button and directClick=True
+activateAction = myModel.newActivateAction(
+    agent_type,
+    aMethod=lambda: doSomething(),
+    interaction_modes={
+        "controlPanel": True,
+        "button": True,
+        "buttonPosition": (100, 200),  # Position for button
+        "directClick": True  # Optional, not default
+    }
+)
+
+# Move with drag & drop (default, independent of directClick)
+moveAction = myModel.newMoveAction(
+    agent_type,
+    interaction_modes={
+        "controlPanel": True
+        # Move actions use drag & drop by default (independent of directClick)
+    }
+)
+```
+
 ## Styling GameSpaces
 
 SGE provides a unified styling system (`gs_aspect`) that allows you to style GameSpaces using different syntaxes:

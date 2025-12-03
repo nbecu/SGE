@@ -7,10 +7,10 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,type,dictAttributs,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,setControllerContextualMenu=False , create_several_at_each_click = False, writeAttributeInLabel=False):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay,setControllerContextualMenu)
+    def __init__(self,type,dictAttributs,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None, create_several_at_each_click = False, writeAttributeInLabel=False):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,interaction_modes=interaction_modes)
         self.dictAttributs=dictAttributs
-        if nameToDisplay is None:
+        if self.nameToDisplay is None:
             self.nameToDisplay="+"
             if self.dictAttributs is not None:
                 textAttributes = ' ('
@@ -23,8 +23,6 @@ class SGCreate(SGAbstractAction):
                 self.nameToDisplay += textAttributes
             else:
                 self.nameToDisplay += " create"
-        else:
-            self.nameToDisplay=nameToDisplay
         self.actionType="Create"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type.category() == 'Cell')
         self.create_several_at_each_click=create_several_at_each_click

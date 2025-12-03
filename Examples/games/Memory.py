@@ -17,32 +17,38 @@ myModel.displayTimeInWindowTitle()
 Cell = myModel.newCellsOnGrid(4, 4, "square", size=150, gap=5)
 
 # Create a tile type for Memory cards
-# Tiles will have two faces: front face (with image/color) and back face (card back)
+# Tiles will have two faces: front face (with image) and back face (card back)
+# Note: defaultColor is determined dynamically from defaultFace
+# Since defaultFace="back", defaultColor will automatically use backColor for legends/ControlPanels
 CardTile = myModel.newTileType(
     name="Card",
-    shape="rectTile",
+    shape="imageTile",  # Use imageTile to display images
     defaultSize=100,
-    defaultColor=QColor("blue"),  # Default color for the front face
     defaultPositionOnCell="center",
     defaultFace="back",            # Default face: back (cards start face down)
-    frontColor=QColor("blue"),     # Front face: blue
-    backColor=QColor("pink")       # Back face: pink (card back)
+    backColor=QColor('violet')  # Back face: violet (card back) - defaultColor will use this dynamically
 )
 
-# Place a tile on each cell, alternating face up/down
+# Get all cells for the Memory game
+cells = [Cell.getCell(x, y) for x in range(1, 5) for y in range(1, 5)]
 
-for x in range(1, 5):  # Columns 1 to 4
-    for y in range(1, 5):  # Rows 1 to 4
-        cell = Cell.getCell(x, y)
-        # Create a tile, alternating between front and back face
-        face = "front" if random.random() < 0.5 else "back"
-        CardTile.newTileOnCell(cell, face=face)
+# Create tiles with image pairs automatically
+# This method handles: loading images, creating pairs, shuffling, and placing tiles
+images_dir = Path(__file__).parent.parent.parent / "images" / "memory"
+CardTile.newTilesWithImages(
+    cells=cells,
+    images_directory=images_dir,
+    num_images=8,      # 8 unique images
+    repetitions=2,     # Each image appears twice (pairs) = 16 tiles total
+    shuffle=True,
+    face="back"
+)
 
 # Create a player to test game actions
 Player1 = myModel.newPlayer("Player 1")
 
 # Add Flip action to test tile flipping
-flipAction = myModel.newFlipAction(CardTile, aNumber='infinite', nameToDisplay="🔄 Flip Card")
+flipAction = myModel.newFlipAction(CardTile, aNumber='infinite', aNameToDisplay="🔄 Flip Card")
 Player1.addGameAction(flipAction)
 Player1.newControlPanel("Player 1 Actions")
 
@@ -52,9 +58,8 @@ myModel.newPlayPhase("Player 1 Turn", [Player1])
 # Set current player
 myModel.setCurrentPlayer("Player 1")
 
-myModel.displayAdminControlPanel()
-
-myModel.newUserSelector()
+# myModel.displayAdminControlPanel()
+# myModel.newUserSelector()
 
 # Launch the game
 myModel.launch()

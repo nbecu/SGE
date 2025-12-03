@@ -5,15 +5,15 @@ import sys
 
 #Class who manage the game mechanics of Activation
 class SGActivate(SGAbstractAction):
-    def __init__(self,type,method,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,aNameToDisplay,setControllerContextualMenu,setOnController)
+    def __init__(self,type,method,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,interaction_modes=interaction_modes)
         if self.targetType != "model":
-            self.nameToDisplay= aNameToDisplay or "⚡activate" #("activate "+ type.name)
+            self.nameToDisplay= self.nameToDisplay or "⚡activate" #("activate "+ type.name)
             self.actionType="Activate"
             self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         else:
-            self.nameToDisplay= aNameToDisplay or "activate"
+            self.nameToDisplay= self.nameToDisplay or "activate"
             self.actionType="Activate"
         self.method=method
     

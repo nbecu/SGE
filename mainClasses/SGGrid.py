@@ -229,15 +229,28 @@ class SGGrid(SGGameSpace):
                 agent_view.getPositionInEntity(current_cell_position)
         
         # Update tile positions and sizes when grid size changes
+        # Collect all tiles from all cells
+        all_tiles = []
         for cell in self.getCells():
-            for tile in cell.getTilesHere():
-                # Update tile model zoom
-                tile.updateZoom(self.zoom)
-                
-                # Update tile view position
-                if hasattr(tile, 'view') and tile.view:
-                    tile.view.updatePositionFromCell()
-                    tile.view.update()
+            all_tiles.extend(cell.getTilesHere())
+        
+        # Sort tiles by layer (lower layers first, higher layers last)
+        all_tiles.sort(key=lambda t: t.layer if hasattr(t, 'layer') else 0)
+        
+        # Update zoom for all tiles
+        for tile in all_tiles:
+            tile.updateZoom(self.zoom)
+        
+        # Ensure tiles are rendered in correct z-order (layer order)
+        # Lower tiles first, then raise them in layer order
+        for tile in all_tiles:
+            if hasattr(tile, 'view') and tile.view:
+                tile.view.lower()  # Start by lowering all tiles
+        
+        # Now raise tiles in order of their layer (higher layers on top)
+        for tile in all_tiles:
+            if hasattr(tile, 'view') and tile.view:
+                tile.view.raise_()  # Raise tiles in layer order
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):

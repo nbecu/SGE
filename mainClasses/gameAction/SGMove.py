@@ -4,9 +4,15 @@ from mainClasses.SGTimePhase import *
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
-    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,setControllerContextualMenu=False,setOnController=True):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay,setControllerContextualMenu,setOnController)
-        self.nameToDisplay = nameToDisplay or "⇄ move"
+    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None):
+        # Move uses drag & drop by default (handled separately, not via directClick)
+        # Backward compatibility: convert autoTrigger="drag" (drag is handled separately)
+        if interaction_modes is None:
+            interaction_modes = {}
+        # Note: Move actions use drag & drop by default, which is handled separately from directClick
+        # directClick remains False by default for Move (drag & drop is independent)
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,interaction_modes=interaction_modes)
+        self.nameToDisplay = self.nameToDisplay or "⇄ move"
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent

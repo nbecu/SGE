@@ -100,12 +100,9 @@ class SGTile(SGEntity):
         # Calculate new size based on saved size and zoom
         self.size = round(self.saveSize * zoom_factor)
         
-        # Update view if it exists
+        # Update view if it exists (view.updateZoom will handle position update)
         if self.view:
-            self.view.size = self.size
-            self.view.saveSize = self.saveSize
-            self.view.updatePositionFromCell()
-            self.view.update()
+            self.view.updateZoom(zoom_factor)
 
     # Model-View specific methods
     def getView(self):
@@ -191,7 +188,6 @@ class SGTile(SGEntity):
         else:
             self.face = "front"
         if self.view:
-            print('note : flip view update')
             self.view.update()
     
     def setFace(self, face):

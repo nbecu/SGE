@@ -802,20 +802,56 @@ class SGCell(SGEntity):
         """
         type_name = normalize_type_name(type_name)
         return self.nbAgents(type_name) > 0
+    
+    def hasTiles(self, tileType=None):
+        """
+        Check if this cell contains tiles of a specific type.
+        
+        Args:
+            tileType (str or SGTileType, optional): The tile type name or SGTileType object.
+                If None, checks if cell contains any tiles.
+                
+        Returns:
+            bool: True if the cell contains tiles of the specified type, False otherwise
+        """
+        return self.nbTiles(tileType) > 0
 
     def isEmpty(self, type_name=None):
         """
-        Check if this cell is empty of agents of a specific type.
+        Check if this cell is empty of agents and tiles of a specific type.
         
         Args:
-            type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.
-                If None, checks if cell is completely empty.
+            type_name (str, SGAgentDef, or SGTileType, optional): The agent type name, SGAgentDef object, or SGTileType object.
+                If None, checks if cell is completely empty (no agents and no tiles).
+                If provided, checks if cell is empty of both agents and tiles of that type.
                 
         Returns:
-            bool: True if the cell is empty of the specified type, False otherwise
+            bool: True if the cell is empty of agents and tiles (of the specified type if provided), False otherwise
         """
-        type_name = normalize_type_name(type_name)
-        return not self.hasAgents(type_name)
+        if type_name is None:
+            # Check if completely empty (no agents and no tiles at all)
+            return not self.hasAgents() and not self.hasTiles()
+        else:
+            # Check both agents and tiles of the specified type
+            # Normalize for agents (handles SGAgentType and string names)
+            normalized_agent_type = normalize_type_name(type_name)
+            has_agents_of_type = self.hasAgents(normalized_agent_type)
+            
+            # For tiles, check if type_name matches any tile type
+            # type_name could be an SGTileType object or a string name
+            has_tiles_of_type = False
+            if hasattr(type_name, 'isTileType') and type_name.isTileType:
+                # It's an SGTileType object
+                has_tiles_of_type = self.hasTiles(type_name)
+            elif isinstance(type_name, str):
+                # It's a string, check if any tile has this type name
+                has_tiles_of_type = any(tile.type.name == type_name for tile in self.tiles)
+            else:
+                # Try to normalize and check by name (could be SGAgentType that we want to check as tile type name)
+                normalized_name = normalize_type_name(type_name) if hasattr(type_name, 'name') else str(type_name)
+                has_tiles_of_type = any(tile.type.name == normalized_name for tile in self.tiles)
+            
+            return not has_agents_of_type and not has_tiles_of_type
 
     
 

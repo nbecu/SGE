@@ -1,0 +1,58 @@
+{
+  "configurations": {
+    "layout_memory2": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 3,
+      "gameSpaces": {
+        "MemoryPairs": {
+          "layoutOrder": 1,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            26
+          ],
+          "manual_override": false
+        },
+        "Triplets": {
+          "layoutOrder": 2,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            447,
+            26
+          ],
+          "manual_override": false
+        },
+        "Singlets": {
+          "layoutOrder": 4,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            367
+          ],
+          "manual_override": false
+        },
+        "CustomRepetitions": {
+          "layoutOrder": 5,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            447,
+            592
+          ],
+          "manual_override": false
+        },
+        "Player 1 Actions": {
+          "layoutOrder": 3,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            853,
+            26
+          ],
+          "manual_override": false
+        }
+      },
+      "model_name": null,
+      "timestamp": "2025-12-03 11:27:06",
+      "version": "1.0"
+    }
+  }
+}

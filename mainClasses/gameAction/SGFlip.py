@@ -3,9 +3,18 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 # Class who manage the game mechanics of Flipping Tiles
 class SGFlip(SGAbstractAction):
-    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, setControllerContextualMenu=False, setOnController=True):
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, nameToDisplay, setControllerContextualMenu, setOnController)
-        self.nameToDisplay = nameToDisplay or "🔄 Flip"  # Default name with emoji
+    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, interaction_modes=None):
+        # Set default directClick for Flip
+        if interaction_modes is None:
+            interaction_modes = {}
+        # Backward compatibility: convert autoTrigger="click" to directClick=True
+        if "autoTrigger" in interaction_modes:
+            if interaction_modes["autoTrigger"] == "click":
+                interaction_modes["directClick"] = True
+        elif "directClick" not in interaction_modes:
+            interaction_modes["directClick"] = True  # Default for Flip
+        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, nameToDisplay=nameToDisplay, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, interaction_modes=interaction_modes)
+        self.nameToDisplay = self.nameToDisplay or "🔄 Flip"  # Default name with emoji
         self.actionType = "Flip"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
         self.addCondition(lambda aTargetEntity: hasattr(aTargetEntity, 'isTile') and aTargetEntity.isTile)
@@ -21,7 +30,6 @@ class SGFlip(SGAbstractAction):
         Returns:
             The tile after flipping
         """
-        print('note : flip execution')
         if hasattr(aTargetEntity, 'flip'):
             aTargetEntity.flip()
         return aTargetEntity
