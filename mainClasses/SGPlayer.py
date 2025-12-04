@@ -8,6 +8,7 @@ from mainClasses.gameAction.SGDelete import *
 from mainClasses.gameAction.SGModify import *
 from mainClasses.gameAction.SGMove import *
 from mainClasses.gameAction.SGActivate import *
+from mainClasses.gameAction.SGFlip import *
 from mainClasses.gameAction.SGAbstractAction import *
 from mainClasses.AttributeAndValueFunctionalities import *
 
@@ -159,8 +160,14 @@ class SGPlayer(AttributeAndValueFunctionalities):
         actionsForMenu=[]
         entityDef=anEntityInstance.type
         for aGameAction in self.gameActions:
-            if isinstance(aGameAction,SGModify) or isinstance(aGameAction,SGActivate) or isinstance(aGameAction,SGDelete) and aGameAction.targetType==entityDef:
-                actionsForMenu.append(aGameAction)
+            # Check if action type matches and target type matches
+            # Note: Need to check targetType for all action types to ensure correct filtering
+            if aGameAction.targetType == entityDef:
+                if (isinstance(aGameAction, SGModify) or 
+                    isinstance(aGameAction, SGActivate) or 
+                    isinstance(aGameAction, SGDelete) or
+                    isinstance(aGameAction, SGFlip)):
+                    actionsForMenu.append(aGameAction)
         return actionsForMenu
     
     def getAuthorizedGameActionsOn(self, anEntityInstance):

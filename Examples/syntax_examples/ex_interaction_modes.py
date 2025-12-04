@@ -43,22 +43,23 @@ flipAction = myModel.newFlipAction(
     aNameToDisplay="🔄 Flip Tile",
     interaction_modes={
         "controlPanel": True,      # Appears in ControlPanel (default)
-        # "contextMenu": True,        # Also in context menu
-        # "directClick": True         # Default for Flip - works automatically on click
+        "contextMenu": True,        # Also in context menu
+        "directClick": False         # Default for Flip - works automatically on click
     }
 )
 
 # Move action with drag & drop (default, independent of directClick)
-moveActionTile = myModel.newMoveAction(
-    Tile,
-    aNumber='infinite',
-    aNameToDisplay="↔️ Move Tile",
-    interaction_modes={
-        "controlPanel": True,      # Appears in ControlPanel (default)
-        "contextMenu": False        # Also in context menu
-        # Move actions use drag & drop by default (independent of directClick)
-    }
-)
+# moveActionTile = myModel.newMoveAction(
+#     Tile,
+#     aNumber='infinite',
+#     aNameToDisplay="↔️ Move Tile",
+#     interaction_modes={
+#         "controlPanel": True,      # Appears in ControlPanel (default)
+#         # "contextMenu": False,        # Also in context menu
+#         "directClick": False         
+#         # Move actions use drag & drop by default (independent of directClick)
+#     }
+# )
 
 # Place tiles
 for x in range(1, 4):
@@ -90,7 +91,7 @@ activateAction = myModel.newActivateAction(
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "button": False,           # No button (can be set to True with buttonPosition)
-        "directClick": True         # Optional - enables automatic click activation
+        "directClick": False         # Optional - enables automatic click activation
     }
 )
 
@@ -209,7 +210,7 @@ Player1 = myModel.newPlayer("Player 1")
 
 # Add all actions to the player
 Player1.addGameAction(flipAction)
-Player1.addGameAction(moveActionTile)
+# Player1.addGameAction(moveActionTile)
 Player1.addGameAction(activateAction)
 Player1.addGameAction(modifyAction)
 Player1.addGameAction(deleteAction)

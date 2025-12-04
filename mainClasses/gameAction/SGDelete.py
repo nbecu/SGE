@@ -15,6 +15,8 @@ class SGDelete(SGAbstractAction):
         self.targetType.deleteEntity(aTargetEntity)
 
     def generateLegendItems(self,aControlPanel):
-        if self.setControllerContextualMenu == False:
+        # Use setOnController (controlPanel) to determine if action should appear in ControlPanel
+        # setControllerContextualMenu only controls context menu, not ControlPanel
+        if self.setOnController:
             aColor = self.targetType.defaultShapeColor
             return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]

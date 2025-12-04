@@ -199,6 +199,16 @@ class SGTileView(SGEntityView):
     
     def mousePressEvent(self, event):
         """Handle mouse press events on tiles"""
+        # IMPORTANT: For right button clicks, always call super() FIRST to allow context menu to work
+        # The context menu signal is triggered by Qt before mousePressEvent, but we need to ensure
+        # the event is properly propagated
+        if event.button() == Qt.RightButton:
+            print(f"[SGTileView] Right button click detected on tile {self.tile_model.id}")
+            # Let the parent handle right button clicks for context menu
+            super().mousePressEvent(event)
+            return
+        
+        # Only handle left button clicks
         if event.button() == Qt.LeftButton:
             # Reset drag state
             self.dragging = True
@@ -333,24 +343,27 @@ class SGTileView(SGEntityView):
             # Don't allow drag for non-Move actions - they should execute on click release
             return
 
-        # Try to find a Move action (Move actions use drag & drop by default)
+        # Try to find a Move action (Move actions use drag & drop)
         move_action = None
         
-        # First check pending_action (from selected action or directClick)
+        # First check pending_action (from selected action in ControlPanel)
         if self.pending_action is not None and isinstance(self.pending_action, SGMove):
             move_action = self.pending_action
         else:
-            # If no pending action or not Move, try to find Move actions
+            # If no pending action or not Move, try to find Move actions with directClick=True
+            # This allows automatic drag & drop only if directClick is enabled
             try:
                 currentPlayer = self.tile_model.model.getCurrentPlayer()
                 if currentPlayer != "Admin":
-                    # Move actions use drag & drop by default, find any Move action for this entity
                     entityDef = self.tile_model.type
                     for action in currentPlayer.gameActions:
                         if (isinstance(action, SGMove) and
                             action.targetType == entityDef):
-                            move_action = action
-                            break
+                            # Only allow automatic drag & drop if directClick is True
+                            # If directClick is False, the action must be selected in ControlPanel
+                            if action.interaction_modes.get("directClick") == True:
+                                move_action = action
+                                break
             except (ValueError, AttributeError):
                 # Current player not defined yet or not a valid player object, skip
                 pass

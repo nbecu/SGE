@@ -26,7 +26,9 @@ class SGModify(SGAbstractAction):
         return aTargetEntity
 
     def generateLegendItems(self,aControlPanel):
-        if self.setControllerContextualMenu == False:
+        # Use setOnController (controlPanel) to determine if action should appear in ControlPanel
+        # setControllerContextualMenu only controls context menu, not ControlPanel
+        if self.setOnController:
             aList = []
             for aAtt, aValue in self.dictNewValues.items():
                 aColor = self.targetType.getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(aAtt,aValue)

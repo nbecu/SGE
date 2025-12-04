@@ -135,9 +135,17 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         """Initialize context menu"""
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_contextMenu)
+        # Debug: print entity type for tiles
+        if hasattr(self, 'isTile') and self.isTile:
+            print(f"[SGEntityView] Context menu initialized for tile {getattr(self, 'id', 'unknown')}")
     
     def show_contextMenu(self, point):
         """Show context menu for the entity"""
+        # Debug: print when context menu is requested
+        entity_type = "Tile" if hasattr(self, 'isTile') and self.isTile else ("Agent" if hasattr(self, 'isAgent') and self.isAgent else "Cell")
+        entity_id = getattr(self.entity_model, 'id', 'unknown')
+        print(f"[SGEntityView] show_contextMenu called for {entity_type} {entity_id}, point={point}")
+        
         menu = QMenu(self)
 
         for anItem in self.type.attributesToDisplayInContextualMenu:
@@ -151,16 +159,29 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         player = self.model.getCurrentPlayer()
         if not player == "Admin":        
             actions = player.getAllGameActionsOn(self.entity_model)
+            print(f"[SGEntityView] Found {len(actions)} actions for {entity_type} {entity_id}")
             for aAction in actions:
+                print(f"[SGEntityView]   Action: {aAction.nameToDisplay}, setControllerContextualMenu={aAction.setControllerContextualMenu}, authorized={aAction.checkAuthorization(self.entity_model)}")
                 if aAction.setControllerContextualMenu:
                     if aAction.checkAuthorization(self.entity_model):
                         aMenuAction = QAction(aAction.nameToDisplay, self)
                         aMenuAction.setCheckable(False)
                         aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self.entity_model))
                         menu.addAction(aMenuAction)
+                        print(f"[SGEntityView]   Added action to menu: {aAction.nameToDisplay}")
 
-        if not menu.isEmpty() and self.rect().contains(point):
+        # Show menu if it's not empty
+        # Note: point is in local coordinates relative to the widget
+        # For tiles and agents, we should show the menu regardless of strict bounds checking
+        # because the signal is only triggered when the click is on the widget
+        print(f"[SGEntityView] Menu has {menu.actions().__len__()} actions, isEmpty={menu.isEmpty()}")
+        if not menu.isEmpty():
+            # Always show the menu - the signal customContextMenuRequested is only triggered
+            # when the right-click occurs on the widget, so we can trust the point is valid
+            print(f"[SGEntityView] Executing context menu at global position {self.mapToGlobal(point)}")
             menu.exec_(self.mapToGlobal(point))
+        else:
+            print(f"[SGEntityView] Menu is empty, not showing")
 
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
