@@ -374,6 +374,16 @@ class SGTileView(SGEntityView):
         # Mark that a drag is occurring
         self.drag_occurred = True
         self.pending_action = move_action  # Store for dropEvent
+        
+        # If Move action was triggered via directClick, update ControlPanel selection
+        if (hasattr(move_action, 'action_controler') and
+            move_action.action_controler.get("directClick") == True):
+            self._updateControlPanelSelection(move_action)
+        
+        # If Move action was triggered via directClick, update ControlPanel selection
+        if (hasattr(move_action, 'action_controler') and
+            move_action.action_controler.get("directClick") == True):
+            self._updateControlPanelSelection(move_action)
 
         mimeData = QMimeData()
         drag = QDrag(self)

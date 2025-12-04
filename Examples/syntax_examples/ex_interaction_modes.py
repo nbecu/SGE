@@ -118,15 +118,27 @@ AgentModify = myModel.newAgentType(
 
 # Set default values
 AgentModify.setDefaultValues({"status": "normal"})
+AgentModify.newPov("default","status",{"normal":QColor("yellow"),"modified":QColor("red")})
 
 # Modify action WITHOUT directClick (default for Modify)
-modifyAction = myModel.newModifyAction(
+modifyAction_status_modified = myModel.newModifyAction(
     AgentModify,
     dictAttributes={"status": "modified"},
     aNumber='infinite',
-    aNameToDisplay="✏️ Modify Status",
+    aNameToDisplay="Status -> Modified",
     action_controler={
-        "controlPanel": True,      # Appears in ControlPanel (default)
+        "controlPanel": False,      # Appears in ControlPanel (default)
+        "contextMenu": True,        # Also in context menu
+        "directClick": False        # Default for Modify - requires selection
+    }
+)
+modifyAction_status_normal = myModel.newModifyAction(
+    AgentModify,
+    dictAttributes={"status": "normal"},
+    aNumber='infinite',
+    aNameToDisplay="Status -> Normal",
+    action_controler={
+        "controlPanel": False,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": False        # Default for Modify - requires selection
     }
@@ -148,7 +160,7 @@ deleteAction = myModel.newDeleteAction(
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
-        "directClick": True        # Optional - enables automatic click deletion
+        # "directClick": True        # Optional - enables automatic click deletion
     }
 )
 
@@ -225,7 +237,8 @@ Player1.addGameAction(flipAction)
 # Player1.addGameAction(moveActionTile)
 Player1.addGameAction(activateAction)
 Player1.addGameAction(moveActionAgent)
-Player1.addGameAction(modifyAction)
+Player1.addGameAction(modifyAction_status_modified)
+Player1.addGameAction(modifyAction_status_normal)
 Player1.addGameAction(deleteAction)
 Player1.addGameAction(createAction)
 Player1.addGameAction(activateButtonAction)
