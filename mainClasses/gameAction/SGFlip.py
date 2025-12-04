@@ -3,17 +3,13 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 # Class who manage the game mechanics of Flipping Tiles
 class SGFlip(SGAbstractAction):
-    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, interaction_modes=None):
+    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, action_controler=None):
         # Set default directClick for Flip
-        if interaction_modes is None:
-            interaction_modes = {}
-        # Backward compatibility: convert autoTrigger="click" to directClick=True
-        if "autoTrigger" in interaction_modes:
-            if interaction_modes["autoTrigger"] == "click":
-                interaction_modes["directClick"] = True
-        elif "directClick" not in interaction_modes:
-            interaction_modes["directClick"] = True  # Default for Flip
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, nameToDisplay=nameToDisplay, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, interaction_modes=interaction_modes)
+        if action_controler is None:
+            action_controler = {}
+        if "directClick" not in action_controler:
+            action_controler["directClick"] = True  # Default for Flip
+        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, nameToDisplay=nameToDisplay, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, action_controler=action_controler)
         self.nameToDisplay = self.nameToDisplay or "🔄 Flip"  # Default name with emoji
         self.actionType = "Flip"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)

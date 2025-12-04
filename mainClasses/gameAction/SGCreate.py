@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import QInputDialog
 
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
-    def __init__(self,type,dictAttributs,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None, create_several_at_each_click = False, writeAttributeInLabel=False):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,interaction_modes=interaction_modes)
+    def __init__(self,type,dictAttributs,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None, create_several_at_each_click = False, writeAttributeInLabel=False):
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,action_controler=action_controler)
         self.dictAttributs=dictAttributs
         if self.nameToDisplay is None:
             self.nameToDisplay="+"

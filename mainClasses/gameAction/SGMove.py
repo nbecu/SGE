@@ -4,14 +4,13 @@ from mainClasses.SGTimePhase import *
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
-    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,interaction_modes=None):
+    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):
         # Move uses drag & drop by default (handled separately, not via directClick)
-        # Backward compatibility: convert autoTrigger="drag" (drag is handled separately)
-        if interaction_modes is None:
-            interaction_modes = {}
+        if action_controler is None:
+            action_controler = {}
         # Note: Move actions use drag & drop by default, which is handled separately from directClick
         # directClick remains False by default for Move (drag & drop is independent)
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,interaction_modes=interaction_modes)
+        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,action_controler=action_controler)
         self.nameToDisplay = self.nameToDisplay or "⇄ move"
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent

@@ -30,7 +30,7 @@ TileCenter = myModel.newTileType(
     name="Tile_Center",
     shape="rectTile",
     defaultSize=40,
-    colorForLegend=QColor("blue")
+    frontColor=QColor("blue")
     # defaultPositionOnCell="center" is the default, so no need to specify it
 )
 
@@ -39,7 +39,7 @@ TileTopLeft = myModel.newTileType(
     name="Tile_TopLeft",
     shape="circleTile",
     defaultSize=35,
-    colorForLegend=QColor("red"),
+    frontColor=QColor("red"),
     defaultPositionOnCell="topLeft"
 )
 
@@ -48,7 +48,7 @@ TileTopRight = myModel.newTileType(
     name="Tile_TopRight",
     shape="rectTile",
     defaultSize=35,
-    colorForLegend=QColor("green"),
+    frontColor=QColor("green"),
     defaultPositionOnCell="topRight"
 )
 
@@ -57,7 +57,7 @@ TileBottomLeft = myModel.newTileType(
     name="Tile_BottomLeft",
     shape="circleTile",
     defaultSize=35,
-    colorForLegend=QColor("yellow"),
+    frontColor=QColor("yellow"),
     defaultPositionOnCell="bottomLeft"
 )
 
@@ -66,7 +66,7 @@ TileBottomRight = myModel.newTileType(
     name="Tile_BottomRight",
     shape="rectTile",
     defaultSize=35,
-    colorForLegend=QColor("magenta"),
+    frontColor=QColor("magenta"),
     defaultPositionOnCell="bottomRight"
 )
 
@@ -75,7 +75,7 @@ TileFull = myModel.newTileType(
     name="Tile_Full",
     shape="rectTile",
     defaultSize=100,  # Will be adjusted to cell size
-    colorForLegend=QColor("cyan"),
+    frontColor=QColor("cyan"),
     defaultPositionOnCell="full"
 )
 

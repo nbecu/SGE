@@ -237,7 +237,7 @@ class SGTileView(SGEntityView):
                 # Current player not defined yet or not a valid player object, skip directClick
                 pass
             
-            # If no autoTrigger action found, fall back to selected action from ControlPanel
+            # If no directClick action found, fall back to selected action from ControlPanel
             if selected_action is None:
                 aLegendItem = self.tile_model.model.getSelectedLegendItem()
                 selected_action = aLegendItem.gameAction if aLegendItem is not None else None
@@ -270,8 +270,8 @@ class SGTileView(SGEntityView):
                 if not isinstance(self.pending_action, SGMove):
                     # Check if this action was triggered via directClick
                     action_was_directclick = (
-                        hasattr(self.pending_action, 'interaction_modes') and
-                        self.pending_action.interaction_modes.get("directClick") == True
+                        hasattr(self.pending_action, 'action_controler') and
+                        self.pending_action.action_controler.get("directClick") == True
                     )
                     
                     # Execute the action
@@ -361,7 +361,7 @@ class SGTileView(SGEntityView):
                             action.targetType == entityDef):
                             # Only allow automatic drag & drop if directClick is True
                             # If directClick is False, the action must be selected in ControlPanel
-                            if action.interaction_modes.get("directClick") == True:
+                            if action.action_controler.get("directClick") == True:
                                 move_action = action
                                 break
             except (ValueError, AttributeError):

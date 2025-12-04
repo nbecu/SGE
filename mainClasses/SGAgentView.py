@@ -32,6 +32,10 @@ class SGAgentView(SGEntityView):
         self.defaultImage = agent_model.defaultImage
         self.popupImage = agent_model.popupImage
         self.dragging = False
+        self.drag_occurred = False  # Flag to track if a drag actually happened
+        self.press_position = None  # Store initial mouse press position
+        self.pending_move_action = None  # Store Move action for drag & drop
+        self.pending_click_action = None  # Store other action (like Activate) for click
         
         # Initialize position coordinates to avoid AttributeError
         self.xCoord = 0
@@ -261,52 +265,82 @@ class SGAgentView(SGEntityView):
     def mousePressEvent(self, event):
         """Handle mouse press events"""
         if event.button() == Qt.LeftButton:
+            # Reset drag state
             self.dragging = True
+            self.drag_occurred = False
+            self.press_position = event.pos()
+            self.pending_move_action = None
+            self.pending_click_action = None
             
-            # First, try to find an action with directClick=True (priority over ControlPanel selection)
-            selected_action = None
             try:
                 currentPlayer = self.agent_model.model.getCurrentPlayer()
-                if currentPlayer != "Admin":
-                    # Use helper method to find authorized action with directClick=True
-                    selected_action = currentPlayer.getAuthorizedActionWithDirectClick(self.agent_model)
+                if currentPlayer == "Admin":
+                    return
+                
+                entityDef = self.agent_model.type
+                
+                # Find Move action (for drag & drop)
+                from mainClasses.gameAction.SGMove import SGMove
+                for action in currentPlayer.gameActions:
+                    if (isinstance(action, SGMove) and
+                        action.targetType == entityDef and
+                        action.checkAuthorization(self.agent_model)):
+                        # Check if directClick is enabled OR if action is selected in ControlPanel
+                        aLegendItem = self.agent_model.model.getSelectedLegendItem()
+                        is_selected = (aLegendItem is not None and aLegendItem.gameAction == action)
+                        if (action.action_controler.get("directClick") == True or is_selected):
+                            self.pending_move_action = action
+                            break
+                
+                # Find other actions with directClick=True (for click, like Activate)
+                click_action = currentPlayer.getAuthorizedActionWithDirectClick(self.agent_model)
+                if click_action is not None:
+                    # Make sure it's not a Move action (already handled above)
+                    if not isinstance(click_action, SGMove):
+                        self.pending_click_action = click_action
+                else:
+                    # Fall back to selected action from ControlPanel (if not Move)
+                    aLegendItem = self.agent_model.model.getSelectedLegendItem()
+                    if aLegendItem is not None:
+                        selected_action = aLegendItem.gameAction
+                        if selected_action is not None and not isinstance(selected_action, SGMove):
+                            self.pending_click_action = selected_action
+                            
             except (ValueError, AttributeError):
-                # Current player not defined yet or not a valid player object, skip directClick
+                # Current player not defined yet or not a valid player object, skip
                 pass
             
-            # If no directClick action found, fall back to selected action from ControlPanel
-            if selected_action is None:
-                aLegendItem = self.agent_model.model.getSelectedLegendItem()
-                selected_action = aLegendItem.gameAction if aLegendItem is not None else None
-            
-            if selected_action is None:
-                return  # No action available
-
-            # Check if this action was triggered via directClick
-            action_was_directclick = (
-                hasattr(selected_action, 'interaction_modes') and
-                selected_action.interaction_modes.get("directClick") == True
-            )
-
-            # Use the gameAction system for ALL players (including Admin)
-            from mainClasses.gameAction.SGMove import SGMove
-            if isinstance(selected_action, SGMove): 
+            # If no actions available, return
+            if self.pending_move_action is None and self.pending_click_action is None:
                 return
-            from mainClasses.gameAction.SGCreate  import SGCreate
-            if isinstance(selected_action, SGCreate): 
-                selected_action.perform_with(self.agent_model.cell)
-            else:
-                selected_action.perform_with(self.agent_model)
-            
-            # If action was triggered via directClick, update ControlPanel selection
-            if action_was_directclick:
-                self._updateControlPanelSelection(selected_action)
-            return
 
     def mouseReleaseEvent(self, event):
         """Handle mouse release events"""
         if event.button() == Qt.LeftButton:
+            # If no drag occurred and we have a pending click action, execute it
+            if not self.drag_occurred and self.pending_click_action is not None:
+                # Check if this action was triggered via directClick
+                action_was_directclick = (
+                    hasattr(self.pending_click_action, 'action_controler') and
+                    self.pending_click_action.action_controler.get("directClick") == True
+                )
+                
+                # Execute the action
+                from mainClasses.gameAction.SGCreate import SGCreate
+                if isinstance(self.pending_click_action, SGCreate):
+                    self.pending_click_action.perform_with(self.agent_model.cell)
+                else:
+                    self.pending_click_action.perform_with(self.agent_model)
+                
+                # If action was triggered via directClick, update ControlPanel selection
+                if action_was_directclick:
+                    self._updateControlPanelSelection(self.pending_click_action)
+            
+            # Reset state
             self.dragging = False
+            self.pending_move_action = None
+            self.pending_click_action = None
+            self.press_position = None
     
     def _updateControlPanelSelection(self, action):
         """
@@ -348,6 +382,24 @@ class SGAgentView(SGEntityView):
                 self.dragging = False
             return
 
+        # Check if we've moved enough to start a drag operation
+        # Use QApplication.startDragDistance() to determine minimum movement
+        from PyQt5.QtWidgets import QApplication
+        if self.press_position is None:
+            return
+        distance = (e.pos() - self.press_position).manhattanLength()
+        if distance < QApplication.startDragDistance():
+            # Not enough movement yet, wait for more
+            return
+
+        # If we have a pending Move action, use it for drag & drop
+        if self.pending_move_action is None:
+            return  # No Move action available for drag
+        
+        # Mark that a drag is occurring
+        self.drag_occurred = True
+        move_action = self.pending_move_action
+
         mimeData = QMimeData()
         drag = QDrag(self)
         drag.setMimeData(mimeData)
@@ -372,6 +424,7 @@ class SGAgentView(SGEntityView):
         
         # Reset dragging state after drag operation completes
         self.dragging = False
+        self.last_action_executed = None
 
     def dragEnterEvent(self, e):
         """Handle drag enter events"""

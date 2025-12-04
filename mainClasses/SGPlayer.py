@@ -197,8 +197,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
         """
         entityDef = entity.type
         for action in self.gameActions:
-            if (hasattr(action, 'interaction_modes') and 
-                action.interaction_modes.get("directClick") == True and
+            if (hasattr(action, 'action_controler') and 
+                action.action_controler.get("directClick") == True and
                 action.targetType == entityDef):
                 # Check authorization (some actions need destination entity for Move)
                 from mainClasses.gameAction.SGMove import SGMove
@@ -209,15 +209,6 @@ class SGPlayer(AttributeAndValueFunctionalities):
                     return action
         return None
     
-    def getAuthorizedActionWithAutoTrigger(self, entity, autoTrigger_value):
-        """
-        DEPRECATED: Use getAuthorizedActionWithDirectClick instead.
-        Kept for backward compatibility.
-        """
-        if autoTrigger_value == "click":
-            return self.getAuthorizedActionWithDirectClick(entity)
-        # For "drag", Move actions are handled separately
-        return None
 
     def getAuthorizedMoveActionForDrop(self, entity, target_cell):
         """

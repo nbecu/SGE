@@ -15,9 +15,9 @@ myModel = SGModel(1200, 900, windowTitle="Interaction Modes Examples")
 myModel.displayTimeInWindowTitle()
 
 # ============================================================================
-# Example: Demonstrating interaction_modes for different game actions
+# Example: Demonstrating action_controler for different game actions
 # ============================================================================
-print("Creating example demonstrating interaction_modes...")
+print("Creating example demonstrating action_controler...")
 
 # Create a grid
 Grid = myModel.newCellsOnGrid(6, 4, "square", size=100, gap=5, name="InteractionGrid")
@@ -41,7 +41,7 @@ flipAction = myModel.newFlipAction(
     Tile,
     aNumber='infinite',
     aNameToDisplay="🔄 Flip Tile",
-    interaction_modes={
+    action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": False         # Default for Flip - works automatically on click
@@ -49,17 +49,17 @@ flipAction = myModel.newFlipAction(
 )
 
 # Move action with drag & drop (default, independent of directClick)
-# moveActionTile = myModel.newMoveAction(
-#     Tile,
-#     aNumber='infinite',
-#     aNameToDisplay="↔️ Move Tile",
-#     interaction_modes={
-#         "controlPanel": True,      # Appears in ControlPanel (default)
-#         # "contextMenu": False,        # Also in context menu
-#         "directClick": False         
-#         # Move actions use drag & drop by default (independent of directClick)
-#     }
-# )
+moveActionTile = myModel.newMoveAction(
+    Tile,
+    aNumber='infinite',
+    aNameToDisplay="↔️ Move Tile",
+    action_controler={
+        "controlPanel": True,      # Appears in ControlPanel (default)
+        # "contextMenu": False,        # Also in context menu
+        "directClick": True         
+        # Move actions use drag & drop by default (independent of directClick)
+    }
+)
 
 # Place tiles
 for x in range(1, 4):
@@ -87,11 +87,23 @@ activateAction = myModel.newActivateAction(
     aMethod=lambda agent: activateAgent(agent),
     aNumber='infinite',
     aNameToDisplay="⚡ Activate Agent",
-    interaction_modes={
+    action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "button": False,           # No button (can be set to True with buttonPosition)
-        "directClick": False         # Optional - enables automatic click activation
+        "directClick": True         # Optional - enables automatic click activation
+    }
+)
+# Move action with drag & drop 
+moveActionAgent = myModel.newMoveAction(
+    AgentActivate,
+    aNumber='infinite',
+    aNameToDisplay="↔️ Move Agent",
+    action_controler={
+        "controlPanel": True,      # Appears in ControlPanel (default)
+        # "contextMenu": False,        # Also in context menu
+        "directClick": True         
+        # Move actions use drag & drop by default (independent of directClick)
     }
 )
 
@@ -113,7 +125,7 @@ modifyAction = myModel.newModifyAction(
     dictAttributes={"status": "modified"},
     aNumber='infinite',
     aNameToDisplay="✏️ Modify Status",
-    interaction_modes={
+    action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": False        # Default for Modify - requires selection
@@ -133,7 +145,7 @@ deleteAction = myModel.newDeleteAction(
     AgentDelete,
     aNumber='infinite',
     aNameToDisplay="× Delete Agent",
-    interaction_modes={
+    action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": True        # Optional - enables automatic click deletion
@@ -156,7 +168,7 @@ createAction = myModel.newCreateAction(
     dictAttributes=None,
     aNumber='infinite',
     aNameToDisplay="➕ Create Agent",
-    interaction_modes={
+    action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "directClick": True        # Optional - enables automatic click creation
     }
@@ -194,7 +206,7 @@ activateButtonAction = myModel.newActivateAction(
     aMethod=lambda: globalAction(),
     aNumber='infinite',
     aNameToDisplay="🌐 Add 2 Agents",
-    interaction_modes={
+    action_controler={
         "controlPanel": True,      # Appears in ControlPanel
         "button": True,            # Create a button
         "buttonPosition": (665, 50)  # Position of the button (moved to avoid overlap with grid)
@@ -212,6 +224,7 @@ Player1 = myModel.newPlayer("Player 1")
 Player1.addGameAction(flipAction)
 # Player1.addGameAction(moveActionTile)
 Player1.addGameAction(activateAction)
+Player1.addGameAction(moveActionAgent)
 Player1.addGameAction(modifyAction)
 Player1.addGameAction(deleteAction)
 Player1.addGameAction(createAction)

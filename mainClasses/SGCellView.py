@@ -177,8 +177,8 @@ class SGCellView(SGEntityView):
             
             # Check if this action was triggered via directClick
             action_was_directclick = (
-                hasattr(selected_action, 'interaction_modes') and
-                selected_action.interaction_modes.get("directClick") == True
+                hasattr(selected_action, 'action_controler') and
+                selected_action.action_controler.get("directClick") == True
             )
             
             # Note: We removed the isDisplay check to allow actions on deleted cells
