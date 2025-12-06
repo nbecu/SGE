@@ -11,7 +11,7 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # Model creation
-myModel = SGModel(1200, 900, windowTitle="Interaction Modes Examples")
+myModel = SGModel(800, 600, windowTitle="Interaction Modes Examples")
 myModel.displayTimeInWindowTitle()
 
 # ============================================================================
@@ -20,7 +20,10 @@ myModel.displayTimeInWindowTitle()
 print("Creating example demonstrating action_controler...")
 
 # Create a grid
-Grid = myModel.newCellsOnGrid(6, 4, "square", size=100, gap=5, name="InteractionGrid")
+Grid = myModel.newCellsOnGrid(5, 4, "square", size=70, gap=5, name="InteractionGrid")
+
+# Create a text box to display action feedback
+textBox = myModel.newTextBox(width=300, height=200, chronologicalOrder=False, title="Action Log")
 
 # ============================================================================
 # TILE EXAMPLES
@@ -43,7 +46,8 @@ flipAction = myModel.newFlipAction(
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": True         # Default for Flip - works automatically on click
-    }
+    },
+    feedbacks=[lambda aTargetEntity: textBox.addText(f"Tile {aTargetEntity.id} flipped!")],
 )
 
 # Move action with drag & drop (default, independent of directClick)
@@ -54,7 +58,8 @@ moveActionTile = myModel.newMoveAction(
         # "contextMenu": False,        # Also in context menu
         "directClick": True         
         # Move actions use drag & drop by default (independent of directClick)
-    }
+    },
+    feedbacks=[lambda aTargetEntity: textBox.addText(f"Tile {aTargetEntity.id} moved to cell {aTargetEntity.cell.id}")]
 )
 
 # Place tiles
@@ -76,7 +81,7 @@ AgentActivate = myModel.newAgentType(
 # Activate action with directClick=True (optional)
 def activateAgent(agent):
     """Example activation method"""
-    print(f"Agent {agent.id} activated!")
+    textBox.addText(f"Agent {agent.id} activated!")
 
 activateAction = myModel.newActivateAction(
     AgentActivate,
@@ -95,7 +100,8 @@ moveActionAgent = myModel.newMoveAction(
         # "contextMenu": False,        # Also in context menu
         "directClick": True         
         # Move actions use drag & drop by default (independent of directClick)
-    }
+    },
+    feedbacks=[lambda aTargetEntity: textBox.addText(f"Agent {aTargetEntity.id} moved to cell {aTargetEntity.cell.id}")]
 )
 
 # Agent Type 2: Modify WITHOUT directClick (default)
@@ -120,7 +126,8 @@ modifyAction_status_modified = myModel.newModifyAction(
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": True        # Default for Modify - requires selection
-    }
+    },
+    feedbacks=[lambda aTargetEntity: textBox.addText(f"Agent {aTargetEntity.id} status changed to modified")]
 )
 modifyAction_status_normal = myModel.newModifyAction(
     AgentModify,
@@ -130,7 +137,8 @@ modifyAction_status_normal = myModel.newModifyAction(
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": False        # Default for Modify - requires selection
-    }
+    },
+    feedbacks=[lambda aTargetEntity: textBox.addText(f"Agent {aTargetEntity.id} status changed to normal")]
 )
 
 # Agent Type 3: Delete with directClick=True (optional)
@@ -148,7 +156,8 @@ deleteAction = myModel.newDeleteAction(
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": True        # Optional - enables automatic click deletion
-    }
+    },
+    feedbacks=[lambda aTargetEntity: textBox.addText(f"Agent {aTargetEntity.id} deleted")]
 )
 
 # Place agents
@@ -168,7 +177,8 @@ createAction = myModel.newCreateAction(
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": True        # Optional - enables automatic click creation
-    }
+    },
+    feedbacks=[lambda cellOnWhichAgentIsCreated: textBox.addText(f"Agent {cellOnWhichAgentIsCreated.getYoungestAgent(AgentActivate).id} created on cell {cellOnWhichAgentIsCreated.id}")]
 )
 
 # ============================================================================
@@ -190,13 +200,13 @@ def globalAction():
         selected_cells = random.sample(empty_cells, 2)
         for cell in selected_cells:
             AgentActivate.newAgentOnCell(cell)
-        print(f"Added 2 agents to cells {[c.id for c in selected_cells]}")
+        textBox.addText(f"Added 2 agents to cells {[c.id for c in selected_cells]}")
     elif len(empty_cells) == 1:
         # Only one empty cell available
         AgentActivate.newAgentOnCell(empty_cells[0])
-        print(f"Added 1 agent to cell {empty_cells[0].id} (only one empty cell available)")
+        textBox.addText(f"Added 1 agent to cell {empty_cells[0].id} (only one empty cell available)")
     else:
-        print("No empty cells available!")
+        textBox.addText("No empty cells available!")
 
 activateButtonAction = myModel.newActivateAction(
     None,  # Model-level action
@@ -205,7 +215,7 @@ activateButtonAction = myModel.newActivateAction(
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel
         "button": True,            # Create a button
-        "buttonPosition": (665, 50)  # Position of the button (moved to avoid overlap with grid)
+        "buttonPosition": (665, 200)  # Position of the button (moved to avoid overlap with grid)
     }
 )
 
@@ -237,7 +247,10 @@ myModel.newPlayPhase("Player 1 Turn", [Player1])
 myModel.setCurrentPlayer("Player 1")
 
 # Create legend
-myModel.newLegend("Game Legend")
+# myModel.newLegend("Game Legend")
+
+myModel.applyLayoutConfig("interaction_modes_ex")
+
 
 # Launch the game
 myModel.launch()

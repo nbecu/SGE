@@ -563,7 +563,7 @@ def checkIsThereTouristes(): # todo cette verification est inutile a priori
 def checkIsHebergement(aTargetCell):
     """Permet de vérifier si l'emplacement permet d'acceuillir un touriste supplémentaire"""
     nbTouristesHere=aTargetCell.nbAgents(Touriste)
-    aHex=aTargetCell.getFirstAgentOfSpecie(hexagones)
+    aHex=aTargetCell.getFirstAgent(hexagones)
     if aHex is not None:
         if aHex.value("coutTouriste") > nbTouristesHere : return True
     return False
@@ -587,7 +587,7 @@ def checkAdjacence(aHex):
         listOfNeighbours=aHex.getNeighborCells()
         nbMatchingNeighbour = 0
         for aNeighbourCell in listOfNeighbours:
-            aNeighbourHex = aNeighbourCell.getFirstAgentOfSpecie(hexagones)
+            aNeighbourHex = aNeighbourCell.getFirstAgent(hexagones)
             if aHex.value("conditionAdjacence") == aNeighbourCell.value("zone"): 
                 if aHex.value("nbAdjacence") == 1: return True
                 else:

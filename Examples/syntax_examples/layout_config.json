@@ -368,6 +368,51 @@
       "model_name": null,
       "timestamp": "2025-12-05 15:44:25",
       "version": "1.0"
+    },
+    "interaction_modes_ex": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 3,
+      "gameSpaces": {
+        "InteractionGrid": {
+          "layoutOrder": 1,
+          "position_type": "layoutOrder",
+          "manual_position": [
+            1,
+            26
+          ],
+          "manual_override": false
+        },
+        "Action Log": {
+          "layoutOrder": 2,
+          "position_type": "mixed",
+          "manual_position": [
+            37,
+            365
+          ],
+          "manual_override": true
+        },
+        "SGButton#1": {
+          "layoutOrder": "manual_position",
+          "position_type": "absolute",
+          "manual_position": [
+            442,
+            381
+          ],
+          "manual_override": false
+        },
+        "Player 1 Actions": {
+          "layoutOrder": 4,
+          "position_type": "mixed",
+          "manual_position": [
+            427,
+            35
+          ],
+          "manual_override": true
+        }
+      },
+      "model_name": null,
+      "timestamp": "2025-12-06 21:47:25",
+      "version": "1.0"
     }
   }
 }

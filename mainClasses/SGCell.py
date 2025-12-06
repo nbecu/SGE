@@ -398,19 +398,103 @@ class SGCell(SGEntity):
         typeName = normalize_type_name(type_name)
         return [agent for agent in self.agents if agent.type.name == typeName]
 
-    def getFirstAgentOfSpecie(self, type_name):
+    def getOldestAgent(self, type_name=None):
         """
-        Get the first agent of a specific type in this cell.
+        Get the oldest agent in this cell (agent with the smallest id).
         
         Args:
-            type_name (str or SGAgentDef): The agent type name or SGAgentDef object
-            
+            type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object.
+                If None, searches among all agents in the cell.
+                
         Returns:
-            SGAgent or None: The first agent of the specified type, or None if not found
+            SGAgent or None: The oldest agent (smallest id) of the specified type, 
+            or None if no agent is found
+            
+        Example:
+            # Get oldest agent among all agents
+            oldest = cell.getOldestAgent()
+            
+            # Get oldest agent of a specific type
+            oldest_sheep = cell.getOldestAgent("Sheeps")
         """
-        type_name = normalize_type_name(type_name)
+        if not self.agents:
+            return None
+        
+        if type_name is None:
+            # Return agent with smallest id among all agents
+            return min(self.agents, key=lambda agent: agent.id)
+        
+        # Filter by type
+        typeName = normalize_type_name(type_name)
+        agents_of_type = [agent for agent in self.agents if agent.type.name == typeName]
+        
+        if not agents_of_type:
+            return None
+        
+        return min(agents_of_type, key=lambda agent: agent.id)
+
+    def getYoungestAgent(self, type_name=None):
+        """
+        Get the youngest agent in this cell (agent with the largest id).
+        
+        Args:
+            type_name (str or SGAgentDef, optional): The name of the type or SGAgentDef object.
+                If None, searches among all agents in the cell.
+                
+        Returns:
+            SGAgent or None: The youngest agent (largest id) of the specified type, 
+            or None if no agent is found
+            
+        Example:
+            # Get youngest agent among all agents
+            youngest = cell.getYoungestAgent()
+            
+            # Get youngest agent of a specific type
+            youngest_sheep = cell.getYoungestAgent("Sheeps")
+        """
+        if not self.agents:
+            return None
+        
+        if type_name is None:
+            # Return agent with largest id among all agents
+            return max(self.agents, key=lambda agent: agent.id)
+        
+        # Filter by type
+        typeName = normalize_type_name(type_name)
+        agents_of_type = [agent for agent in self.agents if agent.type.name == typeName]
+        
+        if not agents_of_type:
+            return None
+        
+        return max(agents_of_type, key=lambda agent: agent.id)
+
+    def getFirstAgent(self, type_name=None):
+        """
+        Get the first agent in this cell.
+        
+        Args:
+            type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.
+                If None, returns the first agent in the cell (regardless of type).
+                
+        Returns:
+            SGAgent or None: The first agent of the specified type (or first agent if type_name is None), 
+            or None if no agent is found
+            
+        Example:
+            # Get first agent among all agents
+            first = cell.getFirstAgent()
+            
+            # Get first agent of a specific type
+            first_sheep = cell.getFirstAgent("Sheeps")
+        """
+        if type_name is None:
+            # Return first agent in the cell (or None if empty)
+            return self.agents[0] if self.agents else None
+        
+        # Filter by type
+        typeName = normalize_type_name(type_name)
         for agent in self.agents:
-            if agent.type.name == type_name:
+            if agent.type.name == typeName:
                 return agent
         return None
 
