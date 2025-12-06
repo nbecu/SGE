@@ -290,7 +290,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
             conditions=conditions,
             feedbacks=feedbacks,
             conditionsOfFeedback=conditionsOfFeedback,
-            aNameToDisplay=label,
+            label=label,
             action_controler=action_controler
         )
         # Automatically add it to this player

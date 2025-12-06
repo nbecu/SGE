@@ -48,7 +48,7 @@ CardTile.newTilesWithImages(
 Player1 = myModel.newPlayer("Player 1")
 
 # Add Flip action to test tile flipping
-flipAction = myModel.newFlipAction(CardTile, aNumber='infinite', aNameToDisplay="🔄 Flip Card")
+flipAction = myModel.newFlipAction(CardTile, aNumber='infinite', label="🔄 Flip Card")
 Player1.addGameAction(flipAction)
 Player1.newControlPanel("Player 1 Actions")
 

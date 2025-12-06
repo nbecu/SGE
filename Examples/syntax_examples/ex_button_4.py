@@ -25,7 +25,7 @@ myModel.setCurrentPlayer(player_Salim)
 gameAction_add10=myModel.newActivateAction(None,
                                         lambda : add10(),
                                         setControllerButton=(80,110),
-                                        aNameToDisplay="add 10")
+                                        label="add 10")
 player_Salim.addGameAction(gameAction_add10)
 PlayPhase = myModel.newPlayPhase('Play phase',[player_Salim])
 # This implementation should be avoided, as the actions won't be taken into account in a distributed simulation between multiple computers

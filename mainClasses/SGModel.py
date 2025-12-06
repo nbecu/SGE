@@ -2017,39 +2017,44 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     # To create game actions
 
-    def newCreateAction(self, entity_type, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,create_several_at_each_click=False,writeAttributeInLabel=False,action_controler=None):
+    def newCreateAction(self, entity_type, dictAttributes=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None):
         """
         Add a Create GameAction to the game.
 
         Args:
         - entity_type : a type of entity (agentType, cellType or name of the entity type)
-        - a Number (int) : number of utilisation, could use "infinite"
+        - aNumber (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
+        - label (str): custom label to display
+        - create_several_at_each_click (bool): whether to create several entities at each click
+        - writeAttributeInLabel (bool): whether to show attribute in label
         - action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
 
         """
         aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGCreate(aType,  dictAttributes, aNumber,conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay, create_several_at_each_click = create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel,action_controler=action_controler)
+        return SGCreate(aType, dictAttributes, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, create_several_at_each_click=create_several_at_each_click, writeAttributeInLabel=writeAttributeInLabel, action_controler=action_controler)
 
-    def newModifyAction(self, entity_type, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,writeAttributeInLabel=False,action_controler=None):
+    def newModifyAction(self, entity_type, dictAttributes={}, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):
         """
         Add a Modify GameAction to the game.
 
         Args:
         - entity_type : a type of entity (agentType, cellType or name of the entity type)
-        - a Number (int) : number of utilisation, could use "infinite"
+        - aNumber (int) : number of utilisation, could use "infinite"
         - dictAttributes (dict) : attribute with value concerned, could be None
+        - label (str): custom label to display
+        - writeAttributeInLabel (bool): whether to show attribute in label
         - action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
 
         """
         aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGModify(aType, dictAttributes,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,writeAttributeInLabel=writeAttributeInLabel,action_controler=action_controler)
+        return SGModify(aType, dictAttributes, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, writeAttributeInLabel=writeAttributeInLabel, action_controler=action_controler)
 
-    def newModifyActionWithDialog(self, entity_type, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, writeAttributeInLabel=False, action_controler=None):
+    def newModifyActionWithDialog(self, entity_type, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):
         """
-        Add a ModifyActionWithDialog GameAction to the game.
+        Add a Modify GameAction to the game that opens a dialog to ask for the value to use.
         
         Args:
             entity_type : a type of entity (agentType, cellType or name of the entity type)
@@ -2058,8 +2063,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             conditions (list): conditions that must be met
             feedbacks (list): actions to execute after modification
             conditionsOfFeedback (list): conditions for feedback execution
-            aNameToDisplay (str): custom name to display
-            setControllerContextualMenu (bool): whether to show in contextual menu
+            label (str): custom label to display
             writeAttributeInLabel (bool): whether to show attribute in label
             action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
         """
@@ -2068,37 +2072,43 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             raise ValueError('Wrong format of entityDef')
         
         from mainClasses.gameAction.SGModify import SGModifyActionWithDialog
-        return SGModifyActionWithDialog(aType, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=True, action_controler=action_controler, writeAttributeInLabel=writeAttributeInLabel)
+        return SGModifyActionWithDialog(aType, attribute, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler, writeAttributeInLabel=writeAttributeInLabel)
 
-    def newDeleteAction(self, entity_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,action_controler=None):
+    def newDeleteAction(self, entity_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         """
         Add a Delete GameAction to the game.
 
         Args:
         - entity_type : a type of entity (agentType, cellType or name of the entity type)
-        - a Number (int) : number of utilisation, could use "infinite"
+        - aNumber (int) : number of utilisation, could use "infinite"
+        - label (str): custom label to display
         - action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
 
         """
         aType = self.getEntityType(entity_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGDelete(aType, aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,action_controler=action_controler)
+        return SGDelete(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
 
-    def newMoveAction(self, agent_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[],aNameToDisplay=None,setOnController=True,action_controler=None):
+    def newMoveAction(self, agent_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None):
         """
         Add a MoveAction to the game.
 
         Args:
         - agent_type : a type of agent (agentType or name of the agent type)
-        - a Number (int) : number of utilisation, could use "infinite"
-        - listOfConditions (list of lambda functions) : conditions on the moving Entity
+        - aNumber (int) : number of utilisation, could use "infinite"
+        - conditions (list of lambda functions) : conditions on the moving Entity
+        - feedbacks (list): feedback actions
+        - conditionsOfFeedback (list): conditions for feedback execution
+        - feedbacksAgent (list): agent feedback actions
+        - conditionsOfFeedBackAgent (list): conditions for agent feedback execution
+        - label (str): custom label to display
         - action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
         """
         aType = self.getEntityType(agent_type)
         if aType is None : raise ValueError('Wrong format of entityDef')
-        return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent,aNameToDisplay=aNameToDisplay,setOnController=setOnController,action_controler=action_controler)
+        return SGMove(aType, aNumber, conditions, feedbacks, conditionsOfFeedback, feedbacksAgent, conditionsOfFeedBackAgent, label=label, action_controler=action_controler)
 
-    def newFlipAction(self, tile_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, action_controler=None):
+    def newFlipAction(self, tile_type, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         """
         Create a new Flip action for tiles
         
@@ -2108,20 +2118,17 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             conditions: List of conditions that must be met
             feedbacks: List of feedback actions
             conditionsOfFeedback: List of conditions for feedbacks
-            aNameToDisplay: Custom name to display (default: "🔄 Flip")
-            setControllerContextualMenu: Whether to show in contextual menu (legacy, use action_controler)
-            setOnController: Whether to show on controller (legacy, use action_controler)
+            label: Custom label to display (default: "🔄 Flip")
             action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
             
         Returns:
             SGFlip: The created flip action
         """
         from mainClasses.gameAction.SGFlip import SGFlip
-        # SGAbstractAction now handles aNameToDisplay conversion internally
-        aFlipAction = SGFlip(tile_type, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, action_controler=action_controler)
+        aFlipAction = SGFlip(tile_type, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         return aFlipAction
 
-    def newActivateAction(self,object_type=None,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None,action_controler=None) :
+    def newActivateAction(self, object_type=None, aMethod=None, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         """Add a ActivateAction to the game
         Args:
         - object_type : the model itself or a type of entity (agentType, cellType or name of the entity type)
@@ -2130,37 +2137,29 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         - conditions (list of lambda functions) : conditions on the activating entity
         - feedbacks (list of lambda functions) : feedbacks to execute after activation
         - conditionsOfFeedback (list of lambda functions) : conditions for feedback execution
-        - aNameToDisplay (str) : custom name to display
-        - setControllerContextualMenu (bool) : whether to show in contextual menu (legacy, use action_controler)
-        - setControllerButton (tuple) : coordinates of the button to set in the controller (legacy, use action_controler with button=True)
+        - label (str) : custom label to display
         - action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, button, directClick)
-        - """
+            - button (bool): whether to create a button
+            - buttonPosition (tuple): coordinates of the button to set in the controller
+        """
         #Case for action on the model
-        if object_type is None or object_type ==self:
+        if object_type is None or object_type == self:
             aType = self
         else:
             #Case for action on a Entity
             aType = self.getEntityType(object_type)
-        # if aType is None : raise ValueError('Wrong format of entityDef')
 
-        # Handle button creation from action_controler or legacy setControllerButton
+        # Handle button creation from action_controler
         if action_controler is None:
             action_controler = {}
-        if setControllerButton is not None:
-            # Legacy support: convert setControllerButton to action_controler
-            action_controler["button"] = True
-            action_controler["buttonPosition"] = setControllerButton
 
-        aActivateAction = SGActivate(aType, aMethod ,aNumber, conditions, feedbacks, conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,action_controler=action_controler)
+        aActivateAction = SGActivate(aType, aMethod, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
 
         # Create button if specified
         if action_controler.get("button", False) and "buttonPosition" in action_controler:
             buttonCoord = action_controler["buttonPosition"]
             self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
-        elif setControllerButton:
-            # Legacy support
-            buttonCoord = setControllerButton
-            self.newButton(aActivateAction, aActivateAction.nameToDisplay, buttonCoord)
+        
         return aActivateAction
 
     # To create a new model phase

@@ -11,7 +11,7 @@ class SGAbstractAction():
     instances = []
     action_id_counter = 0  # Global shared counter for execution order
     context_menu_icon = "▶️ "  # Default icon for context menu (can be overridden by subclasses)
-    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):
+    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         """
         Initialize an abstract action
         
@@ -21,13 +21,10 @@ class SGAbstractAction():
             conditions: List of conditions
             feedbacks: List of feedback actions
             conditionsOfFeedback: List of conditions for feedbacks
-            nameToDisplay: Display name (legacy parameter, for backward compatibility)
-            aNameToDisplay: Display name (preferred parameter, consistent with SGModel API)
-            setControllerContextualMenu: Whether to show in contextual menu (legacy, use action_controler)
-            setOnController: Whether to show on controller (legacy, use action_controler)
+            label: Display label for the action
             action_controler: Dict specifying interaction modes. Defaults:
                 - controlPanel: True (always True by default)
-                - contextMenu: False (except if setControllerContextualMenu=True)
+                - contextMenu: False
                 - button: False (only for Activate)
                 - directClick: False (True by default for Flip)
         """
@@ -50,7 +47,7 @@ class SGAbstractAction():
         self.feedbacks=copy.deepcopy(feedbacks)
         self.conditionsOfFeedback=copy.deepcopy(conditionsOfFeedback)
         
-        # Handle action_controler with backward compatibility
+        # Handle action_controler
         if action_controler is None:
             action_controler = {}
         
@@ -58,18 +55,13 @@ class SGAbstractAction():
         # Note: directClick defaults will be set by subclasses (Flip=True by default)
         self.action_controler = {
             "controlPanel": action_controler.get("controlPanel", True),  # Always True by default
-            "contextMenu": action_controler.get("contextMenu", setControllerContextualMenu),  # Use legacy param if not specified
+            "contextMenu": action_controler.get("contextMenu", False),
             "button": action_controler.get("button", False),  # False by default
             "directClick": action_controler.get("directClick", False)  # False by default, will be overridden by subclasses if needed
         }
         
-        # Maintain backward compatibility: set legacy attributes
-        self.setControllerContextualMenu = self.action_controler["contextMenu"]
-        self.setOnController = self.action_controler["controlPanel"]        
-        
-        # Normalize display name: prefer aNameToDisplay (consistent with SGModel API), fallback to nameToDisplay (legacy)
-        # This allows both parameter names to work for backward compatibility
-        self.nameToDisplay = aNameToDisplay if aNameToDisplay is not None else nameToDisplay
+        # Set display label
+        self.nameToDisplay = label
         
         #Define variables to handle the history 
         self.history={}
@@ -429,7 +421,7 @@ class SGAbstractAction():
         """
         common_parts = []
         
-        if getattr(self, 'setControllerContextualMenu', False):
+        if self.action_controler.get("contextMenu", False):
             common_parts.append("(contextual menu)")
         
         if len(getattr(self, 'conditions', [])) > 0:

@@ -6,8 +6,8 @@ import copy
 #Class who manage the game mechanics of delete
 class SGDelete(SGAbstractAction):
     context_menu_icon = "🗑️ "  # Icon for context menu
-    def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):#,setOnController=True):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,action_controler=action_controler)
+    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         self.nameToDisplay=self.nameToDisplay or f"× delete {self.targetType.name}"
         self.actionType="Delete"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType and not aTargetEntity.isDeleted())
@@ -16,8 +16,7 @@ class SGDelete(SGAbstractAction):
         self.targetType.deleteEntity(aTargetEntity)
 
     def generateLegendItems(self,aControlPanel):
-        # Use setOnController (controlPanel) to determine if action should appear in ControlPanel
-        # setControllerContextualMenu only controls context menu, not ControlPanel
-        if self.setOnController:
+        # Use action_controler["controlPanel"] to determine if action should appear in ControlPanel
+        if self.action_controler.get("controlPanel", True):
             aColor = self.targetType.defaultShapeColor
             return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]

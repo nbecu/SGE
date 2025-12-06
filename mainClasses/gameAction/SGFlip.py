@@ -4,13 +4,13 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 # Class who manage the game mechanics of Flipping Tiles
 class SGFlip(SGAbstractAction):
     context_menu_icon = "🔄"  # Icon for context menu
-    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, action_controler=None):
+    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         # Set default directClick for Flip
         if action_controler is None:
             action_controler = {}
         if "directClick" not in action_controler:
             action_controler["directClick"] = True  # Default for Flip
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, nameToDisplay=nameToDisplay, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, action_controler=action_controler)
+        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         self.nameToDisplay = self.nameToDisplay or "🔄 Flip"  # Default name with emoji
         self.actionType = "Flip"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
@@ -33,9 +33,8 @@ class SGFlip(SGAbstractAction):
     
     def generateLegendItems(self, aControlPanel):
         """Generate legend items for the flip action"""
-        # Use setOnController (controlPanel) to determine if action should appear in ControlPanel
-        # setControllerContextualMenu only controls context menu, not ControlPanel
-        if self.setOnController:
+        # Use action_controler["controlPanel"] to determine if action should appear in ControlPanel
+        if self.action_controler.get("controlPanel", True):
             aColor = self.targetType.defaultShapeColor
             return [SGLegendItem(aControlPanel, 'symbol', self.nameToDisplay, self.targetType, aColor, gameAction=self)]
         return None

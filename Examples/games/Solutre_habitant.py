@@ -418,7 +418,7 @@ def createPlayerCommuneGA():
     MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
     GameActionsList.append(MoveHexagone)
     # Action pour valider le placement d'un hexagone
-    ValiderMoveHexagone=myModel.newActivateAction(hexagones, lambda aHex : execeffetInstantaneJauge(aHex),action_controler={"contextMenu":True},aNameToDisplay="Valider le placement")
+    ValiderMoveHexagone=myModel.newActivateAction(hexagones, lambda aHex : execeffetInstantaneJauge(aHex),action_controler={"contextMenu":True},label="Valider le placement")
     ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
     ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
     ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
@@ -431,7 +431,7 @@ def createPlayerCommuneGA():
     MovePioche.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
     GameActionsList.append(MovePioche)
     # Action pour activer un hexagone
-    ActivateHexagone=myModel.newActivateAction(hexagones,lambda aHex : execeffetActivableJauge(aHex),action_controler={"contextMenu":True},aNameToDisplay="Activer l'hexagone")
+    ActivateHexagone=myModel.newActivateAction(hexagones,lambda aHex : execeffetActivableJauge(aHex),action_controler={"contextMenu":True},label="Activer l'hexagone")
     ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
     ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
     ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
@@ -440,7 +440,7 @@ def createPlayerCommuneGA():
     ActivateHexagone.addFeedback(lambda aHex: decRessources(aHex))
     GameActionsList.append(ActivateHexagone)
     # Action pour supprimer un buisson
-    DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubesBuisson()],feedbacks= [lambda : decCubesBuisson()],action_controler={"contextMenu":True},aNameToDisplay="Supprimer le buisson")
+    DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubesBuisson()],feedbacks= [lambda : decCubesBuisson()],action_controler={"contextMenu":True},label="Supprimer le buisson")
     GameActionsList.append(DeleteBuisson)
     return GameActionsList
 

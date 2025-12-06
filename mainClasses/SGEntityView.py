@@ -157,8 +157,9 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
                 actions = player.getAllGameActionsOn(self.entity_model)
                 print(f"[SGEntityView] Found {len(actions)} actions for {entity_type} {entity_id}")
                 for aAction in actions:
-                    print(f"[SGEntityView]   Action: {aAction.nameToDisplay}, setControllerContextualMenu={aAction.setControllerContextualMenu}, authorized={aAction.checkAuthorization(self.entity_model)}")
-                    if aAction.setControllerContextualMenu:
+                    contextMenuEnabled = aAction.action_controler.get("contextMenu", False)
+                    print(f"[SGEntityView]   Action: {aAction.nameToDisplay}, contextMenu={contextMenuEnabled}, authorized={aAction.checkAuthorization(self.entity_model)}")
+                    if contextMenuEnabled:
                         if aAction.checkAuthorization(self.entity_model):
                             actions_to_add.append(aAction)
                             print(f"[SGEntityView]   Added action to menu: {aAction.nameToDisplay}")

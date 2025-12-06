@@ -7,8 +7,8 @@ import sys
 #Class who manage the game mechanics of Activation
 class SGActivate(SGAbstractAction):
     context_menu_icon = "⚡"  # Icon for context menu
-    def __init__(self,type,method,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):
-        super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,action_controler=action_controler)
+    def __init__(self, type, method, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         if self.targetType != "model":
             self.nameToDisplay= self.nameToDisplay or "⚡activate" #("activate "+ type.name)
             self.actionType="Activate"
@@ -37,9 +37,8 @@ class SGActivate(SGAbstractAction):
         return module
         
     def generateLegendItems(self,aControlPanel):
-        # Use setOnController (controlPanel) to determine if action should appear in ControlPanel
-        # setControllerContextualMenu only controls context menu, not ControlPanel
-        if self.setOnController:
+        # Use action_controler["controlPanel"] to determine if action should appear in ControlPanel
+        if self.action_controler.get("controlPanel", True):
             # Handle model actions (targetType == 'model')
             if self.targetType == 'model':
                 # Use Activate icon for model actions

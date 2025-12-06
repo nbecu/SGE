@@ -40,7 +40,7 @@ Tile = myModel.newTileType(
 flipAction = myModel.newFlipAction(
     Tile,
     aNumber='infinite',
-    aNameToDisplay="🔄 Flip Tile",
+    label="🔄 Flip Tile",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
@@ -52,7 +52,7 @@ flipAction = myModel.newFlipAction(
 moveActionTile = myModel.newMoveAction(
     Tile,
     aNumber='infinite',
-    aNameToDisplay="↔️ Move Tile",
+    label="↔️ Move Tile",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         # "contextMenu": False,        # Also in context menu
@@ -86,7 +86,7 @@ activateAction = myModel.newActivateAction(
     AgentActivate,
     aMethod=lambda agent: activateAgent(agent),
     aNumber='infinite',
-    aNameToDisplay="⚡ Activate Agent",
+    label="⚡ Activate Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
@@ -98,7 +98,7 @@ activateAction = myModel.newActivateAction(
 moveActionAgent = myModel.newMoveAction(
     AgentActivate,
     aNumber='infinite',
-    aNameToDisplay="↔️ Move Agent",
+    label="↔️ Move Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         # "contextMenu": False,        # Also in context menu
@@ -125,7 +125,7 @@ modifyAction_status_modified = myModel.newModifyAction(
     AgentModify,
     dictAttributes={"status": "modified"},
     aNumber='infinite',
-    aNameToDisplay="Status -> Modified",
+    label="Status -> Modified",
     action_controler={
         "controlPanel": False,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
@@ -136,7 +136,7 @@ modifyAction_status_normal = myModel.newModifyAction(
     AgentModify,
     dictAttributes={"status": "normal"},
     aNumber='infinite',
-    aNameToDisplay="Status -> Normal",
+    label="Status -> Normal",
     action_controler={
         "controlPanel": False,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
@@ -156,7 +156,7 @@ AgentDelete = myModel.newAgentType(
 deleteAction = myModel.newDeleteAction(
     AgentDelete,
     aNumber='infinite',
-    aNameToDisplay="× Delete Agent",
+    label="× Delete Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
@@ -179,7 +179,7 @@ createAction = myModel.newCreateAction(
     AgentActivate,
     dictAttributes=None,
     aNumber='infinite',
-    aNameToDisplay="➕ Create Agent",
+    label="➕ Create Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "directClick": True        # Optional - enables automatic click creation
@@ -217,7 +217,7 @@ activateButtonAction = myModel.newActivateAction(
     None,  # Model-level action
     aMethod=lambda: globalAction(),
     aNumber='infinite',
-    aNameToDisplay="🌐 Add 2 Agents",
+    label="🌐 Add 2 Agents",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel
         "button": True,            # Create a button

@@ -84,7 +84,7 @@ class SGControlPanel(SGGameSpace):
         for action in gameActions:
             if hasattr(action, 'targetType') and action.targetType == 'model':
                 # Only include model actions that should appear on controller
-                if action.setOnController:
+                if action.action_controler.get("controlPanel", True):
                     modelActions.append(action)
             elif hasattr(action, 'targetType') and action.targetType != 'model':
                 sortableActions.append(action)
@@ -104,7 +104,8 @@ class SGControlPanel(SGGameSpace):
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:
             # Skip Move actions that are not set to appear on controller
-            if aGameAction.actionType == "Move" and (not aGameAction.setOnController or aGameAction.setControllerContextualMenu):
+            # Move actions should not appear if they're only for context menu or if controlPanel is False
+            if aGameAction.actionType == "Move" and (not aGameAction.action_controler.get("controlPanel", True) or aGameAction.action_controler.get("contextMenu", False)):
                 continue
             if lastEntDefTitle != aGameAction.targetType.name:
                 anItem=SGLegendItem(self,'Title2',aGameAction.targetType.name)

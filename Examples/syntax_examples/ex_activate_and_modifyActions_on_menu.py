@@ -35,18 +35,18 @@ Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 
 # For SGModifyAction it is possible to specify contextMenu=True to control (trigger) the action through a right clic (contextual menu)
 Player1.addGameActions([
-    myModel.newModifyAction(Sheeps,{"health":"good"},action_controler={"contextMenu":True},aNameToDisplay='health->good'),
-    myModel.newModifyAction(Sheeps,{"health":"bad"},action_controler={"contextMenu":True},aNameToDisplay='health->bad'),
-    myModel.newModifyAction(Sheeps,{"hunger":"low"},action_controler={"contextMenu":True},aNameToDisplay='hunger->low'),
-    myModel.newModifyAction(Sheeps,{"hunger":"high"},action_controler={"contextMenu":True},aNameToDisplay='hunger->high')])
+    myModel.newModifyAction(Sheeps,{"health":"good"},action_controler={"contextMenu":True},label='health->good'),
+    myModel.newModifyAction(Sheeps,{"health":"bad"},action_controler={"contextMenu":True},label='health->bad'),
+    myModel.newModifyAction(Sheeps,{"hunger":"low"},action_controler={"contextMenu":True},label='hunger->low'),
+    myModel.newModifyAction(Sheeps,{"hunger":"high"},action_controler={"contextMenu":True},label='hunger->high')])
 
 # Same applies for ActivateAction
 Player1.addGameActions([
-        myModel.newActivateAction(Sheeps,lambda aSheep: aSheep.moveAgent(),action_controler={"contextMenu":True},aNameToDisplay='moveAgent (call move of SGAgent)')
+        myModel.newActivateAction(Sheeps,lambda aSheep: aSheep.moveAgent(),action_controler={"contextMenu":True},label='moveAgent (call move of SGAgent)')
         ,
-        myModel.newActivateAction(Sheeps,lambda aSheep: eat(aSheep),action_controler={"contextMenu":True},aNameToDisplay='eat (call custom method on agent)')
+        myModel.newActivateAction(Sheeps,lambda aSheep: eat(aSheep),action_controler={"contextMenu":True},label='eat (call custom method on agent)')
         ,
-        myModel.newActivateAction(Sheeps,lambda : shout(),action_controler={"contextMenu":True},aNameToDisplay='shout (call custom method in script)')
+        myModel.newActivateAction(Sheeps,lambda : shout(),action_controler={"contextMenu":True},label='shout (call custom method in script)')
         ])
 
 def eat(aSheep):

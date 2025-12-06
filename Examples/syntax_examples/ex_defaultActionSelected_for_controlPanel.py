@@ -29,18 +29,18 @@ triangularAgents = myModel.newAgentType("TriangularAgent", "triangleAgent1", def
 squareAgents = myModel.newAgentType("SquareAgent", "squareAgent", defaultSize=30, defaultColor=Qt.darkYellow)
 
 # Create an agent creation action
-createAction = myModel.newCreateAction("CircleAgent", aNameToDisplay="Create an agent")
+createAction = myModel.newCreateAction("CircleAgent", label="Create an agent")
 
 # Create an action to create triangular agents
-createTriangularAction = myModel.newCreateAction("TriangularAgent", aNameToDisplay="Create triangular agent")
+createTriangularAction = myModel.newCreateAction("TriangularAgent", label="Create triangular agent")
 
 # Create an action to create square agents
-createSquareAction = myModel.newCreateAction("SquareAgent", aNameToDisplay="Create square agent")
+createSquareAction = myModel.newCreateAction("SquareAgent", label="Create square agent")
 
 # Create a move action
-moveActionCircleAgent = myModel.newMoveAction("CircleAgent", aNameToDisplay="Move the agent",action_controler={"directClick":True, "controlPanel":False})
-moveActionTriangularAgent = myModel.newMoveAction("TriangularAgent", aNameToDisplay="Move the agent",action_controler={"directClick":True, "controlPanel":False})
-moveActionSquareAgent = myModel.newMoveAction("SquareAgent", aNameToDisplay="Move the agent",action_controler={"directClick":True, "controlPanel":False})
+moveActionCircleAgent = myModel.newMoveAction("CircleAgent", label="Move the agent",action_controler={"directClick":True, "controlPanel":False})
+moveActionTriangularAgent = myModel.newMoveAction("TriangularAgent", label="Move the agent",action_controler={"directClick":True, "controlPanel":False})
+moveActionSquareAgent = myModel.newMoveAction("SquareAgent", label="Move the agent",action_controler={"directClick":True, "controlPanel":False})
 
 # Create a player
 player1 = myModel.newPlayer("Player1")

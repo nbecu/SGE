@@ -24,14 +24,14 @@ textBox=myModel.newTextBox(width=240, height=130, chronologicalOrder=False)
 
 myModel.newActivateAction( aMethod = lambda : textBox.addText('activateAction on button\ntest text'),
                            setControllerButton=(250,100),
-                           aNameToDisplay="Test me")
+                           label="Test me")
 
 activateScore=myModel.newActivateAction( aMethod = lambda : player_Clara.incValue('score',1),
-                                         action_controler={"contextMenu":True},aNameToDisplay="Score+1")
+                                         action_controler={"contextMenu":True},label="Score+1")
 player_Clara.addGameAction(activateScore)
 
 activatePrint=myModel.newActivateAction( aMethod = lambda : textBox.addText(f"activateAction on contextual menu.\nClara foo = {player_Clara.getValue('foo')}"),
-                                         action_controler={"contextMenu":True},aNameToDisplay="Write foo")
+                                         action_controler={"contextMenu":True},label="Write foo")
 player_Clara.addGameAction(activatePrint)
 
 def setFooValue():
@@ -42,7 +42,7 @@ def setFooValue():
         player_Clara.setValue('foo', value)
 
 setFoo=myModel.newActivateAction(   aMethod = setFooValue,
-                                    action_controler={"contextMenu":True},aNameToDisplay="Set foo")
+                                    action_controler={"contextMenu":True},label="Set foo")
 player_Clara.addGameAction(setFoo)
 
 cp=player_Clara.newControlPanel("Clara actions")
