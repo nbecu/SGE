@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QInputDialog
 #Class who manage the game mechanics of Update
 class SGModify(SGAbstractAction):
     context_menu_icon = "✏️ "  # Icon for context menu
-    def __init__(self, type, dictNewValues, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, writeAttributeInLabel=False):
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
+    def __init__(self, type, dictNewValues, uses_per_round, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, writeAttributeInLabel=False):
+        super().__init__(type, uses_per_round, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         self.dictNewValues=dictNewValues
         self.entityDef=type
         self.att = list(self.dictNewValues.keys())[0]  #  Get dict key
@@ -49,10 +49,10 @@ class SGModify(SGAbstractAction):
 class SGModifyActionWithDialog(SGModify):
     """Special ModifyAction that opens a dialog to ask for the value to use"""
     
-    def __init__(self, entityDef, attribute, aNumber='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, writeAttributeInLabel=False):
+    def __init__(self, entityDef, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, writeAttributeInLabel=False):
         # Initialize with a placeholder value to avoid IndexError
         placeholder_dict = {attribute: "placeholder"}
-        super().__init__(entityDef, placeholder_dict, aNumber, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler, writeAttributeInLabel=writeAttributeInLabel)
+        super().__init__(entityDef, placeholder_dict, uses_per_round, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler, writeAttributeInLabel=writeAttributeInLabel)
         self.dynamicAttribute = attribute
         self.nameToDisplay = f"Modify {attribute} (ask value)"
         

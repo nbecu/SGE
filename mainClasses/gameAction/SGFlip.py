@@ -4,14 +4,15 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 # Class who manage the game mechanics of Flipping Tiles
 class SGFlip(SGAbstractAction):
     context_menu_icon = "🔄"  # Icon for context menu
-    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+    def __init__(self, type, uses_per_round, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         # Set default directClick for Flip
         if action_controler is None:
             action_controler = {}
         if "directClick" not in action_controler:
             action_controler["directClick"] = True  # Default for Flip
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
-        self.nameToDisplay = self.nameToDisplay or "Flip"  # Default name (icon added in context menu)
+        super().__init__(type, uses_per_round, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
+        if self.nameToDisplay is None:
+            self.nameToDisplay = "Flip"  # Default name (icon added in context menu)
         self.actionType = "Flip"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
         self.addCondition(lambda aTargetEntity: hasattr(aTargetEntity, 'isTile') and aTargetEntity.isTile)

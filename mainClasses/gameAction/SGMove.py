@@ -5,14 +5,15 @@ from mainClasses.SGTimePhase import *
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
     context_menu_icon = "⇄"  # Icon for context menu
-    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[], label=None, action_controler=None):
+    def __init__(self, type, uses_per_round, conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbackAgent=[], conditionOfFeedBackAgent=[], label=None, action_controler=None):
         # Move uses drag & drop by default (handled separately, not via directClick)
         if action_controler is None:
             action_controler = {}
         # Note: Move actions use drag & drop by default, which is handled separately from directClick
         # directClick remains False by default for Move (drag & drop is independent)
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
-        self.nameToDisplay = self.nameToDisplay or "move"  # Default name (icon added in context menu)
+        super().__init__(type, uses_per_round, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
+        if self.nameToDisplay is None:
+            self.nameToDisplay = "move"  # Default name (icon added in context menu)
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent

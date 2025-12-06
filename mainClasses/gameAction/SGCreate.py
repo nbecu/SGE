@@ -8,22 +8,22 @@ from PyQt5.QtWidgets import QInputDialog
 #Class who manage the game mechanics of creation
 class SGCreate(SGAbstractAction):
     context_menu_icon = "➕"  # Icon for context menu
-    def __init__(self, type, dictAttributs, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, create_several_at_each_click=False, writeAttributeInLabel=False):
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
+    def __init__(self, type, dictAttributs, uses_per_round, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None, create_several_at_each_click=False, writeAttributeInLabel=False):
+        super().__init__(type, uses_per_round, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         self.dictAttributs=dictAttributs
+        # Generate default name if not provided
         if self.nameToDisplay is None:
-            self.nameToDisplay="+"
             if self.dictAttributs is not None:
-                textAttributes = ' ('
+                textAttributes = '('
                 for aAtt,aVal in self.dictAttributs.items():
                     if writeAttributeInLabel:
                         textAttributes = textAttributes + f'{aAtt}→{aVal},'
                     else:
                         textAttributes = textAttributes + f'{aVal},'
                 textAttributes = textAttributes[:-1]+')'
-                self.nameToDisplay += textAttributes
+                self.nameToDisplay = "create " + textAttributes
             else:
-                self.nameToDisplay += " create"
+                self.nameToDisplay = "create"
         self.actionType="Create"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type.isCellType)
         self.create_several_at_each_click=create_several_at_each_click

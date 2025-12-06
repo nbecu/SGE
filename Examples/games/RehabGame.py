@@ -50,7 +50,7 @@ Chick = myModel.newAgentType("Chick","triangleAgent2", defaultSize=5, defaultCol
 myModel.newLegend()
 
 Clans = myModel.newPlayer("Clan")
-Clans.addGameAction(myModel.newCreateAction(harvesters, aNumber=20))
+Clans.addGameAction(myModel.newCreateAction(harvesters, uses_per_round=20))
 
 Player1ControlPanel = Clans.newControlPanel()
 

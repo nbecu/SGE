@@ -31,7 +31,7 @@ aWorker = Workers.newAgentAtCoords(Cell,5,2)
 globalLegend = myModel.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
 
 Player1 = myModel.newPlayer("Player 1")
-Player1.addGameAction(myModel.newCreateAction(Workers, aNumber=20))
+Player1.addGameAction(myModel.newCreateAction(Workers, uses_per_round=20))
 Player1.addGameAction(myModel.newDeleteAction(Workers))
 Player1.addGameAction(myModel.newModifyAction(Cell, {"Resource": 3}, 3,writeAttributeInLabel=True))
 Player1.addGameAction(myModel.newMoveAction(Workers, 5))

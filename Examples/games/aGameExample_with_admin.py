@@ -49,7 +49,7 @@ aThirdSheep=Sheeps.newAgentAtCoords(Cell,3,5)
 # globalLegend = myModel.newLegend("Global Legend", alwaysDisplayDefaultAgentSymbology=True)
 
 Player1 = myModel.newPlayer("Player 1")
-createA1=myModel.newCreateAction(Workers, aNumber=20)
+createA1=myModel.newCreateAction(Workers, uses_per_round=20)
 Player1.addGameAction(createA1)
 Player1.addGameAction(myModel.newDeleteAction(Workers, inf)) # can write 'infinite' or inf
 Player1.addGameAction(myModel.newDeleteAction(Cell, "infinite"))
@@ -58,7 +58,7 @@ Player1.addGameAction(myModel.newMoveAction(Workers, 10))
 Player1ControlPanel = Player1.newControlPanel("Player 1 Actions",defaultActionSelected=aGameAction)
 
 Player2 = myModel.newPlayer("Player 2")
-Player2.addGameAction(myModel.newCreateAction(Birds,aNumber=4))
+Player2.addGameAction(myModel.newCreateAction(Birds,uses_per_round=4))
 Player2.addGameAction(myModel.newCreateAction(Sheeps,{"health":"good"},4))
 aGameAction = Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Reserve"}, 3))
 Player2.addGameAction(myModel.newModifyAction(Cell, {"ProtectionLevel": "Free"}))

@@ -22,15 +22,17 @@ dashboard.addIndicatorOnEntity(player_Clara,'foo',title='Clara foo')
 
 textBox=myModel.newTextBox(width=240, height=130, chronologicalOrder=False)
 
-myModel.newActivateAction( aMethod = lambda : textBox.addText('activateAction on button\ntest text'),
-                           setControllerButton=(250,100),
+
+myModel.newActivateAction( method = lambda : textBox.addText('activateAction on button\ntest text'),
+                           action_controler={"button":True, "buttonPosition":(250,100)},
                            label="Test me")
 
-activateScore=myModel.newActivateAction( aMethod = lambda : player_Clara.incValue('score',1),
+
+activateScore=myModel.newActivateAction( method = lambda : player_Clara.incValue('score',1),
                                          action_controler={"contextMenu":True},label="Score+1")
 player_Clara.addGameAction(activateScore)
 
-activatePrint=myModel.newActivateAction( aMethod = lambda : textBox.addText(f"activateAction on contextual menu.\nClara foo = {player_Clara.getValue('foo')}"),
+activatePrint=myModel.newActivateAction( method = lambda : textBox.addText(f"activateAction on contextual menu.\nClara foo = {player_Clara.getValue('foo')}"),
                                          action_controler={"contextMenu":True},label="Write foo")
 player_Clara.addGameAction(activatePrint)
 
@@ -41,7 +43,7 @@ def setFooValue():
     if ok:
         player_Clara.setValue('foo', value)
 
-setFoo=myModel.newActivateAction(   aMethod = setFooValue,
+setFoo=myModel.newActivateAction(   method = setFooValue,
                                     action_controler={"contextMenu":True},label="Set foo")
 player_Clara.addGameAction(setFoo)
 

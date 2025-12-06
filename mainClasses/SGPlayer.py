@@ -159,10 +159,16 @@ class SGPlayer(AttributeAndValueFunctionalities):
     def getAllGameActionsOn(self, anEntityInstance):
         actionsForMenu=[]
         entityDef=anEntityInstance.type
+        from mainClasses.gameAction.SGCreate import SGCreate
+        
         for aGameAction in self.gameActions:
-            # Check if action type matches and target type matches
-            # Note: Need to check targetType for all action types to ensure correct filtering
-            if aGameAction.targetType == entityDef:
+            # Special handling for CreateActions: they target cells but create agents/tiles
+            if isinstance(aGameAction, SGCreate):
+                # For CreateActions, check that entity is a cell
+                if anEntityInstance.type.isCellType:
+                    actionsForMenu.append(aGameAction)
+            # For all other actions, check that targetType matches entity type
+            elif aGameAction.targetType == entityDef:
                 if (isinstance(aGameAction, SGModify) or 
                     isinstance(aGameAction, SGActivate) or 
                     isinstance(aGameAction, SGDelete) or
@@ -267,7 +273,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         else:
             raise ValueError("wrong format")
 
-    def newActivateAction(self, object_type=None, method=None, number='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+    def newActivateAction(self, object_type=None, method=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         """
         Create a new ActivateAction and automatically add it to this player.
         
@@ -277,7 +283,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         Args:
             object_type: the model itself or a type of entity (agentType, cellType or name of the entity type)
             method (lambda function): the method to activate
-            number (int): number of utilisation, could use "infinite"
+            uses_per_round (int): number of uses per round, could use "infinite"
             conditions (list of lambda functions): conditions on the activating entity
             feedbacks (list of lambda functions): feedbacks to execute after activation
             conditionsOfFeedback (list of lambda functions): conditions for feedback execution
@@ -285,7 +291,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
             action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, button, directClick)
                 - controlPanel: bool (default True)
                 - contextMenu: bool (default False)
-                - button: bool or dict with "position" key for button coordinates (default False)
+                - button: bool (default False) - whether to create a button
+                - buttonPosition: tuple (optional) - coordinates of the button. If button=True but buttonPosition is not specified, a default position (50, 50) will be used.
                 - directClick: bool (default False)
         
         Returns:
@@ -294,8 +301,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
         # Create the action via the model
         action = self.model.newActivateAction(
             object_type=object_type,
-            aMethod=method,
-            aNumber=number,
+            method=method,
+            uses_per_round=uses_per_round,
             conditions=conditions,
             feedbacks=feedbacks,
             conditionsOfFeedback=conditionsOfFeedback,
@@ -303,6 +310,210 @@ class SGPlayer(AttributeAndValueFunctionalities):
             action_controler=action_controler
         )
         # Automatically add it to this player
+        self.addGameAction(action)
+        return action
+
+    def newCreateAction(self, entity_type, dictAttributes=None, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, create_several_at_each_click=False, writeAttributeInLabel=False, action_controler=None):
+        """
+        Create a new CreateAction and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list.
+        
+        Args:
+            entity_type: a type of entity (agentType, cellType or name of the entity type)
+            uses_per_round (int): number of uses per round, could use "infinite"
+            dictAttributes (dict): attribute with value concerned, could be None
+            conditions (list): conditions that must be met
+            feedbacks (list): actions to execute after creation
+            conditionsOfFeedback (list): conditions for feedback execution
+            label (str): custom label to display
+            create_several_at_each_click (bool): whether to create several entities at each click
+            writeAttributeInLabel (bool): whether to show attribute in label
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
+        
+        Returns:
+            SGCreate: The created create action (already added to player)
+        """
+        action = self.model.newCreateAction(
+            entity_type=entity_type,
+            dictAttributes=dictAttributes,
+            uses_per_round=uses_per_round,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            label=label,
+            create_several_at_each_click=create_several_at_each_click,
+            writeAttributeInLabel=writeAttributeInLabel,
+            action_controler=action_controler
+        )
+        self.addGameAction(action)
+        return action
+
+    def newModifyAction(self, entity_type, dictAttributes={}, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):
+        """
+        Create a new ModifyAction and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list.
+        
+        Args:
+            entity_type: a type of entity (agentType, cellType or name of the entity type)
+            uses_per_round (int): number of uses per round, could use "infinite"
+            dictAttributes (dict): attribute with value concerned, could be None
+            conditions (list): conditions that must be met
+            feedbacks (list): actions to execute after modification
+            conditionsOfFeedback (list): conditions for feedback execution
+            label (str): custom label to display
+            writeAttributeInLabel (bool): whether to show attribute in label
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
+        
+        Returns:
+            SGModify: The created modify action (already added to player)
+        """
+        action = self.model.newModifyAction(
+            entity_type=entity_type,
+            dictAttributes=dictAttributes,
+            uses_per_round=uses_per_round,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            label=label,
+            writeAttributeInLabel=writeAttributeInLabel,
+            action_controler=action_controler
+        )
+        self.addGameAction(action)
+        return action
+
+    def newModifyActionWithDialog(self, entity_type, attribute, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, writeAttributeInLabel=False, action_controler=None):
+        """
+        Create a new ModifyActionWithDialog and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list. The action opens a dialog to ask for the value to use.
+        
+        Args:
+            entity_type: a type of entity (agentType, cellType or name of the entity type)
+            attribute (str): the attribute to modify
+            uses_per_round (int): number of uses per round, could use "infinite"
+            conditions (list): conditions that must be met
+            feedbacks (list): actions to execute after modification
+            conditionsOfFeedback (list): conditions for feedback execution
+            label (str): custom label to display
+            writeAttributeInLabel (bool): whether to show attribute in label
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
+        
+        Returns:
+            SGModifyActionWithDialog: The created modify action with dialog (already added to player)
+        """
+        action = self.model.newModifyActionWithDialog(
+            entity_type=entity_type,
+            attribute=attribute,
+            uses_per_round=uses_per_round,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            label=label,
+            writeAttributeInLabel=writeAttributeInLabel,
+            action_controler=action_controler
+        )
+        self.addGameAction(action)
+        return action
+
+    def newDeleteAction(self, entity_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+        """
+        Create a new DeleteAction and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list.
+        
+        Args:
+            entity_type: a type of entity (agentType, cellType or name of the entity type)
+            uses_per_round (int): number of uses per round, could use "infinite"
+            conditions (list): conditions that must be met
+            feedbacks (list): actions to execute after deletion
+            conditionsOfFeedback (list): conditions for feedback execution
+            label (str): custom label to display
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
+        
+        Returns:
+            SGDelete: The created delete action (already added to player)
+        """
+        action = self.model.newDeleteAction(
+            entity_type=entity_type,
+            uses_per_round=uses_per_round,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            label=label,
+            action_controler=action_controler
+        )
+        self.addGameAction(action)
+        return action
+
+    def newMoveAction(self, agent_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], feedbacksAgent=[], conditionsOfFeedBackAgent=[], label=None, action_controler=None):
+        """
+        Create a new MoveAction and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list.
+        
+        Args:
+            agent_type: a type of agent (agentType or name of the agent type)
+            uses_per_round (int): number of uses per round, could use "infinite"
+            conditions (list of lambda functions): conditions on the moving Entity
+            feedbacks (list): feedback actions
+            conditionsOfFeedback (list): conditions for feedback execution
+            feedbacksAgent (list): agent feedback actions
+            conditionsOfFeedBackAgent (list): conditions for agent feedback execution
+            label (str): custom label to display
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
+        
+        Returns:
+            SGMove: The created move action (already added to player)
+        """
+        action = self.model.newMoveAction(
+            agent_type=agent_type,
+            uses_per_round=uses_per_round,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            feedbacksAgent=feedbacksAgent,
+            conditionsOfFeedBackAgent=conditionsOfFeedBackAgent,
+            label=label,
+            action_controler=action_controler
+        )
+        self.addGameAction(action)
+        return action
+
+    def newFlipAction(self, tile_type, uses_per_round='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+        """
+        Create a new FlipAction and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list.
+        
+        Args:
+            tile_type: The tile type (SGTileType) to flip
+            uses_per_round: Number of times the action can be used per round (default: 'infinite')
+            conditions: List of conditions that must be met
+            feedbacks: List of feedback actions
+            conditionsOfFeedback: List of conditions for feedbacks
+            label: Custom label to display (default: "🔄 Flip")
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, directClick)
+        
+        Returns:
+            SGFlip: The created flip action (already added to player)
+        """
+        action = self.model.newFlipAction(
+            tile_type=tile_type,
+            uses_per_round=uses_per_round,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            label=label,
+            action_controler=action_controler
+        )
         self.addGameAction(action)
         return action
 

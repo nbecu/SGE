@@ -11,13 +11,13 @@ class SGAbstractAction():
     instances = []
     action_id_counter = 0  # Global shared counter for execution order
     context_menu_icon = "▶️ "  # Default icon for context menu (can be overridden by subclasses)
-    def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+    def __init__(self, type, uses_per_round, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         """
         Initialize an abstract action
         
         Args:
             type: The target entity type or model
-            number: Number of times the action can be used
+            uses_per_round: Number of times the action can be used per round
             conditions: List of conditions
             feedbacks: List of feedback actions
             conditionsOfFeedback: List of conditions for feedbacks
@@ -38,7 +38,7 @@ class SGAbstractAction():
         else:
             self.targetType=type
             self.model=self.targetType.model 
-        self.number = inf if number in ("infinite", None, inf) else number
+        self.number = inf if uses_per_round in ("infinite", None, inf) else uses_per_round
         
         self.numberUsed=0
         self.totalNumberUsed=0

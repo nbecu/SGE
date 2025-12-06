@@ -7,15 +7,17 @@ import sys
 #Class who manage the game mechanics of Activation
 class SGActivate(SGAbstractAction):
     context_menu_icon = "⚡"  # Icon for context menu
-    def __init__(self, type, method, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
-        super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
+    def __init__(self, type, method, uses_per_round, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+        super().__init__(type, uses_per_round, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
         if self.targetType != "model":
-            self.nameToDisplay= self.nameToDisplay or "activate" #("activate "+ type.name)
+            if self.nameToDisplay is None:
+                self.nameToDisplay = "activate" #("activate "+ type.name)
             self.actionType="Activate"
             self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
             self.addCondition(lambda aTargetEntity: not aTargetEntity.isDeleted())
         else:
-            self.nameToDisplay= self.nameToDisplay or "activate"
+            if self.nameToDisplay is None:
+                self.nameToDisplay = "activate"
             self.actionType="Activate"
         self.method=method
     

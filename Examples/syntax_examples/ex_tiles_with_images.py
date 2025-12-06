@@ -150,10 +150,10 @@ CardTile4.newTilesWithImages(
 Player1 = myModel.newPlayer("Player 1")
 
 # Add Flip action for all tile types
-flipAction1 = myModel.newFlipAction(CardTile1, aNumber='infinite', label="🔄 Flip Pair Cards")
-flipAction2 = myModel.newFlipAction(CardTile2, aNumber='infinite', label="🔄 Flip Triplet Cards")
-flipAction3 = myModel.newFlipAction(CardTile3, aNumber='infinite', label="🔄 Flip Singlet Cards")
-flipAction4 = myModel.newFlipAction(CardTile4, aNumber='infinite', label="🔄 Flip Custom Cards")
+flipAction1 = myModel.newFlipAction(CardTile1, label="🔄 Flip Pair Cards")
+flipAction2 = myModel.newFlipAction(CardTile2, label="🔄 Flip Triplet Cards")
+flipAction3 = myModel.newFlipAction(CardTile3, label="🔄 Flip Singlet Cards")
+flipAction4 = myModel.newFlipAction(CardTile4, label="🔄 Flip Custom Cards")
 
 Player1.addGameAction(flipAction1)
 Player1.addGameAction(flipAction2)

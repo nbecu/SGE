@@ -80,11 +80,10 @@ def activateAgent(agent):
 
 activateAction = myModel.newActivateAction(
     AgentActivate,
-    aMethod=lambda agent: activateAgent(agent),
+    method=lambda agent: activateAgent(agent),
     action_controler={
         # "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
-        "button": False,           # No button (can be set to True with buttonPosition)
         "directClick": True         # Optional - enables automatic click activation
     }
 )
@@ -116,18 +115,16 @@ AgentModify.newPov("default","status",{"normal":QColor("yellow"),"modified":QCol
 modifyAction_status_modified = myModel.newModifyAction(
     AgentModify,
     dictAttributes={"status": "modified"},
-    aNumber='infinite',
     label="Status -> Modified",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
-        "directClick": False        # Default for Modify - requires selection
+        "directClick": True        # Default for Modify - requires selection
     }
 )
 modifyAction_status_normal = myModel.newModifyAction(
     AgentModify,
     dictAttributes={"status": "normal"},
-    aNumber='infinite',
     label="Status -> Normal",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
@@ -150,7 +147,7 @@ deleteAction = myModel.newDeleteAction(
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
-        # "directClick": True        # Optional - enables automatic click deletion
+        "directClick": True        # Optional - enables automatic click deletion
     }
 )
 
@@ -167,13 +164,10 @@ AgentDelete.newAgentAtCoords(Grid, 3, 3)
 # This allows creating entities by clicking directly on cells
 createAction = myModel.newCreateAction(
     AgentActivate,
-    dictAttributes=None,
-    aNumber='infinite',
-    label="➕ Create Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
-        # "directClick": True        # Optional - enables automatic click creation
+        "directClick": True        # Optional - enables automatic click creation
     }
 )
 
@@ -206,7 +200,7 @@ def globalAction():
 
 activateButtonAction = myModel.newActivateAction(
     None,  # Model-level action
-    aMethod=lambda: globalAction(),
+    method=lambda: globalAction(),
     label="🌐 Add 2 Agents",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel
