@@ -3,6 +3,7 @@ from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
 
 # Class who manage the game mechanics of Flipping Tiles
 class SGFlip(SGAbstractAction):
+    context_menu_icon = "🔄"  # Icon for context menu
     def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], nameToDisplay=None, aNameToDisplay=None, setControllerContextualMenu=False, setOnController=True, action_controler=None):
         # Set default directClick for Flip
         if action_controler is None:

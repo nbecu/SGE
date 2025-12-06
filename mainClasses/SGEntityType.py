@@ -959,19 +959,19 @@ class SGEntityType(AttributeAndValueFunctionalities):
 
 
 
-    def displayAttributeValueInContextualMenu(self, aAttribut, aLabel=None):
+    def displayAttributeValueInContextualMenu(self, aAttribut, label=None):
         """
         Set an attribute to be displayed in the contextual menu.
         
         Args:
             aAttribut (str): Name of the attribute to display
-            aLabel (str, optional): Custom label for the attribute (defaults to attribute name)
+            label (str, optional): Custom label for the attribute (defaults to attribute name)
        
         """
 
         aDict={}
         aDict['att']=aAttribut
-        aDict['label']= (aLabel if aLabel is not None else aAttribut)
+        aDict['label']= (label if label is not None else (aAttribut + "="))
         self.attributesToDisplayInContextualMenu.append(aDict)
 
 

@@ -258,6 +258,45 @@ class SGPlayer(AttributeAndValueFunctionalities):
         else:
             raise ValueError("wrong format")
 
+    def newActivateAction(self, object_type=None, method=None, number='infinite', conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
+        """
+        Create a new ActivateAction and automatically add it to this player.
+        
+        This is a convenience method that creates the action via the model and automatically
+        adds it to the player's gameActions list.
+        
+        Args:
+            object_type: the model itself or a type of entity (agentType, cellType or name of the entity type)
+            method (lambda function): the method to activate
+            number (int): number of utilisation, could use "infinite"
+            conditions (list of lambda functions): conditions on the activating entity
+            feedbacks (list of lambda functions): feedbacks to execute after activation
+            conditionsOfFeedback (list of lambda functions): conditions for feedback execution
+            label (str): label to display for this action in the interface
+            action_controler (dict): Interaction modes configuration (controlPanel, contextMenu, button, directClick)
+                - controlPanel: bool (default True)
+                - contextMenu: bool (default False)
+                - button: bool or dict with "position" key for button coordinates (default False)
+                - directClick: bool (default False)
+        
+        Returns:
+            SGActivate: The created activate action (already added to player)
+        """
+        # Create the action via the model
+        action = self.model.newActivateAction(
+            object_type=object_type,
+            aMethod=method,
+            aNumber=number,
+            conditions=conditions,
+            feedbacks=feedbacks,
+            conditionsOfFeedback=conditionsOfFeedback,
+            aNameToDisplay=label,
+            action_controler=action_controler
+        )
+        # Automatically add it to this player
+        self.addGameAction(action)
+        return action
+
     def hasActionsToUse(self):
         for action in self.gameActions:
             if action.canBeUsed():

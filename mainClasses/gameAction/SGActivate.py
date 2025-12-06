@@ -1,10 +1,12 @@
 from mainClasses.SGLegendItem import SGLegendItem
 from mainClasses.gameAction.SGAbstractAction import SGAbstractAction
+from PyQt5.QtCore import Qt
 import importlib.util
 import sys
 
 #Class who manage the game mechanics of Activation
 class SGActivate(SGAbstractAction):
+    context_menu_icon = "⚡"  # Icon for context menu
     def __init__(self,type,method,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):
         super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,action_controler=action_controler)
         if self.targetType != "model":
@@ -38,8 +40,17 @@ class SGActivate(SGAbstractAction):
         # Use setOnController (controlPanel) to determine if action should appear in ControlPanel
         # setControllerContextualMenu only controls context menu, not ControlPanel
         if self.setOnController:
-            aColor = self.targetType.defaultShapeColor
-            return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
+            # Handle model actions (targetType == 'model')
+            if self.targetType == 'model':
+                # Use Activate icon for model actions
+                icon = self.context_menu_icon
+                displayText = f"{icon} {self.nameToDisplay}"
+                # Use a default color (gray) for model actions
+                return [SGLegendItem(aControlPanel,'symbol',displayText,None,Qt.gray,gameAction=self)]
+            else:
+                # Regular entity actions
+                aColor = self.targetType.defaultShapeColor
+                return [SGLegendItem(aControlPanel,'symbol',self.nameToDisplay,self.targetType,aColor,gameAction=self)]
     
     # ============================================================================
     # EXPORT INTERFACE METHODS - SGActivate specific implementations

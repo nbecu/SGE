@@ -323,6 +323,51 @@
       "model_name": null,
       "timestamp": "2025-12-03 11:48:59",
       "version": "1.0"
+    },
+    "ex_activateAction_onButton": {
+      "layout_type": "enhanced_grid",
+      "num_columns": 2,
+      "gameSpaces": {
+        "SGDashBoard#1": {
+          "layoutOrder": 1,
+          "position_type": "mixed",
+          "manual_position": [
+            5,
+            39
+          ],
+          "manual_override": true
+        },
+        "Text Box": {
+          "layoutOrder": 4,
+          "position_type": "mixed",
+          "manual_position": [
+            28,
+            213
+          ],
+          "manual_override": true
+        },
+        "SGButton#1": {
+          "layoutOrder": 2,
+          "position_type": "mixed",
+          "manual_position": [
+            175,
+            47
+          ],
+          "manual_override": true
+        },
+        "Clara actions": {
+          "layoutOrder": 3,
+          "position_type": "mixed",
+          "manual_position": [
+            176,
+            86
+          ],
+          "manual_override": true
+        }
+      },
+      "model_name": null,
+      "timestamp": "2025-12-05 15:44:25",
+      "version": "1.0"
     }
   }
 }

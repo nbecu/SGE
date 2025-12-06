@@ -121,6 +121,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.windowBackgroundColor = windowBackgroundColor
         # Option to display time (round and phase) in window title
         self.isTimeDisplayedInWindowTitle = False
+        # Option to show icons in context menu (default: True)
+        self.showIconsInContextMenu = True
         
         # We allow the drag in this widget
         self.setAcceptDrops(True)
@@ -2119,7 +2121,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aFlipAction = SGFlip(tile_type, aNumber, conditions, feedbacks, conditionsOfFeedback, aNameToDisplay=aNameToDisplay, setControllerContextualMenu=setControllerContextualMenu, setOnController=setOnController, action_controler=action_controler)
         return aFlipAction
 
-    def newActivateAction(self,object_type,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None,action_controler=None) :
+    def newActivateAction(self,object_type=None,aMethod=None,aNumber='infinite',conditions=[],feedbacks=[],conditionsOfFeedback=[],aNameToDisplay=None,setControllerContextualMenu=False,setControllerButton =None,action_controler=None) :
         """Add a ActivateAction to the game
         Args:
         - object_type : the model itself or a type of entity (agentType, cellType or name of the entity type)
@@ -2460,8 +2462,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aTimeLabel
 
     # To create a Text Box
-    def newTextBox(self, textToWrite='Welcome in the game !', title='Text Box', width=None, height=None,
-     borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left', shrinked=True):
+    def newTextBox(self, textToWrite='', title='Text Box', width=None, height=None,
+     borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left', shrinked=True, chronologicalOrder=True):
         """
         Create a text box with full customization options.
 
@@ -2474,13 +2476,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             backgroundColor (QColor): Background color of the text box (default: Qt.lightGray)
             titleAlignment (str): Title alignment - 'left', 'center', or 'right' (default: 'left')
             shrinked (bool, optional): If True, the text box will be shrinked to fit content (default: True)
+            chronologicalOrder (bool, optional): If True (default), new text is added at the bottom (chronological order).
+                If False, new text is added at the top (reverse chronological order, newest first).
 
         Returns:
             SGTextBox: The created text box widget
         """
         
         # Create with default style values (will be overridden by setters below)
-        aTextBox = SGTextBox(self, textToWrite, title, width, height, shrinked, Qt.black, Qt.lightGray, titleAlignment)
+        aTextBox = SGTextBox(self, textToWrite, title, width, height, shrinked, Qt.black, Qt.lightGray, titleAlignment, chronologicalOrder)
         self.TextBoxes.append(aTextBox)
         self.gameSpaces[title] = aTextBox
 
@@ -2856,6 +2860,19 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self._pending_theme_config = config_name
         return True
 
+    def setShowIconsInContextMenu(self, show=True):
+        """
+        Set whether to show icons in the context menu.
+        
+        Args:
+            show (bool, optional): If True (default), icons will be displayed in context menus; if False, no icons will be shown.
+        
+        Example:
+            # Disable icons in context menu
+            myModel.setShowIconsInContextMenu(False)
+        """
+        self.showIconsInContextMenu = show
+    
     def displayTimeInWindowTitle(self, setting=True):
         """
         Set whether to display the time (Round number and Phase number) in the window title.

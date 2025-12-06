@@ -147,28 +147,55 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         print(f"[SGEntityView] show_contextMenu called for {entity_type} {entity_id}, point={point}")
         
         menu = QMenu(self)
+        show_icons = getattr(self.model, 'showIconsInContextMenu', True)
 
+        # Collect actions from current player (add these first - most important)
+        actions_to_add = []
+        try:
+            player = self.model.getCurrentPlayer()
+            if player != "Admin":        
+                actions = player.getAllGameActionsOn(self.entity_model)
+                print(f"[SGEntityView] Found {len(actions)} actions for {entity_type} {entity_id}")
+                for aAction in actions:
+                    print(f"[SGEntityView]   Action: {aAction.nameToDisplay}, setControllerContextualMenu={aAction.setControllerContextualMenu}, authorized={aAction.checkAuthorization(self.entity_model)}")
+                    if aAction.setControllerContextualMenu:
+                        if aAction.checkAuthorization(self.entity_model):
+                            actions_to_add.append(aAction)
+                            print(f"[SGEntityView]   Added action to menu: {aAction.nameToDisplay}")
+        except ValueError:
+            # Current player not defined - skip adding actions to menu
+            # This can happen if setCurrentPlayer() was not called
+            pass
+        
+        # Add action items with icons (actions first - most important)
+        for aAction in actions_to_add:
+            text = aAction.nameToDisplay
+            if show_icons:
+                # Get icon from the action class
+                icon = getattr(aAction.__class__, 'context_menu_icon', "▶️ ")
+                text = icon + text
+            
+            aMenuAction = QAction(text, self)
+            aMenuAction.setCheckable(False)
+            aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self.entity_model))
+            menu.addAction(aMenuAction)
+
+        # Add separator if we have both actions and attributes
+        has_attributes = len(self.type.attributesToDisplayInContextualMenu) > 0
+        if len(actions_to_add) > 0 and has_attributes:
+            menu.addSeparator()
+
+        # Add attribute information items (at the bottom - informational)
         for anItem in self.type.attributesToDisplayInContextualMenu:
             aAtt = anItem['att']
             aLabel = anItem['label']
             aValue = self.entity_model.value(aAtt)
-            text = aLabel + "=" + str(aValue)
+            text = aLabel + str(aValue)
+            if show_icons:
+                text = "ℹ️ " + text  # Add info icon
             option = QAction(text, self)
+            option.setEnabled(False)  # Make it non-clickable (informational only)
             menu.addAction(option)
-
-        player = self.model.getCurrentPlayer()
-        if not player == "Admin":        
-            actions = player.getAllGameActionsOn(self.entity_model)
-            print(f"[SGEntityView] Found {len(actions)} actions for {entity_type} {entity_id}")
-            for aAction in actions:
-                print(f"[SGEntityView]   Action: {aAction.nameToDisplay}, setControllerContextualMenu={aAction.setControllerContextualMenu}, authorized={aAction.checkAuthorization(self.entity_model)}")
-                if aAction.setControllerContextualMenu:
-                    if aAction.checkAuthorization(self.entity_model):
-                        aMenuAction = QAction(aAction.nameToDisplay, self)
-                        aMenuAction.setCheckable(False)
-                        aMenuAction.triggered.connect(lambda _, a=aAction: a.perform_with(self.entity_model))
-                        menu.addAction(aMenuAction)
-                        print(f"[SGEntityView]   Added action to menu: {aAction.nameToDisplay}")
 
         # Show menu if it's not empty
         # Note: point is in local coordinates relative to the widget

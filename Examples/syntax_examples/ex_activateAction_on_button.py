@@ -7,41 +7,48 @@ monApp=QtWidgets.QApplication([])
 
 
 
-#TODO Cet exemple est en cours.
-
-myModel=SGModel(400,400)
+myModel=SGModel(340,300)
 myModel.displayTimeInWindowTitle()
 
-Square = myModel.newCellsOnGrid(5, 5, "square",size=45)
-Square.setEntities("status",'black')
-Square.setEntities("status",'white',lambda c: c.id%2==0)
-Square.newPov("default","status",{"black":QColor.fromRgb(56, 62, 66),"white":QColor.fromRgb(254, 254, 226)})
-
 player_Clara = myModel.newPlayer('Clara',attributesAndValues={'foo':5})
-player_Clara.setValue('Clara score',0)
+player_Clara.setValue('score',0)
 myModel.setCurrentPlayer('Clara')
-
-
-
 PlayPhase = myModel.newPlayPhase('Play phase',[player_Clara])
 
-myModel.newActivateAction(None,
-                                        lambda : printTest(),
-                                        setControllerButton=(250,100),
-                                        aNameToDisplay="print test")
 
-activatePrint=myModel.newActivateAction(None,
-                                        lambda : printTest(),
-                                        setControllerContextualMenu=True)
+dashboard = myModel.newDashBoard(title='Clara attributes')
+dashboard.addIndicatorOnEntity(player_Clara,"score",title='Clara score')
+dashboard.addIndicatorOnEntity(player_Clara,'foo',title='Clara foo')
+
+textBox=myModel.newTextBox(width=240, height=130, chronologicalOrder=False)
+
+myModel.newActivateAction( aMethod = lambda : textBox.addText('activateAction on button\ntest text'),
+                           setControllerButton=(250,100),
+                           aNameToDisplay="Test me")
+
+activateScore=myModel.newActivateAction( aMethod = lambda : player_Clara.incValue('score',1),
+                                         action_controler={"contextMenu":True},aNameToDisplay="Score+1")
+player_Clara.addGameAction(activateScore)
+
+activatePrint=myModel.newActivateAction( aMethod = lambda : textBox.addText(f"activateAction on contextual menu.\nClara foo = {player_Clara.getValue('foo')}"),
+                                         action_controler={"contextMenu":True},aNameToDisplay="Write foo")
 player_Clara.addGameAction(activatePrint)
 
+def setFooValue():
+    """Ask user for a new value for foo and set it"""
+    value, ok = QInputDialog.getInt(None, "Set foo", "Enter new value for foo:", 
+                                     player_Clara.getValue('foo'), 0, 1000, 1)
+    if ok:
+        player_Clara.setValue('foo', value)
 
-def printTest():
-    print('This is a print test')
+setFoo=myModel.newActivateAction(   aMethod = setFooValue,
+                                    action_controler={"contextMenu":True},aNameToDisplay="Set foo")
+player_Clara.addGameAction(setFoo)
 
-dashboard = myModel.newDashBoard()
-dashboard.addIndicatorOnEntity(player_Clara,'foo')
-dashboard.addIndicatorOnEntity(player_Clara,"Clara score")
+cp=player_Clara.newControlPanel("Clara actions")
+
+myModel.applyLayoutConfig("ex_activateAction_onButton")  
+
 
 myModel.launch() 
 sys.exit(monApp.exec_())

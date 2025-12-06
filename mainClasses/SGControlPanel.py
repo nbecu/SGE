@@ -78,10 +78,15 @@ class SGControlPanel(SGGameSpace):
         # Ensure Title1 participates in width/size computations
         self.legendItems.append(anItem)
         
-        # Filter out actions that can't be properly sorted (like model actions)
+        # Separate model actions from entity actions
+        modelActions = []
         sortableActions = []
         for action in gameActions:
-            if hasattr(action, 'targetType') and action.targetType != 'model':
+            if hasattr(action, 'targetType') and action.targetType == 'model':
+                # Only include model actions that should appear on controller
+                if action.setOnController:
+                    modelActions.append(action)
+            elif hasattr(action, 'targetType') and action.targetType != 'model':
                 sortableActions.append(action)
         
         # Sort actions by entity type and name
@@ -95,6 +100,7 @@ class SGControlPanel(SGGameSpace):
                 return (2, x.targetType.name)
         sortedGameActions = sorted(sortableActions, key=sort_key)
 
+        # Display entity actions first
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:
             # Skip Move actions that are not set to appear on controller
@@ -109,9 +115,26 @@ class SGControlPanel(SGGameSpace):
             if listOfLegendItems is not None:
                 for anItem in listOfLegendItems :
                     self.legendItems.append(anItem)
+        
+        # Display model actions at the end (without section title)
+        if len(modelActions) > 0:
+            # Add each model action as a clickable button
+            from mainClasses.SGLegendButton import SGLegendButton
+            for aGameAction in modelActions:
+                buttonWidget = SGLegendButton(self, aGameAction)
+                self.legendItems.append(buttonWidget)
 
         for anItem in self.legendItems:
             anItem.show()
+            # Ensure legend buttons are properly sized and positioned
+            if hasattr(anItem, 'type') and anItem.type == 'legendButton':
+                # Set initial width
+                try:
+                    content_width = self.getSizeX_fromAllWidgets()
+                    if content_width > 0:
+                        anItem.setFixedWidth(content_width)
+                except:
+                    pass
         self.setMinimumSize(self.getSizeXGlobal(),10)
 
     def getLegendItemsOfGameActions(self):

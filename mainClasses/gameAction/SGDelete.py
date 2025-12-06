@@ -5,6 +5,7 @@ import copy
 
 #Class who manage the game mechanics of delete
 class SGDelete(SGAbstractAction):
+    context_menu_icon = "🗑️ "  # Icon for context menu
     def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):#,setOnController=True):
         super().__init__(type,number,conditions,feedbacks,conditionsOfFeedback,nameToDisplay=nameToDisplay,aNameToDisplay=aNameToDisplay,setControllerContextualMenu=setControllerContextualMenu,setOnController=setOnController,action_controler=action_controler)
         self.nameToDisplay=self.nameToDisplay or f"× delete {self.targetType.name}"

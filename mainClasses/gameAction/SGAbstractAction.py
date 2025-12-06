@@ -10,6 +10,7 @@ class SGAbstractAction():
     IDincr=0
     instances = []
     action_id_counter = 0  # Global shared counter for execution order
+    context_menu_icon = "▶️ "  # Default icon for context menu (can be overridden by subclasses)
     def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):
         """
         Initialize an abstract action

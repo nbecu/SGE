@@ -34,13 +34,14 @@ class SGTextBox(SGGameSpace):
     """
     
     def __init__(self, parent, textToWrite, title, width=None, height=None, shrinked=True,
-                 borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left'):
+                 borderColor=Qt.black, backgroundColor=Qt.lightGray, titleAlignment='left', chronologicalOrder=True):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         
         self.title = title
         self.id = title
         self.model = parent
         self.textToWrite = textToWrite
+        self.chronologicalOrder = chronologicalOrder  # If True, addText() adds at bottom (chronological). If False, adds at top (reverse chronological).
         
         # Configure border using gs_aspect
         self.gs_aspect.border_color = borderColor
@@ -712,26 +713,40 @@ class SGTextBox(SGGameSpace):
         # Recalculate size (especially important in shrinked mode)
         self.updateSize()
     
-    def addText(self, text, toTheLine=False):
+    def addText(self, text, toTheLine=True):
         """
         Add text to the text box.
         
         Args:
             text (str): Text to add
-            toTheLine (bool): If True, skip a line before adding
+            toTheLine (bool): If True, skip a line before adding (only if there's existing text)
         """
         # Recreate textWidget if it was deleted
         if not hasattr(self, 'textWidget') or not self.textWidget:
             self._recreateTextWidget()
         
-        if toTheLine:
-            new_text = "\n\n" + text
-        else:
-            new_text = text
-        
-        # Get current text and append new text
+        # Get current text first
         current_text = self.textWidget.toPlainText()
-        new_full_text = current_text + new_text
+        
+        # If toTheLine is True, add line break only if there's existing text
+        if toTheLine and current_text.strip():
+            separator = "\n"
+        else:
+            separator = ""
+        
+        # Add text based on chronologicalOrder setting
+        if self.chronologicalOrder:
+            # Add text at the bottom (chronological order - oldest at top, newest at bottom)
+            if separator:
+                new_full_text = current_text + separator + text
+            else:
+                new_full_text = current_text + text
+        else:
+            # Add text at the top (reverse chronological order - newest at top, oldest at bottom)
+            if separator:
+                new_full_text = text + separator + current_text
+            else:
+                new_full_text = text + current_text
         self.textWidget.setPlainText(new_full_text)
         # Update textToWrite
         self.textToWrite = new_full_text

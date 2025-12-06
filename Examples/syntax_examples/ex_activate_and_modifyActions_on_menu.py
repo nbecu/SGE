@@ -16,7 +16,7 @@ Cell.newPov("base","landUse",{"grass":Qt.green,"short grass":Qt.yellow,"forest":
 Sheeps=myModel.newAgentType("Sheeps","triangleAgent1",defaultSize=30)
 Sheeps.newPov("Health","health",{'good':Qt.blue,'bad':Qt.red})
 Sheeps.newPov("Hunger","hunger",{'low':Qt.green,'high':Qt.yellow})
-Sheeps.displayAttributeValueInContextualMenu('health')
+Sheeps.displayAttributeValueInContextualMenu('health',label='Health: ')
 Sheeps.displayAttributeValueInContextualMenu('hunger')
 
 Sheeps.setDefaultValues({"health":"bad","hunger":"low"})
@@ -33,21 +33,20 @@ Player1=myModel.newPlayer("Player 1")
 # By default the game actions are controlled (trigger) through the controlPanel
 Player1.addGameAction(myModel.newModifyAction(Cell,{"landUse":"grass"},3))
 
-# For SGModifyAction it is possible to specify setControllerContextualMenu=True to control (trigger) the action through a right clic (contextual menu)
-# when setControllerContextualMenu is True, the action is not controlled anymore though the controlPanel
+# For SGModifyAction it is possible to specify contextMenu=True to control (trigger) the action through a right clic (contextual menu)
 Player1.addGameActions([
-    myModel.newModifyAction(Sheeps,{"health":"good"},setControllerContextualMenu=True),
-    myModel.newModifyAction(Sheeps,{"health":"bad"},setControllerContextualMenu=True),
-    myModel.newModifyAction(Sheeps,{"hunger":"low"},setControllerContextualMenu=True),
-    myModel.newModifyAction(Sheeps,{"hunger":"high"},setControllerContextualMenu=True)])
+    myModel.newModifyAction(Sheeps,{"health":"good"},action_controler={"contextMenu":True},aNameToDisplay='health->good'),
+    myModel.newModifyAction(Sheeps,{"health":"bad"},action_controler={"contextMenu":True},aNameToDisplay='health->bad'),
+    myModel.newModifyAction(Sheeps,{"hunger":"low"},action_controler={"contextMenu":True},aNameToDisplay='hunger->low'),
+    myModel.newModifyAction(Sheeps,{"hunger":"high"},action_controler={"contextMenu":True},aNameToDisplay='hunger->high')])
 
 # Same applies for ActivateAction
 Player1.addGameActions([
-        myModel.newActivateAction(Sheeps,lambda aSheep: aSheep.moveAgent(),setControllerContextualMenu=True,aNameToDisplay='moveAgent (call move of SGAgent)')
+        myModel.newActivateAction(Sheeps,lambda aSheep: aSheep.moveAgent(),action_controler={"contextMenu":True},aNameToDisplay='moveAgent (call move of SGAgent)')
         ,
-        myModel.newActivateAction(Sheeps,lambda aSheep: eat(aSheep),setControllerContextualMenu=True,aNameToDisplay='eat (call custom method on agent)')
+        myModel.newActivateAction(Sheeps,lambda aSheep: eat(aSheep),action_controler={"contextMenu":True},aNameToDisplay='eat (call custom method on agent)')
         ,
-        myModel.newActivateAction(Sheeps,lambda : shout(),setControllerContextualMenu=True,aNameToDisplay='shout (call custom method in script)')
+        myModel.newActivateAction(Sheeps,lambda : shout(),action_controler={"contextMenu":True},aNameToDisplay='shout (call custom method in script)')
         ])
 
 def eat(aSheep):
@@ -60,8 +59,9 @@ def eat(aSheep):
 def shout():
     aTextBox.addText('meh!!!')
 
-Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
-userSelector=myModel.newUserSelector()
+# Player1ControlPanel=Player1.newControlPanel("Actions du Joueur 1")
+# userSelector=myModel.newUserSelector()
+myModel.setCurrentPlayer(Player1)
 
 myModel.newPlayPhase('Phase 1', [Player1])
 myModel.newModelPhase(lambda: Cell.setRandomEntities_withValue("landUse","grass",2,"landUse","short grass"),auto_forward=True,message_auto_forward=False)

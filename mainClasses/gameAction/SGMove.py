@@ -4,6 +4,7 @@ from mainClasses.SGTimePhase import *
 
 #Class who manage the game mechanics of mooving
 class SGMove(SGAbstractAction):
+    context_menu_icon = "⇄"  # Icon for context menu
     def __init__(self,type,number,conditions=[],feedbacks=[],conditionsOfFeedback=[],feedbackAgent=[],conditionOfFeedBackAgent=[],nameToDisplay=None,aNameToDisplay=None,setControllerContextualMenu=False,setOnController=True,action_controler=None):
         # Move uses drag & drop by default (handled separately, not via directClick)
         if action_controler is None:
@@ -60,6 +61,11 @@ class SGMove(SGAbstractAction):
             return res
         else:
             # For move actions without destination, use the standard authorization
+            #TODO Dans ce genre de cas il faut tester les conditions qui n'ont soit pas de paramètre, 
+            # soit un paramètre qui est l'agent en mouvement. Et il faut ignoer les conditions qui ont deux paramètres (sachant que le 
+            # le dueixème parémètre correspond à la destination.)
+            #Ce type de test n'est pas possible avec la méthode checkAuthorization de la classe SGAbstractAction,
+            #  car cette méthode teste les conditions de l'action sans tenir compte du fait qu'il  peut y avoir ds conditins avec 2 paramètres.
             return super().checkAuthorization(aTargetEntity)
 
     def executeAction(self, aMovingEntity,aDestinationEntity):
