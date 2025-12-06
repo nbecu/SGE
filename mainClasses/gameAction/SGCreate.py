@@ -25,7 +25,7 @@ class SGCreate(SGAbstractAction):
             else:
                 self.nameToDisplay += " create"
         self.actionType="Create"
-        self.addCondition(lambda aTargetEntity: aTargetEntity.type.category() == 'Cell')
+        self.addCondition(lambda aTargetEntity: aTargetEntity.type.isCellType)
         self.create_several_at_each_click=create_several_at_each_click
 
 

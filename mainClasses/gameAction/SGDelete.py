@@ -8,7 +8,7 @@ class SGDelete(SGAbstractAction):
     context_menu_icon = "🗑️ "  # Icon for context menu
     def __init__(self, type, number, conditions=[], feedbacks=[], conditionsOfFeedback=[], label=None, action_controler=None):
         super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
-        self.nameToDisplay=self.nameToDisplay or f"× delete {self.targetType.name}"
+        self.nameToDisplay=self.nameToDisplay or f"delete {self.targetType.name}"
         self.actionType="Delete"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType and not aTargetEntity.isDeleted())
 

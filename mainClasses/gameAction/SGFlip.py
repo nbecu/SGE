@@ -11,7 +11,7 @@ class SGFlip(SGAbstractAction):
         if "directClick" not in action_controler:
             action_controler["directClick"] = True  # Default for Flip
         super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
-        self.nameToDisplay = self.nameToDisplay or "🔄 Flip"  # Default name with emoji
+        self.nameToDisplay = self.nameToDisplay or "Flip"  # Default name (icon added in context menu)
         self.actionType = "Flip"
         self.addCondition(lambda aTargetEntity: aTargetEntity.type == self.targetType)
         self.addCondition(lambda aTargetEntity: hasattr(aTargetEntity, 'isTile') and aTargetEntity.isTile)

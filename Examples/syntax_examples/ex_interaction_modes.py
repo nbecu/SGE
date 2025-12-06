@@ -172,7 +172,8 @@ createAction = myModel.newCreateAction(
     label="➕ Create Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
-        "directClick": True        # Optional - enables automatic click creation
+        "contextMenu": True,        # Also in context menu
+        # "directClick": True        # Optional - enables automatic click creation
     }
 )
 

@@ -12,7 +12,7 @@ class SGMove(SGAbstractAction):
         # Note: Move actions use drag & drop by default, which is handled separately from directClick
         # directClick remains False by default for Move (drag & drop is independent)
         super().__init__(type, number, conditions, feedbacks, conditionsOfFeedback, label=label, action_controler=action_controler)
-        self.nameToDisplay = self.nameToDisplay or "⇄ move"
+        self.nameToDisplay = self.nameToDisplay or "move"  # Default name (icon added in context menu)
         self.actionType="Move"
         self.feedbackAgent=feedbackAgent
         self.conditionOfFeedBackAgent=conditionOfFeedBackAgent

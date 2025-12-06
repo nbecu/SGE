@@ -196,17 +196,26 @@ class SGPlayer(AttributeAndValueFunctionalities):
             action: The first authorized action with directClick=True, or None
         """
         entityDef = entity.type
+        from mainClasses.gameAction.SGMove import SGMove
+        from mainClasses.gameAction.SGCreate import SGCreate
+        
         for action in self.gameActions:
             if (hasattr(action, 'action_controler') and 
-                action.action_controler.get("directClick") == True and
-                action.targetType == entityDef):
-                # Check authorization (some actions need destination entity for Move)
-                from mainClasses.gameAction.SGMove import SGMove
-                if isinstance(action, SGMove):
-                    # For Move, we'll check authorization during drop
-                    return action
-                elif action.checkAuthorization(entity):
-                    return action
+                action.action_controler.get("directClick") == True):
+                
+                # Special handling for CreateActions: they target cells but create agents/tiles
+                if isinstance(action, SGCreate):
+                    # For CreateActions, check that entity is a cell and action is authorized
+                    if entity.type.isCellType and action.checkAuthorization(entity):
+                        return action
+                # For all other actions, check that targetType matches entity type
+                elif action.targetType == entityDef:
+                    # Check authorization (some actions need destination entity for Move)
+                    if isinstance(action, SGMove):
+                        # For Move, we'll check authorization during drop
+                        return action
+                    elif action.checkAuthorization(entity):
+                        return action
         return None
     
 
