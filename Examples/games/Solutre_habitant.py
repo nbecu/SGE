@@ -412,13 +412,13 @@ TourismeSpecificActions=[]
 def createPlayerCommuneGA():
     """Cette fonction permet de créer les actions communes à tous les joueurs"""
     # Action pour déplacer un hexagone sur les plateaux
-    MoveHexagone=myModel.newMoveAction(hexagones, 'infinite')
-    MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est"])
+    MoveHexagone=myModel.newMoveAction(hexagones, 'infinite',action_controler={"directClick":True})
+    MoveHexagone.addCondition(lambda aHex,aTargetCell : aTargetCell.value("zone") not in ["Village Nord","Village Sud","Village Est","Roches"])
     MoveHexagone.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
     MoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
     GameActionsList.append(MoveHexagone)
     # Action pour valider le placement d'un hexagone
-    ValiderMoveHexagone=myModel.newActivateAction(hexagones, lambda aHex : execeffetInstantaneJauge(aHex),setControllerContextualMenu=True,aNameToDisplay="Valider le placement")
+    ValiderMoveHexagone=myModel.newActivateAction(hexagones, lambda aHex : execeffetInstantaneJauge(aHex),action_controler={"contextMenu":True},aNameToDisplay="Valider le placement")
     ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("placed")==False)
     ValiderMoveHexagone.addCondition(lambda aHex: checkAdjacence(aHex))
     ValiderMoveHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coûtCubes"))
@@ -426,11 +426,12 @@ def createPlayerCommuneGA():
     ValiderMoveHexagone.addFeedback(lambda aHex: adjacenceFeedback(aHex))
     GameActionsList.append(ValiderMoveHexagone)
     # Action pour déplacer un hexagone sur la pioche
-    MovePioche=myModel.newMoveAction(hexagones, 'infinite',setOnController=False)
+    MovePioche=myModel.newMoveAction(hexagones, 'infinite',action_controler={"directClick":True})
     MovePioche.addCondition(lambda aHex,aTargetCell: aTargetCell.grid.id=="Pioche")
+    MovePioche.addCondition(lambda aHex,aTargetCell : checkIfAHexIsHere(aTargetCell))
     GameActionsList.append(MovePioche)
     # Action pour activer un hexagone
-    ActivateHexagone=myModel.newActivateAction(hexagones,lambda aHex : execeffetActivableJauge(aHex),setControllerContextualMenu=True,aNameToDisplay="Activer l'hexagone")
+    ActivateHexagone=myModel.newActivateAction(hexagones,lambda aHex : execeffetActivableJauge(aHex),action_controler={"contextMenu":True},aNameToDisplay="Activer l'hexagone")
     ActivateHexagone.addCondition(lambda aHex: aHex.value("joueur").value("nbCubes")>=aHex.value("coutCubesAct"))
     ActivateHexagone.addCondition(lambda aHex: checkRessources(aHex))
     ActivateHexagone.addCondition(lambda aHex: checkIfActivable(aHex))
@@ -439,7 +440,7 @@ def createPlayerCommuneGA():
     ActivateHexagone.addFeedback(lambda aHex: decRessources(aHex))
     GameActionsList.append(ActivateHexagone)
     # Action pour supprimer un buisson
-    DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubesBuisson()],feedbacks= [lambda : decCubesBuisson()],setControllerContextualMenu=True,aNameToDisplay="Supprimer le buisson")
+    DeleteBuisson=myModel.newDeleteAction(Buisson,conditions= [lambda : checkCubesBuisson()],feedbacks= [lambda : decCubesBuisson()],action_controler={"contextMenu":True},aNameToDisplay="Supprimer le buisson")
     GameActionsList.append(DeleteBuisson)
     return GameActionsList
 
@@ -448,7 +449,7 @@ GameActionsList = createPlayerCommuneGA()
 def createTourismeSpecificGA():
     """Cette fonction permet de créer les actions spécifiques au joueur Tourisme"""
     # Action pour placer un touriste
-    PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",setOnController=False)
+    PlaceTouriste=myModel.newMoveAction(Touriste,"infinite",action_controler={"directClick":True})
     PlaceTouriste.addCondition(lambda: checkIsThereTouristes())
     PlaceTouriste.addCondition(lambda aTourist, aTargetCell: checkIsHebergement(aTargetCell))
     PlaceTouriste.addFeedback(lambda: decTouristes())
@@ -666,7 +667,7 @@ def resetHexagones():
         if aHex.cell.grid.id!="Pioche" and aHex.value("placed")==False:
             destinationCell=pioche.getEntity(6,1)
             aHex.moveTo(destinationCell)
-            nbHexReset=+1
+            nbHexReset+=1
     print(f"{nbHexReset} hexagones ont été remis dans la pioche.")
 
 def resetCubes():

@@ -60,13 +60,26 @@ class SGMove(SGAbstractAction):
                     raise ValueError("aCondition has an unsupported number of arguments")
             return res
         else:
-            # For move actions without destination, use the standard authorization
-            #TODO Dans ce genre de cas il faut tester les conditions qui n'ont soit pas de paramètre, 
-            # soit un paramètre qui est l'agent en mouvement. Et il faut ignoer les conditions qui ont deux paramètres (sachant que le 
-            # le dueixème parémètre correspond à la destination.)
-            #Ce type de test n'est pas possible avec la méthode checkAuthorization de la classe SGAbstractAction,
-            #  car cette méthode teste les conditions de l'action sans tenir compte du fait qu'il  peut y avoir ds conditins avec 2 paramètres.
-            return super().checkAuthorization(aTargetEntity)
+            # For move actions without destination, test only conditions with 0 or 1 parameter
+            # Ignore conditions with 2 parameters (they require a destination)
+            # This is necessary because super().checkAuthorization() cannot handle 2-parameter conditions
+            if not self.canBeUsed():
+                return False
+            
+            res = True
+            for aCondition in self.conditions:
+                argcount = aCondition.__code__.co_argcount
+                if argcount == 0:
+                    res = res and aCondition()
+                elif argcount == 1:
+                    res = res and aCondition(aTargetEntity)
+                elif argcount == 2:
+                    # Skip conditions with 2 parameters - they require a destination
+                    # These will be checked during drop when destination is known
+                    continue
+                else:
+                    raise ValueError("aCondition has an unsupported number of arguments")
+            return res
 
     def executeAction(self, aMovingEntity,aDestinationEntity):
         # Works for both agents and tiles (both have moveTo method)

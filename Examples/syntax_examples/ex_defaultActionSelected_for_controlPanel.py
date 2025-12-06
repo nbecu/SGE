@@ -31,20 +31,22 @@ squareAgents = myModel.newAgentType("SquareAgent", "squareAgent", defaultSize=30
 # Create an agent creation action
 createAction = myModel.newCreateAction("CircleAgent", aNameToDisplay="Create an agent")
 
-# Create a move action
-moveAction = myModel.newMoveAction("CircleAgent", aNameToDisplay="Move the agent",setOnController=False)
-
 # Create an action to create triangular agents
 createTriangularAction = myModel.newCreateAction("TriangularAgent", aNameToDisplay="Create triangular agent")
 
 # Create an action to create square agents
 createSquareAction = myModel.newCreateAction("SquareAgent", aNameToDisplay="Create square agent")
 
+# Create a move action
+moveActionCircleAgent = myModel.newMoveAction("CircleAgent", aNameToDisplay="Move the agent",action_controler={"directClick":True, "controlPanel":False})
+moveActionTriangularAgent = myModel.newMoveAction("TriangularAgent", aNameToDisplay="Move the agent",action_controler={"directClick":True, "controlPanel":False})
+moveActionSquareAgent = myModel.newMoveAction("SquareAgent", aNameToDisplay="Move the agent",action_controler={"directClick":True, "controlPanel":False})
+
 # Create a player
 player1 = myModel.newPlayer("Player1")
 
 # Add game actions to the player
-player1.addGameActions([createAction, moveAction, createTriangularAction, createSquareAction])
+player1.addGameActions([createAction, createTriangularAction, createSquareAction, moveActionCircleAgent, moveActionTriangularAgent, moveActionSquareAgent])
 
 # Create the controlPanel with a default action
 # The createSquareAction will be automatically selected
