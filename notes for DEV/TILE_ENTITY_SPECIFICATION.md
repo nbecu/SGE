@@ -396,45 +396,45 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
 ## Phases d'implémentation
 
 ### Phase 1 : Structure principale
-- [ ] Créer la classe `SGTile` (Model)
-- [ ] Créer la classe `SGTileView` (View)
-- [ ] Créer la classe `SGTileType` (Factory)
-- [ ] Placement de base sur les cellules
-- [ ] Rendu de base
+- [x] Créer la classe `SGTile` (Model)
+- [x] Créer la classe `SGTileView` (View)
+- [x] Créer la classe `SGTileType` (Factory)
+- [x] Placement de base sur les cellules
+- [x] Rendu de base
 
 ### Phase 2 : Positionnement et affichage
-- [ ] Options de position (center, corners, full) - Note: pas de "random"
-- [ ] Support du zoom
-- [ ] Système de layer/z-order
-- [ ] Style visuel
-- [ ] **Système de deux faces** (FONCTIONNALITÉ PRINCIPALE)
-  - [ ] Attributs front/back (couleur, image)
-  - [ ] Méthodes flip(), setFace(), getFace()
-  - [ ] Rendu de la face visible
-  - [ ] Support dans la vue (SGTileView)
+- [x] Options de position (center, corners, full) - Note: pas de "random"
+- [x] Support du zoom
+- [x] Système de layer/z-order
+- [x] Style visuel
+- [x] **Système de deux faces** (FONCTIONNALITÉ PRINCIPALE)
+  - [x] Attributs front/back (couleur, image)
+  - [x] Méthodes flip(), setFace(), getFace()
+  - [x] Rendu de la face visible
+  - [x] Support dans la vue (SGTileView)
 
 ### Phase 3 : Interaction
-- [ ] Événements souris
-- [ ] Menus contextuels
-- [ ] Tooltips
-- [ ] Interaction agent-tile
+- [x] Événements souris (mousePressEvent, mouseReleaseEvent implémentés)
+- [x] Menus contextuels (hérités de SGEntityView)
+- [ ] Tooltips (non implémenté spécifiquement pour les tiles)
+- [~] Interaction agent-tile (partiellement fait : méthodes de base existent `getAgentsHere()`, `isOccupied()`, `doesBlockAgentPlacement()`, mais manque soit possibilité de poser agents sur tuiles, soit getters croisés entre entités - à décider)
 
 ### Phase 4 : Fonctionnalités avancées
-- [ ] Empilement de plusieurs tiles
-- [ ] Intégration avec les game actions
+- [~] Empilement de plusieurs tiles (méthodes de base implémentées `getStack()`, `getTopTile()`, `getStackSize()`, mais pas testé, pas d'exemple, affichage visuel des stacks dans l'interface non terminé)
+- [x] Intégration avec les game actions (Flip, Move, Create, Delete, Modify, Activate tous implémentés)
 - [ ] Model actions sur les tiles
 - [ ] Intégration avec le système POV
 
 ### Phase 5 : Documentation et exemples
-- [ ] Documentation API
-- [ ] Exemples d'utilisation
+- [ ] Documentation API (docstrings à compléter/vérifier)
+- [~] Exemples d'utilisation (partiellement fait : `ex_tiles_positioning.py`, `ex_tiles_with_images.py`, `Memory.py` existent, mais manque exemple pour empilement)
 - [ ] Intégration au catalogue de méthodes
 
 ## Exemples de jeux de test pour le développement
 
 Au cours des phases de développement, des exemples de jeux seront créés pour tester les fonctionnalités des tiles. Ces exemples serviront de validation progressive des fonctionnalités implémentées.
 
-### Exemple 1 : Jeu de Memory
+### Exemple 1 : Jeu de Memory ✅ IMPLÉMENTÉ
 
 **Objectif** : Tester le système de double faces et le retournement de tiles
 
@@ -449,6 +449,8 @@ Au cours des phases de développement, des exemples de jeux seront créés pour 
 - Placement de tiles face cachée sur des cellules
 - GameAction Flip pour retourner les tiles
 - Rendu des deux faces
+
+**Fichier** : `Examples/games/Memory.py`
 - Interaction joueur avec les tiles
 
 ### Exemple 2 : Jeu de pile de tiles avec activation

@@ -104,8 +104,8 @@ class SGControlPanel(SGGameSpace):
         lastEntDefTitle = ''
         for aGameAction in sortedGameActions:
             # Skip Move actions that are not set to appear on controller
-            # Move actions should not appear if they're only for context menu or if controlPanel is False
-            if aGameAction.actionType == "Move" and (not aGameAction.action_controler.get("controlPanel", True) or aGameAction.action_controler.get("contextMenu", False)):
+            # Move actions should only be skipped if controlPanel is explicitly False
+            if aGameAction.actionType == "Move" and not aGameAction.action_controler.get("controlPanel", True):
                 continue
             if lastEntDefTitle != aGameAction.targetType.name:
                 anItem=SGLegendItem(self,'Title2',aGameAction.targetType.name)
