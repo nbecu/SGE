@@ -59,7 +59,8 @@ class SGTileView(SGEntityView):
         self.dragging = False
         self.drag_occurred = False  # Flag to track if a drag actually happened
         self.press_position = None  # Store initial mouse press position
-        self.pending_action = None  # Store action to execute on click (if not Move)
+        self.pending_move_action = None  # Store Move action for drag & drop
+        self.pending_click_action = None  # Store non-Move action to execute on click
         
         # Calculate initial position
         self.getPositionInCell()
@@ -203,7 +204,6 @@ class SGTileView(SGEntityView):
         # The context menu signal is triggered by Qt before mousePressEvent, but we need to ensure
         # the event is properly propagated
         if event.button() == Qt.RightButton:
-            print(f"[SGTileView] Right button click detected on tile {self.tile_model.id}")
             # Let the parent handle right button clicks for context menu
             super().mousePressEvent(event)
             return
@@ -214,7 +214,8 @@ class SGTileView(SGEntityView):
             self.dragging = True
             self.drag_occurred = False
             self.press_position = event.pos()
-            self.pending_action = None
+            self.pending_move_action = None
+            self.pending_click_action = None
             
             # Validate that the click is within the tile bounds
             click_pos = event.pos()
@@ -226,64 +227,38 @@ class SGTileView(SGEntityView):
                 click_pos.y() < -tolerance or click_pos.y() > tile_rect.height() + tolerance):
                 return  # Exit if click is outside tile bounds
             
-            # First, try to find an action with directClick=True (priority over ControlPanel selection)
-            selected_action = None
-            try:
-                currentPlayer = self.tile_model.model.getCurrentPlayer()
-                if currentPlayer != "Admin":
-                    # Use helper method to find authorized action with directClick=True
-                    selected_action = currentPlayer.getAuthorizedActionWithDirectClick(self.tile_model)
-            except (ValueError, AttributeError):
-                # Current player not defined yet or not a valid player object, skip directClick
-                pass
+            # Find authorized Move action using helper method (same as agents)
+            self.pending_move_action = self._findAuthorizedMoveAction(self.tile_model)
             
-            # If no directClick action found, fall back to selected action from ControlPanel
-            if selected_action is None:
-                aLegendItem = self.tile_model.model.getSelectedLegendItem()
-                selected_action = aLegendItem.gameAction if aLegendItem is not None else None
+            # Find authorized click action using helper method (same as agents)
+            self.pending_click_action = self._findAuthorizedClickAction(self.tile_model)
             
-            if selected_action is None:
-                return  # No action available
-            
-            # Use the gameAction system for ALL players (including Admin)
-            # Check if the action is a Move action (tiles can be moved via drag & drop)
-            from mainClasses.gameAction.SGMove import SGMove
-            if isinstance(selected_action, SGMove):
-                # For Move actions, allow drag & drop (like agents)
-                # Don't execute the action here, let drag & drop handle it
-                # Store the action for potential use in mouseMoveEvent
-                self.pending_action = selected_action
+            # If no actions available, return
+            if self.pending_move_action is None and self.pending_click_action is None:
                 return
-            
-            # For other actions (like Flip), store the action to execute on release
-            # This allows us to distinguish between click and drag
-            self.pending_action = selected_action
-            return
     
     def mouseReleaseEvent(self, event):
         """Handle mouse release events"""
         if event.button() == Qt.LeftButton:
-            # If no drag occurred and we have a pending action (non-Move), execute it
-            if not self.drag_occurred and self.pending_action is not None:
-                from mainClasses.gameAction.SGMove import SGMove
-                # Only execute if it's not a Move action (Move is handled by drag & drop)
-                if not isinstance(self.pending_action, SGMove):
-                    # Check if this action was triggered via directClick
-                    action_was_directclick = (
-                        hasattr(self.pending_action, 'action_controler') and
-                        self.pending_action.action_controler.get("directClick") == True
-                    )
-                    
-                    # Execute the action
-                    self.pending_action.perform_with(self.tile_model)
-                    
-                    # If action was triggered via directClick, update ControlPanel selection
-                    if action_was_directclick:
-                        self._updateControlPanelSelection(self.pending_action)
+            # If no drag occurred and we have a pending click action, execute it
+            if not self.drag_occurred and self.pending_click_action is not None:
+                # Check if this action was triggered via directClick
+                action_was_directclick = (
+                    hasattr(self.pending_click_action, 'action_controler') and
+                    self.pending_click_action.action_controler.get("directClick") == True
+                )
+                
+                # Execute the action
+                self.pending_click_action.perform_with(self.tile_model)
+                
+                # If action was triggered via directClick, update ControlPanel selection
+                if action_was_directclick:
+                    self._updateControlPanelSelection(self.pending_click_action)
             
             # Reset state
             self.dragging = False
-            self.pending_action = None
+            self.pending_move_action = None
+            self.pending_click_action = None
             self.press_position = None
     
     def _updateControlPanelSelection(self, action):
@@ -336,49 +311,15 @@ class SGTileView(SGEntityView):
             # Not enough movement yet, wait for more
             return
 
-        # If pending_action is a non-Move action (like Flip with directClick=True),
-        # prevent drag from occurring - the action will execute on mouseReleaseEvent instead
-        from mainClasses.gameAction.SGMove import SGMove
-        if self.pending_action is not None and not isinstance(self.pending_action, SGMove):
-            # Don't allow drag for non-Move actions - they should execute on click release
-            return
-
-        # Try to find a Move action (Move actions use drag & drop)
-        move_action = None
-        
-        # First check pending_action (from selected action in ControlPanel)
-        if self.pending_action is not None and isinstance(self.pending_action, SGMove):
-            move_action = self.pending_action
-        else:
-            # If no pending action or not Move, try to find Move actions with directClick=True
-            # This allows automatic drag & drop only if directClick is enabled
-            try:
-                currentPlayer = self.tile_model.model.getCurrentPlayer()
-                if currentPlayer != "Admin":
-                    entityDef = self.tile_model.type
-                    for action in currentPlayer.gameActions:
-                        if (isinstance(action, SGMove) and
-                            action.targetType == entityDef):
-                            # Only allow automatic drag & drop if directClick is True
-                            # If directClick is False, the action must be selected in ControlPanel
-                            if action.action_controler.get("directClick") == True:
-                                move_action = action
-                                break
-            except (ValueError, AttributeError):
-                # Current player not defined yet or not a valid player object, skip
-                pass
-        
-        if move_action is None:
+        # Use pending_move_action that was set in mousePressEvent (already authorized)
+        # This matches the behavior of agents
+        if self.pending_move_action is None:
             return  # No Move action available for drag
+        
+        move_action = self.pending_move_action
         
         # Mark that a drag is occurring
         self.drag_occurred = True
-        self.pending_action = move_action  # Store for dropEvent
-        
-        # If Move action was triggered via directClick, update ControlPanel selection
-        if (hasattr(move_action, 'action_controler') and
-            move_action.action_controler.get("directClick") == True):
-            self._updateControlPanelSelection(move_action)
         
         # If Move action was triggered via directClick, update ControlPanel selection
         if (hasattr(move_action, 'action_controler') and

@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QMenu, QAction, QInputDialog, QMessageBox, QDialog, QLabel, QVBoxLayout, QToolTip
 from PyQt5.QtGui import QCursor
 from mainClasses.SGEntityView import SGEntityView
+from mainClasses.gameAction.SGMove import SGMove
 import random
 
 class SGAgentView(SGEntityView):
@@ -272,43 +273,11 @@ class SGAgentView(SGEntityView):
             self.pending_move_action = None
             self.pending_click_action = None
             
-            try:
-                currentPlayer = self.agent_model.model.getCurrentPlayer()
-                if currentPlayer == "Admin":
-                    return
-                
-                entityDef = self.agent_model.type
-                
-                # Find Move action (for drag & drop)
-                from mainClasses.gameAction.SGMove import SGMove
-                for action in currentPlayer.gameActions:
-                    if (isinstance(action, SGMove) and
-                        action.targetType == entityDef and
-                        action.checkAuthorization(self.agent_model)):
-                        # Check if directClick is enabled OR if action is selected in ControlPanel
-                        aLegendItem = self.agent_model.model.getSelectedLegendItem()
-                        is_selected = (aLegendItem is not None and aLegendItem.gameAction == action)
-                        if (action.action_controler.get("directClick") == True or is_selected):
-                            self.pending_move_action = action
-                            break
-                
-                # Find other actions with directClick=True (for click, like Activate)
-                click_action = currentPlayer.getAuthorizedActionWithDirectClick(self.agent_model)
-                if click_action is not None:
-                    # Make sure it's not a Move action (already handled above)
-                    if not isinstance(click_action, SGMove):
-                        self.pending_click_action = click_action
-                else:
-                    # Fall back to selected action from ControlPanel (if not Move)
-                    aLegendItem = self.agent_model.model.getSelectedLegendItem()
-                    if aLegendItem is not None:
-                        selected_action = aLegendItem.gameAction
-                        if selected_action is not None and not isinstance(selected_action, SGMove):
-                            self.pending_click_action = selected_action
-                            
-            except (ValueError, AttributeError):
-                # Current player not defined yet or not a valid player object, skip
-                pass
+            # Find authorized Move action using helper method
+            self.pending_move_action = self._findAuthorizedMoveAction(self.agent_model)
+            
+            # Find authorized click action using helper method
+            self.pending_click_action = self._findAuthorizedClickAction(self.agent_model)
             
             # If no actions available, return
             if self.pending_move_action is None and self.pending_click_action is None:

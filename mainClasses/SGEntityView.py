@@ -135,17 +135,9 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         """Initialize context menu"""
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_contextMenu)
-        # Debug: print entity type for tiles
-        if hasattr(self, 'isTile') and self.isTile:
-            print(f"[SGEntityView] Context menu initialized for tile {getattr(self, 'id', 'unknown')}")
     
     def show_contextMenu(self, point):
         """Show context menu for the entity"""
-        # Debug: print when context menu is requested
-        entity_type = "Tile" if hasattr(self, 'isTile') and self.isTile else ("Agent" if hasattr(self, 'isAgent') and self.isAgent else "Cell")
-        entity_id = getattr(self.entity_model, 'id', 'unknown')
-        print(f"[SGEntityView] show_contextMenu called for {entity_type} {entity_id}, point={point}")
-        
         menu = QMenu(self)
         show_icons = getattr(self.model, 'showIconsInContextMenu', True)
 
@@ -155,14 +147,11 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             player = self.model.getCurrentPlayer()
             if player != "Admin":        
                 actions = player.getAllGameActionsOn(self.entity_model)
-                print(f"[SGEntityView] Found {len(actions)} actions for {entity_type} {entity_id}")
                 for aAction in actions:
                     contextMenuEnabled = aAction.action_controler.get("contextMenu", False)
-                    print(f"[SGEntityView]   Action: {aAction.nameToDisplay}, contextMenu={contextMenuEnabled}, authorized={aAction.checkAuthorization(self.entity_model)}")
                     if contextMenuEnabled:
                         if aAction.checkAuthorization(self.entity_model):
                             actions_to_add.append(aAction)
-                            print(f"[SGEntityView]   Added action to menu: {aAction.nameToDisplay}")
         except ValueError:
             # Current player not defined - skip adding actions to menu
             # This can happen if setCurrentPlayer() was not called
@@ -202,14 +191,10 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         # Note: point is in local coordinates relative to the widget
         # For tiles and agents, we should show the menu regardless of strict bounds checking
         # because the signal is only triggered when the click is on the widget
-        print(f"[SGEntityView] Menu has {menu.actions().__len__()} actions, isEmpty={menu.isEmpty()}")
         if not menu.isEmpty():
             # Always show the menu - the signal customContextMenuRequested is only triggered
             # when the right-click occurs on the widget, so we can trust the point is valid
-            print(f"[SGEntityView] Executing context menu at global position {self.mapToGlobal(point)}")
             menu.exec_(self.mapToGlobal(point))
-        else:
-            print(f"[SGEntityView] Menu is empty, not showing")
 
     def getObjectIdentiferForJsonDumps(self):
         """Get object identifier for JSON serialization"""
@@ -221,3 +206,84 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
     def isDeleted(self):
         """Check if entity is deleted"""
         return not self.isDisplay
+    
+    def _findAuthorizedMoveAction(self, entity_model):
+        """
+        Find an authorized Move action for the entity.
+        
+        This method searches for Move actions that:
+        - Match the entity type
+        - Are authorized for this specific entity (checkAuthorization passes)
+        - Either have directClick=True OR are selected in ControlPanel
+        
+        Args:
+            entity_model: The entity model (SGAgent or SGTile)
+            
+        Returns:
+            SGMove: The first authorized Move action found, or None if none found
+        """
+        try:
+            currentPlayer = entity_model.model.getCurrentPlayer()
+            if currentPlayer == "Admin":
+                return None
+            
+            entityDef = entity_model.type
+            
+            # Find Move action (for drag & drop)
+            from mainClasses.gameAction.SGMove import SGMove
+            for action in currentPlayer.gameActions:
+                if (isinstance(action, SGMove) and
+                    action.targetType == entityDef and
+                    action.checkAuthorization(entity_model)):
+                    # Check if directClick is enabled OR if action is selected in ControlPanel
+                    aLegendItem = entity_model.model.getSelectedLegendItem()
+                    is_selected = (aLegendItem is not None and aLegendItem.gameAction == action)
+                    if (action.action_controler.get("directClick") == True or is_selected):
+                        return action
+        except (ValueError, AttributeError):
+            # Current player not defined yet or not a valid player object, skip
+            pass
+        
+        return None
+    
+    def _findAuthorizedClickAction(self, entity_model):
+        """
+        Find an authorized non-Move action for click events.
+        
+        This method searches for actions that:
+        - Have directClick=True OR are selected in ControlPanel
+        - Are not Move actions (Move is handled separately)
+        - Are authorized for this specific entity (checkAuthorization passes)
+        
+        Args:
+            entity_model: The entity model (SGAgent or SGTile)
+            
+        Returns:
+            Action: The first authorized click action found, or None if none found
+        """
+        try:
+            currentPlayer = entity_model.model.getCurrentPlayer()
+            if currentPlayer == "Admin":
+                return None
+            
+            # Find action with directClick=True (for click, like Activate, Flip, etc.)
+            from mainClasses.gameAction.SGMove import SGMove
+            click_action = currentPlayer.getAuthorizedActionWithDirectClick(entity_model)
+            if click_action is not None:
+                # Make sure it's not a Move action (already handled separately)
+                if not isinstance(click_action, SGMove):
+                    return click_action
+            
+            # Fall back to selected action from ControlPanel (if not Move)
+            aLegendItem = entity_model.model.getSelectedLegendItem()
+            if aLegendItem is not None:
+                selected_action = aLegendItem.gameAction
+                if selected_action is not None and not isinstance(selected_action, SGMove):
+                    # Check authorization before returning
+                    if selected_action.checkAuthorization(entity_model):
+                        return selected_action
+        except (ValueError, AttributeError):
+            # Current player not defined yet or not a valid player object, skip
+            pass
+        
+        return None

@@ -39,20 +39,16 @@ Tile = myModel.newTileType(
 # Flip action with default directClick=True
 flipAction = myModel.newFlipAction(
     Tile,
-    aNumber='infinite',
-    label="🔄 Flip Tile",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
-        "directClick": False         # Default for Flip - works automatically on click
+        "directClick": True         # Default for Flip - works automatically on click
     }
 )
 
 # Move action with drag & drop (default, independent of directClick)
 moveActionTile = myModel.newMoveAction(
     Tile,
-    aNumber='infinite',
-    label="↔️ Move Tile",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         # "contextMenu": False,        # Also in context menu
@@ -85,10 +81,8 @@ def activateAgent(agent):
 activateAction = myModel.newActivateAction(
     AgentActivate,
     aMethod=lambda agent: activateAgent(agent),
-    aNumber='infinite',
-    label="⚡ Activate Agent",
     action_controler={
-        "controlPanel": True,      # Appears in ControlPanel (default)
+        # "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "button": False,           # No button (can be set to True with buttonPosition)
         "directClick": True         # Optional - enables automatic click activation
@@ -97,8 +91,6 @@ activateAction = myModel.newActivateAction(
 # Move action with drag & drop 
 moveActionAgent = myModel.newMoveAction(
     AgentActivate,
-    aNumber='infinite',
-    label="↔️ Move Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         # "contextMenu": False,        # Also in context menu
@@ -127,7 +119,7 @@ modifyAction_status_modified = myModel.newModifyAction(
     aNumber='infinite',
     label="Status -> Modified",
     action_controler={
-        "controlPanel": False,      # Appears in ControlPanel (default)
+        "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": False        # Default for Modify - requires selection
     }
@@ -138,7 +130,7 @@ modifyAction_status_normal = myModel.newModifyAction(
     aNumber='infinite',
     label="Status -> Normal",
     action_controler={
-        "controlPanel": False,      # Appears in ControlPanel (default)
+        "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
         "directClick": False        # Default for Modify - requires selection
     }
@@ -155,8 +147,6 @@ AgentDelete = myModel.newAgentType(
 # Delete action with directClick=True (optional)
 deleteAction = myModel.newDeleteAction(
     AgentDelete,
-    aNumber='infinite',
-    label="× Delete Agent",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel (default)
         "contextMenu": True,        # Also in context menu
@@ -216,7 +206,6 @@ def globalAction():
 activateButtonAction = myModel.newActivateAction(
     None,  # Model-level action
     aMethod=lambda: globalAction(),
-    aNumber='infinite',
     label="🌐 Add 2 Agents",
     action_controler={
         "controlPanel": True,      # Appears in ControlPanel
@@ -234,7 +223,7 @@ Player1 = myModel.newPlayer("Player 1")
 
 # Add all actions to the player
 Player1.addGameAction(flipAction)
-# Player1.addGameAction(moveActionTile)
+Player1.addGameAction(moveActionTile)
 Player1.addGameAction(activateAction)
 Player1.addGameAction(moveActionAgent)
 Player1.addGameAction(modifyAction_status_modified)
