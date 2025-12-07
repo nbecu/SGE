@@ -555,19 +555,56 @@ class SGMethodsCatalog:
         self.extractor = SGEMethodExtractor()
         self.catalog_data = {}
     
-    def generate_catalog(self, classes: List[str] = None) -> Dict[str, Any]:
+    def generate_catalog(self, classes: List[str] = None, exclude_classes: List[str] = None) -> Dict[str, Any]:
         """
         Generate methods catalog for specified SGE classes
         
         Args:
             classes (List[str], optional): List of class file paths to process.
                 If None, processes all SGE classes in mainClasses/
+            exclude_classes (List[str], optional): List of class file paths or class names to exclude.
+                Can be file paths (e.g., "mainClasses/SGPlayer.py") or class names (e.g., "SGPlayer").
+                If None, no classes are excluded.
                 
         Returns:
             Dict[str, Any]: Complete catalog data
         """
         if classes is None:
             classes = self._get_all_sge_classes()
+        
+        # Filter out excluded classes
+        if exclude_classes:
+            excluded_paths = set()
+            excluded_names = set()
+            
+            for exclude_item in exclude_classes:
+                # Check if it's a file path or class name
+                if os.path.sep in exclude_item or exclude_item.endswith('.py'):
+                    # It's a file path
+                    excluded_paths.add(exclude_item)
+                    # Also add normalized path
+                    if not exclude_item.startswith('mainClasses/'):
+                        excluded_paths.add(os.path.join('mainClasses', exclude_item))
+                else:
+                    # It's a class name
+                    excluded_names.add(exclude_item)
+            
+            # Filter classes list
+            filtered_classes = []
+            for file_path in classes:
+                # Check if path is excluded
+                if file_path in excluded_paths:
+                    continue
+                
+                # Check if class name is excluded (extract class name from path)
+                filename = os.path.basename(file_path)
+                class_name = filename.replace('.py', '')
+                if class_name in excluded_names:
+                    continue
+                
+                filtered_classes.append(file_path)
+            
+            classes = filtered_classes
         
         all_methods_data = {}
         
@@ -732,20 +769,20 @@ class SGMethodsCatalog:
     <title>{metadata.get('title', 'SGE Methods Catalog')}</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }}
-        .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }}
-        .header h1 {{ margin: 0; font-size: 2.5em; }}
-        .header p {{ margin: 10px 0 0 0; opacity: 0.9; }}
-        .header-controls {{ margin-top: 15px; }}
-        .toggle-all-btn {{ background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-size: 0.9em; transition: background-color 0.3s; }}
+        .header {{ background-color: #2c3e50; color: white; padding: 10px; text-align: center; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }}
+        .header h1 {{ margin: 0; font-size: 1.8em; }}
+        .header p {{ margin: 5px 0 0 0; opacity: 0.9; font-size: 0.9em; }}
+        .header-controls {{ margin-top: 8px; }}
+        .toggle-all-btn {{ background-color: #27ae60; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; font-size: 0.85em; transition: background-color 0.3s; }}
         .toggle-all-btn:hover {{ background-color: #229954; }}
         
-        .checkbox-label {{ display: flex; align-items: center; gap: 8px; font-size: 14px; color: white; cursor: pointer; }}
-        .checkbox-label input[type="checkbox"] {{ width: 16px; height: 16px; cursor: pointer; }}
+        .checkbox-label {{ display: flex; align-items: center; gap: 6px; font-size: 12px; color: white; cursor: pointer; }}
+        .checkbox-label input[type="checkbox"] {{ width: 14px; height: 14px; cursor: pointer; }}
         
-        .main-container {{ display: flex; min-height: 100vh; margin-top: 195px; }}
+        .main-container {{ display: flex; min-height: 100vh; margin-top: 100px; }}
         
-        .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; left: 0; top: 200px; bottom: 0; }}
-        .content {{ flex: 1; padding: 20px; margin-left: 330px; overflow-y: auto; height: calc(100vh - 195px); }}
+        .sidebar {{ width: 300px; background-color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); position: fixed; left: 0; top: 100px; bottom: 0; }}
+        .content {{ flex: 1; padding: 20px; margin-left: 330px; overflow-y: auto; height: calc(100vh - 100px); }}
         
         .classes-section {{ margin-bottom: 25px; }}
         .classes-list {{ display: flex; flex-wrap: wrap; gap: 8px; }}
@@ -785,10 +822,10 @@ class SGMethodsCatalog:
         .examples {{ background-color: #e8f5e8; padding: 15px; margin: 15px 0; border-radius: 5px; border-left: 4px solid #27ae60; }}
         .examples pre {{ margin: 0; font-family: 'Courier New', monospace; font-size: 0.9em; }}
         
-        .stats {{ display: flex; justify-content: space-around; margin: 20px 0; }}
+        .stats {{ display: flex; justify-content: space-around; margin: 10px 0; }}
         .stat-item {{ text-align: center; }}
-        .stat-number {{ font-size: 2em; font-weight: bold; color: #3498db; }}
-        .stat-label {{ color: #7f8c8d; font-size: 0.9em; }}
+        .stat-number {{ font-size: 1.5em; font-weight: bold; color: #3498db; }}
+        .stat-label {{ color: #7f8c8d; font-size: 0.85em; }}
         
         @media (max-width: 768px) {{
             .main-container {{ flex-direction: column; }}
