@@ -82,10 +82,6 @@ class SGTile(SGEntity):
         # Layer/z-index for stacking
         self.layer = layer
         
-        # Blocking attributes
-        self.blocksStacking = False
-        self.blocksAgentPlacement = False
-        
         # Save reference size for zoom calculations (like SGCell and SGAgent)
         self.saveSize = size
         
@@ -271,14 +267,7 @@ class SGTile(SGEntity):
     def isFaceBack(self):
         """Check if the back face is visible"""
         return self.face == "back"
-    
-    def doesBlockStacking(self):
-        """Check if this tile blocks stacking of other tiles on top"""
-        return self.blocksStacking
-    
-    def doesBlockAgentPlacement(self):
-        """Check if this tile blocks agent placement"""
-        return self.blocksAgentPlacement
+
     
     def isOccupied(self):
         """Check if the tile's cell is occupied by agents"""
