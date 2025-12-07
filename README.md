@@ -3,8 +3,8 @@
 Welcome to SGE!
 
 > 📚For detailed documentation:
-> - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/dev_create_SGTile/docs/SGE_methods/sge_methods_catalog.html)
-> - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/dev_create_SGTile/docs/archi_diagrams/index.html)
+> - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](./docs/SGE_methods/sge_methods_catalog.html) *(works locally; on GitHub, the HTML file shows as source code - use htmlpreview with your current branch name)*
+> - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](./docs/archi_diagrams/index.html) *(works locally; on GitHub, the HTML file shows as source code - use htmlpreview with your current branch name)*
 
 ## Installation
 
