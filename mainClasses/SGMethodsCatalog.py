@@ -71,11 +71,14 @@ class SGEMethodExtractor:
     def get_sge_category_order():
         """Get the logical order of categories used in SGE"""
         return [
-            'NEW/ADD/SET METHODS',
-            'DELETE METHODS', 
+            'NEW/ADD METHODS',
+            'NEW/ADD/SET METHODS',  # For classes that combine NEW/ADD with SET
+            'SET METHODS',
             'GET/NB METHODS',
+            'DELETE METHODS',
             'IS/HAS METHODS',
             'DO/DISPLAY METHODS',
+            'METRIC METHODS',
             'OTHER MODELER METHODS'
         ]
     
@@ -845,13 +848,14 @@ class SGMethodsCatalog:
                             <option value="NEW">NEW</option>
                             <option value="ADD">ADD</option>
                             <option value="SET">SET</option>
-                            <option value="DELETE">DELETE</option>
                             <option value="GET">GET</option>
                             <option value="NB">NB</option>
+                            <option value="DELETE">DELETE</option>
                             <option value="IS">IS</option>
                             <option value="HAS">HAS</option>
                             <option value="DO">DO</option>
                             <option value="DISPLAY">DISPLAY</option>
+                            <option value="METRIC">METRIC</option>
                             <option value="OTHER MODELER METHODS">OTHER</option>
                         </select>
                     </div>

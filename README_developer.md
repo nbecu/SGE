@@ -63,19 +63,21 @@ Classes should be organized with a clear separation between developer methods an
 ### 4.2 Modeler Methods Organization
 Within the modeler methods section, organize methods in the following order:
 
-1. **NEW/ADD/SET Methods** (creation and modification)
+1. **NEW/ADD Methods** (creation)
    ```python
    # ============================================================================
-   # NEW/ADD/SET METHODS
+   # NEW/ADD METHODS
    # ============================================================================
    ```
+   Note: Can be combined with SET as "NEW/ADD/SET METHODS" if SET methods are few or closely related to creation.
 
-2. **DELETE Methods** (removal)
+2. **SET Methods** (modification)
    ```python
    # ============================================================================
-   # DELETE METHODS
+   # SET METHODS
    # ============================================================================
    ```
+   Note: This section is optional. SET methods can be combined with NEW/ADD (see above) or kept separate if there are many SET methods (as in `SGModel`).
 
 3. **GET/NB Methods** (retrieval and counting)
    ```python
@@ -84,21 +86,37 @@ Within the modeler methods section, organize methods in the following order:
    # ============================================================================
    ```
 
-4. **IS/HAS Methods** (testing)
+4. **DELETE Methods** (removal)
+   ```python
+   # ============================================================================
+   # DELETE METHODS
+   # ============================================================================
+   ```
+
+5. **IS/HAS Methods** (testing)
    ```python
    # ============================================================================
    # IS/HAS METHODS
    # ============================================================================
    ```
+   Note: This section is optional. IS/HAS methods can be placed in GET/NB METHODS if there are few of them.
 
-5. **DO/DISPLAY Methods** (actions, and display)
+6. **DO/DISPLAY Methods** (actions and display)
    ```python
    # ============================================================================
    # DO/DISPLAY METHODS
    # ============================================================================
    ```
 
-6. **Other modeler methods** (other types of modele methods)
+7. **METRIC Methods** (statistical/metrics calculations)
+   ```python
+   # ============================================================================
+   # METRIC METHODS
+   # ============================================================================
+   ```
+   Note: This section is optional and primarily used in `SGEntityType` for methods that calculate statistics, metrics, or aggregations on entities (e.g., `metricOnEntities`, `metricOnEntitiesWithValue`).
+
+8. **Other modeler methods** (other types of modeler methods)
    ```python
    # ============================================================================
    # OTHER MODELER METHODS
@@ -133,12 +151,6 @@ class SGAgent(SGEntity):
         # Movement method
     
     # ============================================================================
-    # DELETE METHODS
-    # ============================================================================
-    
-    # (No delete methods for agents)
-    
-    # ============================================================================
     # GET/NB METHODS
     # ============================================================================
     
@@ -149,10 +161,34 @@ class SGAgent(SGEntity):
         # Count agents
     
     # ============================================================================
-    # IS/DO/DISPLAY METHODS
+    # DELETE METHODS
     # ============================================================================
     
-    # (No is/do/display methods for agents)
+    # (No delete methods for agents)
+    
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+    
+    # (No is/has methods for agents)
+    
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+    
+    # (No do/display methods for agents)
+    
+    # ============================================================================
+    # METRIC METHODS
+    # ============================================================================
+    
+    # (No metric methods for agents)
+    
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+    
+    # (No other modeler methods for agents)
 ```
 
 ### 4.4 Method Catalog Generation

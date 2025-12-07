@@ -186,14 +186,15 @@ SGE provides a comprehensive method catalog to help modelers discover and use av
 
 ### Method Categories
 Methods are organized into categories:
+- **NEW**: Creation methods (`newAgent`, `newCell`, `newModelPhase`)
 - **SET**: Value modification methods (`setValue`, `incValue`, `decValue`)
 - **GET**: Data retrieval methods (`getValue`, `getCell`, `getEntities`)
-- **DO**: Action methods (`moveTo`, `moveAgent`, `moveRandomly`)
-- **IS/HAS**: Boolean test methods (`isValue`, `hasAgent`, `isEmpty`)
-- **NEW**: Creation methods (`newAgent`, `newCell`, `newModelPhase`)
-- **DELETE**: Removal methods (`deleteEntity`, `deleteAllAgents`)
 - **NB**: Counting methods (`nbAgents`, `nbCells`)
+- **DELETE**: Removal methods (`deleteEntity`, `deleteAllAgents`)
+- **IS/HAS**: Boolean test methods (`isValue`, `hasAgent`, `isEmpty`)
+- **DO**: Action methods (`moveTo`, `moveAgent`, `moveRandomly`)
 - **DISPLAY**: UI methods (`displayTimeInWindowTitle`, `show`)
+- **METRIC**: Statistical/metrics calculation methods (`metricOnEntities`, `metricOnEntitiesWithValue`) - Available on EntityTypes (AgentType, CellType, TileType)
 
 ### Usage
 The method catalog includes inherited methods from parent classes, making it easy to discover all available functionality for each entity type.

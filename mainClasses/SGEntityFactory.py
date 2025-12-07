@@ -96,16 +96,16 @@ class SGEntityFactory:
         return SGEntityFactory.newCellWithModelView(cellDef, x, y)
     
     @staticmethod
-    def newTileWithModelView(tileDef, cell, attributesAndValues=None, position="center", face="front",
+    def newTileWithModelView(tileDef, cell, attributesAndValues=None, face="front",
                              frontImage=None, backImage=None, frontColor=None, backColor=None):
         """
-        Create a tile with Model-View architecture
+        Create a tile with Model-View architecture.
+        The position is fixed by the TileType (positionOnCell) and cannot be overridden.
         
         Args:
             tileDef: The tile definition
             cell: The cell where the tile will be placed
             attributesAndValues: Initial attributes and values
-            position: Position on the cell
             face: Initial face ("front" or "back")
             frontImage: Image for the front face (optional)
             backImage: Image for the back face (optional)
@@ -117,6 +117,9 @@ class SGEntityFactory:
         """
         if cell is None:
             return None
+        
+        # Use fixed position from TileType (cannot be overridden)
+        position = tileDef.positionOnCell if hasattr(tileDef, 'positionOnCell') else "center"
         
         # Use defaults from tileDef if not provided
         if frontImage is None:

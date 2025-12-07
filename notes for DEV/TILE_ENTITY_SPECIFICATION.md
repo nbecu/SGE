@@ -138,7 +138,7 @@ tile2 = tileDef.newTileOnTile(tile)  # Crée une nouvelle tile empilée sur la t
 - Plusieurs tiles peuvent exister sur une même position dans une même cellule, formant un **stack** (pile)
 - Les tiles ont une propriété **layer/z-index** pour l'ordre de rendu
 - Méthodes : `tile.setLayer(layer)`, `tile.getLayer()`
-- Layer par défaut : 0 (sous les agents, au-dessus du fond de cellule)
+- Layer par défaut : 1 (sous les agents, au-dessus du fond de cellule, cohérent avec le système de coordonnées 1-based)
 - **Stack** : Ensemble de tiles empilées sur une même position dans une cellule
   - La tile du dessus (layer le plus élevé) est appelée **topTile**
   - La tile du dessous (layer le plus bas) est appelée **bottomTile**
@@ -174,7 +174,7 @@ tileDef = model.newTileType(
     backColor=Qt.red,         # Face arrière
     frontImage="card_front.png",  # Image face avant (optionnel)
     backImage="card_back.png",     # Image face arrière (optionnel)
-    defaultPositionOnCell="center"    # Position par défaut sur la cellule pour ce type de tile (optionnel, peut être surchargée lors de la création)
+    positionOnCell="center"    # Position fixe sur la cellule pour toutes les tiles de ce type (obligatoire, ne peut pas être surchargée lors de la création)
 
 )
 
@@ -242,10 +242,10 @@ tile = tileDef.newTileOnCell(cell, face="back")   # Face arrière par défaut
   - `cell.getTiles(tileType=None)` - Obtenir toutes les tiles ou filtrer par type
   - `cell.nbTiles(tileType=None)` - Compter les tiles sur la cellule (toutes ou par type)
   - `cell.hasTile(tileType)` - Vérifier si la cellule contient une tile d'un type donné
-  - `cell.getTile(tileType)` - Obtenir la première tile d'un type donné sur la cellule
-  - `cell.getTopTile(position="center")` - Obtenir la topTile (la tile du dessus du stack, layer le plus élevé) à une position donnée
-  - `cell.getStack(position="center")` - Obtenir toutes les tiles du stack à une position donnée (ou tous les stacks si position=None)
-  - `cell.getStackSize(position="center")` - Obtenir le nombre de tiles dans le stack à une position donnée
+  - `cell.getRandomTile(tileType)` - Obtenir une tile au hasard d'un type donné sur la cellule
+  - `cell.getTopTile(tileType)` - Obtenir la topTile (la tile du dessus du stack, layer le plus élevé) d'un type donné (la position est déterminée par le tileType)
+  - `cell.getStack(tileType)` - Obtenir toutes les tiles du stack d'un type donné (la position est déterminée par le tileType)
+  - `cell.getStackSize(tileType)` - Obtenir le nombre de tiles dans le stack d'un type donné (la position est déterminée par le tileType)
 
 #### 5.3 Game Actions
 - **Comme pour les Cells et les Agents, les Tiles peuvent avoir des gameActions associées**
@@ -274,7 +274,7 @@ tile = tileDef.newTileOnCell(cell, face="back")   # Face arrière par défaut
 
 #### 6.2 Attributs spécifiques aux tiles
 - `cell` : Référence à la cellule sur laquelle la tile est placée
-- `layer` : Z-order pour le rendu (par défaut : 0)
+- `layer` : Z-order pour le rendu (par défaut : 1, cohérent avec le système de coordonnées 1-based)
 - `face` : Face actuellement visible (`"front"` ou `"back"`, par défaut : `"front"`)
 - `frontImage` / `frontColor` : Apparence de la face avant
 - `backImage` / `backColor` : Apparence de la face arrière
@@ -289,8 +289,8 @@ tile = tileDef.newTileOnCell(cell, face="back")   # Face arrière par défaut
 tileDef = model.newTileType(name, shape, defaultColor, defaultSize)
 
 # Méthodes factory
-tile = tileDef.newTileOnCell(cell, position="center", attributes={}) # Si le TileType précise la defaultPositionOnCell, il n'y a pas besoin de préciser ici la position (elle sera utilisée par défaut)
-tile = tileDef.newTileAtCoords(x, y, position="center", attributes={})
+tile = tileDef.newTileOnCell(cell, attributes={}) # La position est fixée par le TileType (positionOnCell), ne peut pas être surchargée
+tile = tileDef.newTileAtCoords(x, y, attributes={}) # La position est fixée par le TileType (positionOnCell)
 
 # Méthodes de requête
 tiles = tileDef.getAllTiles()
@@ -340,10 +340,10 @@ tiles = cell.getTilesHere()           # Obtenir toutes les tiles sur cette cellu
 tiles = cell.getTiles(tileType=None)  # Obtenir toutes les tiles ou filtrer par type
 nb = cell.nbTiles(tileType=None)      # Compter les tiles (toutes ou par type)
 has = cell.hasTile(tileType)          # Vérifier si la cellule contient une tile d'un type donné
-tile = cell.getTile(tileType)         # Obtenir la première tile d'un type donné
-top_tile = cell.getTopTile(position="center")  # Obtenir la topTile (tile du dessus du stack, layer le plus élevé) à une position donnée
-stack = cell.getStack(position="center")       # Obtenir toutes les tiles du stack à une position donnée
-stack_size = cell.getStackSize(position="center")  # Obtenir le nombre de tiles dans le stack à une position donnée
+tile = cell.getRandomTile(tileType)   # Obtenir une tile au hasard d'un type donné
+top_tile = cell.getTopTile(tileType)  # Obtenir la topTile (tile du dessus du stack, layer le plus élevé) d'un type donné (position déterminée par tileType.positionOnCell)
+stack = cell.getStack(tileType)       # Obtenir toutes les tiles du stack d'un type donné (position déterminée par tileType.positionOnCell)
+stack_size = cell.getStackSize(tileType)  # Obtenir le nombre de tiles dans le stack d'un type donné (position déterminée par tileType.positionOnCell)
 ```
 
 ### 8. Intégration dans l'architecture SGE existante

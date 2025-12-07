@@ -20,7 +20,7 @@ class SGTile(SGEntity):
     """
     
     def __init__(self, cell, size, attributesAndValues, shapeColor, type, position="center", 
-                 face="front", frontImage=None, backImage=None, frontColor=None, backColor=None, layer=0):
+                 face="front", frontImage=None, backImage=None, frontColor=None, backColor=None, layer=1):
         """
         Initialize the tile
         
@@ -36,7 +36,7 @@ class SGTile(SGEntity):
             backImage: Image for the back face (QPixmap, optional)
             frontColor: Color for the front face (optional, uses shapeColor if None)
             backColor: Color for the back face (optional, uses shapeColor if None)
-            layer: Z-order/layer for rendering (default: 0)
+            layer: Z-order/layer for rendering (default: 1, consistent with 1-based coordinate system)
         """
         super().__init__(type, size, attributesAndValues)
         
@@ -120,73 +120,20 @@ class SGTile(SGEntity):
         if self.view:
             self.view.update()
 
-    # Position and placement methods
-    def getCell(self):
-        """Get the cell where this tile is placed"""
-        return self.cell
-    
-    def getCoords(self):
-        """Get the coordinates of the cell where this tile is placed"""
-        if self.cell:
-            return (self.cell.xCoord, self.cell.yCoord)
-        return None
-    
-    def placeOn(self, cell, position=None):
-        """
-        Place the tile on a cell
-        
-        Args:
-            cell: The cell to place the tile on
-            position: Position on the cell (optional, uses current position if None)
-        """
-        if cell is None:
-            raise ValueError('Cell cannot be None')
-        
-        # Remove from old cell if any
-        if self.cell and hasattr(self.cell, 'removeTile'):
-            self.cell.removeTile(self)
-        
-        # Place on new cell
-        self.cell = cell
-        if position is not None:
-            self.position = position
-        
-        # Register with new cell
-        if hasattr(cell, 'addTile'):
-            cell.addTile(self)
-        
-        # Update view position
-        if self.view:
-            self.view.updatePositionFromCell()
-    
-    def moveTo(self, cell, position=None):
-        """
-        Move the tile to another cell (alias for placeOn)
-        
-        Args:
-            cell: The cell to move the tile to
-            position: Position on the cell (optional)
-        """
-        self.placeOn(cell, position)
-    
-    # Layer management methods
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+
+    def __MODELER_METHODS__NEW__(self):
+        pass
+
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+
     def setLayer(self, layer):
         """Set the layer/z-index of the tile"""
         self.layer = layer
-        if self.view:
-            self.view.update()
-    
-    def getLayer(self):
-        """Get the layer/z-index of the tile"""
-        return self.layer
-    
-    # Face management methods
-    def flip(self):
-        """Flip the tile to show the other face"""
-        if self.face == "front":
-            self.face = "back"
-        else:
-            self.face = "front"
         if self.view:
             self.view.update()
     
@@ -202,41 +149,14 @@ class SGTile(SGEntity):
         self.face = face
         if self.view:
             self.view.update()
-    
-    def getFace(self):
-        """Get the current visible face"""
-        return self.face
-    
-    def isFaceFront(self):
-        """Check if the front face is visible"""
-        return self.face == "front"
-    
-    def isFaceBack(self):
-        """Check if the back face is visible"""
-        return self.face == "back"
-    
-    # Blocking methods
-    def doesBlockStacking(self):
-        """Check if this tile blocks stacking of other tiles on top"""
-        return self.blocksStacking
-    
-    def doesBlockAgentPlacement(self):
-        """Check if this tile blocks agent placement"""
-        return self.blocksAgentPlacement
-    
-    # Agent interaction methods
-    def getAgentsHere(self):
-        """Get all agents on the cell where this tile is placed"""
-        if self.cell and hasattr(self.cell, 'agents'):
-            return self.cell.agents
-        return []
-    
-    def isOccupied(self):
-        """Check if the tile's cell is occupied by agents"""
-        agents = self.getAgentsHere()
-        return len(agents) > 0
-    
-    # Delete method
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+
+    def __MODELER_METHODS__DELETE__(self):
+        pass
+
     def delete(self):
         """Delete the tile"""
         # Remove from cell
@@ -256,4 +176,220 @@ class SGTile(SGEntity):
         # Clear references
         self.cell = None
         self.view = None
+
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+
+    def __MODELER_METHODS__GET__(self):
+        pass
+
+    def getCell(self):
+        """Get the cell where this tile is placed"""
+        return self.cell
+    
+    def getCoords(self):
+        """Get the coordinates of the cell where this tile is placed"""
+        if self.cell:
+            return (self.cell.xCoord, self.cell.yCoord)
+        return None
+    
+    def getLayer(self):
+        """Get the layer/z-index of the tile"""
+        return self.layer
+    
+    def getFace(self):
+        """Get the current visible face"""
+        return self.face
+    
+    def getAgentsHere(self):
+        """Get all agents on the cell where this tile is placed"""
+        if self.cell and hasattr(self.cell, 'agents'):
+            return self.cell.agents
+        return []
+
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+
+    def __MODELER_METHODS__IS__(self):
+        pass
+
+    def isFaceFront(self):
+        """Check if the front face is visible"""
+        return self.face == "front"
+    
+    def isFaceBack(self):
+        """Check if the back face is visible"""
+        return self.face == "back"
+    
+    def doesBlockStacking(self):
+        """Check if this tile blocks stacking of other tiles on top"""
+        return self.blocksStacking
+    
+    def doesBlockAgentPlacement(self):
+        """Check if this tile blocks agent placement"""
+        return self.blocksAgentPlacement
+    
+    def isOccupied(self):
+        """Check if the tile's cell is occupied by agents"""
+        agents = self.getAgentsHere()
+        return len(agents) > 0
+
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
+
+    def __MODELER_METHODS__DO_DISPLAY__(self):
+        pass
+
+    # @CATEGORY: DO
+    def moveTo(self, aDestinationCell):
+        """
+        Move this tile to a specific cell.
+        
+        This method handles both initial placement and subsequent movements.
+        Use this method for initial tile placement or when moving to a specific cell.
+        
+        Layer management:
+        - On destination cell: If tiles of the same type already exist at the same position,
+          this tile will be automatically stacked on top (layer = max_layer + 1).
+          Otherwise, it uses layer 1 (default).
+        - On source cell: When moving a tile from a stack, the remaining tiles of the same
+          type at the same position will have their layers reorganized (compacted) to maintain
+          a continuous sequence starting from 1.
+        
+        Args:
+            aDestinationCell: The cell where the tile should move
+            
+        Returns:
+            self: The tile (for chaining operations)
+        """
+        if aDestinationCell is None:
+            raise ValueError('Cell cannot be None')
+        
+        if self.cell is None:
+            # First placement
+            # Determine appropriate layer on destination cell BEFORE adding to cell
+            # Check if there are already tiles of the same type at the same position
+            if hasattr(aDestinationCell, 'getMaxLayer'):
+                max_layer = aDestinationCell.getMaxLayer(self.type)
+                
+                if max_layer > 0:
+                    # There are tiles of the same type at this position
+                    # Set layer to max_layer + 1 to stack on top
+                    self.setLayer(max_layer + 1)
+                else:
+                    # No tiles of the same type at this position
+                    # The tile is set to layer (1)
+                    self.setLayer(1)
+            
+            # Set cell reference
+            self.cell = aDestinationCell
+            
+            # Register with cell
+            if hasattr(aDestinationCell, 'addTile'):
+                aDestinationCell.addTile(self)
+            # Update view position
+            if self.view:
+                self.view.updatePositionFromCell()
+                self.view.show()  # Ensure view is visible
+                self.updateView()
+            return self
+        else:
+            # Movement from one cell to another
+            
+            # Store current position and type for layer management
+            old_cell = self.cell
+            old_position = self.position
+            tile_type = self.type
+            
+            # Check if moving to a different grid
+            old_grid = old_cell.type.grid if hasattr(old_cell, 'type') and hasattr(old_cell.type, 'grid') else None
+            new_grid = aDestinationCell.type.grid if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid') else None
+            
+            if old_grid != new_grid and self.view is not None:
+                # Change the parent of the view to the new grid
+                self.view.setParent(new_grid)
+            
+            # Reorganize layers on source cell before removing this tile
+            # Get all tiles of the same type at the same position on the source cell
+            if hasattr(old_cell, 'getTilesAtPosition'):
+                remaining_tiles = old_cell.getTilesAtPosition(old_position, tile_type)
+                # Exclude this tile from the list
+                remaining_tiles = [t for t in remaining_tiles if t != self]
+                
+                # If there are remaining tiles, reorganize their layers (compact layers)
+                if remaining_tiles:
+                    # Sort by current layer
+                    remaining_tiles.sort(key=lambda t: t.layer)
+                    # Reassign layers starting from 1, maintaining relative order
+                    for i, tile in enumerate(remaining_tiles, start=1):
+                        tile.setLayer(i)
+            
+            # Remove from current cell
+            if hasattr(old_cell, 'removeTile'):
+                old_cell.removeTile(self)
+            
+            # Move to new cell
+            self.cell = aDestinationCell
+            
+            # Determine appropriate layer on destination cell
+            # Check if there are already tiles of the same type at the same position
+            if hasattr(aDestinationCell, 'getMaxLayer'):
+                max_layer = aDestinationCell.getMaxLayer(tile_type)
+                
+                if max_layer > 0:
+                    # There are tiles of the same type at this position
+                    # Set layer to max_layer + 1 to stack on top
+                    self.setLayer(max_layer + 1)
+                else:
+                    # No tiles of the same type at this position
+                    # Reset to default layer (1) for a clean start
+                    self.setLayer(1)
+            
+            # Register with new cell
+            if hasattr(aDestinationCell, 'addTile'):
+                aDestinationCell.addTile(self)
+            
+            # Update view position
+            if self.view:
+                self.view.updatePositionFromCell()
+                self.view.show()  # Ensure view is visible
+                self.updateView()
+            
+            return self
+
+    # @CATEGORY: DO
+    def placeOn(self, cell):
+        """
+        Place the tile on a cell (alias for moveTo).
+        
+        This method is provided for modelers who prefer this syntax.
+        It simply calls moveTo() internally.
+        
+        Args:
+            cell: The cell to place the tile on
+            
+        Returns:
+            self: The tile (for chaining operations)
+        """
+        return self.moveTo(cell)
+
+    # @CATEGORY: DO
+    def flip(self):
+        """Flip the tile to show the other face"""
+        if self.face == "front":
+            self.face = "back"
+        else:
+            self.face = "front"
+        if self.view:
+            self.view.update()
+
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+
+    def __MODELER_METHODS__OTHER__(self):
+        pass
 

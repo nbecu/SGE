@@ -35,7 +35,7 @@ from mainClasses.SGEndGameRule import *
 from mainClasses.SGEntity import *
 from mainClasses.SGEntityView import *
 from mainClasses.SGEntityType import *
-from mainClasses.SGGrid import *
+from mainClasses.SGGrid import SGGrid
 from mainClasses.SGGraphController import SGGraphController
 from mainClasses.SGGraphLinear import SGGraphLinear
 from mainClasses.SGGraphCircular import SGGraphCircular
@@ -1880,7 +1880,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aAgentType
 
     def newTileType(self, name, shape, entDefAttributesAndValues=None, defaultSize=20, 
-                    defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray, colorForLegend=None):
+                    positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray, colorForLegend=None):
         """
         Create a new type of Tiles.
 
@@ -1889,7 +1889,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             shape (str): the tileType shape ("rectTile", "circleTile", "ellipseTile", "imageTile")
             entDefAttributesAndValues (dict, optional): all the tileType attributes with all the values
             defaultSize (int): the tileType shape size (Default=20)
-            defaultPositionOnCell (str, optional): Position on cell ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full"). Default="center"
+            positionOnCell (str, optional): Fixed position on cell for all tiles of this type ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full"). Default="center". Cannot be overridden when creating tiles.
             defaultFace (str, optional): Default face for new tiles ("front" or "back", Default="front")
             frontImage (QPixmap, optional): Image for the front face
             backImage (QPixmap, optional): Image for the back face
@@ -1908,65 +1908,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # If colorForLegend is explicitly provided, it will be used (for custom legend colors)
         # Otherwise, SGTileType will use the color of defaultFace (frontColor or backColor)
         aTileType = SGTileType(self, name, shape, defaultSize, entDefAttributesAndValues, colorForLegend,
-                              defaultPositionOnCell, defaultFace, frontImage, backImage, frontColor, backColor)
+                              positionOnCell, defaultFace, frontImage, backImage, frontColor, backColor)
         self.tileTypes[name] = aTileType
         return aTileType
     
-    def loadImagesFromDirectory(self, images_directory):
-        """
-        Load all valid images from a directory.
-        Simple helper method for modelers to easily collect images.
-        
-        Args:
-            images_directory (str or Path): Path to directory containing image files
-            
-        Returns:
-            list: List of QPixmap objects (valid images only)
-            
-        Example:
-            # Load images from directory
-            images = myModel.loadImagesFromDirectory("./images")
-            
-            # Use random image for a tile
-            import random
-            tile = TileType.newTileOnCell(cell, backImage=random.choice(images))
-        """
-        from pathlib import Path
-        from PyQt5.QtGui import QPixmap
-        
-        # Convert to Path if string
-        images_dir = Path(images_directory) if isinstance(images_directory, str) else images_directory
-        
-        if not images_dir.exists():
-            raise ValueError(f"Images directory not found: {images_dir}")
-        
-        # Load and validate image files (filter out invalid images)
-        image_extensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".svg"]
-        all_files = []
-        for ext in image_extensions:
-            all_files.extend(list(images_dir.glob(f"*{ext}")))
-            all_files.extend(list(images_dir.glob(f"*{ext.upper()}")))
-        
-        # Remove duplicates (in case filesystem is case-insensitive like Windows)
-        seen_files = set()
-        unique_files = []
-        for img_file in all_files:
-            normalized_path = str(img_file).lower()
-            if normalized_path not in seen_files:
-                seen_files.add(normalized_path)
-                unique_files.append(img_file)
-        
-        # Validate images by trying to load them
-        valid_images = []
-        for img_file in sorted(unique_files):
-            pixmap = QPixmap(str(img_file))
-            if not pixmap.isNull() and pixmap.width() > 0 and pixmap.height() > 0:
-                valid_images.append(pixmap)
-        
-        if len(valid_images) == 0:
-            raise ValueError(f"No valid image files found in directory: {images_dir}")
-        
-        return valid_images
 
 
     # To create a player
@@ -2950,6 +2895,62 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             print(f"Auto-save of gameAction logs enabled (format: {format}, path: {save_path})")
         else:
             print(f"Auto-save of gameAction logs enabled (format: {format}, user will choose path)")
+
+    def loadImagesFromDirectory(self, images_directory):
+        """
+        Load all valid images from a directory.
+        Simple helper method for modelers to easily collect images.
+        
+        Args:
+            images_directory (str or Path): Path to directory containing image files
+            
+        Returns:
+            list: List of QPixmap objects (valid images only)
+            
+        Example:
+            # Load images from directory
+            images = myModel.loadImagesFromDirectory("./images")
+            
+            # Use random image for a tile
+            import random
+            tile = TileType.newTileOnCell(cell, backImage=random.choice(images))
+        """
+        from pathlib import Path
+        from PyQt5.QtGui import QPixmap
+        
+        # Convert to Path if string
+        images_dir = Path(images_directory) if isinstance(images_directory, str) else images_directory
+        
+        if not images_dir.exists():
+            raise ValueError(f"Images directory not found: {images_dir}")
+        
+        # Load and validate image files (filter out invalid images)
+        image_extensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".svg"]
+        all_files = []
+        for ext in image_extensions:
+            all_files.extend(list(images_dir.glob(f"*{ext}")))
+            all_files.extend(list(images_dir.glob(f"*{ext.upper()}")))
+        
+        # Remove duplicates (in case filesystem is case-insensitive like Windows)
+        seen_files = set()
+        unique_files = []
+        for img_file in all_files:
+            normalized_path = str(img_file).lower()
+            if normalized_path not in seen_files:
+                seen_files.add(normalized_path)
+                unique_files.append(img_file)
+        
+        # Validate images by trying to load them
+        valid_images = []
+        for img_file in sorted(unique_files):
+            pixmap = QPixmap(str(img_file))
+            if not pixmap.isNull() and pixmap.width() > 0 and pixmap.height() > 0:
+                valid_images.append(pixmap)
+        
+        if len(valid_images) == 0:
+            raise ValueError(f"No valid image files found in directory: {images_dir}")
+        
+        return valid_images
 
 
     

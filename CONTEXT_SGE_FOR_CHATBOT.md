@@ -298,14 +298,14 @@ class SGAgent(SGEntity):
     # ============================================================================
     
     # ============================================================================
-    # NEW/ADD/SET METHODS
+    # NEW/ADD METHODS (or NEW/ADD/SET METHODS if combined)
     # ============================================================================
-    # Création et modification
+    # Création
     
     # ============================================================================
-    # DELETE METHODS
+    # SET METHODS (optional, can be combined with NEW/ADD)
     # ============================================================================
-    # Suppression
+    # Modification
     
     # ============================================================================
     # GET/NB METHODS
@@ -313,7 +313,12 @@ class SGAgent(SGEntity):
     # Récupération et comptage
     
     # ============================================================================
-    # IS/HAS METHODS
+    # DELETE METHODS
+    # ============================================================================
+    # Suppression
+    
+    # ============================================================================
+    # IS/HAS METHODS (optional)
     # ============================================================================
     # Tests booléens
     
@@ -321,6 +326,16 @@ class SGAgent(SGEntity):
     # DO/DISPLAY METHODS
     # ============================================================================
     # Actions et affichage
+    
+    # ============================================================================
+    # METRIC METHODS (optional, primarily in SGEntityType)
+    # ============================================================================
+    # Calculs statistiques/métriques (e.g., metricOnEntities, metricOnEntitiesWithValue)
+    
+    # ============================================================================
+    # OTHER MODELER METHODS
+    # ============================================================================
+    # Autres types de méthodes modeler
 ```
 
 **RÈGLE** : Respecter cette structure exacte dans toutes les classes SGE.
@@ -706,7 +721,7 @@ execute_callable_with_entity(lambda a: doSomething(a), agent)
 - **Tri alphabétique** des méthodes dans chaque catégorie
 - **Cartes de méthodes dépliables** avec indicateurs +/- 
 - **Compteurs dynamiques** basés sur les méthodes visibles
-- **Ordre logique SGE** des catégories (NEW, ADD, SET, DELETE, GET, NB, IS, HAS, DO, DISPLAY, OTHER)
+- **Ordre logique SGE** des catégories (NEW, ADD, SET, GET, NB, DELETE, IS, HAS, DO, DISPLAY, METRIC, OTHER)
 - **Bouton "Expand All Methods"** dans le header
 - **Affichage d'héritage unifié** pour classes et méthodes
 - **Scroll optimisé** : seul le contenu défile, header et sidebar fixes

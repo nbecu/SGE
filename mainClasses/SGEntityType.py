@@ -1213,21 +1213,6 @@ class SGCellType(SGEntityType):
         ent = self.getCell(x, y).setValue(aAttribute, aValue)
         return ent
 
-    def setLayoutOrder(self, order):
-        """
-        Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.
-        
-        Args:
-            order (int or str): The layout order value. Use None for auto-assignment.
-                               Use "manual_position" for manually positioned gameSpaces.
-        
-        Example:
-            grid.setLayoutOrder(1)  # Set grid as first in layout
-            legend.setLayoutOrder(3)  # Set legend as third in layout
-            dashboard.setLayoutOrder(None)  # Reset to auto-assignment
-        """
-        self.grid.setLayoutOrder(order)
-
     # ============================================================================
     # GET METHODS
     # ============================================================================
@@ -1346,7 +1331,25 @@ class SGCellType(SGEntityType):
         aCell.update()
 
 
+    # ============================================================================
+    # DO/DISPLAY METHODS
+    # ============================================================================
     
+    def setLayoutOrder(self, order):
+        """
+        Set the layoutOrder for the grid (gameSpace) of this cellDef in Enhanced Grid Layout.
+        
+        Args:
+            order (int or str): The layout order value. Use None for auto-assignment.
+                               Use "manual_position" for manually positioned gameSpaces.
+        
+        Example:
+            grid.setLayoutOrder(1)  # Set grid as first in layout
+            legend.setLayoutOrder(3)  # Set legend as third in layout
+            dashboard.setLayoutOrder(None)  # Reset to auto-assignment
+        """
+        self.grid.setLayoutOrder(order)
+
 
 # ********************************************************    
 
@@ -1447,7 +1450,7 @@ class SGAgentType(SGEntityType):
         for n in range(nbAgents):
             self.newAgentOnCell(aCell, attributesAndValues)
     
-    def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None):
+    def newAgentAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None,image=None,popupImage=None) -> SGAgent:
         """
         Create a new Agent of a given type.
 
@@ -1530,7 +1533,7 @@ class SGAgentType(SGEntityType):
         for n in range(nbAgents):
             self.newAgentAtCoords(cellDef_or_grid, x, y, attributesAndValues)
 
-    def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None):
+    def newAgentAtRandom(self, cellDef_or_grid=None, attributesAndValues=None,condition=None) -> SGAgent:
         """
         Create a new Agent of a given type and place it on a random cell.
         Args:
@@ -1663,7 +1666,7 @@ class SGAgentType(SGEntityType):
 
 class SGTileType(SGEntityType):
     def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, colorForLegend=None, 
-                 defaultPositionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray):
+                 positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray):
         # Store the explicitly provided colorForLegend (if any) for potential customization
         # This will be used only if the modeler explicitly wants a different color for legends
         self._explicitDefaultColor = colorForLegend
@@ -1685,7 +1688,7 @@ class SGTileType(SGEntityType):
         
         # Type identification attribute
         self.isTileType = True
-        self.defaultPositionOnCell = defaultPositionOnCell
+        self.positionOnCell = positionOnCell  # Fixed position for all tiles of this type
         self.defaultFace = defaultFace  # Default face for new tiles ("front" or "back")
         self.frontImage = frontImage
         self.backImage = backImage
@@ -1733,17 +1736,18 @@ class SGTileType(SGEntityType):
         return self.defaultShapeColor
 
     # ===================NEW/ADD/SET METHODS DEVELOPER METHODS==============================================  
-    def newTileOnCellWithModelView(self, aCell, attributesAndValues=None, position=None, face=None, 
-                                    image=None, popupImage=None):
+    def newTileOnCellWithModelView(self, aCell, face=None, attributesAndValues=None, 
+                                    frontImage=None, backImage=None, popupImage=None):
         """
-        Create a new tile using Model-View architecture
+        Create a new tile using Model-View architecture (internal method).
+        Centralizes image handling for all tile creation methods.
         
         Args:
             aCell: The cell where the tile will be placed
-            attributesAndValues: Initial attributes and values
-            position: Position on the cell (optional, uses defaultPositionOnCell if None)
             face: Initial face ("front" or "back", optional, uses defaultFace if None)
-            image: Default image for the tile (optional)
+            attributesAndValues: Initial attributes and values
+            frontImage: Image for the front face (optional, uses tileType default if None)
+            backImage: Image for the back face (optional, uses tileType default if None)
             popupImage: Not used for tiles, kept for compatibility
             
         Returns:
@@ -1754,22 +1758,19 @@ class SGTileType(SGEntityType):
             
         from mainClasses.SGEntityFactory import SGEntityFactory
         
-        # Use default position if not specified
-        if position is None:
-            position = self.defaultPositionOnCell
-        
         # Use default face if not specified
         if face is None:
             face = self.defaultFace
         
-        # Use provided image or default from tileType
-        front_img = image if image is not None else self.frontImage
+        # Use provided images or defaults from tileType
+        front_img = frontImage if frontImage is not None else self.frontImage
+        back_img = backImage if backImage is not None else self.backImage
         
-        # Create tile using factory
+        # Create tile using factory (position is fixed by TileType, handled in factory)
         tile_model, tile_view = SGEntityFactory.newTileWithModelView(
-            self, aCell, attributesAndValues, position, face, 
+            self, aCell, attributesAndValues, face, 
             front_img, 
-            self.backImage, 
+            back_img, 
             self.frontColor, 
             self.backColor
         )
@@ -1793,15 +1794,16 @@ class SGTileType(SGEntityType):
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
-    def newTileOnCell(self, aCell, attributesAndValues=None, position=None, face=None, frontImage=None, backImage=None) -> SGTile:
+    def newTileOnCell(self, aCell, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
         Create a new tile on a specific cell.
+        If a tile of the same type already exists on this cell, automatically stacks on top of it.
+        The position is fixed by the TileType (positionOnCell) and cannot be overridden.
         
         Args:
             aCell (SGCell): Cell where the tile will be placed
-            attributesAndValues (dict, optional): Initial attributes and values for the tile
-            position (str, optional): Position on the cell ("center", "topLeft", etc.). Uses defaultPositionOnCell if None.
             face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
+            attributesAndValues (dict, optional): Initial attributes and values for the tile
             frontImage (QPixmap, optional): Image for the front face (overrides tileType default)
             backImage (QPixmap, optional): Image for the back face (overrides tileType default)
             
@@ -1811,37 +1813,43 @@ class SGTileType(SGEntityType):
         if aCell == None:
             return None
 
-        # Use Model-View method with image support
-        # Pass frontImage as 'image' parameter to newTileOnCellWithModelView
-        result = self.newTileOnCellWithModelView(aCell, attributesAndValues, position, face, frontImage, None)
+        # Use fixed position from TileType (cannot be overridden)
+        position = self.positionOnCell
+
+        # Check if there's already a tile of this type on this cell
+        if hasattr(aCell, 'getTopTile'):
+            existing_top_tile = aCell.getTopTile(self)
+            # Check if the existing tile is of the same type
+            if existing_top_tile is not None and existing_top_tile.type == self:
+                # Redirect to newTileOnTile to stack on top (pass images directly)
+                return self.newTileOnTile(existing_top_tile, face, attributesAndValues, frontImage, backImage)
+
+        # No existing tile of same type on this cell, create normally
+        # Use Model-View method with image support (centralized image handling)
+        result = self.newTileOnCellWithModelView(aCell, face, attributesAndValues, frontImage, backImage)
 
         if result is None:
             return None
 
         # Extract only the model from the tuple
         tile_model, tile_view = result
-        
-        # Set backImage if provided
-        if backImage is not None:
-            tile_model.backImage = backImage
-            if tile_view:
-                tile_view.backImage = backImage
-                tile_view.update()
 
         # Return only the tile for modelers
         return tile_model
 
-    def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, attributesAndValues=None, position=None, face=None):
+    def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
-        Create a new Tile of a given type.
+        Create a new Tile of a given type at specific grid coordinates.
+        The position on the cell is fixed by the TileType (positionOnCell) and cannot be overridden.
 
         Args:
             cellDef_or_grid (instance): the cellDef or grid you want your tile in. If None, the first cellDef and grid will be used
             x (int): Column position in grid (1-indexed)
             y (int): Row position in grid (1-indexed)
-            attributesAndValues (dict, optional): Initial attributes and values
-            position (str, optional): Position on the cell. Uses defaultPositionOnCell if None.
             face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
+            attributesAndValues (dict, optional): Initial attributes and values
+            frontImage (QPixmap, optional): Image for the front face (overrides tileType default)
+            backImage (QPixmap, optional): Image for the back face (overrides tileType default)
         Flexible calling patterns (backward compatible):
             - newTileAtCoords(x, y, ...)
             - newTileAtCoords((x, y), ...)
@@ -1877,16 +1885,18 @@ class SGTileType(SGEntityType):
         if y == None: 
             y = random.randint(1, aGrid.rows)
         locationCell = aCellDef.getCell(x, y)
-        return self.newTileOnCell(locationCell, attributesAndValues, position, face)
+        return self.newTileOnCell(locationCell, face, attributesAndValues, frontImage, backImage)
     
-    def newTileOnTile(self, aTile, attributesAndValues=None, face=None):
+    def newTileOnTile(self, aTile, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
         Create a new tile stacked on top of an existing tile (same type only).
         
         Args:
             aTile (SGTile): The tile to stack on top of
-            attributesAndValues (dict, optional): Initial attributes and values
             face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
+            attributesAndValues (dict, optional): Initial attributes and values
+            frontImage (QPixmap, optional): Image for the front face (overrides tileType default)
+            backImage (QPixmap, optional): Image for the back face (overrides tileType default)
             
         Returns:
             SGTile: The created tile model, or None if creation failed
@@ -1909,17 +1919,26 @@ class SGTileType(SGEntityType):
             if tiles_at_pos:
                 max_layer = max(tile.layer for tile in tiles_at_pos)
         
-        # Create new tile with layer one higher
-        new_tile = self.newTileOnCell(cell, attributesAndValues, position, face)
-        if new_tile:
-            new_tile.setLayer(max_layer + 1)
+        # Create new tile directly using newTileOnCellWithModelView (Option 1: avoids recursion)
+        # This bypasses the auto-stacking check in newTileOnCell()
+        result = self.newTileOnCellWithModelView(cell, face, attributesAndValues, frontImage, backImage)
+        
+        if result is None:
+            return None
+        
+        # Extract the model from the tuple
+        new_tile, tile_view = result
+        
+        # Set layer one higher than the max layer in the stack
+        new_tile.setLayer(max_layer + 1)
         
         return new_tile
     
-    def newTilesWithImages(self, cells, images_directory, num_images=None, repetitions=2, shuffle=True, face="back", position=None):
+    def newTilesWithImages(self, cells, images_directory, num_images=None, repetitions=2, shuffle=True, face="back"):
         """
         Create tiles with images repeated a specified number of times (pairs, triplets, etc.).
         Automatically loads valid images from a directory, creates groups, shuffles them, and places tiles on cells.
+        The position on cells is fixed by the TileType (positionOnCell) and cannot be overridden.
         
         Args:
             cells (list): List of cells where tiles will be placed
@@ -1932,7 +1951,6 @@ class SGTileType(SGEntityType):
                 - etc.
             shuffle (bool, optional): Whether to shuffle the images before placing (default: True)
             face (str, optional): Initial face for tiles ("front" or "back", default: "back")
-            position (str, optional): Position on cells (uses defaultPositionOnCell if None)
             
         Returns:
             list: List of created tiles
@@ -2030,7 +2048,7 @@ class SGTileType(SGEntityType):
         created_tiles = []
         for i, cell in enumerate(cells[:len(image_list)]):
             front_image = image_list[i]
-            tile = self.newTileOnCell(cell, position=position, face=face, frontImage=front_image)
+            tile = self.newTileOnCell(cell, face=face, frontImage=front_image)
             if tile:
                 created_tiles.append(tile)
         
