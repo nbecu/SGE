@@ -3,26 +3,8 @@
 Welcome to SGE!
 
 > 📚For detailed documentation:
-> - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](./docs/SGE_methods/sge_methods_catalog.html) *(works locally; on GitHub, the HTML file shows as source code - use htmlpreview with your current branch name)*
-> - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](./docs/archi_diagrams/index.html) *(works locally; on GitHub, the HTML file shows as source code - use htmlpreview with your current branch name)*
-
-## Installation
-
-Pour installer SGE avec toutes ses dépendances, vous avez deux options :
-
-### Option 1 : Installation avec pip (recommandé)
-```bash
-pip install .
-```
-Cette commande installera automatiquement SGE ainsi que toutes les dépendances listées dans `pyproject.toml`.
-
-### Option 2 : Installation des dépendances uniquement
-```bash
-pip install -r requirements.txt
-```
-Cette commande installe uniquement les dépendances sans installer le package SGE lui-même.
-
-
+> - For **Modeler** (creating games/simulations with SGE) → [README_modeler.md](./README_modeler.md) and [SGE Methods Catalog](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/dev_create_SGTile/docs/SGE_methods/sge_methods_catalog.html)
+> - For **Developer** (contributing to the SGE library) → [README_developer.md](./README_developer.md) and [Architecture Diagrams](https://htmlpreview.github.io/?https://github.com/nbecu/SGE/blob/dev_create_SGTile/docs/archi_diagrams/index.html)
 
 SGE (Simulation Game Editor) is a simulation game editor. It enables the modeling of a simulated environment and the integration of players who interact with the simulation elements through game actions. To enhance the user experience, SGE supports the addition of UI/UX game components—such as buttons, menus, dashboards, graphs, and end-game rules.
 The three pillars of SGE are:
@@ -43,4 +25,36 @@ The simulation runs turn-by-turn, with the platform automatically managing two d
 Simulation data and player actions are automatically recorded and can be visualized through various types of graphs (linear, circular, histograms, stack plots).
 
 
+# Installation
 
+## Prerequisites
+
+- Python 3.10 or higher
+- Git
+
+## Installation Steps
+
+Execute the following commands in your terminal:
+
+1. **Clone the SGE repository:**
+```bash
+git clone https://github.com/nbecu/SGE.git
+cd SGE
+```
+
+2. **(Recommended) Create and activate a virtual environment:**
+```bash
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+
+3. **Install SGE with all its dependencies:**
+```bash
+pip install .
+```
+This command reads the `pyproject.toml` file and will automatically install SGE along with all dependencies listed in it.
+
+**Note:** On Windows, `pywin32` will be automatically installed as part of the dependencies. On macOS/Linux, this dependency will be skipped.
