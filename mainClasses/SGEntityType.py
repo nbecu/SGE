@@ -1817,8 +1817,9 @@ class SGTileType(SGEntityType):
         position = self.positionOnCell
 
         # Check if there's already a tile of this type on this cell
-        if hasattr(aCell, 'getTopTile'):
-            existing_top_tile = aCell.getTopTile(self)
+        if hasattr(aCell, 'getStack'):
+            stack = aCell.getStack(self)
+            existing_top_tile = stack.topTile()
             # Check if the existing tile is of the same type
             if existing_top_tile is not None and existing_top_tile.type == self:
                 # Redirect to newTileOnTile to stack on top (pass images directly)

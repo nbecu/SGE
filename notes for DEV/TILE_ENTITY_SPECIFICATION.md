@@ -206,10 +206,11 @@ tile = tileDef.newTileOnCell(cell, face="back")   # Face arrière par défaut
 - Support pour les formes personnalisées (extension future)
 - **Rendu des deux faces** : Seule la face actuellement visible est rendue (face avant ou face arrière)
 - **Recouvrement complet** : Lorsqu'une tile a `position="full"`, elle recouvre entièrement la cellule et la rend invisible (la tile prend toute la taille de la cellule)
-- **Rendu des stacks** : Le rendu visuel d'un stack (pile de tiles) est configurable par le modeler avec plusieurs modes :
+- **Rendu des stacks** : Le rendu visuel d'un stack (pile de tiles) est configurable par le modeler avec plusieurs modes (À IMPLÉMENTER) :
   - `"topOnly"` : On ne voit que la topTile (la tile du dessus)
   - `"offset"` : On voit les bords des tiles en dessous qui sont toutes légèrement décalées les unes des autres
   - `"stacked"` : On voit un empilement de tiles et le nombre de tiles de la pile est affiché sur le dessus de la pile
+  - **Note** : Actuellement, toutes les tiles d'un stack sont rendues avec leur z-order correct (layers gérés), mais les modes de rendu spécifiques (`topOnly`, `offset`, `stacked`) ne sont pas encore implémentés. Par défaut, toutes les tiles visibles sont affichées.
 - **Intégration avec le rendu** : À vérifier comment c'est fait pour les Agents, et utiliser la même façon de faire que pour les Agents
 
 #### 4.2 Style
@@ -467,17 +468,24 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
 - [~] Interaction agent-tile (partiellement fait : méthodes de base existent `getAgentsHere()`, `isOccupied()`, `doesBlockAgentPlacement()`, mais manque soit possibilité de poser agents sur tuiles, soit getters croisés entre entités - à décider)
 
 ### Phase 4 : Fonctionnalités avancées
-- [~] Empilement de plusieurs tiles (méthodes de base implémentées `getStack()`, `getTopTile()`, `getStackSize()`, mais pas testé, pas d'exemple, affichage visuel des stacks dans l'interface non terminé)
-- [ ] **Classe SGStack (entité virtuelle)** - À IMPLÉMENTER
-  - [ ] Créer le fichier `mainClasses/SGStack.py`
-  - [ ] Implémenter la classe `SGStack` avec attributs et propriété `tiles` (sans cache)
-  - [ ] Implémenter méthodes GET/NB : `size()`, `maxLayer()`, `minLayer()`, `topTile()`, `bottomTile()`, `tileAtLayer()`, `getTilesWithValue()`, `getTilesWithFace()`
-  - [ ] Implémenter méthodes IS/HAS : `isEmpty()`, `contains()`
-  - [ ] Implémenter méthode DO : `shuffle()` (mélange et réassigne layers de 1 à N)
-  - [ ] Modifier `SGCell.getStack()` pour retourner un objet `SGStack` au lieu de `list[SGTile]`
-  - [ ] Supprimer les méthodes redondantes dans `SGCell` : `getStackSize()`, `getMaxLayer()`, `getTopTile()`
-  - [ ] Mettre à jour la documentation et les exemples
+- [x] Empilement de plusieurs tiles (méthodes de base implémentées, exemple créé, gestion automatique des layers et z-order)
+- [x] **Classe SGStack (entité virtuelle)** - IMPLÉMENTÉ
+  - [x] Créer le fichier `mainClasses/SGStack.py`
+  - [x] Implémenter la classe `SGStack` avec attributs et propriété `tiles` (sans cache)
+  - [x] Implémenter méthodes GET/NB : `size()`, `maxLayer()`, `minLayer()`, `topTile()`, `bottomTile()`, `tileAtLayer()`, `getTilesWithValue()`, `getTilesWithFace()`
+  - [x] Implémenter méthodes IS/HAS : `isEmpty()`, `contains()`
+  - [x] Implémenter méthode DO : `shuffle()` (mélange et réassigne layers de 1 à N)
+  - [x] Modifier `SGCell.getStack()` pour retourner un objet `SGStack` au lieu de `list[SGTile]`
+  - [x] Supprimer les méthodes redondantes dans `SGCell` : `getStackSize()`, `getMaxLayer()`, `getTopTile()`
+  - [x] Mettre à jour la documentation et les exemples (`ex_tiles_stack.py` créé)
+  - [x] Utilisation systématique de `SGStack` dans `SGTile.moveTo()` et `SGTile.setLayer()` pour la gestion des layers et z-order
 - [x] Intégration avec les game actions (Flip, Move, Create, Delete, Modify, Activate tous implémentés)
+- [ ] **Modes de rendu des stacks** - À IMPLÉMENTER
+  - [ ] Implémenter le mode `"topOnly"` (afficher uniquement la topTile)
+  - [ ] Implémenter le mode `"offset"` (afficher les bords des tiles décalées)
+  - [ ] Implémenter le mode `"stacked"` (afficher l'empilement avec compteur)
+  - [ ] Ajouter la configuration du mode de rendu dans `SGTileType` (attribut `stackRenderMode`)
+  - [ ] Modifier `SGTileView` pour appliquer le mode de rendu configuré
 - [ ] Model actions sur les tiles
 - [ ] Intégration avec le système POV
 

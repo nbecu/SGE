@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from mainClasses.SGAgent import SGAgent
+    from mainClasses.SGStack import SGStack
 # from mainClasses.gameAction.SGCreate import *  # Commented to avoid circular import
 # from mainClasses.gameAction.SGDelete import *   # Commented to avoid circular import
 # from mainClasses.gameAction.SGModify import *   # Commented to avoid circular import
@@ -762,35 +763,25 @@ class SGCell(SGEntity):
             return self.tiles.copy()
         else:
             return [tile for tile in self.tiles if tile.type == tileType]
-            
-    def getTopTile(self, tileType=None, position=None):
+    
+    def getTilesAtPosition(self, position, tileType=None):
         """
-        Get the top tile (highest layer) for a specific tile type.
-        
-        If tileType is provided, the position is determined by tileType.positionOnCell.
-        If tileType is None, position must be provided (for backward compatibility).
+        Get all tiles at a specific position on this cell, optionally filtered by type
         
         Args:
-            tileType: Optional tile type (if provided, position is determined automatically)
-            position: Position on the cell (only used if tileType is None, default: "center")
+            position: Position on the cell ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full")
+            tileType: Optional tile type to filter by
             
         Returns:
-            SGTile or None: The top tile at this position, or None if no tiles
+            list: List of tiles at the specified position
         """
-        if tileType is not None:
-            # Position is determined by tileType
-            position = tileType.positionOnCell
-            tiles_at_pos = self.getTiles(tileType)
-        else:
-            # Use provided position or default
-            if position is None:
-                position = "center"
-            tiles_at_pos = self.getTilesAtPosition(position)
+        tiles_at_pos = [tile for tile in self.tiles if tile.position == position]
         
-        if not tiles_at_pos:
-            return None
-        return max(tiles_at_pos, key=lambda t: t.layer)
-    
+        if tileType is not None:
+            tiles_at_pos = [tile for tile in tiles_at_pos if tile.type == tileType]
+        
+        return tiles_at_pos
+            
     def getRandomTile(self, tileType):
         """
         Get a random tile of the given type from this cell
@@ -810,7 +801,7 @@ class SGCell(SGEntity):
 
     def getStack(self, tileType):
         """
-        Get all tiles in the stack of a specific type
+        Get the stack of tiles for a specific type
         
         The position is determined by the tileType's positionOnCell attribute.
         All tiles of the same type are always at the same position.
@@ -819,58 +810,10 @@ class SGCell(SGEntity):
             tileType: The tile type to identify the stack
             
         Returns:
-            list: List of tiles in the stack, sorted by layer (lowest to highest)
+            SGStack: A Stack object representing all tiles of this type
         """
-        position = tileType.positionOnCell
-        tiles_at_pos = self.getTilesAtPosition(position, tileType)
-        return sorted(tiles_at_pos, key=lambda t: t.layer)
-    
-    def getStackSize(self, tileType):
-        """
-        Get the number of tiles in the stack of a specific type
-        
-        The position is determined by the tileType's positionOnCell attribute.
-        All tiles of the same type are always at the same position.
-        
-        Args:
-            tileType: The tile type to identify the stack
-            
-        Returns:
-            int: Number of tiles in the stack
-        """
-        position = tileType.positionOnCell
-        return len(self.getTilesAtPosition(position, tileType))
-    
-    def getMaxLayer(self, tileType=None, position=None):
-        """
-        Get the maximum layer for a specific tile type.
-        
-        If tileType is provided, the position is determined by tileType.positionOnCell.
-        If tileType is None, position must be provided (for backward compatibility).
-        
-        Args:
-            tileType: Optional tile type to filter by (if provided, position is determined automatically)
-            position: Position on the cell (only used if tileType is None, default: "center")
-            
-        Returns:
-            int: Maximum layer at this position.
-                 Returns 0 if no tiles exist (indicating default layer 1 should be used).
-                 Returns >= 1 if tiles exist (minimum layer is 1, guaranteed by max(1, ...)).
-        """
-        if tileType is not None:
-            # Position is determined by tileType
-            position = tileType.positionOnCell
-        elif position is None:
-            # Default position if neither tileType nor position provided
-            position = "center"
-        
-        tiles_at_pos = self.getTiles(tileType)
-        if not tiles_at_pos:
-            return 0  # Pas de tiles → utiliser layer 1 par défaut
-        
-        max_layer = max(tile.layer for tile in tiles_at_pos)
-        # Garantir que le layer minimum est 1 (protection contre les bugs)
-        return max(1, max_layer)		
+        from mainClasses.SGStack import SGStack
+        return SGStack(self, tileType)		
 			
 
     def __MODELER_METHODS__IS__(self):

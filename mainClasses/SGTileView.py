@@ -351,6 +351,22 @@ class SGTileView(SGEntityView):
         # Reset dragging state after drag operation completes
         self.dragging = False
     
+    def dragEnterEvent(self, e):
+        """Handle drag enter events"""
+        e.acceptProposedAction()
+
+    def dropEvent(self, e):    
+        """Handle drop events"""
+        # Reset dragging state when drop occurs
+        self.dragging = False
+        
+        if hasattr(e.source(), 'tile_model') and self.tile_model.cell is not None:
+            # Specific case: forward the drop to the cell
+            self.tile_model.cell.dropEvent(e)
+        else:
+            # Fallback: delegate the drop handling to the parent model
+            self.tile_model.model.dropEvent(e)
+    
     def updateFromModel(self):
         """Update view properties from model"""
         if self.tile_model:

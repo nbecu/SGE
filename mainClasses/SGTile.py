@@ -61,10 +61,23 @@ class SGTile(SGEntity):
         
         # Two faces system
         self.face = face  # "front" or "back"
-        self.frontImage = frontImage
-        self.backImage = backImage
+        
+        # Define colors first (to avoid duplication)
         self.frontColor = frontColor if frontColor is not None else shapeColor
         self.backColor = backColor if backColor is not None else shapeColor
+        
+        # Fill transparent areas in images with corresponding colors
+        from mainClasses.SGExtensions import fillTransparentAreas
+        
+        if frontImage is not None and isinstance(frontImage, QPixmap):
+            self.frontImage = fillTransparentAreas(frontImage, self.frontColor)
+        else:
+            self.frontImage = frontImage
+        
+        if backImage is not None and isinstance(backImage, QPixmap):
+            self.backImage = fillTransparentAreas(backImage, self.backColor)
+        else:
+            self.backImage = backImage
         
         # Layer/z-index for stacking
         self.layer = layer
@@ -132,10 +145,46 @@ class SGTile(SGEntity):
     # ============================================================================
 
     def setLayer(self, layer):
-        """Set the layer/z-index of the tile"""
+        """
+        Set the layer/z-index of the tile and update z-order rendering
+        
+        Args:
+            layer: The layer number (1-based, where 1 is the bottom layer)
+        """
         self.layer = layer
         if self.view:
+            # Update the view's layer property to keep it in sync
+            self.view.layer = layer
+            # Reorganize z-order for all tiles in the same cell
+            self._updateZOrderInCell()
             self.view.update()
+    
+    def _updateZOrderInCell(self):
+        """
+        Update the z-order (stacking order) of all tiles in the same cell
+        Lower layers are rendered first, higher layers are on top
+        
+        Uses SGStack to get tiles sorted by layer
+        """
+        if not self.cell or not hasattr(self.cell, 'getStack'):
+            return
+        
+        # Get the stack for this tile type (all tiles of same type are at same position)
+        stack = self.cell.getStack(self.type)
+        tiles_in_stack = stack.tiles  # Already sorted by layer
+        
+        if not tiles_in_stack:
+            return
+        
+        # Reorganize z-order: lower all tiles first, then raise them in layer order
+        for tile in tiles_in_stack:
+            if hasattr(tile, 'view') and tile.view:
+                tile.view.lower()  # Start by lowering all tiles
+        
+        # Now raise tiles in order of their layer (higher layers on top)
+        for tile in tiles_in_stack:
+            if hasattr(tile, 'view') and tile.view:
+                tile.view.raise_()
     
     def setFace(self, face):
         """
@@ -272,8 +321,9 @@ class SGTile(SGEntity):
             # First placement
             # Determine appropriate layer on destination cell BEFORE adding to cell
             # Check if there are already tiles of the same type at the same position
-            if hasattr(aDestinationCell, 'getMaxLayer'):
-                max_layer = aDestinationCell.getMaxLayer(self.type)
+            if hasattr(aDestinationCell, 'getStack'):
+                stack = aDestinationCell.getStack(self.type)
+                max_layer = stack.maxLayer()
                 
                 if max_layer > 0:
                     # There are tiles of the same type at this position
@@ -313,19 +363,31 @@ class SGTile(SGEntity):
                 self.view.setParent(new_grid)
             
             # Reorganize layers on source cell before removing this tile
-            # Get all tiles of the same type at the same position on the source cell
-            if hasattr(old_cell, 'getTilesAtPosition'):
-                remaining_tiles = old_cell.getTilesAtPosition(old_position, tile_type)
+            # Use SGStack to get tiles of the same type at the same position
+            if hasattr(old_cell, 'getStack'):
+                stack = old_cell.getStack(tile_type)
+                all_tiles_in_stack = stack.tiles  # Already sorted by layer
                 # Exclude this tile from the list
-                remaining_tiles = [t for t in remaining_tiles if t != self]
+                remaining_tiles = [t for t in all_tiles_in_stack if t != self]
                 
                 # If there are remaining tiles, reorganize their layers (compact layers)
                 if remaining_tiles:
-                    # Sort by current layer
-                    remaining_tiles.sort(key=lambda t: t.layer)
                     # Reassign layers starting from 1, maintaining relative order
+                    # Update layer without triggering z-order update for each tile individually
                     for i, tile in enumerate(remaining_tiles, start=1):
-                        tile.setLayer(i)
+                        tile.layer = i
+                        if tile.view:
+                            tile.view.layer = i
+                    
+                    # Reorganize z-order once for all remaining tiles in the stack
+                    # Lower all tiles first
+                    for tile in remaining_tiles:
+                        if tile.view:
+                            tile.view.lower()
+                    # Then raise them in layer order
+                    for tile in remaining_tiles:
+                        if tile.view:
+                            tile.view.raise_()
             
             # Remove from current cell
             if hasattr(old_cell, 'removeTile'):
@@ -334,23 +396,29 @@ class SGTile(SGEntity):
             # Move to new cell
             self.cell = aDestinationCell
             
-            # Determine appropriate layer on destination cell
+            # Determine appropriate layer on destination cell BEFORE adding to cell
             # Check if there are already tiles of the same type at the same position
-            if hasattr(aDestinationCell, 'getMaxLayer'):
-                max_layer = aDestinationCell.getMaxLayer(tile_type)
+            if hasattr(aDestinationCell, 'getStack'):
+                stack = aDestinationCell.getStack(tile_type)
+                max_layer = stack.maxLayer()
                 
                 if max_layer > 0:
                     # There are tiles of the same type at this position
                     # Set layer to max_layer + 1 to stack on top
-                    self.setLayer(max_layer + 1)
+                    new_layer = max_layer + 1
                 else:
                     # No tiles of the same type at this position
                     # Reset to default layer (1) for a clean start
-                    self.setLayer(1)
+                    new_layer = 1
+            else:
+                new_layer = 1
             
             # Register with new cell
             if hasattr(aDestinationCell, 'addTile'):
                 aDestinationCell.addTile(self)
+            
+            # Now set the layer (after adding to cell, so z-order update includes this tile)
+            self.setLayer(new_layer)
             
             # Update view position
             if self.view:

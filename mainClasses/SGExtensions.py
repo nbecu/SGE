@@ -4,7 +4,7 @@ This file groups all general utility methods, as well as class extensions (Qt or
 Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 """
 
-from PyQt5.QtGui import QFontMetrics, QFont, QPainter
+from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap
 from PyQt5.QtCore import QRectF, Qt
 
 def drawTextAutoSized(self, aleft, atop, text, font=None, align=0, padding_width=0, padding_height=0):
@@ -213,6 +213,38 @@ def _extend_qt_colors():
 _extend_qt_colors()
 
 # Utilities
+
+def fillTransparentAreas(pixmap, fillColor):
+    """
+    Fill transparent areas of a QPixmap with a given color.
+    
+    This utility function creates a new pixmap with transparent areas filled
+    with the specified color, useful for ensuring images have solid backgrounds.
+    
+    Args:
+        pixmap: QPixmap image with potential transparent areas
+        fillColor: QColor to fill transparent areas with
+        
+    Returns:
+        QPixmap: New pixmap with transparent areas filled, or original pixmap if None/invalid
+    """
+    from PyQt5.QtGui import QPainter
+    
+    if pixmap is None or pixmap.isNull():
+        return pixmap
+    
+    # Create a new pixmap with the same size
+    filled_pixmap = QPixmap(pixmap.size())
+    # Fill with the background color
+    filled_pixmap.fill(fillColor)
+    
+    # Create a painter to composite the original image over the filled background
+    painter = QPainter(filled_pixmap)
+    painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+    painter.drawPixmap(0, 0, pixmap)
+    painter.end()
+    
+    return filled_pixmap
 
 def first_value(d, default=None):
     """
