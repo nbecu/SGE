@@ -204,6 +204,9 @@ class SGCell(SGEntity):
     # MODELER METHODS
     # ============================================================================
 
+    def __MODELER_METHODS__NEW__(self):
+        pass
+
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
@@ -229,6 +232,9 @@ class SGCell(SGEntity):
         return agent_type.newAgentOnCell(self,adictAttributes)
 		
 
+    def __MODELER_METHODS__DELETE__(self):
+        pass
+
     # ============================================================================
     # DELETE METHODS
     # ============================================================================
@@ -241,6 +247,9 @@ class SGCell(SGEntity):
             if hasattr(agent, 'view') and agent.view:
                 agent.view.deleteLater()
             self.removeAgent(agent)
+
+    def __MODELER_METHODS__GET__(self):
+        pass
 
     # ============================================================================
     # GET/NB METHODS
@@ -381,6 +390,40 @@ class SGCell(SGEntity):
             if agent.type.name == typeName:
                 return agent
         return None
+
+    def getRandomAgent(self, type_name=None):
+        """
+        Get a random agent from this cell.
+        
+        Args:
+            type_name (str or SGAgentDef, optional): The agent type name or SGAgentDef object.
+                If None, returns a random agent from all agents in the cell.
+                
+        Returns:
+            SGAgent or None: A random agent of the specified type (or random agent if type_name is None), 
+            or None if no agent is found
+            
+        Example:
+            # Get random agent among all agents
+            random_agent = cell.getRandomAgent()
+            
+            # Get random agent of a specific type
+            random_sheep = cell.getRandomAgent("Sheeps")
+        """
+        import random
+        
+        if type_name is None:
+            # Return random agent from all agents
+            return random.choice(self.agents) if self.agents else None
+        
+        # Filter by type
+        typeName = normalize_type_name(type_name)
+        agents_of_type = [agent for agent in self.agents if agent.type.name == typeName]
+        
+        if not agents_of_type:
+            return None
+        
+        return random.choice(agents_of_type)
 
 
     def getNeighborCells(self, condition=None, neighborhood=None):
@@ -600,24 +643,6 @@ class SGCell(SGEntity):
 
         return results
 
-
-
-    def distanceTo(self, otherCell):
-        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
-        """
-        Compute Euclidean distance to another cell.
-
-        Args:
-            otherCell (SGCell): The target cell.
-
-        Returns:
-            float: Euclidean distance between the two cells.
-        """
-        dx = self.xCoord - otherCell.xCoord
-        dy = self.yCoord - otherCell.yCoord
-        return (dx * dx + dy * dy) ** 0.5
-
-
     def getClosestNeighborMatching(self, max_distance=1, conditions=None, neighborhood=None):
         """
         Get the closest cell within a given radius that matches all given conditions.
@@ -693,11 +718,9 @@ class SGCell(SGEntity):
 
         # Step 3: If there are agent conditions, filter cells that have at least one matching agent
         if conditions_on_agent:
-            def agent_satisfies_conditions(agent):
-                return all(cond(agent) for cond in conditions_on_agent)
             matching_cells = [
                 cell for cell in matching_cells 
-                if any(agent_satisfies_conditions(agent) for agent in cell.getAgents(agent_type))
+                if any(all(cond(agent) for cond in conditions_on_agent) for agent in cell.getAgents(agent_type))
             ]
 
         # Step 4: If no cells remain, return None
@@ -850,6 +873,9 @@ class SGCell(SGEntity):
         return max(1, max_layer)		
 			
 
+    def __MODELER_METHODS__IS__(self):
+        pass
+
     # ============================================================================
     # IS/HAS METHODS
     # ============================================================================
@@ -942,15 +968,36 @@ class SGCell(SGEntity):
             return not has_agents_of_type and not has_tiles_of_type
 
 
+    def __MODELER_METHODS__DO_DISPLAY__(self):
+        pass
+
     # ============================================================================
     # DO/DISPLAY METHODS
     # ============================================================================
 
     # (No specific DO/DISPLAY methods in SGCell - inherited from SGEntity)
 
+    def __MODELER_METHODS__METRIC__(self):
+        pass
+
     # ============================================================================
-    # METRICS METHODS
+    # METRIC METHODS
     # ============================================================================
+
+    def distanceTo(self, otherCell):
+        #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
+        """
+        Compute Euclidean distance to another cell.
+
+        Args:
+            otherCell (SGCell): The target cell.
+
+        Returns:
+            float: Euclidean distance between the two cells.
+        """
+        dx = self.xCoord - otherCell.xCoord
+        dy = self.yCoord - otherCell.yCoord
+        return (dx * dx + dy * dy) ** 0.5
 
     def nbAgents(self, type_name=None):
         """
@@ -986,6 +1033,9 @@ class SGCell(SGEntity):
         else:
             return len([tile for tile in self.tiles if tile.type == tileType])
     			    
+
+    def __MODELER_METHODS__OTHER__(self):
+        pass
 
     # ============================================================================
     # OTHER MODELER METHODS

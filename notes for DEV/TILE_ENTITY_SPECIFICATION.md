@@ -144,6 +144,12 @@ tile2 = tileDef.newTileOnTile(tile)  # Crée une nouvelle tile empilée sur la t
   - La tile du dessous (layer le plus bas) est appelée **bottomTile**
   - Un stack peut être déplacé en entier d'un coup selon la configuration du modeler
 - **Contrainte importante** : On ne peut empiler que des tiles d'un même TileType (toutes les tiles d'un stack doivent avoir le même `tileDef`)
+- **Principe fondamental** : Dans un stack, les tiles sont toujours ordonnées de 1 à N où :
+  - Layer 1 = tile tout en bas (première posée)
+  - Layer N = tile tout en haut (dernière posée)
+  - L'ordre des tiles dans le stack = leur layer
+  - Les layers sont toujours continus de 1 à N (pas de gaps)
+  - Le layer représente la position dans l'empilement (1 = bas, N = haut)
 
 #### 3.4 Système de deux faces (FONCTIONNALITÉ PRINCIPALE)
 - **Chaque tile a deux faces** : face avant (visible par défaut) et face arrière
@@ -243,9 +249,7 @@ tile = tileDef.newTileOnCell(cell, face="back")   # Face arrière par défaut
   - `cell.nbTiles(tileType=None)` - Compter les tiles sur la cellule (toutes ou par type)
   - `cell.hasTile(tileType)` - Vérifier si la cellule contient une tile d'un type donné
   - `cell.getRandomTile(tileType)` - Obtenir une tile au hasard d'un type donné sur la cellule
-  - `cell.getTopTile(tileType)` - Obtenir la topTile (la tile du dessus du stack, layer le plus élevé) d'un type donné (la position est déterminée par le tileType)
-  - `cell.getStack(tileType)` - Obtenir toutes les tiles du stack d'un type donné (la position est déterminée par le tileType)
-  - `cell.getStackSize(tileType)` - Obtenir le nombre de tiles dans le stack d'un type donné (la position est déterminée par le tileType)
+  - `cell.getStack(tileType)` - Obtenir un objet Stack (entité virtuelle) pour un type donné (la position est déterminée par le tileType)
 
 #### 5.3 Game Actions
 - **Comme pour les Cells et les Agents, les Tiles peuvent avoir des gameActions associées**
@@ -341,10 +345,53 @@ tiles = cell.getTiles(tileType=None)  # Obtenir toutes les tiles ou filtrer par 
 nb = cell.nbTiles(tileType=None)      # Compter les tiles (toutes ou par type)
 has = cell.hasTile(tileType)          # Vérifier si la cellule contient une tile d'un type donné
 tile = cell.getRandomTile(tileType)   # Obtenir une tile au hasard d'un type donné
-top_tile = cell.getTopTile(tileType)  # Obtenir la topTile (tile du dessus du stack, layer le plus élevé) d'un type donné (position déterminée par tileType.positionOnCell)
-stack = cell.getStack(tileType)       # Obtenir toutes les tiles du stack d'un type donné (position déterminée par tileType.positionOnCell)
-stack_size = cell.getStackSize(tileType)  # Obtenir le nombre de tiles dans le stack d'un type donné (position déterminée par tileType.positionOnCell)
+stack = cell.getStack(tileType)       # Obtenir un objet Stack (entité virtuelle) pour un type donné (position déterminée par tileType.positionOnCell)
 ```
+
+#### 7.4 Méthodes Stack (SGStack) - Entité virtuelle
+La classe `SGStack` représente un empilement de tiles du même type à une position donnée. C'est une entité virtuelle qui permet d'interroger et de manipuler un stack de manière cohérente.
+
+**Création** :
+```python
+# Obtenir un Stack pour un type de tile donné
+stack = cell.getStack(tileType)  # Retourne un objet SGStack
+```
+
+**Attributs** :
+- `stack.cell` : Référence à la cellule (SGCell)
+- `stack.tileType` : Type de tuile (SGTileType)
+- `stack.position` : Position sur la cellule (dérivée de `tileType.positionOnCell`)
+- `stack.tiles` : Propriété calculée retournant la liste des tiles triée par layer (recalculée à chaque accès, sans cache)
+
+**Méthodes GET/NB** :
+```python
+size = stack.size()                    # Nombre de tiles dans le stack
+max_layer = stack.maxLayer()           # Layer maximum dans le stack
+min_layer = stack.minLayer()           # Layer minimum dans le stack
+top_tile = stack.topTile()             # Tile avec le layer le plus élevé (None si vide)
+bottom_tile = stack.bottomTile()       # Tile avec le layer le plus bas (None si vide)
+tile = stack.tileAtLayer(layer)        # Tile à un layer spécifique (None si inexistant)
+tiles = stack.getTilesWithValue(attribute, value)  # Tiles avec un attribut/valeur spécifique
+tiles = stack.getTilesWithFace(face)   # Tiles avec une face spécifique ("front" ou "back")
+```
+
+**Méthodes IS/HAS** :
+```python
+is_empty = stack.isEmpty()             # Vérifie si le stack est vide
+contains = stack.contains(tile)        # Vérifie si une tile spécifique est dans le stack
+```
+
+**Méthodes DO** :
+```python
+stack.shuffle()                         # Mélange les tiles et réassigne les layers de 1 à N
+```
+
+**Notes importantes** :
+- Le Stack est une vue virtuelle : les données sont recalculées à chaque accès (pas de cache)
+- Les layers sont toujours continus de 1 à N (pas de gaps)
+- `shuffle()` mélange l'ordre des tiles puis réassigne les layers de 1 à N dans le nouvel ordre
+- Le Stack ne peut pas ajouter ou retirer des tiles par lui-même (c'est fait par des éléments extérieurs)
+- `getStack()` remplace les anciennes méthodes `getStackSize()`, `getMaxLayer()`, `getTopTile()` qui sont supprimées
 
 ### 8. Intégration dans l'architecture SGE existante
 
@@ -421,6 +468,15 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
 
 ### Phase 4 : Fonctionnalités avancées
 - [~] Empilement de plusieurs tiles (méthodes de base implémentées `getStack()`, `getTopTile()`, `getStackSize()`, mais pas testé, pas d'exemple, affichage visuel des stacks dans l'interface non terminé)
+- [ ] **Classe SGStack (entité virtuelle)** - À IMPLÉMENTER
+  - [ ] Créer le fichier `mainClasses/SGStack.py`
+  - [ ] Implémenter la classe `SGStack` avec attributs et propriété `tiles` (sans cache)
+  - [ ] Implémenter méthodes GET/NB : `size()`, `maxLayer()`, `minLayer()`, `topTile()`, `bottomTile()`, `tileAtLayer()`, `getTilesWithValue()`, `getTilesWithFace()`
+  - [ ] Implémenter méthodes IS/HAS : `isEmpty()`, `contains()`
+  - [ ] Implémenter méthode DO : `shuffle()` (mélange et réassigne layers de 1 à N)
+  - [ ] Modifier `SGCell.getStack()` pour retourner un objet `SGStack` au lieu de `list[SGTile]`
+  - [ ] Supprimer les méthodes redondantes dans `SGCell` : `getStackSize()`, `getMaxLayer()`, `getTopTile()`
+  - [ ] Mettre à jour la documentation et les exemples
 - [x] Intégration avec les game actions (Flip, Move, Create, Delete, Modify, Activate tous implémentés)
 - [ ] Model actions sur les tiles
 - [ ] Intégration avec le système POV

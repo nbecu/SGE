@@ -189,17 +189,17 @@ class SGAgent(SGEntity):
     # MODELER METHODS
     # ============================================================================
 
+    def __MODELER_METHODS__NEW__(self):
+        pass
+
     # ============================================================================
     # NEW/ADD/SET METHODS
     # ============================================================================
 
   
 
-    # ============================================================================
-    # DELETE METHODS
-    # ============================================================================
-
-    # (No delete methods specific to agents in this class)
+    def __MODELER_METHODS__GET__(self):
+        pass
 
     # ============================================================================
     # GET/NB METHODS
@@ -244,19 +244,6 @@ class SGAgent(SGEntity):
         # Filter by type
         return [agent for agent in agents if agent.type.name == agent_type]
 
-    def nbAgentsHere(self, agent_type=None):
-        """
-        Get the number of agents in the same cell as this agent.
-
-        Args:
-            agent_type (str | None): If specified, only agents of this type are counted.
-
-        Returns:
-            int: Number of matching agents in the same cell.
-        """
-        if self.cell is None:
-            return 0
-        return len(self.getAgentsHere(agent_type))
 
     def getNeighborCells(self, neighborhood=None):
         """Get neighbor cells"""
@@ -340,6 +327,18 @@ class SGAgent(SGEntity):
             return self.filterByType(agent_type, theCell.agents)
         return theCell.agents
 
+    def __MODELER_METHODS__DELETE__(self):
+        pass
+
+    # ============================================================================
+    # DELETE METHODS
+    # ============================================================================
+
+    # (No delete methods specific to agents in this class)
+
+    def __MODELER_METHODS__IS__(self):
+        pass
+
     # ============================================================================
     # IS/HAS METHODS
     # ============================================================================
@@ -361,6 +360,9 @@ class SGAgent(SGEntity):
         if self.cell is None:
             return False
         return len(self.getAgentsHere(specie)) > 0
+
+    def __MODELER_METHODS__DO_DISPLAY__(self):
+        pass
 
     # ============================================================================
     # DO/DISPLAY METHODS
@@ -550,6 +552,31 @@ class SGAgent(SGEntity):
 
         best_cell = min(neighbors, key=lambda n: dist(n, target_cell))
         self.moveTo(best_cell)
+
+
+    def __MODELER_METHODS__METRIC__(self):
+        pass
+
+    # ============================================================================
+    # METRIC METHODS
+    # ============================================================================
+
+    def nbAgentsHere(self, agent_type=None):
+        """
+        Get the number of agents in the same cell as this agent.
+
+        Args:
+            agent_type (str | None): If specified, only agents of this type are counted.
+
+        Returns:
+            int: Number of matching agents in the same cell.
+        """
+        if self.cell is None:
+            return 0
+        return len(self.getAgentsHere(agent_type))
+
+    def __MODELER_METHODS__OTHER__(self):
+        pass
 
     # ============================================================================
     # OTHER MODELER METHODS
