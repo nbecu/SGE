@@ -65,6 +65,60 @@ class SGTileView(SGEntityView):
         # Calculate initial position
         self.getPositionInCell()
     
+    def _shouldRenderTile(self):
+        """
+        Determine if this tile should be rendered based on stackRenderMode.
+        
+        Returns:
+            tuple: (should_render: bool, offset_x: int, offset_y: int, stack_size: int)
+                - should_render: True if tile should be rendered
+                - offset_x: X offset for rendering (for offset mode)
+                - offset_y: Y offset for rendering (for offset mode)
+                - stack_size: Total number of tiles in the stack
+        """
+        if self.cell is None or not hasattr(self.cell, 'getStack'):
+            return True, 0, 0, 1
+        
+        # Get the stack for this tile type
+        stack = self.cell.getStack(self.tile_model.type)
+        all_tiles = stack.tiles  # Already sorted by layer (lowest to highest)
+        stack_size = len(all_tiles)
+        
+        if stack_size == 0:
+            return True, 0, 0, 1
+        
+        render_mode = self.tile_model.type.stackRenderMode
+        max_visible = self.tile_model.type.maxVisibleTiles
+        
+        if render_mode == "topOnly":
+            # Only render if this is the top tile
+            top_tile = stack.topTile()
+            should_render = (top_tile is not None and top_tile == self.tile_model)
+            return should_render, 0, 0, stack_size
+        
+        elif render_mode == "offset":
+            # Render tiles with offset, but limit to maxVisibleTiles (top tiles)
+            visible_tiles = all_tiles[-max_visible:] if stack_size > max_visible else all_tiles
+            
+            if self.tile_model not in visible_tiles:
+                return False, 0, 0, stack_size
+            
+            # Calculate offset based on position in visible_tiles
+            # visible_tiles is sorted from bottom to top, so index 0 is bottom, last is top
+            index_in_visible = visible_tiles.index(self.tile_model)
+            # Reverse index so top tile (last in list) has the largest offset
+            reversed_index = len(visible_tiles) - 1 - index_in_visible
+            # Offset: use configurable offset amount from tileType
+            offset_amount = self.tile_model.type.stackOffsetAmount
+            offset_x = reversed_index * offset_amount
+            offset_y = reversed_index * offset_amount
+            
+            return True, offset_x, offset_y, stack_size
+        
+        else:
+            # Default: render all tiles
+            return True, 0, 0, stack_size
+    
     def getPositionInCell(self):
         """
         Calculate the absolute position of the tile within its cell
@@ -117,12 +171,55 @@ class SGTileView(SGEntityView):
         self.xCoord = cell_x + round(relX)
         self.yCoord = cell_y + round(relY)
         
+        # Apply offset if needed (for offset rendering mode)
+        self._applyOffsetIfNeeded()
+        
         # Update the view position
         try:
             self.setGeometry(self.xCoord, self.yCoord, tile_size, tile_size)
         except RuntimeError:
             # Tile view has been deleted, ignore the error
             pass
+    
+    def _applyOffsetIfNeeded(self):
+        """
+        Apply geometric offset to tile position for offset rendering mode.
+        This actually moves the widget position, not just the painter.
+        """
+        if self.cell is None or not hasattr(self.cell, 'getStack'):
+            return
+        
+        # Get the stack for this tile type
+        stack = self.cell.getStack(self.tile_model.type)
+        all_tiles = stack.tiles  # Already sorted by layer (lowest to highest)
+        stack_size = len(all_tiles)
+        
+        if stack_size == 0:
+            return
+        
+        render_mode = self.tile_model.type.stackRenderMode
+        max_visible = self.tile_model.type.maxVisibleTiles
+        
+        if render_mode == "offset":
+            # Render tiles with offset, but limit to maxVisibleTiles (top tiles)
+            visible_tiles = all_tiles[-max_visible:] if stack_size > max_visible else all_tiles
+            
+            if self.tile_model not in visible_tiles:
+                return
+            
+            # Calculate offset based on position in visible_tiles
+            # visible_tiles is sorted from bottom to top, so index 0 is bottom, last is top
+            index_in_visible = visible_tiles.index(self.tile_model)
+            # Reverse index so top tile (last in list) has the largest offset
+            reversed_index = len(visible_tiles) - 1 - index_in_visible
+            # Offset: use configurable offset amount from tileType
+            offset_amount = self.tile_model.type.stackOffsetAmount
+            offset_x = reversed_index * offset_amount
+            offset_y = reversed_index * offset_amount
+            
+            # Apply offset to coordinates
+            self.xCoord += offset_x
+            self.yCoord += offset_y
     
     def updatePositionFromCell(self):
         """Update tile position when cell moves"""
@@ -133,10 +230,15 @@ class SGTileView(SGEntityView):
     
     def paintEvent(self, event):
         """Paint the tile"""
+        # Check if this tile should be rendered based on stackRenderMode
+        should_render, offset_x, offset_y, stack_size = self._shouldRenderTile()
+        
+        if not should_render:
+            # Don't render this tile (it's hidden by stackRenderMode)
+            return
+        
         painter = QPainter() 
         painter.begin(self)
-        region = self.getRegion()
-        painter.setClipRegion(region)
         
         # Get image and color based on current face
         if self.tile_model.face == "front":
@@ -145,6 +247,13 @@ class SGTileView(SGEntityView):
         else:  # back
             image = self.backImage if self.backImage is not None else self.getImage()
             color = self.backColor if self.backColor is not None else self.getColor()
+        
+        # Note: Offset is now applied geometrically in _applyOffsetIfNeeded()
+        # No need to translate the painter anymore
+        
+        # Set clip region
+        region = self.getRegion()
+        painter.setClipRegion(region)
         
         # Draw image if available
         if image is not None:
@@ -191,6 +300,54 @@ class SGTileView(SGEntityView):
                 # Default to rectangle
                 self.setGeometry(x, y, tile_size, tile_size)
                 painter.drawRect(0, 0, tile_size, tile_size)
+        
+        # Draw stack counter if enabled (only on top tile)
+        if self.tile_model.type.showCounter and stack_size > 1:
+            # Check if this is the top tile
+            stack = self.cell.getStack(self.tile_model.type)
+            top_tile = stack.topTile()
+            if top_tile is not None and top_tile == self.tile_model:
+                # Draw counter text on top tile
+                painter.setPen(QPen(Qt.black, 1))
+                painter.setFont(QFont("Arial", max(8, tile_size // 6), QFont.Bold))
+                counter_text = str(stack_size)
+                text_rect = painter.fontMetrics().boundingRect(counter_text)
+                
+                # Position counter based on counterPosition setting
+                counter_position = self.tile_model.type.counterPosition
+                margin = 2
+                
+                if counter_position == "topRight":
+                    text_x = tile_size - text_rect.width() - margin
+                    text_y = text_rect.height() + margin
+                    bg_x = text_x - 1
+                    bg_y = 1
+                elif counter_position == "topLeft":
+                    text_x = margin
+                    text_y = text_rect.height() + margin
+                    bg_x = text_x - 1
+                    bg_y = 1
+                elif counter_position == "bottomRight":
+                    text_x = tile_size - text_rect.width() - margin
+                    text_y = tile_size - margin
+                    bg_x = text_x - 1
+                    bg_y = tile_size - text_rect.height() - 1
+                elif counter_position == "bottomLeft":
+                    text_x = margin
+                    text_y = tile_size - margin
+                    bg_x = text_x - 1
+                    bg_y = tile_size - text_rect.height() - 1
+                else:  # center
+                    text_x = round((tile_size - text_rect.width()) / 2)
+                    text_y = round((tile_size + text_rect.height()) / 2)
+                    bg_x = text_x - 1
+                    bg_y = text_y - text_rect.height() - 1
+                
+                # Draw background for text (white with slight transparency)
+                bg_rect = QRect(int(bg_x), int(bg_y), text_rect.width() + 2, text_rect.height() + 2)
+                painter.fillRect(bg_rect, QColor(255, 255, 255, 200))
+                # Draw text
+                painter.drawText(int(text_x), int(text_y), counter_text)
                 
         painter.end()
     

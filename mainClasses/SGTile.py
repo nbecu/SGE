@@ -47,6 +47,10 @@ class SGTile(SGEntity):
         self.isTile = True
         
         # Tile-specific properties
+        # Position and layer must be set before addTile to avoid AttributeError
+        self.position = position
+        self.layer = layer  # Layer must be set before addTile() which accesses stack.tiles
+        
         self.cell = None
         if cell is not None:
             self.cell = cell
@@ -55,9 +59,6 @@ class SGTile(SGEntity):
                 cell.addTile(self)
         else:
             raise ValueError('Tile must be placed on a cell')
-        
-        # Position on the cell
-        self.position = position
         
         # Two faces system
         self.face = face  # "front" or "back"
@@ -78,9 +79,6 @@ class SGTile(SGEntity):
             self.backImage = fillTransparentAreas(backImage, self.backColor)
         else:
             self.backImage = backImage
-        
-        # Layer/z-index for stacking
-        self.layer = layer
         
         # Save reference size for zoom calculations (like SGCell and SGAgent)
         self.saveSize = size
@@ -402,12 +400,17 @@ class SGTile(SGEntity):
             else:
                 new_layer = 1
             
-            # Register with new cell
+            # Set the layer BEFORE adding to cell, so stack.tiles and position calculations use the correct layer
+            self.layer = new_layer
+            if self.view:
+                self.view.layer = new_layer
+            
+            # Register with new cell (now with correct layer)
             if hasattr(aDestinationCell, 'addTile'):
                 aDestinationCell.addTile(self)
             
-            # Now set the layer (after adding to cell, so z-order update includes this tile)
-            self.setLayer(new_layer)
+            # Update z-order after adding to cell (so z-order update includes this tile)
+            self._updateZOrderInCell()
             
             # Update view position
             if self.view:

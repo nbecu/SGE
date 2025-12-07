@@ -206,11 +206,15 @@ tile = tileDef.newTileOnCell(cell, face="back")   # Face arrière par défaut
 - Support pour les formes personnalisées (extension future)
 - **Rendu des deux faces** : Seule la face actuellement visible est rendue (face avant ou face arrière)
 - **Recouvrement complet** : Lorsqu'une tile a `position="full"`, elle recouvre entièrement la cellule et la rend invisible (la tile prend toute la taille de la cellule)
-- **Rendu des stacks** : Le rendu visuel d'un stack (pile de tiles) est configurable par le modeler avec plusieurs modes (À IMPLÉMENTER) :
+- **Rendu des stacks** : Le rendu visuel d'un stack (pile de tiles) est configurable par le modeler avec plusieurs modes :
   - `"topOnly"` : On ne voit que la topTile (la tile du dessus)
-  - `"offset"` : On voit les bords des tiles en dessous qui sont toutes légèrement décalées les unes des autres
-  - `"stacked"` : On voit un empilement de tiles et le nombre de tiles de la pile est affiché sur le dessus de la pile
-  - **Note** : Actuellement, toutes les tiles d'un stack sont rendues avec leur z-order correct (layers gérés), mais les modes de rendu spécifiques (`topOnly`, `offset`, `stacked`) ne sont pas encore implémentés. Par défaut, toutes les tiles visibles sont affichées.
+  - `"offset"` : On voit les bords des tiles en dessous qui sont toutes légèrement décalées les unes des autres. Le nombre de tiles affichées est limité par `maxVisible` (par défaut: 5) pour éviter un décalage cumulé trop important. Seules les tiles du dessus sont affichées.
+  - **Compteur** : Un compteur affichant la taille du stack peut être activé pour n'importe quel mode avec le paramètre `showCounter` (par défaut: `False`). Le compteur s'affiche sur la tile du dessus.
+  - **Configuration** : Le rendu des stacks est configuré lors de la création du `TileType` avec le paramètre `stackRendering` (dict), ou peut être modifié après avec `tileType.setStackRenderMode(stackRendering)`. Le dictionnaire `stackRendering` contient :
+    - `"mode"` (str) : Mode de rendu (`"topOnly"` ou `"offset"`, défaut: `"offset"`)
+    - `"maxVisible"` (int, optionnel) : Nombre maximum de tiles visibles (défaut: 5)
+    - `"offset"` (int, optionnel) : Décalage en pixels entre les tiles en mode offset (défaut: 3)
+    - `"showCounter"` (bool, optionnel) : Afficher un compteur sur la tile du dessus (défaut: `False`)
 - **Intégration avec le rendu** : À vérifier comment c'est fait pour les Agents, et utiliser la même façon de faire que pour les Agents
 
 #### 4.2 Style
@@ -480,12 +484,16 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
   - [x] Mettre à jour la documentation et les exemples (`ex_tiles_stack.py` créé)
   - [x] Utilisation systématique de `SGStack` dans `SGTile.moveTo()` et `SGTile.setLayer()` pour la gestion des layers et z-order
 - [x] Intégration avec les game actions (Flip, Move, Create, Delete, Modify, Activate tous implémentés)
-- [ ] **Modes de rendu des stacks** - À IMPLÉMENTER
-  - [ ] Implémenter le mode `"topOnly"` (afficher uniquement la topTile)
-  - [ ] Implémenter le mode `"offset"` (afficher les bords des tiles décalées)
-  - [ ] Implémenter le mode `"stacked"` (afficher l'empilement avec compteur)
-  - [ ] Ajouter la configuration du mode de rendu dans `SGTileType` (attribut `stackRenderMode`)
-  - [ ] Modifier `SGTileView` pour appliquer le mode de rendu configuré
+- [x] **Modes de rendu des stacks** - IMPLÉMENTÉ
+  - [x] Implémenter le mode `"topOnly"` (afficher uniquement la topTile)
+  - [x] Implémenter le mode `"offset"` (afficher les bords des tiles décalées, limité à `maxVisible`)
+  - [x] Implémenter le mode `"topOnly"` (afficher uniquement la tile du dessus)
+  - [x] Ajouter le paramètre `showCounter` pour afficher un compteur sur n'importe quel mode
+  - [x] Refactoriser la configuration du rendu des stacks avec un dictionnaire `stackRendering` (suppression du mode `"stacked"` qui était redondant)
+  - [x] Ajouter la configuration du mode de rendu dans `SGTileType` avec `stackRendering` dict
+  - [x] Ajouter la méthode `setStackRenderMode()` dans `SGTileType` pour changer le mode après création
+  - [x] Modifier `SGTileView` pour appliquer le mode de rendu configuré
+  - [x] Validation des valeurs dans `newTileType()` et `setStackRenderMode()`
 - [ ] Model actions sur les tiles
 - [ ] Intégration avec le système POV
 

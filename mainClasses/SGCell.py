@@ -119,11 +119,26 @@ class SGCell(SGEntity):
             if hasattr(self, 'view') and self.view:
                 if hasattr(tile, 'view') and tile.view:
                     tile.view.updatePositionFromCell()
+                # Update positions of all tiles in the same stack (for offset mode)
+                # Only update if tile has all required attributes (might be in initialization)
+                if (hasattr(tile, 'type') and hasattr(tile.type, 'stackRenderMode') and 
+                    hasattr(tile, 'position') and hasattr(tile, 'layer')):
+                    stack = self.getStack(tile.type)
+                    for stack_tile in stack.tiles:
+                        if hasattr(stack_tile, 'view') and stack_tile.view:
+                            stack_tile.view.updatePositionFromCell()
     
     def removeTile(self, tile):
         """Remove a tile from this cell"""
         if tile in self.tiles:
             self.tiles.remove(tile)
+            # Update positions of remaining tiles in the same stack (for offset mode)
+            # Only update if tile has position attribute (might be in initialization)
+            if hasattr(tile, 'type') and hasattr(tile.type, 'stackRenderMode') and hasattr(tile, 'position'):
+                stack = self.getStack(tile.type)
+                for stack_tile in stack.tiles:
+                    if hasattr(stack_tile, 'view') and stack_tile.view:
+                        stack_tile.view.updatePositionFromCell()
 
 
     def shouldAcceptDropFrom(self, entity):

@@ -1666,7 +1666,8 @@ class SGAgentType(SGEntityType):
 
 class SGTileType(SGEntityType):
     def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, colorForLegend=None, 
-                 positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray):
+                 positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray,
+                 stackRendering=None):
         # Store the explicitly provided colorForLegend (if any) for potential customization
         # This will be used only if the modeler explicitly wants a different color for legends
         self._explicitDefaultColor = colorForLegend
@@ -1694,6 +1695,33 @@ class SGTileType(SGEntityType):
         self.backImage = backImage
         self.frontColor = frontColor
         self.backColor = backColor
+        
+        # Stack rendering configuration
+        # Set default stackRendering if not provided
+        if stackRendering is None:
+            stackRendering = {}
+        
+        # Extract and validate stack rendering parameters
+        self.stackRenderMode = stackRendering.get("mode", "offset")  # "topOnly" or "offset"
+        if self.stackRenderMode not in ["topOnly", "offset"]:
+            raise ValueError(f"Invalid stackRendering mode: {self.stackRenderMode}. Must be one of: topOnly, offset")
+        
+        self.maxVisibleTiles = stackRendering.get("maxVisible", 5)  # Maximum number of tiles to display in a stack
+        if not isinstance(self.maxVisibleTiles, int) or self.maxVisibleTiles < 1:
+            raise ValueError(f"stackRendering maxVisible must be a positive integer, got: {self.maxVisibleTiles}")
+        
+        self.stackOffsetAmount = stackRendering.get("offset", 3)  # Pixel offset amount between tiles in offset mode
+        if not isinstance(self.stackOffsetAmount, (int, float)) or self.stackOffsetAmount < 0:
+            raise ValueError(f"stackRendering offset must be a non-negative number, got: {self.stackOffsetAmount}")
+        
+        self.showCounter = stackRendering.get("showCounter", False)  # Display counter on top tile
+        if not isinstance(self.showCounter, bool):
+            raise ValueError(f"stackRendering showCounter must be a boolean, got: {self.showCounter}")
+        
+        self.counterPosition = stackRendering.get("counterPosition", "topRight")  # Position of counter on tile
+        valid_positions = ["topRight", "topLeft", "bottomRight", "bottomLeft", "center"]
+        if self.counterPosition not in valid_positions:
+            raise ValueError(f"stackRendering counterPosition must be one of {valid_positions}, got: {self.counterPosition}")
     
     @property
     def defaultShapeColor(self):
@@ -1734,6 +1762,72 @@ class SGTileType(SGEntityType):
             QColor: The color of the default face
         """
         return self.defaultShapeColor
+    
+    def setStackRenderMode(self, stackRendering):
+        """
+        Set the stack rendering configuration for this tile type.
+        
+        Args:
+            stackRendering (dict): Stack rendering configuration. Dictionary with keys:
+                - "mode" (str): Rendering mode. Must be one of:
+                    - "topOnly": Only the top tile is visible
+                    - "offset": Tiles are displayed with slight offsets (showing edges)
+                - "maxVisible" (int, optional): Maximum number of tiles to display in a stack.
+                    If not provided, uses the current maxVisibleTiles value.
+                    Always shows the top tiles when limiting.
+                - "offset" (int, optional): Pixel offset amount between tiles in offset rendering mode.
+                    If not provided, uses the current stackOffsetAmount value.
+                    Each tile is offset by this amount multiplied by its position in the visible stack.
+                    Only used when mode="offset".
+                - "showCounter" (bool, optional): Display a counter on the top tile showing stack size.
+                    If not provided, uses the current showCounter value.
+                - "counterPosition" (str, optional): Position of the counter on the tile.
+                    Must be one of: "topRight", "topLeft", "bottomRight", "bottomLeft", "center".
+                    If not provided, uses the current counterPosition value.
+        """
+        if not isinstance(stackRendering, dict):
+            raise ValueError(f"stackRendering must be a dictionary, got: {type(stackRendering)}")
+        
+        # Update mode if provided
+        if "mode" in stackRendering:
+            mode = stackRendering["mode"]
+            if mode not in ["topOnly", "offset"]:
+                raise ValueError(f"Invalid stackRendering mode: {mode}. Must be one of: topOnly, offset")
+            self.stackRenderMode = mode
+        
+        # Update maxVisible if provided
+        if "maxVisible" in stackRendering:
+            maxVisible = stackRendering["maxVisible"]
+            if not isinstance(maxVisible, int) or maxVisible < 1:
+                raise ValueError(f"stackRendering maxVisible must be a positive integer, got: {maxVisible}")
+            self.maxVisibleTiles = maxVisible
+        
+        # Update offset if provided
+        if "offset" in stackRendering:
+            offset = stackRendering["offset"]
+            if not isinstance(offset, (int, float)) or offset < 0:
+                raise ValueError(f"stackRendering offset must be a non-negative number, got: {offset}")
+            self.stackOffsetAmount = offset
+        
+        # Update showCounter if provided
+        if "showCounter" in stackRendering:
+            showCounter = stackRendering["showCounter"]
+            if not isinstance(showCounter, bool):
+                raise ValueError(f"stackRendering showCounter must be a boolean, got: {showCounter}")
+            self.showCounter = showCounter
+        
+        # Update counterPosition if provided
+        if "counterPosition" in stackRendering:
+            counterPosition = stackRendering["counterPosition"]
+            valid_positions = ["topRight", "topLeft", "bottomRight", "bottomLeft", "center"]
+            if counterPosition not in valid_positions:
+                raise ValueError(f"stackRendering counterPosition must be one of {valid_positions}, got: {counterPosition}")
+            self.counterPosition = counterPosition
+        
+        # Update all existing tile views to reflect the change
+        for tile in self.entities:
+            if hasattr(tile, 'view') and tile.view:
+                tile.view.update()
 
     # ===================NEW/ADD/SET METHODS DEVELOPER METHODS==============================================  
     def newTileOnCellWithModelView(self, aCell, face=None, attributesAndValues=None, 

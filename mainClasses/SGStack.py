@@ -46,11 +46,23 @@ class SGStack:
             return []
         
         # Get tiles at the position for this tile type
-        tiles_at_pos = [tile for tile in self.cell.tiles 
-                       if tile.position == self.position and tile.type == self.tileType]
+        # Safely check for position attribute (tile might be in initialization)
+        tiles_at_pos = []
+        for tile in self.cell.tiles:
+            try:
+                if hasattr(tile, 'position') and hasattr(tile, 'type') and tile.position == self.position and tile.type == self.tileType:
+                    tiles_at_pos.append(tile)
+            except AttributeError:
+                # Tile is still being initialized, skip it
+                continue
         
         # Sort by layer (lowest to highest)
-        return sorted(tiles_at_pos, key=lambda t: t.layer)
+        # Safely handle tiles that might not have layer attribute yet
+        try:
+            return sorted(tiles_at_pos, key=lambda t: t.layer if hasattr(t, 'layer') else 0)
+        except AttributeError:
+            # Fallback: return unsorted if there's still an issue
+            return tiles_at_pos
     
     # ============================================================================
     # GET/NB METHODS

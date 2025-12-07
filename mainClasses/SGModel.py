@@ -1879,14 +1879,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.agentTypes[name]=aAgentType
         return aAgentType
 
-    def newTileType(self, name, shape, entDefAttributesAndValues=None, defaultSize=20, 
-                    positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray, colorForLegend=None):
+    def newTileType(self, name, shape="rectTile", entDefAttributesAndValues=None, defaultSize=20, 
+                    positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray, colorForLegend=None,
+                    stackRendering=None):
         """
         Create a new type of Tiles.
 
         Args:
             name (str): the tileType name
-            shape (str): the tileType shape ("rectTile", "circleTile", "ellipseTile", "imageTile")
+            shape (str, optional): the tileType shape ("rectTile", "circleTile", "ellipseTile", "imageTile"). Default: "rectTile"
             entDefAttributesAndValues (dict, optional): all the tileType attributes with all the values
             defaultSize (int): the tileType shape size (Default=20)
             positionOnCell (str, optional): Fixed position on cell for all tiles of this type ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full"). Default="center". Cannot be overridden when creating tiles.
@@ -1898,17 +1899,59 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             colorForLegend (QColor, optional): Explicit color for legends/ControlPanels. If not specified, 
                 the color is determined dynamically from defaultFace (uses frontColor if defaultFace="front", 
                 backColor if defaultFace="back"). This allows legends to show the color of the visible face by default.
+            stackRendering (dict, optional): Stack rendering configuration. Dictionary with keys:
+                - "mode" (str): Rendering mode. Must be one of:
+                    - "topOnly": Only the top tile is visible
+                    - "offset": Tiles are displayed with slight offsets (showing edges)
+                - "maxVisible" (int, optional): Maximum number of tiles to display in a stack.
+                    Always shows the top tiles when limiting. Default: 5
+                - "offset" (int, optional): Pixel offset amount between tiles in offset rendering mode.
+                    Each tile is offset by this amount multiplied by its position in the visible stack.
+                    Only used when mode="offset". Default: 3
+                - "showCounter" (bool, optional): Display a counter on the top tile showing stack size.
+                    Default: False
+                - "counterPosition" (str, optional): Position of the counter on the tile.
+                    Must be one of: "topRight", "topLeft", "bottomRight", "bottomLeft", "center".
+                    Default: "topRight"
+                If None, defaults to {"mode": "offset", "maxVisible": 5, "offset": 3, "showCounter": False, "counterPosition": "topRight"}
         Return:
             a tileType
         """
         if shape not in ["rectTile", "circleTile", "ellipseTile", "imageTile"]:
             raise ValueError(f"Invalid shape: {shape}. Must be one of: rectTile, circleTile, ellipseTile, imageTile")
         
+        # Set default stackRendering if not provided
+        if stackRendering is None:
+            stackRendering = {}
+        
+        # Validate and set defaults for stackRendering
+        mode = stackRendering.get("mode", "offset")
+        if mode not in ["topOnly", "offset"]:
+            raise ValueError(f"Invalid stackRendering mode: {mode}. Must be one of: topOnly, offset")
+        
+        maxVisible = stackRendering.get("maxVisible", 5)
+        if not isinstance(maxVisible, int) or maxVisible < 1:
+            raise ValueError(f"stackRendering maxVisible must be a positive integer, got: {maxVisible}")
+        
+        offset = stackRendering.get("offset", 3)
+        if not isinstance(offset, (int, float)) or offset < 0:
+            raise ValueError(f"stackRendering offset must be a non-negative number, got: {offset}")
+        
+        showCounter = stackRendering.get("showCounter", False)
+        if not isinstance(showCounter, bool):
+            raise ValueError(f"stackRendering showCounter must be a boolean, got: {showCounter}")
+        
+        counterPosition = stackRendering.get("counterPosition", "topRight")
+        valid_positions = ["topRight", "topLeft", "bottomRight", "bottomLeft", "center"]
+        if counterPosition not in valid_positions:
+            raise ValueError(f"stackRendering counterPosition must be one of {valid_positions}, got: {counterPosition}")
+        
         # Pass colorForLegend=None to let SGTileType determine it dynamically from defaultFace
         # If colorForLegend is explicitly provided, it will be used (for custom legend colors)
         # Otherwise, SGTileType will use the color of defaultFace (frontColor or backColor)
         aTileType = SGTileType(self, name, shape, defaultSize, entDefAttributesAndValues, colorForLegend,
-                              positionOnCell, defaultFace, frontImage, backImage, frontColor, backColor)
+                              positionOnCell, defaultFace, frontImage, backImage, frontColor, backColor,
+                              stackRendering)
         self.tileTypes[name] = aTileType
         return aTileType
     
