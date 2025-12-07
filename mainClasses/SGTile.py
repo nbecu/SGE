@@ -140,11 +140,20 @@ class SGTile(SGEntity):
 
     def setLayer(self, layer):
         """
-        Set the layer/z-index of the tile and update z-order rendering
+        Set the layer (z-index) of this tile and update z-order rendering.
+        
+        Layers are 1-based, where 1 is the bottom layer and higher numbers are on top.
+        This method automatically reorganizes the z-order of all tiles in the same stack
+        to ensure correct visual stacking.
         
         Args:
-            layer: The layer number (1-based, where 1 is the bottom layer)
+            layer (int): The layer number (1-based, must be >= 1)
+            
+        Returns:
+            self: The tile (for chaining operations)
         """
+        if not isinstance(layer, int) or layer < 1:
+            raise ValueError(f"Layer must be a positive integer, got: {layer}")
         self.layer = layer
         if self.view:
             # Update the view's layer property to keep it in sync
@@ -152,6 +161,7 @@ class SGTile(SGEntity):
             # Reorganize z-order for all tiles in the same cell
             self._updateZOrderInCell()
             self.view.update()
+        return self
     
     def _updateZOrderInCell(self):
         """
@@ -182,16 +192,23 @@ class SGTile(SGEntity):
     
     def setFace(self, face):
         """
-        Set the visible face
+        Set the visible face of this tile.
         
         Args:
-            face: "front" or "back"
+            face (str): "front" to show the front face, or "back" to show the back face
+            
+        Raises:
+            ValueError: If face is not "front" or "back"
+            
+        Returns:
+            self: The tile (for chaining operations)
         """
         if face not in ["front", "back"]:
             raise ValueError('Face must be "front" or "back"')
         self.face = face
         if self.view:
             self.view.update()
+        return self
 
     # ============================================================================
     # DELETE METHODS
@@ -201,7 +218,17 @@ class SGTile(SGEntity):
         pass
 
     def delete(self):
-        """Delete the tile"""
+        """
+        Delete this tile from the game.
+        
+        This method:
+        - Removes the tile from its cell (and reorganizes layers if needed)
+        - Removes the tile from its type's entities list
+        - Hides and deletes the tile's view
+        - Clears all references
+        
+        After calling this method, the tile should not be used anymore.
+        """
         # Remove from cell
         if self.cell and hasattr(self.cell, 'removeTile'):
             self.cell.removeTile(self)
@@ -228,25 +255,53 @@ class SGTile(SGEntity):
         pass
 
     def getCell(self):
-        """Get the cell where this tile is placed"""
+        """
+        Get the cell where this tile is placed.
+        
+        Returns:
+            SGCell: The cell containing this tile, or None if not placed
+        """
         return self.cell
     
     def getCoords(self):
-        """Get the coordinates of the cell where this tile is placed"""
+        """
+        Get the grid coordinates of the cell where this tile is placed.
+        
+        Returns:
+            tuple: (x, y) coordinates of the cell (1-indexed), or None if tile is not placed
+        """
         if self.cell:
             return (self.cell.xCoord, self.cell.yCoord)
         return None
     
     def getLayer(self):
-        """Get the layer/z-index of the tile"""
+        """
+        Get the layer (z-index) of this tile in its stack.
+        
+        Layers are 1-based, where 1 is the bottom layer and higher numbers are on top.
+        In a stack, layers are always continuous from 1 to N (no gaps).
+        
+        Returns:
+            int: The layer number (1-based)
+        """
         return self.layer
     
     def getFace(self):
-        """Get the current visible face"""
+        """
+        Get the currently visible face of this tile.
+        
+        Returns:
+            str: "front" or "back" indicating which face is currently visible
+        """
         return self.face
     
     def getAgentsHere(self):
-        """Get all agents on the cell where this tile is placed"""
+        """
+        Get all agents on the cell where this tile is placed.
+        
+        Returns:
+            list: List of SGAgent objects on the same cell as this tile
+        """
         if self.cell and hasattr(self.cell, 'agents'):
             return self.cell.agents
         return []
@@ -259,16 +314,31 @@ class SGTile(SGEntity):
         pass
 
     def isFaceFront(self):
-        """Check if the front face is visible"""
+        """
+        Check if the front face is currently visible.
+        
+        Returns:
+            bool: True if front face is visible, False if back face is visible
+        """
         return self.face == "front"
     
     def isFaceBack(self):
-        """Check if the back face is visible"""
+        """
+        Check if the back face is currently visible.
+        
+        Returns:
+            bool: True if back face is visible, False if front face is visible
+        """
         return self.face == "back"
 
     
     def isOccupied(self):
-        """Check if the tile's cell is occupied by agents"""
+        """
+        Check if the cell containing this tile is occupied by any agents.
+        
+        Returns:
+            bool: True if at least one agent is on the same cell, False otherwise
+        """
         agents = self.getAgentsHere()
         return len(agents) > 0
 
@@ -438,13 +508,24 @@ class SGTile(SGEntity):
 
     # @CATEGORY: DO
     def flip(self):
-        """Flip the tile to show the other face"""
+        """
+        Flip the tile to show the other face.
+        
+        If the front face is currently visible, it switches to the back face.
+        If the back face is currently visible, it switches to the front face.
+        
+        This method updates the view immediately to reflect the change.
+        
+        Returns:
+            self: The tile (for chaining operations)
+        """
         if self.face == "front":
             self.face = "back"
         else:
             self.face = "front"
         if self.view:
             self.view.update()
+        return self
 
     # ============================================================================
     # OTHER MODELER METHODS

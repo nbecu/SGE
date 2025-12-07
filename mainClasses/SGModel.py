@@ -1884,21 +1884,35 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     stackRendering=None):
         """
         Create a new type of Tiles.
-
+        
+        This method creates a TileType factory that can be used to create Tile instances.
+        All tiles of the same type share fixed properties like position on cell, default face,
+        colors, images, and stack rendering configuration.
+        
         Args:
-            name (str): the tileType name
-            shape (str, optional): the tileType shape ("rectTile", "circleTile", "ellipseTile", "imageTile"). Default: "rectTile"
-            entDefAttributesAndValues (dict, optional): all the tileType attributes with all the values
-            defaultSize (int): the tileType shape size (Default=20)
-            positionOnCell (str, optional): Fixed position on cell for all tiles of this type ("center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full"). Default="center". Cannot be overridden when creating tiles.
-            defaultFace (str, optional): Default face for new tiles ("front" or "back", Default="front")
-            frontImage (QPixmap, optional): Image for the front face
-            backImage (QPixmap, optional): Image for the back face
-            frontColor (QColor, optional): Color for the front face (default: Qt.lightGray)
-            backColor (QColor, optional): Color for the back face (default: Qt.darkGray)
-            colorForLegend (QColor, optional): Explicit color for legends/ControlPanels. If not specified, 
-                the color is determined dynamically from defaultFace (uses frontColor if defaultFace="front", 
-                backColor if defaultFace="back"). This allows legends to show the color of the visible face by default.
+            name (str): The tileType name (must be unique)
+            shape (str, optional): The tileType shape. Must be one of:
+                - "rectTile": Rectangular tile
+                - "circleTile": Circular tile
+                - "ellipseTile": Elliptical tile
+                - "imageTile": Tile rendered only with an image (no geometric shape)
+                Default: "rectTile"
+            entDefAttributesAndValues (dict, optional): Default attributes and values for tiles of this type
+            defaultSize (int, optional): The tileType shape size in pixels. Default: 20
+            positionOnCell (str, optional): Fixed position on cell for all tiles of this type.
+                Must be one of: "center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full".
+                Default: "center". Cannot be overridden when creating tiles.
+            defaultFace (str, optional): Default face for new tiles ("front" or "back").
+                Default: "front"
+            frontImage (QPixmap, optional): Default image for the front face
+            backImage (QPixmap, optional): Default image for the back face
+            frontColor (QColor, optional): Color for the front face. Default: Qt.lightGray
+            backColor (QColor, optional): Color for the back face. Default: Qt.darkGray
+            colorForLegend (QColor, optional): Explicit color for legends/ControlPanels.
+                If not specified, the color is determined dynamically from defaultFace:
+                - Uses frontColor if defaultFace="front"
+                - Uses backColor if defaultFace="back"
+                This allows legends to show the color of the visible face by default.
             stackRendering (dict, optional): Stack rendering configuration. Dictionary with keys:
                 - "mode" (str): Rendering mode. Must be one of:
                     - "topOnly": Only the top tile is visible
@@ -1914,8 +1928,25 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     Must be one of: "topRight", "topLeft", "bottomRight", "bottomLeft", "center".
                     Default: "topRight"
                 If None, defaults to {"mode": "offset", "maxVisible": 5, "offset": 3, "showCounter": False, "counterPosition": "topRight"}
-        Return:
-            a tileType
+        
+        Returns:
+            SGTileType: The created tile type factory
+            
+        Raises:
+            ValueError: If shape is invalid, or if stackRendering parameters are invalid
+            
+        Example:
+            # Create a simple tile type
+            tileType = model.newTileType("Forest", shape="rectTile", frontColor=Qt.green)
+            
+            # Create a tile type with stack rendering
+            cardType = model.newTileType(
+                "Card",
+                shape="rectTile",
+                frontColor=Qt.blue,
+                backColor=Qt.red,
+                stackRendering={"mode": "offset", "showCounter": True, "counterPosition": "topLeft"}
+            )
         """
         if shape not in ["rectTile", "circleTile", "ellipseTile", "imageTile"]:
             raise ValueError(f"Invalid shape: {shape}. Must be one of: rectTile, circleTile, ellipseTile, imageTile")

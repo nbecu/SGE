@@ -7,11 +7,18 @@ USAGE EXAMPLES:
 
 1. Generate complete method catalog:
    from mainClasses.SGMethodsCatalog import SGMethodsCatalog
+   import os
+   
    catalog = SGMethodsCatalog()
    catalog.generate_catalog()
-   catalog.save_to_json("sge_methods_catalog.json")
-   catalog.generate_html("sge_methods_catalog.html")
-   catalog.generate_snippets("sge_methods_snippets.json")
+   
+   # Save files to docs/SGE_methods/ directory
+   output_dir = "docs/SGE_methods"
+   os.makedirs(output_dir, exist_ok=True)
+   
+   catalog.save_to_json(os.path.join(output_dir, "sge_methods_catalog.json"))
+   catalog.generate_html(os.path.join(output_dir, "sge_methods_catalog.html"))
+   catalog.generate_snippets(os.path.join(output_dir, "sge_methods_snippets.json"))
 
 2. Automatic method tagging:
    from mainClasses.SGMethodsCatalog import SGMethodsCatalog
@@ -1061,6 +1068,12 @@ class SGMethodsCatalog:
                 case 'SGAgentType':
                     objectName = 'Agents';
                     break;
+                case 'SGTile':
+                    objectName = 'tile';
+                    break;
+                case 'SGTileType':
+                    objectName = 'Tile';
+                    break;
                 default:
                     objectName = 'object';
             }
@@ -1566,8 +1579,8 @@ class SGMethodsCatalog:
             # Get direct parent classes
             parent_classes = inheritance.get(current_class, []) or []
             
-            # For SGAgent and SGCell, add AttributeAndValueFunctionalities explicitly
-            if current_class in ['SGAgent', 'SGCell']:
+            # For SGAgent, SGCell, and SGTile, add AttributeAndValueFunctionalities explicitly
+            if current_class in ['SGAgent', 'SGCell', 'SGTile']:
                 if 'AttributeAndValueFunctionalities' not in parent_classes:
                     parent_classes = parent_classes + ['AttributeAndValueFunctionalities']
             
@@ -1679,7 +1692,7 @@ class SGMethodsCatalog:
             return [
                 "${1:agent} = ${2:cell}.newAgentHere(${3:agent_type}${4:, adictAttributes=${5:None}})"
             ]
-        elif class_name in ["SGEntityType", "SGCellType", "SGAgentType"] and method_name.startswith("new"):
+        elif class_name in ["SGEntityType", "SGCellType", "SGAgentType", "SGTileType"] and method_name.startswith("new"):
             return [
                 "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
             ]
@@ -1772,8 +1785,9 @@ if __name__ == "__main__":
     classes = [
         "mainClasses/SGCell.py",
         "mainClasses/SGEntity.py",
-        "mainClasses/SGEntityType.py",  # SGCellType and  SGAgenType and defined in SGEntityType.py
+        "mainClasses/SGEntityType.py",  # SGCellType, SGAgentType, and SGTileType are defined in SGEntityType.py
         "mainClasses/SGAgent.py",
+        "mainClasses/SGTile.py",
         "mainClasses/SGModel.py",
         # "mainClasses/AttributeAndValueFunctionalities.py"
     ]

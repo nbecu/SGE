@@ -1665,9 +1665,54 @@ class SGAgentType(SGEntityType):
 # ********************************************************    
 
 class SGTileType(SGEntityType):
+    """
+    SGTileType - Factory class for creating Tile entities
+    
+    This class acts as a factory for creating SGTile instances. It defines the properties
+    and default values for a type of tile, including position, faces, colors, images,
+    and stack rendering configuration.
+    
+    All tiles of the same type share:
+    - Fixed position on cells (positionOnCell)
+    - Default face (defaultFace)
+    - Default colors and images for both faces
+    - Stack rendering configuration
+    """
+    
     def __init__(self, sgModel, name, shape, defaultsize, entDefAttributesAndValues, colorForLegend=None, 
                  positionOnCell="center", defaultFace="front", frontImage=None, backImage=None, frontColor=Qt.lightGray, backColor=Qt.darkGray,
                  stackRendering=None):
+        """
+        Initialize a new TileType.
+        
+        Args:
+            sgModel (SGModel): The model instance
+            name (str): Name of the tile type
+            shape (str): Shape of the tile ("rectTile", "circleTile", "ellipseTile", "imageTile")
+            defaultsize (int): Default size of tiles of this type
+            entDefAttributesAndValues (dict, optional): Default attributes and values for tiles
+            colorForLegend (QColor, optional): Explicit color for legends/ControlPanels.
+                If None, determined dynamically from defaultFace (uses frontColor if defaultFace="front",
+                backColor if defaultFace="back")
+            positionOnCell (str, optional): Fixed position on cell for all tiles of this type.
+                Must be one of: "center", "topLeft", "topRight", "bottomLeft", "bottomRight", "full".
+                Default: "center". Cannot be overridden when creating tiles.
+            defaultFace (str, optional): Default face for new tiles ("front" or "back").
+                Default: "front"
+            frontImage (QPixmap, optional): Default image for the front face
+            backImage (QPixmap, optional): Default image for the back face
+            frontColor (QColor, optional): Default color for the front face.
+                Default: Qt.lightGray
+            backColor (QColor, optional): Default color for the back face.
+                Default: Qt.darkGray
+            stackRendering (dict, optional): Stack rendering configuration. Dictionary with keys:
+                - "mode" (str): Rendering mode ("topOnly" or "offset", default: "offset")
+                - "maxVisible" (int, optional): Maximum number of tiles to display (default: 5)
+                - "offset" (int, optional): Pixel offset amount in offset mode (default: 3)
+                - "showCounter" (bool, optional): Display counter on top tile (default: False)
+                - "counterPosition" (str, optional): Counter position ("topRight", "topLeft", "bottomRight", "bottomLeft", "center", default: "topRight")
+                If None, uses defaults: {"mode": "offset", "maxVisible": 5, "offset": 3, "showCounter": False, "counterPosition": "topRight"}
+        """
         # Store the explicitly provided colorForLegend (if any) for potential customization
         # This will be used only if the modeler explicitly wants a different color for legends
         self._explicitDefaultColor = colorForLegend
@@ -1934,23 +1979,28 @@ class SGTileType(SGEntityType):
 
     def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
-        Create a new Tile of a given type at specific grid coordinates.
+        Create a new tile at specific grid coordinates.
+        
         The position on the cell is fixed by the TileType (positionOnCell) and cannot be overridden.
-
+        If a tile of the same type already exists at those coordinates, automatically stacks on top of it.
+        
         Args:
-            cellDef_or_grid (instance): the cellDef or grid you want your tile in. If None, the first cellDef and grid will be used
-            x (int): Column position in grid (1-indexed)
-            y (int): Row position in grid (1-indexed)
+            cellDef_or_grid (SGCellType or SGGrid, optional): The cell type or grid to use.
+                If None, uses the first available cell type and grid.
+            x (int, optional): Column position in grid (1-indexed). If None, random.
+            y (int, optional): Row position in grid (1-indexed). If None, random.
             face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
-            attributesAndValues (dict, optional): Initial attributes and values
+            attributesAndValues (dict, optional): Initial attributes and values for the tile
             frontImage (QPixmap, optional): Image for the front face (overrides tileType default)
             backImage (QPixmap, optional): Image for the back face (overrides tileType default)
-        Flexible calling patterns (backward compatible):
+            
+        Flexible calling patterns:
             - newTileAtCoords(x, y, ...)
             - newTileAtCoords((x, y), ...)
             - newTileAtCoords(cellDef_or_grid, x, y, ...)
-        Return:
-            a tile
+            
+        Returns:
+            SGTile: The created tile model, or None if creation failed
         """
         # Normalize arguments to support calls like newTileAtCoords(3,3) or newTileAtCoords((3,3))
         if isinstance(cellDef_or_grid, (tuple, list)) and len(cellDef_or_grid) == 2 and x is None and y is None:
@@ -1984,17 +2034,23 @@ class SGTileType(SGEntityType):
     
     def newTileOnTile(self, aTile, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
-        Create a new tile stacked on top of an existing tile (same type only).
+        Create a new tile stacked on top of an existing tile.
+        
+        The new tile will be placed on the same cell and position as the existing tile,
+        with a layer automatically set to be on top of the stack.
         
         Args:
-            aTile (SGTile): The tile to stack on top of
+            aTile (SGTile): The tile to stack on top of. Must be of the same type.
             face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
-            attributesAndValues (dict, optional): Initial attributes and values
+            attributesAndValues (dict, optional): Initial attributes and values for the new tile
             frontImage (QPixmap, optional): Image for the front face (overrides tileType default)
             backImage (QPixmap, optional): Image for the back face (overrides tileType default)
             
         Returns:
             SGTile: The created tile model, or None if creation failed
+            
+        Raises:
+            ValueError: If aTile is not of the same type as this TileType
         """
         if aTile == None:
             return None
