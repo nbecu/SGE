@@ -28,7 +28,7 @@ CardTile1 = myModel.newTileType(
     name="Card1_Pair",
     shape="imageTile",
     defaultSize=65,
-    defaultPositionOnCell="center",
+    positionOnCell="center",
     defaultFace="back",
     backColor=QColor('violet')
 )
@@ -63,7 +63,7 @@ CardTile2 = myModel.newTileType(
     shape="imageTile",
     defaultSize=65,
     colorForLegend=QColor("lightblue"),  # Explicit colorForLegend for custom legend color
-    defaultPositionOnCell="center",
+    positionOnCell="center",
     defaultFace="back",
     backColor=QColor('lightgreen')  # Actual tile back color
 )
@@ -96,7 +96,7 @@ CardTile3 = myModel.newTileType(
     shape="imageTile",
     defaultSize=65,
     colorForLegend=QColor("lightyellow"),  # Used as frontColor fallback and for legends
-    defaultPositionOnCell="center",
+    positionOnCell="center",
     defaultFace="front",  # Start face up for singlets
     backColor=QColor('orange')
 )
@@ -129,7 +129,7 @@ CardTile4 = myModel.newTileType(
     shape="imageTile",
     defaultSize=60,
     colorForLegend=QColor("lavender"),  # Explicit colorForLegend for custom legend color
-    defaultPositionOnCell="center",
+    positionOnCell="center",
     defaultFace="back",
     backColor=QColor('purple')  # Actual tile back color
 )

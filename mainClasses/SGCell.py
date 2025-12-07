@@ -780,7 +780,7 @@ class SGCell(SGEntity):
         if tileType is not None:
             # Position is determined by tileType
             position = tileType.positionOnCell
-            tiles_at_pos = self.getTilesAtPosition(position, tileType)
+            tiles_at_pos = self.getTiles(tileType)
         else:
             # Use provided position or default
             if position is None:
@@ -864,7 +864,7 @@ class SGCell(SGEntity):
             # Default position if neither tileType nor position provided
             position = "center"
         
-        tiles_at_pos = self.getTilesAtPosition(position, tileType)
+        tiles_at_pos = self.getTiles(tileType)
         if not tiles_at_pos:
             return 0  # Pas de tiles → utiliser layer 1 par défaut
         

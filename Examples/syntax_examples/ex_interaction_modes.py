@@ -34,7 +34,7 @@ Tile = myModel.newTileType(
     name="Tile",
     shape="rectTile",
     defaultSize=60,
-    defaultPositionOnCell="center",
+    positionOnCell="center",
     backColor=QColor("red"),
     # colorForLegend=QColor("blue")
 )

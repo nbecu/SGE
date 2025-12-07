@@ -40,7 +40,7 @@ TileTopLeft = myModel.newTileType(
     shape="circleTile",
     defaultSize=35,
     frontColor=QColor("red"),
-    defaultPositionOnCell="topLeft"
+    positionOnCell="topLeft"
 )
 
 # Tile Type 3: TopRight position
@@ -49,7 +49,7 @@ TileTopRight = myModel.newTileType(
     shape="rectTile",
     defaultSize=35,
     frontColor=QColor("green"),
-    defaultPositionOnCell="topRight"
+    positionOnCell="topRight"
 )
 
 # Tile Type 4: BottomLeft position
@@ -58,7 +58,7 @@ TileBottomLeft = myModel.newTileType(
     shape="circleTile",
     defaultSize=35,
     frontColor=QColor("yellow"),
-    defaultPositionOnCell="bottomLeft"
+    positionOnCell="bottomLeft"
 )
 
 # Tile Type 5: BottomRight position
@@ -67,7 +67,7 @@ TileBottomRight = myModel.newTileType(
     shape="rectTile",
     defaultSize=35,
     frontColor=QColor("magenta"),
-    defaultPositionOnCell="bottomRight"
+    positionOnCell="bottomRight"
 )
 
 # Tile Type 6: Full position (covers entire cell)
@@ -76,7 +76,7 @@ TileFull = myModel.newTileType(
     shape="rectTile",
     defaultSize=100,  # Will be adjusted to cell size
     frontColor=QColor("cyan"),
-    defaultPositionOnCell="full"
+    positionOnCell="full"
 )
 
 # Load images for backImage (random assignment)

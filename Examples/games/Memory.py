@@ -24,7 +24,7 @@ CardTile = myModel.newTileType(
     name="Card",
     shape="imageTile",  # Use imageTile to display images
     defaultSize=100,
-    defaultPositionOnCell="center",
+    positionOnCell="center",
     defaultFace="back",            # Default face: back (cards start face down)
     backColor=QColor('violet')  # Back face: violet (card back) - defaultColor will use this dynamically
 )
