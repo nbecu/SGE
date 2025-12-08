@@ -33,6 +33,7 @@ TileCenter = myModel.newTileType(
     frontColor=QColor("blue")
     # defaultPositionOnCell="center" is the default, so no need to specify it
 )
+TileCenter.setTooltip("Position", lambda tile: f"Blue Tile {tile.getId()} at {tile.getCoords()}")
 
 # Tile Type 2: TopLeft position
 TileTopLeft = myModel.newTileType(

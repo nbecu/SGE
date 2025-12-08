@@ -468,7 +468,7 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
 ### Phase 3 : Interaction
 - [x] Événements souris (mousePressEvent, mouseReleaseEvent implémentés)
 - [x] Menus contextuels (hérités de SGEntityView)
-- [ ] Tooltips (non implémenté spécifiquement pour les tiles)
+- [x] Tooltips (non implémenté spécifiquement pour les tiles)
 - [~] Interaction agent-tile (partiellement fait : méthodes de base existent `getAgentsHere()`, `isOccupied()`, `doesBlockAgentPlacement()`, mais manque soit possibilité de poser agents sur tuiles, soit getters croisés entre entités - à décider)
 
 ### Phase 4 : Fonctionnalités avancées
@@ -498,9 +498,9 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
 - [ ] Intégration avec le système POV
 
 ### Phase 5 : Documentation et exemples
-- [ ] Documentation API (docstrings à compléter/vérifier)
+- [x] Documentation API (docstrings à compléter/vérifier)
 - [~] Exemples d'utilisation (partiellement fait : `ex_tiles_positioning.py`, `ex_tiles_with_images.py`, `Memory.py` existent, mais manque exemple pour empilement)
-- [ ] Intégration au catalogue de méthodes
+- [x] Intégration au catalogue de méthodes
 
 ## Exemples de jeux de test pour le développement
 

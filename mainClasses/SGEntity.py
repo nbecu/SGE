@@ -231,3 +231,19 @@ class SGEntity(AttributeAndValueFunctionalities):
         """Mouse press event - delegates to view"""
         if hasattr(self, 'view') and self.view:
             self.view.mousePressEvent(event)
+
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+
+    # ============================================================================
+    # GET/NB METHODS
+    # ============================================================================
+    def __MODELER_METHODS__GET__(self):
+        pass
+
+    def getId(self):
+        """Get an entity ID"""
+        return self.id
+        

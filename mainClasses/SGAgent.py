@@ -204,13 +204,9 @@ class SGAgent(SGEntity):
     # ============================================================================
     # GET/NB METHODS
     # ============================================================================
-
-    def getId(self):
-        """Get agent ID"""
-        return self.id
     
     def getCoords(self):
-        """Get agent coordinates"""
+        """Get entity coordinates"""
         return self.cell.getCoords()
     
     

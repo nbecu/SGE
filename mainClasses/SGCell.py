@@ -406,7 +406,8 @@ class SGCell(SGEntity):
             if agent.type.name == typeName:
                 return agent
         return None
-
+    
+    
     def getRandomAgent(self, type_name=None):
         """
         Get a random agent from this cell.
@@ -796,7 +797,35 @@ class SGCell(SGEntity):
             tiles_at_pos = [tile for tile in tiles_at_pos if tile.type == tileType]
         
         return tiles_at_pos
+
+    def getFirstTile(self, tileType=None):
+        """
+        Get the first tile in this cell.
+        
+        Args:
+            tileType: Optional tile type to filter by
             
+        Returns:
+            SGTile or None: The first tile of the specified type (or first tile if tileType is None), 
+            or None if no tile is found
+            
+        Example:
+            # Get first tile among all tiles
+            first = cell.getFirstTile()
+            
+            # Get first tile of a specific type
+            first_card = cell.getFirstTile(CardType)
+        """
+        if tileType is None:
+            # Return first tile in the cell (or None if empty)
+            return self.tiles[0] if self.tiles else None
+        
+        # Filter by type
+        for tile in self.tiles:
+            if tile.type == tileType:
+                return tile
+        return None
+
     def getRandomTile(self, tileType):
         """
         Get a random tile of the given type from this cell

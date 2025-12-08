@@ -50,6 +50,32 @@ class SGTimePhase():
         else :
             self.modelActions.append( self.timeManager.model.newModelAction(aModelAction) )
     
+    def addActions(self, *actions):
+        """
+        Add multiple model actions to this phase.
+        
+        Args:
+            *actions: Variable number of actions to add. Each action can be:
+                - SGModelAction: Added directly to the phase
+                - callable (lambda function): Converted to SGModelAction first
+                - list: All actions in the list will be added
+        
+        Returns:
+            None: All actions are added to the phase's modelActions list
+        
+        Example:
+            phase.addActions(action1, action2, action3)
+            phase.addActions([action1, action2, action3])
+        """
+        for action in actions:
+            if isinstance(action, list):
+                # If it's a list, add each action in the list
+                for sub_action in action:
+                    self.addAction(sub_action)
+            else:
+                # Otherwise, add the action directly
+                self.addAction(action)
+    
     def getNbActions(self):
         return len(self.modelActions)
 
@@ -114,9 +140,6 @@ class SGTimePhase():
         """Détermine si la phase doit passer automatiquement à la suivante"""
         return self.auto_forward
 
-    def setAutoForward(self, value):
-        """Active ou désactive le passage automatique à la phase suivante"""
-        self.auto_forward = value
 
     def finalizePhase(self):
         """Exécute les actions nécessaires à la fin d'une phase"""
@@ -131,6 +154,20 @@ class SGTimePhase():
         if self.shouldForwardAutomatically():
             self.finalizePhase()
             self.timeManager.nextPhase()
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    def __MODELER_METHODS__SET__(self):
+        pass
+
+    def setAutoForward(self, value):
+        """Active ou désactive le passage automatique à la phase suivante"""
+        self.auto_forward = value
+
 
 # Class who define a gaming phase
 class SGModelPhase(SGTimePhase):
