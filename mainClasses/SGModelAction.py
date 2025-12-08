@@ -32,9 +32,9 @@ class SGModelAction():
             newList=[]
             for aItem in anObject:
                 if callable(aItem):
-                    newList.append(self.model.newModelAction(anObject))
+                    newList.append(self.model.newModelAction(aItem))
                 elif isinstance(aItem, SGModelAction):
-                    newList.append(anObject)
+                    newList.append(aItem)
                 else: ("should be a ModelAction or a lambda function")
             return newList
         else:

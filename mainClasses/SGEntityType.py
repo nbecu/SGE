@@ -1977,6 +1977,89 @@ class SGTileType(SGEntityType):
         # Return only the tile for modelers
         return tile_model
 
+    def newStackOnCell(self, aCell, count, face=None, attributesAndValues=None, images=None, frontImage=None, backImage=None, frontImages=None, backImages=None):
+        """
+        Create a stack of multiple tiles on a specific cell.
+        This is a helper method that simplifies creating multiple tiles and getting the resulting stack.
+        
+        Args:
+            aCell (SGCell): Cell where the tiles will be placed
+            count (int): Number of tiles to create in the stack
+            face (str, optional): Initial face ("front" or "back", uses defaultFace if None)
+            attributesAndValues (dict, optional): Initial attributes and values for all tiles
+            frontImages (list, optional): List of images (QPixmap objects) for the front face.
+                If provided, a random image from this list will be selected for each tile's front face.
+            backImages (list, optional): List of images (QPixmap objects) for the back face.
+                If provided, a random image from this list will be selected for each tile's back face.
+            images (list, optional): Deprecated. List of images (QPixmap objects). 
+                If provided, a random image from this list will be selected for each tile.
+                The image will be assigned to the face specified by the 'face' parameter (or defaultFace).
+                Use 'frontImages' or 'backImages' instead for clarity.
+            frontImage (QPixmap, optional): Specific image for the front face of all tiles.
+                If provided, all tiles will use this same image for the front face.
+            backImage (QPixmap, optional): Specific image for the back face of all tiles.
+                If provided, all tiles will use this same image for the back face.
+                
+        Returns:
+            SGStack: The stack containing all created tiles
+            
+        Note:
+            Priority order for images:
+            1. If 'frontImages' or 'backImages' lists are provided, randomly selects from them for each tile
+            2. If 'images' list is provided (deprecated), randomly selects from it based on 'face' parameter
+            3. Otherwise, uses 'frontImage' or 'backImage' if provided
+            4. Otherwise, uses tileType default images
+            
+        Example:
+            # Create a stack of 30 tiles with random images on the back face
+            images = model.loadImagesFromDirectory("path/to/images")
+            stack = Tile.newStackOnCell(cell, 30, backImages=images)
+            
+            # Create a stack with random images on both faces
+            stack = Tile.newStackOnCell(cell, 10, frontImages=front_images, backImages=back_images)
+            
+            # Create a stack with the same image for all tiles
+            stack = Tile.newStackOnCell(cell, 10, backImage=my_image)
+            
+            # Create a stack without images (uses defaults)
+            stack = Tile.newStackOnCell(cell, 5)
+        """
+        if aCell is None:
+            return None
+        
+        import random
+        
+        # Create all tiles
+        for i in range(count):
+            # Determine which image to use for this tile
+            front_img = frontImage
+            back_img = backImage
+            
+            # If frontImages list is provided, randomly select from it
+            if frontImages is not None and len(frontImages) > 0:
+                front_img = random.choice(frontImages)
+            
+            # If backImages list is provided, randomly select from it
+            if backImages is not None and len(backImages) > 0:
+                back_img = random.choice(backImages)
+            
+            # Legacy support: if images list is provided (deprecated), use it with face parameter
+            if images is not None and len(images) > 0 and frontImages is None and backImages is None:
+                selected_image = random.choice(images)
+                # Determine which face to use based on provided face or defaultFace
+                current_face = face if face is not None else self.defaultFace
+                if current_face == "back":
+                    back_img = selected_image
+                else:
+                    front_img = selected_image
+            
+            # Create the tile
+            self.newTileOnCell(aCell, face=face, attributesAndValues=attributesAndValues, 
+                             frontImage=front_img, backImage=back_img)
+        
+        # Return the stack
+        return aCell.getStack(self)
+
     def newTileAtCoords(self, cellDef_or_grid=None, x=None, y=None, face=None, attributesAndValues=None, frontImage=None, backImage=None) -> SGTile:
         """
         Create a new tile at specific grid coordinates.

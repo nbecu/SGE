@@ -21,7 +21,7 @@ myModel.displayTimeInWindowTitle()
 # Create a 4x1 grid
 River = myModel.newCellsOnGrid(4, 1, "square", size=80, gap=5, name="River")
 
-myModel.newTextBox(width=300, height=200, chronologicalOrder=False, title="log")
+textBox = myModel.newTextBox(width=300, height=200, title="log")
 
 # Create a 4x4 grid (empty)
 Boardgame = myModel.newCellsOnGrid(4, 4, "square", size=80, gap=5, name="Boardgame")
@@ -34,26 +34,24 @@ Tile = myModel.newTileType(
     positionOnCell="full",
     frontColor=QColor("blue"),
     backColor=QColor("blue"),
-    stackRendering={"mode": "topOnly", "showCounter": True}
+    stackRendering={"mode": "topOnly", "showCounter": True, "counterPosition": "topLeft"}
 )
 
-# Load images for frontImage (random assignment)
+# Load images for random assignment
 images_dir = Path(__file__).parent.parent.parent / "images"
 images = myModel.loadImagesFromDirectory(images_dir)
 
 
-# Create a stack of 30 tiles with random images
-stackLocation = River.getCell(1, 1)
-for i in range(30):
-    Tile.newTileOnCell(stackLocation, backImage=random.choice(images))
-stack = stackLocation.getStack(Tile)
+# Create a stack of 30 tiles with random images on the back face
+stack = Tile.newStackOnCell(River.getCell(1, 1), 30, backImages=images)
 
 
 # Create a player with actions
 Player1 = myModel.newPlayer("Player 1")
-Player1.newFlipAction(Tile, label="🔄 Flip",action_controler={"directClick":True})
+# Player1.newFlipAction(Tile, label="🔄 Flip",action_controler={"directClick":True})
 Player1.newMoveAction(Tile, label="➡️ Move",action_controler={"directClick":True},
 conditions = [
+    lambda tile: tile.cell != River.getCell(1, 1),
     lambda tile,cell: cell.isEmpty(),
     lambda tile,cell: cell.type == Boardgame
     ])
@@ -61,10 +59,11 @@ conditions = [
 
 #create a model phase to move the tiles on the empty cells of the river
 modelPhase = myModel.newModelPhase(name="Move Tiles on River",auto_forward=True,message_auto_forward=False)
-fillRiver2 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(2,1)),lambda: River.getCell(2,1).isEmpty(),lambda:River.getCell(2,1).getFirstTile().flip())
-fillRiver3 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(3,1)),lambda: River.getCell(3,1).isEmpty(),lambda:River.getCell(3,1).getFirstTile().flip())
-fillRiver4 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(4,1)),lambda: River.getCell(4,1).isEmpty(),lambda:River.getCell(4,1).getFirstTile().flip())
-modelPhase.addActions(fillRiver2, fillRiver3, fillRiver4)
+reset_textBox = myModel.newModelAction(lambda: textBox.setText(f"Round{myModel.roundNumber()}"))
+fillRiver2 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(2,1)),lambda: River.getCell(2,1).isEmpty(),[lambda:River.getCell(2,1).getFirstTile().flip(),lambda: textBox.addText("Slot 1 of the river has been filled")])
+fillRiver3 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(3,1)),lambda: River.getCell(3,1).isEmpty(),[lambda:River.getCell(3,1).getFirstTile().flip(),lambda: textBox.addText("Slot 2 of the river has been filled")])
+fillRiver4 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(4,1)),lambda: River.getCell(4,1).isEmpty(),[lambda:River.getCell(4,1).getFirstTile().flip(),lambda: textBox.addText("Slot 3 of the river has been filled")] )
+modelPhase.addActions(reset_textBox, fillRiver2, fillRiver3, fillRiver4)
 
 
 # Create a play phase
