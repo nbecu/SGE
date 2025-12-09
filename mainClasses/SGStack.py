@@ -31,6 +31,7 @@ class SGStack:
         self.cell = cell
         self.tileType = tileType
         self.position = tileType.positionOnCell
+        self._open_drafting_config = None  # Stores open drafting configuration
     
     @property
     def tiles(self) -> List['SGTile']:
@@ -226,4 +227,98 @@ class SGStack:
         # Reassign layers from 1 to N in the new order
         for i, tile in enumerate(tiles_list, start=1):
             tile.setLayer(i)
+    
+    def setOpenDrafting(self, slots: List['SGCell'], visibleFace: str = None, visibleFaceOfTopTileOfStack: str = None):
+        """
+        Configure Open Drafting mechanics for this stack.
+        
+        Open Drafting is a game mechanic where tiles from this stack are automatically
+        distributed to fill empty slots (cells) in a river or drafting area.
+        
+        This method configures which cells should be filled and what face should be
+        visible on the drafted tiles. It returns a ModelAction that can be passed to
+        newModelPhase() to execute the refill automatically.
+        
+        Args:
+            slots: List of cells (SGCell) that represent the drafting slots to fill.
+                   These are typically cells in a "river" or drafting area.
+            visibleFace: Optional face to show on drafted tiles ("front" or "back").
+                        If None or not "front"/"back", tiles keep their current face.
+                        If specified, tiles are flipped to show the requested face.
+        visibleFaceOfTopTileOfStack: Optional face to show on the top tile of the stack ("front" or "back").
+                        If None or not "front"/"back", the top tile keeps its current face.
+                        If specified, the top tile is flipped to show the requested face.
+        Returns:
+            SGModelAction: A ModelAction that can be passed to newModelPhase() to
+                          automatically refill available slots.
+        
+        Example:
+            # Configure drafting for a river with 3 slots
+            river_slots = [River.getCell(2,1), River.getCell(3,1), River.getCell(4,1)]
+            refill_action = stack.setOpenDrafting(river_slots, visibleFace="front", visibleFaceOfTopTileOfStack="back")
+            myModel.newModelPhase(refill_action, name="Refill River")
+        """
+        if not isinstance(slots, list):
+            raise ValueError("slots must be a list of SGCell objects")
+        
+        # Store configuration
+        self._open_drafting_config = {
+            'slots': slots,
+            'visibleFace': visibleFace if visibleFace in ("front", "back") else None,
+            'visibleFaceOfTopTileOfStack': visibleFaceOfTopTileOfStack if visibleFaceOfTopTileOfStack in ("front", "back") else None
+        }
+        
+        # Create and return a ModelAction that calls refillAvailableSlots
+        from mainClasses.SGModelAction import SGModelAction
+        model_action = SGModelAction(
+            self.cell.model,
+            actions=lambda: self.refillAvailableSlots()  )
+        return model_action
+    
+    def refillAvailableSlots(self):
+        """
+        Refill available slots using the Open Drafting configuration.
+        
+        This method automatically moves tiles from the top of this stack to fill
+        empty slots that were configured via setOpenDrafting(). For each empty slot,
+        the top tile is moved and flipped if a visibleFace was specified in the
+        configuration.
+        
+        The method iterates through all configured slots and fills each empty one
+        until either all slots are filled or the stack is empty.
+
+        After the slots are filled, the top tile of the stack is flipped or not to show the requested face if a visibleFaceOfTopTileOfStack was specified in the configuration.
+        
+        Raises:
+            ValueError: If setOpenDrafting() has not been called first.
+        
+        Example:
+            # Direct execution
+            stack.refillAvailableSlots()
+            
+            # Or via ModelAction (recommended)
+            refill_action = stack.setOpenDrafting(slots, visibleFace="front", visibleFaceOfTopTileOfStack="back")
+            myModel.newModelPhase(refill_action, name="Refill River")
+        """
+        if self._open_drafting_config is None:
+            raise ValueError("setOpenDrafting() must be called before refillAvailableSlots()")
+        
+        slots = self._open_drafting_config['slots']
+        visibleFace = self._open_drafting_config['visibleFace']
+        visibleFaceOfTopTileOfStack = self._open_drafting_config['visibleFaceOfTopTileOfStack']
+        
+        # Fill each empty slot with a tile from the top of the stack
+        for slot in slots:
+            if slot.isEmpty() and not self.isEmpty():
+                top_tile = self.topTile()
+                if top_tile:
+                    top_tile.moveTo(slot)
+                    # Flip to show the requested face if specified
+                    if visibleFace is not None and top_tile.face != visibleFace:
+                        top_tile.flip()
+
+        # Flip the top tile to show the requested face if specified
+        if visibleFaceOfTopTileOfStack is not None and self.topTile().face != visibleFaceOfTopTileOfStack:
+            self.topTile().flip()
+        
 

@@ -57,13 +57,18 @@ conditions = [
     ])
 # Player1.newControlPanel("Player 1 Actions")
 
-#create a model phase to move the tiles on the empty cells of the river
-modelPhase = myModel.newModelPhase(name="Move Tiles on River",auto_forward=True,message_auto_forward=False)
-reset_textBox = myModel.newModelAction(lambda: textBox.setText(f"Round{myModel.roundNumber()}"))
-fillRiver2 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(2,1)),lambda: River.getCell(2,1).isEmpty(),[lambda:River.getCell(2,1).getFirstTile().flip(),lambda: textBox.addText("Slot 1 of the river has been filled")])
-fillRiver3 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(3,1)),lambda: River.getCell(3,1).isEmpty(),[lambda:River.getCell(3,1).getFirstTile().flip(),lambda: textBox.addText("Slot 2 of the river has been filled")])
-fillRiver4 = myModel.newModelAction(lambda: stack.topTile().moveTo(River.getCell(4,1)),lambda: River.getCell(4,1).isEmpty(),[lambda:River.getCell(4,1).getFirstTile().flip(),lambda: textBox.addText("Slot 3 of the river has been filled")] )
-modelPhase.addActions(reset_textBox, fillRiver2, fillRiver3, fillRiver4)
+# Set up Open Drafting
+refill_action = stack.setOpenDrafting(
+    slots=[River.getCell(2,1), River.getCell(3,1), River.getCell(4,1)],
+    visibleFace="back",  # Tiles will show front face after being moved to slots
+    visibleFaceOfTopTileOfStack="back"  # Top tile of stack shows back face before moving
+)
+refill_action.addFeedback(lambda: textBox.addText(f"River slots have been filled"))
+
+# Create a model phase to refill the river slots
+modelPhase = myModel.newModelPhase(refill_action,name="Move Tiles on River",auto_forward=True,message_auto_forward=False)
+# reset_textBox = myModel.newModelAction(lambda: textBox.setText(f"Round{myModel.roundNumber()}"))
+# modelPhase.addActions(reset_textBox, refill_action)
 
 
 # Create a play phase
