@@ -63,12 +63,10 @@ refill_action = stack.setOpenDrafting(
     visibleFace="back",  # Tiles will show front face after being moved to slots
     visibleFaceOfTopTileOfStack="back"  # Top tile of stack shows back face before moving
 )
-refill_action.addFeedback(lambda: textBox.addText(f"River slots have been filled"))
+refill_action.addFeedback(lambda: textBox.addText(f"{stack.getLastSlotsFilled()} river slot(s) have been filled"))
 
 # Create a model phase to refill the river slots
 modelPhase = myModel.newModelPhase(refill_action,name="Move Tiles on River",auto_forward=True,message_auto_forward=False)
-# reset_textBox = myModel.newModelAction(lambda: textBox.setText(f"Round{myModel.roundNumber()}"))
-# modelPhase.addActions(reset_textBox, refill_action)
 
 
 # Create a play phase

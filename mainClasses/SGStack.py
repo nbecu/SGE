@@ -265,7 +265,8 @@ class SGStack:
         self._open_drafting_config = {
             'slots': slots,
             'visibleFace': visibleFace if visibleFace in ("front", "back") else None,
-            'visibleFaceOfTopTileOfStack': visibleFaceOfTopTileOfStack if visibleFaceOfTopTileOfStack in ("front", "back") else None
+            'visibleFaceOfTopTileOfStack': visibleFaceOfTopTileOfStack if visibleFaceOfTopTileOfStack in ("front", "back") else None,
+            'last_slots_filled': 0  # Will be updated by refillAvailableSlots()
         }
         
         # Create and return a ModelAction that calls refillAvailableSlots
@@ -274,6 +275,23 @@ class SGStack:
             self.cell.model,
             actions=lambda: self.refillAvailableSlots()  )
         return model_action
+    
+    def getLastSlotsFilled(self):
+        """
+        Get the number of slots that were filled during the last call to refillAvailableSlots().
+        
+        This is useful for feedbacks that need to know how many slots were filled.
+        
+        Returns:
+            int: The number of slots filled during the last refill, or 0 if refillAvailableSlots() hasn't been called yet.
+        
+        Example:
+            refill_action = stack.setOpenDrafting(slots, visibleFace="front")
+            refill_action.addFeedback(lambda: print(f"{stack.getLastSlotsFilled()} slots filled"))
+        """
+        if self._open_drafting_config is None:
+            return 0
+        return self._open_drafting_config.get('last_slots_filled', 0)
     
     def refillAvailableSlots(self):
         """
@@ -289,12 +307,15 @@ class SGStack:
 
         After the slots are filled, the top tile of the stack is flipped or not to show the requested face if a visibleFaceOfTopTileOfStack was specified in the configuration.
         
+        Returns:
+            int: The number of slots that were filled.
+        
         Raises:
             ValueError: If setOpenDrafting() has not been called first.
         
         Example:
             # Direct execution
-            stack.refillAvailableSlots()
+            slots_filled = stack.refillAvailableSlots()
             
             # Or via ModelAction (recommended)
             refill_action = stack.setOpenDrafting(slots, visibleFace="front", visibleFaceOfTopTileOfStack="back")
@@ -308,6 +329,7 @@ class SGStack:
         visibleFaceOfTopTileOfStack = self._open_drafting_config['visibleFaceOfTopTileOfStack']
         
         # Fill each empty slot with a tile from the top of the stack
+        slots_filled = 0
         for slot in slots:
             if slot.isEmpty() and not self.isEmpty():
                 top_tile = self.topTile()
@@ -316,9 +338,15 @@ class SGStack:
                     # Flip to show the requested face if specified
                     if visibleFace is not None and top_tile.face != visibleFace:
                         top_tile.flip()
+                    slots_filled += 1
 
         # Flip the top tile to show the requested face if specified
-        if visibleFaceOfTopTileOfStack is not None and self.topTile().face != visibleFaceOfTopTileOfStack:
+        if visibleFaceOfTopTileOfStack is not None and not self.isEmpty() and self.topTile().face != visibleFaceOfTopTileOfStack:
             self.topTile().flip()
+        
+        # Store the number of slots filled for potential use in feedbacks
+        self._open_drafting_config['last_slots_filled'] = slots_filled
+        
+        return slots_filled
         
 
