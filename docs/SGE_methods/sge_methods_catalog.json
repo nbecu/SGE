@@ -10344,21 +10344,41 @@
             ]
           }
         ],
-        "OTHER MODELER METHODS": [
+        "GET": [
           {
             "name": "controlPanel",
             "signature": "def controlPanel(self):",
             "description": "",
             "docstring": "",
-            "category": "OTHER MODELER METHODS",
+            "category": "GET",
             "class_name": "SGPlayer",
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 533,
+            "line_number": 534,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
+          },
+          {
+            "name": "getValue",
+            "signature": "def getValue(self, att):",
+            "description": "Return the value of a cell Attribut",
+            "docstring": "Return the value of a cell Attribut\nArgs:\n    att (str): Name of the attribute",
+            "category": "GET",
+            "class_name": "AttributeAndValueFunctionalities",
+            "parameters": [
+              {
+                "name": "att",
+                "type": "str",
+                "description": "Name of the attribute"
+              }
+            ],
+            "returns": "",
+            "examples": [],
+            "line_number": 260,
+            "parent_classes": null,
+            "original_class": "AttributeAndValueFunctionalities"
           }
         ],
         "HAS": [
@@ -10372,7 +10392,7 @@
             "parameters": [],
             "returns": "",
             "examples": [],
-            "line_number": 546,
+            "line_number": 547,
             "parent_classes": [
               "AttributeAndValueFunctionalities"
             ]
@@ -10558,28 +10578,6 @@
             "returns": "",
             "examples": [],
             "line_number": 238,
-            "parent_classes": null,
-            "original_class": "AttributeAndValueFunctionalities"
-          }
-        ],
-        "GET": [
-          {
-            "name": "getValue",
-            "signature": "def getValue(self, att):",
-            "description": "Return the value of a cell Attribut",
-            "docstring": "Return the value of a cell Attribut\nArgs:\n    att (str): Name of the attribute",
-            "category": "GET",
-            "class_name": "AttributeAndValueFunctionalities",
-            "parameters": [
-              {
-                "name": "att",
-                "type": "str",
-                "description": "Name of the attribute"
-              }
-            ],
-            "returns": "",
-            "examples": [],
-            "line_number": 260,
             "parent_classes": null,
             "original_class": "AttributeAndValueFunctionalities"
           }

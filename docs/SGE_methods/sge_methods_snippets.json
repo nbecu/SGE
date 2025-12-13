@@ -2389,6 +2389,13 @@
     ],
     "description": ""
   },
+  "SGPlayer.getValue": {
+    "prefix": "sgplayer.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
   "SGPlayer.hasActionsToUse": {
     "prefix": "sgplayer.hasActionsToUse",
     "body": [
@@ -2445,13 +2452,6 @@
       "${1:instance}.setValues(${2:value})"
     ],
     "description": "Set multiple attribute values at once."
-  },
-  "SGPlayer.getValue": {
-    "prefix": "sgplayer.getValue",
-    "body": [
-      "${1:result} = ${2:instance}.getValue(${3:att})"
-    ],
-    "description": "Return the value of a cell Attribut"
   },
   "SGPlayer.isNotValue": {
     "prefix": "sgplayer.isNotValue",

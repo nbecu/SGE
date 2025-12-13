@@ -529,7 +529,8 @@ class SGPlayer(AttributeAndValueFunctionalities):
 # ============================================================================
     def __MODELER_METHODS__GET__(self):
         pass  
-
+    
+    # @CATEGORY: GET
     def controlPanel(self):
         # access to the control panel
         return (self.model.controlPanel[self.name])
