@@ -246,13 +246,17 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 
         return None
 
-# -----------------------------------------------------------------------------------------
-# Definiton of the methods who the modeler will use
+# ============================================================================
+# MODELER METHODS
+# ============================================================================
+    def __MODELER_METHODS__(self):
+        pass
 
-    def controlPanel(self):
-        # access to the control panel
-        return (self.model.controlPanel[self.name])
-
+# ============================================================================
+# NEW/ADD METHODS
+# ============================================================================
+    def __MODELER_METHODS__NEW__(self):
+        pass
     def addGameAction(self, aGameAction):
         """
         Add a action to the Player
@@ -516,6 +520,28 @@ class SGPlayer(AttributeAndValueFunctionalities):
         )
         self.addGameAction(action)
         return action
+
+
+
+  
+# ============================================================================
+# GET/NB METHODS
+# ============================================================================
+    def __MODELER_METHODS__GET__(self):
+        pass  
+
+    def controlPanel(self):
+        # access to the control panel
+        return (self.model.controlPanel[self.name])
+
+
+
+
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+    def __MODELER_METHODS__IS__(self):
+        pass
 
     def hasActionsToUse(self):
         for action in self.gameActions:

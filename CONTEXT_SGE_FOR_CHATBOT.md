@@ -62,6 +62,7 @@ Utilisez des attributs booléens avec le préfixe `is` :
 - **`isAdmin`** : Pour les joueurs admin
 - **`isAgentType`** : Pour les types d'agents
 - **`isCellType`** : Pour les types de cellules
+- **`isTileType`** : Pour les types de tuiles
 - **`isLegend`** : Pour les composants UI de légende
 - **`isControlPanel`** : Pour les interfaces de contrôle
 
@@ -103,6 +104,8 @@ def newModifyActionWithDialog(self, entityDef, attribute):
 - `SGAgentView` = View (UI agent)  
 - `SGCell` = Model (logique cellule)
 - `SGCellView` = View (UI cellule)
+- `SGTile` = Model (logique tuile, stacking, faces front/back)
+- `SGTileView` = View (UI tuile, flip animations)
 
 **INTERDICTION STRICTE** : Ne jamais créer `SGAgent(x,y)` directement. Utiliser TOUJOURS les méthodes factory.
 
@@ -118,6 +121,9 @@ cellDef = model.newCellsOnGrid(columns=10, rows=10, format="square", size=30)
 
 # Créer une définition d'agents (espèce)
 agentDef = model.newAgentType("Sheeps", "circleAgent", defaultColor=Qt.gray)
+
+# Créer une définition de tuiles
+tileDef = model.newTileType("Cards", "squareTile", defaultColor=Qt.white, defaultFace="front")
 ```
 
 ### 2. Méthodes factory pour les instances d'entités (Model-View)
@@ -128,6 +134,9 @@ agent = agentDef.newAgentOnCell(cell)    # Alternative avec cellule
 
 # Créer des instances de cellules (Model + View automatiquement)  
 cell = cellDef.newCell(x, y)            # Crée Model + View automatiquement
+
+# Créer des instances de tuiles (Model + View automatiquement)
+tile = tileDef.newTileOnCell(cell)      # Crée Model + View automatiquement
 ```
 
 ### 3. Méthodes factory pour les gameSpaces (widgets d'interface)
@@ -181,6 +190,7 @@ modifyAction = model.newModifyAction(cellDef, dictAttributes={"landUse": "forest
 modifyActionWithDialog = model.newModifyActionWithDialog(cellDef, "landUse", aNumber='infinite')
 deleteAction = model.newDeleteAction(agentDef, aNumber=3)
 moveAction = model.newMoveAction(agentDef, aNumber=10)
+flipAction = model.newFlipAction(tileDef)  # Pour retourner les tuiles (front/back)
 activateAction = model.newActivateAction(model, aMethod="nextTurn", aNumber='infinite')
 ```
 
@@ -671,6 +681,9 @@ agent.moveAgent(condition=lambda cell: cell.isNotValue("terrain", "metal"))
 - **Oublier show()** après moveTo() → Agent invisible
 - **Utiliser moveAgent()** sur agent non placé → Erreur
 - **Confondre les deux méthodes** → Comportement inattendu
+
+### 16.5 Tiles Movement
+**Tiles** utilisent `moveTo(destinationCell)` comme les agents. Les tiles peuvent être empilées (stacking) et retournées (flip front/back) via les game actions.
 
 ## 17. Méthodes utilitaires SGExtensions.py
 

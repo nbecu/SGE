@@ -494,12 +494,12 @@ Cette section décrit comment les tiles s'intègrent dans l'architecture SGE exi
   - [x] Ajouter la méthode `setStackRenderMode()` dans `SGTileType` pour changer le mode après création
   - [x] Modifier `SGTileView` pour appliquer le mode de rendu configuré
   - [x] Validation des valeurs dans `newTileType()` et `setStackRenderMode()`
-- [ ] Model actions sur les tiles
-- [ ] Intégration avec le système POV
+- [x] Model actions sur les tiles (héritées de `SGEntityType.newModelAction()`, fonctionnel via `tileType.newModelAction()`)
+- [x] Intégration avec le système POV (héritée de `SGEntityView.getColor()`, fonctionnel via l'héritage)
 
 ### Phase 5 : Documentation et exemples
 - [x] Documentation API (docstrings à compléter/vérifier)
-- [~] Exemples d'utilisation (partiellement fait : `ex_tiles_positioning.py`, `ex_tiles_with_images.py`, `Memory.py` existent, mais manque exemple pour empilement)
+- [x] Exemples d'utilisation (exemples existants : `ex_tiles_positioning.py`, `ex_tiles_with_images.py`, `Memory.py`, `ex_tiles_stack_2.py`, `ex_tiles_stack_3.py`, `ex_tiles_stack_4.py`)
 - [x] Intégration au catalogue de méthodes
 
 ## Exemples de jeux de test pour le développement

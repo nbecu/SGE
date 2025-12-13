@@ -299,7 +299,7 @@ For detailed guidelines, see `CONTEXT_SGE_FOR_CHATBOT.md` section 23.
 
 ### 6.1 Overview
 SGE implements a Model-View architecture to separate data/logic (Model) from UI/display (View) for core entities. This separation enables:
-- **Fluid agent movement** without losing state
+- **Fluid entity movement** (agents, tiles) without losing state
 - **Better code organization** and maintainability
 - **Cleaner separation of concerns** between game logic and UI
 
@@ -308,10 +308,12 @@ SGE implements a Model-View architecture to separate data/logic (Model) from UI/
 #### Model Classes (Data & Logic)
 - **`SGAgent`**: Agent model containing game logic, attributes, and behavior
 - **`SGCell`**: Cell model containing cell data, agents list, and cell logic
+- **`SGTile`**: Tile model containing tile data, stacking logic, and face management (front/back)
 
 #### View Classes (UI & Display)
 - **`SGAgentView`**: Agent view handling UI rendering, mouse events, and visual interactions
 - **`SGCellView`**: Cell view handling cell rendering, click events, and visual display
+- **`SGTileView`**: Tile view handling tile rendering, flip animations, and visual interactions
 
 ### 6.3 Model-View Relationship
 - Each **Model** has a corresponding **View** instance
@@ -408,6 +410,7 @@ Use boolean attributes with the `is` prefix to identify the type of object and e
 - **`isAdmin`**: For players (e.g., `self.isAdmin = True` for admin players)
 - **`isAgentType`**: For agent types (e.g., `self.isAgentType = True` for agent types)
 - **`isCellType`**: For cell types (e.g., `self.isCellType = True` for cell types)
+- **`isTileType`**: For tile types (e.g., `self.isTileType = True` for tile types)
 - **`isLegend`**: For UI components (e.g., `self.isLegend = True` for pure legend display)
 - **`isControlPanel`**: For UI components (e.g., `self.isControlPanel = True` for control interfaces)
 

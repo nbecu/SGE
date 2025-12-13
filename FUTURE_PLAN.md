@@ -29,6 +29,8 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Add configurable min/max values for simulation variables
 - [ ] Add a method to cell entity: getLastArrivedAgent
 - [ ] Améliorer le systeme de addEndGameCondition_onIndicator    Pour l'instant pour une simVar, il faut prendre l'indicateur issu de la simVar --> il faudrait ajouter addEndGameCondition_onSimVar qui prend directement une simVar
+- [ ] Enhance Tile integration with POV system (improve existing inheritance-based integration for better tile-specific POV support)
+- [ ] Allow placing agents on Tiles (add ability to place agents directly on tiles, not just on cells)
 
 ### Graphs & Analytics Interface
 - [ ] Graphs interface : improve the selection menu of graphs

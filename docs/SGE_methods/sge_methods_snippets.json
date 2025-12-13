@@ -32,14 +32,14 @@
     "body": [
       "${1:result} = ${2:instance}.getCoords()"
     ],
-    "description": "Get agent coordinates"
+    "description": "Get entity coordinates"
   },
   "SGAgent.getId": {
     "prefix": "sgagent.getId",
     "body": [
       "${1:result} = ${2:instance}.getId()"
     ],
-    "description": "Get agent ID"
+    "description": "Get an entity ID"
   },
   "SGAgent.getNeighborAgents": {
     "prefix": "sgagent.getNeighborAgents",
@@ -275,6 +275,13 @@
       "${1:result} = ${2:instance}.getFirstAgent(${3:type_name})"
     ],
     "description": "Get the first agent in this cell."
+  },
+  "SGCell.getFirstTile": {
+    "prefix": "sgcell.getFirstTile",
+    "body": [
+      "${1:result} = ${2:instance}.getFirstTile(${3:tileType})"
+    ],
+    "description": "Get the first tile in this cell."
   },
   "SGCell.getId": {
     "prefix": "sgcell.getId",
@@ -521,26 +528,12 @@
     ],
     "description": "Set the background color of the control panel."
   },
-  "SGControlPanel.setBackgroundImage": {
-    "prefix": "sgcontrolpanel.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
   "SGControlPanel.setBorderColor": {
     "prefix": "sgcontrolpanel.setBorderColor",
     "body": [
       "${1:instance}.setBorderColor(${2:value})"
     ],
     "description": "Set the border color of the control panel."
-  },
-  "SGControlPanel.setBorderRadius": {
-    "prefix": "sgcontrolpanel.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
   },
   "SGControlPanel.setBorderSize": {
     "prefix": "sgcontrolpanel.setBorderSize",
@@ -549,222 +542,12 @@
     ],
     "description": "Set the border size of the control panel."
   },
-  "SGControlPanel.setBorderStyle": {
-    "prefix": "sgcontrolpanel.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGControlPanel.setColor": {
-    "prefix": "sgcontrolpanel.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGControlPanel.setDraggability": {
-    "prefix": "sgcontrolpanel.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGControlPanel.setFontFamily": {
-    "prefix": "sgcontrolpanel.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGControlPanel.setFontSize": {
-    "prefix": "sgcontrolpanel.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGControlPanel.setFontStyle": {
-    "prefix": "sgcontrolpanel.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGControlPanel.setFontWeight": {
-    "prefix": "sgcontrolpanel.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
   "SGControlPanel.setInactiveThemeColor": {
     "prefix": "sgcontrolpanel.setInactiveThemeColor",
     "body": [
       "${1:instance}.setInactiveThemeColor(${2:value})"
     ],
     "description": "Set the inactive theme background color."
-  },
-  "SGControlPanel.setInPosition": {
-    "prefix": "sgcontrolpanel.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGControlPanel.setLayoutOrder": {
-    "prefix": "sgcontrolpanel.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGControlPanel.setMinHeight": {
-    "prefix": "sgcontrolpanel.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGControlPanel.setMinWidth": {
-    "prefix": "sgcontrolpanel.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGControlPanel.setPadding": {
-    "prefix": "sgcontrolpanel.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGControlPanel.setSizeManagerVerticalGap": {
-    "prefix": "sgcontrolpanel.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGControlPanel.setStyle": {
-    "prefix": "sgcontrolpanel.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGControlPanel.setTextColor": {
-    "prefix": "sgcontrolpanel.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGControlPanel.setTextsColor": {
-    "prefix": "sgcontrolpanel.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGControlPanel.setTitleAlignment": {
-    "prefix": "sgcontrolpanel.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGControlPanel.setTitlesAndTextsColor": {
-    "prefix": "sgcontrolpanel.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGControlPanel.setTitlesColor": {
-    "prefix": "sgcontrolpanel.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGControlPanel.setWordWrap": {
-    "prefix": "sgcontrolpanel.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
-  },
-  "SGControlPanel.getBackgroundImagePixmap": {
-    "prefix": "sgcontrolpanel.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGControlPanel.getPositionType": {
-    "prefix": "sgcontrolpanel.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
-  },
-  "SGControlPanel.moveToCoords": {
-    "prefix": "sgcontrolpanel.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
-  },
-  "SGDashBoard.setBackgroundColor": {
-    "prefix": "sgdashboard.setBackgroundColor",
-    "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
-    ],
-    "description": "Set the background color of the gameSpace."
-  },
-  "SGDashBoard.setBackgroundImage": {
-    "prefix": "sgdashboard.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
-  "SGDashBoard.setBorderColor": {
-    "prefix": "sgdashboard.setBorderColor",
-    "body": [
-      "${1:instance}.setBorderColor(${2:value})"
-    ],
-    "description": "Set the border color of the gameSpace."
-  },
-  "SGDashBoard.setBorderRadius": {
-    "prefix": "sgdashboard.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
-  "SGDashBoard.setBorderSize": {
-    "prefix": "sgdashboard.setBorderSize",
-    "body": [
-      "${1:instance}.setBorderSize(${2:value})"
-    ],
-    "description": "Set the border size of the gameSpace."
-  },
-  "SGDashBoard.setBorderStyle": {
-    "prefix": "sgdashboard.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGDashBoard.setColor": {
-    "prefix": "sgdashboard.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
   },
   "SGDashBoard.setDisplayTitle": {
     "prefix": "sgdashboard.setDisplayTitle",
@@ -773,61 +556,12 @@
     ],
     "description": "Set whether to display the title."
   },
-  "SGDashBoard.setDraggability": {
-    "prefix": "sgdashboard.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGDashBoard.setFontFamily": {
-    "prefix": "sgdashboard.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGDashBoard.setFontSize": {
-    "prefix": "sgdashboard.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGDashBoard.setFontStyle": {
-    "prefix": "sgdashboard.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGDashBoard.setFontWeight": {
-    "prefix": "sgdashboard.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
   "SGDashBoard.setIndicatorStyle": {
     "prefix": "sgdashboard.setIndicatorStyle",
     "body": [
       "${1:instance}.setIndicatorStyle(${2:value})"
     ],
     "description": "Set the style of all indicators."
-  },
-  "SGDashBoard.setInPosition": {
-    "prefix": "sgdashboard.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGDashBoard.setLayoutOrder": {
-    "prefix": "sgdashboard.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
   },
   "SGDashBoard.setLayoutOrientation": {
     "prefix": "sgdashboard.setLayoutOrientation",
@@ -836,89 +570,12 @@
     ],
     "description": "Set the layout orientation of the dashboard."
   },
-  "SGDashBoard.setMinHeight": {
-    "prefix": "sgdashboard.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGDashBoard.setMinWidth": {
-    "prefix": "sgdashboard.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGDashBoard.setPadding": {
-    "prefix": "sgdashboard.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGDashBoard.setSizeManagerVerticalGap": {
-    "prefix": "sgdashboard.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGDashBoard.setStyle": {
-    "prefix": "sgdashboard.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGDashBoard.setTextColor": {
-    "prefix": "sgdashboard.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGDashBoard.setTextsColor": {
-    "prefix": "sgdashboard.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGDashBoard.setTitleAlignment": {
-    "prefix": "sgdashboard.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGDashBoard.setTitlesAndTextsColor": {
-    "prefix": "sgdashboard.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGDashBoard.setTitlesColor": {
-    "prefix": "sgdashboard.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
   "SGDashBoard.setTitleText": {
     "prefix": "sgdashboard.setTitleText",
     "body": [
       "${1:instance}.setTitleText(${2:value})"
     ],
     "description": "Set the title text of the dashboard."
-  },
-  "SGDashBoard.setWordWrap": {
-    "prefix": "sgdashboard.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
   },
   "SGDashBoard.applyContainerAspectStyle": {
     "prefix": "sgdashboard.applyContainerAspectStyle",
@@ -927,33 +584,12 @@
     ],
     "description": "Avoid QSS cascade; rely on paintEvent for container rendering."
   },
-  "SGDashBoard.moveToCoords": {
-    "prefix": "sgdashboard.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
-  },
   "SGDashBoard.onTextAspectsChanged": {
     "prefix": "sgdashboard.onTextAspectsChanged",
     "body": [
       "${1:result} = ${2:instance}.onTextAspectsChanged()"
     ],
     "description": "Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."
-  },
-  "SGDashBoard.getBackgroundImagePixmap": {
-    "prefix": "sgdashboard.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGDashBoard.getPositionType": {
-    "prefix": "sgdashboard.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
   },
   "SGEndGameRule.setBackgroundColor": {
     "prefix": "sgendgamerule.setBackgroundColor",
@@ -962,13 +598,6 @@
     ],
     "description": "Set the background color of the end game rule."
   },
-  "SGEndGameRule.setBackgroundImage": {
-    "prefix": "sgendgamerule.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
   "SGEndGameRule.setBorderColor": {
     "prefix": "sgendgamerule.setBorderColor",
     "body": [
@@ -976,117 +605,12 @@
     ],
     "description": "Set the border color of the end game rule."
   },
-  "SGEndGameRule.setBorderRadius": {
-    "prefix": "sgendgamerule.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
   "SGEndGameRule.setBorderSize": {
     "prefix": "sgendgamerule.setBorderSize",
     "body": [
       "${1:instance}.setBorderSize(${2:value})"
     ],
     "description": "Set the border size of the end game rule."
-  },
-  "SGEndGameRule.setBorderStyle": {
-    "prefix": "sgendgamerule.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGEndGameRule.setColor": {
-    "prefix": "sgendgamerule.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGEndGameRule.setDraggability": {
-    "prefix": "sgendgamerule.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGEndGameRule.setFontFamily": {
-    "prefix": "sgendgamerule.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGEndGameRule.setFontSize": {
-    "prefix": "sgendgamerule.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGEndGameRule.setFontStyle": {
-    "prefix": "sgendgamerule.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGEndGameRule.setFontWeight": {
-    "prefix": "sgendgamerule.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
-  "SGEndGameRule.setInPosition": {
-    "prefix": "sgendgamerule.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGEndGameRule.setLayoutOrder": {
-    "prefix": "sgendgamerule.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGEndGameRule.setMinHeight": {
-    "prefix": "sgendgamerule.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGEndGameRule.setMinWidth": {
-    "prefix": "sgendgamerule.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGEndGameRule.setPadding": {
-    "prefix": "sgendgamerule.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGEndGameRule.setSizeManagerVerticalGap": {
-    "prefix": "sgendgamerule.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGEndGameRule.setStyle": {
-    "prefix": "sgendgamerule.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
   },
   "SGEndGameRule.setSuccessThemeColor": {
     "prefix": "sgendgamerule.setSuccessThemeColor",
@@ -1101,435 +625,6 @@
       "${1:instance}.setTextColor(${2:value})"
     ],
     "description": "Set the text color of the end game rule."
-  },
-  "SGEndGameRule.setTextsColor": {
-    "prefix": "sgendgamerule.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGEndGameRule.setTitleAlignment": {
-    "prefix": "sgendgamerule.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGEndGameRule.setTitlesAndTextsColor": {
-    "prefix": "sgendgamerule.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGEndGameRule.setTitlesColor": {
-    "prefix": "sgendgamerule.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGEndGameRule.setWordWrap": {
-    "prefix": "sgendgamerule.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
-  },
-  "SGEndGameRule.getBackgroundImagePixmap": {
-    "prefix": "sgendgamerule.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGEndGameRule.getPositionType": {
-    "prefix": "sgendgamerule.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
-  },
-  "SGEndGameRule.moveToCoords": {
-    "prefix": "sgendgamerule.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
-  },
-  "SGEntityType.calcValue": {
-    "prefix": "sgentitytype.calcValue",
-    "body": [
-      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
-    ],
-    "description": "Apply a calculation on the value of an attribut using a lambda function"
-  },
-  "SGEntityType.copyValue": {
-    "prefix": "sgentitytype.copyValue",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
-    ],
-    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
-  },
-  "SGEntityType.decValue": {
-    "prefix": "sgentitytype.decValue",
-    "body": [
-      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
-    ],
-    "description": "Decrease the value of an attribut with an additional value"
-  },
-  "SGEntityType.incValue": {
-    "prefix": "sgentitytype.incValue",
-    "body": [
-      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
-    ],
-    "description": "Increase the value of an attribut with an additional value"
-  },
-  "SGEntityType.setDefaultValue": {
-    "prefix": "sgentitytype.setDefaultValue",
-    "body": [
-      "${1:instance}.setDefaultValue(${2:aAtt}, ${3:aDefaultValue})"
-    ],
-    "description": "Set a default value for a specific attribute."
-  },
-  "SGEntityType.setDefaultValues": {
-    "prefix": "sgentitytype.setDefaultValues",
-    "body": [
-      "${1:instance}.setDefaultValues(${2:value})"
-    ],
-    "description": "Set default values for multiple attributes."
-  },
-  "SGEntityType.setDefaultValues_randomChoice": {
-    "prefix": "sgentitytype.setDefaultValues_randomChoice",
-    "body": [
-      "${1:instance}.setDefaultValues_randomChoice(${2:value})"
-    ],
-    "description": "Set default values with automatic random choice conversion for lists/tuples."
-  },
-  "SGEntityType.setDefaultValues_randomNumeric": {
-    "prefix": "sgentitytype.setDefaultValues_randomNumeric",
-    "body": [
-      "${1:instance}.setDefaultValues_randomNumeric(${2:value})"
-    ],
-    "description": "Set default numeric values with automatic random distribution conversion."
-  },
-  "SGEntityType.setEntities": {
-    "prefix": "sgentitytype.setEntities",
-    "body": [
-      "${1:instance}.setEntities(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Set the value of attribut value of all entities"
-  },
-  "SGEntityType.setEntities_randomChoice": {
-    "prefix": "sgentitytype.setEntities_randomChoice",
-    "body": [
-      "${1:instance}.setEntities_randomChoice(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Set random choice values for all entities matching the condition."
-  },
-  "SGEntityType.setEntities_randomChoicePerEntity": {
-    "prefix": "sgentitytype.setEntities_randomChoicePerEntity",
-    "body": [
-      "${1:instance}.setEntities_randomChoicePerEntity(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Set random choice values for each entity individually."
-  },
-  "SGEntityType.setEntities_randomNumeric": {
-    "prefix": "sgentitytype.setEntities_randomNumeric",
-    "body": [
-      "${1:instance}.setEntities_randomNumeric(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Set random numeric values for all entities matching the condition."
-  },
-  "SGEntityType.setEntities_withColumn": {
-    "prefix": "sgentitytype.setEntities_withColumn",
-    "body": [
-      "${1:instance}.setEntities_withColumn(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Set the value of attribut to all entities in a specified column"
-  },
-  "SGEntityType.setEntities_withRow": {
-    "prefix": "sgentitytype.setEntities_withRow",
-    "body": [
-      "${1:instance}.setEntities_withRow(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Set the value of attribut to all entities in a specified row"
-  },
-  "SGEntityType.setRandomEntities": {
-    "prefix": "sgentitytype.setRandomEntities",
-    "body": [
-      "${1:instance}.setRandomEntities(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Applies the same attribut value for a random number of entities"
-  },
-  "SGEntityType.setRandomEntities_withValue": {
-    "prefix": "sgentitytype.setRandomEntities_withValue",
-    "body": [
-      "${1:instance}.setRandomEntities_withValue(${2:aAttribut}, ${3:aValue})"
-    ],
-    "description": "To apply a value to some random entities with a certain value"
-  },
-  "SGEntityType.setRandomEntities_withValueNot": {
-    "prefix": "sgentitytype.setRandomEntities_withValueNot",
-    "body": [
-      "${1:instance}.setRandomEntities_withValueNot(${2:aAttribut}, ${3:aValue})"
-    ],
-    "description": "To apply a value to some random entities noty having a certain value"
-  },
-  "SGEntityType.setRandomEntity": {
-    "prefix": "sgentitytype.setRandomEntity",
-    "body": [
-      "${1:instance}.setRandomEntity(${2:aAttribute}, ${3:aValue})"
-    ],
-    "description": "Apply a value to a random entity"
-  },
-  "SGEntityType.setRandomEntity_withValue": {
-    "prefix": "sgentitytype.setRandomEntity_withValue",
-    "body": [
-      "${1:instance}.setRandomEntity_withValue(${2:aAttribut}, ${3:aValue})"
-    ],
-    "description": "To apply a value to a random entity with a certain value"
-  },
-  "SGEntityType.setRandomEntity_withValueNot": {
-    "prefix": "sgentitytype.setRandomEntity_withValueNot",
-    "body": [
-      "${1:instance}.setRandomEntity_withValueNot(${2:aAttribut}, ${3:aValue})"
-    ],
-    "description": "To apply a value to a random entity not having a certain value"
-  },
-  "SGEntityType.setTooltip": {
-    "prefix": "sgentitytype.setTooltip",
-    "body": [
-      "${1:instance}.setTooltip(${2:tooltipName}, ${3:tooltipValue})"
-    ],
-    "description": "Set a custom tooltip option for entities of this definition."
-  },
-  "SGEntityType.setValue": {
-    "prefix": "sgentitytype.setValue",
-    "body": [
-      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
-    ],
-    "description": "Sets the value of an attribut"
-  },
-  "SGEntityType.setValue_randomChoice": {
-    "prefix": "sgentitytype.setValue_randomChoice",
-    "body": [
-      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
-    ],
-    "description": "Set a random value for an attribute from a list of choices."
-  },
-  "SGEntityType.setValues": {
-    "prefix": "sgentitytype.setValues",
-    "body": [
-      "${1:instance}.setValues(${2:value})"
-    ],
-    "description": "Set multiple attribute values at once."
-  },
-  "SGEntityType.copyValue_forAllEntities": {
-    "prefix": "sgentitytype.copyValue_forAllEntities",
-    "body": [
-      "${1:result} = ${2:instance}.copyValue_forAllEntities(${3:source_att}, ${4:target_att}, ${5:condition})"
-    ],
-    "description": "Copy the value of an attribut (source_att) in another attribute (target_att), for all the entities compliant with the condition."
-  },
-  "SGEntityType.generate_random_value": {
-    "prefix": "sgentitytype.generate_random_value",
-    "body": [
-      "${1:result} = ${2:instance}.generate_random_value()"
-    ],
-    "description": ""
-  },
-  "SGEntityType.metricOnEntities": {
-    "prefix": "sgentitytype.metricOnEntities",
-    "body": [
-      "${1:result} = ${2:instance}.metricOnEntities(${3:metric}, ${4:attribute}, ${5:value})"
-    ],
-    "description": "Get metrics for all entities."
-  },
-  "SGEntityType.metricOnEntitiesWithValue": {
-    "prefix": "sgentitytype.metricOnEntitiesWithValue",
-    "body": [
-      "${1:result} = ${2:instance}.metricOnEntitiesWithValue(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
-    ],
-    "description": "Get metrics for entities that have a specific attribute value."
-  },
-  "SGEntityType.metricOnEntitiesWithValueNot": {
-    "prefix": "sgentitytype.metricOnEntitiesWithValueNot",
-    "body": [
-      "${1:result} = ${2:instance}.metricOnEntitiesWithValueNot(${3:attributeForSelection}, ${4:valueForSelection}, ${5:metric}, ${6:attribute}, ${7:value})"
-    ],
-    "description": "Get metrics for entities that do not have a specific attribute value."
-  },
-  "SGEntityType.newBorderPov": {
-    "prefix": "sgentitytype.newBorderPov",
-    "body": [
-      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
-    ],
-    "description": "Declare a new Point of View (only for border color)."
-  },
-  "SGEntityType.newBorderPovColorAndWidth": {
-    "prefix": "sgentitytype.newBorderPovColorAndWidth",
-    "body": [
-      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
-    ],
-    "description": "Declare a new Point of View (only for border color)."
-  },
-  "SGEntityType.newModelAction": {
-    "prefix": "sgentitytype.newModelAction",
-    "body": [
-      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
-    ],
-    "description": "Create an SGModelAction_OnEntities targeting entities of this definition."
-  },
-  "SGEntityType.newPov": {
-    "prefix": "sgentitytype.newPov",
-    "body": [
-      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
-    ],
-    "description": "Declare a new Point of View for the entityType."
-  },
-  "SGEntityType.getEntities": {
-    "prefix": "sgentitytype.getEntities",
-    "body": [
-      "${1:result} = ${2:instance}.getEntities(${3:condition})"
-    ],
-    "description": "Get all entities, optionally filtered by a condition."
-  },
-  "SGEntityType.getEntities_withValue": {
-    "prefix": "sgentitytype.getEntities_withValue",
-    "body": [
-      "${1:result} = ${2:instance}.getEntities_withValue(${3:att}, ${4:val})"
-    ],
-    "description": "Get all entities that have a specific attribute value."
-  },
-  "SGEntityType.getEntities_withValueNot": {
-    "prefix": "sgentitytype.getEntities_withValueNot",
-    "body": [
-      "${1:result} = ${2:instance}.getEntities_withValueNot(${3:att}, ${4:val})"
-    ],
-    "description": "Get all entities that do not have a specific attribute value."
-  },
-  "SGEntityType.getEntity": {
-    "prefix": "sgentitytype.getEntity",
-    "body": [
-      "${1:result} = ${2:instance}.getEntity(${3:x}, ${4:y})"
-    ],
-    "description": "Return an entity identified by its id or its coordinates on a grid"
-  },
-  "SGEntityType.getRandomEntities": {
-    "prefix": "sgentitytype.getRandomEntities",
-    "body": [
-      "${1:result} = ${2:instance}.getRandomEntities(${3:aNumber}, ${4:condition}, ${5:listOfEntitiesToPickFrom})"
-    ],
-    "description": "Return a specified number of random entities."
-  },
-  "SGEntityType.getRandomEntities_withValue": {
-    "prefix": "sgentitytype.getRandomEntities_withValue",
-    "body": [
-      "${1:result} = ${2:instance}.getRandomEntities_withValue(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
-    ],
-    "description": "Return a specified number of random entities that have a specific attribute value."
-  },
-  "SGEntityType.getRandomEntities_withValueNot": {
-    "prefix": "sgentitytype.getRandomEntities_withValueNot",
-    "body": [
-      "${1:result} = ${2:instance}.getRandomEntities_withValueNot(${3:aNumber}, ${4:att}, ${5:val}, ${6:condition})"
-    ],
-    "description": "Return a specified number of random entities that do not have a specific attribute value."
-  },
-  "SGEntityType.getRandomEntity": {
-    "prefix": "sgentitytype.getRandomEntity",
-    "body": [
-      "${1:result} = ${2:instance}.getRandomEntity(${3:condition}, ${4:listOfEntitiesToPickFrom})"
-    ],
-    "description": "Return a random entity from the available entities."
-  },
-  "SGEntityType.getRandomEntity_withValue": {
-    "prefix": "sgentitytype.getRandomEntity_withValue",
-    "body": [
-      "${1:result} = ${2:instance}.getRandomEntity_withValue(${3:att}, ${4:val}, ${5:condition})"
-    ],
-    "description": "Return a random entity that has a specific attribute value."
-  },
-  "SGEntityType.getRandomEntity_withValueNot": {
-    "prefix": "sgentitytype.getRandomEntity_withValueNot",
-    "body": [
-      "${1:result} = ${2:instance}.getRandomEntity_withValueNot(${3:att}, ${4:val}, ${5:condition})"
-    ],
-    "description": "Return a random entity that does not have a specific attribute value."
-  },
-  "SGEntityType.getValue": {
-    "prefix": "sgentitytype.getValue",
-    "body": [
-      "${1:result} = ${2:instance}.getValue(${3:att})"
-    ],
-    "description": "Return the value of a cell Attribut"
-  },
-  "SGEntityType.nb_withValue": {
-    "prefix": "sgentitytype.nb_withValue",
-    "body": [
-      "${1:count} = ${2:instance}.nb_withValue(${3:att})"
-    ],
-    "description": "Get the number of entities that have a specific attribute value."
-  },
-  "SGEntityType.nbOfEntities": {
-    "prefix": "sgentitytype.nbOfEntities",
-    "body": [
-      "${1:count} = ${2:instance}.nbOfEntities()"
-    ],
-    "description": "Get the total number of entities in this definition."
-  },
-  "SGEntityType.deleteAllEntities": {
-    "prefix": "sgentitytype.deleteAllEntities",
-    "body": [
-      "${1:instance}.deleteAllEntities()"
-    ],
-    "description": "Delete all entities of the entity type."
-  },
-  "SGEntityType.displayAttributeValueInContextualMenu": {
-    "prefix": "sgentitytype.displayAttributeValueInContextualMenu",
-    "body": [
-      "${1:result} = ${2:instance}.displayAttributeValueInContextualMenu(${3:aAttribut}, ${4:label})"
-    ],
-    "description": "Set an attribute to be displayed in the contextual menu."
-  },
-  "SGEntityType.displayBorderPov": {
-    "prefix": "sgentitytype.displayBorderPov",
-    "body": [
-      "${1:result} = ${2:instance}.displayBorderPov(${3:nameOfBorderPov})"
-    ],
-    "description": "Displays the border symbology for the specified Point of View."
-  },
-  "SGEntityType.displayPov": {
-    "prefix": "sgentitytype.displayPov",
-    "body": [
-      "${1:result} = ${2:instance}.displayPov(${3:nameOfPov})"
-    ],
-    "description": "Displays the symbology for the specified Point of View."
-  },
-  "SGEntityType.displayTooltip": {
-    "prefix": "sgentitytype.displayTooltip",
-    "body": [
-      "${1:result} = ${2:instance}.displayTooltip(${3:type})"
-    ],
-    "description": "Method to control the display of entity tooltips"
-  },
-  "SGEntityType.isNotValue": {
-    "prefix": "sgentitytype.isNotValue",
-    "body": [
-      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
-      "    ${3:pass}"
-    ],
-    "description": "Tests if the the value of an attribut is not equal to a value"
-  },
-  "SGEntityType.isValue": {
-    "prefix": "sgentitytype.isValue",
-    "body": [
-      "if ${1:instance}.isValue(${2:attribut_to_test}):",
-      "    ${3:pass}"
-    ],
-    "description": "Tests if the the value of an attribut if equal to a value"
   },
   "SGCellType.calcValue": {
     "prefix": "sgcelltype.calcValue",
@@ -2403,6 +1498,13 @@
     ],
     "description": "Declare a new Point of View for the entityType."
   },
+  "SGTileType.newStackOnCell": {
+    "prefix": "sgtiletype.newStackOnCell",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a stack of multiple tiles on a specific cell."
+  },
   "SGTileType.newTileAtCoords": {
     "prefix": "sgtiletype.newTileAtCoords",
     "body": [
@@ -2818,216 +1920,6 @@
     ],
     "description": "Tests if the the value of an attribut if equal to a value"
   },
-  "SGGameSpace.setBackgroundColor": {
-    "prefix": "sggamespace.setBackgroundColor",
-    "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
-    ],
-    "description": "Set the background color of the gameSpace."
-  },
-  "SGGameSpace.setBackgroundImage": {
-    "prefix": "sggamespace.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
-  "SGGameSpace.setBorderColor": {
-    "prefix": "sggamespace.setBorderColor",
-    "body": [
-      "${1:instance}.setBorderColor(${2:value})"
-    ],
-    "description": "Set the border color of the gameSpace."
-  },
-  "SGGameSpace.setBorderRadius": {
-    "prefix": "sggamespace.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
-  "SGGameSpace.setBorderSize": {
-    "prefix": "sggamespace.setBorderSize",
-    "body": [
-      "${1:instance}.setBorderSize(${2:value})"
-    ],
-    "description": "Set the border size of the gameSpace."
-  },
-  "SGGameSpace.setBorderStyle": {
-    "prefix": "sggamespace.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGGameSpace.setColor": {
-    "prefix": "sggamespace.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGGameSpace.setDraggability": {
-    "prefix": "sggamespace.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGGameSpace.setFontFamily": {
-    "prefix": "sggamespace.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGGameSpace.setFontSize": {
-    "prefix": "sggamespace.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGGameSpace.setFontStyle": {
-    "prefix": "sggamespace.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGGameSpace.setFontWeight": {
-    "prefix": "sggamespace.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
-  "SGGameSpace.setInPosition": {
-    "prefix": "sggamespace.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGGameSpace.setLayoutOrder": {
-    "prefix": "sggamespace.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGGameSpace.setMinHeight": {
-    "prefix": "sggamespace.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGGameSpace.setMinWidth": {
-    "prefix": "sggamespace.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGGameSpace.setPadding": {
-    "prefix": "sggamespace.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGGameSpace.setSizeManagerVerticalGap": {
-    "prefix": "sggamespace.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGGameSpace.setStyle": {
-    "prefix": "sggamespace.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGGameSpace.setTextColor": {
-    "prefix": "sggamespace.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGGameSpace.setTextsColor": {
-    "prefix": "sggamespace.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGGameSpace.setTitleAlignment": {
-    "prefix": "sggamespace.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGGameSpace.setTitlesAndTextsColor": {
-    "prefix": "sggamespace.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGGameSpace.setTitlesColor": {
-    "prefix": "sggamespace.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGGameSpace.setWordWrap": {
-    "prefix": "sggamespace.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
-  },
-  "SGGameSpace.getBackgroundImagePixmap": {
-    "prefix": "sggamespace.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGGameSpace.getPositionType": {
-    "prefix": "sggamespace.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
-  },
-  "SGGameSpace.moveToCoords": {
-    "prefix": "sggamespace.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
-  },
-  "SGLegend.setBackgroundColor": {
-    "prefix": "sglegend.setBackgroundColor",
-    "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
-    ],
-    "description": "Set the background color of the gameSpace."
-  },
-  "SGLegend.setBackgroundImage": {
-    "prefix": "sglegend.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
   "SGLegend.setBorderColor": {
     "prefix": "sglegend.setBorderColor",
     "body": [
@@ -3035,180 +1927,12 @@
     ],
     "description": "Set the border color of the legend."
   },
-  "SGLegend.setBorderRadius": {
-    "prefix": "sglegend.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
   "SGLegend.setBorderSize": {
     "prefix": "sglegend.setBorderSize",
     "body": [
       "${1:instance}.setBorderSize(${2:value})"
     ],
     "description": "Set the border size of the legend."
-  },
-  "SGLegend.setBorderStyle": {
-    "prefix": "sglegend.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGLegend.setColor": {
-    "prefix": "sglegend.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGLegend.setDraggability": {
-    "prefix": "sglegend.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGLegend.setFontFamily": {
-    "prefix": "sglegend.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGLegend.setFontSize": {
-    "prefix": "sglegend.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGLegend.setFontStyle": {
-    "prefix": "sglegend.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGLegend.setFontWeight": {
-    "prefix": "sglegend.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
-  "SGLegend.setInPosition": {
-    "prefix": "sglegend.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGLegend.setLayoutOrder": {
-    "prefix": "sglegend.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGLegend.setMinHeight": {
-    "prefix": "sglegend.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGLegend.setMinWidth": {
-    "prefix": "sglegend.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGLegend.setPadding": {
-    "prefix": "sglegend.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGLegend.setSizeManagerVerticalGap": {
-    "prefix": "sglegend.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGLegend.setStyle": {
-    "prefix": "sglegend.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGLegend.setTextColor": {
-    "prefix": "sglegend.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGLegend.setTextsColor": {
-    "prefix": "sglegend.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGLegend.setTitleAlignment": {
-    "prefix": "sglegend.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGLegend.setTitlesAndTextsColor": {
-    "prefix": "sglegend.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGLegend.setTitlesColor": {
-    "prefix": "sglegend.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGLegend.setWordWrap": {
-    "prefix": "sglegend.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
-  },
-  "SGLegend.getBackgroundImagePixmap": {
-    "prefix": "sglegend.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGLegend.getPositionType": {
-    "prefix": "sglegend.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
-  },
-  "SGLegend.moveToCoords": {
-    "prefix": "sglegend.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
   },
   "SGModel.newActivateAction": {
     "prefix": "sgmodel.newActivateAction",
@@ -3595,19 +2319,162 @@
     ],
     "description": "Set whether to display the time (Round number and Phase number) in the window title."
   },
+  "SGPlayer.addGameAction": {
+    "prefix": "sgplayer.addGameAction",
+    "body": [
+      "${1:result} = ${2:instance}.addGameAction(${3:aGameAction})"
+    ],
+    "description": "Add a action to the Player"
+  },
+  "SGPlayer.addGameActions": {
+    "prefix": "sgplayer.addGameActions",
+    "body": [
+      "${1:result} = ${2:instance}.addGameActions(${3:actions})"
+    ],
+    "description": ""
+  },
+  "SGPlayer.newActivateAction": {
+    "prefix": "sgplayer.newActivateAction",
+    "body": [
+      "${1:result} = ${2:instance}.newActivateAction(${3:})"
+    ],
+    "description": "Create a new ActivateAction and automatically add it to this player."
+  },
+  "SGPlayer.newCreateAction": {
+    "prefix": "sgplayer.newCreateAction",
+    "body": [
+      "${1:result} = ${2:instance}.newCreateAction(${3:})"
+    ],
+    "description": "Create a new CreateAction and automatically add it to this player."
+  },
+  "SGPlayer.newDeleteAction": {
+    "prefix": "sgplayer.newDeleteAction",
+    "body": [
+      "${1:result} = ${2:instance}.newDeleteAction(${3:})"
+    ],
+    "description": "Create a new DeleteAction and automatically add it to this player."
+  },
+  "SGPlayer.newFlipAction": {
+    "prefix": "sgplayer.newFlipAction",
+    "body": [
+      "${1:result} = ${2:instance}.newFlipAction(${3:})"
+    ],
+    "description": "Create a new FlipAction and automatically add it to this player."
+  },
+  "SGPlayer.newModifyAction": {
+    "prefix": "sgplayer.newModifyAction",
+    "body": [
+      "${1:result} = ${2:instance}.newModifyAction(${3:})"
+    ],
+    "description": "Create a new ModifyAction and automatically add it to this player."
+  },
+  "SGPlayer.newModifyActionWithDialog": {
+    "prefix": "sgplayer.newModifyActionWithDialog",
+    "body": [
+      "${1:result} = ${2:instance}.newModifyActionWithDialog(${3:})"
+    ],
+    "description": "Create a new ModifyActionWithDialog and automatically add it to this player."
+  },
+  "SGPlayer.newMoveAction": {
+    "prefix": "sgplayer.newMoveAction",
+    "body": [
+      "${1:result} = ${2:instance}.newMoveAction(${3:})"
+    ],
+    "description": "Create a new MoveAction and automatically add it to this player."
+  },
+  "SGPlayer.controlPanel": {
+    "prefix": "sgplayer.controlPanel",
+    "body": [
+      "${1:result} = ${2:instance}.controlPanel()"
+    ],
+    "description": ""
+  },
+  "SGPlayer.hasActionsToUse": {
+    "prefix": "sgplayer.hasActionsToUse",
+    "body": [
+      "if ${1:instance}.hasActionsToUse():",
+      "    ${2:pass}"
+    ],
+    "description": ""
+  },
+  "SGPlayer.calcValue": {
+    "prefix": "sgplayer.calcValue",
+    "body": [
+      "${1:result} = ${2:instance}.calcValue(${3:aAttribut}, ${4:aLambdaFunction})"
+    ],
+    "description": "Apply a calculation on the value of an attribut using a lambda function"
+  },
+  "SGPlayer.copyValue": {
+    "prefix": "sgplayer.copyValue",
+    "body": [
+      "${1:result} = ${2:instance}.copyValue(${3:source_att}, ${4:target_att})"
+    ],
+    "description": "Copy the value of an attribut (source_att), in another attribute (target_att)"
+  },
+  "SGPlayer.decValue": {
+    "prefix": "sgplayer.decValue",
+    "body": [
+      "${1:result} = ${2:instance}.decValue(${3:aAttribut}, ${4:valueToSet}, ${5:min})"
+    ],
+    "description": "Decrease the value of an attribut with an additional value"
+  },
+  "SGPlayer.incValue": {
+    "prefix": "sgplayer.incValue",
+    "body": [
+      "${1:result} = ${2:instance}.incValue(${3:aAttribut}, ${4:valueToSet}, ${5:max})"
+    ],
+    "description": "Increase the value of an attribut with an additional value"
+  },
+  "SGPlayer.setValue": {
+    "prefix": "sgplayer.setValue",
+    "body": [
+      "${1:instance}.setValue(${2:aAttribut}, ${3:valueToSet})"
+    ],
+    "description": "Sets the value of an attribut"
+  },
+  "SGPlayer.setValue_randomChoice": {
+    "prefix": "sgplayer.setValue_randomChoice",
+    "body": [
+      "${1:instance}.setValue_randomChoice(${2:aAttribute}, ${3:choices})"
+    ],
+    "description": "Set a random value for an attribute from a list of choices."
+  },
+  "SGPlayer.setValues": {
+    "prefix": "sgplayer.setValues",
+    "body": [
+      "${1:instance}.setValues(${2:value})"
+    ],
+    "description": "Set multiple attribute values at once."
+  },
+  "SGPlayer.getValue": {
+    "prefix": "sgplayer.getValue",
+    "body": [
+      "${1:result} = ${2:instance}.getValue(${3:att})"
+    ],
+    "description": "Return the value of a cell Attribut"
+  },
+  "SGPlayer.isNotValue": {
+    "prefix": "sgplayer.isNotValue",
+    "body": [
+      "if ${1:instance}.isNotValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut is not equal to a value"
+  },
+  "SGPlayer.isValue": {
+    "prefix": "sgplayer.isValue",
+    "body": [
+      "if ${1:instance}.isValue(${2:attribut_to_test}):",
+      "    ${3:pass}"
+    ],
+    "description": "Tests if the the value of an attribut if equal to a value"
+  },
   "SGProgressGauge.setBackgroundColor": {
     "prefix": "sgprogressgauge.setBackgroundColor",
     "body": [
       "${1:instance}.setBackgroundColor(${2:value})"
     ],
     "description": "Set the background color of the progress gauge."
-  },
-  "SGProgressGauge.setBackgroundImage": {
-    "prefix": "sgprogressgauge.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
   },
   "SGProgressGauge.setBorderColor": {
     "prefix": "sgprogressgauge.setBorderColor",
@@ -3616,13 +2483,6 @@
     ],
     "description": "Set the border color of the progress gauge."
   },
-  "SGProgressGauge.setBorderRadius": {
-    "prefix": "sgprogressgauge.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
   "SGProgressGauge.setBorderSize": {
     "prefix": "sgprogressgauge.setBorderSize",
     "body": [
@@ -3630,159 +2490,12 @@
     ],
     "description": "Set the border size of the progress gauge."
   },
-  "SGProgressGauge.setBorderStyle": {
-    "prefix": "sgprogressgauge.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGProgressGauge.setColor": {
-    "prefix": "sgprogressgauge.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGProgressGauge.setDraggability": {
-    "prefix": "sgprogressgauge.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGProgressGauge.setFontFamily": {
-    "prefix": "sgprogressgauge.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGProgressGauge.setFontSize": {
-    "prefix": "sgprogressgauge.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGProgressGauge.setFontStyle": {
-    "prefix": "sgprogressgauge.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGProgressGauge.setFontWeight": {
-    "prefix": "sgprogressgauge.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
-  "SGProgressGauge.setInPosition": {
-    "prefix": "sgprogressgauge.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGProgressGauge.setLayoutOrder": {
-    "prefix": "sgprogressgauge.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGProgressGauge.setMinHeight": {
-    "prefix": "sgprogressgauge.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGProgressGauge.setMinWidth": {
-    "prefix": "sgprogressgauge.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGProgressGauge.setPadding": {
-    "prefix": "sgprogressgauge.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGProgressGauge.setSizeManagerVerticalGap": {
-    "prefix": "sgprogressgauge.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGProgressGauge.setStyle": {
-    "prefix": "sgprogressgauge.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGProgressGauge.setTextColor": {
-    "prefix": "sgprogressgauge.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGProgressGauge.setTextsColor": {
-    "prefix": "sgprogressgauge.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGProgressGauge.setTitleAlignment": {
-    "prefix": "sgprogressgauge.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGProgressGauge.setTitlesAndTextsColor": {
-    "prefix": "sgprogressgauge.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGProgressGauge.setTitlesColor": {
-    "prefix": "sgprogressgauge.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGProgressGauge.setWordWrap": {
-    "prefix": "sgprogressgauge.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
-  },
   "SGProgressGauge.applyContainerAspectStyle": {
     "prefix": "sgprogressgauge.applyContainerAspectStyle",
     "body": [
       "${1:result} = ${2:instance}.applyContainerAspectStyle()"
     ],
     "description": "Avoid QSS cascade; rely on paintEvent for container rendering."
-  },
-  "SGProgressGauge.moveToCoords": {
-    "prefix": "sgprogressgauge.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
   },
   "SGProgressGauge.onTextAspectsChanged": {
     "prefix": "sgprogressgauge.onTextAspectsChanged",
@@ -3798,33 +2511,104 @@
     ],
     "description": ""
   },
-  "SGProgressGauge.getBackgroundImagePixmap": {
-    "prefix": "sgprogressgauge.getBackgroundImagePixmap",
+  "SGStack.bottomTile": {
+    "prefix": "sgstack.bottomTile",
     "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
+      "${1:result} = ${2:instance}.bottomTile()"
     ],
-    "description": "Get the background image as a QPixmap."
+    "description": "Get the tile with the lowest layer (bottom of the stack)"
   },
-  "SGProgressGauge.getPositionType": {
-    "prefix": "sgprogressgauge.getPositionType",
+  "SGStack.contains": {
+    "prefix": "sgstack.contains",
     "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
+      "${1:result} = ${2:instance}.contains(${3:tile})"
     ],
-    "description": "Get the current position type of the gameSpace."
+    "description": "Check if a specific tile is in the stack"
   },
-  "SGTextBox.setBackgroundColor": {
-    "prefix": "sgtextbox.setBackgroundColor",
+  "SGStack.maxLayer": {
+    "prefix": "sgstack.maxLayer",
     "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
+      "${1:result} = ${2:instance}.maxLayer()"
     ],
-    "description": "Set the background color of the gameSpace."
+    "description": "Get the maximum layer in the stack"
   },
-  "SGTextBox.setBackgroundImage": {
-    "prefix": "sgtextbox.setBackgroundImage",
+  "SGStack.minLayer": {
+    "prefix": "sgstack.minLayer",
     "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
+      "${1:result} = ${2:instance}.minLayer()"
     ],
-    "description": "Set the background image of the gameSpace."
+    "description": "Get the minimum layer in the stack"
+  },
+  "SGStack.refillAvailableSlots": {
+    "prefix": "sgstack.refillAvailableSlots",
+    "body": [
+      "${1:result} = ${2:instance}.refillAvailableSlots()"
+    ],
+    "description": "Refill available slots using the Open Drafting configuration."
+  },
+  "SGStack.shuffle": {
+    "prefix": "sgstack.shuffle",
+    "body": [
+      "${1:result} = ${2:instance}.shuffle()"
+    ],
+    "description": "Shuffle the tiles in the stack and reassign layers from 1 to N"
+  },
+  "SGStack.size": {
+    "prefix": "sgstack.size",
+    "body": [
+      "${1:result} = ${2:instance}.size()"
+    ],
+    "description": "Get the number of tiles in the stack"
+  },
+  "SGStack.tileAtLayer": {
+    "prefix": "sgstack.tileAtLayer",
+    "body": [
+      "${1:result} = ${2:instance}.tileAtLayer(${3:layer})"
+    ],
+    "description": "Get the tile at a specific layer"
+  },
+  "SGStack.topTile": {
+    "prefix": "sgstack.topTile",
+    "body": [
+      "${1:result} = ${2:instance}.topTile()"
+    ],
+    "description": "Get the tile with the highest layer (top of the stack)"
+  },
+  "SGStack.getLastSlotsFilled": {
+    "prefix": "sgstack.getLastSlotsFilled",
+    "body": [
+      "${1:result} = ${2:instance}.getLastSlotsFilled()"
+    ],
+    "description": "Get the number of slots that were filled during the last call to refillAvailableSlots()."
+  },
+  "SGStack.getTilesWithFace": {
+    "prefix": "sgstack.getTilesWithFace",
+    "body": [
+      "${1:result} = ${2:instance}.getTilesWithFace(${3:face})"
+    ],
+    "description": "Get all tiles in the stack that have a specific face"
+  },
+  "SGStack.getTilesWithValue": {
+    "prefix": "sgstack.getTilesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.getTilesWithValue(${3:attribute}, ${4:value})"
+    ],
+    "description": "Get all tiles in the stack that have a specific attribute value"
+  },
+  "SGStack.isEmpty": {
+    "prefix": "sgstack.isEmpty",
+    "body": [
+      "if ${1:instance}.isEmpty():",
+      "    ${2:pass}"
+    ],
+    "description": "Check if the stack is empty"
+  },
+  "SGStack.setOpenDrafting": {
+    "prefix": "sgstack.setOpenDrafting",
+    "body": [
+      "${1:instance}.setOpenDrafting(${2:slots}, ${3:visibleFace})"
+    ],
+    "description": "Configure Open Drafting mechanics for this stack."
   },
   "SGTextBox.setBorderColor": {
     "prefix": "sgtextbox.setBorderColor",
@@ -3833,68 +2617,12 @@
     ],
     "description": "Set the border color of the text box."
   },
-  "SGTextBox.setBorderRadius": {
-    "prefix": "sgtextbox.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
   "SGTextBox.setBorderSize": {
     "prefix": "sgtextbox.setBorderSize",
     "body": [
       "${1:instance}.setBorderSize(${2:value})"
     ],
     "description": "Set the border size of the text box."
-  },
-  "SGTextBox.setBorderStyle": {
-    "prefix": "sgtextbox.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGTextBox.setColor": {
-    "prefix": "sgtextbox.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGTextBox.setDraggability": {
-    "prefix": "sgtextbox.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGTextBox.setFontFamily": {
-    "prefix": "sgtextbox.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGTextBox.setFontSize": {
-    "prefix": "sgtextbox.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGTextBox.setFontStyle": {
-    "prefix": "sgtextbox.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGTextBox.setFontWeight": {
-    "prefix": "sgtextbox.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
   },
   "SGTextBox.setHeight": {
     "prefix": "sgtextbox.setHeight",
@@ -3903,61 +2631,12 @@
     ],
     "description": "Set custom height for the text box."
   },
-  "SGTextBox.setInPosition": {
-    "prefix": "sgtextbox.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGTextBox.setLayoutOrder": {
-    "prefix": "sgtextbox.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGTextBox.setMinHeight": {
-    "prefix": "sgtextbox.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGTextBox.setMinWidth": {
-    "prefix": "sgtextbox.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGTextBox.setPadding": {
-    "prefix": "sgtextbox.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
   "SGTextBox.setSize": {
     "prefix": "sgtextbox.setSize",
     "body": [
       "${1:instance}.setSize(${2:width}, ${3:height})"
     ],
     "description": "Set custom width and height for the text box."
-  },
-  "SGTextBox.setSizeManagerVerticalGap": {
-    "prefix": "sgtextbox.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGTextBox.setStyle": {
-    "prefix": "sgtextbox.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
   },
   "SGTextBox.setText": {
     "prefix": "sgtextbox.setText",
@@ -3966,13 +2645,6 @@
     ],
     "description": "Replace the text by a new text."
   },
-  "SGTextBox.setTextColor": {
-    "prefix": "sgtextbox.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
   "SGTextBox.setTextFormat": {
     "prefix": "sgtextbox.setTextFormat",
     "body": [
@@ -3980,26 +2652,12 @@
     ],
     "description": "Customize the font and the size of the text."
   },
-  "SGTextBox.setTextsColor": {
-    "prefix": "sgtextbox.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
   "SGTextBox.setTitle": {
     "prefix": "sgtextbox.setTitle",
     "body": [
       "${1:instance}.setTitle(${2:value})"
     ],
     "description": "Replace the title by a new title."
-  },
-  "SGTextBox.setTitleAlignment": {
-    "prefix": "sgtextbox.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
   },
   "SGTextBox.setTitleColor": {
     "prefix": "sgtextbox.setTitleColor",
@@ -4015,20 +2673,6 @@
     ],
     "description": "Customize the font and the size of the title."
   },
-  "SGTextBox.setTitlesAndTextsColor": {
-    "prefix": "sgtextbox.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGTextBox.setTitlesColor": {
-    "prefix": "sgtextbox.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
   "SGTextBox.setTitleSize": {
     "prefix": "sgtextbox.setTitleSize",
     "body": [
@@ -4042,13 +2686,6 @@
       "${1:instance}.setWidth(${2:value})"
     ],
     "description": "Set custom width for the text box."
-  },
-  "SGTextBox.setWordWrap": {
-    "prefix": "sgtextbox.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
   },
   "SGTextBox.addText": {
     "prefix": "sgtextbox.addText",
@@ -4071,33 +2708,12 @@
     ],
     "description": "Erase the text content."
   },
-  "SGTextBox.moveToCoords": {
-    "prefix": "sgtextbox.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
-  },
   "SGTextBox.updateText": {
     "prefix": "sgtextbox.updateText",
     "body": [
       "${1:result} = ${2:instance}.updateText()"
     ],
     "description": "Update the text widget content."
-  },
-  "SGTextBox.getBackgroundImagePixmap": {
-    "prefix": "sgtextbox.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGTextBox.getPositionType": {
-    "prefix": "sgtextbox.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
   },
   "SGTile.calcValue": {
     "prefix": "sgtile.calcValue",
@@ -4197,6 +2813,13 @@
     ],
     "description": "Get the currently visible face of this tile."
   },
+  "SGTile.getId": {
+    "prefix": "sgtile.getId",
+    "body": [
+      "${1:result} = ${2:instance}.getId()"
+    ],
+    "description": "Get an entity ID"
+  },
   "SGTile.getLayer": {
     "prefix": "sgtile.getLayer",
     "body": [
@@ -4272,55 +2895,6 @@
     ],
     "description": "Place the tile on a cell (alias for moveTo)."
   },
-  "SGTimeLabel.setBackgroundColor": {
-    "prefix": "sgtimelabel.setBackgroundColor",
-    "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
-    ],
-    "description": "Set the background color of the gameSpace."
-  },
-  "SGTimeLabel.setBackgroundImage": {
-    "prefix": "sgtimelabel.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
-  "SGTimeLabel.setBorderColor": {
-    "prefix": "sgtimelabel.setBorderColor",
-    "body": [
-      "${1:instance}.setBorderColor(${2:value})"
-    ],
-    "description": "Set the border color of the gameSpace."
-  },
-  "SGTimeLabel.setBorderRadius": {
-    "prefix": "sgtimelabel.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
-  "SGTimeLabel.setBorderSize": {
-    "prefix": "sgtimelabel.setBorderSize",
-    "body": [
-      "${1:instance}.setBorderSize(${2:value})"
-    ],
-    "description": "Set the border size of the gameSpace."
-  },
-  "SGTimeLabel.setBorderStyle": {
-    "prefix": "sgtimelabel.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
-  },
-  "SGTimeLabel.setColor": {
-    "prefix": "sgtimelabel.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
   "SGTimeLabel.setDisplayPhaseName": {
     "prefix": "sgtimelabel.setDisplayPhaseName",
     "body": [
@@ -4349,131 +2923,12 @@
     ],
     "description": "Set whether to display the title."
   },
-  "SGTimeLabel.setDraggability": {
-    "prefix": "sgtimelabel.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGTimeLabel.setFontFamily": {
-    "prefix": "sgtimelabel.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGTimeLabel.setFontSize": {
-    "prefix": "sgtimelabel.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGTimeLabel.setFontStyle": {
-    "prefix": "sgtimelabel.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGTimeLabel.setFontWeight": {
-    "prefix": "sgtimelabel.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
-  "SGTimeLabel.setInPosition": {
-    "prefix": "sgtimelabel.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
   "SGTimeLabel.setLabelStyle": {
     "prefix": "sgtimelabel.setLabelStyle",
     "body": [
       "${1:instance}.setLabelStyle(${2:value})"
     ],
     "description": "Set the style of all labels."
-  },
-  "SGTimeLabel.setLayoutOrder": {
-    "prefix": "sgtimelabel.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGTimeLabel.setMinHeight": {
-    "prefix": "sgtimelabel.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGTimeLabel.setMinWidth": {
-    "prefix": "sgtimelabel.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
-  "SGTimeLabel.setPadding": {
-    "prefix": "sgtimelabel.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGTimeLabel.setSizeManagerVerticalGap": {
-    "prefix": "sgtimelabel.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGTimeLabel.setStyle": {
-    "prefix": "sgtimelabel.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGTimeLabel.setTextColor": {
-    "prefix": "sgtimelabel.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGTimeLabel.setTextsColor": {
-    "prefix": "sgtimelabel.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGTimeLabel.setTitleAlignment": {
-    "prefix": "sgtimelabel.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGTimeLabel.setTitlesAndTextsColor": {
-    "prefix": "sgtimelabel.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGTimeLabel.setTitlesColor": {
-    "prefix": "sgtimelabel.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
   },
   "SGTimeLabel.setTitleText": {
     "prefix": "sgtimelabel.setTitleText",
@@ -4482,75 +2937,12 @@
     ],
     "description": "Set the title text of the time label."
   },
-  "SGTimeLabel.setWordWrap": {
-    "prefix": "sgtimelabel.setWordWrap",
+  "SGTimePhase.setAutoForward": {
+    "prefix": "sgtimephase.setAutoForward",
     "body": [
-      "${1:instance}.setWordWrap(${2:value})"
+      "${1:instance}.setAutoForward(${2:value})"
     ],
-    "description": "Set the word wrap of the gameSpace."
-  },
-  "SGTimeLabel.getBackgroundImagePixmap": {
-    "prefix": "sgtimelabel.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGTimeLabel.getPositionType": {
-    "prefix": "sgtimelabel.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
-  },
-  "SGTimeLabel.moveToCoords": {
-    "prefix": "sgtimelabel.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
-  },
-  "SGUserSelector.setBackgroundColor": {
-    "prefix": "sguserselector.setBackgroundColor",
-    "body": [
-      "${1:instance}.setBackgroundColor(${2:value})"
-    ],
-    "description": "Set the background color of the gameSpace."
-  },
-  "SGUserSelector.setBackgroundImage": {
-    "prefix": "sguserselector.setBackgroundImage",
-    "body": [
-      "${1:instance}.setBackgroundImage(${2:value})"
-    ],
-    "description": "Set the background image of the gameSpace."
-  },
-  "SGUserSelector.setBorderColor": {
-    "prefix": "sguserselector.setBorderColor",
-    "body": [
-      "${1:instance}.setBorderColor(${2:value})"
-    ],
-    "description": "Set the border color of the gameSpace."
-  },
-  "SGUserSelector.setBorderRadius": {
-    "prefix": "sguserselector.setBorderRadius",
-    "body": [
-      "${1:instance}.setBorderRadius(${2:value})"
-    ],
-    "description": "Set the border radius of the gameSpace."
-  },
-  "SGUserSelector.setBorderSize": {
-    "prefix": "sguserselector.setBorderSize",
-    "body": [
-      "${1:instance}.setBorderSize(${2:value})"
-    ],
-    "description": "Set the border size of the gameSpace."
-  },
-  "SGUserSelector.setBorderStyle": {
-    "prefix": "sguserselector.setBorderStyle",
-    "body": [
-      "${1:instance}.setBorderStyle(${2:value})"
-    ],
-    "description": "Set the border styleof the gameSpace."
+    "description": "Active ou désactive le passage automatique à la phase suivante"
   },
   "SGUserSelector.setCheckboxStyle": {
     "prefix": "sguserselector.setCheckboxStyle",
@@ -4559,76 +2951,6 @@
     ],
     "description": "Set the style of all checkboxes."
   },
-  "SGUserSelector.setColor": {
-    "prefix": "sguserselector.setColor",
-    "body": [
-      "${1:instance}.setColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGUserSelector.setDraggability": {
-    "prefix": "sguserselector.setDraggability",
-    "body": [
-      "${1:instance}.setDraggability(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGUserSelector.setFontFamily": {
-    "prefix": "sguserselector.setFontFamily",
-    "body": [
-      "${1:instance}.setFontFamily(${2:value})"
-    ],
-    "description": "Set the font family of the gameSpace."
-  },
-  "SGUserSelector.setFontSize": {
-    "prefix": "sguserselector.setFontSize",
-    "body": [
-      "${1:instance}.setFontSize(${2:value})"
-    ],
-    "description": "Set the font size of the gameSpace."
-  },
-  "SGUserSelector.setFontStyle": {
-    "prefix": "sguserselector.setFontStyle",
-    "body": [
-      "${1:instance}.setFontStyle(${2:value})"
-    ],
-    "description": "Set the font style of the gameSpace."
-  },
-  "SGUserSelector.setFontWeight": {
-    "prefix": "sguserselector.setFontWeight",
-    "body": [
-      "${1:instance}.setFontWeight(${2:value})"
-    ],
-    "description": "Set the font weight of the gameSpace."
-  },
-  "SGUserSelector.setInPosition": {
-    "prefix": "sguserselector.setInPosition",
-    "body": [
-      "${1:instance}.setInPosition(${2:x}, ${3:y})"
-    ],
-    "description": ""
-  },
-  "SGUserSelector.setLayoutOrder": {
-    "prefix": "sguserselector.setLayoutOrder",
-    "body": [
-      "${1:instance}.setLayoutOrder(${2:value})"
-    ],
-    "description": "Set the layoutOrder for this gameSpace in Enhanced Grid Layout."
-  },
-  "SGUserSelector.setMinHeight": {
-    "prefix": "sguserselector.setMinHeight",
-    "body": [
-      "${1:instance}.setMinHeight(${2:value})"
-    ],
-    "description": "Set the minimum height of the gameSpace."
-  },
-  "SGUserSelector.setMinWidth": {
-    "prefix": "sguserselector.setMinWidth",
-    "body": [
-      "${1:instance}.setMinWidth(${2:value})"
-    ],
-    "description": "Set the minimum width of the gameSpace."
-  },
   "SGUserSelector.setOrientation": {
     "prefix": "sguserselector.setOrientation",
     "body": [
@@ -4636,95 +2958,11 @@
     ],
     "description": "Set the orientation of the user selector."
   },
-  "SGUserSelector.setPadding": {
-    "prefix": "sguserselector.setPadding",
-    "body": [
-      "${1:instance}.setPadding(${2:value})"
-    ],
-    "description": "Set the padding of the gameSpace."
-  },
-  "SGUserSelector.setSizeManagerVerticalGap": {
-    "prefix": "sguserselector.setSizeManagerVerticalGap",
-    "body": [
-      "${1:instance}.setSizeManagerVerticalGap(${2:value})"
-    ],
-    "description": "Set vertical spacing of size_manager."
-  },
-  "SGUserSelector.setStyle": {
-    "prefix": "sguserselector.setStyle",
-    "body": [
-      "${1:instance}.setStyle(${2:value})"
-    ],
-    "description": "Set multiple style properties at once."
-  },
-  "SGUserSelector.setTextColor": {
-    "prefix": "sguserselector.setTextColor",
-    "body": [
-      "${1:instance}.setTextColor(${2:value})"
-    ],
-    "description": "Set the text color of the gameSpace."
-  },
-  "SGUserSelector.setTextsColor": {
-    "prefix": "sguserselector.setTextsColor",
-    "body": [
-      "${1:instance}.setTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGUserSelector.setTitleAlignment": {
-    "prefix": "sguserselector.setTitleAlignment",
-    "body": [
-      "${1:instance}.setTitleAlignment(${2:value})"
-    ],
-    "description": "Set the title alignment of the gameSpace."
-  },
-  "SGUserSelector.setTitlesAndTextsColor": {
-    "prefix": "sguserselector.setTitlesAndTextsColor",
-    "body": [
-      "${1:instance}.setTitlesAndTextsColor(${2:value})"
-    ],
-    "description": ""
-  },
-  "SGUserSelector.setTitlesColor": {
-    "prefix": "sguserselector.setTitlesColor",
-    "body": [
-      "${1:instance}.setTitlesColor(${2:value})"
-    ],
-    "description": ""
-  },
   "SGUserSelector.setTitleText": {
     "prefix": "sguserselector.setTitleText",
     "body": [
       "${1:instance}.setTitleText(${2:value})"
     ],
     "description": "Set the title text of the user selector."
-  },
-  "SGUserSelector.setWordWrap": {
-    "prefix": "sguserselector.setWordWrap",
-    "body": [
-      "${1:instance}.setWordWrap(${2:value})"
-    ],
-    "description": "Set the word wrap of the gameSpace."
-  },
-  "SGUserSelector.getBackgroundImagePixmap": {
-    "prefix": "sguserselector.getBackgroundImagePixmap",
-    "body": [
-      "${1:result} = ${2:instance}.getBackgroundImagePixmap()"
-    ],
-    "description": "Get the background image as a QPixmap."
-  },
-  "SGUserSelector.getPositionType": {
-    "prefix": "sguserselector.getPositionType",
-    "body": [
-      "${1:result} = ${2:instance}.getPositionType()"
-    ],
-    "description": "Get the current position type of the gameSpace."
-  },
-  "SGUserSelector.moveToCoords": {
-    "prefix": "sguserselector.moveToCoords",
-    "body": [
-      "${1:result} = ${2:instance}.moveToCoords(${3:x}, ${4:y})"
-    ],
-    "description": "Permits to move a GameSpace at a specific coordinate based on the left upper corner"
   }
 }

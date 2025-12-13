@@ -8,6 +8,7 @@ from mainClasses.SGEntity import SGEntity
 from mainClasses.AttributeAndValueFunctionalities import *
 from mainClasses.SGIndicator import SGIndicator
 from mainClasses.SGModelAction import SGModelAction_OnEntities
+from mainClasses.SGStack import SGStack
 from mainClasses.SGExtensions import *
 import numpy as np
 from collections import Counter, defaultdict
@@ -1977,7 +1978,7 @@ class SGTileType(SGEntityType):
         # Return only the tile for modelers
         return tile_model
 
-    def newStackOnCell(self, aCell, count, face=None, attributesAndValues=None, images=None, frontImage=None, backImage=None, frontImages=None, backImages=None):
+    def newStackOnCell(self, aCell, count, face=None, attributesAndValues=None, images=None, frontImage=None, backImage=None, frontImages=None, backImages=None) -> SGStack:
         """
         Create a stack of multiple tiles on a specific cell.
         This is a helper method that simplifies creating multiple tiles and getting the resulting stack.

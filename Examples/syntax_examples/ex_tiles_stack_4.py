@@ -61,7 +61,7 @@ conditions = [
 refill_action = stack.setOpenDrafting(
     slots=[River.getCell(2,1), River.getCell(3,1), River.getCell(4,1)],
     visibleFace="back",  # Tiles will show front face after being moved to slots
-    visibleFaceOfTopTileOfStack="back"  # Top tile of stack shows back face before moving
+    visibleFaceOfTopTileOfStack="back"  # Top tile of stack shows back 
 )
 refill_action.addFeedback(lambda: textBox.addText(f"{stack.getLastSlotsFilled()} river slot(s) have been filled"))
 

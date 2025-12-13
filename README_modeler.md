@@ -56,6 +56,18 @@ agent.moveAgent(target="up")     # Auto-detects as direction movement
 
 **Important**: Use `moveTo()` for initial placement, `moveAgent()` for subsequent movements.
 
+## Tile Movement and Management
+
+Tiles use similar movement methods as agents:
+
+### `moveTo(destinationCell)`
+- **Purpose**: Move tile to a specific cell
+- **Handles**: Both initial placement and movement
+- **Usage**: Can be used immediately after tile creation
+- **Example**: `tile.moveTo(targetCell)`
+
+Tiles can be stacked (multiple tiles on the same cell) and flipped between front/back faces using game actions.
+
 ## Layout Options
 
 SGE supports different layout types for organizing gameSpaces:

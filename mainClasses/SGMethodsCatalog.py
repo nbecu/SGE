@@ -559,11 +559,27 @@ class SGMethodsCatalog:
         """
         Generate methods catalog for specified SGE classes
         
+        IMPORTANT: Catalog Generation Logic
+        ====================================
+        - ALL classes are exported EXCEPT abstract base classes
+        - Abstract classes' methods ARE available for inheritance in child classes
+        - Files containing multiple classes (e.g., SGEntityType.py) are ALWAYS processed,
+          even if the abstract parent class is excluded, to extract concrete child classes
+        
+        Example:
+        - SGEntityType.py contains: SGEntityType (abstract), SGCellType, SGAgentType, SGTileType
+        - If SGEntityType is excluded: only SGEntityType is filtered out
+        - SGCellType, SGAgentType, SGTileType are included in the catalog
+        - Methods from SGEntityType appear as inherited methods in these child classes
+        
         Args:
             classes (List[str], optional): List of class file paths to process.
                 If None, processes all SGE classes in mainClasses/
             exclude_classes (List[str], optional): List of class file paths or class names to exclude.
                 Can be file paths (e.g., "mainClasses/SGPlayer.py") or class names (e.g., "SGPlayer").
+                Typically used to exclude abstract base classes (SGEntity, SGEntityType, SGGameSpace)
+                and utility classes (SGMethodsCatalog, SGVoid).
+                Excluded classes' methods are still extracted and made available for inheritance.
                 If None, no classes are excluded.
                 
         Returns:
@@ -573,6 +589,13 @@ class SGMethodsCatalog:
             classes = self._get_all_sge_classes()
         
         # Filter out excluded classes
+        # IMPORTANT LOGIC:
+        # - All classes are exported EXCEPT abstract base classes
+        # - Abstract classes' methods ARE available for inheritance
+        # - Files containing multiple classes (like SGEntityType.py) are ALWAYS processed
+        #   even if the abstract parent class is excluded, to extract concrete child classes
+        # - After extraction, only the excluded classes are filtered out from the final catalog
+        # - Excluded classes' methods are stored in inherited_methods_data for inheritance resolution
         if exclude_classes:
             excluded_paths = set()
             excluded_names = set()
@@ -589,7 +612,7 @@ class SGMethodsCatalog:
                     # It's a class name
                     excluded_names.add(exclude_item)
             
-            # Filter classes list
+            # Filter classes list (but keep files that contain multiple classes)
             filtered_classes = []
             for file_path in classes:
                 # Check if path is excluded
@@ -599,14 +622,19 @@ class SGMethodsCatalog:
                 # Check if class name is excluded (extract class name from path)
                 filename = os.path.basename(file_path)
                 class_name = filename.replace('.py', '')
-                if class_name in excluded_names:
-                    continue
                 
-                filtered_classes.append(file_path)
+                # Special case: Keep SGEntityType.py even if SGEntityType class is excluded
+                # because it contains SGCellType, SGAgentType, SGTileType
+                if filename == "SGEntityType.py" and class_name in excluded_names:
+                    # Keep the file, will filter the class later
+                    filtered_classes.append(file_path)
+                elif class_name not in excluded_names:
+                    filtered_classes.append(file_path)
             
             classes = filtered_classes
         
         all_methods_data = {}
+        inherited_methods_data = {}  # Store methods from excluded classes for inheritance
         
         for file_path in classes:
             if not os.path.exists(file_path):
@@ -623,11 +651,33 @@ class SGMethodsCatalog:
                 methods_data = self.extractor.extract_methods_from_file(file_path)
             
             if methods_data:
+                # Separate excluded classes for inheritance purposes
+                if exclude_classes:
+                    excluded_names = set()
+                    for exclude_item in exclude_classes:
+                        # Only process class names (not file paths)
+                        if not (os.path.sep in exclude_item or exclude_item.endswith('.py')):
+                            excluded_names.add(exclude_item)
+                    
+                    # Split into included and excluded classes
+                    filtered_methods_data = {}
+                    for class_name, methods in methods_data.items():
+                        if class_name not in excluded_names:
+                            filtered_methods_data[class_name] = methods
+                        else:
+                            # Store excluded class methods for inheritance
+                            inherited_methods_data[class_name] = methods
+                    methods_data = filtered_methods_data
+                
                 all_methods_data.update(methods_data)
             else:
                 print(f"No modeler methods found in {file_path}")
         
-        self.catalog_data = self._generate_catalog_structure(all_methods_data)
+        # Merge inherited methods data for inheritance resolution
+        # This allows excluded classes to still contribute methods via inheritance
+        all_methods_for_inheritance = {**all_methods_data, **inherited_methods_data}
+        
+        self.catalog_data = self._generate_catalog_structure(all_methods_data, all_methods_for_inheritance)
         return self.catalog_data
     
     def _get_all_sge_classes(self) -> List[str]:
@@ -642,8 +692,17 @@ class SGMethodsCatalog:
         
         return sge_classes
     
-    def _generate_catalog_structure(self, methods_data: Dict[str, List[MethodInfo]]) -> Dict[str, Any]:
-        """Generate structured catalog from extracted methods"""
+    def _generate_catalog_structure(self, methods_data: Dict[str, List[MethodInfo]], methods_for_inheritance: Dict[str, List[MethodInfo]] = None) -> Dict[str, Any]:
+        """Generate structured catalog from extracted methods
+        
+        Args:
+            methods_data: Methods for classes to include in the catalog
+            methods_for_inheritance: Methods for all classes (including excluded ones) for inheritance resolution
+        """
+        # Use methods_for_inheritance if provided, otherwise use methods_data
+        if methods_for_inheritance is None:
+            methods_for_inheritance = methods_data
+        
         catalog = {
             "metadata": {
                 "title": "SGE Methods Catalog",
@@ -657,9 +716,9 @@ class SGMethodsCatalog:
             "inheritance": {}
         }
         
-        # Build inheritance information first
+        # Build inheritance information from all classes (including excluded ones)
         inheritance = {}
-        for class_name, methods in methods_data.items():
+        for class_name, methods in methods_for_inheritance.items():
             if methods and hasattr(methods[0], 'parent_classes'):
                 inheritance[class_name] = methods[0].parent_classes
         
@@ -683,8 +742,8 @@ class SGMethodsCatalog:
                 method_dict = asdict(method)
                 class_info['categories'][category].append(method_dict)
             
-            # Add inherited methods to this class
-            inherited_methods = self._get_inherited_methods(class_name, methods_data, inheritance)
+            # Add inherited methods to this class (using methods_for_inheritance for parent lookup)
+            inherited_methods = self._get_inherited_methods(class_name, methods_for_inheritance, inheritance)
             for inherited_method in inherited_methods:
                 category = inherited_method.get('category', 'OTHER MODELER METHODS')
                 if category not in class_info['categories']:
@@ -1622,7 +1681,7 @@ class SGMethodsCatalog:
                     parent_classes = parent_classes + ['AttributeAndValueFunctionalities']
             
             for parent_class in parent_classes:
-                # If parent class is in our catalog, use its methods
+                # If parent class is in methods_data (including excluded classes), use its methods
                 if parent_class in methods_data:
                     for method in methods_data[parent_class]:
                         method_dict = asdict(method)
@@ -1818,27 +1877,37 @@ class SGMethodsCatalog:
 if __name__ == "__main__":
     catalog = SGMethodsCatalog()
     
-    # Generate catalog for specific classes
-    classes = [
-        "mainClasses/SGCell.py",
-        "mainClasses/SGEntity.py",
-        "mainClasses/SGEntityType.py",  # SGCellType, SGAgentType, and SGTileType are defined in SGEntityType.py
-        "mainClasses/SGAgent.py",
-        "mainClasses/SGTile.py",
-        "mainClasses/SGModel.py",
-        # "mainClasses/AttributeAndValueFunctionalities.py"
-    ]
+    # Generate catalog for all SGE classes (automatically scans all SG*.py files)
+    # 
+    # CATALOG GENERATION LOGIC:
+    # =========================
+    # - ALL classes are exported EXCEPT abstract base classes
+    # - Abstract classes' methods ARE available for inheritance in child classes
+    # - Files containing multiple classes (e.g., SGEntityType.py) are ALWAYS processed,
+    #   even if the abstract parent class is excluded, to extract concrete child classes
+    #
+    # Excluded classes:
+    # - SGEntity, SGEntityType, SGGameSpace: abstract classes whose methods are inherited by child classes
+    #   Note: SGEntityType.py is still processed to extract SGCellType, SGAgentType, SGTileType
+    # - SGMethodsCatalog, SGVoid: utility classes not meant for modelers
+    #
+    # Result: All concrete classes are included, abstract classes are excluded but their methods
+    #         appear as inherited methods in child classes (e.g., newBorderPov from SGEntityType 
+    #         appears in SGAgentType, SGCellType, SGTileType)
+    catalog.generate_catalog(exclude_classes=["SGEntity", "SGEntityType", "SGGameSpace", "SGMethodsCatalog", "SGVoid"])
     
-    catalog.generate_catalog(classes)
+    # Save files to docs/SGE_methods/ directory
+    output_dir = "docs/SGE_methods"
+    os.makedirs(output_dir, exist_ok=True)
     
     # Save to JSON
-    catalog.save_to_json("sge_methods_catalog.json")
+    catalog.save_to_json(os.path.join(output_dir, "sge_methods_catalog.json"))
     
     # Generate HTML
-    catalog.generate_html("sge_methods_catalog.html")
+    catalog.generate_html(os.path.join(output_dir, "sge_methods_catalog.html"))
     
     # Generate snippets
-    catalog.generate_snippets("sge_methods_snippets.json")
+    catalog.generate_snippets(os.path.join(output_dir, "sge_methods_snippets.json"))
     
     # Print summary
     summary = catalog.get_summary()
