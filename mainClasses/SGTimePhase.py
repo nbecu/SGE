@@ -180,10 +180,13 @@ class SGModelPhase(SGTimePhase):
 
 
 class SGPlayPhase(SGTimePhase):
-    def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def __init__(self, timeManager, modelActions=[], name='', authorizedPlayers=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         super().__init__(timeManager, name, modelActions=modelActions, show_message_box_at_start=show_message_box_at_start, message_auto_forward=message_auto_forward)
         self._authorizedPlayers = authorizedPlayers if authorizedPlayers else []
         self.authorizedPlayers = self._authorizedPlayers
+        # authorizedActions: None means all actions are allowed, empty list means no actions allowed, list means only those actions
+        self._authorizedActions = authorizedActions if authorizedActions is not None else None
+        self.authorizedActions = self._authorizedActions
         self.autoForwardWhenAllActionsUsed = autoForwardWhenAllActionsUsed
 
     def addAuthorizedPlayer(self, player):
@@ -215,6 +218,46 @@ class SGPlayPhase(SGTimePhase):
         """Définit la liste complète des joueurs autorisés"""
         self._authorizedPlayers = players.copy()
         self.authorizedPlayers = self._authorizedPlayers
+    
+    def addAuthorizedAction(self, action):
+        """Ajoute une action à la liste des actions autorisées"""
+        if self._authorizedActions is None:
+            self._authorizedActions = []
+            self.authorizedActions = self._authorizedActions
+        if action not in self._authorizedActions:
+            self._authorizedActions.append(action)
+            self.authorizedActions = self._authorizedActions
+
+    def removeAuthorizedAction(self, action):
+        """Retire une action de la liste des actions autorisées"""
+        if self._authorizedActions is not None and action in self._authorizedActions:
+            self._authorizedActions.remove(action)
+            self.authorizedActions = self._authorizedActions
+
+    def clearAuthorizedActions(self):
+        """Vide la liste des actions autorisées (toutes les actions seront autorisées)"""
+        self._authorizedActions = None
+        self.authorizedActions = None
+
+    def setAuthorizedActions(self, actions):
+        """Définit la liste complète des actions autorisées (None = toutes autorisées)"""
+        self._authorizedActions = actions.copy() if actions is not None else None
+        self.authorizedActions = self._authorizedActions
+
+    def isActionAuthorized(self, action):
+        """Vérifie si une action est autorisée dans cette phase"""
+        # If authorizedActions is None, all actions are allowed
+        if self._authorizedActions is None:
+            return True
+        # If authorizedActions is an empty list, no actions are allowed
+        if len(self._authorizedActions) == 0:
+            return False
+        # Check if the action is in the authorized list
+        return action in self._authorizedActions
+
+    def getAuthorizedActions(self):
+        """Retourne la liste des actions autorisées (None = toutes autorisées)"""
+        return self._authorizedActions.copy() if self._authorizedActions is not None else None
 
     def hasAllPlayersUsedAllActions(self):
         """Vérifie si tous les joueurs autorisés ont utilisé toutes leurs actions de jeu possibles"""

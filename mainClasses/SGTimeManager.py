@@ -139,7 +139,7 @@ class SGTimeManager():
 
     # To add a new Game Phase
 
-    def newPlayPhase(self, name, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def newPlayPhase(self, name, activePlayers=None, modelActions=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         To add a Game Phase in a round.
 
@@ -151,6 +151,10 @@ class SGTimeManager():
                 - 'Admin' (str) - will be converted to the Admin player instance
                 - None (default:all users)
             modelActions (list): Actions the model performs at the beginning of the phase (add, delete, move...)
+            authorizedActions (list, optional): List of game actions authorized in this phase. Can contain:
+                - None (default): all actions are allowed
+                - []: no actions are allowed
+                - [action1, action2, ...]: only these actions are allowed
             autoForwardWhenAllActionsUsed (bool): Whether to automatically forward to next phase when all players have used their actions
             message_auto_forward (bool): Whether to show a message when automatically forwarding to the next phase
             show_message_box_at_start (bool): Whether to show a message box at the start of the phase
@@ -186,6 +190,7 @@ class SGTimeManager():
         activePlayers = processedPlayers
 
         aPhase = SGPlayPhase(self, modelActions=modelActions, name=name, authorizedPlayers=activePlayers,
+                           authorizedActions=authorizedActions,
                            autoForwardWhenAllActionsUsed=autoForwardWhenAllActionsUsed,
                            message_auto_forward=message_auto_forward,
                            show_message_box_at_start=show_message_box_at_start)

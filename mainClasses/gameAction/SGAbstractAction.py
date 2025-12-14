@@ -135,11 +135,14 @@ class SGAbstractAction():
             return False
         if isinstance(self.model.timeManager.phases[self.model.phaseNumber()-1],SGPlayPhase):#If this is a PlayPhase, as default players can do actions
             player=self.model.getCurrentPlayer()
-            if player in self.model.timeManager.phases[self.model.phaseNumber()-1].authorizedPlayers:
+            currentPhase = self.model.timeManager.phases[self.model.phaseNumber()-1]
+            if player in currentPhase.authorizedPlayers:
                 res = True
             else:
                 return False
-            # TODO add a facultative restriction 
+            # Check if action is authorized in this phase
+            if not currentPhase.isActionAuthorized(self):
+                return False 
         if self.numberUsed >= self.number:
             return False
         return True
@@ -214,6 +217,49 @@ class SGAbstractAction():
         
     def reset(self):
         self.numberUsed=0
+    
+    def copy(self):
+        """
+        Create a copy of this action with a new distinct ID.
+        
+        Returns:
+            SGAbstractAction: A new action instance that is a copy of this action with a new ID
+        """
+        # Create a new instance of the same class
+        action_copy = self.__class__.__new__(self.__class__)
+        
+        # Copy all attributes manually (avoiding deepcopy which can't handle PyQt5 objects)
+        # Copy basic attributes
+        action_copy.id = None  # Will be set below
+        action_copy.targetType = self.targetType  # Reference to same type/model
+        action_copy.model = self.model  # Reference to same model
+        action_copy.number = self.number
+        action_copy.numberUsed = 0  # Reset usage counter
+        action_copy.totalNumberUsed = 0  # Reset total usage counter
+        action_copy.conditions = copy.deepcopy(self.conditions)  # Deep copy conditions
+        action_copy.feedbacks = copy.deepcopy(self.feedbacks)  # Deep copy feedbacks
+        action_copy.conditionsOfFeedback = copy.deepcopy(self.conditionsOfFeedback)  # Deep copy feedback conditions
+        action_copy.action_controler = copy.deepcopy(self.action_controler)  # Deep copy action controller
+        action_copy.nameToDisplay = self.nameToDisplay
+        action_copy.history = {"performed": []}  # Reset history
+        
+        # Copy subclass-specific attributes if they exist
+        if hasattr(self, 'method'):
+            action_copy.method = self.method  # Reference to same method (usually a function)
+        if hasattr(self, 'feedbackAgent'):
+            action_copy.feedbackAgent = copy.deepcopy(self.feedbackAgent) if self.feedbackAgent else []
+        if hasattr(self, 'conditionOfFeedBackAgent'):
+            action_copy.conditionOfFeedBackAgent = copy.deepcopy(self.conditionOfFeedBackAgent) if self.conditionOfFeedBackAgent else []
+        if hasattr(self, 'actionType'):
+            action_copy.actionType = self.actionType
+        
+        # Generate a new ID for the copied action
+        SGAbstractAction.IDincr += 1
+        action_copy.id = SGAbstractAction.IDincr
+        # Add the copy to the instances list
+        SGAbstractAction.instances.append(action_copy)
+        
+        return action_copy
     
     def addCondition(self,aCondition):
         self.conditions.append(aCondition)

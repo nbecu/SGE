@@ -266,13 +266,35 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             if currentPlayer == "Admin":
                 return None
             
-            # Find action with directClick=True (for click, like Activate, Flip, etc.)
             from mainClasses.gameAction.SGMove import SGMove
-            click_action = currentPlayer.getAuthorizedActionWithDirectClick(entity_model)
-            if click_action is not None:
-                # Make sure it's not a Move action (already handled separately)
-                if not isinstance(click_action, SGMove):
-                    return click_action
+            from mainClasses.gameAction.SGCreate import SGCreate
+            
+            entityDef = entity_model.type
+            
+            # Explicitly search for non-Move actions with directClick=True
+            # This ensures we find actions like Activate, Flip, etc. even if Move also has directClick=True
+            for action in currentPlayer.gameActions:
+                # Skip Move actions (they are handled separately via drag & drop)
+                if isinstance(action, SGMove):
+                    continue
+                
+                # Check if action has directClick=True
+                if (hasattr(action, 'action_controler') and 
+                    action.action_controler.get("directClick") == True):
+                    
+                    # Check if action can be used (player authorization check)
+                    if not action.canBeUsed():
+                        continue
+                    
+                    # Special handling for CreateActions: they target cells but create agents/tiles
+                    if isinstance(action, SGCreate):
+                        if entity_model.type.isCellType and action.checkAuthorization(entity_model):
+                            return action
+                    # For all other actions, check that targetType matches entity type
+                    elif action.targetType == entityDef:
+                        # Check authorization for this specific entity
+                        if action.checkAuthorization(entity_model):
+                            return action
             
             # Fall back to selected action from ControlPanel (if not Move)
             aLegendItem = entity_model.model.getSelectedLegendItem()

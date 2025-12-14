@@ -1998,7 +1998,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return player
 
     # to create a new play phase
-    def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
+    def newPlayPhase(self, phaseName, activePlayers=None, modelActions=[], authorizedActions=None, autoForwardWhenAllActionsUsed=False, message_auto_forward=True, show_message_box_at_start=False):
         """
         Create a new play phase for the game.
         
@@ -2013,6 +2013,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                 - SGModelAction objects
                 - lambda functions
                 - list of SGModelAction objects or lambda functions
+            authorizedActions (list, optional): List of game actions authorized in this phase. Can contain:
+                - None (default): all actions are allowed
+                - []: no actions are allowed
+                - [action1, action2, ...]: only these actions are allowed
             autoForwardWhenAllActionsUsed (bool, optional): Whether to automatically forward to next phase when all players have used their actions
                 - False (default): the phase will not be executed automatically when all players have used their actions
                 - True: the phase will be executed automatically when all players have used their actions
@@ -2027,7 +2031,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         Returns:
             The created play phase (an instance of SGPlayPhase)
         """
-        return self.timeManager.newPlayPhase(phaseName, activePlayers, modelActions, autoForwardWhenAllActionsUsed, message_auto_forward, show_message_box_at_start)
+        return self.timeManager.newPlayPhase(phaseName, activePlayers, modelActions, authorizedActions, autoForwardWhenAllActionsUsed, message_auto_forward, show_message_box_at_start)
 
 
     # To create game actions

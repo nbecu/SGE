@@ -103,13 +103,6 @@ refill_action = deck_stack.setOpenDrafting(
 )
 deck_stack.refillAvailableSlots()
 
-# Create a model phase to refill the river slots automatically
-myModel.newModelPhase(
-    refill_action,
-    name="Refill River",
-    auto_forward=True,
-    message_auto_forward=False
-)
 
 # ============================================================================
 # Create players and distribute initial tiles
@@ -155,8 +148,10 @@ def canPlaceTile(tile, cell):
     return top_tile.getValue("tile_name") in tile.getValue("stack_on")
 
 
-moveAction = myModel.newMoveAction(
+# Create move action template (will be copied for each player)
+moveActionTemplate = myModel.newMoveAction(
     SeaTile,
+    1,
     label="Place Tile",
     conditions=[
         canPlaceTile,  # Target cell must be empty or allow biodiv stacking
@@ -168,9 +163,14 @@ moveAction = myModel.newMoveAction(
     action_controler={"directClick": True}
 )
 
-# Add move action to all players
-for player in Players.values():
-    player.addGameAction(moveAction)
+# Create a copy of moveAction for each player (each with a distinct ID)
+PlayerMoveActions = {}
+for i, player in enumerate(Players.values(), start=1):
+    # Create a copy of the action with a new distinct ID
+    player_move_action = moveActionTemplate.copy()
+    # Add the action to the player
+    player.addGameAction(player_move_action)
+    PlayerMoveActions[i] = player_move_action
 
 # ============================================================================
 # Create pick tile action: Pick a tile from river to player's board
@@ -185,31 +185,49 @@ def pickTileFromRiver(tile):
     tile.moveTo(empty_cell)
     
     
-pickTile = myModel.newActivateAction(
+pickTileTemplate = myModel.newActivateAction(
     SeaTile,
+    uses_per_round=1,
     method=pickTileFromRiver,
     conditions=[
         lambda tile: tile.cell.type == River,  # Tile must be in river
         lambda tile: tile.isFaceFront()  # Tile must be face front (visible)
     ],
     label="Pick Tile",
-    action_controler={"directClick": True, "contextMenu": True} #todo, le directClick ne sembel pas fonctionner pour un activate action
+    action_controler={"directClick": True}
 )
 
 # Add pick tile action to all players
-for player in Players.values():
-    player.addGameAction(pickTile)
+PlayerPickActions = {}
+for i, player in enumerate(Players.values(), start=1):
+    player_pick_action = pickTileTemplate.copy()
+    player.addGameAction(player_pick_action)
+    PlayerPickActions[i] = player_pick_action
 
 # ============================================================================
 # Create play phases (one Turn phase and one Pick phase for each player)
 # ============================================================================
+
 for i in range(1, nb_players + 1):
-    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]])
-    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]])
-myModel.setCurrentPlayer("Player 1")
+    # Turn phase: only moveAction is allowed
+    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]], authorizedActions=[PlayerMoveActions[i]],
+            autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+    # Pick phase: only pickTile is allowed
+    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]], authorizedActions=[PlayerPickActions[i]],
+            autoForwardWhenAllActionsUsed=True,message_auto_forward=False)
+    # Add a model phase to refill the river slots automatically
+    myModel.newModelPhase(
+        refill_action,
+        name="Refill River",
+        auto_forward=True,
+        message_auto_forward=False
+    )
+# myModel.setCurrentPlayer("Player 1")
+
 
 TL = myModel.newTimeLabel(displayPhaseNumber=False,roundNumberFormat="Round {roundNumber}")
 TL.moveToCoords(1080, 25)
+
 # Launch the game
 myModel.launch()
 
