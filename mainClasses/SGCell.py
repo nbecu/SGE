@@ -893,17 +893,20 @@ class SGCell(SGEntity):
         type_name = normalize_type_name(type_name)
         return self.nbAgents(type_name) > 0
 
-    def hasTile(self, tileType):
+    def hasTile(self, tileType=None):
         """
         Check if this cell contains a tile of the given type
         
         Args:
-            tileType: The tile type to check for
+            tileType: The tile type to check for. If None, checks if cell has any tile.
             
         Returns:
-            bool: True if cell has a tile of this type
+            bool: True if cell has a tile of this type (or any tile if tileType is None)
         """
-        return any(tile.type == tileType for tile in self.tiles)    
+        if tileType is None:
+            return len(self.tiles) > 0
+        return any(tile.type == tileType for tile in self.tiles)   
+         
     def hasTiles(self, tileType=None):
         """
         Check if this cell contains tiles of a specific type.

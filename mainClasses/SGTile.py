@@ -397,6 +397,16 @@ class SGTile(SGEntity):
             # Register with cell
             if hasattr(aDestinationCell, 'addTile'):
                 aDestinationCell.addTile(self)
+            
+            # Adjust tile size if position is "full" to match cell size
+            if self.position == "full" and hasattr(aDestinationCell, 'saveSize'):
+                self.size = aDestinationCell.saveSize
+                self.saveSize = aDestinationCell.saveSize  # Also update saveSize for zoom consistency
+                # Update view size to match model size
+                if self.view:
+                    self.view.size = self.size
+                    self.view.saveSize = self.saveSize
+            
             # Update view position
             if self.view:
                 self.view.updatePositionFromCell()
@@ -478,6 +488,15 @@ class SGTile(SGEntity):
             # Register with new cell (now with correct layer)
             if hasattr(aDestinationCell, 'addTile'):
                 aDestinationCell.addTile(self)
+            
+            # Adjust tile size if position is "full" to match cell size
+            if self.position == "full" and hasattr(aDestinationCell, 'saveSize'):
+                self.size = aDestinationCell.saveSize
+                self.saveSize = aDestinationCell.saveSize  # Also update saveSize for zoom consistency
+                # Update view size to match model size
+                if self.view:
+                    self.view.size = self.size
+                    self.view.saveSize = self.saveSize
             
             # Update z-order after adding to cell (so z-order update includes this tile)
             self._updateZOrderInCell()

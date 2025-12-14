@@ -73,6 +73,7 @@ class SGStack:
     # GET/NB METHODS
     # ============================================================================
     
+    # @CATEGORY: GET
     def size(self) -> int:
         """
         Get the number of tiles in the stack
@@ -82,6 +83,7 @@ class SGStack:
         """
         return len(self.tiles)
     
+    # @CATEGORY: GET
     def maxLayer(self) -> int:
         """
         Get the maximum layer in the stack
@@ -94,6 +96,8 @@ class SGStack:
             return 0
         return max(tile.layer for tile in tiles_list)
     
+    
+    # @CATEGORY: GET
     def minLayer(self) -> int:
         """
         Get the minimum layer in the stack
@@ -106,6 +110,7 @@ class SGStack:
             return 0
         return min(tile.layer for tile in tiles_list)
     
+    # @CATEGORY: GET
     def topTile(self) -> Optional['SGTile']:
         """
         Get the tile with the highest layer (top of the stack)
@@ -118,6 +123,7 @@ class SGStack:
             return None
         return max(tiles_list, key=lambda t: t.layer)
     
+    # @CATEGORY: GET
     def bottomTile(self) -> Optional['SGTile']:
         """
         Get the tile with the lowest layer (bottom of the stack)
@@ -130,6 +136,7 @@ class SGStack:
             return None
         return min(tiles_list, key=lambda t: t.layer)
     
+    # @CATEGORY: GET
     def tileAtLayer(self, layer: int) -> Optional['SGTile']:
         """
         Get the tile at a specific layer
@@ -178,6 +185,7 @@ class SGStack:
     # IS/HAS METHODS
     # ============================================================================
     
+    # @CATEGORY: IS
     def isEmpty(self) -> bool:
         """
         Check if the stack is empty
@@ -187,6 +195,7 @@ class SGStack:
         """
         return len(self.tiles) == 0
     
+    # @CATEGORY: IS
     def contains(self, tile: 'SGTile') -> bool:
         """
         Check if a specific tile is in the stack
@@ -203,6 +212,7 @@ class SGStack:
     # DO METHODS
     # ============================================================================
     
+    # @CATEGORY: DO
     def shuffle(self):
         """
         Shuffle the tiles in the stack and reassign layers from 1 to N
@@ -227,6 +237,90 @@ class SGStack:
         # Reassign layers from 1 to N in the new order
         for i, tile in enumerate(tiles_list, start=1):
             tile.setLayer(i)
+    
+    # @CATEGORY: DO
+    def setTileAtLayer(self, tile: 'SGTile', target_layer: int):
+        """
+        Position a tile at a specific layer in the stack.
+        
+        This method handles two cases:
+        1. If the tile is already in the stack: moves it to the target layer and
+           reorganizes other tiles to maintain a continuous layer sequence (1 to N).
+        2. If the tile is not in the stack: moves it to this stack's cell and
+           positions it at the target layer, reorganizing all tiles accordingly.
+        
+        Args:
+            tile: The tile to position
+            target_layer: The target layer number (1-based, where 1 is bottom)
+            
+        Returns:
+            self: The stack (for chaining operations)
+            
+        Raises:
+            ValueError: If target_layer is not a positive integer
+            ValueError: If tile type doesn't match the stack's tile type
+            
+        Example:
+            # Move a tile to layer 5 in the stack
+            stack.setTileAtLayer(my_tile, 5)
+            
+            # Position a tile in the last 10 tiles (e.g., layer = size - 9)
+            ending_tile = SeaTile.getEntities_withValue("tile_name", "maree_basse")[0]
+            stack.setTileAtLayer(ending_tile, max(1, stack.size() - 9))
+        """
+        if not isinstance(target_layer, int) or target_layer < 1:
+            raise ValueError(f"target_layer must be a positive integer, got: {target_layer}")
+        
+        # Check if tile type matches
+        if tile.type != self.tileType:
+            raise ValueError(f"Tile type {tile.type.name} does not match stack type {self.tileType.name}")
+        
+        # Check if tile is already in the stack
+        tile_in_stack = self.contains(tile)
+        
+        # If tile is not in the stack, move it to this stack's cell first
+        if not tile_in_stack:
+            tile.moveTo(self.cell)
+        
+        # Get all tiles in the stack (including the tile we're positioning)
+        tiles_list = self.tiles
+        
+        if not tiles_list:
+            # Stack is empty, just set the layer
+            tile.setLayer(1)
+            return self
+        
+        # Remove the tile we're positioning from the list temporarily
+        tiles_without_target = [t for t in tiles_list if t != tile]
+        
+        # Calculate the actual target layer (ensure it's within valid range)
+        max_layer = len(tiles_list)  # After adding our tile
+        actual_target_layer = min(target_layer, max_layer)
+        
+        # Reorganize layers:
+        # - Tiles below target_layer keep their layers (shifted if needed)
+        # - Target tile gets target_layer
+        # - Tiles at/above target_layer get shifted up
+        
+        # Build new layer assignments
+        new_layers = {}
+        
+        # Assign layers to tiles below target position
+        for i, t in enumerate(tiles_without_target, start=1):
+            if i < actual_target_layer:
+                new_layers[t] = i
+            else:
+                # Tiles at/above target position get shifted up by 1
+                new_layers[t] = i + 1
+        
+        # Assign target layer to our tile
+        new_layers[tile] = actual_target_layer
+        
+        # Apply all layer changes
+        for t, new_layer in new_layers.items():
+            t.setLayer(new_layer)
+        
+        return self
     
     def setOpenDrafting(self, slots: List['SGCell'], visibleFace: str = None, visibleFaceOfTopTileOfStack: str = None):
         """
@@ -293,6 +387,7 @@ class SGStack:
             return 0
         return self._open_drafting_config.get('last_slots_filled', 0)
     
+    # @CATEGORY: DO
     def refillAvailableSlots(self):
         """
         Refill available slots using the Open Drafting configuration.
