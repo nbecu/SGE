@@ -32,6 +32,18 @@ River = myModel.newCellsOnGrid(4, 1, "square", size=80, gap=10, name="River")
 deck_cell = River.getCell(1, 1)
 
 # ============================================================================
+# Create individual player boards (3 cells each, positioned under river)
+# ============================================================================
+nb_players = 2
+PlayerBoards = {}
+for i in range(1, nb_players + 1):
+    player_board = myModel.newCellsOnGrid(3, 1, "square", size=80, gap=10, name=f"Player{i}Board")
+    PlayerBoards[i] = player_board
+    # Position player boards
+    y_position = 180 + (i - 1) * 140
+    player_board.grid.moveToCoords(780, y_position)
+
+# ============================================================================
 # Create tile type for Sea Zones tiles
 # ============================================================================
 SeaTile = myModel.newTileType(
@@ -89,6 +101,7 @@ refill_action = deck_stack.setOpenDrafting(
     slots=river_slots,
     visibleFace="front",  # Tiles show front face when drafted to river
 )
+deck_stack.refillAvailableSlots()
 
 # Create a model phase to refill the river slots automatically
 myModel.newModelPhase(
@@ -99,15 +112,36 @@ myModel.newModelPhase(
 )
 
 # ============================================================================
-# Create player and game actions
+# Create players and distribute initial tiles
 # ============================================================================
-Player1 = myModel.newPlayer("Player 1")
+Players = {}
+for i in range(1, nb_players + 1):
+    player = myModel.newPlayer(f"Player {i}")
+    Players[i] = player
+    
+    # Set the player as owner of their board
+    player_board = PlayerBoards[i]
+    player_board.grid.setOwners(player)
+    
+    # Distribute 3 tiles to each player from deck_stack
+    for j in range(1, 4):  # 3 tiles per player
+        if not deck_stack.isEmpty():
+            tile = deck_stack.topTile()
+            tile.moveTo(player_board.getCell(j, 1))
+            tile.flip()  # Show front face
 
-# Move action: Move tiles from river to board
+# Players[1].newControlPanel("Player 1 Actions")
+# Players[2].newControlPanel("Player 2 Actions")
+myModel.newUserSelector()
+
+# ============================================================================
+# Create game actions
+# ============================================================================
+# Move action: Move tiles from player board to main board
 # Conditions:
 # 1. Target cell must be empty OR allow biodiv stacking (if tile is biodiv and can stack on existing biodiv tile)
-# 2. Can only move to board
-# 3. Can only move from river
+# 2. Can only move to main board
+# 3. Can only move from player's individual board
 # 4. Target cell must be orthogonally adjacent to at least one cell with a SeaTile
 def canPlaceTile(tile, cell):
     """Check if tile can be placed on cell (empty or biodiv stacking allowed)"""
@@ -123,27 +157,33 @@ def canPlaceTile(tile, cell):
     # Check if this biodiv tile can stack on the biodiv top_tile
     return top_tile.getValue("tile_name") in tile.getValue("stack_on")
 
+
 moveAction = myModel.newMoveAction(
     SeaTile,
     label="Place Tile",
     conditions=[
         canPlaceTile,  # Target cell must be empty or allow biodiv stacking
-        lambda tile, cell: cell.type == Board,  # Can only move to board
-        lambda tile: tile.cell.type == River,  # Can only move from river
+        lambda tile, cell: cell.type == Board,  # Can only move to main board
+        lambda tile: tile.getGrid().isOwner(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
-    ]
+    ],
+    action_controler={"directClick": True}
 )
-Player1.addGameAction(moveAction)
 
-Player1.newControlPanel("Player 1 Actions")
+# Add move action to all players
+for player in Players.values():
+    player.addGameAction(moveAction)
 
 # ============================================================================
-# Create play phase
+# Create play phases (one for each player)
 # ============================================================================
-myModel.newPlayPhase("Player 1 Turn", [Player1])
+for i in range(1, nb_players + 1):
+    myModel.newPlayPhase(f"Player {i} Turn", [Players[i]])
 myModel.setCurrentPlayer("Player 1")
 
+TL = myModel.newTimeLabel(displayPhaseNumber=False,roundNumberFormat="Round {roundNumber}")
+TL.moveToCoords(1080, 25)
 # Launch the game
 myModel.launch()
 

@@ -2455,18 +2455,44 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         
     # To create a Time Label
-    def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
+    def newTimeLabel(self, title=None, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black,
+                     roundNumberFormat="Round Number : {roundNumber}",
+                     phaseNumberFormat="Phase Number : {phaseNumber}",
+                     phaseNameFormat="{phaseName}",
+                     displayRoundNumber=None,
+                     displayPhaseNumber=None,
+                     displayPhaseName=None):
         """
         Create the visual time board of the game.
         
         Args:
-        title (str) : name of the widget (default:None)
-        backgroundColor (Qt Color) : color of the background (default : Qt.white)
-        borderColor (Qt Color) : color of the border (default : Qt.black)
-        textColor (Qt Color) : color of the text (default : Qt.black)
+            title (str): Name of the widget (default: None)
+            backgroundColor (Qt Color): Color of the background (default: Qt.white)
+            borderColor (Qt Color): Color of the border (default: Qt.black)
+            textColor (Qt Color): Color of the text (default: Qt.black)
+            roundNumberFormat (str): Format template for round number display.
+                                    Use placeholders: {roundNumber}, {phaseNumber}, {phaseName}
+                                    (default: "Round Number : {roundNumber}")
+            phaseNumberFormat (str): Format template for phase number display.
+                                     Use placeholders: {roundNumber}, {phaseNumber}, {phaseName}
+                                     (default: "Phase Number : {phaseNumber}")
+            phaseNameFormat (str): Format template for phase name display.
+                                   Use placeholders: {roundNumber}, {phaseNumber}, {phaseName}
+                                   (default: "{phaseName}")
+            displayRoundNumber (bool): Whether to display the round number label.
+                                       If None, defaults to True.
+                                       If format is empty/None, defaults to False.
+            displayPhaseNumber (bool): Whether to display the phase number label.
+                                       If None, defaults to True if numberOfPhases() >= 2, else False.
+                                       If format is empty/None, defaults to False.
+            displayPhaseName (bool): Whether to display the phase name label.
+                                     If None, defaults to True if numberOfPhases() >= 2, else False.
+                                     If format is empty/None, defaults to False.
         """
-        # Create with default values (will be overridden by setters below)
-        aTimeLabel = SGTimeLabel(self, title)
+        # Create with all parameters
+        aTimeLabel = SGTimeLabel(self, title, backgroundColor, borderColor, textColor,
+                                 roundNumberFormat, phaseNumberFormat, phaseNameFormat,
+                                 displayRoundNumber, displayPhaseNumber, displayPhaseName)
         self.myTimeLabel = aTimeLabel
         self.gameSpaces[title] = aTimeLabel
 

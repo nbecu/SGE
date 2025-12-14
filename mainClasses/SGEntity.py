@@ -246,4 +246,37 @@ class SGEntity(AttributeAndValueFunctionalities):
     def getId(self):
         """Get an entity ID"""
         return self.id
+    
+    def getType(self):
+        """
+        Get the entity type (entity definition).
+        
+        Returns:
+            The entity type (SGEntityType instance)
+        """
+        return self.type
+    
+    def getGrid(self):
+        """
+        Get the grid associated with this entity.
+        
+        For cells, returns the grid directly.
+        For agents, returns the grid of the cell they are on.
+        
+        Returns:
+            SGGrid: The grid instance, or None if not available
+        """
+        # For cells, grid is directly accessible
+        if hasattr(self, 'grid'):
+            return self.grid
+        
+        # For agents, get grid from the cell they are on
+        if hasattr(self, 'cell') and self.cell is not None:
+            return getattr(self.cell, 'grid', None)
+        
+        # For agents, try to get grid from cell type if cell is not set yet
+        if hasattr(self, 'type') and hasattr(self.type, 'grid'):
+            return self.type.grid
+        
+        return None
         

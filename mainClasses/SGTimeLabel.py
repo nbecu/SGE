@@ -7,7 +7,13 @@ from mainClasses.SGGameSpace import SGGameSpace
 
 
 class SGTimeLabel(SGGameSpace):
-    def __init__(self, parent, title, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black):
+    def __init__(self, parent, title, backgroundColor=Qt.white, borderColor=Qt.black, textColor=Qt.black,
+                 roundNumberFormat="Round Number : {roundNumber}",
+                 phaseNumberFormat="Phase Number : {phaseNumber}",
+                 phaseNameFormat="{phaseName}",
+                 displayRoundNumber=None,
+                 displayPhaseNumber=None,
+                 displayPhaseName=None):
         super().__init__(parent, 0, 60, 0, 0, true, backgroundColor)
         self.id = title
         self.timeManager = self.model.timeManager
@@ -16,9 +22,35 @@ class SGTimeLabel(SGGameSpace):
         self.moveable = True
         self.textTitle  = title
         self.displayTitle = self.textTitle is not None
-        self.displayRoundNumber = True
-        self.displayPhaseNumber = self.timeManager.numberOfPhases() >= 2
-        self.displayPhaseName = self.timeManager.numberOfPhases() >= 2
+        
+        # Stocker les formats de template
+        self.roundNumberFormat = roundNumberFormat
+        self.phaseNumberFormat = phaseNumberFormat
+        self.phaseNameFormat = phaseNameFormat
+        
+        # Définir les valeurs par défaut pour l'affichage si non spécifiées
+        if displayRoundNumber is None:
+            self.displayRoundNumber = True
+        else:
+            self.displayRoundNumber = displayRoundNumber
+            
+        if displayPhaseNumber is None:
+            self.displayPhaseNumber = self.timeManager.numberOfPhases() >= 2
+        else:
+            self.displayPhaseNumber = displayPhaseNumber
+            
+        if displayPhaseName is None:
+            self.displayPhaseName = self.timeManager.numberOfPhases() >= 2
+        else:
+            self.displayPhaseName = displayPhaseName
+        
+        # Si le format est None ou vide, ne pas afficher le label correspondant
+        if not self.roundNumberFormat or self.roundNumberFormat.strip() == "":
+            self.displayRoundNumber = False
+        if not self.phaseNumberFormat or self.phaseNumberFormat.strip() == "":
+            self.displayPhaseNumber = False
+        if not self.phaseNameFormat or self.phaseNameFormat.strip() == "":
+            self.displayPhaseName = False
 
         self.initLabels()
 
@@ -138,12 +170,49 @@ class SGTimeLabel(SGGameSpace):
         pass
 
     def updateTimeLabel(self):
-        self.labelRoundNumber.setText('Round Number : {}'.format(
-            self.timeManager.currentRoundNumber))
-        if self.displayPhaseNumber:
-            self.labelPhaseNumber.setText('Phase Number : {}'.format(
-                self.timeManager.currentPhaseNumber))
-            self.labelPhaseName.setText(self.timeManager.getCurrentPhase().name)
+        # Obtenir les valeurs actuelles
+        current_round = self.timeManager.currentRoundNumber
+        current_phase_number = self.timeManager.currentPhaseNumber
+        current_phase_name = self.timeManager.getCurrentPhase().name
+        
+        # Mettre à jour le label du round number
+        if self.displayRoundNumber and hasattr(self, 'labelRoundNumber') and self.labelRoundNumber:
+            try:
+                text = self.roundNumberFormat.format(
+                    roundNumber=current_round,
+                    phaseNumber=current_phase_number,
+                    phaseName=current_phase_name
+                )
+                self.labelRoundNumber.setText(text)
+            except (KeyError, ValueError) as e:
+                # En cas d'erreur de formatage, utiliser un format simple
+                self.labelRoundNumber.setText(str(current_round))
+        
+        # Mettre à jour le label du phase number
+        if self.displayPhaseNumber and hasattr(self, 'labelPhaseNumber') and self.labelPhaseNumber:
+            try:
+                text = self.phaseNumberFormat.format(
+                    roundNumber=current_round,
+                    phaseNumber=current_phase_number,
+                    phaseName=current_phase_name
+                )
+                self.labelPhaseNumber.setText(text)
+            except (KeyError, ValueError) as e:
+                # En cas d'erreur de formatage, utiliser un format simple
+                self.labelPhaseNumber.setText(str(current_phase_number))
+        
+        # Mettre à jour le label du phase name
+        if self.displayPhaseName and hasattr(self, 'labelPhaseName') and self.labelPhaseName:
+            try:
+                text = self.phaseNameFormat.format(
+                    roundNumber=current_round,
+                    phaseNumber=current_phase_number,
+                    phaseName=current_phase_name
+                )
+                self.labelPhaseName.setText(text)
+            except (KeyError, ValueError) as e:
+                # En cas d'erreur de formatage, utiliser le nom de la phase directement
+                self.labelPhaseName.setText(current_phase_name)
 
         self.updateLabelsandWidgetSize()
 
@@ -269,3 +338,55 @@ class SGTimeLabel(SGGameSpace):
                 label.setStyleSheet("; ".join(style_parts))
         self.updateLabelsandWidgetSize()
         self.update()
+    
+    def setRoundNumberFormat(self, format_string):
+        """
+        Set the format template for the round number label.
+        
+        Args:
+            format_string (str): Format string using placeholders {roundNumber}, {phaseNumber}, {phaseName}
+                                If None or empty, the round number label will be hidden.
+        """
+        self.roundNumberFormat = format_string
+        if not format_string or format_string.strip() == "":
+            self.setDisplayRoundNumber(False)
+        else:
+            # Si le label n'existe pas encore mais qu'on veut l'afficher maintenant
+            if not hasattr(self, 'labelRoundNumber') or not self.labelRoundNumber:
+                self.displayRoundNumber = True
+                # Il faudrait recréer les labels, mais pour l'instant on attend updateTimeLabel
+            self.updateTimeLabel()
+    
+    def setPhaseNumberFormat(self, format_string):
+        """
+        Set the format template for the phase number label.
+        
+        Args:
+            format_string (str): Format string using placeholders {roundNumber}, {phaseNumber}, {phaseName}
+                                If None or empty, the phase number label will be hidden.
+        """
+        self.phaseNumberFormat = format_string
+        if not format_string or format_string.strip() == "":
+            self.setDisplayPhaseNumber(False)
+        else:
+            # Si le label n'existe pas encore mais qu'on veut l'afficher maintenant
+            if not hasattr(self, 'labelPhaseNumber') or not self.labelPhaseNumber:
+                self.displayPhaseNumber = True
+            self.updateTimeLabel()
+    
+    def setPhaseNameFormat(self, format_string):
+        """
+        Set the format template for the phase name label.
+        
+        Args:
+            format_string (str): Format string using placeholders {roundNumber}, {phaseNumber}, {phaseName}
+                                If None or empty, the phase name label will be hidden.
+        """
+        self.phaseNameFormat = format_string
+        if not format_string or format_string.strip() == "":
+            self.setDisplayPhaseName(False)
+        else:
+            # Si le label n'existe pas encore mais qu'on veut l'afficher maintenant
+            if not hasattr(self, 'labelPhaseName') or not self.labelPhaseName:
+                self.displayPhaseName = True
+            self.updateTimeLabel()

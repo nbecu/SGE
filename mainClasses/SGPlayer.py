@@ -209,6 +209,9 @@ class SGPlayer(AttributeAndValueFunctionalities):
             if (hasattr(action, 'action_controler') and 
                 action.action_controler.get("directClick") == True):
                 
+                # Check if action can be used (player authorization check)
+                can_use = action.canBeUsed()
+                
                 # Special handling for CreateActions: they target cells but create agents/tiles
                 if isinstance(action, SGCreate):
                     # For CreateActions, check that entity is a cell and action is authorized
@@ -218,10 +221,13 @@ class SGPlayer(AttributeAndValueFunctionalities):
                 elif action.targetType == entityDef:
                     # Check authorization (some actions need destination entity for Move)
                     if isinstance(action, SGMove):
-                        # For Move, we'll check authorization during drop
-                        return action
+                        # For Move, we should also check canBeUsed before returning
+                        if can_use:
+                            return action
                     elif action.checkAuthorization(entity):
                         return action
+        
+        return None
         return None
     
 

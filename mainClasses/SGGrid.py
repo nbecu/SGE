@@ -31,6 +31,9 @@ class SGGrid(SGGameSpace):
 
         self.startXBase = 0
         self.startYBase = 0
+        
+        # Owners of the grid (can be a list of players or a single player)
+        self.owners = []
 
         if aColor != "None":
             self.setColor(aColor)
@@ -379,5 +382,78 @@ class SGGrid(SGGameSpace):
             rowNumber (int): row number
         """
         return [ cell for cell in self.model.getCells(self) if cell.yCoord== rowNumber]
+
+    # ============================================================================
+    # OWNERSHIP METHODS
+    # ============================================================================
+    
+    def setOwners(self, owners):
+        """
+        Set the owners of this grid.
+        
+        Args:
+            owners: Can be:
+                - A single player (SGPlayer instance or player name string)
+                - A list of players (list of SGPlayer instances or player name strings)
+                - None to clear owners
+        
+        Examples:
+            grid.setOwners(player1)  # Single owner
+            grid.setOwners([player1, player2])  # Multiple owners
+            grid.setOwners("Player 1")  # Single owner by name
+            grid.setOwners(["Player 1", "Player 2"])  # Multiple owners by name
+        """
+        if owners is None:
+            self.owners = []
+            return
+        
+        # Convert to list if single owner provided
+        if not isinstance(owners, list):
+            owners = [owners]
+        
+        # Normalize owners: convert player names to player instances if needed
+        normalized_owners = []
+        for owner in owners:
+            if isinstance(owner, str):
+                # Try to get player instance from name
+                try:
+                    player_instance = self.model.getPlayer(owner)
+                    normalized_owners.append(player_instance)
+                except ValueError:
+                    # If player not found, keep as string (might be used later)
+                    normalized_owners.append(owner)
+            else:
+                # Already a player instance or other object
+                normalized_owners.append(owner)
+        
+        self.owners = normalized_owners
+    
+    def isOwner(self, user):
+        """
+        Check if a user is an owner of this grid.
+        
+        Args:
+            user: A player (SGPlayer instance) or player name (string)
+        
+        Returns:
+            bool: True if the user is an owner of this grid, False otherwise
+        
+        Examples:
+            grid.isOwner(player1)  # Check by player instance
+            grid.isOwner("Player 1")  # Check by player name
+        """
+        if not self.owners:
+            return False
+        
+        # Normalize user to player instance if it's a string
+        if isinstance(user, str):
+            try:
+                user = self.model.getPlayer(user)
+            except ValueError:
+                # Player not found, can't be owner
+                return False
+        
+        # Check if user is in owners list
+        return user in self.owners
 
     

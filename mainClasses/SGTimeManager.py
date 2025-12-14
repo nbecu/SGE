@@ -57,6 +57,17 @@ class SGTimeManager():
 
         # Update control panels based on current phase type
         self.updateControlPanelsForCurrentPhase()
+        
+        # Print current phase and player information
+        currentPhase = self.getCurrentPhase()
+        try:
+            currentPlayer = self.model.getCurrentPlayer()
+            currentPlayerName = currentPlayer.name if hasattr(currentPlayer, 'name') else str(currentPlayer)
+        except (ValueError, AttributeError):
+            currentPlayerName = "None/Admin"
+        
+        print(f"[PHASE] Round {self.currentRoundNumber}, Phase {self.currentPhaseNumber}: '{currentPhase.name}'")
+        print(f"[PHASE] Current Player: {currentPlayerName}")
 
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()
@@ -81,7 +92,8 @@ class SGTimeManager():
         else:
             # In play phase, only the current player's control panel should be active
             for controlPanel in self.model.getControlPanels():
-                controlPanel.setActivation(controlPanel.playerName == self.model.currentPlayerName)
+                is_active = controlPanel.playerName == self.model.currentPlayerName
+                controlPanel.setActivation(is_active)
 
     def isItTheLastPhase(self):
         return (self.currentPhaseNumber + 1) > self.numberOfPhases() 
