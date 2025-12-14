@@ -349,44 +349,18 @@ class SGGrid(SGGameSpace):
 # -----------------------------------------------------------------------------------------
 # Definiton of the methods who the modeler will use
 
-    # Return all the cells
-    def getCells(self):
-        return self.model.getCellType(self).entities
 
-    # Return the cell
-    def getCell_withId(self, cell_id):
-        return self.model.getCell(self,cell_id)
+# ============================================================================
+# MODELER METHODS
+# ============================================================================
+    def __MODELER_METHODS__(self):
+        pass
+# ============================================================================
+# SET METHODS
+# ============================================================================
+    def __MODELER_METHODS__SET__(self):
+        pass
 
-    def cellIdFromCoords(self,x,y):
-        return self.model.getCellType(self).cellIdFromCoords(x,y)
-    
-
-    def getCell_withCoords(self,x,y):
-        return self.getCell_withId(self.cellIdFromCoords(x,y))
-
-   # Return the cells at a specified column
-    def getCells_withColumn(self, columnNumber):
-        """
-        Return the cells at a specified column.
-        args:
-            columnNumber (int): column number
-        """
-        return [ cell for cell in self.model.getCells(self) if cell.xCoord== columnNumber]
-        
-
-  # Return the cells at a specified row
-    def getCells_withRow(self, rowNumber):
-        """
-        Return the cells at a specified column.
-        args:
-            rowNumber (int): row number
-        """
-        return [ cell for cell in self.model.getCells(self) if cell.yCoord== rowNumber]
-
-    # ============================================================================
-    # OWNERSHIP METHODS
-    # ============================================================================
-    
     def setOwners(self, owners):
         """
         Set the owners of this grid.
@@ -428,19 +402,77 @@ class SGGrid(SGGameSpace):
         
         self.owners = normalized_owners
     
-    def isOwner(self, user):
+# ============================================================================
+# GET/NB METHODS
+# ============================================================================
+
+    def __MODELER_METHODS__GET__(self):
+        pass
+
+    def getOwners(self):
+        """Get the owners of this grid"""
+        return self.owners
+    
+    def getOwner(self):
+        """Get the first owner of this grid"""
+        return self.owners[0]
+
+    def getCellType(self):
+        """Get the cell type of this grid"""
+        return self.model.getCellType(self)
+
+    def getCells(self):
+        """Get the cells of this grid"""
+        return self.model.getCellType(self).entities
+
+    def getCell_withId(self, cell_id):
+        """Get the cell with the given id"""
+        return self.model.getCell(self,cell_id)
+
+    def cellIdFromCoords(self,x,y):
+        return self.model.getCellType(self).cellIdFromCoords(x,y)
+    
+    def getCell_withCoords(self,x,y):
+        """Get the cell with the given coordinates"""
+        return self.getCell_withId(self.cellIdFromCoords(x,y))
+
+   # Return the cells at a specified column
+    def getCells_withColumn(self, columnNumber):
         """
-        Check if a user is an owner of this grid.
+        Return the cells at a specified column.
+        args:
+            columnNumber (int): column number
+        """
+        return [ cell for cell in self.model.getCells(self) if cell.xCoord== columnNumber]
+        
+  # Return the cells at a specified row
+    def getCells_withRow(self, rowNumber):
+        """
+        Return the cells at a specified column.
+        args:
+            rowNumber (int): row number
+        """
+        return [ cell for cell in self.model.getCells(self) if cell.yCoord== rowNumber]
+
+    
+    # ============================================================================
+    # IS/HAS METHODS
+    # ============================================================================
+    
+    # @CATEGORY: IS
+    def isOwnedBy(self, user):
+        """
+        Check if this grid is owned by a user.
         
         Args:
             user: A player (SGPlayer instance) or player name (string)
         
         Returns:
-            bool: True if the user is an owner of this grid, False otherwise
+            bool: True if the grid is owned by the user, False otherwise
         
         Examples:
-            grid.isOwner(player1)  # Check by player instance
-            grid.isOwner("Player 1")  # Check by player name
+            grid.isOwnedBy(player1)  # Check by player instance
+            grid.isOwnedBy("Player 1")  # Check by player name
         """
         if not self.owners:
             return False

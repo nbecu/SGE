@@ -1217,7 +1217,7 @@ class SGCellType(SGEntityType):
     # ============================================================================
     # GET METHODS
     # ============================================================================
-    def getCell(self, x, y=None):
+    def getCell(self, x, y=None) -> SGCell:
         """
         Retrieve a cell object from the grid.
 
@@ -1252,11 +1252,8 @@ class SGCellType(SGEntityType):
 
         return next((ent for ent in self.entities if ent.id == aId), None)
 
-
-   
-
     # Return the cell at specified coordinates
-    def getEntity(self, x, y=None):
+    def getEntity(self, x, y=None) -> SGCell:
         """
         Get a single entity (cell) by coordinates.
         
@@ -1269,6 +1266,39 @@ class SGCellType(SGEntityType):
         """
         return self.getCell(x, y)
 
+    def getEmptyCells(self, condition=None) -> list[SGCell]:
+        """
+        Get all empty cells, optionally filtered by a condition.
+        
+        Args:
+            condition (callable, optional): Function that takes a cell and returns True if it should be included.
+                The condition is applied in addition to the empty check.
+        
+        Returns:
+            list[SGCell]: List of empty cells matching the condition, or all empty cells if condition is None
+        """
+        empty_cells = [cell for cell in self.entities if cell.isEmpty()]
+        if condition is None:
+            return empty_cells
+        return [cell for cell in empty_cells if condition(cell)]
+    
+    def getEmptyCell(self, condition=None) -> SGCell:
+        """
+        Get the first empty cell found, optionally filtered by a condition.
+        
+        Args:
+            condition (callable, optional): Function that takes a cell and returns True if it should be included.
+                The condition is applied in addition to the empty check.
+        
+        Returns:
+            SGCell or None: The first empty cell matching the condition, or None if no empty cell is found
+        """
+        for cell in self.entities:
+            if cell.isEmpty():
+                if condition is None or condition(cell):
+                    return cell
+        return None
+    
     def getEntities_withRow(self, aRowNumber):
         """
         Get all entities (cells) in a specific row.

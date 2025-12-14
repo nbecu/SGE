@@ -1366,10 +1366,6 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def getCellPovs(self, grid):
         return {key: value for dict in (self.cellTypes[grid.id]['ColorPOV'], self.cellTypes[grid.id]['BorderPOV']) for key, value in dict.items() if "selected" not in key and "BorderWidth" not in key}
 
-    def getGrids(self):
-        # To get all type of gameSpace who are grids
-        return [aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGGrid)]
-
     def getGrid_withID(self, aGridID):
         return next((item for item in self.getGrids() if item.id == aGridID), None)
 
@@ -2824,6 +2820,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         for entType in self.cellTypes.values():
             aList.extend(entType.entities)
         return aList
+    
+   
 
     # To get all the cells of the collection
     # If several grids, this method only returns the cells of the first grid
@@ -2850,6 +2848,32 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if agentType is None:  return None
         else: return agentType.entities[:]
 
+    def getGrids(self):
+        """Get all grids (gameSpaces that are SGGrid instances)"""
+        return [aGameSpace for aGameSpace in list(self.gameSpaces.values()) if isinstance(aGameSpace, SGGrid)]
+
+    def getGrids_withOwner(self, owner):
+        """Get all grids that belong to a specific owner
+        
+        Args:
+            owner: A player (SGPlayer instance) or player name (string)
+        
+        Returns:
+            list: List of grids (SGGrid instances) owned by the specified owner
+        """
+        return [aGrid for aGrid in self.getGrids() if aGrid.isOwnedBy(owner)]
+    
+    def getGrid_withOwner(self, owner):
+        """Get the first grid that belongs to a specific owner
+        
+        Args:
+            owner: A player (SGPlayer instance) or player name (string)
+        
+        Returns:
+            SGGrid or None: The first grid owned by the specified owner, or None if no grid is owned
+        """
+        grids = self.getGrids_withOwner(owner)
+        return grids[0] if grids else None
     
 # ============================================================================
 # DELETE METHODS

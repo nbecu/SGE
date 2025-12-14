@@ -130,9 +130,6 @@ for i in range(1, nb_players + 1):
             tile.moveTo(player_board.getCell(j, 1))
             tile.flip()  # Show front face
 
-# Players[1].newControlPanel("Player 1 Actions")
-# Players[2].newControlPanel("Player 2 Actions")
-myModel.newUserSelector()
 
 # ============================================================================
 # Create game actions
@@ -164,7 +161,7 @@ moveAction = myModel.newMoveAction(
     conditions=[
         canPlaceTile,  # Target cell must be empty or allow biodiv stacking
         lambda tile, cell: cell.type == Board,  # Can only move to main board
-        lambda tile: tile.getGrid().isOwner(myModel.getCurrentPlayer()),  # Can only move from current player's board
+        lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
     ],
@@ -176,10 +173,39 @@ for player in Players.values():
     player.addGameAction(moveAction)
 
 # ============================================================================
-# Create play phases (one for each player)
+# Create pick tile action: Pick a tile from river to player's board
+# ============================================================================
+def pickTileFromRiver(tile):
+    """Pick a tile from river and place it on current player's empty board slot"""    
+    # Get the player's board using getGrid_withOwner
+    player_grid = myModel.getGrid_withOwner(myModel.getCurrentPlayer())
+    if player_grid is None:
+        return
+    empty_cell = player_grid.getCellType().getEmptyCell()
+    tile.moveTo(empty_cell)
+    
+    
+pickTile = myModel.newActivateAction(
+    SeaTile,
+    method=pickTileFromRiver,
+    conditions=[
+        lambda tile: tile.cell.type == River,  # Tile must be in river
+        lambda tile: tile.isFaceFront()  # Tile must be face front (visible)
+    ],
+    label="Pick Tile",
+    action_controler={"directClick": True, "contextMenu": True} #todo, le directClick ne sembel pas fonctionner pour un activate action
+)
+
+# Add pick tile action to all players
+for player in Players.values():
+    player.addGameAction(pickTile)
+
+# ============================================================================
+# Create play phases (one Turn phase and one Pick phase for each player)
 # ============================================================================
 for i in range(1, nb_players + 1):
     myModel.newPlayPhase(f"Player {i} Turn", [Players[i]])
+    myModel.newPlayPhase(f"Player {i} Pick", [Players[i]])
 myModel.setCurrentPlayer("Player 1")
 
 TL = myModel.newTimeLabel(displayPhaseNumber=False,roundNumberFormat="Round {roundNumber}")

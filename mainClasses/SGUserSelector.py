@@ -71,6 +71,7 @@ class SGUserSelector(SGGameSpace):
     def updateOnNewPhase(self):
         players=self.getAuthorizedPlayers()
         alreadyChecked=False
+        first_authorized_player_name = None
         for checkbox in self.checkboxes:
             if checkbox.text() not in [aPlayer.name for aPlayer in players]:
                 checkbox.setEnabled(False)
@@ -79,7 +80,12 @@ class SGUserSelector(SGGameSpace):
                 checkbox.setEnabled(True)
                 if not alreadyChecked:
                     checkbox.setChecked(True)
+                    first_authorized_player_name = checkbox.text()
                     alreadyChecked=True
+        
+        # Explicitly update currentPlayer to the first authorized player
+        if first_authorized_player_name:
+            self.model.setCurrentPlayer(first_authorized_player_name)
             
     def setCheckboxesWithSelection(self, aUserName):
         for checkbox in self.checkboxes:

@@ -51,23 +51,24 @@ class SGTimeManager():
             self.model.myTimeLabel.updateTimeLabel()
         self.model.updateWindowTitle()
 
+        # Get current phase before processing
+        currentPhase = self.getCurrentPhase()
+        
         # Process the useSelector widgets for this next phase/round
         if self.model.userSelector is not None:
             self.model.userSelector.updateOnNewPhase()
+        else:
+            # If userSelector doesn't exist, update currentPlayer manually based on authorized players
+            if isinstance(currentPhase, SGPlayPhase) and currentPhase.authorizedPlayers:
+                # Set currentPlayer to the first authorized player
+                first_authorized_player = currentPhase.authorizedPlayers[0]
+                if isinstance(first_authorized_player, str):
+                    self.model.setCurrentPlayer(first_authorized_player)
+                else:
+                    self.model.setCurrentPlayer(first_authorized_player.name if hasattr(first_authorized_player, 'name') else str(first_authorized_player))
 
         # Update control panels based on current phase type
         self.updateControlPanelsForCurrentPhase()
-        
-        # Print current phase and player information
-        currentPhase = self.getCurrentPhase()
-        try:
-            currentPlayer = self.model.getCurrentPlayer()
-            currentPlayerName = currentPlayer.name if hasattr(currentPlayer, 'name') else str(currentPlayer)
-        except (ValueError, AttributeError):
-            currentPlayerName = "None/Admin"
-        
-        print(f"[PHASE] Round {self.currentRoundNumber}, Phase {self.currentPhaseNumber}: '{currentPhase.name}'")
-        print(f"[PHASE] Current Player: {currentPlayerName}")
 
         # execute the actions of the phase
         self.getCurrentPhase().execPhase()

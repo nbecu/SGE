@@ -205,29 +205,52 @@ class SGPlayer(AttributeAndValueFunctionalities):
         from mainClasses.gameAction.SGMove import SGMove
         from mainClasses.gameAction.SGCreate import SGCreate
         
+        print(f"[DEBUG getAuthorizedActionWithDirectClick] Entity: {entity}, EntityType: {entityDef.name if hasattr(entityDef, 'name') else entityDef}")
+        print(f"[DEBUG getAuthorizedActionWithDirectClick] Number of gameActions: {len(self.gameActions)}")
+        
         for action in self.gameActions:
+            print(f"[DEBUG getAuthorizedActionWithDirectClick] Checking action: {action.nameToDisplay if hasattr(action, 'nameToDisplay') else 'Unknown'}, type: {type(action).__name__}")
+            
             if (hasattr(action, 'action_controler') and 
                 action.action_controler.get("directClick") == True):
                 
+                print(f"[DEBUG getAuthorizedActionWithDirectClick] Action has directClick=True")
+                print(f"[DEBUG getAuthorizedActionWithDirectClick] Action targetType: {action.targetType.name if hasattr(action.targetType, 'name') else action.targetType}, EntityDef: {entityDef.name if hasattr(entityDef, 'name') else entityDef}")
+                
                 # Check if action can be used (player authorization check)
                 can_use = action.canBeUsed()
+                print(f"[DEBUG getAuthorizedActionWithDirectClick] canBeUsed(): {can_use}")
                 
                 # Special handling for CreateActions: they target cells but create agents/tiles
                 if isinstance(action, SGCreate):
+                    print(f"[DEBUG getAuthorizedActionWithDirectClick] Action is SGCreate")
                     # For CreateActions, check that entity is a cell and action is authorized
                     if entity.type.isCellType and action.checkAuthorization(entity):
+                        print(f"[DEBUG getAuthorizedActionWithDirectClick] SGCreate authorized, returning action")
                         return action
                 # For all other actions, check that targetType matches entity type
                 elif action.targetType == entityDef:
+                    print(f"[DEBUG getAuthorizedActionWithDirectClick] targetType matches entityDef")
                     # Check authorization (some actions need destination entity for Move)
                     if isinstance(action, SGMove):
+                        print(f"[DEBUG getAuthorizedActionWithDirectClick] Action is SGMove")
                         # For Move, we should also check canBeUsed before returning
                         if can_use:
+                            print(f"[DEBUG getAuthorizedActionWithDirectClick] SGMove authorized, returning action")
                             return action
-                    elif action.checkAuthorization(entity):
-                        return action
+                    else:
+                        print(f"[DEBUG getAuthorizedActionWithDirectClick] Calling checkAuthorization for non-Move action")
+                        auth_result = action.checkAuthorization(entity)
+                        print(f"[DEBUG getAuthorizedActionWithDirectClick] checkAuthorization returned: {auth_result}")
+                        if auth_result:
+                            print(f"[DEBUG getAuthorizedActionWithDirectClick] Action authorized, returning action")
+                            return action
+                else:
+                    print(f"[DEBUG getAuthorizedActionWithDirectClick] targetType does NOT match entityDef")
+            else:
+                print(f"[DEBUG getAuthorizedActionWithDirectClick] Action does NOT have directClick=True or no action_controler")
         
-        return None
+        print(f"[DEBUG getAuthorizedActionWithDirectClick] No authorized action found, returning None")
         return None
     
 

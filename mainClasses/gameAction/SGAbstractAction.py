@@ -145,11 +145,25 @@ class SGAbstractAction():
         return True
     
     def checkAuthorization(self,aTargetEntity):
-        if not self.canBeUsed():
+        print(f"[DEBUG checkAuthorization] Action: {self.nameToDisplay if hasattr(self, 'nameToDisplay') else 'Unknown'}, TargetEntity: {aTargetEntity}")
+        can_use_result = self.canBeUsed()
+        print(f"[DEBUG checkAuthorization] canBeUsed(): {can_use_result}")
+        if not can_use_result:
+            print(f"[DEBUG checkAuthorization] canBeUsed() returned False, returning False")
             return False
         res = True
-        for aCondition in self.conditions:
-            res = res and (aCondition() if aCondition.__code__.co_argcount == 0 else aCondition(aTargetEntity))
+        print(f"[DEBUG checkAuthorization] Number of conditions: {len(self.conditions)}")
+        for i, aCondition in enumerate(self.conditions):
+            condition_argcount = aCondition.__code__.co_argcount
+            print(f"[DEBUG checkAuthorization] Condition {i}: argcount={condition_argcount}")
+            if condition_argcount == 0:
+                condition_result = aCondition()
+            else:
+                condition_result = aCondition(aTargetEntity)
+            print(f"[DEBUG checkAuthorization] Condition {i} result: {condition_result}")
+            res = res and condition_result
+            print(f"[DEBUG checkAuthorization] Current res after condition {i}: {res}")
+        print(f"[DEBUG checkAuthorization] Final result: {res}")
         return res
 
     #Function to test if the action feedback 
