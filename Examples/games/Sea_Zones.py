@@ -111,13 +111,6 @@ Marker = myModel.newAgentType("Marker", "circleAgent", defaultColor=Qt.black,loc
 Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.displayPov("default")
 Board.setDefaultValue("owner", "")
-Board.doWhenAttributeChanges("owner", lambda cell, attribute: placeMarker(cell))
-
-def placeMarker(cell):
-    cell.deleteAllAgents()
-    cell.newAgentHere(Marker)
-    cell.getFirstAgent(Marker).setValue("owner", cell.getValue("owner"))
-
 
 # ============================================================================
 # Create players and distribute initial tiles
@@ -176,8 +169,12 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
     ],
     action_controler={"directClick": True},
-    feedbacks=[lambda aTile: aTile.cell.setValue("owner", myModel.getCurrentPlayer().name)]
+    feedbacks=[lambda aTile: placeMarker(aTile.cell)]
     )
+def placeMarker(cell):
+    cell.deleteAllAgents()
+    cell.newAgentHere(Marker)
+    cell.getFirstAgent(Marker).setValue("owner", myModel.getCurrentPlayer().name)
 
 # Create a copy of moveAction for each player (each with a distinct ID)
 PlayerMoveActions = {}
