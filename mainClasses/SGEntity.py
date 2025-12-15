@@ -93,10 +93,35 @@ class SGEntity(AttributeAndValueFunctionalities):
             self.watchers[aAtt] = []
         self.watchers[aAtt].append(aIndicator)
 
+    def doWhenAttributeChanges(self, aAttribute, callback):
+        """
+        Execute a callback function when an attribute changes on this specific entity.
+        
+        This method allows modelers to register a callback function that will be executed
+        whenever this entity's specified attribute is modified.
+        
+        Args:
+            aAttribute (str): The attribute name to watch
+            callback (callable): A function that will be executed when the attribute changes.
+                                The callback should accept (entity, attribute) as parameters.
+                                Example: def onOwnerChanged(entity, attribute): ...
+        """
+        if not callable(callback):
+            raise ValueError(f"doWhenAttributeChanges: callback must be callable, got {type(callback)}")
+        if aAttribute not in self.watchers.keys():
+            self.watchers[aAttribute] = []
+        self.watchers[aAttribute].append(callback)
+
     def updateWatchersOnAttribute(self, aAtt):
         """Update watchers when an attribute changes"""
         for watcher in self.watchers.get(aAtt, []):
-            watcher.checkAndUpdate()
+            # Handle both SGIndicator objects and callable watchers
+            if callable(watcher) and not hasattr(watcher, 'checkAndUpdate'):
+                # This is a callback watcher added via doWhenAttributeChanges
+                watcher(self, aAtt)
+            elif hasattr(watcher, 'checkAndUpdate'):
+                # This is an SGIndicator
+                watcher.checkAndUpdate()
 
     def getListOfStepsData(self, startStep=None, endStep=None):
         """Get list of step data"""

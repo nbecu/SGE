@@ -95,17 +95,45 @@ class SGEntityType(AttributeAndValueFunctionalities):
             self.watchers[aAtt]=[]
         self.watchers[aAtt].append(aIndicator)
 
-    def updateWatchersOnAttribute(self, aAtt):
+    def doWhenAttributeChanges(self, aAttribute, callback):
+        """
+        Execute a callback function when an attribute changes.
+        
+        This method allows modelers to register a callback function that will be executed
+        whenever any entity of this type has the specified attribute modified.
+        
+        Args:
+            aAttribute (str): The attribute name to watch
+            callback (callable): A function that will be executed when the attribute changes.
+                                The callback should accept (entity, attribute) as parameters.
+                                Example: def onOwnerChanged(entity, attribute): ...
+        """
+        if not callable(callback):
+            raise ValueError(f"doWhenAttributeChanges: callback must be callable, got {type(callback)}")
+        if aAttribute not in self.watchers.keys():
+            self.watchers[aAttribute] = []
+        self.watchers[aAttribute].append(callback)
+
+    def updateWatchersOnAttribute(self, aAtt, entity=None):
         """
         Update all watchers monitoring a specific attribute.
         
         Args:
             aAtt (str): The attribute name that changed
+            entity (SGEntity, optional): The entity that triggered the change. 
+                                        Required for callback watchers added via doWhenAttributeChanges.
         """
-        watchers_with_condition_on_entities = [item for sublist in self.watchers.values() for item in sublist if item.conditionsOnEntities]  # Filtrage des éléments
+        watchers_with_condition_on_entities = [item for sublist in self.watchers.values() for item in sublist if hasattr(item, 'conditionsOnEntities') and item.conditionsOnEntities]  # Filtrage des éléments
         watchers_of_the_changed_attribute = self.watchers.get(aAtt,[])
         for watcher in (watchers_of_the_changed_attribute + watchers_with_condition_on_entities):
-            watcher.checkAndUpdate()
+            # Handle both SGIndicator objects and callable watchers
+            if callable(watcher) and not hasattr(watcher, 'checkAndUpdate'):
+                # This is a callback watcher added via doWhenAttributeChanges
+                if entity is not None:
+                    watcher(entity, aAtt)
+            elif hasattr(watcher, 'checkAndUpdate'):
+                # This is an SGIndicator
+                watcher.checkAndUpdate()
 
     def updateWatchersOnAllAttributes(self):
         """
@@ -128,6 +156,7 @@ class SGEntityType(AttributeAndValueFunctionalities):
         """
         for listOfWatchers in self.watchers.values():
             for watcher in listOfWatchers:
+                if callable(watcher) : continue
                 watcher.checkAndUpdate()
                     
     def getColorOrColorandWidthOfFirstOccurenceOfAttAndValue(self, att, value):

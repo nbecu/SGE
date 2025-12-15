@@ -155,7 +155,7 @@ class AttributeAndValueFunctionalities():
         self.dictAttributes[aAttribut] = aValue
         self.saveValueInHistory(aAttribut, aValue)
         if hasattr(self, 'type'):  # This is to prevent the EntDef from executing the following line
-            self.type.updateWatchersOnAttribute(aAttribut)  # This is for watchers on the whole pop of entities
+            self.type.updateWatchersOnAttribute(aAttribut, entity=self)  # This is for watchers on the whole pop of entities
         self.updateWatchersOnAttribute(aAttribut)  # This is for watchers on this specific entity
         if hasattr(self, 'update') and callable(getattr(self, 'update')):  # This is to prevent the EntDef from executing the following line
             self.update()

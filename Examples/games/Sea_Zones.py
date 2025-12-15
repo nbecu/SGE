@@ -23,7 +23,7 @@ images_dir = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zone
 # ============================================================================
 # Create game board (13x13 grid)
 # ============================================================================
-Board = myModel.newCellsOnGrid(13, 13, "square", size=50, gap=1, name="Board",neighborhood="neumann")
+Board = myModel.newCellsOnGrid(9, 9, "square", size=70, gap=1, name="Board",neighborhood="neumann")
 
 # ============================================================================
 # Create river (1 deck cell + 3 slots for drafting)
@@ -80,7 +80,7 @@ deck_stack = SeaTile.newStackOnCellFromCSV(
 # ============================================================================
 # Place starting port tile at center of board (7, 7)
 # ============================================================================
-center_cell = Board.getCell(7, 7)
+center_cell = Board.getCell(5, 5)
 port_tile = SeaTile.getEntities_withValue("tile_name", "port")[0]
 port_tile.moveTo(center_cell)
 port_tile.flip()  # Show port tile face up
@@ -102,6 +102,21 @@ refill_action = deck_stack.setOpenDrafting(
     visibleFace="front",  # Tiles show front face when drafted to river
 )
 deck_stack.refillAvailableSlots()
+
+
+# ============================================================================
+# Create marker agent
+# ============================================================================
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultColor=Qt.black,locationInEntity="topRight")
+Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
+Marker.displayPov("default")
+Board.setDefaultValue("owner", "")
+Board.doWhenAttributeChanges("owner", lambda cell, attribute: placeMarker(cell))
+
+def placeMarker(cell):
+    cell.deleteAllAgents()
+    cell.newAgentHere(Marker)
+    cell.getFirstAgent(Marker).setValue("owner", cell.getValue("owner"))
 
 
 # ============================================================================
@@ -160,8 +175,9 @@ moveActionTemplate = myModel.newMoveAction(
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
     ],
-    action_controler={"directClick": True}
-)
+    action_controler={"directClick": True},
+    feedbacks=[lambda aTile: aTile.cell.setValue("owner", myModel.getCurrentPlayer().name)]
+    )
 
 # Create a copy of moveAction for each player (each with a distinct ID)
 PlayerMoveActions = {}
