@@ -78,7 +78,7 @@ class SGTimeManager():
         for aGraph in self.model.openedGraphs:
             aGraph.toolbar.refresh_data()
 
-        # La phase gère elle-même son passage automatique
+        # The phase handles its own automatic forwarding
         self.getCurrentPhase().handleAutoForward()
 
     def updateControlPanelsForCurrentPhase(self):
@@ -109,7 +109,7 @@ class SGTimeManager():
         return self.phases[self.currentPhaseNumber]
 
     def next(self):
-        # condition Victoire
+        # Victory condition
         self.nextPhase()
 
     def checkEndGame(self):
@@ -125,7 +125,7 @@ class SGTimeManager():
                     endGame = True
                     break
         if endGame:
-            print("C'est fini !")
+            print("Game Over!")
         return endGame
     
     #Update
@@ -261,3 +261,19 @@ class SGTimeManager():
     # To verify if its the initialization period (round 0)
     def isInitialization(self):
         return self.currentRoundNumber  == 0
+    
+    def getPlayPhasesForPlayers(self):
+        """
+        Returns a dictionary that associates each player with their play phases.
+        
+        Returns:
+            dict: Dictionary {player: [list of phases]}
+        """
+        player_phases = {}
+        for phase in self.phases:
+            if isinstance(phase, SGPlayPhase) and phase.authorizedPlayers:
+                for player in phase.authorizedPlayers:
+                    if player not in player_phases:
+                        player_phases[player] = []
+                    player_phases[player].append(phase)
+        return player_phases

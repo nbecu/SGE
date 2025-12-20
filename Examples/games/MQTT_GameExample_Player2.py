@@ -71,7 +71,8 @@ myModel.newModelPhase(aModelAction4)
 endGameRule = myModel.newEndGameRule(numberRequired=2)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")
-endGameRule.addEndGameCondition_onEntity(Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=Cell.grid)
+endGameRule.addEndGameCondition_onEntity(
+    Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=Cell.grid)
 endGameRule.showEndGameConditions()
 
 

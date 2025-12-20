@@ -9,7 +9,7 @@ from mainClasses.SGCell import SGCell
 
 # Class who is responsible of indicator creation
 class SGEndGameCondition(QtWidgets.QWidget):
-    def __init__(self, parent, name, entity, method, objective, attribut, color, calcType, isDisplay):
+    def __init__(self, parent, name, entity, method, objective, attribut, color, calcType, isDisplay, delay_rounds=0, final_phase=None):
         super().__init__(parent)
         # Basic initialize
         self.endGameRule = parent
@@ -23,6 +23,11 @@ class SGEndGameCondition(QtWidgets.QWidget):
         self.id = int
         self.checkStatus = False
         self.isDisplay = isDisplay
+        # Trigger delay
+        self.delay_rounds = delay_rounds  # Number of remaining rounds after the condition is met
+        self.final_phase = final_phase  # Final phase: int (phase number), str (phase name or 'last phase'), or phase instance
+        self.end_round = None  # Calculated round when the game should end
+        self.end_phase = None  # Calculated phase number when the game should end
         self.initUI()
 
     def initUI(self):
@@ -102,38 +107,125 @@ class SGEndGameCondition(QtWidgets.QWidget):
         return 25
 
     def byCalcType(self):
+        condition_met = False
+        
         if self.calcType == 'onIndicator':
             if isinstance(self.entity, SGIndicator):
                 valueToCheck = self.entity.result
                 if self.logicalTests(valueToCheck, self.method, self.objective):
-                    self.checkStatus = True
-                    return
+                    condition_met = True
             else:
                 print('Error, not an Indicator')
                 return
-        if self.calcType == 'onEntity':
+        elif self.calcType == 'onEntity':
             if isinstance(self.entity, SGCell):
                 valueToCheck = self.entity.dictAttributes[self.attribut]
                 if type(valueToCheck) == str:
                     valueToCheck = int(valueToCheck)
                 if self.logicalTests(valueToCheck, self.method, self.objective):
-                    self.checkStatus = True
-                    return
-            if isinstance(self.entity, SGAgent):
+                    condition_met = True
+            elif isinstance(self.entity, SGAgent):
                 print("To be implemented...")
-        if self.calcType == "onGameRound":
+                return
+        elif self.calcType == "onGameRound":
             valueToCheck = self.endGameRule.model.timeManager.currentRoundNumber
             if self.logicalTests(valueToCheck, self.method, self.objective):
-                self.checkStatus = True
-                return
-        if self.calcType == "onLambda":
+                condition_met = True
+        elif self.calcType == "onLambda":
             if callable(self.method):
                 if self.method():
-                    self.checkStatus = True
-                    return
+                    condition_met = True
             else:
                 print("Error, method is not callable")
                 return
+        
+        # If the condition is met for the first time, calculate the end round and phase
+        if condition_met and self.end_round is None:
+            timeManager = self.endGameRule.model.timeManager
+            current_round = timeManager.currentRoundNumber
+            current_phase = timeManager.currentPhaseNumber
+            
+            # Calculate end round: current round + delay_rounds
+            self.end_round = current_round + self.delay_rounds
+            
+            # Calculate end phase number from final_phase parameter
+            self.end_phase = self._convertFinalPhaseToPhaseNumber(timeManager, current_phase)
+        
+        # Check if we have reached the end round and phase
+        if condition_met:
+            if self.delay_rounds > 0:
+                # Check if we have reached the calculated end round and phase
+                if self.hasReachedEnd():
+                    self.checkStatus = True
+                else:
+                    self.checkStatus = False
+            else:
+                # No delay, the condition is directly met
+                self.checkStatus = True
+        else:
+            self.checkStatus = False
+    
+    def _convertFinalPhaseToPhaseNumber(self, timeManager, current_phase):
+        """
+        Converts final_phase parameter to a phase number.
+        
+        Args:
+            timeManager: The time manager instance
+            current_phase: Current phase number (used as default if final_phase is None)
+            
+        Returns:
+            int: Phase number (1-indexed)
+        """
+        if self.final_phase is None or self.final_phase is False:
+            # Default: use current phase
+            return current_phase
+        
+        if isinstance(self.final_phase, int):
+            # Direct phase number
+            return self.final_phase
+        
+        if isinstance(self.final_phase, str):
+            if self.final_phase.lower() == 'last phase':
+                # Last phase of the round
+                return timeManager.numberOfPhases()
+            else:
+                # Phase name: find phase by name
+                for i, phase in enumerate(timeManager.phases, start=1):
+                    if phase.name == self.final_phase:
+                        return i
+                # If not found, use current phase as fallback
+                print(f"Warning: Phase '{self.final_phase}' not found, using current phase")
+                return current_phase
+        
+        # Phase instance: find its index
+        try:
+            phase_index = timeManager.phases.index(self.final_phase)
+            return phase_index + 1  # Convert to 1-indexed
+        except ValueError:
+            # If not found, use current phase as fallback
+            print(f"Warning: Phase instance not found in phases list, using current phase")
+            return current_phase
+    
+    def hasReachedEnd(self):
+        """
+        Checks if we have reached the calculated end round and phase.
+        Returns True if the end round and phase have been reached, False otherwise.
+        """
+        if self.end_round is None or self.end_phase is None:
+            return False
+        
+        timeManager = self.endGameRule.model.timeManager
+        current_round = timeManager.currentRoundNumber
+        current_phase = timeManager.currentPhaseNumber
+        
+        # Check if we have reached or passed the end round
+        if current_round > self.end_round:
+            return True
+        elif current_round == self.end_round:
+            # Same round, check if we have reached or passed the end phase
+            return current_phase >= self.end_phase
+        else:
+            return False
 
     def logicalTests(self, valueToCheck, logicalTest, objective):
         if logicalTest == 'equal':

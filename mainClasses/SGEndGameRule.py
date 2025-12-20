@@ -63,7 +63,7 @@ class SGEndGameRule(SGGameSpace):
             self.show()
 
     # To add a condition to end the game
-    def addEndGameCondition_onIndicator(self, indicator, logicalTest, objective, name="Indicator based condition", color=Qt.black, isDisplay=True):
+    def addEndGameCondition_onIndicator(self, indicator, logicalTest, objective, name="Indicator based condition", color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):
         """
         Create an EndGame Condition with an Indicator
 
@@ -74,15 +74,22 @@ class SGEndGameRule(SGGameSpace):
             name (str) : name of the end game condition, displayed (default : "Indicator based condition")
             color (Qt.color) : text color (default : black)
             isDisplay (bool) : is displayed in the EndGameRule board (default : True)
+            delay_rounds (int): Number of remaining rounds after the condition is met before triggering the end of the game (default: 0).
+            final_phase (int, str, or phase instance, optional): Final phase when the game should end. Can be:
+                - int: phase number (1-indexed)
+                - str: phase name or 'last phase' for the last phase of the round
+                - phase instance: the phase object
+                - None: use current phase when condition is met (default: None)
         """
         aCondition = SGEndGameCondition(self, name, entity=indicator, method=logicalTest, objective=objective,
-                                        attribut=None, color=color, calcType="onIndicator", isDisplay=isDisplay)
+                                        attribut=None, color=color, calcType="onIndicator", isDisplay=isDisplay,
+                                        delay_rounds=delay_rounds, final_phase=final_phase)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
         # Automatically adjust size after adding a condition
         self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
-    def addEndGameCondition_onEntity(self, aEntity, attribute, logicalTest, objective, name="Entity based condition",type_name=None, aGrid=None, color=Qt.black, isDisplay=True):
+    def addEndGameCondition_onEntity(self, aEntity, attribute, logicalTest, objective, name="Entity based condition",type_name=None, aGrid=None, color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):
         """Create an EndGame Condition with an Entity
 
         Args:
@@ -95,17 +102,24 @@ class SGEndGameRule(SGGameSpace):
             aGrid (instance) : instance of the concerned grid (only if your entity is a Cell, default : None)
             color (Qt.color) : text color (default : black)
             isDisplay (bool) : is displayed in the EndGameRule board (default : True)
+            delay_rounds (int): Number of remaining rounds after the condition is met before triggering the end of the game (default: 0).
+            final_phase (int, str, or phase instance, optional): Final phase when the game should end. Can be:
+                - int: phase number (1-indexed)
+                - str: phase name or 'last phase' for the last phase of the round
+                - phase instance: the phase object
+                - None: use current phase when condition is met (default: None)
         """
       
         aCondition = SGEndGameCondition(self, name, entity=aEntity, method=logicalTest, objective=objective,
-                                        attribut=attribute, color=color, calcType="onEntity", isDisplay=isDisplay)
+                                        attribut=attribute, color=color, calcType="onEntity", isDisplay=isDisplay,
+                                        delay_rounds=delay_rounds, final_phase=final_phase)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
         # Automatically adjust size after adding a condition
         self.adjustSizeToContent(content_widgets=self.endGameConditions)
 
 
-    def addEndGameCondition_onGameRound(self, logicalTest, objective, name="Game round condition", color=Qt.black, isDisplay=True):
+    def addEndGameCondition_onGameRound(self, logicalTest, objective, name="Game round condition", color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):
         """
         Create an EndGame Condition on the time (game rounds)
 
@@ -115,9 +129,16 @@ class SGEndGameRule(SGGameSpace):
             name (str) : name of the end game condition, displayed (default : “Entity based condition")
             color (Qt.color) : text color (default : black)
             isDisplay (bool) : is displayed in the EndGameRule board (default : True)
+            delay_rounds (int): Number of remaining rounds after the condition is met before triggering the end of the game (default: 0).
+            final_phase (int, str, or phase instance, optional): Final phase when the game should end. Can be:
+                - int: phase number (1-indexed)
+                - str: phase name or 'last phase' for the last phase of the round
+                - phase instance: the phase object
+                - None: use current phase when condition is met (default: None)
         """
         aCondition = SGEndGameCondition(self, name, entity=None, method=logicalTest, objective=objective,
-                                        attribut=None, color=color, calcType="onGameRound", isDisplay=isDisplay)
+                                        attribut=None, color=color, calcType="onGameRound", isDisplay=isDisplay,
+                                        delay_rounds=delay_rounds, final_phase=final_phase)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
         # Automatically adjust size after adding a condition
@@ -125,7 +146,7 @@ class SGEndGameRule(SGGameSpace):
 
    
 
-    def addEndGameCondition_onLambda(self, lambda_function, name="Lambda based condition", color=Qt.black, isDisplay=True):
+    def addEndGameCondition_onLambda(self, lambda_function, name="Lambda based condition", color=Qt.black, isDisplay=True, delay_rounds=0, final_phase=None):
         """
         Create an EndGame Condition based on a lambda function.
 
@@ -134,9 +155,16 @@ class SGEndGameRule(SGGameSpace):
             name (str): Name of the end game condition, displayed (default: "Lambda based condition").
             color (Qt.color): Text color (default: black).
             isDisplay (bool): Whether to display in the EndGameRule board (default: True).
+            delay_rounds (int): Number of remaining rounds after the condition is met before triggering the end of the game (default: 0).
+            final_phase (int, str, or phase instance, optional): Final phase when the game should end. Can be:
+                - int: phase number (1-indexed)
+                - str: phase name or 'last phase' for the last phase of the round
+                - phase instance: the phase object
+                - None: use current phase when condition is met (default: None)
         """
         aCondition = SGEndGameCondition(self, name, entity=None, method=lambda_function, objective=None,
-                                        attribut=None, color=color, calcType="onLambda", isDisplay=isDisplay)
+                                        attribut=None, color=color, calcType="onLambda", isDisplay=isDisplay,
+                                        delay_rounds=delay_rounds, final_phase=final_phase)
         self.endGameConditions.append(aCondition)
         self.model.timeManager.conditionOfEndGame.append(aCondition)
         # Automatically adjust size after adding a condition
