@@ -254,6 +254,12 @@ class SGGrid(SGGameSpace):
         for tile in all_tiles:
             if hasattr(tile, 'view') and tile.view:
                 tile.view.raise_()  # Raise tiles in layer order
+        
+        # Ensure agents are always on top of tiles (after tiles are positioned)
+        for cell in self.getCells():
+            for agent in cell.agents:
+                if hasattr(agent, 'view') and agent.view:
+                    agent.view.raise_()  # Bring agents to front, above tiles
 
     # To handle the drag of the grid
     def mouseMoveEvent(self, e):

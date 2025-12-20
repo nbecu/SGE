@@ -78,6 +78,173 @@ class SGDashBoard(SGGameSpace):
         self.onTextAspectsChanged()
 
 
+
+#############################
+        # Drawing the DB
+    def paintEvent(self, event):
+        if self.isDisplay:
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            # Background: prefer image, else color with transparency
+            bg_pixmap = self.getBackgroundImagePixmap()
+            if bg_pixmap is not None:
+                rect = QRect(0, 0, self.width(), self.height())
+                painter.drawPixmap(rect, bg_pixmap)
+            else:
+                bg = self.gs_aspect.getBackgroundColorValue()
+                if bg.alpha() == 0:
+                    painter.setBrush(Qt.NoBrush)
+                else:
+                    painter.setBrush(QBrush(bg, Qt.SolidPattern))
+            # Border with style mapping
+            pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
+            style_map = {
+                'solid': Qt.SolidLine,
+                'dotted': Qt.DotLine,
+                'dashed': Qt.DashLine,
+                'double': Qt.SolidLine,
+                'groove': Qt.SolidLine,
+                'ridge': Qt.SolidLine,
+                'inset': Qt.SolidLine,
+            }
+            bs = getattr(self.gs_aspect, 'border_style', None)
+            if isinstance(bs, str) and bs.lower() in style_map:
+                pen.setStyle(style_map[bs.lower()])
+            painter.setPen(pen)
+            radius = getattr(self.gs_aspect, 'border_radius', None) or 0
+            w = max(0, self.getSizeXGlobal()-1)
+            h = max(0, self.getSizeYGlobal()-1)
+            if radius > 0:
+                painter.drawRoundedRect(0, 0, w, h, radius, radius)
+            else:
+                painter.drawRect(0, 0, w, h)
+
+    def updateLabelsandWidgetSize(self):
+        # Prefer layout-based sizing to include layout margins/paddings
+        if hasattr(self, 'layout') and self.layout is not None:
+            self.updateSizeFromLayout(self.layout)
+        else:
+            self.updateSizeFromLabels(self.labels)
+    
+
+    def getSizeXGlobal(self):
+        return getattr(self, 'sizeXGlobal', 10)
+    
+    def getSizeYGlobal(self):
+        return getattr(self, 'sizeYGlobal', 10)
+
+
+    # =========================
+    # STYLE/APPLY HOOKS
+    # =========================
+    def applyContainerAspectStyle(self):
+        """Avoid QSS cascade; rely on paintEvent for container rendering."""
+        pass
+
+    def onTextAspectsChanged(self):
+        """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
+        # Apply title1_aspect to title
+        if hasattr(self, 'labelTitle') and self.labelTitle is not None:
+            self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
+        
+        # Apply text1_aspect to indicators labels
+        for ind in self.indicators:
+            if hasattr(ind, 'label') and ind.label:
+                self._applyAspectToLabel(ind.label, self.text1_aspect)
+
+        # Resize
+        self.updateLabelsandWidgetSize()
+        self.update()
+        
+    def setDisplayTitle(self, display):  #Todo: is this method working? is it a modeler method?
+        """
+        Set whether to display the title.
+        
+        Args:
+            display (bool): Whether to display the title
+        """
+        self.displayTitle = display
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setVisible(display)
+        self.update()
+        
+    def setLayoutOrientation(self, orientation): #Todo: is this method working? is it a modeler method?
+        """
+        Set the layout orientation of the dashboard.
+        
+        Args:
+            orientation (str): 'vertical' or 'horizontal'
+        """
+        if orientation in ['vertical', 'horizontal']:
+            # Recreate layout with new orientation
+            if orientation == 'vertical':
+                self.layout = QtWidgets.QVBoxLayout()
+            else:
+                self.layout = QtWidgets.QHBoxLayout()
+            
+            # Re-add all widgets to new layout
+            if self.displayTitle and hasattr(self, 'labelTitle'):
+                self.layout.addWidget(self.labelTitle)
+            for indicator in self.indicators:
+                if indicator.isDisplay and hasattr(indicator, 'label'):
+                    self.layout.addWidget(indicator.label)
+            
+            self.setLayout(self.layout)
+            self.updateLabelsandWidgetSize()
+        else:
+            raise ValueError("Orientation must be 'vertical' or 'horizontal'")
+        
+    def setIndicatorStyle(self, style_dict):  #Todo: is this method working? is it a modeler method?
+        """
+        Set the style of all indicators.
+        
+        Args:
+            style_dict (dict): Dictionary of style properties for indicators
+        """
+        for indicator in self.indicators:
+            if hasattr(indicator, 'label') and indicator.label:
+                style_parts = []
+                for key, value in style_dict.items():
+                    if key == 'color':
+                        style_parts.append(f"color: {value}")
+                    elif key == 'font_size':
+                        style_parts.append(f"font-size: {value}px")
+                    elif key == 'font_family':
+                        style_parts.append(f"font-family: {value}")
+                    elif key == 'font_weight':
+                        style_parts.append(f"font-weight: {value}")
+                
+                if style_parts:
+                    indicator.label.setStyleSheet("; ".join(style_parts))
+        self.updateLabelsandWidgetSize()
+        self.update()
+
+    
+
+
+    # ============================================================================
+    # MODELER METHODS
+    # ============================================================================
+    
+    # ============================================================================
+    # NEW/ADD/SET METHODS
+    # ============================================================================
+    
+    def setTitleText(self, text):
+        """
+        Set the title text of the dashboard.
+        
+        Args:
+            text (str): The title text
+        """
+        self.textTitle = text
+        if hasattr(self, 'labelTitle') and self.labelTitle:
+            self.labelTitle.setText(text)
+            self.labelTitle.adjustSize()
+        self.update()
+
+    
+
     def addIndicator(self, name,method,attribute=None,value=None,color=Qt.black,logicOp=None,title=None,displayRefresh="instantaneous",onTimeConditions=None,isDisplay=True, displayName=True, conditionsOnEntities=[]):
         """
         Add an Indicator on the DashBoard.
@@ -308,166 +475,3 @@ class SGDashBoard(SGGameSpace):
     def addSeparator(self):
         separator=self.addIndicator(None,"separator")
         return separator
-
-
-#############################
-        # Drawing the DB
-    def paintEvent(self, event):
-        if self.isDisplay:
-            painter = QPainter(self)
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            # Background: prefer image, else color with transparency
-            bg_pixmap = self.getBackgroundImagePixmap()
-            if bg_pixmap is not None:
-                rect = QRect(0, 0, self.width(), self.height())
-                painter.drawPixmap(rect, bg_pixmap)
-            else:
-                bg = self.gs_aspect.getBackgroundColorValue()
-                if bg.alpha() == 0:
-                    painter.setBrush(Qt.NoBrush)
-                else:
-                    painter.setBrush(QBrush(bg, Qt.SolidPattern))
-            # Border with style mapping
-            pen = QPen(self.gs_aspect.getBorderColorValue(), self.gs_aspect.getBorderSize())
-            style_map = {
-                'solid': Qt.SolidLine,
-                'dotted': Qt.DotLine,
-                'dashed': Qt.DashLine,
-                'double': Qt.SolidLine,
-                'groove': Qt.SolidLine,
-                'ridge': Qt.SolidLine,
-                'inset': Qt.SolidLine,
-            }
-            bs = getattr(self.gs_aspect, 'border_style', None)
-            if isinstance(bs, str) and bs.lower() in style_map:
-                pen.setStyle(style_map[bs.lower()])
-            painter.setPen(pen)
-            radius = getattr(self.gs_aspect, 'border_radius', None) or 0
-            w = max(0, self.getSizeXGlobal()-1)
-            h = max(0, self.getSizeYGlobal()-1)
-            if radius > 0:
-                painter.drawRoundedRect(0, 0, w, h, radius, radius)
-            else:
-                painter.drawRect(0, 0, w, h)
-
-    def updateLabelsandWidgetSize(self):
-        # Prefer layout-based sizing to include layout margins/paddings
-        if hasattr(self, 'layout') and self.layout is not None:
-            self.updateSizeFromLayout(self.layout)
-        else:
-            self.updateSizeFromLabels(self.labels)
-    
-
-    def getSizeXGlobal(self):
-        return getattr(self, 'sizeXGlobal', 10)
-    
-    def getSizeYGlobal(self):
-        return getattr(self, 'sizeYGlobal', 10)
-
-    # ============================================================================
-    # MODELER METHODS
-    # ============================================================================
-    
-    # ============================================================================
-    # NEW/ADD/SET METHODS
-    # ============================================================================
-    
-    def setTitleText(self, text):
-        """
-        Set the title text of the dashboard.
-        
-        Args:
-            text (str): The title text
-        """
-        self.textTitle = text
-        if hasattr(self, 'labelTitle') and self.labelTitle:
-            self.labelTitle.setText(text)
-            self.labelTitle.adjustSize()
-        self.update()
-
-    # =========================
-    # STYLE/APPLY HOOKS
-    # =========================
-    def applyContainerAspectStyle(self):
-        """Avoid QSS cascade; rely on paintEvent for container rendering."""
-        pass
-
-    def onTextAspectsChanged(self):
-        """Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."""
-        # Apply title1_aspect to title
-        if hasattr(self, 'labelTitle') and self.labelTitle is not None:
-            self._applyAspectToLabel(self.labelTitle, self.title1_aspect)
-        
-        # Apply text1_aspect to indicators labels
-        for ind in self.indicators:
-            if hasattr(ind, 'label') and ind.label:
-                self._applyAspectToLabel(ind.label, self.text1_aspect)
-
-        # Resize
-        self.updateLabelsandWidgetSize()
-        self.update()
-        
-    def setDisplayTitle(self, display):
-        """
-        Set whether to display the title.
-        
-        Args:
-            display (bool): Whether to display the title
-        """
-        self.displayTitle = display
-        if hasattr(self, 'labelTitle') and self.labelTitle:
-            self.labelTitle.setVisible(display)
-        self.update()
-        
-    def setLayoutOrientation(self, orientation):
-        """
-        Set the layout orientation of the dashboard.
-        
-        Args:
-            orientation (str): 'vertical' or 'horizontal'
-        """
-        if orientation in ['vertical', 'horizontal']:
-            # Recreate layout with new orientation
-            if orientation == 'vertical':
-                self.layout = QtWidgets.QVBoxLayout()
-            else:
-                self.layout = QtWidgets.QHBoxLayout()
-            
-            # Re-add all widgets to new layout
-            if self.displayTitle and hasattr(self, 'labelTitle'):
-                self.layout.addWidget(self.labelTitle)
-            for indicator in self.indicators:
-                if indicator.isDisplay and hasattr(indicator, 'label'):
-                    self.layout.addWidget(indicator.label)
-            
-            self.setLayout(self.layout)
-            self.updateLabelsandWidgetSize()
-        else:
-            raise ValueError("Orientation must be 'vertical' or 'horizontal'")
-        
-    def setIndicatorStyle(self, style_dict):
-        """
-        Set the style of all indicators.
-        
-        Args:
-            style_dict (dict): Dictionary of style properties for indicators
-        """
-        for indicator in self.indicators:
-            if hasattr(indicator, 'label') and indicator.label:
-                style_parts = []
-                for key, value in style_dict.items():
-                    if key == 'color':
-                        style_parts.append(f"color: {value}")
-                    elif key == 'font_size':
-                        style_parts.append(f"font-size: {value}px")
-                    elif key == 'font_family':
-                        style_parts.append(f"font-family: {value}")
-                    elif key == 'font_weight':
-                        style_parts.append(f"font-weight: {value}")
-                
-                if style_parts:
-                    indicator.label.setStyleSheet("; ".join(style_parts))
-        self.updateLabelsandWidgetSize()
-        self.update()
-
-    

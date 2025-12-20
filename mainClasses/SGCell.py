@@ -893,19 +893,46 @@ class SGCell(SGEntity):
         type_name = normalize_type_name(type_name)
         return self.nbAgents(type_name) > 0
 
-    def hasTile(self, tileType=None):
+    def hasTile(self, tileType=None, condition=None):
         """
-        Check if this cell contains a tile of the given type
+        Check if this cell contains a tile matching the criteria
         
         Args:
             tileType: The tile type to check for. If None, checks if cell has any tile.
+            condition: Optional callable function that takes a tile and returns True if it should be included.
+                       The condition is applied in addition to the tileType check.
             
         Returns:
-            bool: True if cell has a tile of this type (or any tile if tileType is None)
+            bool: True if cell has a tile matching the criteria
+            
+        Example:
+            # Check if cell has any tile
+            cell.hasTile()
+            
+            # Check if cell has a tile of specific type
+            cell.hasTile(SeaTile)
+            
+            # Check if cell has a tile matching a condition
+            cell.hasTile(condition=lambda tile: tile.getValue("category") == "biodiv")
+            
+            # Check if cell has a tile of specific type matching a condition
+            cell.hasTile(SeaTile, condition=lambda tile: tile.isFaceFront())
         """
-        if tileType is None:
+        if tileType is None and condition is None:
             return len(self.tiles) > 0
-        return any(tile.type == tileType for tile in self.tiles)   
+        
+        for tile in self.tiles:
+            # Check tile type if specified
+            if tileType is not None and tile.type != tileType:
+                continue
+            
+            # Check condition if specified
+            if condition is not None and not condition(tile):
+                continue
+            
+            return True
+        
+        return False   
          
     def hasTiles(self, tileType=None):
         """

@@ -70,7 +70,12 @@ deck_stack = SeaTile.newStackOnCellFromCSV(
         'category': ('attribute', 'category'),
         'stack_on': ('attribute', 'stack_on', 'list'),  # Parse as comma-separated list
         'image': 'frontImage',  # Map 'image' column to frontImage
-        'bonus_point': ('attribute', 'bonus_point', 'int'),  # Parse as integer
+        'points_bonus_biodiversity': ('attribute', 'points_bonus_biodiversity', 'int'),
+        'points_from_adjacent_tile': ('attribute', 'points_from_adjacent_tile', 'int'),
+        'points_if_no_adjacent': ('attribute', 'points_if_no_adjacent', 'int'),
+        'adjacent_tile_for_bonus': ('attribute', 'adjacent_tile_for_bonus', 'list'),
+        'points_in_line': ('attribute', 'points_in_line', 'int'),
+        'tile_in_line_for_bonus': ('attribute', 'tile_in_line_for_bonus', 'list'),
         'nb': 'quantity'
         },
     image_dir=images_dir,
@@ -113,12 +118,133 @@ Marker.displayPov("default")
 Board.setDefaultValue("owner", "")
 
 # ============================================================================
+# Score calculation constants
+# ============================================================================
+points_biodiv_stack = {1:1, 2:2, 3:4, 4:7, 5:11, 6:12, 7:13, 8:14}
+points_eoliennes = {0:0, 1:2, 2:3, 3:4}  # nb_max_eoliennes -> points
+
+# ============================================================================
+# Score calculation function
+# ============================================================================
+def calculateScores():
+    """Calculate scores for all players based on tiles on the board"""
+    # Initialize scores to 0
+    for player in Players.values():
+        player.setValue("score", 0)
+    
+    # Iterate through all cells on the board that have tiles
+    for cell in Board.getEntities(condition=lambda c: c.hasTile() and c.getFirstTile().isNotValue("tile_name", "port")):
+        # Get the owner of this cell (from marker)
+        owner_name = cell.getFirstAgent().getValue("owner")
+        if not owner_name or owner_name not in myModel.players:
+            print(f'this never happens 11 {owner_name}')
+            continue
+        
+        # Get the player object
+        player = myModel.players[owner_name]
+        
+        # Get the stack and top tile
+        stack = cell.getStack(SeaTile)
+        if stack.isEmpty():
+            print(f'this never happens 22 {owner_name}')
+            continue
+        
+        top_tile = stack.topTile()
+        category = top_tile.getValue("category")
+        tile_name = top_tile.getValue("tile_name")
+        stack_height = stack.size()
+        
+        cell_score = 0
+        
+        # 1. If category is "biodiv"
+        if category == "biodiv":
+            cell_score += points_biodiv_stack[stack_height]
+            cell_score += top_tile.getValue("points_bonus_biodiversity")
+        
+        # 2. If category is "act_humaine"
+        elif category == "act_humaine":
+            # d) Special case: association_nature (score = max stack height of neighbors)
+            if tile_name == "association_nature":
+                neighbors_with_tiles = cell.getNeighborCells(condition=lambda c: c.hasTile(condition=lambda tile: tile.isValue("category","biodiv")))
+                if neighbors_with_tiles:
+                    cell_score = max(neighbor.getStack(SeaTile).size() for neighbor in neighbors_with_tiles)
+            
+            # e) Special case: eoliennes
+            elif tile_name == "eoliennes":
+                # Get neighbors with "cables" top tile
+                cables_neighbors = cell.getNeighborCells(
+                    condition=lambda c: c.hasTile() and
+                    c.getStack(SeaTile).topTile().isValue("tile_name", "cables")
+                )
+                
+                if not cables_neighbors:
+                    cell_score = 0
+                else:
+                    # For each cables cell, count neighbors with "eoliennes"
+                    nb_max_eoliennes = max(
+                        len(cables_cell.getNeighborCells(
+                            condition=lambda c: c.hasTile() and
+                            c.getStack(SeaTile).topTile().isValue("tile_name", "eoliennes")
+                        ))
+                        for cables_cell in cables_neighbors
+                    )
+                    cell_score = points_eoliennes.get(nb_max_eoliennes)
+            
+            # For other act_humaine tiles, calculate normal points
+            else:
+                # a) Points from adjacent tiles
+                adjacent_tile_list = top_tile.getValue("adjacent_tile_for_bonus")
+                points_from_adjacent = top_tile.getValue("points_from_adjacent_tile")
+                has_matching_adjacent = False
+                
+                if adjacent_tile_list:
+                    # Check each neighbor and add points for each match
+                    for neighbor in cell.getNeighborCells(condition=lambda c: c.hasTile()):
+                        neighbor_tile_name = neighbor.getStack(SeaTile).topTile().getValue("tile_name")
+                        if neighbor_tile_name in adjacent_tile_list:
+                            cell_score += points_from_adjacent
+                            has_matching_adjacent = True
+                
+                # b) Points if no adjacent matching tile
+                if not has_matching_adjacent:
+                    cell_score += top_tile.getValue("points_if_no_adjacent")
+                
+                # c) Points in line (row or column)
+                points_in_line = top_tile.getValue("points_in_line")
+                tile_in_line_list = top_tile.getValue("tile_in_line_for_bonus")
+                
+                if points_in_line and tile_in_line_list:
+                    # Count cells in same row with matching tiles
+                    row_cells = Board.getEntities_withRow(cell.yCoord)
+                    nbCellsInRowCorresponding = sum(
+                        1 for row_cell in row_cells
+                        if row_cell.hasTile() and not row_cell.getStack(SeaTile).isEmpty() and
+                        row_cell.getStack(SeaTile).topTile().getValue("tile_name") in tile_in_line_list
+                    )
+                    
+                    # Count cells in same column with matching tiles
+                    col_cells = Board.getEntities_withColumn(cell.xCoord)
+                    nbCellsInColumnCorresponding = sum(
+                        1 for col_cell in col_cells
+                        if col_cell.hasTile() and not col_cell.getStack(SeaTile).isEmpty() and
+                        col_cell.getStack(SeaTile).topTile().getValue("tile_name") in tile_in_line_list
+                    )
+                    
+                    # Take max and multiply by points_in_line
+                    cell_score += max(nbCellsInRowCorresponding, nbCellsInColumnCorresponding) * points_in_line
+        
+        # Add cell score to player's total score
+        player.incValue("score", cell_score)
+
+
+# ============================================================================
 # Create players and distribute initial tiles
 # ============================================================================
 Players = {}
 for i in range(1, nb_players + 1):
     player = myModel.newPlayer(f"Player {i}")
     Players[i] = player
+    player.setValue("score", 0)  # Initialize score to 0
     
     # Set the player as owner of their board
     player_board = PlayerBoards[i]
@@ -175,6 +301,8 @@ def placeMarker(cell):
     cell.deleteAllAgents()
     cell.newAgentHere(Marker)
     cell.getFirstAgent(Marker).setValue("owner", myModel.getCurrentPlayer().name)
+    # Recalculate scores after placing a tile
+    calculateScores()
 
 # Create a copy of moveAction for each player (each with a distinct ID)
 PlayerMoveActions = {}
@@ -184,6 +312,14 @@ for i, player in enumerate(Players.values(), start=1):
     # Add the action to the player
     player.addGameAction(player_move_action)
     PlayerMoveActions[i] = player_move_action
+
+# ============================================================================
+# Create score dashboard
+# ============================================================================
+scoreDashboard = myModel.newDashBoard()
+for player in Players.values():
+    scoreDashboard.addIndicatorOnEntity(player, "score",title= player.name)
+scoreDashboard.moveToCoords(670, 630)
 
 # ============================================================================
 # Create pick tile action: Pick a tile from river to player's board
@@ -240,6 +376,9 @@ for i in range(1, nb_players + 1):
 
 TL = myModel.newTimeLabel(displayPhaseNumber=False,roundNumberFormat="Round {roundNumber}")
 TL.moveToCoords(1080, 25)
+
+endGameRule =myModel.newEndGameRule()
+endGameRule.addEndGameCondition_onLambda(lambda: ending_tile.isFaceFront(), name="Last round of the game")
 
 # Launch the game
 myModel.launch()
