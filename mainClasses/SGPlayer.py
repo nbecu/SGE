@@ -22,6 +22,7 @@ class SGPlayer(AttributeAndValueFunctionalities):
         self.model = theModel
         self.name = name
         self.isAdmin = False
+        self.isRemote = False  # bool: True if this is a remote player (not controlled by this instance)
         self.actions = actions
         self.gameActions = []
         self.remainActions = {}
@@ -41,9 +42,14 @@ class SGPlayer(AttributeAndValueFunctionalities):
 
         """
         if title==None: title = (self.name +' actions')
-        
+
         self.controlPanel=SGControlPanel(self,title,defaultActionSelected=defaultActionSelected)
         self.model.gameSpaces[title] = self.controlPanel
+        
+        # Auto-configure visibility in distributed mode
+        if self.model.isDistributed():
+            self.controlPanel.setVisibilityForPlayers(self.name)
+        
         # Realocation of the position thanks to the layout
         newPos = self.model.layoutOfModel.addGameSpace(self.controlPanel)
         self.controlPanel.setStartXBase(newPos[0])

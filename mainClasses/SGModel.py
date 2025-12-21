@@ -69,6 +69,10 @@ from mainClasses.gameAction.SGModify import *
 from mainClasses.gameAction.SGMove import *
 from mainClasses.SGEventHandlerGuide import *
 from mainClasses.SGMQTTManager import SGMQTTManager
+from mainClasses.SGDistributedGameConfig import SGDistributedGameConfig
+from mainClasses.SGDistributedSessionManager import SGDistributedSessionManager
+from mainClasses.SGDistributedGameDialog import SGDistributedGameDialog
+from mainClasses.SGConnectionStatusWidget import SGConnectionStatusWidget
 
 
 
@@ -190,6 +194,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Initialize MQTT Manager
         self.mqttManager = SGMQTTManager(self)
 
+        # Distributed game mode attributes
+        self.distributedConfig = None  # SGDistributedGameConfig or None
+        self.distributedSessionManager = None  # SGDistributedSessionManager or None
+        self.connectionStatusWidget = None  # SGConnectionStatusWidget or None
+
         # Initialize runtime themes dictionary for custom themes
         self._runtime_themes = {}
         # Load custom themes from persistent storage
@@ -281,6 +290,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         if self.shouldDisplayAdminControlPanel:
             self.show_adminControlPanel()
 
+        # Complete distributed game setup if in distributed mode
+        # Called here (before showing window) so player selection happens before window appears
+        if self.isDistributed():
+            self.completeDistributedGameSetup()
+
         # Set up dashboards
         self.setDashboards()
         
@@ -317,22 +331,55 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
     def launch(self):
         """
         Launch the game.
+        Automatically uses MQTT if distributed mode is enabled.
         """
-        self.initBeforeShowing()
+        # Check if distributed mode is enabled
+        if self.isDistributed():
+            # Automatically launch with MQTT (reuses existing connection)
+            self.launch_withMQTT(
+                self.distributedConfig.mqtt_update_type,
+                broker_host=self.distributedConfig.broker_host,
+                broker_port=self.distributedConfig.broker_port,
+                session_id=self.distributedConfig.session_id
+            )
+        else:
+            # Normal local launch
+            self.initBeforeShowing()
+            self.show()
+            self.initAfterOpening()
 
-        self.show()
-        self.initAfterOpening()
-
-    def launch_withMQTT(self, majType, broker_host="localhost", broker_port=1883):
+    def launch_withMQTT(self, majType, broker_host="localhost", broker_port=1883, session_id=None):
         """
-        Set the mqtt protocol, then launch the game
+        Set the mqtt protocol, then launch the game.
+        
+        IMPORTANT: In distributed mode, MQTT connection is already established in enableDistributedGame().
+        This method should reuse the existing connection if possible, or establish a new one if needed.
+        
         Args:
             majType (str): "Phase" or "Instantaneous"
             broker_host (str): MQTT broker host (default: "localhost")
             broker_port (int): MQTT broker port (default: 1883)
+            session_id (str, optional): Session ID for topic isolation. 
+                                       If None and distributedConfig exists, uses its session_id.
         """
-        self.mqttManager.setMQTTProtocol(majType, broker_host, broker_port)
-        self.launch()
+        # Use session_id from distributedConfig if available
+        if session_id is None and self.isDistributed():
+            session_id = self.distributedConfig.session_id
+        
+        # CRITICAL: Check if MQTT is already initialized (from enableDistributedGame dialog)
+        if (self.mqttManager.client and 
+            self.mqttManager.client.is_connected() and
+            self.mqttManager.session_id == session_id):
+            # Reuse existing connection - just update majType if needed
+            self.mqttMajType = majType
+        else:
+            # Initialize new connection (only if not already connected)
+            self.mqttManager.setMQTTProtocol(majType, broker_host, broker_port, session_id=session_id)
+        
+        # Launch the game (don't call self.launch() to avoid recursion)
+        self.initBeforeShowing()
+        self.show()
+        self.initAfterOpening()
 
     def show_adminControlPanel(self): 
         """
@@ -463,6 +510,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     QMessageBox.information(self, 'Success', f'GameAction logs saved to: {filename}')
                 except Exception as e:
                     QMessageBox.warning(self, 'Error', f'Failed to save logs: {str(e)}')
+        
+        # Disconnect from distributed session if in distributed mode
+        if hasattr(self, 'distributedSessionManager') and self.distributedSessionManager:
+            self.distributedSessionManager.disconnect()
         
         if hasattr(self, 'mqttManager') and self.mqttManager:
             self.mqttManager.disconnect()
@@ -1993,6 +2044,18 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             name (str) : name of the Player (will be displayed)
         """
         player = SGPlayer(self, name,attributesAndValues=attributesAndValues)
+        
+        # Auto-filter if distributed mode
+        if self.isDistributed():
+            assigned_player_name = self.distributedConfig.assigned_player_name
+            
+            if name != assigned_player_name:
+                # This is a remote player (exists but not controlled here)
+                player.isRemote = True
+            else:
+                # This is the assigned player for this instance
+                player.isRemote = False
+        
         self.players[name] = player
         self.users.append(player.name)
         return player
@@ -2256,6 +2319,143 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aSimVar=SGSimulationVariable(self,initValue,name,color,isDisplay)
         self.simulationVariables.append(aSimVar)
         return aSimVar
+
+# ============================================================================
+# DISTRIBUTED GAME METHODS
+# ============================================================================
+
+    def enableDistributedGame(self,
+                             num_players,
+                             session_id=None,
+                             shared_seed=None,
+                             broker_host="localhost",
+                             broker_port=1883,
+                             mqtt_update_type="Instantaneous",
+                             seed_sync_timeout=1.0):
+        """
+        Enable distributed multiplayer game mode.
+        Opens minimal dialog for user to connect to broker and synchronize seed.
+        Player selection happens later in completeDistributedGameSetup().
+        
+        IMPORTANT: Call this method BEFORE any random operations in your model script.
+        The seed will be synchronized and applied immediately after this call returns.
+        
+        Args:
+            num_players (int or tuple): Number of players. Can be:
+                - int: Fixed number of players (e.g., 2)
+                - tuple: Range of players (min, max) (e.g., (2, 4) for 2-4 players)
+                Game can start when number of connected instances is within this range.
+            session_id (str, optional): Session ID. Auto-generated if None.
+            shared_seed (int, optional): Shared seed. Auto-generated and synced if None.
+            broker_host (str): MQTT broker host (default: "localhost")
+            broker_port (int): MQTT broker port (default: 1883)
+            mqtt_update_type (str): "Instantaneous" or "Phase" (default: "Instantaneous")
+            seed_sync_timeout (float, optional): Timeout in seconds to wait for existing seed 
+                before becoming leader (default: 1.0). Increase this value if you need more time 
+                to detect an existing seed from other instances.
+        
+        Returns:
+            SGDistributedGameConfig or None: Configuration object if distributed mode enabled,
+                                             None if cancelled or local mode.
+        """
+        # Create configuration
+        config = SGDistributedGameConfig()
+        config.set_num_players(num_players)
+        config.broker_host = broker_host
+        config.broker_port = broker_port
+        config.mqtt_update_type = mqtt_update_type
+        config.seed_sync_timeout = seed_sync_timeout
+        
+        # Generate session_id if not provided
+        if session_id is None:
+            config.generate_session_id()
+        else:
+            config.session_id = session_id
+        
+        # Store shared_seed if provided (will be synced later)
+        if shared_seed is not None:
+            config.shared_seed = shared_seed
+        
+        # Create session manager
+        session_manager = SGDistributedSessionManager(self, self.mqttManager)
+        
+        # Open minimal dialog for connection and seed sync (NO player selection)
+        from mainClasses.SGDistributedConnectionDialog import SGDistributedConnectionDialog
+        dialog = SGDistributedConnectionDialog(self, config, self, session_manager)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            # Seed is already synchronized and applied by the dialog
+            # Store references for later use in completeDistributedGameSetup()
+            self.distributedConfig = config
+            self.distributedSessionManager = session_manager
+            
+            return config
+        else:
+            # User cancelled
+            return None
+    
+    def completeDistributedGameSetup(self):
+        """
+        Complete distributed game setup by selecting assigned player and registering on MQTT.
+        This method should be called from initAfterOpening() after the main window is shown.
+        
+        Opens dialog for user to select assigned_player, registers player on MQTT,
+        and opens connection status widget.
+        
+        Returns:
+            bool: True if setup completed successfully, False if cancelled or not in distributed mode
+        """
+        if not self.isDistributed():
+            return False
+        
+        config = self.distributedConfig
+        session_manager = self.distributedSessionManager
+        
+        # Open dialog for user to select player
+        from mainClasses.SGDistributedGameDialog import SGDistributedGameDialog
+        dialog = SGDistributedGameDialog(self, config, self, session_manager)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            # User confirmed - get selected player
+            assigned_player_name = dialog.getSelectedPlayerName()
+            
+            if not assigned_player_name:
+                return False
+            
+            config.assigned_player_name = assigned_player_name
+            
+            # Update visibility for all GameSpaces now that assigned_player_name is set
+            # This ensures that GameSpaces configured with setVisibilityForPlayers()
+            # before assigned_player_name was set will now have correct visibility
+            for gameSpace in self.gameSpaces.values():
+                if hasattr(gameSpace, '_updateVisibility'):
+                    gameSpace._updateVisibility()
+            
+            # Register player on MQTT
+            session_manager.registerPlayer(
+                config.session_id,
+                assigned_player_name,
+                config.num_players_min,
+                config.num_players_max
+            )
+            
+            # Open connection status widget
+            from mainClasses.SGConnectionStatusWidget import SGConnectionStatusWidget
+            connection_widget = SGConnectionStatusWidget(
+                None,  # Separate window
+                self,
+                config,
+                session_manager
+            )
+            connection_widget.show()
+            
+            # Store reference
+            self.connectionStatusWidget = connection_widget
+            
+            return True
+        else:
+            # User cancelled
+            return False
 
 # ============================================================================
 # NEW GAME SPACES (apart from grids)
@@ -2775,6 +2975,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # ============================================================================
     def __MODELER_METHODS__GET__(self):
         pass
+
+    def isDistributed(self):
+        """
+        Check if distributed game mode is enabled.
+        
+        Returns:
+            bool: True if distributed mode is enabled, False otherwise
+        """
+        return hasattr(self, 'distributedConfig') and self.distributedConfig is not None
 
     def roundNumber(self):
         """Return the current ingame round number"""

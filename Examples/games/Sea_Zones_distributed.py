@@ -15,6 +15,17 @@ myModel = SGModel(1200, 900, windowTitle="Sea Zones")
 myModel.displayTimeInWindowTitle()
 
 # ============================================================================
+# Distributed Game Configuration - MUST BE CALLED BEFORE ANY RANDOM OPERATIONS
+# ============================================================================
+# Enable distributed multiplayer game mode
+# This will:
+# 1. Open dialog to connect to MQTT broker and synchronize seed
+# 2. Seed is synchronized and applied immediately after this call
+# 3. Player selection happens later when the game window opens
+myModel.enableDistributedGame(num_players=2)
+# The seed is synchronized and applied automatically by enableDistributedGame()
+
+# ============================================================================
 # Paths configuration
 # ============================================================================
 csv_path = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zones" / "tiles.csv"
@@ -62,6 +73,7 @@ SeaTile.setTooltip('name','tile_name')
 # ============================================================================
 # Create deck stack from CSV using newStackOnCellFromCSV
 # This method handles image loading, attribute assignment, and quantity automatically
+# shuffle=True will now use the synchronized seed
 deck_stack = SeaTile.newStackOnCellFromCSV(
     deck_cell,
     csv_file={'path': csv_path, 'delimiter': ';'},
@@ -79,7 +91,7 @@ deck_stack = SeaTile.newStackOnCellFromCSV(
         'nb': 'quantity'
         },
     image_dir=images_dir,
-    shuffle=True
+    shuffle=True  # Uses synchronized seed
 )
 
 # ============================================================================
@@ -252,11 +264,23 @@ for i in range(1, nb_players + 1):
     player_board.grid.setOwners(player)
     
     # Distribute 3 tiles to each player from deck_stack
+    # This uses the synchronized seed (already applied by enableDistributedGame())
     for j in range(1, 4):  # 3 tiles per player
         if not deck_stack.isEmpty():
             tile = deck_stack.topTile()
             tile.moveTo(player_board.getCell(j, 1))
             tile.flip()  # Show front face
+
+# ============================================================================
+# Configure player board visibility (for distributed mode)
+# ============================================================================
+# Player selection happens automatically in initAfterOpening() when window opens
+# Visibility is configured automatically when player is selected
+if myModel.isDistributed():
+    for i in range(1, nb_players + 1):
+        player_board = PlayerBoards[i]
+        player = Players[i]
+        player_board.grid.setVisibilityForPlayers(player.name)
 
 
 # ============================================================================

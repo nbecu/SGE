@@ -20,6 +20,9 @@ class SGMQTTManager:
     - Next turn coordination
     """
     
+    # Centralized list of game topics (base names without prefixes)
+    GAME_TOPICS = ['gameAction_performed', 'nextTurn', 'execute_method']
+    
     def __init__(self, model):
         """
         Initialize MQTT Manager
@@ -30,13 +33,48 @@ class SGMQTTManager:
         self.model = model
         self.client = None
         self.clientId = None
+        self.session_id = None  # Session ID for topic isolation (None = global topics for backward compatibility)
         self.q = None
         self.t1 = None
         self.majTimer = None
         self.haveToBeClose = False
         self.actionsFromBrokerToBeExecuted = []
+    
+    @classmethod
+    def getGameTopics(cls, session_id=None):
+        """
+        Get full game topic names with game_ prefix and optional session prefix.
         
-    def setMQTTProtocol(self, majType, broker_host="localhost", broker_port=1883):
+        Args:
+            session_id (str, optional): Session ID for topic isolation
+            
+        Returns:
+            list: List of full topic names (e.g., ['game_gameAction_performed', 'game_nextTurn', ...])
+        """
+        topics = []
+        for base_topic in cls.GAME_TOPICS:
+            full_topic = f"game_{base_topic}"
+            if session_id:
+                full_topic = f"{session_id}/{full_topic}"
+            topics.append(full_topic)
+        return topics
+    
+    @classmethod
+    def isGameTopic(cls, topic, session_id=None):
+        """
+        Check if a topic is a game topic.
+        
+        Args:
+            topic (str): Topic name to check
+            session_id (str, optional): Session ID for topic isolation
+            
+        Returns:
+            bool: True if topic is a game topic, False otherwise
+        """
+        game_topics = cls.getGameTopics(session_id)
+        return topic in game_topics
+        
+    def setMQTTProtocol(self, majType, broker_host="localhost", broker_port=1883, session_id=None):
         """
         Set the MQTT protocol configuration
 
@@ -44,8 +82,11 @@ class SGMQTTManager:
             majType (str): "Phase" or "Instantaneous"
             broker_host (str): MQTT broker host (default: "localhost")
             broker_port (int): MQTT broker port (default: 1883)
+            session_id (str, optional): Session ID for topic isolation. 
+                                       If None, uses global topics (backward compatibility)
         """
         self.clientId = uuid.uuid4().hex
+        self.session_id = session_id  # Store session_id for topic prefixing
         self.majTimer = QTimer(self.model)
         self.majTimer.timeout.connect(self.onMAJTimer)
         self.majTimer.start(100)
@@ -61,25 +102,33 @@ class SGMQTTManager:
             print("message received " + msg.topic)
             message = self.q.get()
             msg_decoded = message.decode("utf-8")
-            if msg.topic in ['gameAction_performed','nextTurn','execute_method']:
+            
+            # Check if this is a game topic using centralized method
+            if self.isGameTopic(msg.topic, self.session_id):
                 unserializedMsg= json.loads(msg_decoded)
                 if unserializedMsg['clientId']== self.clientId:
                     print("Own update, no action required.") 
                 else:
-                    if msg.topic == 'gameAction_performed':
+                    # Determine which game topic this is
+                    game_topics = self.getGameTopics(self.session_id)
+                    if msg.topic == game_topics[0]:  # game_gameAction_performed
                         self.processBrokerMsg_gameAction_performed(unserializedMsg)
-                    elif msg.topic == 'execute_method':
+                    elif msg.topic == game_topics[2]:  # game_execute_method
                         self.processBrokerMsg_executeMethod(unserializedMsg)
-                    elif msg.topic == 'nextTurn':
+                    elif msg.topic == game_topics[1]:  # game_nextTurn
                         self.processBrokerMsg_nextTrun(unserializedMsg)
                 return
-            msg_list = eval(msg_decoded)   
+            # Not a game topic - ignore silently (could be session topic or other message type)
+            # Session topics are handled by SGDistributedSessionManager
+            # Other unknown topics are ignored   
 
         self.connect_mqtt()
 
-        self.client.subscribe("gameAction_performed")
-        self.client.subscribe("nextTurn")
-        self.client.subscribe("execute_method")
+        # Subscribe to game topics using centralized method
+        game_topics = self.getGameTopics(self.session_id)
+        for topic in game_topics:
+            self.client.subscribe(topic)
+        
         self.client.on_message = on_message
 
     def connect_mqtt(self):
@@ -118,7 +167,10 @@ class SGMQTTManager:
         
     def buildNextTurnMsgAndPublishToBroker(self):
         """Build and publish next turn message to MQTT broker"""
-        msgTopic = 'nextTurn'
+        # Get game topics and use the nextTurn topic (index 1)
+        game_topics = self.getGameTopics(self.session_id)
+        msgTopic = game_topics[1]  # game_nextTurn (with or without session prefix)
+        
         msg_dict={}
         msg_dict['clientId']=self.clientId
         #eventually, one can add some more info about this nextTurn action
@@ -137,7 +189,14 @@ class SGMQTTManager:
         if not self.client: 
             raise ValueError('Why does this case happens?')
         
-        msgTopic = args[0] # The first arg is the topic of the msg
+        baseTopic = args[0] # The first arg is the base topic of the msg (should be without game_ prefix)
+        # Add game_ prefix and session prefix if needed
+        full_topic = f"game_{baseTopic}"
+        if self.session_id:
+            msgTopic = f"{self.session_id}/{full_topic}"
+        else:
+            msgTopic = full_topic
+        
         objectAndMethodToExe = args[1] #Second arg is a dict that identifies the object and method to be executed. The dict has three keys: 'class_name', 'id', 'method' (method name called by the object )
         argsToSerialize= args[2:] # The third to the last arg, correspond to all the arguments for the method
 

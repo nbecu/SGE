@@ -61,6 +61,9 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
         self._positionType = "layoutOrder"  # State: "absolute", "mixed", or "layoutOrder"
         self._enhanced_grid_tooltip_enabled = False  # Flag for layoutOrder tooltip display
         
+        # Distributed game visibility system
+        self.isVisibleForPlayers = 'all'  # str or list: 'all', 'none', or list of player names
+        
 
     @classmethod
     def nextId(cls):
@@ -662,6 +665,53 @@ class SGGameSpace(QtWidgets.QWidget,SGEventHandlerGuide):
 # ============================================================================
     def __MODELER_METHODS__SET__(self):
         pass
+
+    def setVisibilityForPlayers(self, players):
+        """
+        Set which players can see this GameSpace.
+        
+        Args:
+            players: Can be:
+                - 'all': Visible to all players (default)
+                - 'none': Not visible to any player
+                - str: Single player name (e.g., "Player 1", "Viticulteur")
+                - list: List of player names (e.g., ["Player 1", "Player 2"])
+        
+        Examples:
+            gameSpace.setVisibilityForPlayers('all')
+            gameSpace.setVisibilityForPlayers('none')
+            gameSpace.setVisibilityForPlayers('Player 1')
+            gameSpace.setVisibilityForPlayers(['Player 1', 'Player 2'])
+        """
+        self.isVisibleForPlayers = players
+        self._updateVisibility()
+    
+    def _updateVisibility(self):
+        """
+        Update GameSpace visibility based on isVisibleForPlayers and current distributed mode.
+        Called automatically when visibility is set or when distributed mode changes.
+        
+        Behavior:
+        - Local mode: Always visible
+        - Distributed mode: Visible only if assigned_player_name is in isVisibleForPlayers list
+        """
+        if not self.model.isDistributed():
+            self.setVisible(True)
+            return
+        
+        assigned_player_name = self.model.distributedConfig.assigned_player_name
+        
+        if self.isVisibleForPlayers == 'all':
+            self.setVisible(True)
+        elif self.isVisibleForPlayers == 'none':
+            self.setVisible(False)
+        elif isinstance(self.isVisibleForPlayers, list):
+            self.setVisible(assigned_player_name in self.isVisibleForPlayers)
+        elif isinstance(self.isVisibleForPlayers, str):
+            # Single player name
+            self.setVisible(assigned_player_name == self.isVisibleForPlayers)
+        else:
+            self.setVisible(True)  # Default to visible if invalid state
 
     # ============================================================================
     # NEW/ADD/SET METHODS
