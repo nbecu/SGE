@@ -23,7 +23,8 @@ images_dir = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zone
 # ============================================================================
 # Create game board (13x13 grid)
 # ============================================================================
-Board = myModel.newCellsOnGrid(9, 9, "square", size=70, gap=1, name="Board",neighborhood="neumann")
+Board = myModel.newCellsOnGrid(9, 9, "square", size=70, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
+Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 
 # ============================================================================
 # Create river (1 deck cell + 3 slots for drafting)
@@ -34,7 +35,7 @@ deck_cell = River.getCell(1, 1)
 # ============================================================================
 # Create individual player boards (3 cells each, positioned under river)
 # ============================================================================
-nb_players = 2
+nb_players = 4
 PlayerBoards = {}
 for i in range(1, nb_players + 1):
     player_board = myModel.newCellsOnGrid(3, 1, "square", size=80, gap=10, name=f"Player{i}Board")
@@ -52,7 +53,7 @@ SeaTile = myModel.newTileType(
     defaultSize=80,
     positionOnCell="full",
     defaultFace="back",  # Tiles start face down (back visible)
-    backColor=QColor('blue'),  # Back face: blue
+    backImage=QPixmap(f"{images_dir}/dos_tuile.png"),
     stackRendering={"mode": "topOnly", "showCounter": True, "counterPosition": "center"}
 )
 SeaTile.setTooltip('name','tile_name')
@@ -95,8 +96,8 @@ port_tile.flip()  # Show port tile face up
 # ============================================================================
 ending_tile = SeaTile.getEntities_withValue("tile_name", "maree_basse")[0]
 # Position the ending tile at a random layer between 1 and 10
-# target_layer = random.randint(1, 10)
-target_layer = random.randint(49, 50)
+target_layer = random.randint(1, 10)
+# target_layer = random.randint(49, 50)
 deck_stack.setTileAtLayer(ending_tile, target_layer)
 
 # ============================================================================
@@ -113,8 +114,14 @@ deck_stack.refillAvailableSlots()
 # ============================================================================
 # Create marker agent
 # ============================================================================
-Marker = myModel.newAgentType("Marker", "circleAgent", defaultColor=Qt.black,locationInEntity="topRight")
-Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=20,defaultColor=Qt.black,locationInEntity="topRight")
+# Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
+Marker.newPov("default", "owner", {
+    "Player 1":QPixmap(f"{images_dir}/jeton_bleu.png"),
+    "Player 2": QPixmap(f"{images_dir}/jeton_rouge.png"),
+    "Player 3": QPixmap(f"{images_dir}/jeton_jaune.png"),
+    "Player 4": QPixmap(f"{images_dir}/jeton_vert.png")})
+
 Marker.displayPov("default")
 Board.setDefaultValue("owner", "")
 

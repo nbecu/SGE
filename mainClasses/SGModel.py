@@ -1398,8 +1398,8 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         aId = aIdentificationDict['id']
         return next((aInst for aInst in eval(className).instances if aInst.id == aId), None)
 
-    def generateCellsForGrid(self, grid, defaultCellImage, name):
-        CellType = SGCellType(grid, grid.cellShape, grid.size, entDefAttributesAndValues=None, defaultColor=Qt.white, name=name, defaultCellImage=defaultCellImage)
+    def generateCellsForGrid(self, grid, name, defaultCellColor, defaultCellImage):
+        CellType = SGCellType(grid, grid.cellShape, grid.size, entDefAttributesAndValues=None, name=name, defaultColor=defaultCellColor, defaultImage=defaultCellImage)
         self.cellTypes[grid.id] = CellType
         for row in range(1, grid.rows + 1):
             for col in range(1, grid.columns + 1):
@@ -1817,7 +1817,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # NEW/ADD METHODS
 # ============================================================================
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
         """
         Create a grid that contains cells.
         
@@ -1836,6 +1836,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             moveable (bool) : grid can be moved by clic and drage. Defaults to "True".
             name (st): name of the grid.
             backGroundImage (QPixmap, optional): Background image for the grid as a QPixmap. If None, no background image is applied.
+            defaultCellColor (Qt.Color, optional): Default color for each cell as a Qt.Color. If None, cells are displayed with background image.
             defaultCellImage (QPixmap, optional): Default image for each cell as a QPixmap. If None, cells are displayed with background colors.
             neighborhood ("moore","neumann"): Neighborhood type for cell os the grid. Defaults to "moore".
                 - "moore": Moore neighborhood (8 neighbors for square cells, 6 for hexagonal cells).
@@ -1862,7 +1863,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # Background image is already set in SGGrid.__init__ if provided
 
         # Create a CellDef and populate the grid with cells from the newly created CellDef
-        aCellDef = self.generateCellsForGrid(aGrid,defaultCellImage,name)
+        aCellDef = self.generateCellsForGrid(aGrid,name, defaultCellColor, defaultCellImage)
         aGrid.cellDef =aCellDef
 
         self.gameSpaces[name] = aGrid
