@@ -22,7 +22,8 @@ myModel.displayTimeInWindowTitle()
 # 1. Open dialog to connect to MQTT broker and synchronize seed
 # 2. Seed is synchronized and applied immediately after this call
 # 3. Player selection happens later when the game window opens
-myModel.enableDistributedGame(num_players=4)
+nb_players = 3
+myModel.enableDistributedGame(num_players=nb_players)
 # The seed is synchronized and applied automatically by enableDistributedGame()
 
 # ============================================================================
@@ -46,7 +47,7 @@ deck_cell = River.getCell(1, 1)
 # ============================================================================
 # Create individual player boards (3 cells each, positioned under river)
 # ============================================================================
-nb_players = 4
+
 PlayerBoards = {}
 for i in range(1, nb_players + 1):
     player_board = myModel.newCellsOnGrid(3, 1, "square", size=80, gap=10, name=f"Player{i}Board")

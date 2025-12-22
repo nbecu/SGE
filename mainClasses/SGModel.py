@@ -360,6 +360,44 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             broker_host (str): MQTT broker host (default: "localhost")
             broker_port (int): MQTT broker port (default: 1883)
             session_id (str, optional): Session ID for topic isolation. 
+                                        If None and distributedConfig exists, uses its session_id.
+        """
+        # Use session_id from distributedConfig if available
+        if session_id is None and self.isDistributed():
+            session_id = self.distributedConfig.session_id
+        
+        # Check if MQTT is already initialized (from enableDistributedGame dialog)
+        if (self.mqttManager.client and 
+            self.mqttManager.client.is_connected() and
+            self.mqttManager.session_id == session_id):
+            # Reuse existing connection - just update majType if needed
+            self.mqttMajType = majType
+        else:
+            # Initialize new connection
+            self.mqttManager.setMQTTProtocol(majType, broker_host, broker_port, session_id=session_id)
+        
+        # CRITICAL: Stop seed sync republishing once game starts
+        # At this point, all instances that need to connect have already connected
+        # Continuing to republish for 30min-2h is unnecessary and wastes resources
+        if self.isDistributed() and hasattr(self, 'distributedSessionManager') and self.distributedSessionManager:
+            self.distributedSessionManager.stopSeedSyncRepublishing()
+            print(f"[SessionManager] Stopped seed sync republishing (game is starting)")
+        
+        # Launch the game (don't call self.launch() to avoid recursion)
+        self.initBeforeShowing()
+        self.show()
+        self.initAfterOpening()
+        """
+        Set the mqtt protocol, then launch the game.
+        
+        IMPORTANT: In distributed mode, MQTT connection is already established in enableDistributedGame().
+        This method should reuse the existing connection if possible, or establish a new one if needed.
+        
+        Args:
+            majType (str): "Phase" or "Instantaneous"
+            broker_host (str): MQTT broker host (default: "localhost")
+            broker_port (int): MQTT broker port (default: 1883)
+            session_id (str, optional): Session ID for topic isolation. 
                                        If None and distributedConfig exists, uses its session_id.
         """
         # Use session_id from distributedConfig if available
@@ -375,6 +413,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         else:
             # Initialize new connection (only if not already connected)
             self.mqttManager.setMQTTProtocol(majType, broker_host, broker_port, session_id=session_id)
+        
+        # CRITICAL: Stop seed sync republishing once game starts
+        # At this point, all instances that need to connect have already connected
+        # Continuing to republish for 30min-2h is unnecessary and wastes resources
+        if self.isDistributed() and hasattr(self, 'distributedSessionManager') and self.distributedSessionManager:
+            self.distributedSessionManager.stopSeedSyncRepublishing()
+            print(f"[SessionManager] Stopped seed sync republishing (game is starting)")
         
         # Launch the game (don't call self.launch() to avoid recursion)
         self.initBeforeShowing()

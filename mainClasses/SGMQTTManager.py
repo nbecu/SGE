@@ -99,6 +99,10 @@ class SGMQTTManager:
     def initMQTT(self):
         """Init the MQTT client"""
         def on_message(aClient, userdata, msg):
+            # Diagnostic: log ALL messages received (especially registration messages)
+            if 'session_player_registration' in msg.topic:
+                print(f"[DIAGNOSTIC] Base MQTT handler received registration message: topic={msg.topic}, retain={msg.retain}, qos={msg.qos}")
+            
             self.q.put(msg.payload)
             print("message received " + msg.topic)
             message = self.q.get()

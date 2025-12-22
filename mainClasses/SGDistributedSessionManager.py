@@ -62,6 +62,11 @@ class SGDistributedSessionManager(QObject):
         self.session_discovery_handler = None  # Handler for discovery messages
         self._discovery_callback = None  # Callback for discovery updates
         self._pre_discovery_handler = None  # Handler before discovery was installed
+        
+        # Seed sync republishing timer (persists after dialog closes)
+        self.seed_sync_republish_timer = None  # QTimer for republishing seed sync messages
+        self.synced_seed_value = None  # Store synced seed value for republishing
+        self._seed_republish_session_id = None  # Session ID for republishing
     
     @classmethod
     def getSessionTopics(cls, session_id):
@@ -115,6 +120,15 @@ class SGDistributedSessionManager(QObject):
         Raises:
             ValueError: If player name is already registered in this session
         """
+        print(f"[DIAGNOSTIC] ====== registerPlayer() CALLED ======")
+        print(f"[DIAGNOSTIC] Instance: {self.mqtt_manager.clientId[:8] if self.mqtt_manager.clientId else 'N/A'}...")
+        print(f"[DIAGNOSTIC] Session: {session_id[:8]}...")
+        print(f"[DIAGNOSTIC] Player: {assigned_player_name}")
+        print(f"[DIAGNOSTIC] Current handler BEFORE registerPlayer: {self.mqtt_manager.client.on_message}")
+        print(f"[DIAGNOSTIC] Handler type: {type(self.mqtt_manager.client.on_message)}")
+        if hasattr(self.mqtt_manager.client.on_message, '__name__'):
+            print(f"[DIAGNOSTIC] Handler name: {self.mqtt_manager.client.on_message.__name__}")
+        
         if not self.mqtt_manager.client or not self.mqtt_manager.client.is_connected():
             raise ValueError("MQTT client must be connected before registering player")
         
@@ -136,22 +150,44 @@ class SGDistributedSessionManager(QObject):
         # Save original handler BEFORE installing our handler
         original_on_message = self.mqtt_manager.client.on_message
         
+        # Diagnostic: track retained messages received
+        retained_messages_received = []
+        
         def registration_message_handler(client, userdata, msg):
+            # Diagnostic: log ALL messages received by registration handler
+            if 'session_player_registration' in msg.topic or 'session_player_disconnect' in msg.topic:
+                print(f"[DIAGNOSTIC] Registration handler received message: topic={msg.topic}, retain={msg.retain}, qos={msg.qos}, payload_len={len(msg.payload)}")
+            
             # Process session_player_registration messages (with or without player name suffix)
             if msg.topic.startswith(registration_topic_base):
                 try:
                     msg_dict = json.loads(msg.payload.decode("utf-8"))
                     player_name = msg_dict.get('assigned_player_name')
                     client_id = msg_dict.get('clientId')
+                    is_retained = msg.retain
+                    
+                    # Diagnostic logging
+                    if is_retained:
+                        retained_messages_received.append((player_name, client_id))
+                        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... received RETAINED registration: player={player_name}, clientId={client_id[:8]}..., topic={msg.topic}")
+                    else:
+                        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... received NEW registration: player={player_name}, clientId={client_id[:8]}...")
                     
                     if player_name and client_id:
                         # Update connected players cache
+                        old_count = len(self.connected_players)
                         self.connected_players[player_name] = client_id
+                        new_count = len(self.connected_players)
+                        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... cache updated: {old_count} -> {new_count} players (added: {player_name})")
                         # Emit signal if not our own registration
                         if client_id != self.mqtt_manager.clientId:
                             self.playerConnected.emit(player_name)
+                    else:
+                        print(f"[DIAGNOSTIC] WARNING: Missing player_name or client_id in registration message: {msg_dict}")
                 except Exception as e:
                     print(f"Error processing player registration message: {e}")
+                    import traceback
+                    traceback.print_exc()
             # Process session_player_disconnect messages
             elif msg.topic.startswith(disconnect_topic_base):
                 try:
@@ -175,10 +211,16 @@ class SGDistributedSessionManager(QObject):
             # Ignore other session topics (like session_seed_sync) - they have their own handlers
         
         # Install handler BEFORE subscribing (to receive retained messages)
+        print(f"[DIAGNOSTIC] Installing registration handler, replacing: {original_on_message}")
+        print(f"[DIAGNOSTIC] Handler will forward game topics to: {original_on_message}")
         self.mqtt_manager.client.on_message = registration_message_handler
         self._original_on_message = original_on_message
+        print(f"[DIAGNOSTIC] Handler installed successfully")
         
         # Subscribe to wildcard topics to receive all player registrations and disconnections
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... subscribing to registration topics BEFORE registration")
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... current cache BEFORE subscription: {list(self.connected_players.keys())}")
+        
         self.mqtt_manager.client.subscribe(registration_topic_wildcard)
         self.mqtt_manager.client.subscribe(disconnect_topic_wildcard)
         
@@ -186,7 +228,12 @@ class SGDistributedSessionManager(QObject):
         self.disconnect_topic_own = disconnect_topic_own
         
         # Wait a moment for retained messages to be processed
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... waiting 0.3s for retained messages...")
         time.sleep(0.3)
+        
+        # Diagnostic: check what was received
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... after wait, received {len(retained_messages_received)} retained messages")
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... current cache AFTER wait: {list(self.connected_players.keys())}")
         
         # Publish registration message with retain=True on player-specific topic
         registration_msg = {
@@ -199,10 +246,16 @@ class SGDistributedSessionManager(QObject):
         
         serialized_msg = json.dumps(registration_msg)
         # Use retain=True and qos=1 on player-specific topic so each player's registration is retained separately
-        self.mqtt_manager.client.publish(registration_topic_own, serialized_msg, qos=1, retain=True)
+        print(f"[DIAGNOSTIC] Publishing registration message: topic={registration_topic_own}, player={assigned_player_name}, clientId={self.mqtt_manager.clientId[:8]}..., retain=True, qos=1")
+        result = self.mqtt_manager.client.publish(registration_topic_own, serialized_msg, qos=1, retain=True)
+        print(f"[DIAGNOSTIC] Publish result: mid={result.mid}, rc={result.rc}")
         
         # Add self to connected players cache
         self.connected_players[assigned_player_name] = self.mqtt_manager.clientId
+        
+        # Final diagnostic
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... FINAL cache after own registration: {list(self.connected_players.keys())}")
+        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... Total players in cache: {len(self.connected_players)}")
         
         return True
     
@@ -250,11 +303,17 @@ class SGDistributedSessionManager(QObject):
                     
                     # Call callback if provided (for tracking connected instances)
                     # This captures ALL clientIds seen, not just the first one
+                    # CRITICAL: Call callback for ALL messages (retained and new) to ensure all instances are tracked
                     if client_id_callback and client_id:
                         try:
+                            retained_str = "RETAINED" if msg.retain else "NEW"
+                            print(f"[DIAGNOSTIC] syncSeed handler: Calling callback for client_id={client_id[:8]}..., message_type={retained_str}")
                             client_id_callback(client_id)
-                        except Exception:
-                            pass  # Ignore callback errors
+                            print(f"[DIAGNOSTIC] syncSeed handler: Callback completed successfully for client_id={client_id[:8]}...")
+                        except Exception as e:
+                            print(f"[DIAGNOSTIC] syncSeed handler: Callback error: {e}")
+                            import traceback
+                            traceback.print_exc()
                     
                     # If this is not our own message, use this seed
                     if client_id != self.mqtt_manager.clientId:
@@ -276,6 +335,9 @@ class SGDistributedSessionManager(QObject):
                         serialized_msg = json.dumps(seed_msg)
                         self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
                         print(f"[SessionManager] Published own seed message (adopted seed) to {seed_topic}")
+                        
+                        # CRITICAL: Store seed value (republishing will be started at end of syncSeed)
+                        self.synced_seed_value = seed_value
                         # CRITICAL: Return immediately after setting seed_received
                         # This prevents the code from continuing to check if not self.seed_received
                         return
@@ -299,7 +361,8 @@ class SGDistributedSessionManager(QObject):
         # CRITICAL: Wait a moment for retained messages to be processed by MQTT client thread
         # This ensures we capture retained messages before checking seed_received
         # The handler will set self.seed_received = True if a retained message is received
-        time.sleep(0.3)
+        # Increased delay to ensure all retained messages are received (especially important for 3+ instances)
+        time.sleep(0.5)
         
         # If shared_seed is provided, use it directly
         if shared_seed is not None:
@@ -323,6 +386,9 @@ class SGDistributedSessionManager(QObject):
             serialized_msg = json.dumps(seed_msg)
             self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
             print(f"[SessionManager] Published seed message to {seed_topic}")
+            
+            # CRITICAL: Store seed value (republishing will be started at end of syncSeed)
+            self.synced_seed_value = shared_seed
         else:
             # Wait for retained seed message (if leader already exists)
             # Use configurable initial_wait (default 1.0 second)
@@ -361,6 +427,10 @@ class SGDistributedSessionManager(QObject):
                 serialized_msg = json.dumps(seed_msg)
                 self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
                 print(f"[SessionManager] Published seed message to {seed_topic}")
+                
+                # CRITICAL: Store seed value and start republishing timer
+                self.synced_seed_value = self.synced_seed
+                self._startSeedSyncRepublishing(session_id, self.synced_seed)
             else:
                 # Continue waiting up to timeout if seed was received but not processed yet
                 while time.time() - start_time < timeout:
@@ -375,16 +445,28 @@ class SGDistributedSessionManager(QObject):
         
         # Wait a bit more after seed sync to capture all retained messages
         # This ensures we see all instances that have published their seed
+        # CRITICAL: Increased wait time to ensure all retained messages are received
+        # This is especially important when multiple instances are already connected
         if seed_received_time:
-            # Wait up to 0.5 seconds after receiving seed to capture other retained messages
-            while time.time() - seed_received_time < 0.5:
+            # Wait up to 1.0 second after receiving seed to capture other retained messages
+            # This gives more time for all retained messages to be delivered
+            while time.time() - seed_received_time < 1.0:
                 time.sleep(0.1)
         else:
-            # If we're the leader, wait a bit to capture any retained messages from other instances
-            time.sleep(0.3)
+            # If we're the leader, wait longer to capture any retained messages from other instances
+            # Increased from 0.3s to 0.8s to ensure all retained messages are received
+            time.sleep(0.8)
         
         # CRITICAL: Restore original handler before returning
         self.mqtt_manager.client.on_message = original_on_message
+        
+        # CRITICAL: Start republishing seed sync messages periodically
+        # This ensures instances that connect later can detect us even after dialog closes
+        # The timer persists after dialog closes, unlike the dialog's timer
+        if self.synced_seed_value is None:
+            self.synced_seed_value = self.synced_seed
+        if self.synced_seed_value is not None:
+            self._startSeedSyncRepublishing(session_id, self.synced_seed_value)
         
         return self.synced_seed
     
@@ -440,6 +522,57 @@ class SGDistributedSessionManager(QObject):
         self.session_heartbeat_timer = QTimer()
         self.session_heartbeat_timer.timeout.connect(heartbeat)
         self.session_heartbeat_timer.start(5000)  # Heartbeat every 5 seconds
+    
+    def _startSeedSyncRepublishing(self, session_id, seed_value):
+        """Start republishing seed sync messages periodically
+        
+        This ensures instances that connect later can detect us even after dialog closes.
+        The timer persists after dialog closes, unlike the dialog's timer.
+        
+        Args:
+            session_id (str): Session ID
+            seed_value (int): Synchronized seed value to republish
+        """
+        # Stop existing timer if any
+        if self.seed_sync_republish_timer:
+            self.seed_sync_republish_timer.stop()
+        
+        # Store values for republishing
+        self.synced_seed_value = seed_value
+        self._seed_republish_session_id = session_id
+        
+        # Create timer that republishes seed sync message periodically
+        def republish_seed_sync():
+            if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+                return
+            
+            if not self._seed_republish_session_id:
+                return
+            
+            session_topics = self.getSessionTopics(self._seed_republish_session_id)
+            seed_topic = session_topics[1]  # session_seed_sync
+            
+            seed_msg = {
+                'clientId': self.mqtt_manager.clientId,
+                'seed': self.synced_seed_value,
+                'is_leader': self.is_leader,
+                'timestamp': datetime.now().isoformat()
+            }
+            serialized_msg = json.dumps(seed_msg)
+            self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
+            print(f"[SessionManager] Republished seed sync message for instance {self.mqtt_manager.clientId[:8]}...")
+        
+        self.seed_sync_republish_timer = QTimer(self.model)
+        self.seed_sync_republish_timer.timeout.connect(republish_seed_sync)
+        self.seed_sync_republish_timer.start(3000)  # Republish every 3 seconds
+        print(f"[SessionManager] Started seed sync republishing timer (persists after dialog closes)")
+    
+    def stopSeedSyncRepublishing(self):
+        """Stop republishing seed sync messages"""
+        if self.seed_sync_republish_timer:
+            self.seed_sync_republish_timer.stop()
+            self.seed_sync_republish_timer = None
+            print(f"[SessionManager] Stopped seed sync republishing timer")
     
     def stopSessionHeartbeat(self):
         """Stop the session heartbeat timer"""
@@ -641,6 +774,9 @@ class SGDistributedSessionManager(QObject):
     
     def disconnect(self):
         """Disconnect from session (stop timer, clear cache, publish disconnect message)"""
+        # Stop seed sync republishing
+        self.stopSeedSyncRepublishing()
+        
         # Publish disconnect message before clearing cache
         if hasattr(self, 'disconnect_topic_own') and self.disconnect_topic_own:
             # Get assigned player name from connected_players (find our own entry)
