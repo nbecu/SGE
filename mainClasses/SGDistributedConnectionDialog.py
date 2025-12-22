@@ -360,15 +360,10 @@ class SGDistributedConnectionDialog(QDialog):
             self.available_sessions = sessions_dict
             
             # Subscribe to player registration topics for all discovered sessions to get player counts
+            # This will receive retained messages for already-registered players
             self._subscribeToSessionPlayerRegistrations()
             
-            # Only update list if no session is currently selected
-            if not self._selected_session_id:
-                self._updateSessionsList()
-            else:
-                # Session is selected - preserve selection but update internal dict
-                # The list will be updated when user clicks Connect or deselects
-                pass
+            # List will be updated by _subscribeToSessionPlayerRegistrations after receiving retained messages
         
         # Start discovery
         print(f"[Dialog] Starting session discovery...")
@@ -400,14 +395,11 @@ class SGDistributedConnectionDialog(QDialog):
                             old_count = len(self.session_players_cache[session_id])
                             self.session_players_cache[session_id].add(player_name)
                             new_count = len(self.session_players_cache[session_id])
-                            print(f"[Dialog] Tracked player registration: {player_name} for session {session_id[:8]}... (total: {new_count})")
                             # Update list if count changed and no session is selected
                             if new_count != old_count and not self._selected_session_id:
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking player registration: {e}")
-                        import traceback
-                        traceback.print_exc()
                     # Don't forward - this is just for tracking
                     return
             
@@ -421,22 +413,16 @@ class SGDistributedConnectionDialog(QDialog):
         self.model.mqttManager.client.on_message = player_registration_tracker
         
         # Subscribe to player registration topics for all discovered sessions
-        # Handler is already installed, so retained messages will be received
         for session_id in self.available_sessions.keys():
             registration_topic_wildcard = f"{session_id}/session_player_registration/+"
             self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
-            print(f"[Dialog] Subscribed to player registrations for session: {session_id}")
         
-        # Wait a moment for retained messages to be received and processed
+        # Wait for retained messages to be received, then update list
         import time
-        time.sleep(0.5)  # Increased delay to ensure retained messages are received
+        time.sleep(0.3)
         
-        # Debug: print current cache state
-        print(f"[Dialog] Player registration cache after subscription: {[(sid[:8], len(players)) for sid, players in self.session_players_cache.items()]}")
-        
-        # Update list after receiving retained messages to show correct player counts
         if not self._selected_session_id:
-            QTimer.singleShot(300, self._updateSessionsList)  # Update after a delay to ensure retained messages processed
+            QTimer.singleShot(300, self._updateSessionsList)
     
     def _refreshAvailableSessions(self, force=False):
         """
