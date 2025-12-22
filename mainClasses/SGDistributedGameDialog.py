@@ -36,7 +36,7 @@ class SGDistributedGameDialog(QDialog):
         
         self.setWindowTitle("Select Your Player")
         self.setModal(True)
-        self.resize(500, 400)
+        self.resize(400, 300)
         
         self._buildUI()
         self._setupTimers()
@@ -61,12 +61,14 @@ class SGDistributedGameDialog(QDialog):
             # But handle gracefully by enabling OK button anyway (connection will be checked in accept())
             self.connection_status = "Warning: Connection not detected"
             self.status_label.setText(f"Connection Status: {self.connection_status}")
-            self.status_label.setStyleSheet("padding: 5px; background-color: #fff8dc; border-radius: 3px;")
+            # Keep discrete style even for warning
             self.ok_button.setEnabled(True)  # Allow user to proceed, validation happens in accept()
     
     def _buildUI(self):
         """Build the user interface"""
         layout = QVBoxLayout()
+        layout.setSpacing(10)
+        layout.setContentsMargins(15, 15, 15, 15)
         
         # Title
         title_label = QLabel("Select Your Player")
@@ -76,29 +78,37 @@ class SGDistributedGameDialog(QDialog):
         title_label.setFont(title_font)
         layout.addWidget(title_label)
         
-        # Session ID Display (read-only, discrete)
+        # Info section (compact, in correct order)
+        info_layout = QVBoxLayout()
+        info_layout.setSpacing(5)
+        
+        # 1. Connection Status (discrete)
+        self.status_label = QLabel(f"Connection Status: {self.connection_status}")
+        self.status_label.setStyleSheet("color: #888; font-size: 9px; padding: 2px;")
+        info_layout.addWidget(self.status_label)
+        
+        # 2. Session ID Display (read-only, discrete)
         self.session_id_display = QLabel(f"Session: {self.config.session_id or 'Not set'}")
         self.session_id_display.setStyleSheet("color: #888; font-size: 9px; padding: 2px;")
         self.session_id_display.setWordWrap(True)
-        layout.addWidget(self.session_id_display)
+        info_layout.addWidget(self.session_id_display)
         
-        # Number of Players Display
+        # 3. Number of Players Display (not discrete)
         num_players_label = QLabel()
         if isinstance(self.config.num_players, int):
             num_players_text = f"Number of players: {self.config.num_players}"
         else:
             num_players_text = f"Number of players: {self.config.num_players_min}-{self.config.num_players_max}"
         num_players_label.setText(num_players_text)
-        layout.addWidget(num_players_label)
+        num_players_label.setStyleSheet("font-size: 11px; color: #333; padding: 3px;")
+        info_layout.addWidget(num_players_label)
         
-        # Connection Status
-        self.status_label = QLabel(f"Connection Status: {self.connection_status}")
-        self.status_label.setStyleSheet("padding: 5px; background-color: #f0f0f0; border-radius: 3px;")
-        layout.addWidget(self.status_label)
+        layout.addLayout(info_layout)
         
         # Player Selection Section
         player_group = QGroupBox("Select Your Player")
         player_layout = QVBoxLayout()
+        player_layout.setSpacing(5)
         
         # Get player names from model (exclude "Admin")
         self.player_names = [name for name in self.model.players.keys() if name != "Admin"]
@@ -120,8 +130,12 @@ class SGDistributedGameDialog(QDialog):
         player_group.setLayout(player_layout)
         layout.addWidget(player_group)
         
+        # Add stretch to push buttons to bottom
+        layout.addStretch()
+        
         # Buttons
         button_layout = QHBoxLayout()
+        button_layout.addStretch()
         
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.reject)

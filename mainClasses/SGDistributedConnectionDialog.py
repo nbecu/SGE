@@ -18,7 +18,7 @@ class SGDistributedConnectionDialog(QDialog):
     """
     
     # Dialog states
-    STATE_CONFIGURATION = "configuration"
+    STATE_SETUP = "setup"
     STATE_CONNECTING = "connecting"
     STATE_WAITING = "waiting"
     STATE_READY = "ready"
@@ -41,10 +41,11 @@ class SGDistributedConnectionDialog(QDialog):
         self.seed_synced = False
         self.synced_seed_value = None
         self.connected_instances = set()  # Set of clientIds connected to this session
-        self.current_state = self.STATE_CONFIGURATION
+        self.current_state = self.STATE_SETUP
         self.auto_start_countdown = None  # Countdown timer for auto-start (3, 2, 1...)
         self.auto_start_timer = None  # QTimer for countdown
         self.available_sessions = {}  # Dict of available sessions: {session_id: session_info}
+        self.session_players_cache = {}  # Cache of registered players per session: {session_id: set of player_names}
         self.session_discovery_handler = None  # Handler for session discovery
         self._should_start_discovery_on_connect = False  # Flag to start discovery automatically after connection
         self._connection_in_progress = False  # Flag to prevent multiple simultaneous connection attempts
@@ -99,14 +100,33 @@ class SGDistributedConnectionDialog(QDialog):
         self.info_label.setStyleSheet("color: #666; padding: 5px;")
         layout.addWidget(self.info_label)
         
-        # MQTT Broker Info
-        broker_info_label = QLabel(f"MQTT Broker: {self.config.broker_host}:{self.config.broker_port}")
-        broker_info_label.setStyleSheet("color: #333; padding: 3px; font-weight: bold;")
-        layout.addWidget(broker_info_label)
-        
         # Available Sessions List (for join mode)
-        self.sessions_group = QGroupBox("Available Sessions")
+        self.sessions_group = QGroupBox()  # No title, we'll create custom title
         sessions_layout = QVBoxLayout()
+        
+        # Custom title row with label and refresh button
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 5)  # Small margin at bottom
+        
+        # Title label (styled like QGroupBox title)
+        title_label = QLabel("Available Sessions")
+        title_font = QFont()
+        title_font.setBold(True)
+        title_label.setFont(title_font)
+        title_row.addWidget(title_label)
+        title_row.addStretch()
+        
+        # Refresh button (discrete, icon only, placed on the right of title)
+        self.refresh_sessions_btn = QPushButton()
+        self.refresh_sessions_btn.setText("🔄")  # Refresh icon
+        self.refresh_sessions_btn.setToolTip("Refresh sessions list")
+        self.refresh_sessions_btn.setMaximumWidth(30)  # Same size as Copy button
+        self.refresh_sessions_btn.setMaximumHeight(24)
+        self.refresh_sessions_btn.setStyleSheet("color: #888; font-size: 12px; border: none; background: transparent; padding: 2px;")
+        self.refresh_sessions_btn.clicked.connect(lambda: self._refreshAvailableSessions(force=True))
+        title_row.addWidget(self.refresh_sessions_btn)
+        
+        sessions_layout.addLayout(title_row)
         
         self.sessions_list = QListWidget()
         self.sessions_list.setStyleSheet("QListWidget { border: 1px solid #ccc; border-radius: 3px; max-height: 150px; }")
@@ -114,11 +134,6 @@ class SGDistributedConnectionDialog(QDialog):
         self.sessions_list.itemClicked.connect(self._onSessionClicked)
         self.sessions_list.itemDoubleClicked.connect(self._onSessionDoubleClicked)
         sessions_layout.addWidget(self.sessions_list)
-        
-        refresh_sessions_btn = QPushButton("Refresh")
-        # Force refresh even if a session is selected (manual refresh button)
-        refresh_sessions_btn.clicked.connect(lambda: self._refreshAvailableSessions(force=True))
-        sessions_layout.addWidget(refresh_sessions_btn)
         
         self.sessions_group.setLayout(sessions_layout)
         self.sessions_group.hide()  # Hidden by default (shown in join mode)
@@ -132,10 +147,16 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_id_edit = QLineEdit()
         self.session_id_edit.setText(self.config.session_id or "")
         self.session_id_edit.setPlaceholderText("Enter or generate session ID")
-        session_input_layout.addWidget(QLabel("Session ID:"))
         session_input_layout.addWidget(self.session_id_edit)
         
-        self.copy_session_btn = QPushButton("Copy")
+        self.copy_session_btn = QPushButton()
+        # Use Unicode clipboard symbol as icon
+        self.copy_session_btn.setText("📋")  # Clipboard emoji
+        self.copy_session_btn.setToolTip("Copy Session ID to clipboard")
+        # Reduce button size by 60% (keep 40% of default size)
+        # Default button width is typically ~75px, so 40% = ~30px
+        self.copy_session_btn.setMaximumWidth(30)
+        self.copy_session_btn.setMaximumHeight(24)  # Keep reasonable height
         self.copy_session_btn.clicked.connect(self._copySessionId)
         session_input_layout.addWidget(self.copy_session_btn)
         
@@ -154,9 +175,19 @@ class SGDistributedConnectionDialog(QDialog):
         layout.addWidget(num_players_label)
         
         # Connection Status
+        connection_status_group = QVBoxLayout()
+        connection_status_group.setSpacing(2)
+        
         self.status_label = QLabel(f"Connection Status: {self.connection_status}")
         self.status_label.setStyleSheet("padding: 5px; background-color: #f0f0f0; border-radius: 3px;")
-        layout.addWidget(self.status_label)
+        connection_status_group.addWidget(self.status_label)
+        
+        # MQTT Broker Info (discrete, integrated in Connection Status section)
+        self.broker_info_label = QLabel(f"MQTT Broker: {self.config.broker_host}:{self.config.broker_port}")
+        self.broker_info_label.setStyleSheet("color: #888; font-size: 9px; padding: 2px 5px;")
+        connection_status_group.addWidget(self.broker_info_label)
+        
+        layout.addLayout(connection_status_group)
         
         # Seed Sync Status (simplified - no seed value shown)
         self.seed_status_label = QLabel("Seed Status: Not synchronized")
@@ -261,6 +292,9 @@ class SGDistributedConnectionDialog(QDialog):
             # Enable Connect button in create mode
             self.connect_button.setEnabled(True)
             self.connect_button.show()
+            
+            # Adjust window size after hiding/showing elements
+            self.adjustSize()
         else:
             # Join existing session mode
             self.sessions_group.show()
@@ -310,6 +344,9 @@ class SGDistributedConnectionDialog(QDialog):
                     self._connectToBroker()
             
             self.info_label.setText("Select a session from the list below, then click 'Connect' to join it.")
+            
+            # Adjust window size after showing sessions list
+            self.adjustSize()
     
     def _startSessionDiscovery(self):
         """Start session discovery"""
@@ -319,9 +356,13 @@ class SGDistributedConnectionDialog(QDialog):
         
         def onSessionsDiscovered(sessions_dict):
             """Callback when sessions are discovered"""
+            # sessions_dict already contains only active sessions (expired ones filtered in SessionManager)
             self.available_sessions = sessions_dict
+            
+            # Subscribe to player registration topics for all discovered sessions to get player counts
+            self._subscribeToSessionPlayerRegistrations()
+            
             # Only update list if no session is currently selected
-            # This prevents disrupting user's selection
             if not self._selected_session_id:
                 self._updateSessionsList()
             else:
@@ -332,6 +373,70 @@ class SGDistributedConnectionDialog(QDialog):
         # Start discovery
         print(f"[Dialog] Starting session discovery...")
         self.session_manager.discoverSessions(callback=onSessionsDiscovered)
+    
+    def _subscribeToSessionPlayerRegistrations(self):
+        """Subscribe to player registration topics for all discovered sessions to track player counts"""
+        if not (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected()):
+            return
+        
+        # Get current handler (might be seed tracking wrapper or discovery handler)
+        current_handler = self.model.mqttManager.client.on_message
+        
+        # Create wrapper to track player registrations for discovered sessions
+        def player_registration_tracker(client, userdata, msg):
+            # Check if this is a player registration message for a discovered session
+            for session_id in self.available_sessions.keys():
+                registration_topic_base = f"{session_id}/session_player_registration"
+                if msg.topic.startswith(registration_topic_base + "/"):
+                    try:
+                        import json
+                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        player_name = msg_dict.get('assigned_player_name')
+                        if player_name:
+                            # Initialize cache for this session if needed
+                            if session_id not in self.session_players_cache:
+                                self.session_players_cache[session_id] = set()
+                            old_count = len(self.session_players_cache[session_id])
+                            self.session_players_cache[session_id].add(player_name)
+                            new_count = len(self.session_players_cache[session_id])
+                            print(f"[Dialog] Tracked player registration: {player_name} for session {session_id[:8]}... (total: {new_count})")
+                            # Update list if count changed and no session is selected
+                            if new_count != old_count and not self._selected_session_id:
+                                QTimer.singleShot(100, self._updateSessionsList)
+                    except Exception as e:
+                        print(f"[Dialog] Error tracking player registration: {e}")
+                        import traceback
+                        traceback.print_exc()
+                    # Don't forward - this is just for tracking
+                    return
+            
+            # Forward other messages to current handler (seed tracking, discovery, game messages)
+            if current_handler:
+                current_handler(client, userdata, msg)
+        
+        # Install wrapper BEFORE subscribing (critical for receiving retained messages)
+        # Store reference to avoid garbage collection
+        self._player_registration_tracker = player_registration_tracker
+        self.model.mqttManager.client.on_message = player_registration_tracker
+        
+        # Subscribe to player registration topics for all discovered sessions
+        # Handler is already installed, so retained messages will be received
+        for session_id in self.available_sessions.keys():
+            registration_topic_wildcard = f"{session_id}/session_player_registration/+"
+            self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+            print(f"[Dialog] Subscribed to player registrations for session: {session_id}")
+        
+        # Wait a moment for retained messages to be received and processed
+        import time
+        time.sleep(0.5)  # Increased delay to ensure retained messages are received
+        
+        # Debug: print current cache state
+        print(f"[Dialog] Player registration cache after subscription: {[(sid[:8], len(players)) for sid, players in self.session_players_cache.items()]}")
+        
+        # Update list after receiving retained messages to show correct player counts
+        if not self._selected_session_id:
+            QTimer.singleShot(300, self._updateSessionsList)  # Update after a delay to ensure retained messages processed
     
     def _refreshAvailableSessions(self, force=False):
         """
@@ -356,6 +461,8 @@ class SGDistributedConnectionDialog(QDialog):
             # Update the list if no session is selected OR if force is True
             # When force=True, we still preserve the selection after updating
             if not self._selected_session_id or force:
+                # Refresh player registrations subscriptions for updated sessions
+                self._subscribeToSessionPlayerRegistrations()
                 # Just update the list with current discovered sessions
                 self._updateSessionsList()
             # If a session is selected and force=False, skip update to preserve selection
@@ -387,15 +494,44 @@ class SGDistributedConnectionDialog(QDialog):
             num_min = info.get('num_players_min', '?')
             num_max = info.get('num_players_max', '?')
             
+            # Get number of registered players for this session from cache
+            registered_players = self.session_players_cache.get(session_id, set())
+            num_registered = len(registered_players)
+            
+            # Build players text with availability info
             if num_min == num_max:
-                players_text = f"{num_min} players"
+                if num_registered >= num_max:
+                    players_text = f"{num_registered}/{num_max} players (Full)"
+                    is_full = True
+                else:
+                    players_text = f"{num_registered}/{num_max} players (Available)"
+                    is_full = False
             else:
-                players_text = f"{num_min}-{num_max} players"
+                if num_registered >= num_max:
+                    players_text = f"{num_registered}/{num_max} players (Full)"
+                    is_full = True
+                elif num_registered >= num_min:
+                    players_text = f"{num_registered}/{num_min}-{num_max} players (Ready)"
+                    is_full = False
+                else:
+                    players_text = f"{num_registered}/{num_min}-{num_max} players (Available)"
+                    is_full = False
             
             display_text = f"{model_name} ({players_text})"
             item = QListWidgetItem(display_text)
             item.setData(Qt.UserRole, session_id)
-            item.setToolTip(f"Session ID: {session_id}\nModel: {model_name}\nPlayers: {players_text}")
+            
+            # Style full sessions differently
+            if is_full:
+                item.setForeground(QColor("#888"))  # Gray color for full sessions
+                font = item.font()
+                font.setItalic(True)
+                item.setFont(font)
+            
+            tooltip_text = f"Session ID: {session_id}\nModel: {model_name}\nPlayers: {players_text}"
+            if registered_players:
+                tooltip_text += f"\nRegistered players: {', '.join(sorted(registered_players))}"
+            item.setToolTip(tooltip_text)
             self.sessions_list.addItem(item)
             
             # Restore selection if this was the previously selected session
@@ -408,7 +544,7 @@ class SGDistributedConnectionDialog(QDialog):
             # Ensure _selected_session_id is still set
             self._selected_session_id = selected_session_id
         
-        print(f"[Dialog] Updated sessions list: {len(sorted_sessions)} session(s) found")
+        print(f"[Dialog] Updated sessions list: {len(sorted_sessions)} active session(s) found")
     
     def _onSessionClicked(self, item):
         """Handle single click on a session in the list - selects the session"""
@@ -460,7 +596,7 @@ class SGDistributedConnectionDialog(QDialog):
         if not (self.model.mqttManager.client and 
                 self.model.mqttManager.client.is_connected()):
             self.connected_instances_label.setText("No instances connected yet")
-            self._updateState(self.STATE_CONFIGURATION)
+            self._updateState(self.STATE_SETUP)
             return
         
         try:
@@ -504,7 +640,7 @@ class SGDistributedConnectionDialog(QDialog):
         """Update dialog state and UI accordingly"""
         self.current_state = new_state
         
-        if new_state == self.STATE_CONFIGURATION:
+        if new_state == self.STATE_SETUP:
             # Enable configuration controls
             self.session_id_edit.setEnabled(True)
             self.copy_session_btn.setEnabled(True)
@@ -512,6 +648,9 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.show()
             self.start_button.hide()
             self.countdown_label.hide()
+            # Enable radio buttons - user can still change mode before seed sync
+            self.create_new_radio.setEnabled(True)
+            self.join_existing_radio.setEnabled(True)
             # Show Session ID group only in create mode (needed to share ID)
             # In join mode, Session ID group is always hidden (not needed)
             if self.create_new_radio.isChecked():
@@ -533,6 +672,9 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.show()
             self.start_button.hide()
             self.countdown_label.hide()
+            # Enable radio buttons - user can still change mode before seed sync
+            self.create_new_radio.setEnabled(True)
+            self.join_existing_radio.setEnabled(True)
             # Show Session ID group only in create mode (needed to share ID)
             # In join mode, Session ID group is always hidden
             if self.create_new_radio.isChecked():
@@ -553,6 +695,9 @@ class SGDistributedConnectionDialog(QDialog):
                 self.connect_button.hide()
             self.start_button.hide()
             self.countdown_label.hide()
+            # Disable radio buttons - seed is already synced, cannot change mode
+            self.create_new_radio.setEnabled(False)
+            self.join_existing_radio.setEnabled(False)
             # Show Session ID group only in create mode (needed to share ID)
             # In join mode, Session ID group is always hidden
             if self.create_new_radio.isChecked():
@@ -574,6 +719,9 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.hide()
             self.start_button.show()
             self.start_button.setEnabled(True)
+            # Disable radio buttons - seed is already synced, cannot change mode
+            self.create_new_radio.setEnabled(False)
+            self.join_existing_radio.setEnabled(False)
             # Show Session ID group only in create mode (needed to share ID)
             # In join mode, Session ID group is always hidden
             if self.create_new_radio.isChecked():
@@ -661,7 +809,7 @@ class SGDistributedConnectionDialog(QDialog):
             self.connection_status = f"Connection failed: {str(e)}"
             self.status_label.setText(f"Connection Status: [✗] {self.connection_status}")
             self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
-            self._updateState(self.STATE_CONFIGURATION)  # Reset to configuration state
+            self._updateState(self.STATE_SETUP)  # Reset to setup state
             QMessageBox.critical(self, "Connection Error", f"Failed to connect to MQTT broker:\n{str(e)}")
     
     def _checkConnection(self):
@@ -771,7 +919,7 @@ class SGDistributedConnectionDialog(QDialog):
         except Exception as e:
             self.seed_status_label.setText(f"Seed Status: Sync failed - {str(e)}")
             self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
-            self._updateState(self.STATE_CONFIGURATION)  # Reset to configuration state
+            self._updateState(self.STATE_SETUP)  # Reset to setup state
             QMessageBox.critical(self, "Seed Sync Error", f"Failed to synchronize seed:\n{str(e)}")
     
     def _subscribeToSeedSyncForTracking(self, base_handler=None):
