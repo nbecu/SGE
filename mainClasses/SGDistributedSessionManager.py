@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 # --- Third-party imports ---
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 
 
 class SGDistributedSessionManager(QObject):
@@ -27,6 +27,9 @@ class SGDistributedSessionManager(QObject):
     
     # Centralized list of session topics (base names without prefixes)
     SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect']
+    
+    # Global topic for session discovery (no session_id prefix)
+    DISCOVERY_TOPIC = 'session_discovery'
     
     # Signals for UI updates
     playerConnected = pyqtSignal(str)  # Emitted when a player connects
@@ -52,6 +55,13 @@ class SGDistributedSessionManager(QObject):
         
         # Save original message handler
         self._original_on_message = None
+        
+        # Session discovery state
+        self.discovered_sessions = {}  # {session_id: {'timestamp': float, 'info': dict}}
+        self.session_heartbeat_timer = None  # QTimer for heartbeat (initialized in _startSessionHeartbeat)
+        self.session_discovery_handler = None  # Handler for discovery messages
+        self._discovery_callback = None  # Callback for discovery updates
+        self._pre_discovery_handler = None  # Handler before discovery was installed
     
     @classmethod
     def getSessionTopics(cls, session_id):
@@ -236,6 +246,8 @@ class SGDistributedSessionManager(QObject):
                     seed_value = msg_dict['seed']
                     client_id = msg_dict['clientId']
                     
+                    print(f"[SessionManager] Seed message received: client_id={client_id[:8]}..., seed={seed_value}, is_own={client_id == self.mqtt_manager.clientId}")
+                    
                     # Call callback if provided (for tracking connected instances)
                     # This captures ALL clientIds seen, not just the first one
                     if client_id_callback and client_id:
@@ -246,33 +258,52 @@ class SGDistributedSessionManager(QObject):
                     
                     # If this is not our own message, use this seed
                     if client_id != self.mqtt_manager.clientId:
+                        print(f"[SessionManager] Adopting seed from other instance: {seed_value}")
                         self.synced_seed = seed_value
                         self.seed_received = True
                         self.seedReceived.emit(self.synced_seed)
                         # Mark when we received the seed (don't restore handler immediately)
                         # This allows us to continue receiving retained messages
                         seed_received_time = time.time()
+                        # CRITICAL: Publish our own seed message (with adopted seed) so other instances can detect us
+                        # This is important for instance tracking - each instance must publish its presence
+                        seed_msg = {
+                            'clientId': self.mqtt_manager.clientId,
+                            'seed': seed_value,  # Use adopted seed
+                            'is_leader': False,  # We're not the leader
+                            'timestamp': datetime.now().isoformat()
+                        }
+                        serialized_msg = json.dumps(seed_msg)
+                        self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
+                        print(f"[SessionManager] Published own seed message (adopted seed) to {seed_topic}")
+                        # CRITICAL: Return immediately after setting seed_received
+                        # This prevents the code from continuing to check if not self.seed_received
+                        return
                 except Exception as e:
                     print(f"Error processing seed message: {e}")
             # CRITICAL: Do NOT forward other messages - they are handled by SGMQTTManager
             # The original handler will continue to handle game messages
         
+        # Initialize seed_received BEFORE installing handler
+        self.seed_received = False
+        start_time = time.time()
+        
         # Install temporary handler BEFORE subscribing (to receive retained messages)
+        print(f"[SessionManager] Installing seed sync handler for topic: {seed_topic}")
         self.mqtt_manager.client.on_message = seed_message_handler
         
         # Subscribe AFTER handler is installed to receive any existing retained seed message
         self.mqtt_manager.client.subscribe(seed_topic)
+        print(f"[SessionManager] Subscribed to {seed_topic}")
         
-        # Wait a moment for retained messages to be processed by MQTT client thread
-        # This ensures we capture all retained messages before proceeding
-        time.sleep(0.2)
-        
-        # Wait for retained messages to be processed by MQTT client thread
-        self.seed_received = False
-        start_time = time.time()
+        # CRITICAL: Wait a moment for retained messages to be processed by MQTT client thread
+        # This ensures we capture retained messages before checking seed_received
+        # The handler will set self.seed_received = True if a retained message is received
+        time.sleep(0.3)
         
         # If shared_seed is provided, use it directly
         if shared_seed is not None:
+            print(f"[SessionManager] Using provided shared_seed: {shared_seed}")
             self.synced_seed = shared_seed
             self.is_leader = True
             self.seed_received = True
@@ -291,20 +322,29 @@ class SGDistributedSessionManager(QObject):
             }
             serialized_msg = json.dumps(seed_msg)
             self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
+            print(f"[SessionManager] Published seed message to {seed_topic}")
         else:
             # Wait for retained seed message (if leader already exists)
             # Use configurable initial_wait (default 1.0 second)
-            while time.time() - start_time < initial_wait:
+            # CRITICAL: Wait for retained messages to be processed by MQTT client thread
+            # This ensures we capture retained messages before checking seed_received
+            elapsed = time.time() - start_time
+            while elapsed < initial_wait:
                 if self.seed_received:
+                    print(f"[SessionManager] Seed received during wait (elapsed: {elapsed:.2f}s), using: {self.synced_seed}")
                     break
                 time.sleep(0.1)
+                elapsed = time.time() - start_time
             
             # If no seed received after initial wait, become leader immediately
             if not self.seed_received:
+                elapsed = time.time() - start_time
+                print(f"[SessionManager] No seed received after {elapsed:.2f}s, becoming leader")
                 import random
                 self.synced_seed = random.randint(1, 1000000)
                 self.is_leader = True
                 self.seed_received = True
+                print(f"[SessionManager] No seed received, becoming leader with seed: {self.synced_seed}")
                 # Call callback for our own clientId
                 if client_id_callback:
                     try:
@@ -320,6 +360,7 @@ class SGDistributedSessionManager(QObject):
                 }
                 serialized_msg = json.dumps(seed_msg)
                 self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
+                print(f"[SessionManager] Published seed message to {seed_topic}")
             else:
                 # Continue waiting up to timeout if seed was received but not processed yet
                 while time.time() - start_time < timeout:
@@ -346,6 +387,171 @@ class SGDistributedSessionManager(QObject):
         self.mqtt_manager.client.on_message = original_on_message
         
         return self.synced_seed
+    
+    def publishSession(self, session_id, num_players_min, num_players_max, model_name=None):
+        """
+        Publish session information to the global discovery topic.
+        This allows other instances to discover and join this session.
+        
+        Args:
+            session_id (str): Session ID
+            num_players_min (int): Minimum number of players
+            num_players_max (int): Maximum number of players
+            model_name (str, optional): Name of the model/game
+        """
+        if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+            return
+        
+        session_info = {
+            'session_id': session_id,
+            'clientId': self.mqtt_manager.clientId,
+            'num_players_min': num_players_min,
+            'num_players_max': num_players_max,
+            'model_name': model_name or getattr(self.model, 'name', 'Unknown'),
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Publish on session-specific topic within discovery namespace
+        # Format: session_discovery/{session_id}
+        discovery_topic = f"{self.DISCOVERY_TOPIC}/{session_id}"
+        serialized_msg = json.dumps(session_info)
+        
+        # Use retain=True so new subscribers receive the session info
+        # Use qos=1 for reliability
+        result = self.mqtt_manager.client.publish(discovery_topic, serialized_msg, qos=1, retain=True)
+        print(f"[SessionManager] Published session discovery: {session_id} on topic {discovery_topic}, result: {result}")
+        
+        # Start heartbeat timer to keep session alive
+        self._startSessionHeartbeat(session_id, num_players_min, num_players_max, model_name)
+    
+    def _startSessionHeartbeat(self, session_id, num_players_min, num_players_max, model_name=None):
+        """Start periodic heartbeat to keep session discovery message fresh"""
+        # Stop existing timer if any
+        if hasattr(self, 'session_heartbeat_timer') and self.session_heartbeat_timer:
+            self.session_heartbeat_timer.stop()
+            self.session_heartbeat_timer = None
+        
+        def heartbeat():
+            if (self.mqtt_manager.client and 
+                self.mqtt_manager.client.is_connected() and
+                session_id):
+                self.publishSession(session_id, num_players_min, num_players_max, model_name)
+        
+        self.session_heartbeat_timer = QTimer()
+        self.session_heartbeat_timer.timeout.connect(heartbeat)
+        self.session_heartbeat_timer.start(5000)  # Heartbeat every 5 seconds
+    
+    def stopSessionHeartbeat(self):
+        """Stop the session heartbeat timer"""
+        if hasattr(self, 'session_heartbeat_timer') and self.session_heartbeat_timer:
+            self.session_heartbeat_timer.stop()
+            self.session_heartbeat_timer = None
+    
+    def discoverSessions(self, callback=None):
+        """
+        Subscribe to session discovery topic and discover available sessions.
+        
+        Args:
+            callback (callable, optional): Callback function called when sessions are discovered.
+                Signature: callback(sessions_dict) where sessions_dict is {session_id: session_info}
+        """
+        if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+            return
+        
+        # Subscribe to wildcard topic to receive all session discovery messages
+        discovery_topic_wildcard = f"{self.DISCOVERY_TOPIC}/+"
+        
+        # Store callback
+        self._discovery_callback = callback
+        
+        # Get current handler (might be seed tracking wrapper or original handler)
+        current_handler = self.mqtt_manager.client.on_message
+        print(f"[SessionManager] Current handler before discovery: {current_handler}")
+        
+        def process_discovery_message(client, userdata, msg):
+            """Process a discovery message"""
+            print(f"[SessionManager] Received discovery message on topic: {msg.topic}")
+            try:
+                msg_dict = json.loads(msg.payload.decode("utf-8"))
+                session_id = msg_dict.get('session_id')
+                print(f"[SessionManager] Processing discovery message for session: {session_id}")
+                if session_id:
+                    # Update discovered sessions cache
+                    self.discovered_sessions[session_id] = {
+                        'timestamp': time.time(),
+                        'info': msg_dict
+                    }
+                    print(f"[SessionManager] Added session {session_id} to discovered sessions. Total: {len(self.discovered_sessions)}")
+                    
+                    # Clean expired sessions (older than 15 seconds)
+                    current_time = time.time()
+                    expired_sessions = [
+                        sid for sid, data in self.discovered_sessions.items()
+                        if current_time - data['timestamp'] > 15.0
+                    ]
+                    for sid in expired_sessions:
+                        del self.discovered_sessions[sid]
+                        print(f"[SessionManager] Removed expired session: {sid}")
+                    
+                    # Call callback if provided
+                    if self._discovery_callback:
+                        try:
+                            print(f"[SessionManager] Calling discovery callback with {len(self.discovered_sessions)} sessions")
+                            self._discovery_callback(self.discovered_sessions.copy())
+                        except Exception as e:
+                            print(f"[SessionManager] Error in discovery callback: {e}")
+                            import traceback
+                            traceback.print_exc()
+            except Exception as e:
+                print(f"[SessionManager] Error processing discovery message: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        # Install handler - wrap existing handler instead of replacing it
+        # This allows discovery to coexist with other handlers (like seed tracking)
+        def wrapped_discovery_handler(client, userdata, msg):
+            # First, handle discovery messages
+            if msg.topic.startswith(f"{self.DISCOVERY_TOPIC}/"):
+                # Process discovery message
+                process_discovery_message(client, userdata, msg)
+                # Don't forward discovery messages - they're handled here
+                return
+            
+            # Forward other messages to current handler
+            if current_handler:
+                current_handler(client, userdata, msg)
+        
+        # Store reference to handler that existed before discovery
+        self._pre_discovery_handler = current_handler
+        
+        # Install wrapped handler
+        self.session_discovery_handler = wrapped_discovery_handler
+        self.mqtt_manager.client.on_message = wrapped_discovery_handler
+        print(f"[SessionManager] Installed discovery handler wrapper")
+        
+        # Subscribe to discovery topic
+        self.mqtt_manager.client.subscribe(discovery_topic_wildcard, qos=1)
+        print(f"[SessionManager] Subscribed to session discovery: {discovery_topic_wildcard}")
+        
+        # Wait a moment for retained messages
+        time.sleep(0.3)
+        
+        # Trigger callback with initial discovered sessions
+        if self._discovery_callback:
+            try:
+                self._discovery_callback(self.discovered_sessions.copy())
+            except Exception as e:
+                print(f"[SessionManager] Error in initial discovery callback: {e}")
+    
+    def stopSessionDiscovery(self):
+        """Stop session discovery and restore original message handler"""
+        if self.session_discovery_handler:
+            # Restore the handler that existed before discovery was installed
+            if hasattr(self, '_pre_discovery_handler') and self._pre_discovery_handler:
+                self.mqtt_manager.client.on_message = self._pre_discovery_handler
+            self.session_discovery_handler = None
+            self._discovery_callback = None
+            self._pre_discovery_handler = None
     
     def getConnectedPlayers(self, session_id):
         """

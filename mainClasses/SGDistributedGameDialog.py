@@ -6,13 +6,15 @@ from PyQt5.QtGui import *
 
 class SGDistributedGameDialog(QDialog):
     """
-    Dialog for user to select assigned player and manage session connection.
+    Dialog for user to select assigned player.
     
     This dialog allows users to:
-    - View/edit session_id
-    - Connect to MQTT broker
+    - View session_id (read-only, discrete display)
     - Select assigned_player from available players
     - See connection status in real-time
+    
+    Note: MQTT connection and session selection are handled by SGDistributedConnectionDialog
+    before this dialog is shown.
     """
     
     def __init__(self, parent, config, model, session_manager):
@@ -39,10 +41,11 @@ class SGDistributedGameDialog(QDialog):
         self._buildUI()
         self._setupTimers()
         
-        # Initialize session_id if not set
-        if not self.config.session_id:
-            self.config.generate_session_id()
-            self.session_id_edit.setText(self.config.session_id)
+        # Update session ID display
+        if self.config.session_id:
+            self.session_id_display.setText(f"Session: {self.config.session_id}")
+        else:
+            self.session_id_display.setText("Session: Not set")
         
         # Check if MQTT connection already exists (from enableDistributedGame())
         # In normal flow, connection should always be established by SGDistributedConnectionDialog
@@ -73,30 +76,11 @@ class SGDistributedGameDialog(QDialog):
         title_label.setFont(title_font)
         layout.addWidget(title_label)
         
-        # Session ID Section
-        session_group = QGroupBox("Session ID")
-        session_layout = QVBoxLayout()
-        
-        session_input_layout = QHBoxLayout()
-        self.session_id_edit = QLineEdit()
-        self.session_id_edit.setText(self.config.session_id or "")
-        self.session_id_edit.setPlaceholderText("Enter or generate session ID")
-        session_input_layout.addWidget(QLabel("Session ID:"))
-        session_input_layout.addWidget(self.session_id_edit)
-        
-        new_session_btn = QPushButton("New Session")
-        new_session_btn.clicked.connect(self._generateNewSessionId)
-        session_input_layout.addWidget(new_session_btn)
-        session_layout.addLayout(session_input_layout)
-        
-        # Display current session_id (small gray text)
-        self.session_id_display = QLabel(self.config.session_id or "")
-        self.session_id_display.setStyleSheet("color: gray; font-size: 10px;")
+        # Session ID Display (read-only, discrete)
+        self.session_id_display = QLabel(f"Session: {self.config.session_id or 'Not set'}")
+        self.session_id_display.setStyleSheet("color: #888; font-size: 9px; padding: 2px;")
         self.session_id_display.setWordWrap(True)
-        session_layout.addWidget(self.session_id_display)
-        
-        session_group.setLayout(session_layout)
-        layout.addWidget(session_group)
+        layout.addWidget(self.session_id_display)
         
         # Number of Players Display
         num_players_label = QLabel()
@@ -158,11 +142,6 @@ class SGDistributedGameDialog(QDialog):
         self.player_update_timer.timeout.connect(self.updateAvailablePlayers)
         self.player_update_timer.start(1000)  # Update every second
     
-    def _generateNewSessionId(self):
-        """Generate a new UUID session ID and update UI"""
-        new_id = self.config.generate_session_id()
-        self.session_id_edit.setText(new_id)
-        self.session_id_display.setText(new_id)
     
     def updateAvailablePlayers(self):
         """
