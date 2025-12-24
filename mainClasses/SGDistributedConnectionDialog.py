@@ -22,7 +22,9 @@ class SGDistributedConnectionDialog(QDialog):
     STATE_SETUP = "setup"
     STATE_CONNECTING = "connecting"
     STATE_WAITING = "waiting"
-    STATE_READY = "ready"
+    STATE_READY_MIN = "ready_min"  # Minimum reached, manual start available (creator only)
+    STATE_READY_MAX = "ready_max"  # Maximum reached, auto-countdown triggers
+    STATE_READY = "ready"  # Legacy state (kept for backward compatibility)
     
     def __init__(self, parent, config, model, session_manager):
         """
@@ -66,6 +68,12 @@ class SGDistributedConnectionDialog(QDialog):
         if not self.config.session_id:
             self.config.generate_session_id()
             self.session_id_edit.setText(self.config.session_id)
+        
+        # Set is_session_creator flag based on initial mode selection
+        if self.create_new_radio.isChecked():
+            self.config.is_session_creator = True
+        else:
+            self.config.is_session_creator = False
     
     def _buildUI(self):
         """Build the user interface"""
@@ -228,7 +236,7 @@ class SGDistributedConnectionDialog(QDialog):
         button_layout.addWidget(self.connect_button)
         
         self.start_button = QPushButton("Start Now")
-        self.start_button.clicked.connect(self.accept)
+        self.start_button.clicked.connect(self._onStartNowClicked)
         self.start_button.setEnabled(False)  # Disabled until ready
         self.start_button.hide()  # Hidden by default, shown when ready
         button_layout.addWidget(self.start_button)
@@ -277,6 +285,7 @@ class SGDistributedConnectionDialog(QDialog):
         
         if self.create_new_radio.isChecked():
             # Create new session mode
+            self.config.is_session_creator = True
             self.sessions_group.hide()
             self.session_group.show()  # Show Session ID group in create mode
             self.session_id_edit.setEnabled(True)
@@ -303,10 +312,13 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.setEnabled(True)
             self.connect_button.show()
             
-            # Adjust window size after hiding/showing elements
+            # Adjust window height only (preserve width)
+            current_width = self.width()
             self.adjustSize()
+            self.resize(current_width, self.height())
         else:
             # Join existing session mode
+            self.config.is_session_creator = False
             self.sessions_group.show()
             self.session_id_edit.setEnabled(False)
             
@@ -355,8 +367,10 @@ class SGDistributedConnectionDialog(QDialog):
             
             self.info_label.setText("Select a session from the list below, then click 'Connect' to join it.")
             
-            # Adjust window size after showing sessions list
+            # Adjust window height only (preserve width)
+            current_width = self.width()
             self.adjustSize()
+            self.resize(current_width, self.height())
     
     def _startSessionDiscovery(self):
         """Start session discovery"""
@@ -602,30 +616,45 @@ class SGDistributedConnectionDialog(QDialog):
             if self.connected_instances_snapshot is not None:
                 # Snapshot available (dialog is READY) - use it to avoid counting new instances
                 instances_to_count = self.connected_instances_snapshot
-                print(f"[DIAGNOSTIC] Using snapshot for counting: {len(instances_to_count)} instances (snapshot taken when dialog became READY)")
-                print(f"[DIAGNOSTIC] Current connected_instances has {len(self.connected_instances)} instances (may include new connections)")
             else:
                 # Snapshot not available yet (dialog not READY) - count all instances
                 # This allows instances to be counted as they connect during the waiting period
                 instances_to_count = self.connected_instances
-                print(f"[DIAGNOSTIC] No snapshot yet (dialog not READY), using current count: {len(instances_to_count)} instances")
             
             num_instances = len(instances_to_count)
             
-            # Determine required number of instances
+            # Determine minimum and maximum required instances
             if isinstance(self.config.num_players, int):
-                required_instances = self.config.num_players
+                min_required = self.config.num_players
+                max_required = self.config.num_players
             else:
-                required_instances = self.config.num_players_max
+                min_required = self.config.num_players_min
+                max_required = self.config.num_players_max
+            
+            # Update connected_instances_count in config
+            self.config.connected_instances_count = num_instances
+            
+            # Check if minimum is reached (for "Start Now" button)
+            min_reached = num_instances >= min_required
+            
+            # Check if maximum is reached (for auto-countdown)
+            max_reached = num_instances >= max_required
             
             # Update display
             if num_instances > 0:
-                status_text = f"{num_instances}/{required_instances} instance(s) connected"
-                if num_instances >= required_instances:
+                if isinstance(self.config.num_players, int):
+                    status_text = f"{num_instances}/{max_required} instance(s) connected"
+                else:
+                    status_text = f"{num_instances}/{min_required}-{max_required} instance(s) connected"
+                
+                if max_reached:
                     status_text += " ✓"
                     self.connected_instances_label.setStyleSheet("padding: 5px; color: #27ae60; font-weight: bold;")
+                elif min_reached:
+                    status_text += " ✓ (min)"
+                    self.connected_instances_label.setStyleSheet("padding: 5px; color: #27ae60; font-weight: bold;")
                 else:
-                    status_text += f" (waiting for {required_instances - num_instances} more...)"
+                    status_text += f" (waiting for {min_required - num_instances} more...)"
                     self.connected_instances_label.setStyleSheet("padding: 5px; color: #f39c12; font-weight: bold;")
                 self.connected_instances_label.setText(status_text)
             else:
@@ -633,32 +662,30 @@ class SGDistributedConnectionDialog(QDialog):
                 self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
             
             # Check if ready to start
-            # Both modes should transition to READY when conditions are met
-            # The difference is only in auto-start countdown (handled in _updateState)
-            if self.seed_synced and num_instances >= required_instances:
-                # CRITICAL: Take snapshot IMMEDIATELY when we first detect EXACTLY the required number of instances
-                # This prevents counting instances that connect after we have enough
-                # We use == instead of >= to take snapshot only once, at the exact moment we reach the required count
-                if self.connected_instances_snapshot is None and num_instances == required_instances:
-                    self.connected_instances_snapshot = self.connected_instances.copy()
-                    print(f"[DIAGNOSTIC] Snapshot taken IMMEDIATELY when EXACTLY {required_instances} instances detected: {len(self.connected_instances_snapshot)} instances frozen")
-                    print(f"[DIAGNOSTIC] Snapshot contains: {list(self.connected_instances_snapshot)}")
-                    print(f"[DIAGNOSTIC] NOTE: Instances connecting after this point will NOT be counted")
-                elif self.connected_instances_snapshot is None and num_instances > required_instances:
-                    # We have more than required - this means an instance connected after we reached the required count
-                    # Take snapshot with only the first N instances (where N = required_instances)
-                    # We need to identify which instances were present when we first reached the required count
-                    # Since we can't track history, we'll take the snapshot now but log a warning
-                    print(f"[DIAGNOSTIC] WARNING: {num_instances} instances detected but only {required_instances} required")
-                    print(f"[DIAGNOSTIC] Taking snapshot with first {required_instances} instances to avoid overcounting")
-                    # Take first N instances from the set (order is not guaranteed, but this is better than taking all)
-                    instances_list = list(self.connected_instances)
-                    self.connected_instances_snapshot = set(instances_list[:required_instances])
-                    print(f"[DIAGNOSTIC] Snapshot taken with {len(self.connected_instances_snapshot)} instances: {list(self.connected_instances_snapshot)}")
-                
-                if self.current_state != self.STATE_READY:
-                    self._updateState(self.STATE_READY)
+            # Check if ready for manual start (minimum reached)
+            if self.seed_synced and min_reached:
+                # Minimum reached - can start manually (if creator)
+                # Check if maximum reached (for auto-countdown)
+                if max_reached:
+                    # CRITICAL: Take snapshot IMMEDIATELY when we first detect EXACTLY the maximum number of instances
+                    # This prevents counting instances that connect after we have enough
+                    if self.connected_instances_snapshot is None and num_instances == max_required:
+                        self.connected_instances_snapshot = self.connected_instances.copy()
+                    elif self.connected_instances_snapshot is None and num_instances > max_required:
+                        # We have more than maximum - this means an instance connected after we reached the maximum count
+                        # Take snapshot with only the first N instances (where N = max_required)
+                        # Take first N instances from the set (order is not guaranteed, but this is better than taking all)
+                        instances_list = list(self.connected_instances)
+                        self.connected_instances_snapshot = set(instances_list[:max_required])
+                    
+                    if self.current_state != self.STATE_READY_MAX:
+                        self._updateState(self.STATE_READY_MAX)
+                else:
+                    # Minimum reached but not maximum
+                    if self.current_state != self.STATE_READY_MIN:
+                        self._updateState(self.STATE_READY_MIN)
             elif self.seed_synced:
+                # Waiting for minimum
                 if self.current_state != self.STATE_WAITING:
                     self._updateState(self.STATE_WAITING)
                     
@@ -736,13 +763,96 @@ class SGDistributedConnectionDialog(QDialog):
                 self.session_group.hide()
             num_instances = len(self.connected_instances)
             if isinstance(self.config.num_players, int):
-                required = self.config.num_players
+                min_required = self.config.num_players
             else:
-                required = self.config.num_players_max
-            waiting = required - num_instances
+                min_required = self.config.num_players_min
+            waiting = min_required - num_instances
             self.info_label.setText(f"⏳ Waiting for {waiting} more instance(s) to connect...")
             
+        elif new_state == self.STATE_READY_MIN:
+            # Minimum reached - show "Start Now" button ONLY on creator instance
+            self.session_id_edit.setEnabled(False)
+            self.copy_session_btn.setEnabled(True)
+            self.connect_button.hide()
+            
+            # CRITICAL: Show "Start Now" button ONLY if this is the session creator
+            if self.config.is_session_creator:
+                self.start_button.show()
+                self.start_button.setEnabled(True)
+                num_instances = len(self.connected_instances)
+                if isinstance(self.config.num_players, int):
+                    min_required = max_required = self.config.num_players
+                else:
+                    min_required = self.config.num_players_min
+                    max_required = self.config.num_players_max
+                self.info_label.setText(
+                    f"✓ Minimum instances connected ({num_instances}/{min_required}-{max_required}). "
+                    f"Click 'Start Now' to begin, or wait for more players."
+                )
+            else:
+                # Joiner instance - hide button, show waiting message
+                self.start_button.hide()
+                num_instances = len(self.connected_instances)
+                if isinstance(self.config.num_players, int):
+                    min_required = max_required = self.config.num_players
+                else:
+                    min_required = self.config.num_players_min
+                    max_required = self.config.num_players_max
+                self.info_label.setText(
+                    f"✓ Minimum instances connected ({num_instances}/{min_required}-{max_required}). "
+                    f"Waiting for session creator to start the game..."
+                )
+            
+            self.countdown_label.hide()
+            # Disable radio buttons - seed is already synced, cannot change mode
+            self.create_new_radio.setEnabled(False)
+            self.join_existing_radio.setEnabled(False)
+            # Show Session ID group only in create mode (needed to share ID)
+            # In join mode, Session ID group is always hidden
+            if self.create_new_radio.isChecked():
+                self.session_group.show()
+            else:
+                self.session_group.hide()
+        
+        elif new_state == self.STATE_READY_MAX:
+            # Maximum reached - auto-countdown will trigger
+            self.session_id_edit.setEnabled(False)
+            self.copy_session_btn.setEnabled(True)
+            self.connect_button.hide()
+            
+            # CRITICAL: Show "Start Now" button ONLY on creator instance
+            if self.config.is_session_creator:
+                self.start_button.show()
+                self.start_button.setEnabled(True)
+            else:
+                self.start_button.hide()
+            
+            self.info_label.setText("✓ All instances connected! The game will start automatically in a few seconds.")
+            self._startAutoStartCountdown()  # Only triggers at maximum
+            
+            # Disable radio buttons - seed is already synced, cannot change mode
+            self.create_new_radio.setEnabled(False)
+            self.join_existing_radio.setEnabled(False)
+            # Show Session ID group only in create mode (needed to share ID)
+            # In join mode, Session ID group is always hidden
+            if self.create_new_radio.isChecked():
+                self.session_group.show()
+            else:
+                self.session_group.hide()
+            
+            # NOTE: Snapshot is now taken in _updateConnectedInstances() when enough instances are first detected
+            # This ensures we capture exactly the required number of instances, not more
+            # The snapshot should already exist when we reach READY_MAX state
+            if self.connected_instances_snapshot is None:
+                # Fallback: if snapshot wasn't taken yet (shouldn't happen), take it now
+                self.connected_instances_snapshot = self.connected_instances.copy()
+            
+            # OPTIMIZATION: Stop periodic republishing once READY (no need to keep broadcasting)
+            if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
+                self.seed_republish_timer.stop()
+        
         elif new_state == self.STATE_READY:
+            # Legacy state (kept for backward compatibility)
             # All ready, show start button (but keep Copy enabled)
             self.session_id_edit.setEnabled(False)
             self.copy_session_btn.setEnabled(True)  # Keep Copy enabled
@@ -765,15 +875,10 @@ class SGDistributedConnectionDialog(QDialog):
             if self.connected_instances_snapshot is None:
                 # Fallback: if snapshot wasn't taken yet (shouldn't happen), take it now
                 self.connected_instances_snapshot = self.connected_instances.copy()
-                print(f"[DIAGNOSTIC] WARNING: Snapshot taken in READY state (fallback): {len(self.connected_instances_snapshot)} instances")
-                print(f"[DIAGNOSTIC] Snapshot contains: {list(self.connected_instances_snapshot)}")
-            else:
-                print(f"[DIAGNOSTIC] Dialog became READY with snapshot already taken: {len(self.connected_instances_snapshot)} instances")
             
             # OPTIMIZATION: Stop periodic republishing once READY (no need to keep broadcasting)
             if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
                 self.seed_republish_timer.stop()
-                print(f"[DIAGNOSTIC] Stopped periodic seed sync republishing (dialog is READY)")
             
             # Start countdown automatically for both create and join modes
             self.info_label.setText("✓ All instances connected! The game will start automatically in a few seconds.")
@@ -910,15 +1015,10 @@ class SGDistributedConnectionDialog(QDialog):
             # Pass callback to track connected instances during seed sync
             def track_client_id(client_id):
                 if not client_id:
-                    print(f"[DIAGNOSTIC] track_client_id callback: WARNING - client_id is None or empty")
                     return
                 old_count = len(self.connected_instances)
                 self.connected_instances.add(client_id)
                 new_count = len(self.connected_instances)
-                if new_count != old_count:
-                    print(f"[DIAGNOSTIC] track_client_id callback: {client_id[:8]}... added. Total: {old_count} -> {new_count}")
-                else:
-                    print(f"[DIAGNOSTIC] track_client_id callback: {client_id[:8]}... already tracked (duplicate). Total: {new_count}")
                 # Don't update UI here - wait until after seed sync completes
                 # This avoids race conditions
             
@@ -962,6 +1062,9 @@ class SGDistributedConnectionDialog(QDialog):
             # Player registration messages use separate topics per player, so all retained messages are preserved
             # This provides a more reliable way to track connected instances
             self._subscribeToPlayerRegistrationForTracking()
+            
+            # CRITICAL: Subscribe to game start topic for synchronization
+            self._subscribeToGameStart()
             
             # NOTE: We do NOT take snapshot here - we continue counting instances until READY state
             # The snapshot will be taken when dialog transitions to READY state
@@ -1021,8 +1124,6 @@ class SGDistributedConnectionDialog(QDialog):
                     msg_dict = json.loads(msg.payload.decode("utf-8"))
                     client_id = msg_dict.get('clientId')
                     is_retained = msg.retain
-                    # Diagnostic: log ALL seed sync messages received
-                    print(f"[DIAGNOSTIC] Seed tracking handler received message: client_id={client_id[:8] if client_id else 'N/A'}..., retained={is_retained}, topic={msg.topic}")
                     if client_id:
                         old_count = len(self.connected_instances)
                         is_new_instance = client_id not in self.connected_instances
@@ -1034,8 +1135,6 @@ class SGDistributedConnectionDialog(QDialog):
                             self.connected_instances.add(client_id)
                             # Update UI if count changed (use QTimer to ensure thread safety)
                             if len(self.connected_instances) != old_count:
-                                retained_str = " (RETAINED)" if is_retained else " (NEW)"
-                                print(f"[DIAGNOSTIC] Instance tracking: {client_id[:8]}... added{retained_str}. Total: {old_count} -> {len(self.connected_instances)}")
                                 QTimer.singleShot(0, self._updateConnectedInstances)
                                 print(f"[Dialog] New instance detected: {client_id[:8]}... Total: {len(self.connected_instances)}")
                                 
@@ -1046,19 +1145,8 @@ class SGDistributedConnectionDialog(QDialog):
                                 if (not is_retained and is_new_instance and 
                                     client_id != self.model.mqttManager.clientId and
                                     self.connected_instances_snapshot is None):  # Only if not READY yet
-                                    print(f"[DIAGNOSTIC] New instance {client_id[:8]}... detected, republishing our own seed sync message for visibility...")
                                     # Use QTimer to avoid blocking the MQTT handler thread
                                     QTimer.singleShot(100, lambda: self._republishSeedSync())
-                        else:
-                            # Dialog is READY - don't count new instances
-                            if is_new_instance:
-                                print(f"[DIAGNOSTIC] Instance tracking: {client_id[:8]}... detected but NOT counted (dialog is READY, may be temporary connection)")
-                            else:
-                                # Instance already in set (duplicate message)
-                                if is_retained:
-                                    print(f"[DIAGNOSTIC] Instance tracking: {client_id[:8]}... already in set (RETAINED message)")
-                                else:
-                                    print(f"[DIAGNOSTIC] Instance tracking: {client_id[:8]}... already in set (NEW message - duplicate)")
                 except Exception as e:
                     print(f"[Dialog] Error tracking instance: {e}")
                     import traceback
@@ -1080,9 +1168,6 @@ class SGDistributedConnectionDialog(QDialog):
         # Subscribe to seed sync topic (to receive retained messages from other instances)
         # Note: We're already subscribed from syncSeed(), but this ensures we stay subscribed
         # Use qos=1 to ensure we receive all messages
-        print(f"[DIAGNOSTIC] Subscribing to seed sync topic for tracking: {seed_topic}")
-        print(f"[DIAGNOSTIC] Current connected_instances BEFORE subscription: {list(self.connected_instances)}")
-        print(f"[DIAGNOSTIC] Current handler BEFORE subscription: {self.model.mqttManager.client.on_message}")
         
         # CRITICAL: Check if we already have exactly the required number of instances BEFORE waiting
         # If so, take snapshot NOW to prevent instances that connect during wait from being counted
@@ -1094,9 +1179,6 @@ class SGDistributedConnectionDialog(QDialog):
             
             if len(self.connected_instances) == required_instances:
                 self.connected_instances_snapshot = self.connected_instances.copy()
-                print(f"[DIAGNOSTIC] Snapshot taken BEFORE wait period: {len(self.connected_instances_snapshot)} instances frozen")
-                print(f"[DIAGNOSTIC] Snapshot contains: {list(self.connected_instances_snapshot)}")
-                print(f"[DIAGNOSTIC] NOTE: Instances connecting during wait period will NOT be counted")
         
         # CRITICAL: Do NOT unsubscribe/re-subscribe as this may prevent retained messages from being received
         # Instead, ensure we're subscribed and wait for retained messages to be processed
@@ -1107,22 +1189,16 @@ class SGDistributedConnectionDialog(QDialog):
         # Need sufficient delay to ensure all retained messages from other instances are received
         # This is especially important when multiple instances are already connected
         # IMPORTANT: Instances that have already left the dialog won't republish, so we must rely on retained messages
-        print(f"[DIAGNOSTIC] Waiting 1.5s for retained seed sync messages to be processed...")
         time.sleep(1.5)  # Increased delay to ensure all retained messages are received
         
         # CRITICAL: Force a re-subscription WITHOUT unsubscribe to trigger retained messages
         # Some MQTT brokers only send retained messages on initial subscription
         # By re-subscribing (without unsubscribe), we ensure retained messages are sent again
-        print(f"[DIAGNOSTIC] Re-subscribing (without unsubscribe) to trigger retained messages...")
         self.model.mqttManager.client.subscribe(seed_topic, qos=1)
         
         # Wait again after re-subscription for retained messages
         # CRITICAL: This delay is important because instances that left the dialog won't republish
-        print(f"[DIAGNOSTIC] Waiting additional 1.0s after re-subscription...")
         time.sleep(1.0)  # Increased delay to receive all retained messages after re-subscription
-        
-        print(f"[DIAGNOSTIC] Current connected_instances AFTER wait: {list(self.connected_instances)}")
-        print(f"[DIAGNOSTIC] Total instances detected: {len(self.connected_instances)}")
         
         # CRITICAL: Check if we have exactly the required number of instances and take snapshot NOW
         # This prevents instances that connect during the UI update delay from being counted
@@ -1134,16 +1210,10 @@ class SGDistributedConnectionDialog(QDialog):
             
             if len(self.connected_instances) == required_instances:
                 self.connected_instances_snapshot = self.connected_instances.copy()
-                print(f"[DIAGNOSTIC] Snapshot taken AFTER wait period: {len(self.connected_instances_snapshot)} instances frozen")
-                print(f"[DIAGNOSTIC] Snapshot contains: {list(self.connected_instances_snapshot)}")
-                print(f"[DIAGNOSTIC] NOTE: Instances connecting after this point will NOT be counted")
             elif len(self.connected_instances) > required_instances:
                 # We have more than required - take snapshot with only the first N instances
-                print(f"[DIAGNOSTIC] WARNING: {len(self.connected_instances)} instances detected but only {required_instances} required")
-                print(f"[DIAGNOSTIC] Taking snapshot with first {required_instances} instances to avoid overcounting")
                 instances_list = list(self.connected_instances)
                 self.connected_instances_snapshot = set(instances_list[:required_instances])
-                print(f"[DIAGNOSTIC] Snapshot taken with {len(self.connected_instances_snapshot)} instances: {list(self.connected_instances_snapshot)}")
         
         # Schedule UI update after a delay to catch any late messages
         # CRITICAL: Use sufficient delay to ensure all retained messages are processed
@@ -1192,14 +1262,7 @@ class SGDistributedConnectionDialog(QDialog):
                             self.connected_instances.add(client_id)
                             if len(self.connected_instances) != old_count:
                                 retained_str = " (RETAINED)" if is_retained else " (NEW)"
-                                print(f"[DIAGNOSTIC] Player registration tracking: {client_id[:8]}... added{retained_str}. Total: {old_count} -> {len(self.connected_instances)}")
                                 QTimer.singleShot(0, self._updateConnectedInstances)
-                        else:
-                            # Dialog is READY - don't count new instances
-                            if is_new_instance:
-                                print(f"[DIAGNOSTIC] Player registration tracking: {client_id[:8]}... detected but NOT counted (dialog is READY, may be temporary connection)")
-                            else:
-                                print(f"[DIAGNOSTIC] Player registration tracking: {client_id[:8]}... already in set (duplicate message)")
                 except Exception as e:
                     print(f"[Dialog] Error tracking instance from player registration: {e}")
                     import traceback
@@ -1216,21 +1279,168 @@ class SGDistributedConnectionDialog(QDialog):
         self.model.mqttManager.client.on_message = player_registration_tracking_wrapper
         
         # Subscribe to player registration wildcard topic
-        print(f"[DIAGNOSTIC] Subscribing to player registration topic for tracking: {registration_topic_wildcard}")
         self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
         
         # Wait for retained messages to be received
         # CRITICAL: Player registration messages are published AFTER dialog closes, so they may not be available yet
         # But we still wait for any existing retained messages from previous sessions
         import time
-        print(f"[DIAGNOSTIC] Waiting 1.0s for retained player registration messages...")
         time.sleep(1.0)  # Sufficient delay to receive retained messages
-        
-        print(f"[DIAGNOSTIC] Current connected_instances AFTER player registration tracking: {list(self.connected_instances)}")
-        print(f"[DIAGNOSTIC] Total instances detected: {len(self.connected_instances)}")
         
         # Schedule UI update
         QTimer.singleShot(500, self._updateConnectedInstances)
+    
+    def _subscribeToGameStart(self):
+        """Subscribe to game start topic for synchronization"""
+        if not (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected()):
+            return
+        
+        # Get game start topic
+        session_topics = self.session_manager.getSessionTopics(self.config.session_id)
+        game_start_topic = session_topics[3]  # session_game_start (index 3: player_registration=0, seed_sync=1, player_disconnect=2, game_start=3)
+        
+        # Get current handler (which is player_registration_tracking_wrapper)
+        current_handler = self.model.mqttManager.client.on_message
+        
+        # Create wrapper to handle game start messages
+        def game_start_handler(client, userdata, msg):
+            # CRITICAL: Protect against RuntimeError if dialog is destroyed
+            try:
+                # Debug: log all messages to see if game_start topic is received
+                if 'game_start' in msg.topic:
+                    print(f"[Dialog] Game start handler received message on topic: {msg.topic}, expected: {game_start_topic}")
+                
+                if msg.topic == game_start_topic:
+                    # Game start message received
+                    try:
+                        import json
+                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        sender_client_id = msg_dict.get('clientId')
+                        start_type = msg_dict.get('start_type', 'unknown')
+                        
+                        print(f"[Dialog] Game start message received: sender={sender_client_id[:8] if sender_client_id else 'N/A'}..., type={start_type}, our_id={self.model.mqttManager.clientId[:8] if self.model.mqttManager.clientId else 'N/A'}...")
+                        
+                        # Check if already processed (avoid double processing)
+                        if hasattr(self, '_game_start_processed') and self._game_start_processed:
+                            print(f"[Dialog] Game start message already processed, ignoring duplicate")
+                            return
+                        
+                        # Mark as processed
+                        self._game_start_processed = True
+                        
+                        print(f"[Dialog] Game start signal received from {sender_client_id[:8] if sender_client_id else 'N/A'}..., closing dialog...")
+                        
+                        # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
+                        # CRITICAL: QTimer.singleShot cannot be called from MQTT thread
+                        # Use QueuedConnection to execute accept() in the main thread
+                        from PyQt5.QtCore import QMetaObject, Qt
+                        QMetaObject.invokeMethod(
+                            self, 
+                            "accept", 
+                            Qt.QueuedConnection
+                        )
+                        return
+                    except Exception as e:
+                        print(f"[Dialog] Error processing game start message: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        return
+            except RuntimeError:
+                # Dialog has been deleted, ignore
+                return
+            
+            # Forward other messages to current handler
+            if current_handler:
+                current_handler(client, userdata, msg)
+        
+        # Install wrapper
+        self._game_start_handler = game_start_handler
+        self.model.mqttManager.client.on_message = game_start_handler
+        
+        # Subscribe to game start topic
+        result = self.model.mqttManager.client.subscribe(game_start_topic, qos=1)
+        print(f"[Dialog] Subscribed to game start topic: {game_start_topic}")
+        print(f"[Dialog] Subscribe result: mid={result[0]}, rc={result[1]}")
+        print(f"[Dialog] Current handler chain: game_start_handler -> {current_handler}")
+        
+        # Initialize processed flag
+        self._game_start_processed = False
+    
+    def _publishGameStartMessage(self, start_type="manual"):
+        """
+        Publish game start message to synchronize all instances.
+        
+        Args:
+            start_type (str): "manual" (button clicked) or "auto" (countdown finished)
+        """
+        if not (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected()):
+            return
+        
+        # Get game start topic
+        session_topics = self.session_manager.getSessionTopics(self.config.session_id)
+        game_start_topic = session_topics[3]  # session_game_start (index 3: player_registration=0, seed_sync=1, player_disconnect=2, game_start=3)
+        
+        # Create start message
+        from datetime import datetime
+        start_msg = {
+            'clientId': self.model.mqttManager.clientId,
+            'timestamp': datetime.now().isoformat(),
+            'start_type': start_type,  # "manual" or "auto"
+            'countdown_finished': (start_type == "auto")
+        }
+        
+        import json
+        serialized_msg = json.dumps(start_msg)
+        
+        # CRITICAL: Publish with retain=False (we don't want old start messages)
+        # Use QoS=1 to ensure delivery
+        result = self.model.mqttManager.client.publish(
+            game_start_topic, 
+            serialized_msg, 
+            qos=1,
+            retain=False  # Don't retain - start message is one-time only
+        )
+        
+        print(f"[Dialog] Published game start signal (type: {start_type}) to {game_start_topic}")
+        print(f"[Dialog] Publish result: mid={result.mid}, rc={result.rc}")
+        
+        # Wait a moment to ensure message is sent before continuing
+        import time
+        time.sleep(0.1)  # Small delay to ensure message is queued
+    
+    def _onStartNowClicked(self):
+        """Handle Start Now button click - only available on creator instance"""
+        # Only creator can click this button (UI enforces this)
+        if not self.config.is_session_creator:
+            return
+        
+        # Validate minimum is reached
+        if isinstance(self.config.num_players, int):
+            min_required = self.config.num_players
+        else:
+            min_required = self.config.num_players_min
+        
+        # Use snapshot if available, otherwise use current count
+        if self.connected_instances_snapshot is not None:
+            num_instances = len(self.connected_instances_snapshot)
+        else:
+            num_instances = len(self.connected_instances)
+        
+        if num_instances < min_required:
+            QMessageBox.warning(
+                self,
+                "Insufficient Instances",
+                f"Only {num_instances} instance(s) connected, but {min_required} required."
+            )
+            return
+        
+        # Publish start message
+        self._publishGameStartMessage(start_type="manual")
+        
+        # Wait for message propagation, then close
+        QTimer.singleShot(300, self.accept)
     
     def closeEvent(self, event):
         """Handle dialog close event - cleanup session discovery"""
@@ -1283,7 +1493,6 @@ class SGDistributedConnectionDialog(QDialog):
         import json
         serialized_msg = json.dumps(seed_msg)
         self.model.mqttManager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-        print(f"[DIAGNOSTIC] Periodically republished seed sync message for instance {self.model.mqttManager.clientId[:8]}...")
     
     def _startAutoStartCountdown(self):
         """Start 3-second countdown before auto-starting"""
@@ -1300,30 +1509,40 @@ class SGDistributedConnectionDialog(QDialog):
     
     def _updateCountdown(self):
         """Update countdown timer"""
-        if self.current_state != self.STATE_READY:
+        if self.current_state != self.STATE_READY_MAX:
             # State changed, stop countdown
             if self.auto_start_timer:
                 self.auto_start_timer.stop()
             self.countdown_label.hide()
             return
         
-        # Check if still ready (number of instances might have changed)
+        # Check if still at maximum (countdown only runs at maximum)
         # Use snapshot if dialog is READY to avoid counting instances that connect after READY state
         if self.connected_instances_snapshot is not None:
             num_instances = len(self.connected_instances_snapshot)
         else:
             num_instances = len(self.connected_instances)
+        
+        # Check if still at maximum (countdown only runs at maximum)
         if isinstance(self.config.num_players, int):
             required_instances = self.config.num_players
         else:
-            required_instances = self.config.num_players_max
+            required_instances = self.config.num_players_max  # Check maximum, not minimum
         
         if num_instances < required_instances:
             # Not ready anymore, stop countdown
             if self.auto_start_timer:
                 self.auto_start_timer.stop()
             self.countdown_label.hide()
-            self._updateState(self.STATE_WAITING)
+            # Transition back to STATE_READY_MIN or STATE_WAITING
+            if isinstance(self.config.num_players, int):
+                min_required = self.config.num_players
+            else:
+                min_required = self.config.num_players_min
+            if num_instances >= min_required:
+                self._updateState(self.STATE_READY_MIN)
+            else:
+                self._updateState(self.STATE_WAITING)
             return
         
         self.auto_start_countdown -= 1
@@ -1331,11 +1550,22 @@ class SGDistributedConnectionDialog(QDialog):
         if self.auto_start_countdown > 0:
             self.countdown_label.setText(f"⏱️ Starting automatically in: {self.auto_start_countdown}...")
         else:
-            # Countdown finished, auto-start
+            # Countdown finished - publish start message (creator only)
             if self.auto_start_timer:
                 self.auto_start_timer.stop()
             self.countdown_label.setText("Starting now...")
-            QTimer.singleShot(300, self.accept)  # Small delay for visual feedback
+            
+            # Publish start message if creator, then wait for propagation
+            if self.config.is_session_creator:
+                print(f"[Dialog] Countdown finished, publishing game start message (creator instance)")
+                self._publishGameStartMessage(start_type="auto")
+                # Creator also needs to close dialog after publishing
+                # Wait for message propagation, then close
+                QTimer.singleShot(300, self.accept)
+            else:
+                # Non-creator instance: wait for start message from creator
+                print(f"[Dialog] Countdown finished, waiting for start message from creator (non-creator instance)")
+                # Don't close yet - wait for game start message
     
     def accept(self):
         """Override accept to validate before closing"""
@@ -1353,20 +1583,20 @@ class SGDistributedConnectionDialog(QDialog):
         # Use snapshot if dialog is READY to ensure consistent counting
         if self.connected_instances_snapshot is not None:
             num_instances = len(self.connected_instances_snapshot)
-            print(f"[DIAGNOSTIC] Accept validation: Using snapshot (dialog READY) with {num_instances} instances")
         else:
             num_instances = len(self.connected_instances)
-            print(f"[DIAGNOSTIC] Accept validation: Using current count (dialog not READY) with {num_instances} instances")
-        if isinstance(self.config.num_players, int):
-            required_instances = self.config.num_players
-        else:
-            required_instances = self.config.num_players_max
         
-        if num_instances < required_instances:
+        # Check minimum requirement (for manual start)
+        if isinstance(self.config.num_players, int):
+            min_required = self.config.num_players
+        else:
+            min_required = self.config.num_players_min
+        
+        if num_instances < min_required:
             reply = QMessageBox.question(
                 self,
                 "Insufficient Instances",
-                f"Only {num_instances} instance(s) connected, but {required_instances} required.\n"
+                f"Only {num_instances} instance(s) connected, but {min_required} required.\n"
                 "Do you want to continue anyway?",
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.No

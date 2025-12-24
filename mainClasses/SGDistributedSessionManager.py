@@ -26,7 +26,7 @@ class SGDistributedSessionManager(QObject):
     """
     
     # Centralized list of session topics (base names without prefixes)
-    SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect']
+    SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect', 'game_start']
     
     # Global topic for session discovery (no session_id prefix)
     DISCOVERY_TOPIC = 'session_discovery'
@@ -120,15 +120,6 @@ class SGDistributedSessionManager(QObject):
         Raises:
             ValueError: If player name is already registered in this session
         """
-        print(f"[DIAGNOSTIC] ====== registerPlayer() CALLED ======")
-        print(f"[DIAGNOSTIC] Instance: {self.mqtt_manager.clientId[:8] if self.mqtt_manager.clientId else 'N/A'}...")
-        print(f"[DIAGNOSTIC] Session: {session_id[:8]}...")
-        print(f"[DIAGNOSTIC] Player: {assigned_player_name}")
-        print(f"[DIAGNOSTIC] Current handler BEFORE registerPlayer: {self.mqtt_manager.client.on_message}")
-        print(f"[DIAGNOSTIC] Handler type: {type(self.mqtt_manager.client.on_message)}")
-        if hasattr(self.mqtt_manager.client.on_message, '__name__'):
-            print(f"[DIAGNOSTIC] Handler name: {self.mqtt_manager.client.on_message.__name__}")
-        
         if not self.mqtt_manager.client or not self.mqtt_manager.client.is_connected():
             raise ValueError("MQTT client must be connected before registering player")
         
@@ -154,10 +145,6 @@ class SGDistributedSessionManager(QObject):
         retained_messages_received = []
         
         def registration_message_handler(client, userdata, msg):
-            # Diagnostic: log ALL messages received by registration handler
-            if 'session_player_registration' in msg.topic or 'session_player_disconnect' in msg.topic:
-                print(f"[DIAGNOSTIC] Registration handler received message: topic={msg.topic}, retain={msg.retain}, qos={msg.qos}, payload_len={len(msg.payload)}")
-            
             # Process session_player_registration messages (with or without player name suffix)
             if msg.topic.startswith(registration_topic_base):
                 try:
@@ -166,24 +153,15 @@ class SGDistributedSessionManager(QObject):
                     client_id = msg_dict.get('clientId')
                     is_retained = msg.retain
                     
-                    # Diagnostic logging
                     if is_retained:
                         retained_messages_received.append((player_name, client_id))
-                        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... received RETAINED registration: player={player_name}, clientId={client_id[:8]}..., topic={msg.topic}")
-                    else:
-                        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... received NEW registration: player={player_name}, clientId={client_id[:8]}...")
                     
                     if player_name and client_id:
                         # Update connected players cache
-                        old_count = len(self.connected_players)
                         self.connected_players[player_name] = client_id
-                        new_count = len(self.connected_players)
-                        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... cache updated: {old_count} -> {new_count} players (added: {player_name})")
                         # Emit signal if not our own registration
                         if client_id != self.mqtt_manager.clientId:
                             self.playerConnected.emit(player_name)
-                    else:
-                        print(f"[DIAGNOSTIC] WARNING: Missing player_name or client_id in registration message: {msg_dict}")
                 except Exception as e:
                     print(f"Error processing player registration message: {e}")
                     import traceback
@@ -211,16 +189,10 @@ class SGDistributedSessionManager(QObject):
             # Ignore other session topics (like session_seed_sync) - they have their own handlers
         
         # Install handler BEFORE subscribing (to receive retained messages)
-        print(f"[DIAGNOSTIC] Installing registration handler, replacing: {original_on_message}")
-        print(f"[DIAGNOSTIC] Handler will forward game topics to: {original_on_message}")
         self.mqtt_manager.client.on_message = registration_message_handler
         self._original_on_message = original_on_message
-        print(f"[DIAGNOSTIC] Handler installed successfully")
         
         # Subscribe to wildcard topics to receive all player registrations and disconnections
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... subscribing to registration topics BEFORE registration")
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... current cache BEFORE subscription: {list(self.connected_players.keys())}")
-        
         self.mqtt_manager.client.subscribe(registration_topic_wildcard)
         self.mqtt_manager.client.subscribe(disconnect_topic_wildcard)
         
@@ -228,12 +200,7 @@ class SGDistributedSessionManager(QObject):
         self.disconnect_topic_own = disconnect_topic_own
         
         # Wait a moment for retained messages to be processed
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... waiting 0.3s for retained messages...")
         time.sleep(0.3)
-        
-        # Diagnostic: check what was received
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... after wait, received {len(retained_messages_received)} retained messages")
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... current cache AFTER wait: {list(self.connected_players.keys())}")
         
         # Publish registration message with retain=True on player-specific topic
         registration_msg = {
@@ -246,16 +213,10 @@ class SGDistributedSessionManager(QObject):
         
         serialized_msg = json.dumps(registration_msg)
         # Use retain=True and qos=1 on player-specific topic so each player's registration is retained separately
-        print(f"[DIAGNOSTIC] Publishing registration message: topic={registration_topic_own}, player={assigned_player_name}, clientId={self.mqtt_manager.clientId[:8]}..., retain=True, qos=1")
         result = self.mqtt_manager.client.publish(registration_topic_own, serialized_msg, qos=1, retain=True)
-        print(f"[DIAGNOSTIC] Publish result: mid={result.mid}, rc={result.rc}")
         
         # Add self to connected players cache
         self.connected_players[assigned_player_name] = self.mqtt_manager.clientId
-        
-        # Final diagnostic
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... FINAL cache after own registration: {list(self.connected_players.keys())}")
-        print(f"[DIAGNOSTIC] Instance {self.mqtt_manager.clientId[:8]}... Total players in cache: {len(self.connected_players)}")
         
         return True
     
@@ -306,12 +267,8 @@ class SGDistributedSessionManager(QObject):
                     # CRITICAL: Call callback for ALL messages (retained and new) to ensure all instances are tracked
                     if client_id_callback and client_id:
                         try:
-                            retained_str = "RETAINED" if msg.retain else "NEW"
-                            print(f"[DIAGNOSTIC] syncSeed handler: Calling callback for client_id={client_id[:8]}..., message_type={retained_str}")
                             client_id_callback(client_id)
-                            print(f"[DIAGNOSTIC] syncSeed handler: Callback completed successfully for client_id={client_id[:8]}...")
                         except Exception as e:
-                            print(f"[DIAGNOSTIC] syncSeed handler: Callback error: {e}")
                             import traceback
                             traceback.print_exc()
                     

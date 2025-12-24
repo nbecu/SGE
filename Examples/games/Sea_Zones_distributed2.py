@@ -22,8 +22,11 @@ myModel.displayTimeInWindowTitle()
 # 1. Open dialog to connect to MQTT broker and synchronize seed
 # 2. Seed is synchronized and applied immediately after this call
 # 3. Player selection happens later when the game window opens
-nb_players = 3
-myModel.enableDistributedGame(num_players=nb_players)
+
+myModel.enableDistributedGame(num_players=(2,4))
+# myModel.enableDistributedGame(num_players=2)
+nb_players = myModel.getConnectedInstancesCount(default=2) 
+
 # The seed is synchronized and applied automatically by enableDistributedGame()
 
 # ============================================================================
@@ -277,6 +280,16 @@ for i in range(1, nb_players + 1):
             tile.moveTo(player_board.getCell(j, 1))
             tile.flip()  # Show front face
 
+# ============================================================================
+# Configure player board visibility (for distributed mode)
+# ============================================================================
+# Player selection happens automatically in initAfterOpening() when window opens
+# Visibility is configured automatically when player is selected
+if myModel.isDistributed():
+    for i in range(1, nb_players + 1):
+        player_board = PlayerBoards[i]
+        player = Players[i]
+        player_board.grid.setVisibilityForPlayers(player.name)
 
 # ============================================================================
 # Create game actions

@@ -2457,6 +2457,12 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         config = self.distributedConfig
         session_manager = self.distributedSessionManager
         
+        # CRITICAL: If assigned_player_name is already set, setup is already complete
+        # This prevents the dialog from opening again when launch() is called after connection dialog closes
+        if config.assigned_player_name:
+            print(f"[Model] Distributed game setup already complete (assigned_player: {config.assigned_player_name}), skipping dialog")
+            return True
+        
         # Open dialog for user to select player
         from mainClasses.SGDistributedGameDialog import SGDistributedGameDialog
         dialog = SGDistributedGameDialog(self, config, self, session_manager)
@@ -3030,6 +3036,37 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             bool: True if distributed mode is enabled, False otherwise
         """
         return hasattr(self, 'distributedConfig') and self.distributedConfig is not None
+    
+    def getConnectedInstancesCount(self, default=0):
+        """
+        Get the number of connected instances in distributed game mode.
+        
+        Args:
+            default (int, optional): Default value to return if count is not available. Defaults to 0.
+        
+        Returns:
+            int: Number of connected instances, or default value if not in distributed mode or count not available
+        
+        Example:
+            count = myModel.getConnectedInstancesCount()
+            if count >= 2:
+                print("Minimum players reached!")
+            
+            # With custom default value
+            count = myModel.getConnectedInstancesCount(default=1)
+        """
+        if not self.isDistributed():
+            return default
+        
+        if (hasattr(self, 'distributedConfig') and 
+            self.distributedConfig and 
+            hasattr(self.distributedConfig, 'connected_instances_count')):
+            count = self.distributedConfig.connected_instances_count
+            # Return count if it's a valid integer, otherwise return default
+            if isinstance(count, int) and count >= 0:
+                return count
+        
+        return default
 
     def roundNumber(self):
         """Return the current ingame round number"""

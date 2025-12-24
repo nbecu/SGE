@@ -167,9 +167,6 @@ class SGConnectionStatusWidget(QWidget):
             total_players = self.distributed_config.num_players_max
         
         # Diagnostic logging
-        print(f"[DIAGNOSTIC] Widget update: Instance {self.model.mqttManager.clientId[:8] if self.model.mqttManager.clientId else 'N/A'}... sees {num_connected}/{total_players} connected players")
-        print(f"[DIAGNOSTIC] Widget update: Connected players list: {connected_players}")
-        print(f"[DIAGNOSTIC] Widget update: SessionManager cache: {list(self.session_manager.connected_players.keys())}")
         
         self.stats_label.setText(f"Connected: {num_connected}/{total_players}")
     

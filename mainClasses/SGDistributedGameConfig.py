@@ -28,6 +28,8 @@ class SGDistributedGameConfig:
         self.broker_port = 1883  # int: MQTT broker port
         self.mqtt_update_type = "Instantaneous"  # str: "Instantaneous" or "Phase"
         self.seed_sync_timeout = 1.0  # float: Timeout in seconds to wait for existing seed before becoming leader
+        self.is_session_creator = False  # bool: True if this instance created the session
+        self.connected_instances_count = 0  # int: Number of connected instances
     
     def set_num_players(self, num_players):
         """
