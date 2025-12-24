@@ -43,8 +43,11 @@ class SGDistributedConnectionDialog(QDialog):
         self.connection_status = "Not connected"
         self.seed_synced = False
         self.synced_seed_value = None
-        self.connected_instances = set()  # Set of clientIds connected to this session
+        self.connected_instances = set()  # Set of clientIds connected to this session (via seed sync)
+        self.ready_instances = set()  # Set of clientIds that have completed seed sync and subscribed to game_start
         self.connected_instances_snapshot = None  # Snapshot of connected instances when dialog becomes ready
+        self._last_republish_time = 0  # Timestamp of last seed sync republish (to prevent loops)
+        self._republish_cooldown = 2.0  # Minimum seconds between republishes (to prevent loops)
         self.current_state = self.STATE_SETUP
         self.auto_start_countdown = None  # Countdown timer for auto-start (3, 2, 1...)
         self.auto_start_timer = None  # QTimer for countdown
@@ -610,6 +613,8 @@ class SGDistributedConnectionDialog(QDialog):
             return
         
         try:
+            # CRITICAL: Use ready_instances instead of connected_instances
+            # Only count instances that have completed seed sync AND subscribed to game_start
             # CRITICAL: Use snapshot if dialog is READY to avoid counting instances that connect after READY state
             # This prevents counting temporary connections or instances that connect after we have enough instances
             # The snapshot is taken when dialog transitions to READY state
@@ -617,9 +622,9 @@ class SGDistributedConnectionDialog(QDialog):
                 # Snapshot available (dialog is READY) - use it to avoid counting new instances
                 instances_to_count = self.connected_instances_snapshot
             else:
-                # Snapshot not available yet (dialog not READY) - count all instances
-                # This allows instances to be counted as they connect during the waiting period
-                instances_to_count = self.connected_instances
+                # Snapshot not available yet (dialog not READY) - count all ready instances
+                # This allows instances to be counted as they become ready during the waiting period
+                instances_to_count = self.ready_instances
             
             num_instances = len(instances_to_count)
             
@@ -669,13 +674,14 @@ class SGDistributedConnectionDialog(QDialog):
                 if max_reached:
                     # CRITICAL: Take snapshot IMMEDIATELY when we first detect EXACTLY the maximum number of instances
                     # This prevents counting instances that connect after we have enough
+                    # Use ready_instances for snapshot (only instances that are truly ready)
                     if self.connected_instances_snapshot is None and num_instances == max_required:
-                        self.connected_instances_snapshot = self.connected_instances.copy()
+                        self.connected_instances_snapshot = self.ready_instances.copy()
                     elif self.connected_instances_snapshot is None and num_instances > max_required:
                         # We have more than maximum - this means an instance connected after we reached the maximum count
                         # Take snapshot with only the first N instances (where N = max_required)
                         # Take first N instances from the set (order is not guaranteed, but this is better than taking all)
-                        instances_list = list(self.connected_instances)
+                        instances_list = list(self.ready_instances)
                         self.connected_instances_snapshot = set(instances_list[:max_required])
                     
                     if self.current_state != self.STATE_READY_MAX:
@@ -1066,6 +1072,12 @@ class SGDistributedConnectionDialog(QDialog):
             # CRITICAL: Subscribe to game start topic for synchronization
             self._subscribeToGameStart()
             
+            # CRITICAL: Subscribe to instance ready topic to track which instances are ready
+            self._subscribeToInstanceReady()
+            
+            # CRITICAL: Publish instance ready signal after seed sync and game start subscription
+            self._publishInstanceReady()
+            
             # NOTE: We do NOT take snapshot here - we continue counting instances until READY state
             # The snapshot will be taken when dialog transitions to READY state
             # This ensures all instances that connect during the waiting period are counted
@@ -1138,15 +1150,10 @@ class SGDistributedConnectionDialog(QDialog):
                                 QTimer.singleShot(0, self._updateConnectedInstances)
                                 print(f"[Dialog] New instance detected: {client_id[:8]}... Total: {len(self.connected_instances)}")
                                 
-                                # CRITICAL: If this is a NEW instance (not retained), republish our own seed sync message
-                                # This ensures that the new instance receives our presence even if our retained message was overwritten
-                                # This is especially important when multiple instances are already connected
-                                # OPTIMIZATION: Only republish if dialog is not READY yet (to avoid unnecessary messages)
-                                if (not is_retained and is_new_instance and 
-                                    client_id != self.model.mqttManager.clientId and
-                                    self.connected_instances_snapshot is None):  # Only if not READY yet
-                                    # Use QTimer to avoid blocking the MQTT handler thread
-                                    QTimer.singleShot(100, lambda: self._republishSeedSync())
+                                # NOTE: We do NOT republish seed sync when a new instance is detected
+                                # This was causing infinite loops when multiple instances connect simultaneously.
+                                # The periodic timer (every 3 seconds) is sufficient to ensure new instances
+                                # receive our presence via retained messages.
                 except Exception as e:
                     print(f"[Dialog] Error tracking instance: {e}")
                     import traceback
@@ -1410,6 +1417,125 @@ class SGDistributedConnectionDialog(QDialog):
         import time
         time.sleep(0.1)  # Small delay to ensure message is queued
     
+    def _publishInstanceReady(self):
+        """
+        Publish instance ready signal to indicate this instance has completed seed sync
+        and subscribed to game_start topic.
+        
+        Uses instance-specific topic to ensure all retained messages are preserved.
+        """
+        if not (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected()):
+            return
+        
+        # Get instance ready topic base
+        session_topics = self.session_manager.getSessionTopics(self.config.session_id)
+        instance_ready_topic_base = session_topics[4]  # session_instance_ready (index 4)
+        
+        # Use instance-specific topic: {session_id}/session_instance_ready/{client_id}
+        # This ensures all retained messages are preserved (one per instance)
+        instance_ready_topic = f"{instance_ready_topic_base}/{self.model.mqttManager.clientId}"
+        
+        # Create ready message
+        from datetime import datetime
+        ready_msg = {
+            'clientId': self.model.mqttManager.clientId,
+            'timestamp': datetime.now().isoformat(),
+            'seed_synced': True,
+            'game_start_subscribed': True
+        }
+        
+        import json
+        serialized_msg = json.dumps(ready_msg)
+        
+        # Publish with retain=True so new subscribers can see which instances are ready
+        # Use QoS=1 to ensure delivery
+        result = self.model.mqttManager.client.publish(
+            instance_ready_topic, 
+            serialized_msg, 
+            qos=1,
+            retain=True  # Retain so new subscribers can see ready instances
+        )
+        
+        print(f"[Dialog] Published instance ready signal to {instance_ready_topic}")
+        print(f"[Dialog] Publish result: mid={result.mid}, rc={result.rc}")
+        
+        # Add ourselves to ready_instances immediately
+        if self.model.mqttManager.clientId not in self.ready_instances:
+            self.ready_instances.add(self.model.mqttManager.clientId)
+            print(f"[Dialog] Added self to ready_instances: {self.model.mqttManager.clientId[:8]}...")
+            # Update UI to reflect that we are ready
+            QTimer.singleShot(0, self._updateConnectedInstances)
+    
+    def _subscribeToInstanceReady(self):
+        """
+        Subscribe to instance ready topic to track which instances are ready.
+        
+        Uses wildcard subscription to receive ready signals from all instances.
+        """
+        if not (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected()):
+            return
+        
+        # Get instance ready topic base
+        session_topics = self.session_manager.getSessionTopics(self.config.session_id)
+        instance_ready_topic_base = session_topics[4]  # session_instance_ready (index 4)
+        
+        # Subscribe to wildcard topic to receive ready signals from all instances
+        # Format: {session_id}/session_instance_ready/+
+        instance_ready_topic_wildcard = f"{instance_ready_topic_base}/+"
+        
+        # Get current handler (which is game_start_handler)
+        current_handler = self.model.mqttManager.client.on_message
+        
+        # Create wrapper to handle instance ready messages
+        def instance_ready_handler(client, userdata, msg):
+            # CRITICAL: Protect against RuntimeError if dialog is destroyed
+            try:
+                if msg.topic.startswith(instance_ready_topic_base):
+                    # Instance ready message received (from any instance)
+                    try:
+                        import json
+                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        sender_client_id = msg_dict.get('clientId')
+                        
+                        if sender_client_id:
+                            # Add to ready_instances (whether it's us or another instance)
+                            if sender_client_id not in self.ready_instances:
+                                self.ready_instances.add(sender_client_id)
+                                if sender_client_id != self.model.mqttManager.clientId:
+                                    print(f"[Dialog] Instance {sender_client_id[:8]}... is ready (seed synced and subscribed to game_start)")
+                                else:
+                                    print(f"[Dialog] Self instance is ready (seed synced and subscribed to game_start)")
+                                # Update UI to reflect new ready instance
+                                QTimer.singleShot(0, self._updateConnectedInstances)
+                    except Exception as e:
+                        print(f"[Dialog] Error processing instance ready message: {e}")
+                        import traceback
+                        traceback.print_exc()
+                    return
+            except RuntimeError:
+                # Dialog has been deleted, ignore
+                return
+            
+            # Forward other messages to current handler
+            if current_handler:
+                current_handler(client, userdata, msg)
+        
+        # Install wrapper BEFORE subscribing (critical for receiving retained messages)
+        self._instance_ready_handler = instance_ready_handler
+        self.model.mqttManager.client.on_message = instance_ready_handler
+        
+        # Subscribe to wildcard topic to receive ready signals from all instances
+        result = self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
+        print(f"[Dialog] Subscribed to instance ready wildcard topic: {instance_ready_topic_wildcard}")
+        print(f"[Dialog] Subscribe result: mid={result[0]}, rc={result[1]}")
+        
+        # Wait a moment for retained messages to be received
+        # Increased delay to ensure all retained messages are received
+        import time
+        time.sleep(0.5)  # Delay to receive retained ready messages from all instances
+    
     def _onStartNowClicked(self):
         """Handle Start Now button click - only available on creator instance"""
         # Only creator can click this button (UI enforces this)
@@ -1422,11 +1548,12 @@ class SGDistributedConnectionDialog(QDialog):
         else:
             min_required = self.config.num_players_min
         
-        # Use snapshot if available, otherwise use current count
+        # Use snapshot if available, otherwise use current count of ready instances
+        # Only count instances that have completed seed sync AND subscribed to game_start
         if self.connected_instances_snapshot is not None:
             num_instances = len(self.connected_instances_snapshot)
         else:
-            num_instances = len(self.connected_instances)
+            num_instances = len(self.ready_instances)
         
         if num_instances < min_required:
             QMessageBox.warning(
@@ -1479,6 +1606,12 @@ class SGDistributedConnectionDialog(QDialog):
         if not self.config.session_id:
             return
         
+        # CRITICAL: Cooldown check to prevent infinite loops
+        import time
+        current_time = time.time()
+        if (current_time - self._last_republish_time) < self._republish_cooldown:
+            return  # Too soon since last republish, skip to prevent loops
+        
         # Get seed sync topic
         session_topics = self.session_manager.getSessionTopics(self.config.session_id)
         seed_topic = session_topics[1]  # session_seed_sync
@@ -1493,6 +1626,9 @@ class SGDistributedConnectionDialog(QDialog):
         import json
         serialized_msg = json.dumps(seed_msg)
         self.model.mqttManager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
+        
+        # Update last republish time
+        self._last_republish_time = current_time
     
     def _startAutoStartCountdown(self):
         """Start 3-second countdown before auto-starting"""
@@ -1518,10 +1654,11 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Check if still at maximum (countdown only runs at maximum)
         # Use snapshot if dialog is READY to avoid counting instances that connect after READY state
+        # Only count instances that have completed seed sync AND subscribed to game_start
         if self.connected_instances_snapshot is not None:
             num_instances = len(self.connected_instances_snapshot)
         else:
-            num_instances = len(self.connected_instances)
+            num_instances = len(self.ready_instances)
         
         # Check if still at maximum (countdown only runs at maximum)
         if isinstance(self.config.num_players, int):

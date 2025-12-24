@@ -26,7 +26,7 @@ class SGDistributedSessionManager(QObject):
     """
     
     # Centralized list of session topics (base names without prefixes)
-    SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect', 'game_start']
+    SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect', 'game_start', 'instance_ready']
     
     # Global topic for session discovery (no session_id prefix)
     DISCOVERY_TOPIC = 'session_discovery'
@@ -52,6 +52,7 @@ class SGDistributedSessionManager(QObject):
         self.seed_received = False
         self.synced_seed = None
         self.is_leader = False  # True if this instance generated the seed
+        self._seed_adopted_and_published = False  # Track if we've already published after adopting seed (to prevent loops)
         
         # Save original message handler
         self._original_on_message = None
@@ -226,6 +227,8 @@ class SGDistributedSessionManager(QObject):
         
         IMPORTANT: Requires MQTT client to be already connected.
         Uses temporary message handler ONLY for session_seed_sync topic.
+        
+        CRITICAL: Resets _seed_adopted_and_published flag to allow new synchronization.
         Does NOT interfere with game message handling.
         
         Args:
@@ -247,6 +250,9 @@ class SGDistributedSessionManager(QObject):
         
         # Save original handler BEFORE installing our handler
         original_on_message = self.mqtt_manager.client.on_message
+        
+        # CRITICAL: Reset flag to allow new synchronization
+        self._seed_adopted_and_published = False
         
         # Track when we received a seed from another instance (to delay handler restoration)
         seed_received_time = None
@@ -274,30 +280,46 @@ class SGDistributedSessionManager(QObject):
                     
                     # If this is not our own message, use this seed
                     if client_id != self.mqtt_manager.clientId:
-                        print(f"[SessionManager] Adopting seed from other instance: {seed_value}")
-                        self.synced_seed = seed_value
-                        self.seed_received = True
-                        self.seedReceived.emit(self.synced_seed)
-                        # Mark when we received the seed (don't restore handler immediately)
-                        # This allows us to continue receiving retained messages
-                        seed_received_time = time.time()
-                        # CRITICAL: Publish our own seed message (with adopted seed) so other instances can detect us
-                        # This is important for instance tracking - each instance must publish its presence
-                        seed_msg = {
-                            'clientId': self.mqtt_manager.clientId,
-                            'seed': seed_value,  # Use adopted seed
-                            'is_leader': False,  # We're not the leader
-                            'timestamp': datetime.now().isoformat()
-                        }
-                        serialized_msg = json.dumps(seed_msg)
-                        self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-                        print(f"[SessionManager] Published own seed message (adopted seed) to {seed_topic}")
-                        
-                        # CRITICAL: Store seed value (republishing will be started at end of syncSeed)
-                        self.synced_seed_value = seed_value
-                        # CRITICAL: Return immediately after setting seed_received
-                        # This prevents the code from continuing to check if not self.seed_received
-                        return
+                        # CRITICAL: Only adopt and publish ONCE to prevent infinite loops
+                        # If we've already adopted and published, skip to prevent re-publishing on every message
+                        if not self._seed_adopted_and_published:
+                            print(f"[SessionManager] Adopting seed from other instance: {seed_value}")
+                            self.synced_seed = seed_value
+                            self.seed_received = True
+                            self.seedReceived.emit(self.synced_seed)
+                            # Mark when we received the seed (don't restore handler immediately)
+                            # This allows us to continue receiving retained messages
+                            seed_received_time = time.time()
+                            # CRITICAL: Publish our own seed message (with adopted seed) so other instances can detect us
+                            # This is important for instance tracking - each instance must publish its presence
+                            # BUT: Only publish ONCE to prevent infinite loops when multiple instances connect
+                            seed_msg = {
+                                'clientId': self.mqtt_manager.clientId,
+                                'seed': seed_value,  # Use adopted seed
+                                'is_leader': False,  # We're not the leader
+                                'timestamp': datetime.now().isoformat()
+                            }
+                            serialized_msg = json.dumps(seed_msg)
+                            self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
+                            print(f"[SessionManager] Published own seed message (adopted seed) to {seed_topic}")
+                            
+                            # CRITICAL: Mark that we've adopted and published to prevent re-publishing
+                            self._seed_adopted_and_published = True
+                            
+                            # CRITICAL: Store seed value (republishing will be started at end of syncSeed)
+                            self.synced_seed_value = seed_value
+                            # CRITICAL: Return immediately after setting seed_received
+                            # This prevents the code from continuing to check if not self.seed_received
+                            return
+                        else:
+                            # Seed already adopted and published - just update synced_seed if different
+                            # (shouldn't happen, but just in case)
+                            if self.synced_seed != seed_value:
+                                print(f"[SessionManager] Seed already adopted, but received different seed. Updating from {self.synced_seed} to {seed_value}")
+                                self.synced_seed = seed_value
+                                self.synced_seed_value = seed_value
+                            # Don't republish - we've already published once
+                            return
                 except Exception as e:
                     print(f"Error processing seed message: {e}")
             # CRITICAL: Do NOT forward other messages - they are handled by SGMQTTManager
