@@ -154,12 +154,15 @@ class SGDistributedSessionManager(QObject):
                     client_id = msg_dict.get('clientId')
                     is_retained = msg.retain
                     
+                    print(f"[SessionManager] registration_message_handler: Processing registration for {player_name} from {client_id[:8] if client_id else 'N/A'}... (retained={is_retained})")
+                    
                     if is_retained:
                         retained_messages_received.append((player_name, client_id))
                     
                     if player_name and client_id:
                         # Update connected players cache
                         self.connected_players[player_name] = client_id
+                        print(f"[SessionManager] Updated connected_players: {list(self.connected_players.keys())}")
                         # Emit signal if not our own registration
                         if client_id != self.mqtt_manager.clientId:
                             self.playerConnected.emit(player_name)
@@ -183,13 +186,14 @@ class SGDistributedSessionManager(QObject):
                                 self.playerDisconnected.emit(player_name)
                 except Exception as e:
                     print(f"Error processing player disconnect message: {e}")
-            # CRITICAL: Forward ONLY game topics to original handler
-            elif self.mqtt_manager.isGameTopic(msg.topic, session_id):
+            # CRITICAL: Forward ALL other messages to original handler (which may include all_players_selected_handler)
+            # This ensures that handlers installed after this one (like all_players_selected_handler) still receive messages
+            else:
                 if original_on_message:
                     original_on_message(client, userdata, msg)
-            # Ignore other session topics (like session_seed_sync) - they have their own handlers
         
         # Install handler BEFORE subscribing (to receive retained messages)
+        # CRITICAL: This wraps the existing handler chain, preserving all handlers installed before this one
         self.mqtt_manager.client.on_message = registration_message_handler
         self._original_on_message = original_on_message
         
@@ -641,6 +645,8 @@ class SGDistributedSessionManager(QObject):
             # Only log reservation-related topics to avoid spam
             if msg.topic.startswith(reservation_topic_base) or 'reservation' in msg.topic.lower():
                 print(f"[SessionManager] reservation_message_handler called: topic={msg.topic}, handler={reservation_message_handler}")
+            elif 'session_all_players_selected' in msg.topic:
+                print(f"[SessionManager] reservation_message_handler called for all_players_selected: topic={msg.topic}, handler={reservation_message_handler}")
             
             # Process reservation messages
             if msg.topic.startswith(reservation_topic_base):
@@ -677,7 +683,14 @@ class SGDistributedSessionManager(QObject):
                 return
             
             # Forward other messages to original handler
+            # NOTE: original_handler was the handler active BEFORE reservation handler was installed
+            # But after all_players_selected_handler is installed, the chain should be:
+            # all_players_selected_handler -> reservation_message_handler -> original_handler
+            # So we forward to original_handler, which is correct
             if original_handler:
+                if 'session_all_players_selected' in msg.topic:
+                    print(f"[SessionManager] Forwarding all_players_selected message to original handler: topic={msg.topic}, original_handler={original_handler}")
+                print(f"[SessionManager] Forwarding non-reservation message to original handler: topic={msg.topic}")
                 original_handler(client, userdata, msg)
             else:
                 print(f"[SessionManager] WARNING: No original handler to forward message: topic={msg.topic}")

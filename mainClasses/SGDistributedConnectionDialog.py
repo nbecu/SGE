@@ -402,8 +402,34 @@ class SGDistributedConnectionDialog(QDialog):
                 self.model.mqttManager.client.is_connected()):
             return
         
-        # Get current handler (might be seed tracking wrapper or discovery handler)
+        # Get current handler (might be seed tracking wrapper, discovery handler, or all_players_selected_handler)
         current_handler = self.model.mqttManager.client.on_message
+        
+        # CRITICAL: Check if our handler is already installed
+        # If it is, just update subscriptions if needed (don't replace the handler)
+        if hasattr(self, '_player_registration_tracker') and \
+           current_handler == self._player_registration_tracker:
+            # Our handler is already installed, just update subscriptions if needed
+            # Don't replace the handler to preserve the chain
+            # Subscribe to player registration topics for all discovered sessions (in case new sessions were discovered)
+            for session_id in self.available_sessions.keys():
+                registration_topic_wildcard = f"{session_id}/session_player_registration/+"
+                self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+            return
+        
+        # CRITICAL: If we've installed our handler before, but the current handler is different,
+        # it means a more important handler (like all_players_selected_handler) was installed after ours.
+        # In that case, we should NOT replace it, as it would break the handler chain.
+        # Just update subscriptions without replacing the handler.
+        if hasattr(self, '_player_registration_tracker') and \
+           current_handler != self._player_registration_tracker:
+            # A more important handler is installed, don't replace it
+            # Just update subscriptions if needed
+            print(f"[Dialog] More important handler detected ({current_handler}), not replacing. Just updating subscriptions.")
+            for session_id in self.available_sessions.keys():
+                registration_topic_wildcard = f"{session_id}/session_player_registration/+"
+                self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+            return
         
         # Create wrapper to track player registrations for discovered sessions
         def player_registration_tracker(client, userdata, msg):
@@ -436,6 +462,9 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Install wrapper BEFORE subscribing (critical for receiving retained messages)
         # Store reference to avoid garbage collection
+        # CRITICAL: Save the handler that was active before we install our handler
+        # This allows us to avoid double-wrapping if this method is called multiple times
+        self._original_handler_before_registration_tracker = current_handler
         self._player_registration_tracker = player_registration_tracker
         self.model.mqttManager.client.on_message = player_registration_tracker
         
