@@ -26,7 +26,7 @@ class SGDistributedSessionManager(QObject):
     """
     
     # Centralized list of session topics (base names without prefixes)
-    SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect', 'game_start', 'instance_ready']
+    SESSION_TOPICS = ['player_registration', 'seed_sync', 'player_disconnect', 'game_start', 'instance_ready', 'player_reservation', 'all_players_selected']
     
     # Global topic for session discovery (no session_id prefix)
     DISCOVERY_TOPIC = 'session_discovery'
@@ -552,6 +552,166 @@ class SGDistributedSessionManager(QObject):
             self.seed_sync_republish_timer.stop()
             self.seed_sync_republish_timer = None
             print(f"[SessionManager] Stopped seed sync republishing timer")
+    
+    def reservePlayer(self, session_id, player_name):
+        """
+        Reserve a player by publishing a reservation message.
+        
+        Args:
+            session_id (str): Session identifier
+            player_name (str): Name of player to reserve
+        
+        Returns:
+            bool: True if reservation published successfully, False otherwise
+        """
+        if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+            return False
+        
+        session_topics = self.getSessionTopics(session_id)
+        reservation_topic_base = session_topics[5]  # session_player_reservation (index 5)
+        reservation_topic = f"{reservation_topic_base}/{player_name}"
+        
+        reservation_msg = {
+            'clientId': self.mqtt_manager.clientId,
+            'player_name': player_name,
+            'action': 'reserve',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        serialized_msg = json.dumps(reservation_msg)
+        result = self.mqtt_manager.client.publish(reservation_topic, serialized_msg, qos=1, retain=True)
+        
+        print(f"[SessionManager] Published player reservation: {player_name} on {reservation_topic}")
+        return result.rc == 0
+    
+    def releasePlayer(self, session_id, player_name):
+        """
+        Release a player reservation by publishing a release message.
+        
+        Args:
+            session_id (str): Session identifier
+            player_name (str): Name of player to release
+        
+        Returns:
+            bool: True if release published successfully, False otherwise
+        """
+        if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+            return False
+        
+        session_topics = self.getSessionTopics(session_id)
+        reservation_topic_base = session_topics[5]  # session_player_reservation (index 5)
+        reservation_topic = f"{reservation_topic_base}/{player_name}"
+        
+        release_msg = {
+            'clientId': self.mqtt_manager.clientId,
+            'player_name': player_name,
+            'action': 'release',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        serialized_msg = json.dumps(release_msg)
+        result = self.mqtt_manager.client.publish(reservation_topic, serialized_msg, qos=1, retain=True)
+        
+        print(f"[SessionManager] Published player release: {player_name} on {reservation_topic}")
+        return result.rc == 0
+    
+    def subscribeToPlayerReservations(self, session_id, callback):
+        """
+        Subscribe to player reservation messages and call callback for each message.
+        
+        Args:
+            session_id (str): Session identifier
+            callback (callable): Function(client_id, player_name, action) called for each reservation message
+        
+        Returns:
+            bool: True if subscription successful, False otherwise
+        """
+        if not (self.mqtt_manager.client and self.mqtt_manager.client.is_connected()):
+            return False
+        
+        session_topics = self.getSessionTopics(session_id)
+        reservation_topic_base = session_topics[5]  # session_player_reservation (index 5)
+        reservation_topic_wildcard = f"{reservation_topic_base}/+"
+        
+        # Get current handler
+        original_handler = self.mqtt_manager.client.on_message
+        
+        def reservation_message_handler(client, userdata, msg):
+            # Debug: log all messages to see what's being received
+            # Only log reservation-related topics to avoid spam
+            if msg.topic.startswith(reservation_topic_base) or 'reservation' in msg.topic.lower():
+                print(f"[SessionManager] reservation_message_handler called: topic={msg.topic}, handler={reservation_message_handler}")
+            
+            # Process reservation messages
+            if msg.topic.startswith(reservation_topic_base):
+                try:
+                    # Log all reservation messages (including retained)
+                    is_retained = msg.retain
+                    msg_dict = json.loads(msg.payload.decode("utf-8"))
+                    client_id = msg_dict.get('clientId')
+                    player_name = msg_dict.get('player_name')
+                    action = msg_dict.get('action')
+                    
+                    print(f"[SessionManager] Reservation message received: topic={msg.topic}, action={action}, player={player_name}, client={client_id[:8] if client_id else 'N/A'}..., retained={is_retained}, our_client_id={self.mqtt_manager.clientId[:8] if self.mqtt_manager.clientId else 'N/A'}..., handler={reservation_message_handler}")
+                    
+                    if client_id and player_name and action:
+                        # Call callback
+                        if callback:
+                            try:
+                                print(f"[SessionManager] Calling reservation callback for {player_name}")
+                                callback(client_id, player_name, action)
+                                print(f"[SessionManager] Reservation callback completed for {player_name}")
+                            except Exception as e:
+                                print(f"[SessionManager] Error in reservation callback: {e}")
+                                import traceback
+                                traceback.print_exc()
+                        else:
+                            print(f"[SessionManager] WARNING: No callback provided for reservation message")
+                    else:
+                        print(f"[SessionManager] WARNING: Invalid reservation message - missing fields: client_id={client_id}, player_name={player_name}, action={action}")
+                except Exception as e:
+                    print(f"[SessionManager] Error processing reservation message: {e}")
+                    import traceback
+                    traceback.print_exc()
+                # Don't forward reservation messages
+                return
+            
+            # Forward other messages to original handler
+            if original_handler:
+                original_handler(client, userdata, msg)
+            else:
+                print(f"[SessionManager] WARNING: No original handler to forward message: topic={msg.topic}")
+        
+        # Install handler BEFORE subscribing (to receive retained messages)
+        # CRITICAL: Save the current handler to preserve the chain
+        previous_handler = self.mqtt_manager.client.on_message
+        self.mqtt_manager.client.on_message = reservation_message_handler
+        self._player_reservation_handler = reservation_message_handler
+        self._previous_handler_before_reservations = previous_handler  # Store for debugging
+        
+        print(f"[SessionManager] Installing reservation handler. Previous handler: {previous_handler}")
+        
+        # Subscribe to wildcard topic
+        result = self.mqtt_manager.client.subscribe(reservation_topic_wildcard, qos=1)
+        print(f"[SessionManager] Subscribed to player reservations: {reservation_topic_wildcard}, result: {result}")
+        print(f"[SessionManager] Handler after subscription: {self.mqtt_manager.client.on_message}")
+        
+        # Check subscription result
+        if isinstance(result, tuple):
+            rc, mid = result
+            success = rc == 0  # MQTT_ERR_SUCCESS is 0
+            print(f"[SessionManager] Subscription result: rc={rc}, mid={mid}, success={success}")
+        else:
+            success = False
+            print(f"[SessionManager] WARNING: Unexpected subscription result type: {result}")
+        
+        # Wait a moment for retained messages to be received
+        # Increased delay to ensure retained messages are received
+        print(f"[SessionManager] Waiting for retained reservation messages...")
+        time.sleep(0.5)
+        print(f"[SessionManager] Finished waiting for retained messages")
+        
+        return success
     
     def stopSessionHeartbeat(self):
         """Stop the session heartbeat timer"""
