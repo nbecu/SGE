@@ -361,11 +361,8 @@ class SGDistributedGameDialog(QDialog):
                         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
                         num_registered = len(connected_players)
                         
-                        # Get required number of players
-                        if isinstance(self.config.num_players, int):
-                            required = self.config.num_players
-                        else:
-                            required = self.config.num_players_max
+                        # Get required number of players (based on actual connected instances for variable player count)
+                        required = self._getRequiredPlayersCount()
                         
                         print(f"[Dialog] Verifying: {num_registered}/{required} players registered (message trusted because waiting_for_others=True)")
                         
@@ -452,13 +449,10 @@ class SGDistributedGameDialog(QDialog):
         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
         num_registered = len(connected_players)
         
-        # Get required number of players
-        if isinstance(self.config.num_players, int):
-            required = self.config.num_players
-        else:
-            required = self.config.num_players_max
+        # Get required number of players (based on actual connected instances for variable player count)
+        required = self._getRequiredPlayersCount()
         
-        print(f"[Dialog] Retained check: {num_registered}/{required} players registered (connected_players: {connected_players})")
+        print(f"[Dialog] Retained check: {num_registered}/{required} players registered (connected_players: {connected_players}, connected_instances: {getattr(self.config, 'connected_instances_count', 0) if not isinstance(self.config.num_players, int) else 'N/A'})")
         
         if num_registered >= required:
             # All players are already selected!
@@ -596,6 +590,36 @@ class SGDistributedGameDialog(QDialog):
         # Auto-close after 3 seconds
         QTimer.singleShot(3000, msg_box.close)
     
+    def _getRequiredPlayersCount(self):
+        """
+        Get the required number of players based on configuration.
+        
+        Returns:
+            int: Required number of players
+                - If num_players is int: returns that value
+                - If num_players is tuple (min, max): returns min(connected_instances_count, max)
+                  with validation that connected_instances_count >= min
+        """
+        if isinstance(self.config.num_players, int):
+            return self.config.num_players
+        else:
+            # Variable number of players: use the actual number of connected instances
+            # but capped at num_players_max
+            connected_count = getattr(self.config, 'connected_instances_count', 0)
+            min_required = self.config.num_players_min
+            max_allowed = self.config.num_players_max
+            
+            # If connected_instances_count is not available or 0, fallback to minimum
+            if connected_count <= 0:
+                return min_required
+            
+            # Validate that we have at least the minimum required
+            if connected_count < min_required:
+                # Not enough instances connected yet, use minimum as requirement
+                return min_required
+            
+            # Use the actual number of connected instances, capped at maximum
+            return min(connected_count, max_allowed)
     
     def _updateWaitingStatus(self):
         """Update the waiting status label"""
@@ -607,11 +631,8 @@ class SGDistributedGameDialog(QDialog):
         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
         num_registered = len(connected_players)
         
-        # Get required number of players
-        if isinstance(self.config.num_players, int):
-            required = self.config.num_players
-        else:
-            required = self.config.num_players_max  # Use max for waiting
+        # Get required number of players (based on actual connected instances for variable player count)
+        required = self._getRequiredPlayersCount()
         
         remaining = max(0, required - num_registered)
         
@@ -638,13 +659,10 @@ class SGDistributedGameDialog(QDialog):
         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
         num_registered = len(connected_players)
         
-        # Get required number of players
-        if isinstance(self.config.num_players, int):
-            required = self.config.num_players
-        else:
-            required = self.config.num_players_max  # Use max for waiting
+        # Get required number of players (based on actual connected instances for variable player count)
+        required = self._getRequiredPlayersCount()
         
-        print(f"[Dialog] Checking: {num_registered}/{required} players registered (connected_players: {connected_players})")
+        print(f"[Dialog] Checking: {num_registered}/{required} players registered (connected_players: {connected_players}, connected_instances: {getattr(self.config, 'connected_instances_count', 0) if not isinstance(self.config.num_players, int) else 'N/A'})")
         
         if num_registered >= required:
             # All players selected! 
