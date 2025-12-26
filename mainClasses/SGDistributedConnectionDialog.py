@@ -393,11 +393,9 @@ class SGDistributedConnectionDialog(QDialog):
             
             # CRITICAL: Update list immediately to show new sessions, even if instance counts are not yet available
             # This ensures new sessions appear in the list right away
-            if not self._selected_session_id:
-                print(f"[Dialog] Updating sessions list immediately with {len(self.available_sessions)} sessions")
-                self._updateSessionsList()
-            else:
-                print(f"[Dialog] Skipping list update (session selected: {self._selected_session_id})")
+            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
+            print(f"[Dialog] Updating sessions list immediately with {len(self.available_sessions)} sessions")
+            self._updateSessionsList()
             
             # Subscribe to player registration topics for all discovered sessions to get player counts
             # This will receive retained messages for already-registered players
@@ -505,8 +503,9 @@ class SGDistributedConnectionDialog(QDialog):
                             self.session_instances_cache[session_id].add(client_id)
                             new_instances_count = len(self.session_instances_cache[session_id])
                             
-                            # Update list if instances count changed and no session is selected
-                            if new_instances_count != old_instances_count and not self._selected_session_id:
+                            # Update list if instances count changed
+                            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
+                            if new_instances_count != old_instances_count:
                                 QTimer.singleShot(100, self._updateSessionsList)
                         
                         # Also track players (by player_name) for backward compatibility
@@ -540,8 +539,9 @@ class SGDistributedConnectionDialog(QDialog):
                                 self.session_instances_cache[session_id].remove(client_id)
                             new_instances_count = len(self.session_instances_cache[session_id])
                             
-                            # Update list if instances count changed and no session is selected
-                            if new_instances_count != old_instances_count and not self._selected_session_id:
+                            # Update list if instances count changed
+                            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
+                            if new_instances_count != old_instances_count:
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking player disconnect: {e}")
@@ -570,8 +570,9 @@ class SGDistributedConnectionDialog(QDialog):
                             
                             print(f"[Dialog] Instance ready for session {session_id}: {client_id[:8]}... (cache: {old_instances_count} -> {new_instances_count})")
                             
-                            # Update list if instances count changed and no session is selected
-                            if new_instances_count != old_instances_count and not self._selected_session_id:
+                            # Update list if instances count changed
+                            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
+                            if new_instances_count != old_instances_count:
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking instance ready: {e}")
@@ -683,6 +684,10 @@ class SGDistributedConnectionDialog(QDialog):
             num_instances = len(connected_instances)
             print(f"[Dialog] Session {session_id}: {num_instances} instances in cache (cache keys: {list(self.session_instances_cache.keys())})")
             
+            # Check if this is the session we're connected to
+            is_connected_session = (self.config.session_id == session_id and 
+                                   self._isConnected())
+            
             # Build instances text with availability info
             if num_min == num_max:
                 if num_instances >= num_max:
@@ -702,12 +707,22 @@ class SGDistributedConnectionDialog(QDialog):
                     instances_text = f"{num_instances}/{num_min}-{num_max} instances (Available)"
                     is_full = False
             
-            display_text = f"{model_name} ({instances_text})"
+            # Add checkmark if this is the connected session
+            if is_connected_session:
+                display_text = f"{model_name} ✓ ({instances_text})"
+            else:
+                display_text = f"{model_name} ({instances_text})"
+            
             item = QListWidgetItem(display_text)
             item.setData(Qt.UserRole, session_id)
             
-            # Style full sessions differently
-            if is_full:
+            # Style connected session with blue background
+            if is_connected_session:
+                item.setBackground(QColor("#e3f2fd"))  # Light blue background
+                # Make checkmark blue if possible (using rich text or styling)
+                # For now, the checkmark will be in default text color
+            # Style full sessions differently (only if not connected)
+            elif is_full:
                 item.setForeground(QColor("#888"))  # Gray color for full sessions
                 font = item.font()
                 font.setItalic(True)
@@ -968,6 +983,10 @@ class SGDistributedConnectionDialog(QDialog):
             waiting = min_required - num_instances
             self.info_label.setText(f"⏳ Waiting for {waiting} more instance(s) to connect...")
             
+            # Update sessions list to show "Connected to" indicator if in join mode
+            if self.join_existing_radio.isChecked() and self._isConnected():
+                QTimer.singleShot(100, self._updateSessionsList)
+            
         elif new_state == self.STATE_READY_MIN:
             # Minimum reached - show "Start Now" button ONLY on creator instance
             self.session_id_edit.setEnabled(False)
@@ -1014,6 +1033,10 @@ class SGDistributedConnectionDialog(QDialog):
                 self.session_group.show()
             else:
                 self.session_group.hide()
+            
+            # Update sessions list to show "Connected to" indicator if in join mode
+            if self.join_existing_radio.isChecked() and self._isConnected():
+                QTimer.singleShot(100, self._updateSessionsList)
         
         elif new_state == self.STATE_READY_MAX:
             # Maximum reached - auto-countdown will trigger
@@ -1045,6 +1068,10 @@ class SGDistributedConnectionDialog(QDialog):
                 self.session_group.show()
             else:
                 self.session_group.hide()
+            
+            # Update sessions list to show "Connected to" indicator if in join mode
+            if self.join_existing_radio.isChecked() and self._isConnected():
+                QTimer.singleShot(100, self._updateSessionsList)
             
             # NOTE: Snapshot is now taken in _updateConnectedInstances() when enough instances are first detected
             # This ensures we capture exactly the required number of instances, not more
@@ -1738,6 +1765,18 @@ class SGDistributedConnectionDialog(QDialog):
             print(f"[Dialog] Added self to ready_instances: {self.model.mqttManager.clientId[:8]}...")
             # Update UI to reflect that we are ready
             QTimer.singleShot(0, self._updateConnectedInstances)
+        
+        # CRITICAL: Add ourselves to session_instances_cache for the session we're connected to
+        # This ensures the "Available Sessions" list shows the correct count including ourselves
+        if self.config.session_id and self.model.mqttManager.clientId:
+            if self.config.session_id not in self.session_instances_cache:
+                self.session_instances_cache[self.config.session_id] = set()
+            if self.model.mqttManager.clientId not in self.session_instances_cache[self.config.session_id]:
+                self.session_instances_cache[self.config.session_id].add(self.model.mqttManager.clientId)
+                print(f"[Dialog] Added self to session_instances_cache for session {self.config.session_id}: {self.model.mqttManager.clientId[:8]}...")
+                # Update sessions list to show correct count
+                if self.join_existing_radio.isChecked():
+                    QTimer.singleShot(100, self._updateSessionsList)
     
     def _subscribeToInstanceReady(self):
         """
@@ -1772,6 +1811,23 @@ class SGDistributedConnectionDialog(QDialog):
                         sender_client_id = msg_dict.get('clientId')
                         
                         if sender_client_id:
+                            # CRITICAL: Also update session_instances_cache for the sessions list display
+                            # Extract session_id from topic (format: {session_id}/session_instance_ready/{client_id})
+                            if self.config.session_id:
+                                session_id = self.config.session_id
+                                # Initialize instances cache for this session if needed
+                                if session_id not in self.session_instances_cache:
+                                    self.session_instances_cache[session_id] = set()
+                                old_instances_count = len(self.session_instances_cache[session_id])
+                                self.session_instances_cache[session_id].add(sender_client_id)
+                                new_instances_count = len(self.session_instances_cache[session_id])
+                                
+                                # Update sessions list if instances count changed
+                                # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
+                                if new_instances_count != old_instances_count:
+                                    print(f"[Dialog] Instance ready for session {session_id}: {sender_client_id[:8]}... (cache: {old_instances_count} -> {new_instances_count})")
+                                    QTimer.singleShot(100, self._updateSessionsList)
+                            
                             # Add to ready_instances (whether it's us or another instance)
                             if sender_client_id not in self.ready_instances:
                                 self.ready_instances.add(sender_client_id)
@@ -1817,6 +1873,19 @@ class SGDistributedConnectionDialog(QDialog):
         print(f"[Dialog] Waiting for retained instance_ready messages... (current ready_instances: {len(self.ready_instances)})")
         time.sleep(1.5)  # Increased delay to receive retained ready messages from all instances
         print(f"[Dialog] After delay, ready_instances count: {len(self.ready_instances)} (instances: {[id[:8] + '...' for id in self.ready_instances]})")
+        
+        # CRITICAL: Ensure session_instances_cache is synchronized with ready_instances
+        # This handles cases where retained messages were received but cache wasn't updated
+        if self.config.session_id:
+            session_id = self.config.session_id
+            if session_id not in self.session_instances_cache:
+                self.session_instances_cache[session_id] = set()
+            # Add all ready instances to cache (in case some were missed)
+            for client_id in self.ready_instances:
+                self.session_instances_cache[session_id].add(client_id)
+            print(f"[Dialog] After delay, session_instances_cache for {session_id}: {len(self.session_instances_cache[session_id])} instances")
+            # Update sessions list to reflect correct count
+            QTimer.singleShot(100, self._updateSessionsList)
         
         # Update connected instances after receiving retained messages
         # This ensures the UI shows the correct count of connected instances
