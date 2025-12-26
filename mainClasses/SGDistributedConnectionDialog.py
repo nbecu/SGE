@@ -388,13 +388,23 @@ class SGDistributedConnectionDialog(QDialog):
         def onSessionsDiscovered(sessions_dict):
             """Callback when sessions are discovered"""
             # sessions_dict already contains only active sessions (expired ones filtered in SessionManager)
+            print(f"[Dialog] onSessionsDiscovered called with {len(sessions_dict)} sessions: {list(sessions_dict.keys())}")
             self.available_sessions = sessions_dict
+            
+            # CRITICAL: Update list immediately to show new sessions, even if instance counts are not yet available
+            # This ensures new sessions appear in the list right away
+            if not self._selected_session_id:
+                print(f"[Dialog] Updating sessions list immediately with {len(self.available_sessions)} sessions")
+                self._updateSessionsList()
+            else:
+                print(f"[Dialog] Skipping list update (session selected: {self._selected_session_id})")
             
             # Subscribe to player registration topics for all discovered sessions to get player counts
             # This will receive retained messages for already-registered players
             self._subscribeToSessionPlayerRegistrations()
             
-            # List will be updated by _subscribeToSessionPlayerRegistrations after receiving retained messages
+            # List will be updated again by _subscribeToSessionPlayerRegistrations after receiving retained messages
+            # to show correct instance counts
         
         # Start discovery
         print(f"[Dialog] Starting session discovery...")
@@ -415,10 +425,28 @@ class SGDistributedConnectionDialog(QDialog):
            current_handler == self._player_registration_tracker:
             # Our handler is already installed, just update subscriptions if needed
             # Don't replace the handler to preserve the chain
-            # Subscribe to player registration topics for all discovered sessions (in case new sessions were discovered)
+            # Subscribe to player registration, disconnect, and instance_ready topics for all discovered sessions
+            # (in case new sessions were discovered)
+            import time
+            for session_id in self.available_sessions.keys():
+                instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
+                # Unsubscribe first to force retained messages on resubscribe
+                try:
+                    self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
+                except Exception:
+                    pass
+            time.sleep(0.1)
             for session_id in self.available_sessions.keys():
                 registration_topic_wildcard = f"{session_id}/session_player_registration/+"
+                disconnect_topic_wildcard = f"{session_id}/session_player_disconnect/+"
+                instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
                 self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+                self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
+                self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
+            # Wait for retained messages and update list
+            time.sleep(1.5)
+            if not self._selected_session_id:
+                QTimer.singleShot(100, self._updateSessionsList)
             return
         
         # CRITICAL: If we've installed our handler before, but the current handler is different,
@@ -430,9 +458,26 @@ class SGDistributedConnectionDialog(QDialog):
             # A more important handler is installed, don't replace it
             # Just update subscriptions if needed
             print(f"[Dialog] More important handler detected ({current_handler}), not replacing. Just updating subscriptions.")
+            import time
+            for session_id in self.available_sessions.keys():
+                instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
+                # Unsubscribe first to force retained messages on resubscribe
+                try:
+                    self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
+                except Exception:
+                    pass
+            time.sleep(0.1)
             for session_id in self.available_sessions.keys():
                 registration_topic_wildcard = f"{session_id}/session_player_registration/+"
+                disconnect_topic_wildcard = f"{session_id}/session_player_disconnect/+"
+                instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
                 self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+                self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
+                self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
+            # Wait for retained messages and update list
+            time.sleep(1.5)
+            if not self._selected_session_id:
+                QTimer.singleShot(100, self._updateSessionsList)
             return
         
         # Create wrapper to track player registrations for discovered sessions
@@ -546,6 +591,20 @@ class SGDistributedConnectionDialog(QDialog):
         self.model.mqttManager.client.on_message = player_registration_tracker
         
         # Subscribe to player registration, disconnect, and instance_ready topics for all discovered sessions
+        # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
+        import time
+        for session_id in self.available_sessions.keys():
+            instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
+            # Unsubscribe first to force retained messages on resubscribe
+            try:
+                self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
+            except Exception as e:
+                print(f"[Dialog] Warning: Could not unsubscribe from {instance_ready_topic_wildcard}: {e}")
+        
+        # Brief delay to ensure unsubscribes are processed
+        time.sleep(0.1)
+        
+        # Now subscribe to all topics
         for session_id in self.available_sessions.keys():
             registration_topic_wildcard = f"{session_id}/session_player_registration/+"
             disconnect_topic_wildcard = f"{session_id}/session_player_disconnect/+"
@@ -557,8 +616,7 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Wait for retained messages to be received, then update list
         # Increased delay to ensure all retained messages are received
-        import time
-        time.sleep(0.8)  # Increased from 0.3 to 0.8 to allow more time for retained messages
+        time.sleep(1.5)  # Increased from 0.8 to 1.5 to allow more time for retained messages
         print(f"[Dialog] After subscription delay, instances cache: {self.session_instances_cache}")
         
         if not self._selected_session_id:

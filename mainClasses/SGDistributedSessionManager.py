@@ -767,39 +767,46 @@ class SGDistributedSessionManager(QObject):
                 session_id = msg_dict.get('session_id')
                 print(f"[SessionManager] Processing discovery message for session: {session_id}")
                 if session_id:
-                    # Check if this is a retained message with old timestamp
-                    # Retained messages contain timestamp as ISO string in msg_dict
-                    msg_timestamp_iso = msg_dict.get('timestamp')
+                    # CRITICAL: Only check expiration for RETAINED messages
+                    # Non-retained messages (heartbeats) should always be accepted as they indicate active sessions
                     current_time = time.time()
-                    
-                    # If timestamp is in ISO format, check if it's expired
-                    # For retained messages, we need to check the original timestamp
                     is_expired = False
-                    if msg_timestamp_iso:
-                        try:
-                            # Parse ISO timestamp to datetime, then to Unix timestamp
-                            # Handle different ISO formats
-                            timestamp_str = str(msg_timestamp_iso)
-                            if 'Z' in timestamp_str:
-                                timestamp_str = timestamp_str.replace('Z', '+00:00')
-                            elif '+' not in timestamp_str and '-' in timestamp_str[-6:]:
-                                # Already has timezone
+                    
+                    # Only check expiration for retained messages
+                    if msg.retain:
+                        # Retained messages contain timestamp as ISO string in msg_dict
+                        msg_timestamp_iso = msg_dict.get('timestamp')
+                        if msg_timestamp_iso:
+                            try:
+                                # Parse ISO timestamp to datetime, then to Unix timestamp
+                                # Handle different ISO formats
+                                timestamp_str = str(msg_timestamp_iso)
+                                if 'Z' in timestamp_str:
+                                    timestamp_str = timestamp_str.replace('Z', '+00:00')
+                                elif '+' not in timestamp_str and '-' in timestamp_str[-6:]:
+                                    # Already has timezone
+                                    pass
+                                else:
+                                    # No timezone, assume local time
+                                    pass
+                                
+                                msg_datetime = datetime.fromisoformat(timestamp_str)
+                                msg_timestamp_unix = msg_datetime.timestamp()
+                                # Check if message is older than 15 seconds
+                                age_seconds = current_time - msg_timestamp_unix
+                                print(f"[SessionManager] Retained message for {session_id}: age={age_seconds:.1f}s, expired={age_seconds > 15.0}")
+                                if age_seconds > 15.0:
+                                    is_expired = True
+                                    print(f"[SessionManager] Retained message for {session_id} is expired (age: {age_seconds:.1f}s)")
+                                else:
+                                    print(f"[SessionManager] Retained message for {session_id} is recent (age: {age_seconds:.1f}s), accepting")
+                            except (ValueError, AttributeError, TypeError) as e:
+                                # If parsing fails, treat as new message (not expired)
+                                print(f"[SessionManager] Could not parse timestamp '{msg_timestamp_iso}': {e}, treating as new message")
                                 pass
-                            else:
-                                # No timezone, assume local time
-                                pass
-                            
-                            msg_datetime = datetime.fromisoformat(timestamp_str)
-                            msg_timestamp_unix = msg_datetime.timestamp()
-                            # Check if message is older than 15 seconds
-                            age_seconds = current_time - msg_timestamp_unix
-                            if age_seconds > 15.0:
-                                is_expired = True
-                                print(f"[SessionManager] Retained message for {session_id} is expired (age: {age_seconds:.1f}s)")
-                        except (ValueError, AttributeError, TypeError) as e:
-                            # If parsing fails, treat as new message (not expired)
-                            print(f"[SessionManager] Could not parse timestamp '{msg_timestamp_iso}': {e}, treating as new message")
-                            pass
+                    else:
+                        # Non-retained message (heartbeat) - always accept as it indicates active session
+                        print(f"[SessionManager] Received heartbeat (non-retained) for session {session_id}, accepting as active")
                     
                     # Only add session if it's not expired
                     if not is_expired:
@@ -857,12 +864,21 @@ class SGDistributedSessionManager(QObject):
         self.mqtt_manager.client.on_message = wrapped_discovery_handler
         print(f"[SessionManager] Installed discovery handler wrapper")
         
+        # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
+        # This ensures we receive retained messages even if we were previously subscribed
+        try:
+            self.mqtt_manager.client.unsubscribe(discovery_topic_wildcard)
+            time.sleep(0.1)  # Brief delay to ensure unsubscribe is processed
+        except Exception as e:
+            print(f"[SessionManager] Warning: Could not unsubscribe from {discovery_topic_wildcard}: {e}")
+        
         # Subscribe to discovery topic
         self.mqtt_manager.client.subscribe(discovery_topic_wildcard, qos=1)
         print(f"[SessionManager] Subscribed to session discovery: {discovery_topic_wildcard}")
         
         # Wait a moment for retained messages to be received
-        time.sleep(0.3)
+        # Increased delay to ensure all retained messages are received
+        time.sleep(1.0)  # Increased from 0.3 to 1.0 to allow more time for retained messages
         
         # Clean expired sessions immediately after receiving retained messages
         # This ensures only active sessions are shown by default
