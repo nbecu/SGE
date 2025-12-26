@@ -24,8 +24,8 @@ myModel.displayTimeInWindowTitle()
 # 3. Player selection happens later when the game window opens
 
 # myModel.enableDistributedGame(num_players=(2,4))
-myModel.enableDistributedGame(num_players=2)
-nb_players = myModel.getConnectedInstancesCount(default=2) 
+myModel.enableDistributedGame(num_players=4)
+nb_players = myModel.getConnectedInstancesCount(default=4) 
 
 # The seed is synchronized and applied automatically by enableDistributedGame()
 

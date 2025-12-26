@@ -53,11 +53,14 @@ class SGDistributedConnectionDialog(QDialog):
         self.auto_start_timer = None  # QTimer for countdown
         self.available_sessions = {}  # Dict of available sessions: {session_id: session_info}
         self.session_players_cache = {}  # Cache of registered players per session: {session_id: set of player_names}
+        self.session_instances_cache = {}  # Cache of connected instances per session: {session_id: set of client_ids}
         self.session_discovery_handler = None  # Handler for session discovery
         self._should_start_discovery_on_connect = False  # Flag to start discovery automatically after connection
         self._connection_in_progress = False  # Flag to prevent multiple simultaneous connection attempts
         self._selected_session_id = None  # Session ID selected by user in join mode
         self._temporary_session_id = None  # Temporary session_id used for connection (not a selected session)
+        self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
+        self._handler_before_game_start = None  # Store handler before installing game_start_handler
         
         self.setWindowTitle("Connect to Distributed Game")
         self.setModal(True)
@@ -232,6 +235,7 @@ class SGDistributedConnectionDialog(QDialog):
         
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.reject)
+        self.cancel_button.hide()  # Hide by default, only show when connected
         button_layout.addWidget(self.cancel_button)
         
         self.connect_button = QPushButton("Connect")
@@ -433,6 +437,10 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Create wrapper to track player registrations for discovered sessions
         def player_registration_tracker(client, userdata, msg):
+            # CRITICAL: Ignore callbacks during cleanup
+            if hasattr(self, '_cleaning_up') and self._cleaning_up:
+                return
+            
             # Check if this is a player registration message for a discovered session
             for session_id in self.available_sessions.keys():
                 registration_topic_base = f"{session_id}/session_player_registration"
@@ -440,7 +448,23 @@ class SGDistributedConnectionDialog(QDialog):
                     try:
                         import json
                         msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        client_id = msg_dict.get('clientId')
                         player_name = msg_dict.get('assigned_player_name')
+                        
+                        # Track instances (by client_id) - this is what we need for the sessions list
+                        if client_id:
+                            # Initialize instances cache for this session if needed
+                            if session_id not in self.session_instances_cache:
+                                self.session_instances_cache[session_id] = set()
+                            old_instances_count = len(self.session_instances_cache[session_id])
+                            self.session_instances_cache[session_id].add(client_id)
+                            new_instances_count = len(self.session_instances_cache[session_id])
+                            
+                            # Update list if instances count changed and no session is selected
+                            if new_instances_count != old_instances_count and not self._selected_session_id:
+                                QTimer.singleShot(100, self._updateSessionsList)
+                        
+                        # Also track players (by player_name) for backward compatibility
                         if player_name:
                             # Initialize cache for this session if needed
                             if session_id not in self.session_players_cache:
@@ -453,6 +477,59 @@ class SGDistributedConnectionDialog(QDialog):
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking player registration: {e}")
+                    # Don't forward - this is just for tracking
+                    return
+                
+                # Check if this is a player disconnect message for a discovered session
+                disconnect_topic_base = f"{session_id}/session_player_disconnect"
+                if msg.topic.startswith(disconnect_topic_base + "/"):
+                    try:
+                        import json
+                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        client_id = msg_dict.get('clientId')
+                        
+                        # Remove instance from cache
+                        if client_id and session_id in self.session_instances_cache:
+                            old_instances_count = len(self.session_instances_cache[session_id])
+                            if client_id in self.session_instances_cache[session_id]:
+                                self.session_instances_cache[session_id].remove(client_id)
+                            new_instances_count = len(self.session_instances_cache[session_id])
+                            
+                            # Update list if instances count changed and no session is selected
+                            if new_instances_count != old_instances_count and not self._selected_session_id:
+                                QTimer.singleShot(100, self._updateSessionsList)
+                    except Exception as e:
+                        print(f"[Dialog] Error tracking player disconnect: {e}")
+                    # Don't forward - this is just for tracking
+                    return
+                
+                # Check if this is an instance_ready message for a discovered session
+                # This is more reliable than player_registration because it's published earlier
+                instance_ready_topic_base = f"{session_id}/session_instance_ready"
+                if msg.topic.startswith(instance_ready_topic_base + "/"):
+                    print(f"[Dialog] Received instance_ready message for session {session_id} on topic: {msg.topic}")
+                    try:
+                        import json
+                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        client_id = msg_dict.get('clientId')
+                        
+                        # Track instances via instance_ready messages
+                        if client_id:
+                            # Initialize instances cache for this session if needed
+                            if session_id not in self.session_instances_cache:
+                                self.session_instances_cache[session_id] = set()
+                                print(f"[Dialog] Initialized instances cache for session {session_id}")
+                            old_instances_count = len(self.session_instances_cache[session_id])
+                            self.session_instances_cache[session_id].add(client_id)
+                            new_instances_count = len(self.session_instances_cache[session_id])
+                            
+                            print(f"[Dialog] Instance ready for session {session_id}: {client_id[:8]}... (cache: {old_instances_count} -> {new_instances_count})")
+                            
+                            # Update list if instances count changed and no session is selected
+                            if new_instances_count != old_instances_count and not self._selected_session_id:
+                                QTimer.singleShot(100, self._updateSessionsList)
+                    except Exception as e:
+                        print(f"[Dialog] Error tracking instance ready: {e}")
                     # Don't forward - this is just for tracking
                     return
             
@@ -468,14 +545,21 @@ class SGDistributedConnectionDialog(QDialog):
         self._player_registration_tracker = player_registration_tracker
         self.model.mqttManager.client.on_message = player_registration_tracker
         
-        # Subscribe to player registration topics for all discovered sessions
+        # Subscribe to player registration, disconnect, and instance_ready topics for all discovered sessions
         for session_id in self.available_sessions.keys():
             registration_topic_wildcard = f"{session_id}/session_player_registration/+"
-            self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+            disconnect_topic_wildcard = f"{session_id}/session_player_disconnect/+"
+            instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
+            result1 = self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+            result2 = self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
+            result3 = self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
+            print(f"[Dialog] Subscribed to topics for session {session_id}: registration={result1[0]}, disconnect={result2[0]}, instance_ready={result3[0]}")
         
         # Wait for retained messages to be received, then update list
+        # Increased delay to ensure all retained messages are received
         import time
-        time.sleep(0.3)
+        time.sleep(0.8)  # Increased from 0.3 to 0.8 to allow more time for retained messages
+        print(f"[Dialog] After subscription delay, instances cache: {self.session_instances_cache}")
         
         if not self._selected_session_id:
             QTimer.singleShot(300, self._updateSessionsList)
@@ -536,30 +620,31 @@ class SGDistributedConnectionDialog(QDialog):
             num_min = info.get('num_players_min', '?')
             num_max = info.get('num_players_max', '?')
             
-            # Get number of registered players for this session from cache
-            registered_players = self.session_players_cache.get(session_id, set())
-            num_registered = len(registered_players)
+            # Get number of connected instances for this session from cache
+            connected_instances = self.session_instances_cache.get(session_id, set())
+            num_instances = len(connected_instances)
+            print(f"[Dialog] Session {session_id}: {num_instances} instances in cache (cache keys: {list(self.session_instances_cache.keys())})")
             
-            # Build players text with availability info
+            # Build instances text with availability info
             if num_min == num_max:
-                if num_registered >= num_max:
-                    players_text = f"{num_registered}/{num_max} players (Full)"
+                if num_instances >= num_max:
+                    instances_text = f"{num_instances}/{num_max} instances (Full)"
                     is_full = True
                 else:
-                    players_text = f"{num_registered}/{num_max} players (Available)"
+                    instances_text = f"{num_instances}/{num_max} instances (Available)"
                     is_full = False
             else:
-                if num_registered >= num_max:
-                    players_text = f"{num_registered}/{num_max} players (Full)"
+                if num_instances >= num_max:
+                    instances_text = f"{num_instances}/{num_max} instances (Full)"
                     is_full = True
-                elif num_registered >= num_min:
-                    players_text = f"{num_registered}/{num_min}-{num_max} players (Ready)"
+                elif num_instances >= num_min:
+                    instances_text = f"{num_instances}/{num_min}-{num_max} instances (Ready)"
                     is_full = False
                 else:
-                    players_text = f"{num_registered}/{num_min}-{num_max} players (Available)"
+                    instances_text = f"{num_instances}/{num_min}-{num_max} instances (Available)"
                     is_full = False
             
-            display_text = f"{model_name} ({players_text})"
+            display_text = f"{model_name} ({instances_text})"
             item = QListWidgetItem(display_text)
             item.setData(Qt.UserRole, session_id)
             
@@ -570,7 +655,9 @@ class SGDistributedConnectionDialog(QDialog):
                 font.setItalic(True)
                 item.setFont(font)
             
-            tooltip_text = f"Session ID: {session_id}\nModel: {model_name}\nPlayers: {players_text}"
+            tooltip_text = f"Session ID: {session_id}\nModel: {model_name}\nInstances: {instances_text}"
+            # Also show registered players in tooltip if available
+            registered_players = self.session_players_cache.get(session_id, set())
             if registered_players:
                 tooltip_text += f"\nRegistered players: {', '.join(sorted(registered_players))}"
             item.setToolTip(tooltip_text)
@@ -740,6 +827,8 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.show()
             self.start_button.hide()
             self.countdown_label.hide()
+            # Hide Cancel button - not connected yet
+            self.cancel_button.hide()
             # Enable radio buttons - user can still change mode before seed sync
             self.create_new_radio.setEnabled(True)
             self.join_existing_radio.setEnabled(True)
@@ -764,6 +853,12 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.show()
             self.start_button.hide()
             self.countdown_label.hide()
+            # Show Cancel button only if actually connected (seed synced)
+            # This prevents showing Cancel while just selecting a session in Join mode
+            if self._isConnected():
+                self.cancel_button.show()
+            else:
+                self.cancel_button.hide()
             # Enable radio buttons - user can still change mode before seed sync
             self.create_new_radio.setEnabled(True)
             self.join_existing_radio.setEnabled(True)
@@ -779,14 +874,25 @@ class SGDistributedConnectionDialog(QDialog):
             # Keep session ID read-only, waiting for instances (but keep Copy enabled)
             self.session_id_edit.setEnabled(False)
             self.copy_session_btn.setEnabled(True)  # Keep Copy enabled
-            # In join mode, keep Connect button visible but disabled
+            # In join mode, hide Connect button if already connected (seed synced)
             if self.join_existing_radio.isChecked():
-                self.connect_button.setEnabled(False)
-                self.connect_button.show()
+                if self._isConnected():
+                    # Already connected, hide Connect button
+                    self.connect_button.hide()
+                else:
+                    # Not yet connected, show but disable Connect button
+                    self.connect_button.setEnabled(False)
+                    self.connect_button.show()
             else:
+                # Create mode, hide Connect button
                 self.connect_button.hide()
             self.start_button.hide()
             self.countdown_label.hide()
+            # Show Cancel button only if actually connected (seed synced)
+            if self._isConnected():
+                self.cancel_button.show()
+            else:
+                self.cancel_button.hide()
             # Disable radio buttons - seed is already synced, cannot change mode
             self.create_new_radio.setEnabled(False)
             self.join_existing_radio.setEnabled(False)
@@ -839,6 +945,8 @@ class SGDistributedConnectionDialog(QDialog):
                 )
             
             self.countdown_label.hide()
+            # Show Cancel button - user can cancel connection
+            self.cancel_button.show()
             # Disable radio buttons - seed is already synced, cannot change mode
             self.create_new_radio.setEnabled(False)
             self.join_existing_radio.setEnabled(False)
@@ -865,6 +973,11 @@ class SGDistributedConnectionDialog(QDialog):
             self.info_label.setText("✓ All instances connected! The game will start automatically in a few seconds.")
             self._startAutoStartCountdown()  # Only triggers at maximum
             
+            # Show Cancel button only if actually connected (seed synced)
+            if self._isConnected():
+                self.cancel_button.show()
+            else:
+                self.cancel_button.hide()
             # Disable radio buttons - seed is already synced, cannot change mode
             self.create_new_radio.setEnabled(False)
             self.join_existing_radio.setEnabled(False)
@@ -894,6 +1007,11 @@ class SGDistributedConnectionDialog(QDialog):
             self.connect_button.hide()
             self.start_button.show()
             self.start_button.setEnabled(True)
+            # Show Cancel button only if actually connected (seed synced)
+            if self._isConnected():
+                self.cancel_button.show()
+            else:
+                self.cancel_button.hide()
             # Disable radio buttons - seed is already synced, cannot change mode
             self.create_new_radio.setEnabled(False)
             self.join_existing_radio.setEnabled(False)
@@ -942,12 +1060,17 @@ class SGDistributedConnectionDialog(QDialog):
             if (self.model.mqttManager.client and 
                 self.model.mqttManager.client.is_connected()):
                 print(f"[Dialog] Session {session_id} selected, syncing seed...")
+                # Update connection status to reflect that we're connected
+                self.connection_status = "Connected to broker"
+                self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
+                self.status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px; color: #155724;")
                 # Update state to CONNECTING to show we're processing
                 self._updateState(self.STATE_CONNECTING)
                 self._syncSeed()
                 # After seed sync, check if we should go to WAITING or READY
                 # But don't auto-start countdown in join mode
-                self._updateConnectedInstances()
+                # Note: _updateConnectedInstances() is called after a delay in _syncSeed()
+                # to allow retained messages to be received
                 return
         else:
             # In create mode, get session_id from edit field
@@ -1127,8 +1250,14 @@ class SGDistributedConnectionDialog(QDialog):
                     model_name
                 )
             
-            # Update state - will check if ready or waiting
-            self._updateConnectedInstances()
+            # CRITICAL: Wait for retained messages to be received before updating UI
+            # This ensures connected_instances and ready_instances are populated from retained messages
+            # Use QTimer to avoid blocking the UI thread
+            # Increased delay to ensure all retained messages (instance_ready, player_registration) are received
+            def update_with_log():
+                print(f"[Dialog] Updating connected instances after delay... (connected_instances: {len(self.connected_instances)}, ready_instances: {len(self.ready_instances)}, snapshot: {len(self.connected_instances_snapshot) if self.connected_instances_snapshot else 0})")
+                self._updateConnectedInstances()
+            QTimer.singleShot(1500, update_with_log)
             
         except Exception as e:
             self.seed_status_label.setText(f"Seed Status: Sync failed - {str(e)}")
@@ -1268,17 +1397,25 @@ class SGDistributedConnectionDialog(QDialog):
                 self.model.mqttManager.client.is_connected()):
             return
         
-        # Get player registration topic base
+        # Get player registration and disconnect topic bases
         session_topics = self.session_manager.getSessionTopics(self.config.session_id)
         registration_topic_base = session_topics[0]  # session_player_registration
+        disconnect_topic_base = session_topics[2]  # session_player_disconnect
         
-        # Subscribe to wildcard topic to receive all player registrations
+        # Subscribe to wildcard topics to receive all player registrations and disconnections
         registration_topic_wildcard = f"{registration_topic_base}/+"
+        disconnect_topic_wildcard = f"{disconnect_topic_base}/+"
         
         # Get current handler (which is the seed tracking wrapper)
         current_handler = self.model.mqttManager.client.on_message
         
         def player_registration_tracking_wrapper(client, userdata, msg):
+            # CRITICAL: Ignore callbacks during cleanup
+            if hasattr(self, '_cleaning_up') and self._cleaning_up:
+                if current_handler:
+                    current_handler(client, userdata, msg)
+                return
+            
             # Track instances via player registration messages
             if msg.topic.startswith(registration_topic_base):
                 try:
@@ -1306,6 +1443,47 @@ class SGDistributedConnectionDialog(QDialog):
                 # Don't forward - this is just for tracking
                 return
             
+            # Track disconnections via player_disconnect messages
+            elif msg.topic.startswith(disconnect_topic_base):
+                print(f"[Dialog] Received player_disconnect message on topic: {msg.topic}")
+                try:
+                    import json
+                    msg_dict = json.loads(msg.payload.decode("utf-8"))
+                    client_id = msg_dict.get('clientId')
+                    print(f"[Dialog] Processing disconnect for client_id: {client_id[:8] if client_id else 'N/A'}...")
+                    
+                    if client_id:
+                        old_count = len(self.connected_instances)
+                        old_ready_count = len(self.ready_instances)
+                        old_snapshot_count = len(self.connected_instances_snapshot) if self.connected_instances_snapshot else 0
+                        
+                        # Remove from connected instances (always, even if snapshot exists)
+                        if client_id in self.connected_instances:
+                            self.connected_instances.remove(client_id)
+                        
+                        # Remove from ready instances
+                        if client_id in self.ready_instances:
+                            self.ready_instances.remove(client_id)
+                        
+                        # CRITICAL: Also remove from snapshot if it exists
+                        # This ensures the UI updates correctly when an instance disconnects
+                        if self.connected_instances_snapshot and client_id in self.connected_instances_snapshot:
+                            self.connected_instances_snapshot.remove(client_id)
+                            print(f"[Dialog] Removed instance from snapshot: {client_id[:8] if client_id else 'N/A'}... (snapshot size: {len(self.connected_instances_snapshot)})")
+                        
+                        # Update UI if counts changed
+                        if (len(self.connected_instances) != old_count or 
+                            len(self.ready_instances) != old_ready_count or
+                            (self.connected_instances_snapshot and len(self.connected_instances_snapshot) != old_snapshot_count)):
+                            print(f"[Dialog] Instance disconnected: {client_id[:8] if client_id else 'N/A'}... (connected: {len(self.connected_instances)}, ready: {len(self.ready_instances)}, snapshot: {len(self.connected_instances_snapshot) if self.connected_instances_snapshot else 0})")
+                            QTimer.singleShot(0, self._updateConnectedInstances)
+                except Exception as e:
+                    print(f"[Dialog] Error tracking instance disconnect: {e}")
+                    import traceback
+                    traceback.print_exc()
+                # Don't forward - this is just for tracking
+                return
+            
             # Forward other messages to current handler (seed tracking wrapper)
             if current_handler:
                 current_handler(client, userdata, msg)
@@ -1314,8 +1492,9 @@ class SGDistributedConnectionDialog(QDialog):
         self._player_registration_tracking_wrapper = player_registration_tracking_wrapper
         self.model.mqttManager.client.on_message = player_registration_tracking_wrapper
         
-        # Subscribe to player registration wildcard topic
+        # Subscribe to player registration and disconnect wildcard topics
         self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
+        self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
         
         # Wait for retained messages to be received
         # CRITICAL: Player registration messages are published AFTER dialog closes, so they may not be available yet
@@ -1338,9 +1517,15 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Get current handler (which is player_registration_tracking_wrapper)
         current_handler = self.model.mqttManager.client.on_message
+        # Save handler for restoration during cleanup
+        self._handler_before_game_start = current_handler
         
         # Create wrapper to handle game start messages
         def game_start_handler(client, userdata, msg):
+            # CRITICAL: Ignore callbacks during cleanup
+            if hasattr(self, '_cleaning_up') and self._cleaning_up:
+                return
+            
             # CRITICAL: Protect against RuntimeError if dialog is destroyed
             try:
                 # Debug: log all messages to see if game_start topic is received
@@ -1555,6 +1740,15 @@ class SGDistributedConnectionDialog(QDialog):
         self._instance_ready_handler = instance_ready_handler
         self.model.mqttManager.client.on_message = instance_ready_handler
         
+        # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
+        # This ensures we receive retained messages even if we were previously subscribed
+        import time
+        try:
+            self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
+            time.sleep(0.1)  # Brief delay to ensure unsubscribe is processed
+        except Exception as e:
+            print(f"[Dialog] Warning: Could not unsubscribe from {instance_ready_topic_wildcard}: {e}")
+        
         # Subscribe to wildcard topic to receive ready signals from all instances
         result = self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
         print(f"[Dialog] Subscribed to instance ready wildcard topic: {instance_ready_topic_wildcard}")
@@ -1562,8 +1756,13 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Wait a moment for retained messages to be received
         # Increased delay to ensure all retained messages are received
-        import time
-        time.sleep(0.5)  # Delay to receive retained ready messages from all instances
+        print(f"[Dialog] Waiting for retained instance_ready messages... (current ready_instances: {len(self.ready_instances)})")
+        time.sleep(1.5)  # Increased delay to receive retained ready messages from all instances
+        print(f"[Dialog] After delay, ready_instances count: {len(self.ready_instances)} (instances: {[id[:8] + '...' for id in self.ready_instances]})")
+        
+        # Update connected instances after receiving retained messages
+        # This ensures the UI shows the correct count of connected instances
+        QTimer.singleShot(100, self._updateConnectedInstances)
     
     def _onStartNowClicked(self):
         """Handle Start Now button click - only available on creator instance"""
@@ -1598,8 +1797,171 @@ class SGDistributedConnectionDialog(QDialog):
         # Wait for message propagation, then close
         QTimer.singleShot(300, self.accept)
     
+    def _isConnected(self):
+        """Check if MQTT connection is established and seed is synced"""
+        return (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected() and
+                self.seed_synced)
+    
+    def _cancelConnection(self):
+        """Cancel connection and reset interface to initial state"""
+        # Set cleaning flag to prevent MQTT callbacks during cleanup
+        self._cleaning_up = True
+        
+        try:
+            # 1. Stop all timers (prevents callbacks on invalid state)
+            if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
+                if self.seed_republish_timer.isActive():
+                    self.seed_republish_timer.stop()
+            
+            if hasattr(self, 'auto_start_timer') and self.auto_start_timer:
+                if self.auto_start_timer.isActive():
+                    self.auto_start_timer.stop()
+            
+            if hasattr(self, 'seed_check_timer') and self.seed_check_timer:
+                if self.seed_check_timer.isActive():
+                    self.seed_check_timer.stop()
+            
+            # 2. Publish disconnect message BEFORE disconnecting (even if no player selected)
+            # This ensures other instances are notified of the disconnection
+            if (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected() and
+                self.config.session_id):
+                try:
+                    from datetime import datetime
+                    import json
+                    session_topics = self.session_manager.getSessionTopics(self.config.session_id)
+                    disconnect_topic_base = session_topics[2]  # session_player_disconnect
+                    # Use client_id as identifier (even if no player selected)
+                    client_id = self.model.mqttManager.clientId
+                    if client_id:
+                        # Publish disconnect message using client_id as identifier
+                        disconnect_topic = f"{disconnect_topic_base}/{client_id}"
+                        disconnect_msg = {
+                            'clientId': client_id,
+                            'assigned_player_name': None,  # May be None if no player selected
+                            'timestamp': datetime.now().isoformat()
+                        }
+                        serialized_msg = json.dumps(disconnect_msg)
+                        # Publish with retain=False (one-time message)
+                        result = self.model.mqttManager.client.publish(disconnect_topic, serialized_msg, qos=1, retain=False)
+                        print(f"[Dialog] Published disconnect message to {disconnect_topic}, mid={result.mid}, rc={result.rc}")
+                        # Wait for message to be published and propagated
+                        if result.rc == 0:  # MQTT_ERR_SUCCESS
+                            # Give MQTT time to publish and propagate the message
+                            # Note: client.loop_start() is already running in background,
+                            # so we don't need to call loop() manually
+                            import time
+                            time.sleep(0.3)  # Wait for message to be published and propagated
+                            print(f"[Dialog] Disconnect message published and propagated")
+                        else:
+                            print(f"[Dialog] WARNING: Failed to publish disconnect message, rc={result.rc}")
+                except Exception as e:
+                    print(f"[Dialog] Error publishing disconnect message: {e}")
+                    import traceback
+                    traceback.print_exc()
+            
+            # 3. Disconnect session manager (cleans handlers, but message already published)
+            if self.session_manager:
+                self.session_manager.disconnect()
+            
+            # 3. Unsubscribe from session topics (but stay connected to broker)
+            # This allows the user to reconnect to a different session without reconnecting to broker
+            if (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected() and
+                self.config.session_id):
+                try:
+                    session_topics = self.session_manager.getSessionTopics(self.config.session_id)
+                    # Unsubscribe from all session topics
+                    for topic_base in session_topics:
+                        if topic_base:
+                            # Unsubscribe from wildcard topics
+                            if topic_base in ['player_registration', 'player_disconnect', 'instance_ready']:
+                                wildcard_topic = f"{self.config.session_id}/session_{topic_base}/+"
+                                self.model.mqttManager.client.unsubscribe(wildcard_topic)
+                                print(f"[Dialog] Unsubscribed from {wildcard_topic}")
+                            else:
+                                topic = f"{self.config.session_id}/session_{topic_base}"
+                                self.model.mqttManager.client.unsubscribe(topic)
+                                print(f"[Dialog] Unsubscribed from {topic}")
+                except Exception as e:
+                    print(f"[Dialog] Error unsubscribing from session topics: {e}")
+            
+            # Note: We do NOT disconnect from MQTT broker here
+            # This allows the user to reconnect to a different session without reconnecting to broker
+            # If the user wants to disconnect completely, they can close the dialog
+            
+            # 4. Reset internal states
+            self.seed_synced = False
+            self.synced_seed_value = None
+            self.connected_instances.clear()
+            self.ready_instances.clear()
+            self.connected_instances_snapshot = None
+            self._connection_in_progress = False
+            self._game_start_processed = False
+            
+            # 5. Reset interface (return to STATE_SETUP)
+            self._updateState(self.STATE_SETUP)
+            
+            # 6. Reset session_id if in Join mode
+            if self.join_existing_radio.isChecked():
+                self._selected_session_id = None
+                self.config.session_id = None
+                # Clear session list selection if exists
+                if hasattr(self, 'session_list') and self.session_list:
+                    self.session_list.clearSelection()
+            
+            # 7. Restore MQTT handler if saved
+            if (self._handler_before_game_start and 
+                self.model.mqttManager.client and 
+                hasattr(self, '_game_start_handler') and
+                self.model.mqttManager.client.on_message == self._game_start_handler):
+                self.model.mqttManager.client.on_message = self._handler_before_game_start
+                self._handler_before_game_start = None
+            
+            # 8. Update connection status based on actual MQTT client state
+            # Don't force "Not connected" if client is still connected to broker
+            if (self.model.mqttManager.client and 
+                self.model.mqttManager.client.is_connected()):
+                # Client still connected to broker (we only unsubscribed from session topics)
+                self.connection_status = "Connected to broker"
+                self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
+                self.status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px; color: #155724;")
+            else:
+                # Client disconnected from broker
+                self.connection_status = "Not connected"
+                self.status_label.setText(f"Connection Status: {self.connection_status}")
+                self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
+            
+            # Reset seed status (seed is no longer synchronized after cancel)
+            self.seed_status_label.setText("Seed Status: Not synchronized")
+            self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
+            
+        except Exception as e:
+            print(f"[Dialog] Error during connection cancellation: {e}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Clear cleaning flag
+            self._cleaning_up = False
+    
+    def reject(self):
+        """Override reject to handle Cancel button based on connection state"""
+        # Case 1: Not connected yet -> normal behavior (close dialog)
+        if not self._isConnected():
+            super().reject()
+            return
+        
+        # Case 2 & 3: Connected -> cancel connection and reset interface
+        self._cancelConnection()
+        # Don't call super().reject() - stay in dialog
+    
     def closeEvent(self, event):
-        """Handle dialog close event - cleanup session discovery"""
+        """Handle dialog close event - cleanup session discovery and connection"""
+        # If connected, cancel connection first
+        if self._isConnected():
+            self._cancelConnection()
+        
         # Stop session discovery if running
         if self.session_manager.session_discovery_handler:
             self.session_manager.stopSessionDiscovery()
@@ -1609,7 +1971,8 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Stop seed republish timer
         if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
-            self.seed_republish_timer.stop()
+            if self.seed_republish_timer.isActive():
+                self.seed_republish_timer.stop()
         
         event.accept()
     

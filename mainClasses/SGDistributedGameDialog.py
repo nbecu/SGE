@@ -47,6 +47,8 @@ class SGDistributedGameDialog(QDialog):
         self._all_players_selected_processed = False  # Flag to prevent double processing of all_players_selected message
         self._all_players_selected_published = False  # Flag to prevent multiple publications
         self._all_players_selected_subscribed = False  # Flag to prevent multiple subscriptions
+        self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
+        self._handler_before_all_players_selected = None  # Store handler before installing all_players_selected_handler
         
         self.setWindowTitle("Select Your Player")
         self.setModal(True)
@@ -206,6 +208,10 @@ class SGDistributedGameDialog(QDialog):
         
         def on_reservation_received(client_id, player_name, action):
             """Handle reservation messages"""
+            # CRITICAL: Ignore callbacks during cleanup
+            if hasattr(self, '_cleaning_up') and self._cleaning_up:
+                return
+            
             print(f"[Dialog] Reservation received: {action} for {player_name} by {client_id[:8] if client_id else 'N/A'}...")
             
             # CRITICAL: Update reservations dict first (this is thread-safe for dict operations)
@@ -274,6 +280,10 @@ class SGDistributedGameDialog(QDialog):
     
     def _onPlayerRegistered(self, player_name):
         """Handle when a player is registered (connected)"""
+        # Ignore during cleanup
+        if hasattr(self, '_cleaning_up') and self._cleaning_up:
+            return
+        
         print(f"[Dialog] Player registered signal received: {player_name}")
         # Update waiting status if we're waiting
         if self.waiting_for_others:
@@ -303,9 +313,14 @@ class SGDistributedGameDialog(QDialog):
         # CRITICAL: Get current handler (which should be the reservation handler from subscribeToPlayerReservations)
         # We need to wrap it, not replace it
         current_handler = self.model.mqttManager.client.on_message
+        # Save handler for restoration during cleanup
+        self._handler_before_all_players_selected = current_handler
         print(f"[Dialog] Current handler before all_players_selected subscription: {current_handler}")
         
         def all_players_selected_handler(client, userdata, msg):
+            # CRITICAL: Ignore callbacks during cleanup
+            if hasattr(self, '_cleaning_up') and self._cleaning_up:
+                return
             # CRITICAL: This handler should be called for ALL messages
             # Log ALL messages to verify handler is being called
             if 'session_all_players_selected' in msg.topic:
@@ -893,15 +908,57 @@ class SGDistributedGameDialog(QDialog):
         # super().accept() will be called automatically when all players are selected
     
     def reject(self):
-        """Override reject to release reservation if any"""
-        # Release any reservation before closing
-        if self.selected_player_name and not self.reservation_confirmed:
-            self.session_manager.releasePlayer(self.config.session_id, self.selected_player_name)
+        """Override reject to cleanup properly before closing"""
+        self._cleanupBeforeClose()
         super().reject()
     
     def closeEvent(self, event):
-        """Handle close event to release reservation"""
-        # Release any reservation before closing
-        if self.selected_player_name and not self.reservation_confirmed:
-            self.session_manager.releasePlayer(self.config.session_id, self.selected_player_name)
+        """Handle close event to cleanup properly"""
+        self._cleanupBeforeClose()
         event.accept()
+    
+    def _cleanupBeforeClose(self):
+        """Cleanup method called before dialog closes (reject or closeEvent)"""
+        # Set cleaning flag to prevent MQTT callbacks during cleanup
+        self._cleaning_up = True
+        
+        try:
+            # 1. Stop all timers
+            if hasattr(self, 'waiting_check_timer') and self.waiting_check_timer:
+                if self.waiting_check_timer.isActive():
+                    self.waiting_check_timer.stop()
+            
+            if hasattr(self, 'player_update_timer') and self.player_update_timer:
+                if self.player_update_timer.isActive():
+                    self.player_update_timer.stop()
+            
+            # 2. Release reservation (even if reservation_confirmed = True)
+            if self.selected_player_name:
+                try:
+                    self.session_manager.releasePlayer(self.config.session_id, self.selected_player_name)
+                except Exception as e:
+                    print(f"[Dialog] Error releasing player reservation: {e}")
+            
+            # 3. Disconnect player if waiting_for_others (player is registered)
+            if self.waiting_for_others:
+                try:
+                    # Disconnect from session (publishes player_disconnect message)
+                    self.session_manager.disconnect()
+                except Exception as e:
+                    print(f"[Dialog] Error disconnecting player: {e}")
+            
+            # 4. Restore MQTT handler if saved
+            if (self._handler_before_all_players_selected and 
+                self.model.mqttManager.client and 
+                hasattr(self, '_all_players_selected_handler') and
+                self.model.mqttManager.client.on_message == self._all_players_selected_handler):
+                self.model.mqttManager.client.on_message = self._handler_before_all_players_selected
+                self._handler_before_all_players_selected = None
+            
+        except Exception as e:
+            print(f"[Dialog] Error during cleanup: {e}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Clear cleaning flag
+            self._cleaning_up = False

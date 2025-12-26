@@ -186,6 +186,12 @@ class SGDistributedSessionManager(QObject):
                                 self.playerDisconnected.emit(player_name)
                 except Exception as e:
                     print(f"Error processing player disconnect message: {e}")
+                # CRITICAL: Forward disconnect messages to original handler
+                # This ensures that handlers installed before this one (like player_registration_tracking_wrapper)
+                # also receive the disconnect message to update their instance tracking
+                if original_on_message:
+                    original_on_message(client, userdata, msg)
+                return
             # CRITICAL: Forward ALL other messages to original handler (which may include all_players_selected_handler)
             # This ensures that handlers installed after this one (like all_players_selected_handler) still receive messages
             else:
