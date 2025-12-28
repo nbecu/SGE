@@ -8,10 +8,7 @@ from typing import Optional
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 
 # --- Project imports ---
-from mainClasses.SGDistributedSession import SGDistributedSession
-
-# --- Project imports ---
-from mainClasses.SGDistributedSession import SGDistributedSession
+from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
 
 
 class SGDistributedSessionManager(QObject):
@@ -159,7 +156,6 @@ class SGDistributedSessionManager(QObject):
                     # Ignore empty messages (used to clear retained messages)
                     payload_str = msg.payload.decode("utf-8")
                     if not payload_str or payload_str.strip() == "":
-                        print(f"[SessionManager] Ignoring empty player_registration message (retained cleanup): {msg.topic}")
                         return
                     
                     msg_dict = json.loads(payload_str)
@@ -167,7 +163,6 @@ class SGDistributedSessionManager(QObject):
                     client_id = msg_dict.get('clientId')
                     is_retained = msg.retain
                     
-                    print(f"[SessionManager] registration_message_handler: Processing registration for {player_name} from {client_id[:8] if client_id else 'N/A'}... (retained={is_retained})")
                     
                     if is_retained:
                         retained_messages_received.append((player_name, client_id))
@@ -175,7 +170,6 @@ class SGDistributedSessionManager(QObject):
                     if player_name and client_id:
                         # Update connected players cache
                         self.connected_players[player_name] = client_id
-                        print(f"[SessionManager] Updated connected_players: {list(self.connected_players.keys())}")
                         # Emit signal if not our own registration
                         if client_id != self.mqtt_manager.clientId:
                             self.playerConnected.emit(player_name)
@@ -291,7 +285,6 @@ class SGDistributedSessionManager(QObject):
                     seed_value = msg_dict['seed']
                     client_id = msg_dict['clientId']
                     
-                    print(f"[SessionManager] Seed message received: client_id={client_id[:8]}..., seed={seed_value}, is_own={client_id == self.mqtt_manager.clientId}")
                     
                     # Call callback if provided (for tracking connected instances)
                     # This captures ALL clientIds seen, not just the first one
@@ -308,7 +301,6 @@ class SGDistributedSessionManager(QObject):
                         # CRITICAL: Only adopt and publish ONCE to prevent infinite loops
                         # If we've already adopted and published, skip to prevent re-publishing on every message
                         if not self._seed_adopted_and_published:
-                            print(f"[SessionManager] Adopting seed from other instance: {seed_value}")
                             self.synced_seed = seed_value
                             self.seed_received = True
                             self.seedReceived.emit(self.synced_seed)
@@ -326,7 +318,6 @@ class SGDistributedSessionManager(QObject):
                             }
                             serialized_msg = json.dumps(seed_msg)
                             self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-                            print(f"[SessionManager] Published own seed message (adopted seed) to {seed_topic}")
                             
                             # CRITICAL: Mark that we've adopted and published to prevent re-publishing
                             self._seed_adopted_and_published = True
@@ -340,7 +331,6 @@ class SGDistributedSessionManager(QObject):
                             # Seed already adopted and published - just update synced_seed if different
                             # (shouldn't happen, but just in case)
                             if self.synced_seed != seed_value:
-                                print(f"[SessionManager] Seed already adopted, but received different seed. Updating from {self.synced_seed} to {seed_value}")
                                 self.synced_seed = seed_value
                                 self.synced_seed_value = seed_value
                             # Don't republish - we've already published once
@@ -355,12 +345,10 @@ class SGDistributedSessionManager(QObject):
         start_time = time.time()
         
         # Install temporary handler BEFORE subscribing (to receive retained messages)
-        print(f"[SessionManager] Installing seed sync handler for topic: {seed_topic}")
         self.mqtt_manager.client.on_message = seed_message_handler
         
         # Subscribe AFTER handler is installed to receive any existing retained seed message
         self.mqtt_manager.client.subscribe(seed_topic)
-        print(f"[SessionManager] Subscribed to {seed_topic}")
         
         # CRITICAL: Wait a moment for retained messages to be processed by MQTT client thread
         # This ensures we capture retained messages before checking seed_received
@@ -370,7 +358,6 @@ class SGDistributedSessionManager(QObject):
         
         # If shared_seed is provided, use it directly
         if shared_seed is not None:
-            print(f"[SessionManager] Using provided shared_seed: {shared_seed}")
             self.synced_seed = shared_seed
             self.is_leader = True
             self.seed_received = True
@@ -389,7 +376,6 @@ class SGDistributedSessionManager(QObject):
             }
             serialized_msg = json.dumps(seed_msg)
             self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-            print(f"[SessionManager] Published seed message to {seed_topic}")
             
             # CRITICAL: Store seed value (republishing will be started at end of syncSeed)
             self.synced_seed_value = shared_seed
@@ -401,7 +387,6 @@ class SGDistributedSessionManager(QObject):
             elapsed = time.time() - start_time
             while elapsed < initial_wait:
                 if self.seed_received:
-                    print(f"[SessionManager] Seed received during wait (elapsed: {elapsed:.2f}s), using: {self.synced_seed}")
                     break
                 time.sleep(0.1)
                 elapsed = time.time() - start_time
@@ -409,12 +394,10 @@ class SGDistributedSessionManager(QObject):
             # If no seed received after initial wait, become leader immediately
             if not self.seed_received:
                 elapsed = time.time() - start_time
-                print(f"[SessionManager] No seed received after {elapsed:.2f}s, becoming leader")
                 import random
                 self.synced_seed = random.randint(1, 1000000)
                 self.is_leader = True
                 self.seed_received = True
-                print(f"[SessionManager] No seed received, becoming leader with seed: {self.synced_seed}")
                 # Call callback for our own clientId
                 if client_id_callback:
                     try:
@@ -430,7 +413,6 @@ class SGDistributedSessionManager(QObject):
                 }
                 serialized_msg = json.dumps(seed_msg)
                 self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-                print(f"[SessionManager] Published seed message to {seed_topic}")
                 
                 # CRITICAL: Store seed value and start republishing timer
                 self.synced_seed_value = self.synced_seed
@@ -505,7 +487,6 @@ class SGDistributedSessionManager(QObject):
         # Use retain=True so new subscribers receive the session info
         # Use qos=1 for reliability
         result = self.mqtt_manager.client.publish(discovery_topic, serialized_msg, qos=1, retain=True)
-        print(f"[SessionManager] Published session discovery: {session_id} on topic {discovery_topic}, result: {result}")
         
         # Start heartbeat timer to keep session alive
         self._startSessionHeartbeat(session_id, num_players_min, num_players_max, model_name)
@@ -564,19 +545,16 @@ class SGDistributedSessionManager(QObject):
             }
             serialized_msg = json.dumps(seed_msg)
             self.mqtt_manager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-            print(f"[SessionManager] Republished seed sync message for instance {self.mqtt_manager.clientId[:8]}...")
         
         self.seed_sync_republish_timer = QTimer(self.model)
         self.seed_sync_republish_timer.timeout.connect(republish_seed_sync)
         self.seed_sync_republish_timer.start(3000)  # Republish every 3 seconds
-        print(f"[SessionManager] Started seed sync republishing timer (persists after dialog closes)")
     
     def stopSeedSyncRepublishing(self):
         """Stop republishing seed sync messages"""
         if self.seed_sync_republish_timer:
             self.seed_sync_republish_timer.stop()
             self.seed_sync_republish_timer = None
-            print(f"[SessionManager] Stopped seed sync republishing timer")
     
     def reservePlayer(self, session_id, player_name):
         """
@@ -606,7 +584,6 @@ class SGDistributedSessionManager(QObject):
         serialized_msg = json.dumps(reservation_msg)
         result = self.mqtt_manager.client.publish(reservation_topic, serialized_msg, qos=1, retain=True)
         
-        print(f"[SessionManager] Published player reservation: {player_name} on {reservation_topic}")
         return result.rc == 0
     
     def releasePlayer(self, session_id, player_name):
@@ -637,7 +614,6 @@ class SGDistributedSessionManager(QObject):
         serialized_msg = json.dumps(release_msg)
         result = self.mqtt_manager.client.publish(reservation_topic, serialized_msg, qos=1, retain=True)
         
-        print(f"[SessionManager] Published player release: {player_name} on {reservation_topic}")
         return result.rc == 0
     
     def subscribeToPlayerReservations(self, session_id, callback):
@@ -665,9 +641,9 @@ class SGDistributedSessionManager(QObject):
             # Debug: log all messages to see what's being received
             # Only log reservation-related topics to avoid spam
             if msg.topic.startswith(reservation_topic_base) or 'reservation' in msg.topic.lower():
-                print(f"[SessionManager] reservation_message_handler called: topic={msg.topic}, handler={reservation_message_handler}")
+                pass  # Debug check - can add logging here if needed
             elif 'session_all_players_selected' in msg.topic:
-                print(f"[SessionManager] reservation_message_handler called for all_players_selected: topic={msg.topic}, handler={reservation_message_handler}")
+                pass
             
             # Process reservation messages
             if msg.topic.startswith(reservation_topic_base):
@@ -679,23 +655,20 @@ class SGDistributedSessionManager(QObject):
                     player_name = msg_dict.get('player_name')
                     action = msg_dict.get('action')
                     
-                    print(f"[SessionManager] Reservation message received: topic={msg.topic}, action={action}, player={player_name}, client={client_id[:8] if client_id else 'N/A'}..., retained={is_retained}, our_client_id={self.mqtt_manager.clientId[:8] if self.mqtt_manager.clientId else 'N/A'}..., handler={reservation_message_handler}")
                     
                     if client_id and player_name and action:
                         # Call callback
                         if callback:
                             try:
-                                print(f"[SessionManager] Calling reservation callback for {player_name}")
                                 callback(client_id, player_name, action)
-                                print(f"[SessionManager] Reservation callback completed for {player_name}")
                             except Exception as e:
                                 print(f"[SessionManager] Error in reservation callback: {e}")
                                 import traceback
                                 traceback.print_exc()
                         else:
-                            print(f"[SessionManager] WARNING: No callback provided for reservation message")
+                            pass
                     else:
-                        print(f"[SessionManager] WARNING: Invalid reservation message - missing fields: client_id={client_id}, player_name={player_name}, action={action}")
+                        pass
                 except Exception as e:
                     print(f"[SessionManager] Error processing reservation message: {e}")
                     import traceback
@@ -709,12 +682,7 @@ class SGDistributedSessionManager(QObject):
             # all_players_selected_handler -> reservation_message_handler -> original_handler
             # So we forward to original_handler, which is correct
             if original_handler:
-                if 'session_all_players_selected' in msg.topic:
-                    print(f"[SessionManager] Forwarding all_players_selected message to original handler: topic={msg.topic}, original_handler={original_handler}")
-                print(f"[SessionManager] Forwarding non-reservation message to original handler: topic={msg.topic}")
                 original_handler(client, userdata, msg)
-            else:
-                print(f"[SessionManager] WARNING: No original handler to forward message: topic={msg.topic}")
         
         # Install handler BEFORE subscribing (to receive retained messages)
         # CRITICAL: Save the current handler to preserve the chain
@@ -723,27 +691,20 @@ class SGDistributedSessionManager(QObject):
         self._player_reservation_handler = reservation_message_handler
         self._previous_handler_before_reservations = previous_handler  # Store for debugging
         
-        print(f"[SessionManager] Installing reservation handler. Previous handler: {previous_handler}")
         
         # Subscribe to wildcard topic
         result = self.mqtt_manager.client.subscribe(reservation_topic_wildcard, qos=1)
-        print(f"[SessionManager] Subscribed to player reservations: {reservation_topic_wildcard}, result: {result}")
-        print(f"[SessionManager] Handler after subscription: {self.mqtt_manager.client.on_message}")
         
         # Check subscription result
         if isinstance(result, tuple):
             rc, mid = result
             success = rc == 0  # MQTT_ERR_SUCCESS is 0
-            print(f"[SessionManager] Subscription result: rc={rc}, mid={mid}, success={success}")
         else:
             success = False
-            print(f"[SessionManager] WARNING: Unexpected subscription result type: {result}")
         
         # Wait a moment for retained messages to be received
         # Increased delay to ensure retained messages are received
-        print(f"[SessionManager] Waiting for retained reservation messages...")
         time.sleep(0.5)
-        print(f"[SessionManager] Finished waiting for retained messages")
         
         return success
     
@@ -772,15 +733,12 @@ class SGDistributedSessionManager(QObject):
         
         # Get current handler (might be seed tracking wrapper or original handler)
         current_handler = self.mqtt_manager.client.on_message
-        print(f"[SessionManager] Current handler before discovery: {current_handler}")
         
         def process_discovery_message(client, userdata, msg):
             """Process a discovery message"""
-            print(f"[SessionManager] Received discovery message on topic: {msg.topic}")
             try:
                 msg_dict = json.loads(msg.payload.decode("utf-8"))
                 session_id = msg_dict.get('session_id')
-                print(f"[SessionManager] Processing discovery message for session: {session_id}")
                 if session_id:
                     # CRITICAL: Only check expiration for RETAINED messages
                     # Non-retained messages (heartbeats) should always be accepted as they indicate active sessions
@@ -809,19 +767,14 @@ class SGDistributedSessionManager(QObject):
                                 msg_timestamp_unix = msg_datetime.timestamp()
                                 # Check if message is older than 15 seconds
                                 age_seconds = current_time - msg_timestamp_unix
-                                print(f"[SessionManager] Retained message for {session_id}: age={age_seconds:.1f}s, expired={age_seconds > 15.0}")
                                 if age_seconds > 15.0:
                                     is_expired = True
-                                    print(f"[SessionManager] Retained message for {session_id} is expired (age: {age_seconds:.1f}s)")
-                                else:
-                                    print(f"[SessionManager] Retained message for {session_id} is recent (age: {age_seconds:.1f}s), accepting")
                             except (ValueError, AttributeError, TypeError) as e:
                                 # If parsing fails, treat as new message (not expired)
-                                print(f"[SessionManager] Could not parse timestamp '{msg_timestamp_iso}': {e}, treating as new message")
                                 pass
                     else:
                         # Non-retained message (heartbeat) - always accept as it indicates active session
-                        print(f"[SessionManager] Received heartbeat (non-retained) for session {session_id}, accepting as active")
+                        pass
                     
                     # Only add session if it's not expired
                     if not is_expired:
@@ -830,9 +783,9 @@ class SGDistributedSessionManager(QObject):
                             'timestamp': current_time,  # Use current time for active sessions
                             'info': msg_dict
                         }
-                        print(f"[SessionManager] Added session {session_id} to discovered sessions. Total: {len(self.discovered_sessions)}")
                     else:
-                        print(f"[SessionManager] Skipping expired session {session_id} from retained message")
+                        # Session expired - will be cleaned below
+                        pass
                     
                     # Clean expired sessions (older than 15 seconds) from cache
                     expired_sessions = [
@@ -841,12 +794,10 @@ class SGDistributedSessionManager(QObject):
                     ]
                     for sid in expired_sessions:
                         del self.discovered_sessions[sid]
-                        print(f"[SessionManager] Removed expired session: {sid}")
                     
                     # Call callback if provided
                     if self._discovery_callback:
                         try:
-                            print(f"[SessionManager] Calling discovery callback with {len(self.discovered_sessions)} sessions")
                             self._discovery_callback(self.discovered_sessions.copy())
                         except Exception as e:
                             print(f"[SessionManager] Error in discovery callback: {e}")
@@ -877,19 +828,17 @@ class SGDistributedSessionManager(QObject):
         # Install wrapped handler
         self.session_discovery_handler = wrapped_discovery_handler
         self.mqtt_manager.client.on_message = wrapped_discovery_handler
-        print(f"[SessionManager] Installed discovery handler wrapper")
         
         # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
         # This ensures we receive retained messages even if we were previously subscribed
         try:
             self.mqtt_manager.client.unsubscribe(discovery_topic_wildcard)
             time.sleep(0.1)  # Brief delay to ensure unsubscribe is processed
-        except Exception as e:
-            print(f"[SessionManager] Warning: Could not unsubscribe from {discovery_topic_wildcard}: {e}")
+        except Exception:
+            pass  # Ignore unsubscribe errors
         
         # Subscribe to discovery topic
         self.mqtt_manager.client.subscribe(discovery_topic_wildcard, qos=1)
-        print(f"[SessionManager] Subscribed to session discovery: {discovery_topic_wildcard}")
         
         # Wait a moment for retained messages to be received
         # Increased delay to ensure all retained messages are received
@@ -904,12 +853,10 @@ class SGDistributedSessionManager(QObject):
         ]
         for sid in expired_sessions:
             del self.discovered_sessions[sid]
-            print(f"[SessionManager] Removed expired session on initial subscription: {sid}")
         
         # Trigger callback with initial discovered sessions (after cleaning)
         if self._discovery_callback:
             try:
-                print(f"[SessionManager] Triggering initial callback with {len(self.discovered_sessions)} active sessions")
                 self._discovery_callback(self.discovered_sessions.copy())
             except Exception as e:
                 print(f"[SessionManager] Error in initial discovery callback: {e}")
@@ -981,9 +928,9 @@ class SGDistributedSessionManager(QObject):
         try:
             result = self.mqtt_manager.client.publish(topic, payload, qos=1, retain=True)
             if result.rc == 0:
-                print(f"[SessionManager] Published session state for {session.session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
+                pass  # Success - no action needed
             else:
-                print(f"[SessionManager] Failed to publish session state: {result.rc}")
+                pass  # Error logged below
         except Exception as e:
             print(f"[SessionManager] Error publishing session state: {e}")
             import traceback
@@ -1033,14 +980,14 @@ class SGDistributedSessionManager(QObject):
                 if payload_str and payload_str.strip():
                     data = json.loads(payload_str)
                     session = SGDistributedSession.from_dict(data)
-                    print(f"[SessionManager] Read session state for {session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
                     return session
             except Exception as e:
                 print(f"[SessionManager] Error parsing session state: {e}")
                 import traceback
                 traceback.print_exc()
+                import traceback
+                traceback.print_exc()
         
-        print(f"[SessionManager] No session state found for {session_id[:8]}... (timeout: {timeout}s)")
         return None
     
     def subscribeToSessionState(self, session_id: str, callback: callable):
@@ -1060,18 +1007,13 @@ class SGDistributedSessionManager(QObject):
         
         def session_state_handler(client, userdata, msg):
             if msg.topic == topic:
-                print(f"[SessionManager] session_state_handler called for topic {topic}")
                 try:
                     payload_str = msg.payload.decode("utf-8")
                     if not payload_str or not payload_str.strip():
-                        print(f"[SessionManager] Ignoring empty session_state message (retained cleanup)")
                         return
                     data = json.loads(payload_str)
                     session = SGDistributedSession.from_dict(data)
-                    print(f"[SessionManager] Received session state update for {session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
-                    print(f"[SessionManager] Calling callback for session_state update...")
                     callback(session)
-                    print(f"[SessionManager] Callback completed")
                 except Exception as e:
                     print(f"[SessionManager] Error processing session state update: {e}")
                     import traceback
@@ -1103,7 +1045,6 @@ class SGDistributedSessionManager(QObject):
         
         # Subscribe to topic
         self.mqtt_manager.client.subscribe(topic, qos=1)
-        print(f"[SessionManager] Subscribed to session state updates: {topic}")
     
     def disconnect(self):
         """Disconnect from session (stop timer, clear cache, publish disconnect message)"""

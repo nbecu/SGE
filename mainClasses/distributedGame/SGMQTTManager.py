@@ -100,7 +100,8 @@ class SGMQTTManager:
         """Init the MQTT client"""
         def on_message(aClient, userdata, msg):
             self.q.put(msg.payload)
-            print("message received " + msg.topic)
+            # Log désactivé pour réduire la verbosité
+            # print("message received " + msg.topic)
             message = self.q.get()
             msg_decoded = message.decode("utf-8")
             
@@ -108,7 +109,8 @@ class SGMQTTManager:
             if self.isGameTopic(msg.topic, self.session_id):
                 unserializedMsg= json.loads(msg_decoded)
                 if unserializedMsg['clientId']== self.clientId:
-                    print("Own update, no action required.") 
+                    # Own update, no action required
+                    pass
                 else:
                     # Determine which game topic this is
                     game_topics = self.getGameTopics(self.session_id)
@@ -135,7 +137,8 @@ class SGMQTTManager:
     def connect_mqtt(self):
         """MQTT Basic function to connect to the broker"""
         def on_log(client, userdata, level, buf):
-            print("log: "+buf)
+            # Logs MQTT de bas niveau désactivés pour réduire la verbosité
+            pass
 
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
@@ -144,7 +147,8 @@ class SGMQTTManager:
                 print("Failed to connect, return code %d\n", rc)
 
         def on_disconnect(client, userdata, flags, rc=0):
-            print("disconnect result code "+str(rc))
+            # Disconnected from MQTT broker
+            pass
 
         print("connectMQTT")
         # self.client = mqtt_client.Client(self.model.currentPlayerName)  # Old version

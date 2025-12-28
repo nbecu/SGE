@@ -195,13 +195,10 @@ class SGDistributedGameDialog(QDialog):
     
     def _subscribeToPlayerReservations(self):
         """Subscribe to player reservation messages for real-time updates"""
-        print(f"[Dialog] _subscribeToPlayerReservations called for session: {self.config.session_id}")
         if not self.config.session_id:
-            print(f"[Dialog] WARNING: No session_id, skipping subscription")
             return
         
         if not (self.model.mqttManager.client and self.model.mqttManager.client.is_connected()):
-            print(f"[Dialog] WARNING: MQTT client not connected, will retry subscription in 500ms")
             # Retry subscription after a short delay to allow MQTT connection to be established
             QTimer.singleShot(500, self._subscribeToPlayerReservations)
             return
@@ -212,18 +209,14 @@ class SGDistributedGameDialog(QDialog):
             if hasattr(self, '_cleaning_up') and self._cleaning_up:
                 return
             
-            print(f"[Dialog] Reservation received: {action} for {player_name} by {client_id[:8] if client_id else 'N/A'}...")
-            
             # CRITICAL: Update reservations dict first (this is thread-safe for dict operations)
             # because this callback runs in the MQTT thread, not the main Qt thread
             
             if action == 'reserve':
                 self.player_reservations[player_name] = client_id
-                print(f"[Dialog] Updated reservations dict: {self.player_reservations}")
             elif action == 'release':
                 if player_name in self.player_reservations:
                     del self.player_reservations[player_name]
-                print(f"[Dialog] Updated reservations dict: {self.player_reservations}")
             
             # Emit signal for thread-safe UI update
             # Signals are thread-safe and will be processed in the main Qt thread
@@ -245,19 +238,12 @@ class SGDistributedGameDialog(QDialog):
                 client_id != self.model.mqttManager.clientId and
                 not (self.reservation_confirmed and self.selected_player_name == player_name) and
                 not getattr(self, 'waiting_for_others', False)):
-                print(f"[Dialog] CONFLICT DETECTED for {player_name}!")
                 self.conflict_detected = True
         
-        print(f"[Dialog] Subscribing to player reservations for session: {self.config.session_id}")
-        print(f"[Dialog] Current handler before subscription: {self.model.mqttManager.client.on_message}")
-        print(f"[Dialog] Client ID: {self.model.mqttManager.clientId[:8] if self.model.mqttManager.clientId else 'N/A'}...")
         result = self.session_manager.subscribeToPlayerReservations(
             self.config.session_id,
             on_reservation_received
         )
-        print(f"[Dialog] subscribeToPlayerReservations result: {result}")
-        print(f"[Dialog] Current handler after subscription: {self.model.mqttManager.client.on_message}")
-        print(f"[Dialog] Initial reservations dict after subscription: {self.player_reservations}")
         
         # CRITICAL: Subscribe to all_players_selected AFTER player reservations subscription
         # This ensures the handler chain is correct: all_players_selected_handler -> reservation_message_handler -> original_handler
@@ -267,8 +253,6 @@ class SGDistributedGameDialog(QDialog):
         # Force UI update after a short delay to ensure retained messages are processed
         # This ensures that if retained messages were received, the UI is updated
         QTimer.singleShot(600, self.updateAvailablePlayers)
-        QTimer.singleShot(700, lambda: print(f"[Dialog] Reservations dict after delay: {self.player_reservations}"))
-        QTimer.singleShot(800, lambda: print(f"[Dialog] Final reservations dict: {self.player_reservations}"))
     
     def _subscribeToPlayerRegistrations(self):
         """Subscribe to player registration signals to update waiting status"""
@@ -284,7 +268,7 @@ class SGDistributedGameDialog(QDialog):
         if hasattr(self, '_cleaning_up') and self._cleaning_up:
             return
         
-        print(f"[Dialog] Player registered signal received: {player_name}")
+        # Player registered signal received
         # Update waiting status if we're waiting
         if self.waiting_for_others:
             # Use longer delay to ensure the connected_players dict is updated
@@ -295,7 +279,6 @@ class SGDistributedGameDialog(QDialog):
         """Subscribe to all_players_selected topic to synchronize dialog closure"""
         # Prevent multiple subscriptions
         if self._all_players_selected_subscribed:
-            print(f"[Dialog] Already subscribed to all_players_selected, skipping")
             return
         
         if not self.config.session_id:
@@ -315,40 +298,14 @@ class SGDistributedGameDialog(QDialog):
         current_handler = self.model.mqttManager.client.on_message
         # Save handler for restoration during cleanup
         self._handler_before_all_players_selected = current_handler
-        print(f"[Dialog] Current handler before all_players_selected subscription: {current_handler}")
         
         def all_players_selected_handler(client, userdata, msg):
             # CRITICAL: Ignore callbacks during cleanup
             if hasattr(self, '_cleaning_up') and self._cleaning_up:
                 return
-            # CRITICAL: This handler should be called for ALL messages
-            # Log ALL messages to verify handler is being called
-            if 'session_all_players_selected' in msg.topic:
-                print(f"[Dialog] *** all_players_selected_handler CALLED for session_all_players_selected: topic={msg.topic} ***")
-            else:
-                # Log other messages occasionally to verify handler is active
-                # Only log every 10th message to avoid spam
-                import random
-                if random.random() < 0.1:  # 10% chance
-                    print(f"[Dialog] all_players_selected_handler called for other message: topic={msg.topic[:50]}...")
             
             # CRITICAL: Protect against RuntimeError if dialog is destroyed
             try:
-                # Log ALL messages that match the topic to diagnose routing issues
-                # This should be called for EVERY message on session_all_players_selected topic
-                if 'session_all_players_selected' in msg.topic:
-                    print(f"[Dialog] all_players_selected_handler CALLED for session_all_players_selected: topic={msg.topic}, expected={all_players_selected_topic}, match={msg.topic == all_players_selected_topic}")
-                
-                # Log ALL messages that match the topic to diagnose routing issues
-                if msg.topic == all_players_selected_topic or 'session_all_players_selected' in msg.topic:
-                    print(f"[Dialog] all_players_selected_handler CALLED: topic={msg.topic}, expected={all_players_selected_topic}, match={msg.topic == all_players_selected_topic}")
-                
-                # Log ALL messages to diagnose routing issues
-                if 'session_all_players_selected' in msg.topic:
-                    print(f"[Dialog] all_players_selected_handler: Received message on topic {msg.topic}, expected: {all_players_selected_topic}, match: {msg.topic == all_players_selected_topic}")
-                elif msg.topic == all_players_selected_topic:
-                    print(f"[Dialog] all_players_selected_handler: Received message on exact topic {msg.topic}")
-                
                 if msg.topic == all_players_selected_topic:
                     # All players selected message received
                     try:
@@ -357,18 +314,14 @@ class SGDistributedGameDialog(QDialog):
                         sender_client_id = msg_dict.get('clientId')
                         is_retained = msg.retain
                         
-                        print(f"[Dialog] All players selected message received from {sender_client_id[:8] if sender_client_id else 'N/A'}... (retained={is_retained}, waiting_for_others={getattr(self, 'waiting_for_others', False)})")
-                        
                         # Check if already processed (avoid double processing)
                         if hasattr(self, '_all_players_selected_processed') and self._all_players_selected_processed:
-                            print(f"[Dialog] All players selected message already processed, ignoring duplicate")
                             return
                         
                         # CRITICAL: If we're waiting for others, trust the message
                         # The message is only published when all players are registered, so we can trust it
                         # The local connected_players may not be up-to-date due to MQTT latency
                         if not getattr(self, 'waiting_for_others', False):
-                            print(f"[Dialog] Not waiting for others, ignoring all_players_selected message")
                             return
                         
                         # Optional: Verify that all players are actually selected before closing
@@ -379,12 +332,6 @@ class SGDistributedGameDialog(QDialog):
                         # Get required number of players (based on actual connected instances for variable player count)
                         required = self._getRequiredPlayersCount()
                         
-                        print(f"[Dialog] Verifying: {num_registered}/{required} players registered (message trusted because waiting_for_others=True)")
-                        
-                        # Only warn if significantly off, but still trust the message
-                        if num_registered < required - 1:  # Allow 1 player difference due to latency
-                            print(f"[Dialog] WARNING: Local count ({num_registered}/{required}) is low, but trusting message (MQTT latency)")
-                        
                         # Mark as processed
                         self._all_players_selected_processed = True
                         
@@ -393,8 +340,6 @@ class SGDistributedGameDialog(QDialog):
                             self.waiting_check_timer.stop()
                         
                         self.waiting_for_others = False
-                        
-                        print(f"[Dialog] All players selected signal received, closing dialog...")
                         
                         # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
                         from PyQt5.QtCore import QMetaObject, Qt
@@ -416,35 +361,19 @@ class SGDistributedGameDialog(QDialog):
             # CRITICAL: Forward other messages to current handler (which includes reservation handler)
             if current_handler:
                 try:
-                    print(f"[Dialog] Forwarding non-all_players_selected message to current handler: topic={msg.topic}")
                     current_handler(client, userdata, msg)
                 except Exception as e:
-                    print(f"[Dialog] Error forwarding message to handler: {e}, topic={msg.topic}")
+                    print(f"[Dialog] Error forwarding message to handler: {e}")
                     import traceback
                     traceback.print_exc()
-            else:
-                print(f"[Dialog] WARNING: No current_handler to forward message: topic={msg.topic}")
         
         # Install handler BEFORE subscribing (to receive retained messages)
         # This wraps the reservation handler, so both work together
         self._all_players_selected_handler = all_players_selected_handler
         self.model.mqttManager.client.on_message = all_players_selected_handler
-        print(f"[Dialog] Handler after all_players_selected installation: {self.model.mqttManager.client.on_message}")
-        print(f"[Dialog] Handler chain: all_players_selected_handler -> {current_handler}")
-        
-        # Verify handler is actually installed
-        if self.model.mqttManager.client.on_message != all_players_selected_handler:
-            print(f"[Dialog] ERROR: Handler was not installed correctly! Expected: {all_players_selected_handler}, Got: {self.model.mqttManager.client.on_message}")
-        
-        # Store a reference to verify handler is still active when messages arrive
-        self._verify_all_players_selected_handler = lambda: (
-            print(f"[Dialog] VERIFY: Current handler is {self.model.mqttManager.client.on_message}, expected {all_players_selected_handler}, match: {self.model.mqttManager.client.on_message == all_players_selected_handler}")
-        )
         
         # Subscribe to all_players_selected topic
         result = self.model.mqttManager.client.subscribe(all_players_selected_topic, qos=1)
-        print(f"[Dialog] Subscribed to all players selected topic: {all_players_selected_topic}")
-        print(f"[Dialog] Subscribe result: mid={result[0]}, rc={result[1]}")
         
         # Mark as subscribed to prevent multiple subscriptions
         self._all_players_selected_subscribed = True
@@ -458,8 +387,6 @@ class SGDistributedGameDialog(QDialog):
     
     def _checkRetainedAllPlayersSelected(self):
         """Check if a retained all_players_selected message was received, indicating all players are already selected"""
-        print(f"[Dialog] Checking retained message: waiting_for_others={self.waiting_for_others}, processed={getattr(self, '_all_players_selected_processed', False)}")
-        
         # Check if all players are already selected
         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
         num_registered = len(connected_players)
@@ -467,17 +394,13 @@ class SGDistributedGameDialog(QDialog):
         # Get required number of players (based on actual connected instances for variable player count)
         required = self._getRequiredPlayersCount()
         
-        print(f"[Dialog] Retained check: {num_registered}/{required} players registered (connected_players: {connected_players}, connected_instances: {getattr(self.config, 'connected_instances_count', 0) if not isinstance(self.config.num_players, int) else 'N/A'})")
-        
         if num_registered >= required:
             # All players are already selected!
             if self.waiting_for_others:
                 # We're in waiting mode, close via _checkAllPlayersSelected to ensure proper cleanup
-                print(f"[Dialog] All players selected while in waiting mode, closing dialog...")
                 self._checkAllPlayersSelected()
             else:
                 # We haven't clicked OK yet, but all players are selected - close immediately
-                print(f"[Dialog] All {required} players already selected when subscribing (retained message), closing dialog...")
                 self._all_players_selected_processed = True
                 QTimer.singleShot(100, lambda: super(SGDistributedGameDialog, self).accept())
     
@@ -510,8 +433,7 @@ class SGDistributedGameDialog(QDialog):
             retain=True
         )
         
-        print(f"[Dialog] Published all players selected message to {all_players_selected_topic}")
-        print(f"[Dialog] Publish result: mid={result.mid}, rc={result.rc}")
+        # Published all players selected message
     
     def _updatePlayerButtonState(self, player_name, state):
         """Update the visual state of a player button"""
@@ -529,7 +451,7 @@ class SGDistributedGameDialog(QDialog):
             radio.setStyleSheet("")
             # Remove any special text
             radio.setText(player_name)
-            print(f"[Dialog] Updated {player_name} to available state")
+            # Player state updated to available
         elif state == 'reserved':
             reserved_by_self = (player_name in self.player_reservations and 
                                self.player_reservations[player_name] == self.model.mqttManager.clientId)
@@ -541,7 +463,7 @@ class SGDistributedGameDialog(QDialog):
                 # CRITICAL: If this is our confirmed selection, ensure radio button stays checked
                 if is_our_confirmed_selection:
                     radio.setChecked(True)
-                print(f"[Dialog] Updated {player_name} to reserved by self")
+                # Player reserved by self
             else:
                 # Reserved by another instance
                 radio.setEnabled(False)
@@ -550,7 +472,7 @@ class SGDistributedGameDialog(QDialog):
                 # Don't uncheck if it's our confirmed selection (shouldn't happen, but safety check)
                 if not is_our_confirmed_selection:
                     radio.setChecked(False)
-                print(f"[Dialog] Updated {player_name} to reserved by other")
+                # Player reserved by other
         elif state == 'conflict':
             radio.setEnabled(False)
             radio.setStyleSheet("color: #e74c3c; font-weight: bold;")
@@ -558,7 +480,7 @@ class SGDistributedGameDialog(QDialog):
             # Don't uncheck if it's our confirmed selection (shouldn't happen, but safety check)
             if not is_our_confirmed_selection:
                 radio.setChecked(False)
-            print(f"[Dialog] Updated {player_name} to conflict state")
+            # Player in conflict state
     
     def _checkForConflict(self, player_name, wait_time_ms=250):
         """
@@ -668,7 +590,8 @@ class SGDistributedGameDialog(QDialog):
         if hasattr(self, '_all_players_selected_handler'):
             current_handler = self.model.mqttManager.client.on_message
             if current_handler != self._all_players_selected_handler:
-                print(f"[Dialog] WARNING: Handler was replaced! Expected: {self._all_players_selected_handler}, Got: {current_handler}")
+                # Handler was replaced (expected behavior when other components subscribe)
+                pass
         
         # Count how many players are registered (not just reserved)
         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
@@ -677,11 +600,8 @@ class SGDistributedGameDialog(QDialog):
         # Get required number of players (based on actual connected instances for variable player count)
         required = self._getRequiredPlayersCount()
         
-        print(f"[Dialog] Checking: {num_registered}/{required} players registered (connected_players: {connected_players}, connected_instances: {getattr(self.config, 'connected_instances_count', 0) if not isinstance(self.config.num_players, int) else 'N/A'})")
-        
         if num_registered >= required:
-            # All players selected! 
-            print(f"[Dialog] All {required} players have selected their roles. Closing dialog...")
+            # All players selected!
             self.waiting_check_timer.stop()
             self.waiting_for_others = False  # Prevent multiple closes
             self.waiting_status_label.setText(f"✓ All players ready! Starting game...")
@@ -695,11 +615,11 @@ class SGDistributedGameDialog(QDialog):
             if not self._all_players_selected_published:
                 self._all_players_selected_published = True
                 self._publishAllPlayersSelected()
-                print(f"[Dialog] Published all players selected message")
+                # Published all players selected message
             
             # Close this instance's dialog after a short delay
             # (Other instances will close when they receive the MQTT message or when their timer detects all players)
-            print(f"[Dialog] Closing dialog in 300ms...")
+            # Closing dialog
             QTimer.singleShot(300, lambda: super(SGDistributedGameDialog, self).accept())
     
     def updateAvailablePlayers(self):
@@ -784,7 +704,7 @@ class SGDistributedGameDialog(QDialog):
         # CRITICAL: If we're already waiting for others, don't process any new selections
         # This prevents false conflict detection from late-arriving MQTT messages
         if getattr(self, 'waiting_for_others', False):
-            print(f"[Dialog] Already waiting for others, ignoring accept() call")
+            # Already waiting for others, ignoring accept() call
             return
         
         # Get selected player

@@ -68,11 +68,11 @@ from mainClasses.gameAction.SGDelete import *
 from mainClasses.gameAction.SGModify import *
 from mainClasses.gameAction.SGMove import *
 from mainClasses.SGEventHandlerGuide import *
-from mainClasses.SGMQTTManager import SGMQTTManager
-from mainClasses.SGDistributedGameConfig import SGDistributedGameConfig
-from mainClasses.SGDistributedSessionManager import SGDistributedSessionManager
-from mainClasses.SGDistributedGameDialog import SGDistributedGameDialog
-from mainClasses.SGConnectionStatusWidget import SGConnectionStatusWidget
+from mainClasses.distributedGame.SGMQTTManager import SGMQTTManager
+from mainClasses.distributedGame.SGDistributedGameConfig import SGDistributedGameConfig
+from mainClasses.distributedGame.SGDistributedSessionManager import SGDistributedSessionManager
+from mainClasses.distributedGame.SGDistributedGameDialog import SGDistributedGameDialog
+from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionStatusWidget
 
 
 
@@ -2426,7 +2426,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         session_manager = SGDistributedSessionManager(self, self.mqttManager)
         
         # Open minimal dialog for connection and seed sync (NO player selection)
-        from mainClasses.SGDistributedConnectionDialog import SGDistributedConnectionDialog
+        from mainClasses.distributedGame.SGDistributedConnectionDialog import SGDistributedConnectionDialog
         dialog = SGDistributedConnectionDialog(self, config, self, session_manager)
         
         if dialog.exec_() == QDialog.Accepted:
@@ -2460,11 +2460,11 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         # CRITICAL: If assigned_player_name is already set, setup is already complete
         # This prevents the dialog from opening again when launch() is called after connection dialog closes
         if config.assigned_player_name:
-            print(f"[Model] Distributed game setup already complete (assigned_player: {config.assigned_player_name}), skipping dialog")
+            # Distributed game setup already complete, skipping dialog
             return True
         
         # Open dialog for user to select player
-        from mainClasses.SGDistributedGameDialog import SGDistributedGameDialog
+        from mainClasses.distributedGame.SGDistributedGameDialog import SGDistributedGameDialog
         dialog = SGDistributedGameDialog(self, config, self, session_manager)
         
         if dialog.exec_() == QDialog.Accepted:
@@ -2492,7 +2492,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             )
             
             # Open connection status widget
-            from mainClasses.SGConnectionStatusWidget import SGConnectionStatusWidget
+            from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionStatusWidget
             connection_widget = SGConnectionStatusWidget(
                 None,  # Separate window
                 self,

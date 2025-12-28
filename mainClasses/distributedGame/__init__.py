@@ -1,0 +1,32 @@
+# Distributed Game Module
+"""
+Module containing all classes related to distributed multiplayer games in SGE.
+
+Classes:
+    - SGDistributedConnectionDialog: Dialog for MQTT connection and seed synchronization
+    - SGDistributedGameConfig: Configuration class for distributed games
+    - SGDistributedGameDialog: Dialog for player selection
+    - SGDistributedSession: Session state representation (single source of truth)
+    - SGDistributedSessionManager: Manages session-level MQTT operations
+    - SGMQTTManager: Manages MQTT communication for multiplayer functionality
+    - SGConnectionStatusWidget: Widget showing connection status
+"""
+
+from mainClasses.distributedGame.SGDistributedConnectionDialog import SGDistributedConnectionDialog
+from mainClasses.distributedGame.SGDistributedGameConfig import SGDistributedGameConfig
+from mainClasses.distributedGame.SGDistributedGameDialog import SGDistributedGameDialog
+from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
+from mainClasses.distributedGame.SGDistributedSessionManager import SGDistributedSessionManager
+from mainClasses.distributedGame.SGMQTTManager import SGMQTTManager
+from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionStatusWidget
+
+__all__ = [
+    'SGDistributedConnectionDialog',
+    'SGDistributedGameConfig',
+    'SGDistributedGameDialog',
+    'SGDistributedSession',
+    'SGDistributedSessionManager',
+    'SGMQTTManager',
+    'SGConnectionStatusWidget',
+]
+

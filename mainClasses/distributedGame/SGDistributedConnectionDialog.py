@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 # --- Project imports ---
-from mainClasses.SGDistributedSession import SGDistributedSession
+from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
 
 
 class SGDistributedConnectionDialog(QDialog):
@@ -284,7 +284,6 @@ class SGDistributedConnectionDialog(QDialog):
             """Periodically update sessions list and force re-subscription to get retained messages"""
             # Force re-subscription to ensure we receive any missed retained messages
             if self.available_sessions and self.model.mqttManager.client and self.model.mqttManager.client.is_connected():
-                print(f"[Dialog] Periodic sessions list update - forcing re-subscription to get retained messages")
                 # Force unsubscribe/resubscribe to get retained messages
                 for session_id in self.available_sessions.keys():
                     instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
@@ -302,7 +301,6 @@ class SGDistributedConnectionDialog(QDialog):
                     # Wait for retained messages to be received by the handler
                     # The handler will update the cache, then we update the list
                     def update_list_after_retained_messages():
-                        print(f"[Dialog] Periodic update: calling _updateSessionsList()")
                         self._updateSessionsList()
                     
                     QTimer.singleShot(800, update_list_after_retained_messages)
@@ -310,7 +308,6 @@ class SGDistributedConnectionDialog(QDialog):
                 QTimer.singleShot(100, resubscribe_after_delay)
             else:
                 # Update the list even if not connected (will show empty/current state)
-                print(f"[Dialog] Periodic update: calling _updateSessionsList()")
                 self._updateSessionsList()
         
         self.sessions_list_update_timer = QTimer(self)
@@ -395,7 +392,6 @@ class SGDistributedConnectionDialog(QDialog):
             # Start session discovery if already connected
             if (self.model.mqttManager.client and 
                 self.model.mqttManager.client.is_connected()):
-                print(f"[Dialog] Already connected, starting session discovery immediately...")
                 self._startSessionDiscovery()
             else:
                 # Not connected yet - automatically start connection to enable session discovery
@@ -421,7 +417,6 @@ class SGDistributedConnectionDialog(QDialog):
                 
                 # Automatically start connection (only if not already in progress)
                 if not self._connection_in_progress:
-                    print(f"[Dialog] Join existing mode selected, starting connection automatically...")
                     self._updateState(self.STATE_CONNECTING)
                     self._connectToBroker()
             
@@ -441,13 +436,11 @@ class SGDistributedConnectionDialog(QDialog):
         def onSessionsDiscovered(sessions_dict):
             """Callback when sessions are discovered"""
             # sessions_dict already contains only active sessions (expired ones filtered in SessionManager)
-            print(f"[Dialog] onSessionsDiscovered called with {len(sessions_dict)} sessions: {list(sessions_dict.keys())}")
             self.available_sessions = sessions_dict
             
             # CRITICAL: Update list immediately to show new sessions, even if instance counts are not yet available
             # This ensures new sessions appear in the list right away
             # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
-            print(f"[Dialog] Updating sessions list immediately with {len(self.available_sessions)} sessions")
             self._updateSessionsList()
             
             # Subscribe to player registration topics for all discovered sessions to get player counts
@@ -458,7 +451,6 @@ class SGDistributedConnectionDialog(QDialog):
             # to show correct instance counts
         
         # Start discovery
-        print(f"[Dialog] Starting session discovery...")
         self.session_manager.discoverSessions(callback=onSessionsDiscovered)
     
     def _subscribeToSessionPlayerRegistrations(self):
@@ -508,7 +500,6 @@ class SGDistributedConnectionDialog(QDialog):
            current_handler != self._player_registration_tracker:
             # A more important handler is installed, don't replace it
             # Just update subscriptions if needed
-            print(f"[Dialog] More important handler detected ({current_handler}), not replacing. Just updating subscriptions.")
             import time
             for session_id in self.available_sessions.keys():
                 instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
@@ -546,7 +537,6 @@ class SGDistributedConnectionDialog(QDialog):
                         # Ignore empty messages (used to clear retained messages)
                         payload_str = msg.payload.decode("utf-8")
                         if not payload_str or payload_str.strip() == "":
-                            print(f"[Dialog] Ignoring empty player_registration message (retained cleanup): {msg.topic}")
                             return
                         
                         msg_dict = json.loads(payload_str)
@@ -580,6 +570,8 @@ class SGDistributedConnectionDialog(QDialog):
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking player registration: {e}")
+                        import traceback
+                        traceback.print_exc()
                     # Don't forward - this is just for tracking
                     return
                 
@@ -604,6 +596,8 @@ class SGDistributedConnectionDialog(QDialog):
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking player disconnect: {e}")
+                        import traceback
+                        traceback.print_exc()
                     # Don't forward - this is just for tracking
                     return
                 
@@ -611,13 +605,11 @@ class SGDistributedConnectionDialog(QDialog):
                 # This is more reliable than player_registration because it's published earlier
                 instance_ready_topic_base = f"{session_id}/session_instance_ready"
                 if msg.topic.startswith(instance_ready_topic_base + "/"):
-                    print(f"[Dialog] Received instance_ready message for session {session_id} on topic: {msg.topic}")
                     try:
                         import json
                         # Ignore empty messages (used to clear retained messages)
                         payload_str = msg.payload.decode("utf-8")
                         if not payload_str or payload_str.strip() == "":
-                            print(f"[Dialog] Ignoring empty instance_ready message (retained cleanup) for session {session_id}: {msg.topic}")
                             return
                         
                         msg_dict = json.loads(payload_str)
@@ -628,22 +620,21 @@ class SGDistributedConnectionDialog(QDialog):
                             # Initialize instances cache for this session if needed
                             if session_id not in self.session_instances_cache:
                                 self.session_instances_cache[session_id] = set()
-                                print(f"[Dialog] Initialized instances cache for session {session_id}")
                             old_instances_count = len(self.session_instances_cache[session_id])
                             self.session_instances_cache[session_id].add(client_id)
                             new_instances_count = len(self.session_instances_cache[session_id])
                             
-                            print(f"[Dialog] Instance ready for session {session_id}: {client_id[:8]}... (cache: {old_instances_count} -> {new_instances_count})")
                             
                             # Update list if instances count changed
                             # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
                             # CRITICAL: Always update the list when cache changes, even if session is selected
                             # This ensures the display stays accurate for all sessions
                             if new_instances_count != old_instances_count:
-                                print(f"[Dialog] Triggering sessions list update for session {session_id} (count changed: {old_instances_count} -> {new_instances_count})")
                                 QTimer.singleShot(100, self._updateSessionsList)
                     except Exception as e:
                         print(f"[Dialog] Error tracking instance ready: {e}")
+                        import traceback
+                        traceback.print_exc()
                     # Don't forward - this is just for tracking
                     return
             
@@ -667,8 +658,8 @@ class SGDistributedConnectionDialog(QDialog):
             # Unsubscribe first to force retained messages on resubscribe
             try:
                 self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
-            except Exception as e:
-                print(f"[Dialog] Warning: Could not unsubscribe from {instance_ready_topic_wildcard}: {e}")
+            except Exception:
+                pass  # Ignore unsubscribe errors
         
         # Brief delay to ensure unsubscribes are processed
         time.sleep(0.1)
@@ -681,12 +672,10 @@ class SGDistributedConnectionDialog(QDialog):
             result1 = self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
             result2 = self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
             result3 = self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
-            print(f"[Dialog] Subscribed to topics for session {session_id}: registration={result1[0]}, disconnect={result2[0]}, instance_ready={result3[0]}")
         
         # Wait for retained messages to be received, then update list
         # Increased delay to ensure all retained messages are received
         time.sleep(1.5)  # Increased from 0.8 to 1.5 to allow more time for retained messages
-        print(f"[Dialog] After subscription delay, instances cache: {self.session_instances_cache}")
         
         if not self._selected_session_id:
             QTimer.singleShot(300, self._updateSessionsList)
@@ -726,8 +715,6 @@ class SGDistributedConnectionDialog(QDialog):
         selected_session_id = self._selected_session_id
         
         # DEBUG: Log cache state before update
-        print(f"[Dialog] _updateSessionsList called (selected_session_id={selected_session_id})")
-        print(f"[Dialog] Cache state: {[(sid[:8] if sid else 'None', len(instances)) for sid, instances in self.session_instances_cache.items()]}")
         
         self.sessions_list.clear()
         
@@ -762,7 +749,6 @@ class SGDistributedConnectionDialog(QDialog):
             
             # CRITICAL: Skip closed sessions (don't display them in Available Sessions)
             if session_state and session_state.state == 'closed':
-                print(f"[Dialog] Skipping closed session {session_id[:8]}... in Available Sessions list")
                 continue
             
             if not session_state:
@@ -792,7 +778,6 @@ class SGDistributedConnectionDialog(QDialog):
                     num_max = session_state.num_players_max
                 model_name = session_state.model_name
             
-            print(f"[Dialog] Session {session_id}: {num_instances} instances (from session_state: {session_state is not None}, session_state.connected_instances: {len(session_state.connected_instances) if session_state else 'N/A'}, self.session_state.connected_instances: {len(self.session_state.connected_instances) if (self.session_state and self.config.session_id == session_id) else 'N/A'})")
             
             # Check if this is the session we're connected to
             is_connected_session = (self.config.session_id == session_id and 
@@ -867,7 +852,6 @@ class SGDistributedConnectionDialog(QDialog):
         # Use QTimer to defer repaint and avoid recursive repaint errors
         QTimer.singleShot(0, lambda: (self.sessions_list.update(), self.sessions_list.repaint()))
         
-        print(f"[Dialog] Updated sessions list: {len(sorted_sessions)} active session(s) found")
     
     def _onSessionClicked(self, item):
         """Handle single click on a session in the list - selects the session"""
@@ -946,7 +930,6 @@ class SGDistributedConnectionDialog(QDialog):
                 if self.session_state.state == 'closed':
                     # This should not happen if on_session_state_update() is working correctly,
                     # but if it does, reset state here as fallback
-                    print(f"[Dialog] WARNING: Session closed detected in _updateConnectedInstances() (should be handled in callback)")
                     self.connected_instances_label.setText("Instances: Session closed")
                     self.connected_instances_label.setStyleSheet("padding: 5px; color: #e74c3c; font-weight: bold;")
                     # CRITICAL: Reset dialog state - we're no longer connected to a session
@@ -1314,7 +1297,6 @@ class SGDistributedConnectionDialog(QDialog):
             # But don't auto-transition to READY - let user control the flow
             if (self.model.mqttManager.client and 
                 self.model.mqttManager.client.is_connected()):
-                print(f"[Dialog] Session {session_id} selected, syncing seed...")
                 # Update connection status to reflect that we're connected
                 self.connection_status = "Connected to broker"
                 self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
@@ -1345,13 +1327,11 @@ class SGDistributedConnectionDialog(QDialog):
         """Connect to MQTT broker by calling setMQTTProtocol()"""
         # Prevent multiple simultaneous connection attempts
         if self._connection_in_progress:
-            print(f"[Dialog] Connection already in progress, skipping...")
             return
         
         # Check if already connected
         if (self.model.mqttManager.client and 
             self.model.mqttManager.client.is_connected()):
-            print(f"[Dialog] Already connected to broker")
             self._checkConnection()  # Update UI and start discovery if needed
             return
         
@@ -1391,18 +1371,16 @@ class SGDistributedConnectionDialog(QDialog):
             if self.join_existing_radio.isChecked():
                 # Always start discovery if not already started (regardless of when mode was changed)
                 if not self.session_manager.session_discovery_handler:
-                    print(f"[Dialog] Connection established, starting session discovery...")
                     self._startSessionDiscovery()
                 self._should_start_discovery_on_connect = False  # Clear flag
                 # In join mode, sync seed ONLY if user has selected a session from the list
                 # Don't sync with temporary session_id - wait for user to select a real session
                 if self.config.session_id and self.config.session_id != self._temporary_session_id:
                     # User has selected a session (not the temporary one), sync seed now
-                    print(f"[Dialog] Session selected ({self.config.session_id}), syncing seed...")
                     self._syncSeed()
                 else:
                     # Temporary session_id or no session selected yet - don't sync seed
-                    print(f"[Dialog] Waiting for user to select a session from the list (temporary session_id: {self._temporary_session_id})")
+                    pass
                 return
             
             # In create mode, sync seed immediately
@@ -1440,7 +1418,6 @@ class SGDistributedConnectionDialog(QDialog):
             session_topics = self.session_manager.getSessionTopics(self.config.session_id)
             seed_topic = session_topics[1]  # session_seed_sync
             
-            print(f"[Dialog] Starting seed sync...")
             synced_seed = self.session_manager.syncSeed(
                 self.config.session_id,
                 shared_seed=self.config.shared_seed,
@@ -1449,7 +1426,6 @@ class SGDistributedConnectionDialog(QDialog):
                 client_id_callback=track_client_id
             )
             
-            print(f"[Dialog] Seed sync completed, seed: {synced_seed}")
             
             # Verify that seed sync actually succeeded
             if synced_seed is None:
@@ -1504,7 +1480,6 @@ class SGDistributedConnectionDialog(QDialog):
                     if self.model.mqttManager.clientId not in self.session_state.connected_instances:
                         self.session_state.add_instance(self.model.mqttManager.clientId)
                         self.session_manager.publishSessionState(self.session_state)
-                        print(f"[Dialog] Added self to session state, now {len(self.session_state.connected_instances)} instances")
                     # Also update cache for consistency
                     self.session_states_cache[self.config.session_id] = self.session_state
                     # CRITICAL: Record when we joined to track if we've received heartbeat since joining
@@ -1516,9 +1491,9 @@ class SGDistributedConnectionDialog(QDialog):
                     # Start creator check timer (to detect if creator disconnects)
                     # Use a delay to avoid false positives (wait for first heartbeat after join)
                     QTimer.singleShot(10000, self._startCreatorCheckTimer)  # Start checking after 10s (allows time for heartbeat)
-                    print(f"[Dialog] Joined existing session state for {self.config.session_id[:8]}... ({len(self.session_state.connected_instances)} instances, heartbeat was {self._last_heartbeat_when_joined.isoformat()})")
                 else:
-                    print(f"[Dialog] No existing session state found for {self.config.session_id[:8]}... (may be a new session)")
+                    # No existing session state found - will be initialized when session_state is received via subscription
+                    pass
             
             # NOTE: We do NOT take snapshot here - we continue counting instances until READY state
             # The snapshot will be taken when dialog transitions to READY state
@@ -1532,7 +1507,6 @@ class SGDistributedConnectionDialog(QDialog):
                 else:
                     num_min = self.config.num_players_min
                     num_max = self.config.num_players_max
-                print(f"[Dialog] Publishing session discovery: {self.config.session_id}")
                 self.session_manager.publishSession(
                     self.config.session_id,
                     num_min,
@@ -1548,7 +1522,6 @@ class SGDistributedConnectionDialog(QDialog):
             # Use QTimer to avoid blocking the UI thread
             # Increased delay to ensure all retained messages (instance_ready, player_registration) are received
             def update_with_log():
-                print(f"[Dialog] Updating connected instances after delay... (connected_instances: {len(self.connected_instances)}, ready_instances: {len(self.ready_instances)}, snapshot: {len(self.connected_instances_snapshot) if self.connected_instances_snapshot else 0})")
                 self._updateConnectedInstances()
             QTimer.singleShot(1500, update_with_log)
             
@@ -1568,7 +1541,6 @@ class SGDistributedConnectionDialog(QDialog):
             num_players_max: Maximum number of players
         """
         if not self.config.session_id or not self.model.mqttManager.clientId:
-            print(f"[Dialog] Cannot initialize session state: missing session_id or clientId")
             return
         
         # Create session state
@@ -1589,7 +1561,6 @@ class SGDistributedConnectionDialog(QDialog):
         # Subscribe to session state updates
         self._subscribeToSessionStateUpdates()
         
-        print(f"[Dialog] Initialized session state for {self.config.session_id[:8]}... (creator: {self.model.mqttManager.clientId[:8]}...)")
     
     def _subscribeToSessionStateUpdates(self):
         """
@@ -1601,8 +1572,6 @@ class SGDistributedConnectionDialog(QDialog):
         def on_session_state_update(session: SGDistributedSession):
             """Handle session state update"""
             try:
-                print(f"[Dialog] Received session state update for {session.session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
-                print(f"[Dialog] Current session_state: {self.session_state.session_id[:8] if self.session_state else 'None'}, connected: {self.config.session_id[:8] if self.config.session_id else 'None'}")
                 
                 # CRITICAL: Check if this is the session we're connected to
                 # If self.session_state is None but we're connected to this session, initialize it
@@ -1614,25 +1583,22 @@ class SGDistributedConnectionDialog(QDialog):
                     was_none = (self.session_state is None)
                     
                     if self.session_state:
-                        print(f"[Dialog] Updating local session_state (was {len(self.session_state.connected_instances)} instances, now {len(session.connected_instances)} instances, state: {session.state})")
                         # CRITICAL: Check if heartbeat was updated (creator is still alive)
                         if session.last_heartbeat > self.session_state.last_heartbeat:
-                            print(f"[Dialog] Heartbeat updated: {session.last_heartbeat.isoformat()} (was {self.session_state.last_heartbeat.isoformat()})")
                             # Update our tracking to know we've received a heartbeat since joining
                             if hasattr(self, '_last_heartbeat_when_joined'):
                                 self._last_heartbeat_when_joined = session.last_heartbeat
                     else:
-                        print(f"[Dialog] Initializing session_state from retained message (was None, now {len(session.connected_instances)} instances, state: {session.state})")
+                        # First time receiving session_state - will be initialized below
+                        pass
                     
                     self.session_state = session
                     
                     # CRITICAL: If this is the first time we receive session_state (was None),
                     # and we're not already in connected_instances, add ourselves
                     if was_none and self.model.mqttManager.clientId not in self.session_state.connected_instances:
-                        print(f"[Dialog] Adding self to session_state (first time receiving retained message)")
                         self.session_state.add_instance(self.model.mqttManager.clientId)
                         self.session_manager.publishSessionState(self.session_state)
-                        print(f"[Dialog] Added self to session state, now {len(self.session_state.connected_instances)} instances")
                         # CRITICAL: Record when we joined and start creator check timer
                         # (This handles the case where readSessionState() returned None)
                         from datetime import datetime
@@ -1641,7 +1607,6 @@ class SGDistributedConnectionDialog(QDialog):
                         # Start creator check timer (to detect if creator disconnects)
                         # Use a delay to avoid false positives (wait for first heartbeat after join)
                         QTimer.singleShot(10000, self._startCreatorCheckTimer)  # Start checking after 10s
-                        print(f"[Dialog] Started creator check timer (will start in 10s)")
                     
                     # Also update cache for consistency
                     self.session_states_cache[session.session_id] = session
@@ -1652,10 +1617,8 @@ class SGDistributedConnectionDialog(QDialog):
                         # Remove from available_sessions if present
                         if session.session_id in self.available_sessions:
                             del self.available_sessions[session.session_id]
-                            print(f"[Dialog] Removed closed session {session.session_id[:8]}... from available_sessions")
                         # CRITICAL: Stop creator check timer since session is closed
                         if self.session_state_creator_check_timer:
-                            print(f"[Dialog] Stopping creator check timer (session closed)")
                             self.session_state_creator_check_timer.stop()
                             self.session_state_creator_check_timer = None
                         # CRITICAL: Completely reset dialog state - we're no longer connected to a session
@@ -1681,14 +1644,12 @@ class SGDistributedConnectionDialog(QDialog):
                         QTimer.singleShot(0, self._updateSessionsList)
                 else:
                     # Update cache for discovered sessions
-                    print(f"[Dialog] Updating cache for discovered session {session.session_id[:8]}...")
                     self.session_states_cache[session.session_id] = session
                     
                     # CRITICAL: If session is closed, remove it from available_sessions
                     if session.state == 'closed':
                         if session.session_id in self.available_sessions:
                             del self.available_sessions[session.session_id]
-                            print(f"[Dialog] Removed closed session {session.session_id[:8]}... from available_sessions")
                     
                     # Update sessions list (defer to avoid recursive repaint)
                     QTimer.singleShot(0, self._updateSessionsList)
@@ -1726,7 +1687,6 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_state_heartbeat_timer = QTimer(self)
         self.session_state_heartbeat_timer.timeout.connect(send_heartbeat)
         self.session_state_heartbeat_timer.start(5000)  # Every 5 seconds
-        print(f"[Dialog] Started session state heartbeat timer (5s interval)")
     
     def _startCreatorCheckTimer(self):
         """
@@ -1734,7 +1694,6 @@ class SGDistributedConnectionDialog(QDialog):
         Checks every 3 seconds, timeout is 15 seconds.
         """
         if not self.session_state:
-            print(f"[Dialog] WARNING: Cannot start creator check timer - session_state is None")
             return
         
         # Stop existing timer if any
@@ -1743,14 +1702,11 @@ class SGDistributedConnectionDialog(QDialog):
         
         def check_creator():
             try:
-                print(f"[Dialog] Creator check timer fired")
                 if not self.session_state:
-                    print(f"[Dialog] Creator check: session_state is None, skipping")
                     return
                 
                 # CRITICAL: If session is already closed, stop the timer and return
                 if self.session_state.state == 'closed':
-                    print(f"[Dialog] Session already closed, stopping creator check timer")
                     if self.session_state_creator_check_timer:
                         self.session_state_creator_check_timer.stop()
                         self.session_state_creator_check_timer = None
@@ -1758,7 +1714,6 @@ class SGDistributedConnectionDialog(QDialog):
                 
                 # Only check if we're not the creator
                 if self.session_state.is_creator(self.model.mqttManager.clientId):
-                    print(f"[Dialog] Creator check: We are the creator, skipping check")
                     return
                 
                 # Check if session is expired
@@ -1771,8 +1726,6 @@ class SGDistributedConnectionDialog(QDialog):
                 if hasattr(self, '_last_heartbeat_when_joined') and self._last_heartbeat_when_joined:
                     heartbeat_received_since_join = (self.session_state.last_heartbeat > self._last_heartbeat_when_joined)
                 
-                # Debug logging
-                print(f"[Dialog] Creator check: heartbeat {time_since_heartbeat:.1f}s ago, last update {time_since_last_update:.1f}s ago, expired: {self.session_state.is_expired(timeout_seconds=15.0)}, heartbeat_received_since_join: {heartbeat_received_since_join}")
                 
                 if self.session_state.is_expired(timeout_seconds=15.0):
                     # CRITICAL: If we've received a heartbeat since joining, we know creator was alive after we joined
@@ -1783,21 +1736,18 @@ class SGDistributedConnectionDialog(QDialog):
                         if self._session_joined_at:
                             time_since_join = (datetime.now() - self._session_joined_at).total_seconds()
                             if time_since_join < 15.0:
-                                print(f"[Dialog] Session expired but we joined {time_since_join:.1f}s ago (no heartbeat received since join), waiting...")
                                 return
                         else:
                             # Fallback: if we don't have join time, use last_update check
                             if time_since_last_update < 20.0:
-                                print(f"[Dialog] Session appears expired but state was updated {time_since_last_update:.1f}s ago (just joined), waiting for heartbeat...")
                                 return
                     else:
                         # We received a heartbeat since joining, so creator was alive after we joined
                         # If heartbeat is now expired, creator has quit
-                        print(f"[Dialog] Heartbeat expired ({time_since_heartbeat:.1f}s ago) and we received heartbeat since joining - creator has quit")
+                        pass
                     
                     # CRITICAL: Double-check that session is not already closed (may have been closed by another instance)
                     if self.session_state.state == 'closed':
-                        print(f"[Dialog] Session already closed by another instance, stopping creator check timer")
                         if self.session_state_creator_check_timer:
                             self.session_state_creator_check_timer.stop()
                             self.session_state_creator_check_timer = None
@@ -1819,7 +1769,6 @@ class SGDistributedConnectionDialog(QDialog):
                     # Remove from available_sessions if present
                     if closed_session_id and closed_session_id in self.available_sessions:
                         del self.available_sessions[closed_session_id]
-                        print(f"[Dialog] Removed closed session {closed_session_id[:8]}... from available_sessions")
                     # Completely reset dialog state - we're no longer connected to a session
                     self.config.session_id = None
                     self.session_state = None
@@ -1845,7 +1794,6 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_state_creator_check_timer = QTimer(self)
         self.session_state_creator_check_timer.timeout.connect(check_creator)
         self.session_state_creator_check_timer.start(3000)  # Every 3 seconds
-        print(f"[Dialog] Started creator check timer (3s interval, 15s timeout)")
     
     def _subscribeToSeedSyncForTracking(self, base_handler=None):
         """Subscribe to seed sync topic to track connected instances
@@ -1888,7 +1836,6 @@ class SGDistributedConnectionDialog(QDialog):
                             # Update UI if count changed (use QTimer to ensure thread safety)
                             if len(self.connected_instances) != old_count:
                                 QTimer.singleShot(0, self._updateConnectedInstances)
-                                print(f"[Dialog] New instance detected: {client_id[:8]}... Total: {len(self.connected_instances)}")
                                 
                                 # NOTE: We do NOT republish seed sync when a new instance is detected
                                 # This was causing infinite loops when multiple instances connect simultaneously.
@@ -1967,7 +1914,6 @@ class SGDistributedConnectionDialog(QDialog):
         # This is especially important when instances have already left the dialog
         QTimer.singleShot(1200, self._updateConnectedInstances)  # Increased delay to catch all messages
         
-        print(f"[Dialog] Installed seed tracking handler for topic: {seed_topic}")
     
     def _subscribeToPlayerRegistrationForTracking(self):
         """Subscribe to player registration messages to track connected instances
@@ -2027,12 +1973,10 @@ class SGDistributedConnectionDialog(QDialog):
             
             # Track disconnections via player_disconnect messages
             elif msg.topic.startswith(disconnect_topic_base):
-                print(f"[Dialog] Received player_disconnect message on topic: {msg.topic}")
                 try:
                     import json
                     msg_dict = json.loads(msg.payload.decode("utf-8"))
                     client_id = msg_dict.get('clientId')
-                    print(f"[Dialog] Processing disconnect for client_id: {client_id[:8] if client_id else 'N/A'}...")
                     
                     if client_id:
                         old_count = len(self.connected_instances)
@@ -2051,13 +1995,11 @@ class SGDistributedConnectionDialog(QDialog):
                         # This ensures the UI updates correctly when an instance disconnects
                         if self.connected_instances_snapshot and client_id in self.connected_instances_snapshot:
                             self.connected_instances_snapshot.remove(client_id)
-                            print(f"[Dialog] Removed instance from snapshot: {client_id[:8] if client_id else 'N/A'}... (snapshot size: {len(self.connected_instances_snapshot)})")
                         
                         # Update UI if counts changed
                         if (len(self.connected_instances) != old_count or 
                             len(self.ready_instances) != old_ready_count or
                             (self.connected_instances_snapshot and len(self.connected_instances_snapshot) != old_snapshot_count)):
-                            print(f"[Dialog] Instance disconnected: {client_id[:8] if client_id else 'N/A'}... (connected: {len(self.connected_instances)}, ready: {len(self.ready_instances)}, snapshot: {len(self.connected_instances_snapshot) if self.connected_instances_snapshot else 0})")
                             QTimer.singleShot(0, self._updateConnectedInstances)
                 except Exception as e:
                     print(f"[Dialog] Error tracking instance disconnect: {e}")
@@ -2112,7 +2054,7 @@ class SGDistributedConnectionDialog(QDialog):
             try:
                 # Debug: log all messages to see if game_start topic is received
                 if 'game_start' in msg.topic:
-                    print(f"[Dialog] Game start handler received message on topic: {msg.topic}, expected: {game_start_topic}")
+                    pass  # Debug check - can add logging here if needed
                 
                 if msg.topic == game_start_topic:
                     # Game start message received
@@ -2122,17 +2064,14 @@ class SGDistributedConnectionDialog(QDialog):
                         sender_client_id = msg_dict.get('clientId')
                         start_type = msg_dict.get('start_type', 'unknown')
                         
-                        print(f"[Dialog] Game start message received: sender={sender_client_id[:8] if sender_client_id else 'N/A'}..., type={start_type}, our_id={self.model.mqttManager.clientId[:8] if self.model.mqttManager.clientId else 'N/A'}...")
                         
                         # Check if already processed (avoid double processing)
                         if hasattr(self, '_game_start_processed') and self._game_start_processed:
-                            print(f"[Dialog] Game start message already processed, ignoring duplicate")
                             return
                         
                         # Mark as processed
                         self._game_start_processed = True
                         
-                        print(f"[Dialog] Game start signal received from {sender_client_id[:8] if sender_client_id else 'N/A'}..., closing dialog...")
                         
                         # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
                         # CRITICAL: QTimer.singleShot cannot be called from MQTT thread
@@ -2163,9 +2102,6 @@ class SGDistributedConnectionDialog(QDialog):
         
         # Subscribe to game start topic
         result = self.model.mqttManager.client.subscribe(game_start_topic, qos=1)
-        print(f"[Dialog] Subscribed to game start topic: {game_start_topic}")
-        print(f"[Dialog] Subscribe result: mid={result[0]}, rc={result[1]}")
-        print(f"[Dialog] Current handler chain: game_start_handler -> {current_handler}")
         
         # Initialize processed flag
         self._game_start_processed = False
@@ -2206,8 +2142,6 @@ class SGDistributedConnectionDialog(QDialog):
             retain=False  # Don't retain - start message is one-time only
         )
         
-        print(f"[Dialog] Published game start signal (type: {start_type}) to {game_start_topic}")
-        print(f"[Dialog] Publish result: mid={result.mid}, rc={result.rc}")
         
         # Wait a moment to ensure message is sent before continuing
         import time
@@ -2256,20 +2190,16 @@ class SGDistributedConnectionDialog(QDialog):
             retain=True  # Keep retain for discovery, but cleanup explicitly on disconnect
         )
         
-        print(f"[Dialog] Published instance ready signal to {instance_ready_topic}")
-        print(f"[Dialog] Publish result: mid={result.mid}, rc={result.rc}")
         
         # Phase 2: Update session_state when instance becomes ready
         if self.session_state and self.model.mqttManager.clientId:
             if self.model.mqttManager.clientId not in self.session_state.connected_instances:
                 self.session_state.add_instance(self.model.mqttManager.clientId)
                 self.session_manager.publishSessionState(self.session_state)
-                print(f"[Dialog] Added instance to session_state: {self.model.mqttManager.clientId[:8]}...")
         
         # Add ourselves to ready_instances immediately
         if self.model.mqttManager.clientId not in self.ready_instances:
             self.ready_instances.add(self.model.mqttManager.clientId)
-            print(f"[Dialog] Added self to ready_instances: {self.model.mqttManager.clientId[:8]}...")
             # Update UI to reflect that we are ready
             QTimer.singleShot(0, self._updateConnectedInstances)
         
@@ -2280,7 +2210,6 @@ class SGDistributedConnectionDialog(QDialog):
                 self.session_instances_cache[self.config.session_id] = set()
             if self.model.mqttManager.clientId not in self.session_instances_cache[self.config.session_id]:
                 self.session_instances_cache[self.config.session_id].add(self.model.mqttManager.clientId)
-                print(f"[Dialog] Added self to session_instances_cache for session {self.config.session_id}: {self.model.mqttManager.clientId[:8]}...")
                 # Update sessions list to show correct count
                 if self.join_existing_radio.isChecked():
                     QTimer.singleShot(100, self._updateSessionsList)
@@ -2323,7 +2252,6 @@ class SGDistributedConnectionDialog(QDialog):
                         # Ignore empty messages (used to clear retained messages)
                         payload_str = msg.payload.decode("utf-8")
                         if not payload_str or payload_str.strip() == "":
-                            print(f"[Dialog] Ignoring empty instance_ready message (retained cleanup): {msg.topic}")
                             return
                         
                         msg_dict = json.loads(payload_str)
@@ -2344,18 +2272,14 @@ class SGDistributedConnectionDialog(QDialog):
                                 # Update sessions list if instances count changed
                                 # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
                                 if new_instances_count != old_instances_count:
-                                    print(f"[Dialog] Instance ready for session {session_id}: {sender_client_id[:8]}... (cache: {old_instances_count} -> {new_instances_count})")
                                     QTimer.singleShot(100, self._updateSessionsList)
                             
                             # Add to ready_instances (whether it's us or another instance)
                             if sender_client_id not in self.ready_instances:
                                 self.ready_instances.add(sender_client_id)
                                 if sender_client_id != self.model.mqttManager.clientId:
-                                    print(f"[Dialog] Instance {sender_client_id[:8]}... is ready (seed synced and subscribed to game_start)")
-                                else:
-                                    print(f"[Dialog] Self instance is ready (seed synced and subscribed to game_start)")
-                                # Update UI to reflect new ready instance
-                                QTimer.singleShot(0, self._updateConnectedInstances)
+                                    # Update UI to reflect new ready instance
+                                    QTimer.singleShot(0, self._updateConnectedInstances)
                     except Exception as e:
                         print(f"[Dialog] Error processing instance ready message: {e}")
                         import traceback
@@ -2369,7 +2293,6 @@ class SGDistributedConnectionDialog(QDialog):
                         # Ignore empty messages (used to clear retained messages)
                         payload_str = msg.payload.decode("utf-8")
                         if not payload_str or payload_str.strip() == "":
-                            print(f"[Dialog] Ignoring empty player_disconnect message (retained cleanup): {msg.topic}")
                             return
                         
                         msg_dict = json.loads(payload_str)
@@ -2382,18 +2305,15 @@ class SGDistributedConnectionDialog(QDialog):
                                 old_instances_count = len(self.session_instances_cache[session_id])
                                 if client_id in self.session_instances_cache[session_id]:
                                     self.session_instances_cache[session_id].remove(client_id)
-                                    print(f"[Dialog] Removed instance {client_id[:8]}... from cache (disconnect)")
                                 new_instances_count = len(self.session_instances_cache[session_id])
                                 
                                 # Update sessions list if instances count changed
                                 if new_instances_count != old_instances_count:
-                                    print(f"[Dialog] Instance disconnected from session {session_id}: {client_id[:8]}... (cache: {old_instances_count} -> {new_instances_count})")
                                     QTimer.singleShot(100, self._updateSessionsList)
                             
                             # Remove from ready_instances
                             if client_id in self.ready_instances:
                                 self.ready_instances.remove(client_id)
-                                print(f"[Dialog] Removed instance {client_id[:8]}... from ready_instances (disconnect)")
                                 # Update UI to reflect disconnected instance
                                 QTimer.singleShot(0, self._updateConnectedInstances)
                     except Exception as e:
@@ -2420,24 +2340,18 @@ class SGDistributedConnectionDialog(QDialog):
         try:
             self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
             time.sleep(0.1)  # Brief delay to ensure unsubscribe is processed
-        except Exception as e:
-            print(f"[Dialog] Warning: Could not unsubscribe from {instance_ready_topic_wildcard}: {e}")
+        except Exception:
+            pass  # Ignore unsubscribe errors
         
         # Subscribe to wildcard topic to receive ready signals from all instances
         result = self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
-        print(f"[Dialog] Subscribed to instance ready wildcard topic: {instance_ready_topic_wildcard}")
-        print(f"[Dialog] Subscribe result: mid={result[0]}, rc={result[1]}")
         
         # Subscribe to player_disconnect to track disconnections
         result = self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
-        print(f"[Dialog] Subscribed to player disconnect wildcard topic: {disconnect_topic_wildcard}")
-        print(f"[Dialog] Subscribe result: mid={result[0]}, rc={result[1]}")
         
         # Wait a moment for retained messages to be received
         # Increased delay to ensure all retained messages are received
-        print(f"[Dialog] Waiting for retained instance_ready messages... (current ready_instances: {len(self.ready_instances)})")
         time.sleep(1.5)  # Increased delay to receive retained ready messages from all instances
-        print(f"[Dialog] After delay, ready_instances count: {len(self.ready_instances)} (instances: {[id[:8] + '...' for id in self.ready_instances]})")
         
         # CRITICAL: Ensure session_instances_cache is synchronized with ready_instances
         # This handles cases where retained messages were received but cache wasn't updated
@@ -2448,7 +2362,6 @@ class SGDistributedConnectionDialog(QDialog):
             # Add all ready instances to cache (in case some were missed)
             for client_id in self.ready_instances:
                 self.session_instances_cache[session_id].add(client_id)
-            print(f"[Dialog] After delay, session_instances_cache for {session_id}: {len(self.session_instances_cache[session_id])} instances")
             # Update sessions list to reflect correct count
             QTimer.singleShot(100, self._updateSessionsList)
         
@@ -2505,12 +2418,10 @@ class SGDistributedConnectionDialog(QDialog):
             if self.session_state and self.model.mqttManager.clientId:
                 if self.session_state.is_creator(self.model.mqttManager.clientId):
                     # Creator: Close the session
-                    print(f"[Dialog] Creator disconnecting, closing session...")
                     self.session_state.close()
                     self.session_manager.publishSessionState(self.session_state)
                 else:
                     # Non-creator: Remove instance from session
-                    print(f"[Dialog] Removing instance from session state...")
                     self.session_state.remove_instance(self.model.mqttManager.clientId)
                     self.session_manager.publishSessionState(self.session_state)
                 
@@ -2561,19 +2472,16 @@ class SGDistributedConnectionDialog(QDialog):
                             registration_topic = f"{registration_topic_base}/{assigned_player_name}"
                             # Publish empty message with retain=True to clear retained message
                             result = self.model.mqttManager.client.publish(registration_topic, "", qos=1, retain=True)
-                            print(f"[Dialog] Cleared retained player_registration message: {registration_topic}, rc={result.rc}")
                         
                         # Clean instance_ready retained message
                         instance_ready_topic_base = session_topics[4]  # session_instance_ready
                         instance_ready_topic = f"{instance_ready_topic_base}/{client_id}"
                         # Publish empty message with retain=True to clear retained message
                         result = self.model.mqttManager.client.publish(instance_ready_topic, "", qos=1, retain=True)
-                        print(f"[Dialog] Cleared retained instance_ready message: {instance_ready_topic}, rc={result.rc}")
                         
                         # Wait a moment for messages to be published and propagated
                         import time
                         time.sleep(0.2)  # Brief delay to ensure messages are published
-                        print(f"[Dialog] Retained messages cleared for {client_id[:8]}...")
                 except Exception as e:
                     print(f"[Dialog] Error clearing retained messages: {e}")
                     import traceback
@@ -2602,7 +2510,6 @@ class SGDistributedConnectionDialog(QDialog):
                         serialized_msg = json.dumps(disconnect_msg)
                         # Publish with retain=False (one-time message)
                         result = self.model.mqttManager.client.publish(disconnect_topic, serialized_msg, qos=1, retain=False)
-                        print(f"[Dialog] Published disconnect message to {disconnect_topic}, mid={result.mid}, rc={result.rc}")
                         # Wait for message to be published and propagated
                         if result.rc == 0:  # MQTT_ERR_SUCCESS
                             # Give MQTT time to publish and propagate the message
@@ -2610,9 +2517,6 @@ class SGDistributedConnectionDialog(QDialog):
                             # so we don't need to call loop() manually
                             import time
                             time.sleep(0.3)  # Wait for message to be published and propagated
-                            print(f"[Dialog] Disconnect message published and propagated")
-                        else:
-                            print(f"[Dialog] WARNING: Failed to publish disconnect message, rc={result.rc}")
                 except Exception as e:
                     print(f"[Dialog] Error publishing disconnect message: {e}")
                     import traceback
@@ -2639,22 +2543,18 @@ class SGDistributedConnectionDialog(QDialog):
                             if topic_base in ['player_registration', 'player_disconnect', 'instance_ready']:
                                 wildcard_topic = f"{disconnected_session_id}/session_{topic_base}/+"
                                 self.model.mqttManager.client.unsubscribe(wildcard_topic)
-                                print(f"[Dialog] Unsubscribed from {wildcard_topic}")
                             else:
                                 topic = f"{disconnected_session_id}/session_{topic_base}"
                                 self.model.mqttManager.client.unsubscribe(topic)
-                                print(f"[Dialog] Unsubscribed from {topic}")
                     
                     # CRITICAL: Re-subscribe to discovered sessions to ensure we receive instance_ready messages
                     # This is needed because we may have unsubscribed from a session that is also in discovered sessions
                     # We need to re-subscribe via _subscribeToSessionPlayerRegistrations() to get retained messages
                     # Use a longer delay to ensure unsubscribe is fully processed before resubscribe
                     if self.available_sessions:
-                        print(f"[Dialog] Re-subscribing to discovered sessions after disconnect...")
                         # Use longer delay and force unsubscribe/resubscribe to ensure we get retained messages
                         # Use non-blocking approach with QTimer.singleShot instead of time.sleep
                         def force_unsubscribe():
-                            print(f"[Dialog] Force unsubscribing from discovered sessions...")
                             # Force unsubscribe first to ensure we get retained messages on resubscribe
                             for session_id in self.available_sessions.keys():
                                 instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
@@ -2703,7 +2603,6 @@ class SGDistributedConnectionDialog(QDialog):
                 # CRITICAL: Generate new session_id for creator (old one is obsolete)
                 self.config.generate_session_id()
                 self.session_id_edit.setText(self.config.session_id)
-                print(f"[Dialog] Generated new session_id for creator: {self.config.session_id[:8]}...")
             
             # 9. Restore MQTT handler if saved
             if (self._handler_before_game_start and 
@@ -2880,14 +2779,13 @@ class SGDistributedConnectionDialog(QDialog):
             
             # Publish start message if creator, then wait for propagation
             if self.config.is_session_creator:
-                print(f"[Dialog] Countdown finished, publishing game start message (creator instance)")
                 self._publishGameStartMessage(start_type="auto")
                 # Creator also needs to close dialog after publishing
                 # Wait for message propagation, then close
                 QTimer.singleShot(300, self.accept)
             else:
                 # Non-creator instance: wait for start message from creator
-                print(f"[Dialog] Countdown finished, waiting for start message from creator (non-creator instance)")
+                pass
                 # Don't close yet - wait for game start message
     
     def accept(self):
