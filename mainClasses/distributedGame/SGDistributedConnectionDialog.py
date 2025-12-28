@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 
 # --- Project imports ---
 from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
+from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority
 
 
 class SGDistributedConnectionDialog(QDialog):
@@ -71,6 +72,10 @@ class SGDistributedConnectionDialog(QDialog):
         self._temporary_session_id = None  # Temporary session_id used for connection (not a selected session)
         self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
         self._handler_before_game_start = None  # Store handler before installing game_start_handler
+        
+        # MQTT Handler Manager for centralized handler management (refactoring)
+        self._mqtt_handler_manager = None  # Will be initialized when MQTT client is available (SGMQTTHandlerManager instance)
+        self._game_start_handler_id = None  # Handler ID for game start handler
         
         self.setWindowTitle("Connect to Distributed Game")
         self.setModal(True)
@@ -438,6 +443,35 @@ class SGDistributedConnectionDialog(QDialog):
             # sessions_dict already contains only active sessions (expired ones filtered in SessionManager)
             self.available_sessions = sessions_dict
             
+            # CRITICAL: Subscribe to session_state updates for all discovered sessions
+            # This ensures we receive real-time updates when instances join/leave
+            for session_id in sessions_dict.keys():
+                # Skip if this is the session we're already connected to (already subscribed)
+                if self.config.session_id == session_id:
+                    continue
+                
+                # Subscribe to session_state updates for this discovered session
+                def on_discovered_session_state_update(session: SGDistributedSession):
+                    """Handle session state update for a discovered session"""
+                    try:
+                        # Update cache for discovered sessions
+                        self.session_states_cache[session.session_id] = session
+                        
+                        # CRITICAL: If session is closed, remove it from available_sessions
+                        if session.state == 'closed':
+                            if session.session_id in self.available_sessions:
+                                del self.available_sessions[session.session_id]
+                        
+                        # Update sessions list to reflect the new instance count
+                        QTimer.singleShot(0, self._updateSessionsList)
+                    except Exception as e:
+                        print(f"[Dialog] Error in on_discovered_session_state_update: {e}")
+                        import traceback
+                        traceback.print_exc()
+                
+                # Subscribe to session_state for this discovered session
+                self.session_manager.subscribeToSessionState(session_id, on_discovered_session_state_update)
+            
             # CRITICAL: Update list immediately to show new sessions, even if instance counts are not yet available
             # This ensures new sessions appear in the list right away
             # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
@@ -448,6 +482,7 @@ class SGDistributedConnectionDialog(QDialog):
             self._subscribeToSessionPlayerRegistrations()
             
             # List will be updated again by _subscribeToSessionPlayerRegistrations after receiving retained messages
+            # and by session_state updates when instances join/leave
             # to show correct instance counts
         
         # Start discovery
@@ -1362,6 +1397,12 @@ class SGDistributedConnectionDialog(QDialog):
             self.model.mqttManager.client.is_connected()):
             # Connection established
             self._connection_in_progress = False  # Clear flag
+            
+            # Initialize MQTT Handler Manager when client is available
+            if not self._mqtt_handler_manager:
+                self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
+                self._mqtt_handler_manager.install()
+            
             self.connection_status = "Connected to broker"
             self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
             self.status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px; color: #155724;")
@@ -2035,70 +2076,60 @@ class SGDistributedConnectionDialog(QDialog):
                 self.model.mqttManager.client.is_connected()):
             return
         
+        # Initialize MQTT Handler Manager if not already done
+        if not self._mqtt_handler_manager:
+            self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
+            self._mqtt_handler_manager.install()
+        
         # Get game start topic
         session_topics = self.session_manager.getSessionTopics(self.config.session_id)
         game_start_topic = session_topics[3]  # session_game_start (index 3: player_registration=0, seed_sync=1, player_disconnect=2, game_start=3)
         
-        # Get current handler (which is player_registration_tracking_wrapper)
-        current_handler = self.model.mqttManager.client.on_message
-        # Save handler for restoration during cleanup
-        self._handler_before_game_start = current_handler
+        # Remove existing game start handler if any
+        if self._game_start_handler_id is not None:
+            self._mqtt_handler_manager.remove_handler(self._game_start_handler_id)
         
-        # Create wrapper to handle game start messages
+        # Create handler function for game start messages
         def game_start_handler(client, userdata, msg):
             # CRITICAL: Ignore callbacks during cleanup
             if hasattr(self, '_cleaning_up') and self._cleaning_up:
                 return
             
-            # CRITICAL: Protect against RuntimeError if dialog is destroyed
+            # Game start message received
             try:
-                # Debug: log all messages to see if game_start topic is received
-                if 'game_start' in msg.topic:
-                    pass  # Debug check - can add logging here if needed
+                import json
+                msg_dict = json.loads(msg.payload.decode("utf-8"))
+                sender_client_id = msg_dict.get('clientId')
+                start_type = msg_dict.get('start_type', 'unknown')
                 
-                if msg.topic == game_start_topic:
-                    # Game start message received
-                    try:
-                        import json
-                        msg_dict = json.loads(msg.payload.decode("utf-8"))
-                        sender_client_id = msg_dict.get('clientId')
-                        start_type = msg_dict.get('start_type', 'unknown')
-                        
-                        
-                        # Check if already processed (avoid double processing)
-                        if hasattr(self, '_game_start_processed') and self._game_start_processed:
-                            return
-                        
-                        # Mark as processed
-                        self._game_start_processed = True
-                        
-                        
-                        # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
-                        # CRITICAL: QTimer.singleShot cannot be called from MQTT thread
-                        # Use QueuedConnection to execute accept() in the main thread
-                        from PyQt5.QtCore import QMetaObject, Qt
-                        QMetaObject.invokeMethod(
-                            self, 
-                            "accept", 
-                            Qt.QueuedConnection
-                        )
-                        return
-                    except Exception as e:
-                        print(f"[Dialog] Error processing game start message: {e}")
-                        import traceback
-                        traceback.print_exc()
-                        return
-            except RuntimeError:
-                # Dialog has been deleted, ignore
-                return
-            
-            # Forward other messages to current handler
-            if current_handler:
-                current_handler(client, userdata, msg)
+                # Check if already processed (avoid double processing)
+                if hasattr(self, '_game_start_processed') and self._game_start_processed:
+                    return
+                
+                # Mark as processed
+                self._game_start_processed = True
+                
+                # Close dialog - use QMetaObject.invokeMethod to ensure we're in the main Qt thread
+                # CRITICAL: QTimer.singleShot cannot be called from MQTT thread
+                # Use QueuedConnection to execute accept() in the main thread
+                from PyQt5.QtCore import QMetaObject, Qt
+                QMetaObject.invokeMethod(
+                    self, 
+                    "accept", 
+                    Qt.QueuedConnection
+                )
+            except Exception as e:
+                print(f"[Dialog] Error processing game start message: {e}")
+                import traceback
+                traceback.print_exc()
         
-        # Install wrapper
-        self._game_start_handler = game_start_handler
-        self.model.mqttManager.client.on_message = game_start_handler
+        # Add handler using SGMQTTHandlerManager
+        self._game_start_handler_id = self._mqtt_handler_manager.add_topic_handler(
+            topic=game_start_topic,
+            handler_func=game_start_handler,
+            priority=HandlerPriority.HIGH,
+            stop_propagation=True  # Don't forward game_start messages to other handlers
+        )
         
         # Subscribe to game start topic
         result = self.model.mqttManager.client.subscribe(game_start_topic, qos=1)
@@ -2604,13 +2635,10 @@ class SGDistributedConnectionDialog(QDialog):
                 self.config.generate_session_id()
                 self.session_id_edit.setText(self.config.session_id)
             
-            # 9. Restore MQTT handler if saved
-            if (self._handler_before_game_start and 
-                self.model.mqttManager.client and 
-                hasattr(self, '_game_start_handler') and
-                self.model.mqttManager.client.on_message == self._game_start_handler):
-                self.model.mqttManager.client.on_message = self._handler_before_game_start
-                self._handler_before_game_start = None
+            # 9. Remove game start handler using SGMQTTHandlerManager
+            if self._game_start_handler_id is not None and self._mqtt_handler_manager:
+                self._mqtt_handler_manager.remove_handler(self._game_start_handler_id)
+                self._game_start_handler_id = None
             
             # 10. Update connection status based on actual MQTT client state
             # Don't force "Not connected" if client is still connected to broker
@@ -2801,11 +2829,18 @@ class SGDistributedConnectionDialog(QDialog):
             return
         
         # Validate number of instances
-        # Use snapshot if dialog is READY to ensure consistent counting
-        if self.connected_instances_snapshot is not None:
-            num_instances = len(self.connected_instances_snapshot)
+        # Phase 2: Use session_state as single source of truth (same logic as _updateConnectedInstances)
+        if self.session_state:
+            # Use session_state.connected_instances as source of truth
+            num_instances = self.session_state.get_num_connected()
         else:
-            num_instances = len(self.connected_instances)
+            # Fallback to old method if session_state not available yet
+            # Use snapshot if dialog is READY to ensure consistent counting
+            if self.connected_instances_snapshot is not None:
+                num_instances = len(self.connected_instances_snapshot)
+            else:
+                # Fallback to ready_instances (instances that have completed seed sync and subscribed to game_start)
+                num_instances = len(self.ready_instances)
         
         # Check minimum requirement (for manual start)
         if isinstance(self.config.num_players, int):
