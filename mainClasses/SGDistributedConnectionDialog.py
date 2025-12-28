@@ -927,14 +927,14 @@ class SGDistributedConnectionDialog(QDialog):
         """Update the connected instances list display and check if ready"""
         if not (self.model.mqttManager.client and 
                 self.model.mqttManager.client.is_connected()):
-            self.connected_instances_label.setText("No instances connected yet")
+            self.connected_instances_label.setText("Instances: No instances connected yet")
             self._updateState(self.STATE_SETUP)
             return
         
         try:
             # CRITICAL: If we're not connected to any session, reset display
             if not self.config.session_id:
-                self.connected_instances_label.setText("No instances connected yet")
+                self.connected_instances_label.setText("Instances: No instances connected yet")
                 self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
                 return
             
@@ -947,7 +947,7 @@ class SGDistributedConnectionDialog(QDialog):
                     # This should not happen if on_session_state_update() is working correctly,
                     # but if it does, reset state here as fallback
                     print(f"[Dialog] WARNING: Session closed detected in _updateConnectedInstances() (should be handled in callback)")
-                    self.connected_instances_label.setText("Session closed")
+                    self.connected_instances_label.setText("Instances: Session closed")
                     self.connected_instances_label.setStyleSheet("padding: 5px; color: #e74c3c; font-weight: bold;")
                     # CRITICAL: Reset dialog state - we're no longer connected to a session
                     self.config.session_id = None
@@ -957,7 +957,7 @@ class SGDistributedConnectionDialog(QDialog):
                     self.ready_instances.clear()
                     self.connected_instances_snapshot = None
                     # CRITICAL: Reset seed status label (seed is no longer synchronized after session closure)
-                    self.seed_status_label.setText("Seed Status: Not synchronized")
+                    self.seed_status_label.setText("Seed: Not synchronized")
                     self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
                     self._updateState(self.STATE_SETUP)
                     # Stop creator check timer if running
@@ -1000,9 +1000,9 @@ class SGDistributedConnectionDialog(QDialog):
             # Update display
             if num_instances > 0:
                 if isinstance(self.config.num_players, int):
-                    status_text = f"{num_instances}/{max_required} instance(s) connected"
+                    status_text = f"Instances: {num_instances}/{max_required} connected"
                 else:
-                    status_text = f"{num_instances}/{min_required}-{max_required} instance(s) connected"
+                    status_text = f"Instances: {num_instances}/{min_required}-{max_required} connected"
                 
                 if max_reached:
                     status_text += " ✓"
@@ -1015,7 +1015,7 @@ class SGDistributedConnectionDialog(QDialog):
                     self.connected_instances_label.setStyleSheet("padding: 5px; color: #f39c12; font-weight: bold;")
                 self.connected_instances_label.setText(status_text)
             else:
-                self.connected_instances_label.setText("No instances connected yet")
+                self.connected_instances_label.setText("Instances: No instances connected yet")
                 self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
             
             # Check if ready to start
@@ -1048,7 +1048,7 @@ class SGDistributedConnectionDialog(QDialog):
                     self._updateState(self.STATE_WAITING)
                     
         except Exception as e:
-            self.connected_instances_label.setText("No instances connected yet")
+            self.connected_instances_label.setText("Instances: No instances connected yet")
             self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
     
     def _updateState(self, new_state):
@@ -1418,7 +1418,7 @@ class SGDistributedConnectionDialog(QDialog):
             return
         
         try:
-            self.seed_status_label.setText("Seed Status: Checking for existing seed...")
+            self.seed_status_label.setText("Seed: Checking for existing seed...")
             self.seed_status_label.setStyleSheet("padding: 5px; background-color: #fff8dc; border-radius: 3px;")
             QApplication.processEvents()  # Update UI immediately
             
@@ -1463,7 +1463,7 @@ class SGDistributedConnectionDialog(QDialog):
             random.seed(synced_seed)
             
             self.seed_synced = True
-            self.seed_status_label.setText("Seed Status: Synchronized ✓")
+            self.seed_status_label.setText("Seed: Synchronized ✓")
             self.seed_status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px;")
             
             # CRITICAL: Install tracking handler IMMEDIATELY after syncSeed() completes
@@ -1553,7 +1553,7 @@ class SGDistributedConnectionDialog(QDialog):
             QTimer.singleShot(1500, update_with_log)
             
         except Exception as e:
-            self.seed_status_label.setText(f"Seed Status: Sync failed - {str(e)}")
+            self.seed_status_label.setText(f"Seed: Sync failed - {str(e)}")
             self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
             self._updateState(self.STATE_SETUP)  # Reset to setup state
             QMessageBox.critical(self, "Seed Sync Error", f"Failed to synchronize seed:\n{str(e)}")
@@ -1667,7 +1667,7 @@ class SGDistributedConnectionDialog(QDialog):
                         self.ready_instances.clear()
                         self.connected_instances_snapshot = None
                         # CRITICAL: Reset seed status label (seed is no longer synchronized after session closure)
-                        self.seed_status_label.setText("Seed Status: Not synchronized")
+                        self.seed_status_label.setText("Seed: Not synchronized")
                         self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
                         # Update state to SETUP to reset UI
                         self._updateState(self.STATE_SETUP)
@@ -1829,7 +1829,7 @@ class SGDistributedConnectionDialog(QDialog):
                     self.ready_instances.clear()
                     self.connected_instances_snapshot = None
                     # CRITICAL: Reset seed status label (seed is no longer synchronized after session closure)
-                    self.seed_status_label.setText("Seed Status: Not synchronized")
+                    self.seed_status_label.setText("Seed: Not synchronized")
                     self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
                     # Update state to SETUP to reset UI
                     self._updateState(self.STATE_SETUP)
@@ -2728,7 +2728,7 @@ class SGDistributedConnectionDialog(QDialog):
                 self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
             
             # Reset seed status (seed is no longer synchronized after cancel)
-            self.seed_status_label.setText("Seed Status: Not synchronized")
+            self.seed_status_label.setText("Seed: Not synchronized")
             self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
             
         except Exception as e:
