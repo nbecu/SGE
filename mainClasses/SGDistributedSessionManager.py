@@ -2,9 +2,16 @@
 import json
 import time
 from datetime import datetime
+from typing import Optional
 
 # --- Third-party imports ---
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
+
+# --- Project imports ---
+from mainClasses.SGDistributedSession import SGDistributedSession
+
+# --- Project imports ---
+from mainClasses.SGDistributedSession import SGDistributedSession
 
 
 class SGDistributedSessionManager(QObject):
@@ -149,7 +156,13 @@ class SGDistributedSessionManager(QObject):
             # Process session_player_registration messages (with or without player name suffix)
             if msg.topic.startswith(registration_topic_base):
                 try:
-                    msg_dict = json.loads(msg.payload.decode("utf-8"))
+                    # Ignore empty messages (used to clear retained messages)
+                    payload_str = msg.payload.decode("utf-8")
+                    if not payload_str or payload_str.strip() == "":
+                        print(f"[SessionManager] Ignoring empty player_registration message (retained cleanup): {msg.topic}")
+                        return
+                    
+                    msg_dict = json.loads(payload_str)
                     player_name = msg_dict.get('assigned_player_name')
                     client_id = msg_dict.get('clientId')
                     is_retained = msg.retain
@@ -223,8 +236,10 @@ class SGDistributedSessionManager(QObject):
         }
         
         serialized_msg = json.dumps(registration_msg)
-        # Use retain=True and qos=1 on player-specific topic so each player's registration is retained separately
-        result = self.mqtt_manager.client.publish(registration_topic_own, serialized_msg, qos=1, retain=True)
+        # Phase 1: Solution 1 - disable retain for dynamic states
+        # Use retain=False (new subscribers will get player state from session_state in Phase 2)
+        # Use qos=1 to ensure delivery
+        result = self.mqtt_manager.client.publish(registration_topic_own, serialized_msg, qos=1, retain=False)
         
         # Add self to connected players cache
         self.connected_players[assigned_player_name] = self.mqtt_manager.clientId
@@ -945,6 +960,150 @@ class SGDistributedSessionManager(QObject):
                 return True
             time.sleep(0.5)
         return False
+    
+    def publishSessionState(self, session: SGDistributedSession):
+        """
+        Publish session state to MQTT broker with retain=True.
+        
+        This makes the session state the single source of truth, replacing
+        multiple caches and tracking mechanisms.
+        
+        Args:
+            session: SGDistributedSession instance to publish
+        """
+        if not self.mqtt_manager.client or not self.mqtt_manager.client.is_connected():
+            print(f"[SessionManager] Cannot publish session state: MQTT client not connected")
+            return
+        
+        topic = f"{session.session_id}/session_state"
+        payload = json.dumps(session.to_dict())
+        
+        try:
+            result = self.mqtt_manager.client.publish(topic, payload, qos=1, retain=True)
+            if result.rc == 0:
+                print(f"[SessionManager] Published session state for {session.session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
+            else:
+                print(f"[SessionManager] Failed to publish session state: {result.rc}")
+        except Exception as e:
+            print(f"[SessionManager] Error publishing session state: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def readSessionState(self, session_id: str, timeout: float = 2.0) -> Optional[SGDistributedSession]:
+        """
+        Read session state from MQTT broker (retained message).
+        
+        Args:
+            session_id: Session ID to read
+            timeout: Maximum time to wait for the message (seconds)
+            
+        Returns:
+            SGDistributedSession instance if found, None otherwise
+        """
+        if not self.mqtt_manager.client or not self.mqtt_manager.client.is_connected():
+            print(f"[SessionManager] Cannot read session state: MQTT client not connected")
+            return None
+        
+        topic = f"{session_id}/session_state"
+        received_message = None
+        
+        def on_message_received(client, userdata, msg):
+            nonlocal received_message
+            if msg.topic == topic:
+                received_message = msg
+        
+        # Save original handler
+        original_handler = self.mqtt_manager.client.on_message
+        
+        # Subscribe and set temporary handler
+        self.mqtt_manager.client.on_message = on_message_received
+        self.mqtt_manager.client.subscribe(topic, qos=1)
+        
+        # Wait for retained message
+        start_time = time.time()
+        while received_message is None and (time.time() - start_time) < timeout:
+            time.sleep(0.1)
+        
+        # Restore original handler
+        self.mqtt_manager.client.on_message = original_handler
+        
+        if received_message:
+            try:
+                payload_str = received_message.payload.decode("utf-8")
+                if payload_str and payload_str.strip():
+                    data = json.loads(payload_str)
+                    session = SGDistributedSession.from_dict(data)
+                    print(f"[SessionManager] Read session state for {session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
+                    return session
+            except Exception as e:
+                print(f"[SessionManager] Error parsing session state: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        print(f"[SessionManager] No session state found for {session_id[:8]}... (timeout: {timeout}s)")
+        return None
+    
+    def subscribeToSessionState(self, session_id: str, callback: callable):
+        """
+        Subscribe to session state updates.
+        
+        Args:
+            session_id: Session ID to subscribe to
+            callback: Function to call when session state is updated
+                     Signature: callback(session: SGDistributedSession)
+        """
+        if not self.mqtt_manager.client or not self.mqtt_manager.client.is_connected():
+            print(f"[SessionManager] Cannot subscribe to session state: MQTT client not connected")
+            return
+        
+        topic = f"{session_id}/session_state"
+        
+        def session_state_handler(client, userdata, msg):
+            if msg.topic == topic:
+                print(f"[SessionManager] session_state_handler called for topic {topic}")
+                try:
+                    payload_str = msg.payload.decode("utf-8")
+                    if not payload_str or not payload_str.strip():
+                        print(f"[SessionManager] Ignoring empty session_state message (retained cleanup)")
+                        return
+                    data = json.loads(payload_str)
+                    session = SGDistributedSession.from_dict(data)
+                    print(f"[SessionManager] Received session state update for {session_id[:8]}... (version {session.version}, {len(session.connected_instances)} instances)")
+                    print(f"[SessionManager] Calling callback for session_state update...")
+                    callback(session)
+                    print(f"[SessionManager] Callback completed")
+                except Exception as e:
+                    print(f"[SessionManager] Error processing session state update: {e}")
+                    import traceback
+                    traceback.print_exc()
+        
+        # Get current handler
+        current_handler = self.mqtt_manager.client.on_message
+        
+        # CRITICAL: Check if we already have a wrapper for session_state
+        # If the current handler is already a wrapper we created, don't double-wrap
+        if hasattr(current_handler, '__name__') and 'session_state_wrapper' in current_handler.__name__:
+            # Already wrapped, just add our handler to the chain
+            # This is a simplified approach - we'll call our handler first, then the existing wrapper
+            pass
+        
+        # Create wrapper to chain handlers
+        def session_state_wrapper_handler(client, userdata, msg):
+            # Process session_state messages first
+            session_state_handler(client, userdata, msg)
+            # Forward to original handler
+            if current_handler:
+                current_handler(client, userdata, msg)
+        
+        # Store reference to avoid garbage collection
+        session_state_wrapper_handler.__name__ = 'session_state_wrapper_handler'
+        
+        # Install wrapper
+        self.mqtt_manager.client.on_message = session_state_wrapper_handler
+        
+        # Subscribe to topic
+        self.mqtt_manager.client.subscribe(topic, qos=1)
+        print(f"[SessionManager] Subscribed to session state updates: {topic}")
     
     def disconnect(self):
         """Disconnect from session (stop timer, clear cache, publish disconnect message)"""

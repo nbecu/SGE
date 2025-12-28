@@ -391,16 +391,18 @@ if self.config.session_id and self.model.mqttManager.clientId:
     self.model.mqttManager.client.publish(instance_ready_topic, "", qos=1, retain=True)
 ```
 
-#### Tâche 1.2 : Désactiver retain pour états dynamiques
+#### Tâche 1.2 : Désactiver retain pour états dynamiques (partiel)
 **Fichier 1** : `mainClasses/SGDistributedSessionManager.py`
 **Méthode** : `registerPlayer()`
 **Ligne** : ~227
 **Action** : Changer `retain=True` à `retain=False`
+**Note** : `player_registration` n'est plus retenu (nettoyage explicite suffit)
 
 **Fichier 2** : `mainClasses/SGDistributedConnectionDialog.py`
 **Méthode** : `_publishInstanceReady()`
-**Ligne** : ~1756
-**Action** : Changer `retain=True` à `retain=False`
+**Ligne** : ~1757
+**Action** : **GARDER `retain=True`** (nécessaire pour que les nouveaux joiners voient les instances existantes)
+**Note** : Le nettoyage explicite dans `_cancelConnection()` empêche les messages obsolètes. Phase 2 remplacera par `session_state`.
 
 #### Tests Phase 1
 - [ ] Instance 1 crée session
