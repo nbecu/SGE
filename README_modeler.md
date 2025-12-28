@@ -215,6 +215,38 @@ The method catalog includes inherited methods from parent classes, making it eas
 
 SGE provides functionality to export game action logs for analysis and debugging (see `exportGameActionLogs` and `enableAutoSaveGameActionLogs` in the methods catalog).
 
+## Distributed Games
+
+SGE supports distributed multiplayer games, allowing multiple instances of your model to connect and play together via MQTT.
+
+### Quick Start
+
+```python
+# Enable distributed game mode (MUST be called BEFORE any random operations)
+myModel.enableDistributedGame(num_players=4)
+
+# Get the number of connected instances
+nb_players = myModel.getConnectedInstancesCount(default=4)
+```
+
+### Documentation
+
+For complete documentation on distributed games, including:
+- Setup and configuration
+- Connection phases and states
+- MQTT options
+- Player management
+- Troubleshooting
+
+See the **[Distributed Game Guide](docs/guides/DISTRIBUTED_GAME_GUIDE.md)**.
+
+### Key Points
+
+- **Call `enableDistributedGame()` BEFORE any random operations** - The seed is synchronized automatically
+- **Use `getConnectedInstancesCount()`** to get the number of connected instances
+- **Call `completeDistributedGameSetup()`** in `initAfterOpening()` for player selection
+- **Handle cancellation** - `enableDistributedGame()` returns `None` if the user cancels
+
 ## Folder hierarchy
 - Examples
   - example1.0.py
