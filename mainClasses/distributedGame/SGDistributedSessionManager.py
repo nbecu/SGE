@@ -61,6 +61,10 @@ class SGDistributedSessionManager(QObject):
         # Save original message handler
         self._original_on_message = None
         
+        # Session state subscription tracking
+        self._session_state_callbacks = {}  # {session_id: [callback1, callback2, ...]}
+        self._session_state_handler_installed = False  # Track if we've installed our handler
+        
         # Session discovery state
         self.discovered_sessions = {}  # {session_id: {'timestamp': float, 'info': dict}}
         self.session_heartbeat_timer = None  # QTimer for heartbeat (initialized in _startSessionHeartbeat)
@@ -994,6 +998,9 @@ class SGDistributedSessionManager(QObject):
         """
         Subscribe to session state updates.
         
+        This method supports multiple subscriptions to the same or different sessions.
+        It uses a single handler that dispatches to all registered callbacks.
+        
         Args:
             session_id: Session ID to subscribe to
             callback: Function to call when session state is updated
@@ -1005,45 +1012,71 @@ class SGDistributedSessionManager(QObject):
         
         topic = f"{session_id}/session_state"
         
-        def session_state_handler(client, userdata, msg):
-            if msg.topic == topic:
-                try:
-                    payload_str = msg.payload.decode("utf-8")
-                    if not payload_str or not payload_str.strip():
-                        return
-                    data = json.loads(payload_str)
-                    session = SGDistributedSession.from_dict(data)
-                    callback(session)
-                except Exception as e:
-                    print(f"[SessionManager] Error processing session state update: {e}")
-                    import traceback
-                    traceback.print_exc()
+        # Add callback to the list for this session
+        if session_id not in self._session_state_callbacks:
+            self._session_state_callbacks[session_id] = []
+        self._session_state_callbacks[session_id].append(callback)
         
-        # Get current handler
-        current_handler = self.mqtt_manager.client.on_message
+        # Install handler if not already installed
+        if not self._session_state_handler_installed:
+            # Get current handler (might be SGMQTTHandlerManager's chain_handler)
+            current_handler = self.mqtt_manager.client.on_message
+            
+            # CRITICAL: Check if SGMQTTHandlerManager is already installed
+            # SGMQTTHandlerManager's chain_handler is a closure that has specific attributes
+            # We check if the handler has the pattern of SGMQTTHandlerManager's chain_handler
+            is_sgmqtt_handler_manager_installed = (
+                current_handler is not None and
+                hasattr(current_handler, '__name__') and
+                'chain_handler' in str(current_handler.__name__)
+            )
+            
+            # If SGMQTTHandlerManager is already installed, we should NOT replace on_message
+            # Instead, we'll use SGMQTTHandlerManager's API if available, or we'll add our handler
+            # to the chain by wrapping it (which will be preserved by SGMQTTHandlerManager)
+            # For now, we'll wrap it anyway - SGMQTTHandlerManager will preserve it as _original_handler
+            def session_state_wrapper_handler(client, userdata, msg):
+                # Process all session_state messages
+                if msg.topic.endswith('/session_state'):
+                    try:
+                        payload_str = msg.payload.decode("utf-8")
+                        if payload_str and payload_str.strip():
+                            data = json.loads(payload_str)
+                            session = SGDistributedSession.from_dict(data)
+                            # Extract session_id from topic (format: {session_id}/session_state)
+                            session_id_from_topic = msg.topic.rsplit('/session_state', 1)[0]
+                            
+                            # Call all callbacks for this session
+                            if session_id_from_topic in self._session_state_callbacks:
+                                for cb in self._session_state_callbacks[session_id_from_topic]:
+                                    try:
+                                        cb(session)
+                                    except Exception as e:
+                                        print(f"[SessionManager] Error in session state callback: {e}")
+                                        import traceback
+                                        traceback.print_exc()
+                    except Exception as e:
+                        print(f"[SessionManager] Error processing session state update: {e}")
+                        import traceback
+                        traceback.print_exc()
+                
+                # Forward to original handler (preserves SGMQTTHandlerManager chain if present)
+                if current_handler:
+                    try:
+                        current_handler(client, userdata, msg)
+                    except Exception as e:
+                        print(f"[SessionManager] Error forwarding to original handler: {e}")
+                        import traceback
+                        traceback.print_exc()
+            
+            # Store reference to avoid garbage collection
+            session_state_wrapper_handler.__name__ = 'session_state_wrapper_handler'
+            
+            # Install wrapper (this will preserve SGMQTTHandlerManager if it's already installed)
+            self.mqtt_manager.client.on_message = session_state_wrapper_handler
+            self._session_state_handler_installed = True
         
-        # CRITICAL: Check if we already have a wrapper for session_state
-        # If the current handler is already a wrapper we created, don't double-wrap
-        if hasattr(current_handler, '__name__') and 'session_state_wrapper' in current_handler.__name__:
-            # Already wrapped, just add our handler to the chain
-            # This is a simplified approach - we'll call our handler first, then the existing wrapper
-            pass
-        
-        # Create wrapper to chain handlers
-        def session_state_wrapper_handler(client, userdata, msg):
-            # Process session_state messages first
-            session_state_handler(client, userdata, msg)
-            # Forward to original handler
-            if current_handler:
-                current_handler(client, userdata, msg)
-        
-        # Store reference to avoid garbage collection
-        session_state_wrapper_handler.__name__ = 'session_state_wrapper_handler'
-        
-        # Install wrapper
-        self.mqtt_manager.client.on_message = session_state_wrapper_handler
-        
-        # Subscribe to topic
+        # Subscribe to topic (idempotent - safe to call multiple times)
         self.mqtt_manager.client.subscribe(topic, qos=1)
     
     def disconnect(self):
