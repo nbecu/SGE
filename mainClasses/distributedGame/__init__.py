@@ -11,6 +11,7 @@ Classes:
     - SGMQTTManager: Manages MQTT communication for multiplayer functionality
     - SGConnectionStatusWidget: Widget showing connection status
     - SGMQTTHandlerManager: Centralizes MQTT message handler management with chaining support
+    - SGConnectionStateManager: Manages connection dialog state transitions
 """
 
 from mainClasses.distributedGame.SGDistributedConnectionDialog import SGDistributedConnectionDialog
@@ -21,6 +22,7 @@ from mainClasses.distributedGame.SGDistributedSessionManager import SGDistribute
 from mainClasses.distributedGame.SGMQTTManager import SGMQTTManager
 from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionStatusWidget
 from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority
+from mainClasses.distributedGame.SGConnectionStateManager import SGConnectionStateManager, ConnectionState
 
 __all__ = [
     'SGDistributedConnectionDialog',
@@ -32,5 +34,7 @@ __all__ = [
     'SGConnectionStatusWidget',
     'SGMQTTHandlerManager',
     'HandlerPriority',
+    'SGConnectionStateManager',
+    'ConnectionState',
 ]
 

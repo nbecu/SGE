@@ -7,6 +7,7 @@ from PyQt5.QtGui import *
 # --- Project imports ---
 from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
 from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority
+from mainClasses.distributedGame.SGConnectionStateManager import SGConnectionStateManager, ConnectionState
 
 
 class SGDistributedConnectionDialog(QDialog):
@@ -22,13 +23,23 @@ class SGDistributedConnectionDialog(QDialog):
     Note: Player selection happens later in completeDistributedGameSetup()
     """
     
-    # Dialog states
+    # Dialog states (kept for backward compatibility, use ConnectionState enum instead)
     STATE_SETUP = "setup"
     STATE_CONNECTING = "connecting"
     STATE_WAITING = "waiting"
     STATE_READY_MIN = "ready_min"  # Minimum reached, manual start available (creator only)
     STATE_READY_MAX = "ready_max"  # Maximum reached, auto-countdown triggers
     STATE_READY = "ready"  # Legacy state (kept for backward compatibility)
+    
+    # Map string states to ConnectionState enum for compatibility
+    _STATE_MAP = {
+        "setup": ConnectionState.SETUP,
+        "connecting": ConnectionState.CONNECTING,
+        "waiting": ConnectionState.WAITING,
+        "ready_min": ConnectionState.READY_MIN,
+        "ready_max": ConnectionState.READY_MAX,
+        "ready": ConnectionState.READY,
+    }
     
     def __init__(self, parent, config, model, session_manager):
         """
@@ -52,7 +63,12 @@ class SGDistributedConnectionDialog(QDialog):
         self.connected_instances_snapshot = None  # Snapshot of connected instances when dialog becomes ready
         self._last_republish_time = 0  # Timestamp of last seed sync republish (to prevent loops)
         self._republish_cooldown = 2.0  # Minimum seconds between republishes (to prevent loops)
-        self.current_state = self.STATE_SETUP
+        
+        # Phase 2: State management via SGConnectionStateManager
+        self.state_manager = SGConnectionStateManager(initial_state=ConnectionState.SETUP)
+        self.state_manager.on_state_changed(self._onStateChanged)
+        # current_state is now a property that maps to state_manager.current_state.value
+        
         self.auto_start_countdown = None  # Countdown timer for auto-start (3, 2, 1...)
         self.auto_start_timer = None  # QTimer for countdown
         self.available_sessions = {}  # Dict of available sessions: {session_id: session_info}
@@ -83,6 +99,8 @@ class SGDistributedConnectionDialog(QDialog):
         self._instance_ready_disconnect_handler_id = None  # Handler ID for disconnect tracking in instance ready handler
         self._session_player_registration_tracker_handler_id = None  # Handler ID for session player registration tracker (discovered sessions)
         self._session_state_discovery_handler_id = None  # Handler ID for session_state updates for discovered sessions
+        self._session_discovery_handler_id = None  # Handler ID for session discovery messages
+        self._session_state_connected_handler_id = None  # Handler ID for session_state updates for connected session
         
         self.setWindowTitle("Connect to Distributed Game")
         self.setModal(True)
@@ -503,37 +521,125 @@ class SGDistributedConnectionDialog(QDialog):
             description="session_state_discovery"
         )
         
-        def onSessionsDiscovered(sessions_dict):
-            """Callback when sessions are discovered"""
-            # sessions_dict already contains only active sessions (expired ones filtered in SessionManager)
-            self.available_sessions = sessions_dict
-            
-            # Subscribe to session_state topics for all discovered sessions
-            # The handler above will process all session_state messages
-            for session_id in sessions_dict.keys():
-                # Skip if this is the session we're already connected to (already subscribed)
-                if self.config.session_id == session_id:
-                    continue
-                
-                # Subscribe to session_state topic (handler is already installed above)
-                topic = f"{session_id}/session_state"
-                self.model.mqttManager.client.subscribe(topic, qos=1)
-            
-            # CRITICAL: Update list immediately to show new sessions, even if instance counts are not yet available
-            # This ensures new sessions appear in the list right away
-            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
-            self._updateSessionsList()
-            
-            # Subscribe to player registration topics for all discovered sessions to get player counts
-            # This will receive retained messages for already-registered players
-            self._subscribeToSessionPlayerRegistrations()
-            
-            # List will be updated again by _subscribeToSessionPlayerRegistrations after receiving retained messages
-            # and by session_state updates when instances join/leave
-            # to show correct instance counts
+        # Remove existing session discovery handler if any
+        if self._session_discovery_handler_id is not None:
+            self._mqtt_handler_manager.remove_handler(self._session_discovery_handler_id)
         
-        # Start discovery
-        self.session_manager.discoverSessions(callback=onSessionsDiscovered)
+        # Create handler for session discovery messages using SGMQTTHandlerManager
+        def session_discovery_handler(client, userdata, msg):
+            # CRITICAL: Ignore callbacks during cleanup
+            if hasattr(self, '_cleaning_up') and self._cleaning_up:
+                return
+            
+            # Check if this is a session discovery message
+            discovery_topic_prefix = f"{self.session_manager.DISCOVERY_TOPIC}/"
+            if not msg.topic.startswith(discovery_topic_prefix):
+                return
+            
+            try:
+                import json
+                import time
+                from datetime import datetime
+                
+                msg_dict = json.loads(msg.payload.decode("utf-8"))
+                session_id = msg_dict.get('session_id')
+                if not session_id:
+                    return
+                
+                # CRITICAL: Only check expiration for RETAINED messages
+                # Non-retained messages (heartbeats) should always be accepted as they indicate active sessions
+                current_time = time.time()
+                is_expired = False
+                
+                # Only check expiration for retained messages
+                if msg.retain:
+                    # Retained messages contain timestamp as ISO string in msg_dict
+                    msg_timestamp_iso = msg_dict.get('timestamp')
+                    if msg_timestamp_iso:
+                        try:
+                            # Parse ISO timestamp to datetime, then to Unix timestamp
+                            timestamp_str = str(msg_timestamp_iso)
+                            if 'Z' in timestamp_str:
+                                timestamp_str = timestamp_str.replace('Z', '+00:00')
+                            
+                            msg_datetime = datetime.fromisoformat(timestamp_str)
+                            msg_timestamp_unix = msg_datetime.timestamp()
+                            # Check if message is older than 15 seconds
+                            age_seconds = current_time - msg_timestamp_unix
+                            if age_seconds > 15.0:
+                                is_expired = True
+                        except (ValueError, AttributeError, TypeError):
+                            # If parsing fails, treat as new message (not expired)
+                            pass
+                
+                # Only add session if it's not expired
+                if not is_expired:
+                    # Update discovered sessions cache with current timestamp
+                    if not hasattr(self.session_manager, 'discovered_sessions'):
+                        self.session_manager.discovered_sessions = {}
+                    
+                    self.session_manager.discovered_sessions[session_id] = {
+                        'timestamp': current_time,  # Use current time for active sessions
+                        'info': msg_dict
+                    }
+                    
+                    # Clean expired sessions (older than 15 seconds) from cache
+                    expired_sessions = [
+                        sid for sid, data in self.session_manager.discovered_sessions.items()
+                        if current_time - data['timestamp'] > 15.0
+                    ]
+                    for sid in expired_sessions:
+                        del self.session_manager.discovered_sessions[sid]
+                    
+                    # Update available_sessions and trigger callback
+                    self.available_sessions = self.session_manager.discovered_sessions.copy()
+                    
+                    # Subscribe to session_state topics for newly discovered sessions
+                    if session_id != self.config.session_id:
+                        topic = f"{session_id}/session_state"
+                        self.model.mqttManager.client.subscribe(topic, qos=1)
+                    
+                    # Update sessions list
+                    QTimer.singleShot(0, self._updateSessionsList)
+                    
+            except Exception as e:
+                print(f"[Dialog] Error in session_discovery_handler: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        # Add handler using SGMQTTHandlerManager (matches all session_discovery topics)
+        self._session_discovery_handler_id = self._mqtt_handler_manager.add_prefix_handler(
+            topic_prefix=f"{self.session_manager.DISCOVERY_TOPIC}/",
+            handler_func=session_discovery_handler,
+            priority=HandlerPriority.NORMAL,
+            stop_propagation=False
+        )
+        
+        # Subscribe to discovery topic (handler is already installed above)
+        discovery_topic_wildcard = f"{self.session_manager.DISCOVERY_TOPIC}/+"
+        
+        # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
+        # This ensures we receive retained messages even if we were previously subscribed
+        try:
+            self.model.mqttManager.client.unsubscribe(discovery_topic_wildcard)
+            import time
+            time.sleep(0.1)  # Brief delay to ensure unsubscribe is processed
+        except Exception:
+            pass  # Ignore unsubscribe errors
+        
+        # Subscribe to discovery topic
+        self.model.mqttManager.client.subscribe(discovery_topic_wildcard, qos=1)
+        
+        # Wait a moment for retained messages to be received, then update list
+        def update_after_discovery():
+            # Update available_sessions from session_manager's cache
+            if hasattr(self.session_manager, 'discovered_sessions'):
+                self.available_sessions = self.session_manager.discovered_sessions.copy()
+            self._updateSessionsList()
+            # Subscribe to player registration topics for all discovered sessions
+            self._subscribeToSessionPlayerRegistrations()
+        
+        QTimer.singleShot(500, update_after_discovery)
     
     def _subscribeToSessionPlayerRegistrations(self):
         """Subscribe to player registration topics for all discovered sessions to track player counts"""
@@ -1062,26 +1168,69 @@ class SGDistributedConnectionDialog(QDialog):
                         instances_list = list(self.ready_instances)
                         self.connected_instances_snapshot = set(instances_list[:max_required])
                     
-                    if self.current_state != self.STATE_READY_MAX:
-                        self._updateState(self.STATE_READY_MAX)
+                    if self.state_manager.current_state != ConnectionState.READY_MAX:
+                        self.state_manager.transition_to(ConnectionState.READY_MAX, force=True)
                 else:
                     # Minimum reached but not maximum
-                    if self.current_state != self.STATE_READY_MIN:
-                        self._updateState(self.STATE_READY_MIN)
+                    if self.state_manager.current_state != ConnectionState.READY_MIN:
+                        self.state_manager.transition_to(ConnectionState.READY_MIN, force=True)
             elif self.seed_synced:
                 # Waiting for minimum
-                if self.current_state != self.STATE_WAITING:
-                    self._updateState(self.STATE_WAITING)
+                if self.state_manager.current_state != ConnectionState.WAITING:
+                    self.state_manager.transition_to(ConnectionState.WAITING, force=True)
                     
         except Exception as e:
             self.connected_instances_label.setText("Instances: No instances connected yet")
             self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
     
+    @property
+    def current_state(self):
+        """Get current state (backward compatibility property)"""
+        return self.state_manager.current_state.value
+    
+    @current_state.setter
+    def current_state(self, value):
+        """Set current state (backward compatibility - triggers transition)"""
+        if isinstance(value, str):
+            state_enum = self._STATE_MAP.get(value)
+            if state_enum is None:
+                print(f"[Dialog] Warning: Unknown state '{value}', ignoring")
+                return
+        else:
+            state_enum = value
+        self.state_manager.transition_to(state_enum, force=True)
+    
+    def _onStateChanged(self, old_state: ConnectionState, new_state: ConnectionState):
+        """
+        Callback called when state changes.
+        Updates UI based on new state.
+        """
+        # Update UI (current_state property will return the correct value)
+        self._updateStateUI(new_state)
+    
     def _updateState(self, new_state):
-        """Update dialog state and UI accordingly"""
-        self.current_state = new_state
+        """
+        Transition to a new state (backward compatibility wrapper).
+        Use state_manager.transition_to() directly for new code.
+        """
+        # Convert string state to ConnectionState enum
+        if isinstance(new_state, str):
+            state_enum = self._STATE_MAP.get(new_state)
+            if state_enum is None:
+                print(f"[Dialog] Warning: Unknown state '{new_state}', using SETUP")
+                state_enum = ConnectionState.SETUP
+        else:
+            state_enum = new_state
         
-        if new_state == self.STATE_SETUP:
+        # Use state manager for transition
+        self.state_manager.transition_to(state_enum, force=True)
+    
+    def _updateStateUI(self, new_state: ConnectionState):
+        """Update dialog UI based on state (UI logic only)"""
+        # Convert ConnectionState to string for comparison with old code
+        state_str = new_state.value
+        
+        if new_state == ConnectionState.SETUP:
             # Enable configuration controls
             self.session_id_edit.setEnabled(True)
             self.copy_session_btn.setEnabled(True)
@@ -1114,7 +1263,7 @@ class SGDistributedConnectionDialog(QDialog):
                 else:
                     self.info_label.setText("Select a session from the list below, then click 'Connect' to join it.")
             
-        elif new_state == self.STATE_CONNECTING:
+        elif new_state == ConnectionState.CONNECTING:
             # Disable configuration, show connecting status (but keep Copy enabled)
             self.session_id_edit.setEnabled(False)
             self.copy_session_btn.setEnabled(True)  # Keep Copy enabled
@@ -1139,7 +1288,7 @@ class SGDistributedConnectionDialog(QDialog):
                 self.session_group.hide()
             self.info_label.setText("Connecting to broker and synchronizing seed...")
             
-        elif new_state == self.STATE_WAITING:
+        elif new_state == ConnectionState.WAITING:
             # Keep session ID read-only, waiting for instances (but keep Copy enabled)
             self.session_id_edit.setEnabled(False)
             self.copy_session_btn.setEnabled(True)  # Keep Copy enabled
@@ -1183,7 +1332,7 @@ class SGDistributedConnectionDialog(QDialog):
             if self.join_existing_radio.isChecked() and self._isConnected():
                 QTimer.singleShot(100, self._updateSessionsList)
             
-        elif new_state == self.STATE_READY_MIN:
+        elif new_state == ConnectionState.READY_MIN:
             # Minimum reached - show "Start Now" button ONLY on creator instance
             self.session_id_edit.setEnabled(False)
             self.copy_session_btn.setEnabled(True)
@@ -1234,7 +1383,7 @@ class SGDistributedConnectionDialog(QDialog):
             if self.join_existing_radio.isChecked() and self._isConnected():
                 QTimer.singleShot(100, self._updateSessionsList)
         
-        elif new_state == self.STATE_READY_MAX:
+        elif new_state == ConnectionState.READY_MAX:
             # Maximum reached - auto-countdown will trigger
             self.session_id_edit.setEnabled(False)
             self.copy_session_btn.setEnabled(True)
@@ -1280,7 +1429,7 @@ class SGDistributedConnectionDialog(QDialog):
             if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
                 self.seed_republish_timer.stop()
         
-        elif new_state == self.STATE_READY:
+        elif new_state == ConnectionState.READY:
             # Legacy state (kept for backward compatibility)
             # All ready, show start button (but keep Copy enabled)
             self.session_id_edit.setEnabled(False)
@@ -1708,7 +1857,40 @@ class SGDistributedConnectionDialog(QDialog):
                 traceback.print_exc()
                 # Don't crash, just log the error
         
-        self.session_manager.subscribeToSessionState(self.config.session_id, on_session_state_update)
+        # Use SGMQTTHandlerManager instead of subscribeToSessionState to avoid conflicts
+        # Initialize MQTT Handler Manager if not already done
+        if not self._mqtt_handler_manager:
+            self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
+            self._mqtt_handler_manager.install()
+        
+        # Create handler for session_state updates for the connected session
+        topic = f"{self.config.session_id}/session_state"
+        
+        def session_state_handler(client, userdata, msg):
+            if msg.topic == topic:
+                try:
+                    import json
+                    payload_str = msg.payload.decode("utf-8")
+                    if not payload_str or not payload_str.strip():
+                        return
+                    data = json.loads(payload_str)
+                    session = SGDistributedSession.from_dict(data)
+                    on_session_state_update(session)
+                except Exception as e:
+                    print(f"[Dialog] Error processing session_state update: {e}")
+                    import traceback
+                    traceback.print_exc()
+        
+        # Add handler using SGMQTTHandlerManager
+        self._session_state_connected_handler_id = self._mqtt_handler_manager.add_topic_handler(
+            topic=topic,
+            handler_func=session_state_handler,
+            priority=HandlerPriority.HIGH,
+            stop_propagation=False
+        )
+        
+        # Subscribe to topic
+        self.model.mqttManager.client.subscribe(topic, qos=1)
     
     def _startSessionStateHeartbeat(self):
         """
@@ -2694,6 +2876,12 @@ class SGDistributedConnectionDialog(QDialog):
                 if self._session_state_discovery_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._session_state_discovery_handler_id)
                     self._session_state_discovery_handler_id = None
+                if self._session_discovery_handler_id is not None:
+                    self._mqtt_handler_manager.remove_handler(self._session_discovery_handler_id)
+                    self._session_discovery_handler_id = None
+                if self._session_state_connected_handler_id is not None:
+                    self._mqtt_handler_manager.remove_handler(self._session_state_connected_handler_id)
+                    self._session_state_connected_handler_id = None
             
             # 10. Update connection status based on actual MQTT client state
             # Don't force "Not connected" if client is still connected to broker
@@ -2813,7 +3001,7 @@ class SGDistributedConnectionDialog(QDialog):
     
     def _updateCountdown(self):
         """Update countdown timer"""
-        if self.current_state != self.STATE_READY_MAX:
+        if self.state_manager.current_state != ConnectionState.READY_MAX:
             # State changed, stop countdown
             if self.auto_start_timer:
                 self.auto_start_timer.stop()
