@@ -8,6 +8,7 @@ from PyQt5.QtGui import *
 from mainClasses.distributedGame.SGDistributedSession import SGDistributedSession
 from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority
 from mainClasses.distributedGame.SGConnectionStateManager import SGConnectionStateManager, ConnectionState
+from mainClasses.distributedGame.SGSessionDiscoveryManager import SGSessionDiscoveryManager
 
 
 class SGDistributedConnectionDialog(QDialog):
@@ -71,10 +72,16 @@ class SGDistributedConnectionDialog(QDialog):
         
         self.auto_start_countdown = None  # Countdown timer for auto-start (3, 2, 1...)
         self.auto_start_timer = None  # QTimer for countdown
+        
+        # Phase 3: Session discovery management via SGSessionDiscoveryManager
+        self.session_discovery_manager = None  # Will be initialized when MQTT client is available
+        # Caches are synchronized from session_discovery_manager in callbacks
         self.available_sessions = {}  # Dict of available sessions: {session_id: session_info}
         self.session_players_cache = {}  # Cache of registered players per session: {session_id: set of player_names}
         self.session_instances_cache = {}  # Cache of connected instances per session: {session_id: set of client_ids}
-        self.session_discovery_handler = None  # Handler for session discovery
+        self.session_states_cache = {}  # Cache of session states for discovered sessions: {session_id: SGDistributedSession}
+        
+        self.session_discovery_handler = None  # Handler for session discovery (deprecated, kept for compatibility)
         self._should_start_discovery_on_connect = False  # Flag to start discovery automatically after connection
         self._connection_in_progress = False  # Flag to prevent multiple simultaneous connection attempts
         self._selected_session_id = None
@@ -84,7 +91,7 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_state_heartbeat_timer = None  # QTimer for creator heartbeat
         self.session_state_creator_check_timer = None  # QTimer for checking creator disconnection
         self._session_joined_at = None  # Timestamp when we joined the session (to track if we've received heartbeat since joining)
-        self.session_states_cache = {}  # Cache of session states for discovered sessions: {session_id: SGDistributedSession}  # Session ID selected by user in join mode
+        # session_states_cache is now managed by session_discovery_manager (see above)
         self._temporary_session_id = None  # Temporary session_id used for connection (not a selected session)
         self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
         self._handler_before_game_start = None  # Store handler before installing game_start_handler
@@ -97,9 +104,11 @@ class SGDistributedConnectionDialog(QDialog):
         self._player_disconnect_tracking_handler_id = None  # Handler ID for player disconnect tracking
         self._instance_ready_handler_id = None  # Handler ID for instance ready tracking
         self._instance_ready_disconnect_handler_id = None  # Handler ID for disconnect tracking in instance ready handler
-        self._session_player_registration_tracker_handler_id = None  # Handler ID for session player registration tracker (discovered sessions)
-        self._session_state_discovery_handler_id = None  # Handler ID for session_state updates for discovered sessions
-        self._session_discovery_handler_id = None  # Handler ID for session discovery messages
+        # Phase 3: Session discovery handlers are now managed by SGSessionDiscoveryManager
+        # These are kept for backward compatibility but should not be used directly
+        self._session_player_registration_tracker_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
+        self._session_state_discovery_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
+        self._session_discovery_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
         self._session_state_connected_handler_id = None  # Handler ID for session_state updates for connected session
         
         self.setWindowTitle("Connect to Distributed Game")
@@ -384,6 +393,17 @@ class SGDistributedConnectionDialog(QDialog):
             # Reset selected session
             self._selected_session_id = None
             
+            # CRITICAL: Reset session_state and connected_instances_label when switching to create mode
+            # This prevents showing old instance counts from a previous join session
+            self.session_state = None
+            self.connected_instances_label.setText("Instances: No instances connected yet")
+            self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
+            
+            # CRITICAL: Stop creator check timer if running (prevents false alerts)
+            if self.session_state_creator_check_timer:
+                self.session_state_creator_check_timer.stop()
+                self.session_state_creator_check_timer = None
+            
             # Stop session discovery if it was running (but keep seed tracking)
             if self.session_manager.session_discovery_handler:
                 # Unsubscribe from discovery topic
@@ -413,6 +433,17 @@ class SGDistributedConnectionDialog(QDialog):
             
             # Reset selected session
             self._selected_session_id = None
+            
+            # CRITICAL: Reset session_state and connected_instances_label when switching to join mode
+            # This prevents showing old instance counts from a previous create session
+            self.session_state = None
+            self.connected_instances_label.setText("Instances: No instances connected yet")
+            self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
+            
+            # CRITICAL: Stop creator check timer if running (prevents false alerts)
+            if self.session_state_creator_check_timer:
+                self.session_state_creator_check_timer.stop()
+                self.session_state_creator_check_timer = None
             
             # Disable Connect button until a session is selected
             self.connect_button.setEnabled(False)
@@ -457,7 +488,7 @@ class SGDistributedConnectionDialog(QDialog):
             self.resize(current_width, self.height())
     
     def _startSessionDiscovery(self):
-        """Start session discovery"""
+        """Start session discovery (Phase 3: using SGSessionDiscoveryManager)"""
         if not (self.model.mqttManager.client and 
                 self.model.mqttManager.client.is_connected()):
             return
@@ -467,367 +498,48 @@ class SGDistributedConnectionDialog(QDialog):
             self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
             self._mqtt_handler_manager.install()
         
-        # Remove existing session_state discovery handler if any
-        if self._session_state_discovery_handler_id is not None:
-            self._mqtt_handler_manager.remove_handler(self._session_state_discovery_handler_id)
-        
-        # Create handler for session_state updates for all discovered sessions
-        def session_state_discovery_handler(client, userdata, msg):
-            # CRITICAL: Ignore callbacks during cleanup
-            if hasattr(self, '_cleaning_up') and self._cleaning_up:
-                return
+        # Initialize Session Discovery Manager if not already done
+        if not self.session_discovery_manager:
+            self.session_discovery_manager = SGSessionDiscoveryManager(
+                mqtt_client=self.model.mqttManager.client,
+                session_manager=self.session_manager,
+                mqtt_handler_manager=self._mqtt_handler_manager
+            )
             
-            # Check if this is a session_state message for a discovered session
-            if msg.topic.endswith('/session_state'):
-                try:
-                    import json
-                    payload_str = msg.payload.decode("utf-8")
-                    if not payload_str or not payload_str.strip():
-                        return
-                    
-                    data = json.loads(payload_str)
-                    session = SGDistributedSession.from_dict(data)
-                    session_id = session.session_id
-                    
-                    # Skip if this is the session we're already connected to (handled elsewhere)
-                    if self.config.session_id == session_id:
-                        return
-                    
-                    # Only process if this is a discovered session
-                    if session_id not in self.available_sessions:
-                        return
-                    
-                    # Update cache for discovered sessions
-                    self.session_states_cache[session_id] = session
-                    
-                    # CRITICAL: If session is closed, remove it from available_sessions
-                    if session.state == 'closed':
-                        if session_id in self.available_sessions:
-                            del self.available_sessions[session_id]
-                    
-                    # Update sessions list to reflect the new instance count
-                    QTimer.singleShot(0, self._updateSessionsList)
-                except Exception as e:
-                    print(f"[Dialog] Error in session_state_discovery_handler: {e}")
-                    import traceback
-                    traceback.print_exc()
+            # Register callbacks
+            self.session_discovery_manager.on_sessions_updated(self._onSessionsUpdated)
+            self.session_discovery_manager.on_session_state_updated(self._onSessionStateUpdated)
         
-        # Add handler using SGMQTTHandlerManager (matches all session_state topics)
-        self._session_state_discovery_handler_id = self._mqtt_handler_manager.add_filter_handler(
-            topic_filter=lambda topic: topic.endswith('/session_state'),
-            handler_func=session_state_discovery_handler,
-            priority=HandlerPriority.NORMAL,
-            stop_propagation=False,
-            description="session_state_discovery"
-        )
-        
-        # Remove existing session discovery handler if any
-        if self._session_discovery_handler_id is not None:
-            self._mqtt_handler_manager.remove_handler(self._session_discovery_handler_id)
-        
-        # Create handler for session discovery messages using SGMQTTHandlerManager
-        def session_discovery_handler(client, userdata, msg):
-            # CRITICAL: Ignore callbacks during cleanup
-            if hasattr(self, '_cleaning_up') and self._cleaning_up:
-                return
-            
-            # Check if this is a session discovery message
-            discovery_topic_prefix = f"{self.session_manager.DISCOVERY_TOPIC}/"
-            if not msg.topic.startswith(discovery_topic_prefix):
-                return
-            
-            try:
-                import json
-                import time
-                from datetime import datetime
-                
-                msg_dict = json.loads(msg.payload.decode("utf-8"))
-                session_id = msg_dict.get('session_id')
-                if not session_id:
-                    return
-                
-                # CRITICAL: Only check expiration for RETAINED messages
-                # Non-retained messages (heartbeats) should always be accepted as they indicate active sessions
-                current_time = time.time()
-                is_expired = False
-                
-                # Only check expiration for retained messages
-                if msg.retain:
-                    # Retained messages contain timestamp as ISO string in msg_dict
-                    msg_timestamp_iso = msg_dict.get('timestamp')
-                    if msg_timestamp_iso:
-                        try:
-                            # Parse ISO timestamp to datetime, then to Unix timestamp
-                            timestamp_str = str(msg_timestamp_iso)
-                            if 'Z' in timestamp_str:
-                                timestamp_str = timestamp_str.replace('Z', '+00:00')
-                            
-                            msg_datetime = datetime.fromisoformat(timestamp_str)
-                            msg_timestamp_unix = msg_datetime.timestamp()
-                            # Check if message is older than 15 seconds
-                            age_seconds = current_time - msg_timestamp_unix
-                            if age_seconds > 15.0:
-                                is_expired = True
-                        except (ValueError, AttributeError, TypeError):
-                            # If parsing fails, treat as new message (not expired)
-                            pass
-                
-                # Only add session if it's not expired
-                if not is_expired:
-                    # Update discovered sessions cache with current timestamp
-                    if not hasattr(self.session_manager, 'discovered_sessions'):
-                        self.session_manager.discovered_sessions = {}
-                    
-                    self.session_manager.discovered_sessions[session_id] = {
-                        'timestamp': current_time,  # Use current time for active sessions
-                        'info': msg_dict
-                    }
-                    
-                    # Clean expired sessions (older than 15 seconds) from cache
-                    expired_sessions = [
-                        sid for sid, data in self.session_manager.discovered_sessions.items()
-                        if current_time - data['timestamp'] > 15.0
-                    ]
-                    for sid in expired_sessions:
-                        del self.session_manager.discovered_sessions[sid]
-                    
-                    # Update available_sessions and trigger callback
-                    self.available_sessions = self.session_manager.discovered_sessions.copy()
-                    
-                    # Subscribe to session_state topics for newly discovered sessions
-                    if session_id != self.config.session_id:
-                        topic = f"{session_id}/session_state"
-                        self.model.mqttManager.client.subscribe(topic, qos=1)
-                    
-                    # Update sessions list
-                    QTimer.singleShot(0, self._updateSessionsList)
-                    
-            except Exception as e:
-                print(f"[Dialog] Error in session_discovery_handler: {e}")
-                import traceback
-                traceback.print_exc()
-        
-        # Add handler using SGMQTTHandlerManager (matches all session_discovery topics)
-        self._session_discovery_handler_id = self._mqtt_handler_manager.add_prefix_handler(
-            topic_prefix=f"{self.session_manager.DISCOVERY_TOPIC}/",
-            handler_func=session_discovery_handler,
-            priority=HandlerPriority.NORMAL,
-            stop_propagation=False
-        )
-        
-        # Subscribe to discovery topic (handler is already installed above)
-        discovery_topic_wildcard = f"{self.session_manager.DISCOVERY_TOPIC}/+"
-        
-        # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
-        # This ensures we receive retained messages even if we were previously subscribed
-        try:
-            self.model.mqttManager.client.unsubscribe(discovery_topic_wildcard)
-            import time
-            time.sleep(0.1)  # Brief delay to ensure unsubscribe is processed
-        except Exception:
-            pass  # Ignore unsubscribe errors
-        
-        # Subscribe to discovery topic
-        self.model.mqttManager.client.subscribe(discovery_topic_wildcard, qos=1)
-        
-        # Wait a moment for retained messages to be received, then update list
-        def update_after_discovery():
-            # Update available_sessions from session_manager's cache
-            if hasattr(self.session_manager, 'discovered_sessions'):
-                self.available_sessions = self.session_manager.discovered_sessions.copy()
-            self._updateSessionsList()
-            # Subscribe to player registration topics for all discovered sessions
-            self._subscribeToSessionPlayerRegistrations()
-        
-        QTimer.singleShot(500, update_after_discovery)
+        # Start discovery
+        self.session_discovery_manager.start_discovery(connected_session_id=self.config.session_id)
+    
+    def _onSessionsUpdated(self, sessions_dict: dict):
+        """Callback when sessions are discovered/updated (Phase 3)"""
+        # Synchronize caches from manager
+        self.available_sessions = sessions_dict
+        if self.session_discovery_manager:
+            self.session_players_cache = self.session_discovery_manager.session_players_cache
+            self.session_instances_cache = self.session_discovery_manager.session_instances_cache
+            self.session_states_cache = self.session_discovery_manager.session_states_cache
+        # Update UI
+        QTimer.singleShot(0, self._updateSessionsList)
+    
+    def _onSessionStateUpdated(self, session_id: str, session: SGDistributedSession):
+        """Callback when a session state is updated (Phase 3)"""
+        # Synchronize cache from manager
+        if self.session_discovery_manager:
+            self.session_states_cache = self.session_discovery_manager.session_states_cache.copy()
+        # Update UI
+        QTimer.singleShot(0, self._updateSessionsList)
     
     def _subscribeToSessionPlayerRegistrations(self):
-        """Subscribe to player registration topics for all discovered sessions to track player counts"""
-        if not (self.model.mqttManager.client and 
-                self.model.mqttManager.client.is_connected()):
-            return
-        
-        # Initialize MQTT Handler Manager if not already done
-        if not self._mqtt_handler_manager:
-            self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
-            self._mqtt_handler_manager.install()
-        
-        # Remove existing session player registration tracker handler if any
-        # (SGMQTTHandlerManager handles the chain, so we can safely remove and re-add)
-        if self._session_player_registration_tracker_handler_id is not None:
-            self._mqtt_handler_manager.remove_handler(self._session_player_registration_tracker_handler_id)
-        
-        # Create wrapper to track player registrations for discovered sessions
-        def player_registration_tracker(client, userdata, msg):
-            # CRITICAL: Ignore callbacks during cleanup
-            if hasattr(self, '_cleaning_up') and self._cleaning_up:
-                return
-            
-            # Check if this is a player registration message for a discovered session
-            for session_id in self.available_sessions.keys():
-                registration_topic_base = f"{session_id}/session_player_registration"
-                if msg.topic.startswith(registration_topic_base + "/"):
-                    try:
-                        import json
-                        # Ignore empty messages (used to clear retained messages)
-                        payload_str = msg.payload.decode("utf-8")
-                        if not payload_str or payload_str.strip() == "":
-                            return
-                        
-                        msg_dict = json.loads(payload_str)
-                        client_id = msg_dict.get('clientId')
-                        player_name = msg_dict.get('assigned_player_name')
-                        
-                        # Track instances (by client_id) - this is what we need for the sessions list
-                        if client_id:
-                            # Initialize instances cache for this session if needed
-                            if session_id not in self.session_instances_cache:
-                                self.session_instances_cache[session_id] = set()
-                            old_instances_count = len(self.session_instances_cache[session_id])
-                            self.session_instances_cache[session_id].add(client_id)
-                            new_instances_count = len(self.session_instances_cache[session_id])
-                            
-                            # Update list if instances count changed
-                            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
-                            if new_instances_count != old_instances_count:
-                                QTimer.singleShot(100, self._updateSessionsList)
-                        
-                        # Also track players (by player_name) for backward compatibility
-                        if player_name:
-                            # Initialize cache for this session if needed
-                            if session_id not in self.session_players_cache:
-                                self.session_players_cache[session_id] = set()
-                            old_count = len(self.session_players_cache[session_id])
-                            self.session_players_cache[session_id].add(player_name)
-                            new_count = len(self.session_players_cache[session_id])
-                            # Update list if count changed and no session is selected
-                            if new_count != old_count and not self._selected_session_id:
-                                QTimer.singleShot(100, self._updateSessionsList)
-                    except Exception as e:
-                        print(f"[Dialog] Error tracking player registration: {e}")
-                        import traceback
-                        traceback.print_exc()
-                    # Don't forward - this is just for tracking
-                    return
-                
-                # Check if this is a player disconnect message for a discovered session
-                disconnect_topic_base = f"{session_id}/session_player_disconnect"
-                if msg.topic.startswith(disconnect_topic_base + "/"):
-                    try:
-                        import json
-                        msg_dict = json.loads(msg.payload.decode("utf-8"))
-                        client_id = msg_dict.get('clientId')
-                        
-                        # Remove instance from cache
-                        if client_id and session_id in self.session_instances_cache:
-                            old_instances_count = len(self.session_instances_cache[session_id])
-                            if client_id in self.session_instances_cache[session_id]:
-                                self.session_instances_cache[session_id].remove(client_id)
-                            new_instances_count = len(self.session_instances_cache[session_id])
-                            
-                            # Update list if instances count changed
-                            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
-                            if new_instances_count != old_instances_count:
-                                QTimer.singleShot(100, self._updateSessionsList)
-                    except Exception as e:
-                        print(f"[Dialog] Error tracking player disconnect: {e}")
-                        import traceback
-                        traceback.print_exc()
-                    # Don't forward - this is just for tracking
-                    return
-                
-                # Check if this is an instance_ready message for a discovered session
-                # This is more reliable than player_registration because it's published earlier
-                instance_ready_topic_base = f"{session_id}/session_instance_ready"
-                if msg.topic.startswith(instance_ready_topic_base + "/"):
-                    try:
-                        import json
-                        # Ignore empty messages (used to clear retained messages)
-                        payload_str = msg.payload.decode("utf-8")
-                        if not payload_str or payload_str.strip() == "":
-                            return
-                        
-                        msg_dict = json.loads(payload_str)
-                        client_id = msg_dict.get('clientId')
-                        
-                        # Track instances via instance_ready messages
-                        if client_id:
-                            # Initialize instances cache for this session if needed
-                            if session_id not in self.session_instances_cache:
-                                self.session_instances_cache[session_id] = set()
-                            old_instances_count = len(self.session_instances_cache[session_id])
-                            self.session_instances_cache[session_id].add(client_id)
-                            new_instances_count = len(self.session_instances_cache[session_id])
-                            
-                            
-                            # Update list if instances count changed
-                            # Note: _updateSessionsList() preserves the visual selection, so we can update even if a session is selected
-                            # CRITICAL: Always update the list when cache changes, even if session is selected
-                            # This ensures the display stays accurate for all sessions
-                            if new_instances_count != old_instances_count:
-                                QTimer.singleShot(100, self._updateSessionsList)
-                    except Exception as e:
-                        print(f"[Dialog] Error tracking instance ready: {e}")
-                        import traceback
-                        traceback.print_exc()
-                    # Don't forward - this is just for tracking
-                    return
-        
-        # Create a filter function that checks if the topic matches any discovered session
-        def discovered_session_topic_filter(topic: str) -> bool:
-            """Check if topic belongs to any discovered session"""
-            for session_id in self.available_sessions.keys():
-                registration_topic_base = f"{session_id}/session_player_registration"
-                disconnect_topic_base = f"{session_id}/session_player_disconnect"
-                instance_ready_topic_base = f"{session_id}/session_instance_ready"
-                
-                if (topic.startswith(registration_topic_base + "/") or
-                    topic.startswith(disconnect_topic_base + "/") or
-                    topic.startswith(instance_ready_topic_base + "/")):
-                    return True
-            return False
-        
-        # Add handler using SGMQTTHandlerManager with filter
-        self._session_player_registration_tracker_handler_id = self._mqtt_handler_manager.add_filter_handler(
-            topic_filter=discovered_session_topic_filter,
-            handler_func=player_registration_tracker,
-            priority=HandlerPriority.NORMAL,
-            stop_propagation=False,  # Allow other handlers to process these messages too
-            description="session_player_registration_tracker"
-        )
-        
-        # Store reference for backward compatibility (used in checks above)
-        self._player_registration_tracker = player_registration_tracker
-        
-        # Subscribe to player registration, disconnect, and instance_ready topics for all discovered sessions
-        # CRITICAL: Unsubscribe first to force broker to send retained messages on resubscribe
-        import time
-        for session_id in self.available_sessions.keys():
-            instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
-            # Unsubscribe first to force retained messages on resubscribe
-            try:
-                self.model.mqttManager.client.unsubscribe(instance_ready_topic_wildcard)
-            except Exception:
-                pass  # Ignore unsubscribe errors
-        
-        # Brief delay to ensure unsubscribes are processed
-        time.sleep(0.1)
-        
-        # Now subscribe to all topics
-        for session_id in self.available_sessions.keys():
-            registration_topic_wildcard = f"{session_id}/session_player_registration/+"
-            disconnect_topic_wildcard = f"{session_id}/session_player_disconnect/+"
-            instance_ready_topic_wildcard = f"{session_id}/session_instance_ready/+"
-            result1 = self.model.mqttManager.client.subscribe(registration_topic_wildcard, qos=1)
-            result2 = self.model.mqttManager.client.subscribe(disconnect_topic_wildcard, qos=1)
-            result3 = self.model.mqttManager.client.subscribe(instance_ready_topic_wildcard, qos=1)
-        
-        # Wait for retained messages to be received, then update list
-        # Increased delay to ensure all retained messages are received
-        time.sleep(1.5)  # Increased from 0.8 to 1.5 to allow more time for retained messages
-        
-        if not self._selected_session_id:
-            QTimer.singleShot(300, self._updateSessionsList)
+        """Subscribe to player registration topics for all discovered sessions (Phase 3: using SGSessionDiscoveryManager)"""
+        # This method is now handled by SGSessionDiscoveryManager
+        # It's called automatically when discovery starts
+        # Keep for backward compatibility but delegate to manager if available
+        if self.session_discovery_manager:
+            # Manager already handles this, just ensure it's started
+            self.session_discovery_manager._start_player_registration_tracking(connected_session_id=self.config.session_id)
     
     def _refreshAvailableSessions(self, force=False):
         """
@@ -2835,22 +2547,40 @@ class SGDistributedConnectionDialog(QDialog):
             # when we receive instance_ready messages (retained or new) for that session.
             # This ensures the cache stays accurate for sessions we're not connected to.
             
-            # 7. Reset interface (return to STATE_SETUP)
-            self._updateState(self.STATE_SETUP)
-            
-            # 8. Reset session_id if in Join mode, or generate new one if in Create mode (creator)
+            # 7. Reset session_id and selection BEFORE updating state (so button is correctly disabled)
             if self.join_existing_radio.isChecked():
                 self._selected_session_id = None
                 self.config.session_id = None
                 # Clear session list selection if exists
-                if hasattr(self, 'session_list') and self.session_list:
-                    self.session_list.clearSelection()
-            elif self.create_new_radio.isChecked():
+                if hasattr(self, 'sessions_list') and self.sessions_list:
+                    self.sessions_list.clearSelection()
+            
+            # 8. Reset interface (return to STATE_SETUP)
+            # CRITICAL: This must be called AFTER _selected_session_id is set to None
+            # so that the Connect button is correctly disabled in join mode
+            self._updateState(self.STATE_SETUP)
+            
+            # 9. Reset session_id for creator mode (after state update)
+            if self.create_new_radio.isChecked():
                 # CRITICAL: Generate new session_id for creator (old one is obsolete)
                 self.config.generate_session_id()
                 self.session_id_edit.setText(self.config.session_id)
             
-            # 9. Remove all handlers using SGMQTTHandlerManager
+            # 10. Stop creator check timer (CRITICAL: must be stopped to prevent false alerts)
+            if self.session_state_creator_check_timer:
+                self.session_state_creator_check_timer.stop()
+                self.session_state_creator_check_timer = None
+            
+            # 11. Reset session_state and connected_instances_label (CRITICAL: clear old state)
+            self.session_state = None
+            self.connected_instances_label.setText("Instances: No instances connected yet")
+            self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
+            
+            # 12. Ensure Connect button is disabled if no session selected (safety check)
+            if self.join_existing_radio.isChecked() and not self._selected_session_id:
+                self.connect_button.setEnabled(False)
+            
+            # 13. Remove all handlers using SGMQTTHandlerManager
             if self._mqtt_handler_manager:
                 if self._game_start_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._game_start_handler_id)
@@ -2870,6 +2600,11 @@ class SGDistributedConnectionDialog(QDialog):
                 if self._instance_ready_disconnect_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._instance_ready_disconnect_handler_id)
                     self._instance_ready_disconnect_handler_id = None
+                # Phase 3: Stop session discovery manager (handles all discovery-related handlers)
+                if self.session_discovery_manager:
+                    self.session_discovery_manager.stop_discovery()
+                    self.session_discovery_manager = None
+                # Remove deprecated handlers if they still exist (should not happen, but kept for safety)
                 if self._session_player_registration_tracker_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._session_player_registration_tracker_handler_id)
                     self._session_player_registration_tracker_handler_id = None
