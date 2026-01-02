@@ -89,7 +89,7 @@ class SGExeBuilder:
         # Build executable with PyInstaller
         exe_path = self._run_pyinstaller(spec_file, clean)
         
-        print(f"✓ Executable created: {exe_path}")
+        print(f"[OK] Executable created: {exe_path}")
         return exe_path
     
     def _extract_name_from_path(self, model_path: str) -> str:
