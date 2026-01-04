@@ -63,8 +63,7 @@ class SGDistributedConnectionDialog(QDialog):
         self.connected_instances = set()  # Set of clientIds connected to this session (via seed sync)
         self.ready_instances = set()  # Set of clientIds that have completed seed sync and subscribed to game_start
         self.connected_instances_snapshot = None  # Snapshot of connected instances when dialog becomes ready
-        self._last_republish_time = 0  # Timestamp of last seed sync republish (to prevent loops)
-        # _republish_cooldown is now managed by seed_sync_manager
+        # Phase 4: _last_republish_time and _republish_cooldown are now managed by seed_sync_manager
         
         # Phase 2: State management via SGConnectionStateManager
         self.state_manager = SGConnectionStateManager(initial_state=ConnectionState.SETUP)
@@ -103,17 +102,18 @@ class SGDistributedConnectionDialog(QDialog):
         # MQTT Handler Manager for centralized handler management (refactoring)
         self._mqtt_handler_manager = None  # Will be initialized when MQTT client is available (SGMQTTHandlerManager instance)
         self._game_start_handler_id = None  # Handler ID for game start handler
-        self._seed_sync_tracking_handler_id = None  # Handler ID for seed sync tracking
         self._player_registration_tracking_handler_id = None  # Handler ID for player registration tracking
         self._player_disconnect_tracking_handler_id = None  # Handler ID for player disconnect tracking
         self._instance_ready_handler_id = None  # Handler ID for instance ready tracking
         self._instance_ready_disconnect_handler_id = None  # Handler ID for disconnect tracking in instance ready handler
+        self._session_state_connected_handler_id = None  # Handler ID for session_state updates for connected session
+        # Phase 4: seed_sync_tracking_handler_id is now managed by SGSeedSyncManager
         # Phase 3: Session discovery handlers are now managed by SGSessionDiscoveryManager
-        # These are kept for backward compatibility but should not be used directly
+        # These deprecated handler IDs are no longer needed but kept for safety cleanup
+        self._seed_sync_tracking_handler_id = None  # DEPRECATED: Use seed_sync_manager instead
         self._session_player_registration_tracker_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
         self._session_state_discovery_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
         self._session_discovery_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
-        self._session_state_connected_handler_id = None  # Handler ID for session_state updates for connected session
         
         self.setWindowTitle("Connect to Distributed Game")
         self.setModal(True)
@@ -2521,12 +2521,12 @@ class SGDistributedConnectionDialog(QDialog):
             
             # 13. Remove all handlers using SGMQTTHandlerManager
             if self._mqtt_handler_manager:
+                # Remove active handlers
                 if self._game_start_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._game_start_handler_id)
                     self._game_start_handler_id = None
-                if self._seed_sync_tracking_handler_id is not None:
-                    self._mqtt_handler_manager.remove_handler(self._seed_sync_tracking_handler_id)
-                    self._seed_sync_tracking_handler_id = None
+                # Phase 4: seed_sync_tracking_handler_id is now managed by SGSeedSyncManager
+                # (removed from here, handled by manager cleanup above)
                 if self._player_registration_tracking_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._player_registration_tracking_handler_id)
                     self._player_registration_tracking_handler_id = None
@@ -2539,23 +2539,30 @@ class SGDistributedConnectionDialog(QDialog):
                 if self._instance_ready_disconnect_handler_id is not None:
                     self._mqtt_handler_manager.remove_handler(self._instance_ready_disconnect_handler_id)
                     self._instance_ready_disconnect_handler_id = None
+                if self._session_state_connected_handler_id is not None:
+                    self._mqtt_handler_manager.remove_handler(self._session_state_connected_handler_id)
+                    self._session_state_connected_handler_id = None
+                
                 # Phase 3: Stop session discovery manager (handles all discovery-related handlers)
                 if self.session_discovery_manager:
                     self.session_discovery_manager.stop_discovery()
                     self.session_discovery_manager = None
-                # Remove deprecated handlers if they still exist (should not happen, but kept for safety)
-                if self._session_player_registration_tracker_handler_id is not None:
-                    self._mqtt_handler_manager.remove_handler(self._session_player_registration_tracker_handler_id)
-                    self._session_player_registration_tracker_handler_id = None
-                if self._session_state_discovery_handler_id is not None:
-                    self._mqtt_handler_manager.remove_handler(self._session_state_discovery_handler_id)
-                    self._session_state_discovery_handler_id = None
-                if self._session_discovery_handler_id is not None:
-                    self._mqtt_handler_manager.remove_handler(self._session_discovery_handler_id)
-                    self._session_discovery_handler_id = None
-                if self._session_state_connected_handler_id is not None:
-                    self._mqtt_handler_manager.remove_handler(self._session_state_connected_handler_id)
-                    self._session_state_connected_handler_id = None
+                
+                # Phase 4: Stop seed sync manager (handles seed sync tracking and republishing)
+                if self.seed_sync_manager:
+                    self.seed_sync_manager.stop_tracking()
+                    self.seed_sync_manager.stop_republishing()
+                
+                # Safety cleanup for deprecated handlers (should not exist, but kept for safety)
+                deprecated_handlers = [
+                    self._seed_sync_tracking_handler_id,
+                    self._session_player_registration_tracker_handler_id,
+                    self._session_state_discovery_handler_id,
+                    self._session_discovery_handler_id
+                ]
+                for handler_id in deprecated_handlers:
+                    if handler_id is not None:
+                        self._mqtt_handler_manager.remove_handler(handler_id)
             
             # 10. Update connection status based on actual MQTT client state
             # Don't force "Not connected" if client is still connected to broker

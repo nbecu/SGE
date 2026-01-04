@@ -140,7 +140,11 @@ class SGSessionDiscoveryManager:
                 return
             
             try:
-                msg_dict = json.loads(msg.payload.decode("utf-8"))
+                payload_str = msg.payload.decode("utf-8")
+                if not payload_str or payload_str.strip() == "":
+                    return  # Ignore empty messages (used to clear retained messages)
+                
+                msg_dict = json.loads(payload_str)
                 session_id = msg_dict.get('session_id')
                 if not session_id:
                     return
@@ -213,8 +217,8 @@ class SGSessionDiscoveryManager:
             
             try:
                 payload_str = msg.payload.decode("utf-8")
-                if not payload_str or not payload_str.strip():
-                    return
+                if not payload_str or payload_str.strip() == "":
+                    return  # Ignore empty messages (used to clear retained messages)
                 
                 data = json.loads(payload_str)
                 session = SGDistributedSession.from_dict(data)
@@ -350,7 +354,11 @@ class SGSessionDiscoveryManager:
                 disconnect_topic_base = f"{session_id}/session_player_disconnect"
                 if msg.topic.startswith(disconnect_topic_base + "/"):
                     try:
-                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        payload_str = msg.payload.decode("utf-8")
+                        if not payload_str or payload_str.strip() == "":
+                            return  # Ignore empty messages (used to clear retained messages)
+                        
+                        msg_dict = json.loads(payload_str)
                         client_id = msg_dict.get('clientId')
                         
                         if client_id and session_id in self.session_instances_cache:
@@ -367,7 +375,11 @@ class SGSessionDiscoveryManager:
                 instance_ready_topic_base = f"{session_id}/session_instance_ready"
                 if msg.topic.startswith(instance_ready_topic_base + "/"):
                     try:
-                        msg_dict = json.loads(msg.payload.decode("utf-8"))
+                        payload_str = msg.payload.decode("utf-8")
+                        if not payload_str or payload_str.strip() == "":
+                            return  # Ignore empty messages (used to clear retained messages)
+                        
+                        msg_dict = json.loads(payload_str)
                         client_id = msg_dict.get('clientId')
                         
                         if client_id:

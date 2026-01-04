@@ -49,8 +49,9 @@ class SGDistributedGameDialog(QDialog):
         self._all_players_selected_subscribed = False  # Flag to prevent multiple subscriptions
         self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
         self._handler_before_all_players_selected = None  # Store handler before installing all_players_selected_handler
+        self._dialog_will_accept = False  # Flag to track if dialog will be accepted (set in accept() or when all players selected)
         
-        self.setWindowTitle("Select Your Player")
+        self.setWindowTitle("Select Your Player Role")
         self.setModal(True)
         self.resize(400, 300)
         
@@ -96,7 +97,7 @@ class SGDistributedGameDialog(QDialog):
         layout.setContentsMargins(15, 15, 15, 15)
         
         # Title
-        title_label = QLabel("Select Your Player")
+        title_label = QLabel("Select Your Player Role")
         title_font = QFont()
         title_font.setPointSize(14)
         title_font.setBold(True)
@@ -138,7 +139,7 @@ class SGDistributedGameDialog(QDialog):
         layout.addLayout(info_layout)
         
         # Player Selection Section
-        player_group = QGroupBox("Select Your Player")
+        player_group = QGroupBox("Select Your Player Role")
         player_layout = QVBoxLayout()
         player_layout.setSpacing(5)
         
@@ -169,9 +170,8 @@ class SGDistributedGameDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
         
-        self.cancel_button = QPushButton("Cancel")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
+        # Note: Cancel button removed to prevent players from leaving after selection
+        # This ensures all instances stay synchronized
         
         self.ok_button = QPushButton("OK")
         self.ok_button.clicked.connect(self.accept)
@@ -261,6 +261,9 @@ class SGDistributedGameDialog(QDialog):
         
         # Connect to playerConnected signal to update waiting status
         self.session_manager.playerConnected.connect(self._onPlayerRegistered)
+        
+        # Connect to playerDisconnected signal to update waiting status when a player leaves
+        self.session_manager.playerDisconnected.connect(self._onPlayerDisconnected)
     
     def _onPlayerRegistered(self, player_name):
         """Handle when a player is registered (connected)"""
@@ -269,6 +272,19 @@ class SGDistributedGameDialog(QDialog):
             return
         
         # Player registered signal received
+        # Update waiting status if we're waiting
+        if self.waiting_for_others:
+            # Use longer delay to ensure the connected_players dict is updated
+            QTimer.singleShot(200, self._updateWaitingStatus)
+            QTimer.singleShot(300, self._checkAllPlayersSelected)
+    
+    def _onPlayerDisconnected(self, player_name):
+        """Handle when a player disconnects"""
+        # Ignore during cleanup
+        if hasattr(self, '_cleaning_up') and self._cleaning_up:
+            return
+        
+        # Player disconnected signal received
         # Update waiting status if we're waiting
         if self.waiting_for_others:
             # Use longer delay to ensure the connected_players dict is updated
@@ -445,6 +461,13 @@ class SGDistributedGameDialog(QDialog):
         # Check if this is our confirmed selection
         is_our_confirmed_selection = (self.reservation_confirmed and 
                                      self.selected_player_name == player_name)
+        
+        # CRITICAL: If we're waiting for others, all radio buttons should stay disabled
+        if self.waiting_for_others:
+            radio.setEnabled(False)
+            if is_our_confirmed_selection:
+                radio.setChecked(True)
+            return  # Don't update state further if waiting
         
         if state == 'available':
             radio.setEnabled(True)
@@ -633,6 +656,10 @@ class SGDistributedGameDialog(QDialog):
         # Get connected players from session manager (players already registered)
         connected_players = self.session_manager.getConnectedPlayers(self.config.session_id)
         
+        # CRITICAL: If we're waiting for others, don't update radio buttons (they should stay disabled)
+        if self.waiting_for_others:
+            return  # Don't allow changes while waiting
+        
         # Update radio buttons based on reservations (primary) and connections (secondary)
         for player_name, radio in self.player_radio_buttons.items():
             # Priority 1: Check if reserved by another instance (most important - shows real-time reservations)
@@ -659,6 +686,7 @@ class SGDistributedGameDialog(QDialog):
                 # CRITICAL: If this is our confirmed selection, ensure radio button stays checked
                 if is_our_confirmed_selection:
                     radio.setChecked(True)
+                    radio.setEnabled(False)  # Keep disabled if confirmed
             else:
                 # Player is available
                 self._updatePlayerButtonState(player_name, 'available')
@@ -792,6 +820,7 @@ class SGDistributedGameDialog(QDialog):
         # Reservation confirmed - register the player
         self.selected_player_name = selected_player
         self.reservation_confirmed = True
+        self._dialog_will_accept = True  # Mark that dialog will be accepted (user confirmed selection)
         
         # CRITICAL: Clear pending_reservation to prevent false conflict detection
         # from late-arriving MQTT messages
@@ -829,11 +858,63 @@ class SGDistributedGameDialog(QDialog):
     
     def reject(self):
         """Override reject to cleanup properly before closing"""
+        # Note: Cancel button has been removed, but reject() can still be called programmatically
+        # Use the same logic as closeEvent to prevent desynchronization
+        
+        # CRITICAL: Show warning if connected to a session (even if player not selected yet)
+        # This prevents desynchronization where one instance leaves before or after selection
+        if self.config.session_id:
+            if self.waiting_for_others:
+                message = "You are registered as a player. Leaving now will prevent other instances from starting.\n\nDo you really want to leave?"
+            else:
+                message = "You are connected to a session. Leaving now may cause synchronization issues for other instances.\n\nDo you really want to leave?"
+            
+            reply = QMessageBox.question(
+                self, "Leave?",
+                message,
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No  # Default to No
+            )
+            if reply == QMessageBox.No:
+                return  # Don't close
+        
+        # Allow closing if not connected to a session
+        # CRITICAL: If dialog is closed without accepting (user clicked X before confirming),
+        # reset assigned_player_name to allow dialog to reopen if needed
+        if not self.waiting_for_others and not self.reservation_confirmed:
+            # User closed dialog before confirming selection - reset assigned_player_name
+            self.config.assigned_player_name = None
+        
         self._cleanupBeforeClose()
         super().reject()
     
     def closeEvent(self, event):
         """Handle close event to cleanup properly"""
+        # CRITICAL: Show warning if connected to a session (even if player not selected yet)
+        # This prevents desynchronization where one instance leaves before or after selection
+        if self.config.session_id:
+            if self.waiting_for_others:
+                message = "You are registered as a player. Leaving now will prevent other instances from starting.\n\nDo you really want to leave?"
+            else:
+                message = "You are connected to a session. Leaving now may cause synchronization issues for other instances.\n\nDo you really want to leave?"
+            
+            reply = QMessageBox.question(
+                self, "Leave?",
+                message,
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No  # Default to No
+            )
+            if reply == QMessageBox.No:
+                event.ignore()  # Prevent closing
+                return
+        
+        # Allow closing if not connected to a session
+        # CRITICAL: If dialog is closed without accepting (user clicked X before confirming),
+        # reset assigned_player_name to allow dialog to reopen if needed
+        if not self.waiting_for_others and not self.reservation_confirmed:
+            # User closed dialog before confirming selection - reset assigned_player_name
+            self.config.assigned_player_name = None
+        
         self._cleanupBeforeClose()
         event.accept()
     
@@ -874,6 +955,20 @@ class SGDistributedGameDialog(QDialog):
                 self.model.mqttManager.client.on_message == self._all_players_selected_handler):
                 self.model.mqttManager.client.on_message = self._handler_before_all_players_selected
                 self._handler_before_all_players_selected = None
+            
+            # 5. CRITICAL: Disable distributed mode if user closed dialog without completing setup
+            # This prevents completeDistributedGameSetup() from opening the dialog again in initAfterOpening()
+            # Disable if:
+            # - Dialog was closed without accepting (user clicked X before confirming)
+            # - OR dialog was closed with X even after confirming (assigned_player_name not set in config)
+            # The second case handles when user confirms selection but closes dialog before all players are ready
+            if not self._dialog_will_accept or not self.config.assigned_player_name:
+                # User closed dialog without completing setup - disable distributed mode
+                # This allows the game to continue in local mode
+                if hasattr(self.model, 'distributedConfig'):
+                    self.model.distributedConfig = None
+                if hasattr(self.model, 'distributedSessionManager'):
+                    self.model.distributedSessionManager = None
             
         except Exception as e:
             print(f"[Dialog] Error during cleanup: {e}")
