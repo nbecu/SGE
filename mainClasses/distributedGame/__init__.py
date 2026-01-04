@@ -13,6 +13,7 @@ Classes:
     - SGMQTTHandlerManager: Centralizes MQTT message handler management with chaining support
     - SGConnectionStateManager: Manages connection dialog state transitions
     - SGSessionDiscoveryManager: Manages session discovery and caching
+    - SGSeedSyncManager: Manages seed synchronization for distributed games
 """
 
 from mainClasses.distributedGame.SGDistributedConnectionDialog import SGDistributedConnectionDialog
@@ -25,6 +26,7 @@ from mainClasses.distributedGame.SGConnectionStatusWidget import SGConnectionSta
 from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority
 from mainClasses.distributedGame.SGConnectionStateManager import SGConnectionStateManager, ConnectionState
 from mainClasses.distributedGame.SGSessionDiscoveryManager import SGSessionDiscoveryManager
+from mainClasses.distributedGame.SGSeedSyncManager import SGSeedSyncManager
 
 __all__ = [
     'SGDistributedConnectionDialog',
@@ -39,5 +41,6 @@ __all__ = [
     'SGConnectionStateManager',
     'ConnectionState',
     'SGSessionDiscoveryManager',
+    'SGSeedSyncManager',
 ]
 

@@ -9,6 +9,7 @@ from mainClasses.distributedGame.SGDistributedSession import SGDistributedSessio
 from mainClasses.distributedGame.SGMQTTHandlerManager import SGMQTTHandlerManager, HandlerPriority
 from mainClasses.distributedGame.SGConnectionStateManager import SGConnectionStateManager, ConnectionState
 from mainClasses.distributedGame.SGSessionDiscoveryManager import SGSessionDiscoveryManager
+from mainClasses.distributedGame.SGSeedSyncManager import SGSeedSyncManager
 
 
 class SGDistributedConnectionDialog(QDialog):
@@ -63,7 +64,7 @@ class SGDistributedConnectionDialog(QDialog):
         self.ready_instances = set()  # Set of clientIds that have completed seed sync and subscribed to game_start
         self.connected_instances_snapshot = None  # Snapshot of connected instances when dialog becomes ready
         self._last_republish_time = 0  # Timestamp of last seed sync republish (to prevent loops)
-        self._republish_cooldown = 2.0  # Minimum seconds between republishes (to prevent loops)
+        # _republish_cooldown is now managed by seed_sync_manager
         
         # Phase 2: State management via SGConnectionStateManager
         self.state_manager = SGConnectionStateManager(initial_state=ConnectionState.SETUP)
@@ -80,6 +81,9 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_players_cache = {}  # Cache of registered players per session: {session_id: set of player_names}
         self.session_instances_cache = {}  # Cache of connected instances per session: {session_id: set of client_ids}
         self.session_states_cache = {}  # Cache of session states for discovered sessions: {session_id: SGDistributedSession}
+        
+        # Phase 4: Seed synchronization management via SGSeedSyncManager
+        self.seed_sync_manager = None  # Will be initialized when MQTT client is available
         
         self.session_discovery_handler = None  # Handler for session discovery (deprecated, kept for compatibility)
         self._should_start_discovery_on_connect = False  # Flag to start discovery automatically after connection
@@ -353,13 +357,9 @@ class SGDistributedConnectionDialog(QDialog):
         self.sessions_list_update_timer.timeout.connect(periodic_sessions_update)
         self.sessions_list_update_timer.start(3000)  # Update every 3 seconds (with re-subscription)
         
-        # Timer to republish seed sync message periodically (to ensure new instances can detect us)
-        # This is important because MQTT only keeps the last retained message per topic
-        self.seed_republish_timer = QTimer(self)
-        self.seed_republish_timer.timeout.connect(self._republishSeedSync)
-        # OPTIMIZATION: Increased interval to reduce network traffic (was 2s, now 3s)
-        # The timer will be stopped when dialog becomes READY anyway
-        self.seed_republish_timer.start(3000)  # Republish every 3 seconds
+        # Phase 4: seed_republish_timer is now managed by SGSeedSyncManager
+        # Timer is started automatically when seed is synced
+        self.seed_republish_timer = None  # Deprecated, kept for backward compatibility
         
         # Timer to refresh available sessions list (when in join mode)
         # Only refresh if no session is currently selected to avoid disrupting user selection
@@ -531,6 +531,36 @@ class SGDistributedConnectionDialog(QDialog):
             self.session_states_cache = self.session_discovery_manager.session_states_cache.copy()
         # Update UI
         QTimer.singleShot(0, self._updateSessionsList)
+    
+    # Phase 4: Callbacks for SGSeedSyncManager
+    def _onSeedSynced(self, seed: int):
+        """Callback when seed is synchronized (Phase 4)"""
+        # Update state from manager
+        self.seed_synced = self.seed_sync_manager.seed_synced
+        self.synced_seed_value = self.seed_sync_manager.synced_seed_value
+        self.connected_instances = self.seed_sync_manager.connected_instances
+        
+        # Update UI
+        self.seed_status_label.setText("Seed: Synchronized ✓")
+        self.seed_status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px;")
+        
+        # Store in config
+        self.config.shared_seed = seed
+    
+    def _onInstanceConnected(self, client_id: str):
+        """Callback when a new instance is detected via seed sync (Phase 4)"""
+        # Synchronize connected_instances from manager
+        self.connected_instances = self.seed_sync_manager.connected_instances
+        
+        # Update UI if needed (defer to avoid race conditions)
+        QTimer.singleShot(0, self._updateConnectedInstances)
+    
+    def _onSeedSyncFailed(self, error: str):
+        """Callback when seed sync fails (Phase 4)"""
+        self.seed_status_label.setText(f"Seed: Sync failed - {error}")
+        self.seed_status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px;")
+        self._updateState(self.STATE_SETUP)  # Reset to setup state
+        QMessageBox.critical(self, "Seed Sync Error", f"Failed to synchronize seed:\n{error}")
     
     def _subscribeToSessionPlayerRegistrations(self):
         """Subscribe to player registration topics for all discovered sessions (Phase 3: using SGSessionDiscoveryManager)"""
@@ -1138,8 +1168,9 @@ class SGDistributedConnectionDialog(QDialog):
                 self.connected_instances_snapshot = self.connected_instances.copy()
             
             # OPTIMIZATION: Stop periodic republishing once READY (no need to keep broadcasting)
-            if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
-                self.seed_republish_timer.stop()
+            # Phase 4: Stop seed republishing via manager
+            if self.seed_sync_manager:
+                self.seed_sync_manager.stop_republishing()
         
         elif new_state == ConnectionState.READY:
             # Legacy state (kept for backward compatibility)
@@ -1172,8 +1203,9 @@ class SGDistributedConnectionDialog(QDialog):
                 self.connected_instances_snapshot = self.connected_instances.copy()
             
             # OPTIMIZATION: Stop periodic republishing once READY (no need to keep broadcasting)
-            if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
-                self.seed_republish_timer.stop()
+            # Phase 4: Stop seed republishing via manager
+            if self.seed_sync_manager:
+                self.seed_sync_manager.stop_republishing()
             
             # Start countdown automatically for both create and join modes
             self.info_label.setText("✓ All instances connected! The game will start automatically in a few seconds.")
@@ -1272,6 +1304,19 @@ class SGDistributedConnectionDialog(QDialog):
                 self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
                 self._mqtt_handler_manager.install()
             
+            # Phase 4: Initialize Seed Sync Manager when client is available
+            if not self.seed_sync_manager:
+                self.seed_sync_manager = SGSeedSyncManager(
+                    mqtt_client=self.model.mqttManager.client,
+                    session_manager=self.session_manager,
+                    mqtt_handler_manager=self._mqtt_handler_manager,
+                    model=self.model
+                )
+                # Register callbacks
+                self.seed_sync_manager.on_seed_synced(self._onSeedSynced)
+                self.seed_sync_manager.on_instance_connected(self._onInstanceConnected)
+                self.seed_sync_manager.on_sync_failed(self._onSeedSyncFailed)
+            
             self.connection_status = "Connected to broker"
             self.status_label.setText(f"Connection Status: [●] {self.connection_status}")
             self.status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px; color: #155724;")
@@ -1301,19 +1346,35 @@ class SGDistributedConnectionDialog(QDialog):
             QTimer.singleShot(500, self._checkConnection)
     
     def _syncSeed(self):
-        """Synchronize seed after connection is established"""
+        """Synchronize seed after connection is established (Phase 4: using SGSeedSyncManager)"""
         if self.seed_synced:
             return
+        
+        # Ensure seed sync manager is initialized
+        if not self.seed_sync_manager:
+            if not (self.model.mqttManager.client and self.model.mqttManager.client.is_connected()):
+                return  # Can't sync without connection
+            # Initialize manager (should have been done in _checkConnection, but safety check)
+            if not self._mqtt_handler_manager:
+                self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
+                self._mqtt_handler_manager.install()
+            self.seed_sync_manager = SGSeedSyncManager(
+                mqtt_client=self.model.mqttManager.client,
+                session_manager=self.session_manager,
+                mqtt_handler_manager=self._mqtt_handler_manager,
+                model=self.model
+            )
+            # Register callbacks
+            self.seed_sync_manager.on_seed_synced(self._onSeedSynced)
+            self.seed_sync_manager.on_instance_connected(self._onInstanceConnected)
+            self.seed_sync_manager.on_sync_failed(self._onSeedSyncFailed)
         
         try:
             self.seed_status_label.setText("Seed: Checking for existing seed...")
             self.seed_status_label.setStyleSheet("padding: 5px; background-color: #fff8dc; border-radius: 3px;")
             QApplication.processEvents()  # Update UI immediately
             
-            # Synchronize seed with configurable timeout
-            # Use seed_sync_timeout from config (default 1.0s) for initial wait
-            # Total timeout is seed_sync_timeout + 1 second for safety
-            # Pass callback to track connected instances during seed sync
+            # Callback to track connected instances during seed sync
             def track_client_id(client_id):
                 if not client_id:
                     return
@@ -1323,39 +1384,20 @@ class SGDistributedConnectionDialog(QDialog):
                 # Don't update UI here - wait until after seed sync completes
                 # This avoids race conditions
             
-            # Prepare tracking handler BEFORE syncSeed() so it can be installed immediately after
-            # This ensures we don't miss any messages published between syncSeed() completion and handler installation
-            session_topics = self.session_manager.getSessionTopics(self.config.session_id)
-            seed_topic = session_topics[1]  # session_seed_sync
-            
-            synced_seed = self.session_manager.syncSeed(
-                self.config.session_id,
+            # Synchronize seed using manager
+            synced_seed = self.seed_sync_manager.sync_seed(
+                session_id=self.config.session_id,
                 shared_seed=self.config.shared_seed,
                 timeout=self.config.seed_sync_timeout + 1.0,
                 initial_wait=self.config.seed_sync_timeout,
                 client_id_callback=track_client_id
             )
             
-            
             # Verify that seed sync actually succeeded
             if synced_seed is None:
                 raise ValueError("Seed synchronization returned None")
             
-            self.config.shared_seed = synced_seed
-            self.synced_seed_value = synced_seed
-            
-            # Apply seed immediately
-            import random
-            random.seed(synced_seed)
-            
-            self.seed_synced = True
-            self.seed_status_label.setText("Seed: Synchronized ✓")
-            self.seed_status_label.setStyleSheet("padding: 5px; background-color: #d4edda; border-radius: 3px;")
-            
-            # CRITICAL: Install tracking handler IMMEDIATELY after syncSeed() completes
-            # This minimizes the window where messages might be missed
-            # syncSeed() has restored the original handler, so we wrap that
-            self._subscribeToSeedSyncForTracking()
+            # State is updated via _onSeedSynced callback, but we continue with post-sync setup
             
             # CRITICAL: Also subscribe to player registration messages to track instances
             # Player registration messages use separate topics per player, so all retained messages are preserved
@@ -1739,123 +1781,15 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_state_creator_check_timer.start(3000)  # Every 3 seconds
     
     def _subscribeToSeedSyncForTracking(self, base_handler=None):
-        """Subscribe to seed sync topic to track connected instances
+        """Subscribe to seed sync topic to track connected instances (Phase 4: using SGSeedSyncManager)
         
         Args:
             base_handler: Handler to wrap (if None, uses current handler) - DEPRECATED, kept for compatibility
         """
-        if not (self.model.mqttManager.client and 
-                self.model.mqttManager.client.is_connected()):
-            return
-        
-        # Initialize MQTT Handler Manager if not already done
-        if not self._mqtt_handler_manager:
-            self._mqtt_handler_manager = SGMQTTHandlerManager(self.model.mqttManager.client)
-            self._mqtt_handler_manager.install()
-        
-        # Get seed sync topic
-        session_topics = self.session_manager.getSessionTopics(self.config.session_id)
-        seed_topic = session_topics[1]  # session_seed_sync
-        
-        # Remove existing seed sync tracking handler if any
-        if self._seed_sync_tracking_handler_id is not None:
-            self._mqtt_handler_manager.remove_handler(self._seed_sync_tracking_handler_id)
-        
-        # Create handler function for seed sync tracking
-        def seed_sync_tracking_handler(client, userdata, msg):
-            # Track instances via seed sync messages
-            try:
-                import json
-                msg_dict = json.loads(msg.payload.decode("utf-8"))
-                client_id = msg_dict.get('clientId')
-                is_retained = msg.retain
-                if client_id:
-                    old_count = len(self.connected_instances)
-                    is_new_instance = client_id not in self.connected_instances
-                    
-                    # CRITICAL: Only add instances if dialog is not READY yet
-                    # After dialog becomes READY, we don't count new instances (they may be temporary or not yet configured)
-                    # The snapshot is taken when dialog transitions to READY state
-                    if self.connected_instances_snapshot is None:
-                        self.connected_instances.add(client_id)
-                        # Update UI if count changed (use QTimer to ensure thread safety)
-                        if len(self.connected_instances) != old_count:
-                            QTimer.singleShot(0, self._updateConnectedInstances)
-                            
-                            # NOTE: We do NOT republish seed sync when a new instance is detected
-                            # This was causing infinite loops when multiple instances connect simultaneously.
-                            # The periodic timer (every 3 seconds) is sufficient to ensure new instances
-                            # receive our presence via retained messages.
-            except Exception as e:
-                print(f"[Dialog] Error tracking instance: {e}")
-                import traceback
-                traceback.print_exc()
-            # CRITICAL: Do NOT forward seed sync messages to other handlers
-            # They are not game topics and will be ignored anyway
-        
-        # Add handler using SGMQTTHandlerManager
-        # stop_propagation=True because we don't want to forward seed_sync messages
-        self._seed_sync_tracking_handler_id = self._mqtt_handler_manager.add_topic_handler(
-            topic=seed_topic,
-            handler_func=seed_sync_tracking_handler,
-            priority=HandlerPriority.HIGH,
-            stop_propagation=True  # Don't forward seed_sync messages to other handlers
-        )
-        
-        # Subscribe to seed sync topic (to receive retained messages from other instances)
-        # Note: We're already subscribed from syncSeed(), but this ensures we stay subscribed
-        # Use qos=1 to ensure we receive all messages
-        
-        # CRITICAL: Check if we already have exactly the required number of instances BEFORE waiting
-        # If so, take snapshot NOW to prevent instances that connect during wait from being counted
-        if self.seed_synced and self.connected_instances_snapshot is None:
-            if isinstance(self.config.num_players, int):
-                required_instances = self.config.num_players
-            else:
-                required_instances = self.config.num_players_max
-            
-            if len(self.connected_instances) == required_instances:
-                self.connected_instances_snapshot = self.connected_instances.copy()
-        
-        # CRITICAL: Do NOT unsubscribe/re-subscribe as this may prevent retained messages from being received
-        # Instead, ensure we're subscribed and wait for retained messages to be processed
-        # The handler is already installed, so any retained messages will be processed
-        import time
-        
-        # CRITICAL: Wait for retained messages to be processed
-        # Need sufficient delay to ensure all retained messages from other instances are received
-        # This is especially important when multiple instances are already connected
-        # IMPORTANT: Instances that have already left the dialog won't republish, so we must rely on retained messages
-        time.sleep(1.5)  # Increased delay to ensure all retained messages are received
-        
-        # CRITICAL: Force a re-subscription WITHOUT unsubscribe to trigger retained messages
-        # Some MQTT brokers only send retained messages on initial subscription
-        # By re-subscribing (without unsubscribe), we ensure retained messages are sent again
-        self.model.mqttManager.client.subscribe(seed_topic, qos=1)
-        
-        # Wait again after re-subscription for retained messages
-        # CRITICAL: This delay is important because instances that left the dialog won't republish
-        time.sleep(1.0)  # Increased delay to receive all retained messages after re-subscription
-        
-        # CRITICAL: Check if we have exactly the required number of instances and take snapshot NOW
-        # This prevents instances that connect during the UI update delay from being counted
-        if self.seed_synced and self.connected_instances_snapshot is None:
-            if isinstance(self.config.num_players, int):
-                required_instances = self.config.num_players
-            else:
-                required_instances = self.config.num_players_max
-            
-            if len(self.connected_instances) == required_instances:
-                self.connected_instances_snapshot = self.connected_instances.copy()
-            elif len(self.connected_instances) > required_instances:
-                # We have more than required - take snapshot with only the first N instances
-                instances_list = list(self.connected_instances)
-                self.connected_instances_snapshot = set(instances_list[:required_instances])
-        
-        # Schedule UI update after a delay to catch any late messages
-        # CRITICAL: Use sufficient delay to ensure all retained messages are processed
-        # This is especially important when instances have already left the dialog
-        QTimer.singleShot(1200, self._updateConnectedInstances)  # Increased delay to catch all messages
+        # Phase 4: This is now handled by SGSeedSyncManager
+        # The manager automatically starts tracking when sync_seed() is called
+        # This method is kept for backward compatibility but does nothing
+        pass
         
     
     def _subscribeToPlayerRegistrationForTracking(self):
@@ -2392,9 +2326,9 @@ class SGDistributedConnectionDialog(QDialog):
                     self.session_state_creator_check_timer = None
             
             # 1. Stop all timers (prevents callbacks on invalid state)
-            if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
-                if self.seed_republish_timer.isActive():
-                    self.seed_republish_timer.stop()
+            # Phase 4: Stop seed republishing via manager
+            if self.seed_sync_manager:
+                self.seed_sync_manager.stop_republishing()
             
             if hasattr(self, 'auto_start_timer') and self.auto_start_timer:
                 if self.auto_start_timer.isActive():
@@ -2541,6 +2475,11 @@ class SGDistributedConnectionDialog(QDialog):
             self._connection_in_progress = False
             self._game_start_processed = False
             
+            # Phase 4: Reset seed sync manager
+            if self.seed_sync_manager:
+                self.seed_sync_manager.reset()
+                self.seed_sync_manager = None
+            
             # NOTE: We do NOT remove the session from session_instances_cache here
             # Even though we disconnect, we remain subscribed to instance_ready for discovered sessions
             # via _subscribeToSessionPlayerRegistrations(), so the cache will be updated automatically
@@ -2668,10 +2607,9 @@ class SGDistributedConnectionDialog(QDialog):
         # Stop session heartbeat if running
         self.session_manager.stopSessionHeartbeat()
         
-        # Stop seed republish timer
-        if hasattr(self, 'seed_republish_timer') and self.seed_republish_timer:
-            if self.seed_republish_timer.isActive():
-                self.seed_republish_timer.stop()
+        # Phase 4: Stop seed republishing via manager
+        if self.seed_sync_manager:
+            self.seed_sync_manager.stop_republishing()
         
         event.accept()
     
@@ -2682,44 +2620,13 @@ class SGDistributedConnectionDialog(QDialog):
             self.seed_check_timer.stop()
     
     def _republishSeedSync(self):
-        """Republish seed sync message periodically to ensure new instances can detect us"""
-        # OPTIMIZATION: Don't republish if dialog is READY (no need to keep broadcasting)
-        if self.connected_instances_snapshot is not None:
-            return  # Dialog is READY, stop republishing
-        
-        if not self.seed_synced:
-            return  # Don't republish if seed not synced yet
-        
-        if not (self.model.mqttManager.client and 
-                self.model.mqttManager.client.is_connected()):
-            return
-        
-        if not self.config.session_id:
-            return
-        
-        # CRITICAL: Cooldown check to prevent infinite loops
-        import time
-        current_time = time.time()
-        if (current_time - self._last_republish_time) < self._republish_cooldown:
-            return  # Too soon since last republish, skip to prevent loops
-        
-        # Get seed sync topic
-        session_topics = self.session_manager.getSessionTopics(self.config.session_id)
-        seed_topic = session_topics[1]  # session_seed_sync
-        
-        # Republish our seed sync message
-        seed_msg = {
-            'clientId': self.model.mqttManager.clientId,
-            'seed': self.synced_seed_value,
-            'is_leader': False,
-            'timestamp': datetime.now().isoformat()
-        }
-        import json
-        serialized_msg = json.dumps(seed_msg)
-        self.model.mqttManager.client.publish(seed_topic, serialized_msg, qos=1, retain=True)
-        
-        # Update last republish time
-        self._last_republish_time = current_time
+        """Republish seed sync message periodically (Phase 4: using SGSeedSyncManager)"""
+        # Phase 4: This is now handled by SGSeedSyncManager
+        # The manager automatically starts republishing when sync_seed() is called
+        # This method is kept for backward compatibility but does nothing
+        # If we need to stop republishing (e.g., when READY), use seed_sync_manager.stop_republishing()
+        if self.seed_sync_manager and self.seed_sync_manager.should_stop_republishing(self.connected_instances_snapshot):
+            self.seed_sync_manager.stop_republishing()
     
     def _startAutoStartCountdown(self):
         """Start 3-second countdown before auto-starting"""
