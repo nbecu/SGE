@@ -2,7 +2,6 @@
 import json
 import queue
 import struct
-import threading
 import uuid
 from PyQt5.QtCore import QTimer
 
@@ -36,7 +35,6 @@ class SGMQTTManager:
         self.clientId = None
         self.session_id = None  # Session ID for topic isolation (None = global topics for backward compatibility)
         self.q = None
-        self.t1 = None
         self.majTimer = None
         self.haveToBeClose = False
         self.actionsFromBrokerToBeExecuted = []
@@ -164,20 +162,6 @@ class SGMQTTManager:
         # loop_start() runs in its own background thread automatically
         self.client.loop_start()
 
-    def handleClientThread(self):
-        """
-        Thread that handle the listen of the client.
-        
-        NOTE: This method is no longer used since we switched to loop_start().
-        The network loop is now handled by loop_start() in its own background thread.
-        This method is kept for backward compatibility but does nothing.
-        """
-        # This thread is no longer needed since loop_start() handles the network loop
-        # Keep it for now to avoid breaking existing code that might reference self.t1
-        while not self.haveToBeClose:
-            import time
-            time.sleep(0.1)  # Just sleep to keep thread alive
-        
     def buildNextTurnMsgAndPublishToBroker(self):
         """Build and publish next turn message to MQTT broker"""
         # Get game topics and use the nextTurn topic (index 1)

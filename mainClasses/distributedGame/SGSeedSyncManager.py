@@ -396,19 +396,6 @@ class SGSeedSyncManager(QObject):
             self._republish_timer.stop()
             self._republish_timer = None
     
-    def should_stop_republishing(self, connected_instances_snapshot) -> bool:
-        """
-        Check if republishing should be stopped (e.g., when dialog is READY).
-        
-        Args:
-            connected_instances_snapshot: Snapshot of connected instances (None if not ready)
-        
-        Returns:
-            True if republishing should stop, False otherwise
-        """
-        # OPTIMIZATION: Don't republish if dialog is READY (no need to keep broadcasting)
-        return connected_instances_snapshot is not None
-    
     def stop_tracking(self):
         """Stop tracking seed sync messages"""
         if self.mqtt_handler_manager and self._seed_sync_tracking_handler_id is not None:

@@ -166,8 +166,6 @@ class SGConnectionStatusWidget(QWidget):
         else:
             total_players = self.distributed_config.num_players_max
         
-        # Diagnostic logging
-        
         self.stats_label.setText(f"Connected: {num_connected}/{total_players}")
     
     def _onPlayerConnected(self, player_name):

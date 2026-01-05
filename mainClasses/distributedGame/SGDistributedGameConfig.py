@@ -17,7 +17,6 @@ class SGDistributedGameConfig:
     
     def __init__(self):
         """Initialize distributed game configuration with default values."""
-        self.distributed_mode = False  # bool: Enable distributed mode
         self.num_players = None  # int or tuple: Number of players (fixed int or (min, max) range)
         self.num_players_min = None  # int: Minimum number of players (extracted from num_players)
         self.num_players_max = None  # int: Maximum number of players (extracted from num_players)

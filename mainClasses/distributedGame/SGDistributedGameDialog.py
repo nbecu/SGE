@@ -42,7 +42,6 @@ class SGDistributedGameDialog(QDialog):
         self.reservation_confirmed = False  # Whether current reservation is confirmed
         self.pending_reservation = None  # Player name being reserved (during conflict check)
         self.conflict_detected = False  # Flag for conflict detection
-        self._reservation_handler = None  # Handler reference to prevent garbage collection
         self.waiting_for_others = False  # Whether we're waiting for other instances to select their players
         self._all_players_selected_processed = False  # Flag to prevent double processing of all_players_selected message
         self._all_players_selected_published = False  # Flag to prevent multiple publications

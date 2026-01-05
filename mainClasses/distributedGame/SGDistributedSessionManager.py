@@ -693,7 +693,6 @@ class SGDistributedSessionManager(QObject):
         previous_handler = self.mqtt_manager.client.on_message
         self.mqtt_manager.client.on_message = reservation_message_handler
         self._player_reservation_handler = reservation_message_handler
-        self._previous_handler_before_reservations = previous_handler  # Store for debugging
         
         
         # Subscribe to wildcard topic

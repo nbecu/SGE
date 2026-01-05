@@ -14,6 +14,10 @@ Classes:
     - SGConnectionStateManager: Manages connection dialog state transitions
     - SGSessionDiscoveryManager: Manages session discovery and caching
     - SGSeedSyncManager: Manages seed synchronization for distributed games
+
+Enums:
+    - HandlerPriority: Priority levels for MQTT handlers (HIGH, NORMAL, LOW)
+    - ConnectionState: Connection dialog states (SETUP, CONNECTING, WAITING, READY_MIN, READY_MAX, READY)
 """
 
 from mainClasses.distributedGame.SGDistributedConnectionDialog import SGDistributedConnectionDialog

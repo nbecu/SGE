@@ -84,7 +84,6 @@ class SGDistributedConnectionDialog(QDialog):
         # Phase 4: Seed synchronization management via SGSeedSyncManager
         self.seed_sync_manager = None  # Will be initialized when MQTT client is available
         
-        self.session_discovery_handler = None  # Handler for session discovery (deprecated, kept for compatibility)
         self._should_start_discovery_on_connect = False  # Flag to start discovery automatically after connection
         self._connection_in_progress = False  # Flag to prevent multiple simultaneous connection attempts
         self._selected_session_id = None
@@ -97,7 +96,6 @@ class SGDistributedConnectionDialog(QDialog):
         # session_states_cache is now managed by session_discovery_manager (see above)
         self._temporary_session_id = None  # Temporary session_id used for connection (not a selected session)
         self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
-        self._handler_before_game_start = None  # Store handler before installing game_start_handler
         
         # MQTT Handler Manager for centralized handler management (refactoring)
         self._mqtt_handler_manager = None  # Will be initialized when MQTT client is available (SGMQTTHandlerManager instance)
@@ -107,13 +105,6 @@ class SGDistributedConnectionDialog(QDialog):
         self._instance_ready_handler_id = None  # Handler ID for instance ready tracking
         self._instance_ready_disconnect_handler_id = None  # Handler ID for disconnect tracking in instance ready handler
         self._session_state_connected_handler_id = None  # Handler ID for session_state updates for connected session
-        # Phase 4: seed_sync_tracking_handler_id is now managed by SGSeedSyncManager
-        # Phase 3: Session discovery handlers are now managed by SGSessionDiscoveryManager
-        # These deprecated handler IDs are no longer needed but kept for safety cleanup
-        self._seed_sync_tracking_handler_id = None  # DEPRECATED: Use seed_sync_manager instead
-        self._session_player_registration_tracker_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
-        self._session_state_discovery_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
-        self._session_discovery_handler_id = None  # DEPRECATED: Use session_discovery_manager instead
         
         self.setWindowTitle("Connect to Distributed Game")
         self.setModal(True)
@@ -356,10 +347,6 @@ class SGDistributedConnectionDialog(QDialog):
         self.sessions_list_update_timer = QTimer(self)
         self.sessions_list_update_timer.timeout.connect(periodic_sessions_update)
         self.sessions_list_update_timer.start(3000)  # Update every 3 seconds (with re-subscription)
-        
-        # Phase 4: seed_republish_timer is now managed by SGSeedSyncManager
-        # Timer is started automatically when seed is synced
-        self.seed_republish_timer = None  # Deprecated, kept for backward compatibility
         
         # Timer to refresh available sessions list (when in join mode)
         # Only refresh if no session is currently selected to avoid disrupting user selection
@@ -1213,6 +1200,10 @@ class SGDistributedConnectionDialog(QDialog):
     
     def _onConnect(self):
         """Handle Connect button click - update session_id, connect to broker, and sync seed"""
+        # CRITICAL: Disable button immediately to provide immediate visual feedback
+        self.connect_button.setEnabled(False)
+        QApplication.processEvents()  # Force UI update
+        
         # In join mode, check if a session has been selected
         if self.join_existing_radio.isChecked():
             # Use selected session_id if available, otherwise get from edit field
@@ -1779,18 +1770,6 @@ class SGDistributedConnectionDialog(QDialog):
         self.session_state_creator_check_timer = QTimer(self)
         self.session_state_creator_check_timer.timeout.connect(check_creator)
         self.session_state_creator_check_timer.start(3000)  # Every 3 seconds
-    
-    def _subscribeToSeedSyncForTracking(self, base_handler=None):
-        """Subscribe to seed sync topic to track connected instances (Phase 4: using SGSeedSyncManager)
-        
-        Args:
-            base_handler: Handler to wrap (if None, uses current handler) - DEPRECATED, kept for compatibility
-        """
-        # Phase 4: This is now handled by SGSeedSyncManager
-        # The manager automatically starts tracking when sync_seed() is called
-        # This method is kept for backward compatibility but does nothing
-        pass
-        
     
     def _subscribeToPlayerRegistrationForTracking(self):
         """Subscribe to player registration messages to track connected instances
@@ -2552,17 +2531,6 @@ class SGDistributedConnectionDialog(QDialog):
                 if self.seed_sync_manager:
                     self.seed_sync_manager.stop_tracking()
                     self.seed_sync_manager.stop_republishing()
-                
-                # Safety cleanup for deprecated handlers (should not exist, but kept for safety)
-                deprecated_handlers = [
-                    self._seed_sync_tracking_handler_id,
-                    self._session_player_registration_tracker_handler_id,
-                    self._session_state_discovery_handler_id,
-                    self._session_discovery_handler_id
-                ]
-                for handler_id in deprecated_handlers:
-                    if handler_id is not None:
-                        self._mqtt_handler_manager.remove_handler(handler_id)
             
             # 10. Update connection status based on actual MQTT client state
             # Don't force "Not connected" if client is still connected to broker
@@ -2625,15 +2593,6 @@ class SGDistributedConnectionDialog(QDialog):
         if self.seed_synced:
             # Seed synced, stop checking
             self.seed_check_timer.stop()
-    
-    def _republishSeedSync(self):
-        """Republish seed sync message periodically (Phase 4: using SGSeedSyncManager)"""
-        # Phase 4: This is now handled by SGSeedSyncManager
-        # The manager automatically starts republishing when sync_seed() is called
-        # This method is kept for backward compatibility but does nothing
-        # If we need to stop republishing (e.g., when READY), use seed_sync_manager.stop_republishing()
-        if self.seed_sync_manager and self.seed_sync_manager.should_stop_republishing(self.connected_instances_snapshot):
-            self.seed_sync_manager.stop_republishing()
     
     def _startAutoStartCountdown(self):
         """Start 3-second countdown before auto-starting"""

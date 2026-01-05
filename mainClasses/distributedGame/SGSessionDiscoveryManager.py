@@ -446,11 +446,4 @@ class SGSessionDiscoveryManager:
                 self._session_player_registration_handler_id = None
         
         self._cleaning_up = False
-    
-    def clear_caches(self):
-        """Clear all caches"""
-        self.available_sessions.clear()
-        self.session_players_cache.clear()
-        self.session_instances_cache.clear()
-        self.session_states_cache.clear()
 

@@ -47,7 +47,7 @@ class SGMQTTHandlerManager:
             mqtt_client: The MQTT client instance (paho.mqtt.client.Client)
         """
         self.mqtt_client = mqtt_client
-        self._handlers: List[Tuple[int, Callable, Optional[Callable], HandlerPriority, str]] = []
+        self._handlers: List[Tuple[int, Callable, Callable[[str], bool], HandlerPriority, bool, str]] = []
         self._next_handler_id = 1
         self._original_handler = None
         self._chain_handler = None
@@ -177,12 +177,6 @@ class SGMQTTHandlerManager:
             return True
         return False
     
-    def remove_all_handlers(self):
-        """Remove all handlers and restore original handler."""
-        self._handlers.clear()
-        if self._is_installed:
-            self._uninstall_chain_handler()
-    
     def install(self):
         """
         Install the chain handler on the MQTT client.
@@ -197,16 +191,6 @@ class SGMQTTHandlerManager:
         # Install chain handler
         self._install_chain_handler()
         self._is_installed = True
-    
-    def uninstall(self):
-        """
-        Uninstall the chain handler and restore the original handler.
-        """
-        if not self._is_installed:
-            return
-        
-        self._uninstall_chain_handler()
-        self._is_installed = False
     
     def _install_chain_handler(self):
         """Install or reinstall the chain handler."""
@@ -255,12 +239,4 @@ class SGMQTTHandlerManager:
             self.mqtt_client.on_message = None
         self._chain_handler = None
         self._original_handler = None
-    
-    def get_handler_count(self) -> int:
-        """Get the number of registered handlers."""
-        return len(self._handlers)
-    
-    def is_installed(self) -> bool:
-        """Check if the chain handler is installed."""
-        return self._is_installed
 
