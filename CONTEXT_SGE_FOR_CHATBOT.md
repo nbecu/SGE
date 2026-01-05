@@ -575,6 +575,24 @@ except RuntimeError:
 model = SGModel(typeOfLayout="enhanced_grid", nb_columns=2)
 ```
 
+### 14.9 Distributed Game System (JANVIER 2025)
+**Système complet** : Jeux distribués multi-joueurs via MQTT
+
+**Caractéristiques** :
+- Configuration via `enableDistributedGame(num_players)` avant opérations aléatoires
+- Workflow automatique : Connexion → Synchronisation seed → Sélection rôle (via `launch()`)
+- Modes : Créer une session ou rejoindre une session existante
+- Gestion d'erreurs : Messages d'avertissement clairs (en anglais) au lieu de crash
+
+**Documentation** :
+- Guide modeler : `docs/guides/DISTRIBUTED_GAME_MODELER_GUIDE.md`
+- Guide joueur : `docs/guides/DISTRIBUTED_GAME_PLAYER_GUIDE.md`
+
+**Méthodes modeler** :
+- `enableDistributedGame(num_players, ...)` : Activer le mode distribué
+- `getConnectedInstancesCount(default=0)` : Récupérer le nombre d'instances connectées
+- `launch()` : Lance le jeu (sélection rôle automatique si mode distribué)
+
 ## 15. Lancement des applications SGE (CRITIQUE pour chatbots)
 
 ### 15.1 Problèmes courants avec PowerShell

@@ -231,21 +231,17 @@ nb_players = myModel.getConnectedInstancesCount(default=4)
 
 ### Documentation
 
-For complete documentation on distributed games, including:
-- Setup and configuration
-- Connection phases and states
-- MQTT options
-- Player management
-- Troubleshooting
-
-See the **[Distributed Game Guide](docs/guides/DISTRIBUTED_GAME_GUIDE.md)**.
+For complete documentation on distributed games, see:
+- **[Distributed Game Modeler Guide](docs/guides/DISTRIBUTED_GAME_MODELER_GUIDE.md)** - Complete guide for modelers (setup, configuration, MQTT options, troubleshooting)
+- **[Distributed Game Player Guide](docs/guides/DISTRIBUTED_GAME_PLAYER_GUIDE.md)** - Simple guide for players (how to connect and play)
 
 ### Key Points
 
 - **Call `enableDistributedGame()` BEFORE any random operations** - The seed is synchronized automatically
 - **Use `getConnectedInstancesCount()`** to get the number of connected instances
-- **Call `completeDistributedGameSetup()`** in `initAfterOpening()` for player selection
+- **Call `launch()`** at the end of your script - Player selection happens automatically
 - **Handle cancellation** - `enableDistributedGame()` returns `None` if the user cancels
+- **Error handling** - Connection errors display user-friendly warning messages (in English) instead of crashing the application
 
 ## Folder hierarchy
 - Examples
