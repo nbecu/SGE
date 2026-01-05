@@ -592,8 +592,6 @@ class SGDistributedConnectionDialog(QDialog):
         # Preserve currently selected session_id before clearing
         selected_session_id = self._selected_session_id
         
-        # DEBUG: Log cache state before update
-        
         self.sessions_list.clear()
         
         if not self.available_sessions:
@@ -1274,19 +1272,84 @@ class SGDistributedConnectionDialog(QDialog):
             # Start checking connection status
             self.connection_status = "Connecting..."
             self.status_label.setText(f"Connection Status: {self.connection_status}")
+            
+            # Set up timeout to detect connection failures
+            self._connection_timeout_timer = QTimer(self)
+            self._connection_timeout_timer.setSingleShot(True)
+            self._connection_timeout_timer.timeout.connect(self._onConnectionTimeout)
+            self._connection_timeout_timer.start(10000)  # 10 seconds timeout
+            
             self._checkConnection()
-        except Exception as e:
+        except ConnectionError as e:
+            # Connection error with user-friendly message
+            # Stop timeout timer if it was started
+            if hasattr(self, '_connection_timeout_timer') and self._connection_timeout_timer:
+                self._connection_timeout_timer.stop()
+                self._connection_timeout_timer = None
+            
             self._connection_in_progress = False  # Clear flag on error
-            self.connection_status = f"Connection failed: {str(e)}"
+            self.connection_status = "Connection failed"
             self.status_label.setText(f"Connection Status: [✗] {self.connection_status}")
             self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
             self._updateState(self.STATE_SETUP)  # Reset to setup state
-            QMessageBox.critical(self, "Connection Error", f"Failed to connect to MQTT broker:\n{str(e)}")
+            QMessageBox.warning(
+                self, 
+                "Unable to Connect to MQTT Broker",
+                f"{str(e)}\n\n"
+                f"Please verify that:\n"
+                f"- The MQTT broker is running\n"
+                f"- The broker address is correct ({self.config.broker_host}:{self.config.broker_port})\n"
+                f"- The port is not blocked by a firewall"
+            )
+        except Exception as e:
+            # Other exceptions
+            # Stop timeout timer if it was started
+            if hasattr(self, '_connection_timeout_timer') and self._connection_timeout_timer:
+                self._connection_timeout_timer.stop()
+                self._connection_timeout_timer = None
+            
+            self._connection_in_progress = False  # Clear flag on error
+            self.connection_status = "Connection failed"
+            self.status_label.setText(f"Connection Status: [✗] {self.connection_status}")
+            self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
+            self._updateState(self.STATE_SETUP)  # Reset to setup state
+            QMessageBox.warning(
+                self, 
+                "Connection Error",
+                f"Unable to connect to MQTT broker:\n\n{str(e)}\n\n"
+                f"Please verify that the broker is accessible at {self.config.broker_host}:{self.config.broker_port}"
+            )
+    
+    def _onConnectionTimeout(self):
+        """Handle connection timeout - connection failed after timeout period"""
+        if self._connection_in_progress:
+            # Still trying to connect, but timeout reached
+            self._connection_in_progress = False
+            self.connection_status = "Connection timeout"
+            self.status_label.setText(f"Connection Status: [✗] {self.connection_status}")
+            self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
+            self._updateState(self.STATE_SETUP)  # Reset to setup state
+            QMessageBox.warning(
+                self,
+                "Connection Timeout",
+                f"Connection to MQTT broker timed out.\n\n"
+                f"The broker at {self.config.broker_host}:{self.config.broker_port} "
+                f"is not responding or is not accessible.\n\n"
+                f"Please verify that:\n"
+                f"- The MQTT broker is running\n"
+                f"- The address and port are correct\n"
+                f"- The port is not blocked by a firewall"
+            )
     
     def _checkConnection(self):
         """Check if MQTT connection is established (polling)"""
         if (self.model.mqttManager.client and 
             self.model.mqttManager.client.is_connected()):
+            # Connection established - stop timeout timer
+            if hasattr(self, '_connection_timeout_timer') and self._connection_timeout_timer:
+                self._connection_timeout_timer.stop()
+                self._connection_timeout_timer = None
+            
             # Connection established
             self._connection_in_progress = False  # Clear flag
             
@@ -2566,6 +2629,10 @@ class SGDistributedConnectionDialog(QDialog):
             self._cleaning_up = False
     
     def reject(self):
+        # Stop connection timeout timer if active
+        if hasattr(self, '_connection_timeout_timer') and self._connection_timeout_timer:
+            self._connection_timeout_timer.stop()
+            self._connection_timeout_timer = None
         """Override reject to handle Cancel button based on connection state"""
         # Case 1: Not connected yet -> normal behavior (close dialog)
         if not self._isConnected():
@@ -2577,6 +2644,10 @@ class SGDistributedConnectionDialog(QDialog):
         # Don't call super().reject() - stay in dialog
     
     def closeEvent(self, event):
+        # Stop connection timeout timer if active
+        if hasattr(self, '_connection_timeout_timer') and self._connection_timeout_timer:
+            self._connection_timeout_timer.stop()
+            self._connection_timeout_timer = None
         """Handle dialog close event - cleanup session discovery and connection"""
         # If connected, cancel connection first
         if self._isConnected():

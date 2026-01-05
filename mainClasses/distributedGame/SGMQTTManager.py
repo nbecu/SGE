@@ -142,7 +142,16 @@ class SGMQTTManager:
             if rc == 0:
                 print("Connected to MQTT Broker!")
             else:
-                print("Failed to connect, return code %d\n", rc)
+                # Connection failed - error codes from paho-mqtt
+                error_messages = {
+                    1: "Connection refused - incorrect protocol version",
+                    2: "Connection refused - invalid client identifier",
+                    3: "Connection refused - server unavailable",
+                    4: "Connection refused - bad username or password",
+                    5: "Connection refused - not authorised"
+                }
+                error_msg = error_messages.get(rc, f"Connection refused - return code {rc}")
+                print(f"Failed to connect to MQTT broker: {error_msg}")
 
         def on_disconnect(client, userdata, flags, rc=0):
             # Disconnected from MQTT broker
@@ -156,7 +165,48 @@ class SGMQTTManager:
         self.client.on_log = on_log
         self.q = queue.Queue()
         self.model.timer.start(5)
-        self.client.connect(self.broker_host, self.broker_port)
+        
+        # Wrap connect() in try/except to catch synchronous connection errors
+        # Note: ConnectionRefusedError and TimeoutError are subclasses of OSError in Python 3
+        # IMPORTANT: We catch all exceptions and check the type to ensure we catch everything
+        try:
+            self.client.connect(self.broker_host, self.broker_port)
+        except BaseException as e:
+            # Catch ALL exceptions (including SystemExit, KeyboardInterrupt, etc.)
+            # This ensures we catch ConnectionRefusedError, TimeoutError, and any other exceptions
+            error_msg = f"Unable to connect to MQTT broker at {self.broker_host}:{self.broker_port}. "
+            
+            # Check exception type and error code
+            error_type = type(e).__name__
+            error_str = str(e).lower()
+            error_code = getattr(e, 'errno', None)
+            
+            # Handle specific exception types
+            if isinstance(e, TimeoutError) or error_type == 'TimeoutError' or "timeout" in error_str:
+                error_msg += "Connection timed out. The broker may be unreachable or not responding."
+            elif isinstance(e, ConnectionRefusedError) or error_type == 'ConnectionRefusedError':
+                error_msg += "The broker may be closed or not running."
+            elif isinstance(e, OSError):
+                # Handle OSError and its subclasses
+                if (error_code in (10061, 111) or 
+                    "connection refused" in error_str or 
+                    "refused" in error_str or
+                    "no connection could be made" in error_str or
+                    "aucune connexion" in error_str):
+                    error_msg += "The broker may be closed or not running."
+                elif "name or service not known" in error_str or "getaddrinfo failed" in error_str:
+                    error_msg += "The broker hostname could not be resolved."
+                elif "timeout" in error_str:
+                    error_msg += "Connection timed out. The broker may be unreachable."
+                else:
+                    error_msg += f"Error: {str(e)}"
+            else:
+                # Any other exception type
+                error_msg += f"Error: {str(e)}"
+            
+            # Always raise ConnectionError with user-friendly message
+            raise ConnectionError(error_msg) from e
+        
         self.client.user_data_set(self)
         # Use loop_start() instead of manual loop() in thread to avoid struct format errors
         # loop_start() runs in its own background thread automatically
