@@ -625,8 +625,8 @@ class SGDistributedConnectionDialog(QDialog):
                 # Try to get from session_states_cache for discovered sessions
                 session_state = self.session_states_cache.get(session_id)
             
-            # CRITICAL: Skip closed sessions (don't display them in Available Sessions)
-            if session_state and session_state.state == 'closed':
+            # CRITICAL: Skip non-joinable sessions (closed or started - don't display them in Available Sessions)
+            if session_state and not session_state.is_joinable():
                 continue
             
             if not session_state:
@@ -735,10 +735,10 @@ class SGDistributedConnectionDialog(QDialog):
         """Handle single click on a session in the list - selects the session"""
         session_id = item.data(Qt.UserRole)
         if session_id:
-            # CRITICAL: Check if session is closed
+            # CRITICAL: Check if session is joinable
             session_state = self.session_states_cache.get(session_id)
-            if session_state and session_state.state == 'closed':
-                # Session is closed - don't allow selection
+            if session_state and not session_state.is_joinable():
+                # Session is not joinable (closed or started) - don't allow selection
                 self._selected_session_id = None
                 self.connect_button.setEnabled(False)
                 self.info_label.setText(f"Session {session_id[:8]}... is closed and cannot be joined.")
@@ -802,10 +802,10 @@ class SGDistributedConnectionDialog(QDialog):
             
             # Phase 2: Use session_state as single source of truth
             if self.session_state:
-                # CRITICAL: Check if session is closed
+                # CRITICAL: Check if session is closed (fallback safety check)
                 # Note: This should normally be handled in on_session_state_update(),
                 # but keep as fallback in case session_state is set to closed elsewhere
-                if self.session_state.state == 'closed':
+                if self.session_state and self.session_state.is_closed():
                     # This should not happen if on_session_state_update() is working correctly,
                     # but if it does, reset state here as fallback
                     self.connected_instances_label.setText("Instances: Session closed")
@@ -1554,8 +1554,9 @@ class SGDistributedConnectionDialog(QDialog):
                     # Also update cache for consistency
                     self.session_states_cache[session.session_id] = session
                     
-                    # CRITICAL: If session is closed, completely reset dialog state
-                    if session.state == 'closed':
+                    # CRITICAL: If session is closed (not started), completely reset dialog state
+                    # Note: We only reset for closed sessions, not started ones (game continues)
+                    if session.is_closed():
                         print(f"[Dialog] Session closed detected, resetting dialog state...")
                         # Remove from available_sessions if present
                         if session.session_id in self.available_sessions:
@@ -1589,8 +1590,8 @@ class SGDistributedConnectionDialog(QDialog):
                     # Update cache for discovered sessions
                     self.session_states_cache[session.session_id] = session
                     
-                    # CRITICAL: If session is closed, remove it from available_sessions
-                    if session.state == 'closed':
+                    # CRITICAL: If session is not joinable (closed or started), remove it from available_sessions
+                    if not session.is_joinable():
                         if session.session_id in self.available_sessions:
                             del self.available_sessions[session.session_id]
                     
@@ -1681,8 +1682,9 @@ class SGDistributedConnectionDialog(QDialog):
                 if not self.session_state:
                     return
                 
-                # CRITICAL: If session is already closed, stop the timer and return
-                if self.session_state.state == 'closed':
+                # CRITICAL: If session is not active (closed), stop the timer and return
+                # Note: We don't stop for started sessions (game continues)
+                if not self.session_state.is_active():
                     if self.session_state_creator_check_timer:
                         self.session_state_creator_check_timer.stop()
                         self.session_state_creator_check_timer = None
@@ -1723,7 +1725,7 @@ class SGDistributedConnectionDialog(QDialog):
                         pass
                     
                     # CRITICAL: Double-check that session is not already closed (may have been closed by another instance)
-                    if self.session_state.state == 'closed':
+                    if self.session_state.is_closed():
                         if self.session_state_creator_check_timer:
                             self.session_state_creator_check_timer.stop()
                             self.session_state_creator_check_timer = None
@@ -2002,6 +2004,11 @@ class SGDistributedConnectionDialog(QDialog):
             retain=False  # Don't retain - start message is one-time only
         )
         
+        # CRITICAL: Mark session as started (no longer joinable)
+        # This prevents new instances from seeing and joining the session
+        if self.session_state and self.config.is_session_creator:
+            self.session_state.start()
+            self.session_manager.publishSessionState(self.session_state)
         
         # Wait a moment to ensure message is sent before continuing
         import time

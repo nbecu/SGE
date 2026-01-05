@@ -15,7 +15,7 @@ class SGDistributedSession:
         session_id (str): Unique identifier for the session
         creator_client_id (str): Client ID of the instance that created the session
         model_name (str): Name of the game model
-        state (str): Current state of the session ('open' or 'closed')
+        state (str): Current state of the session ('open', 'started', or 'closed')
         connected_instances (Set[str]): Set of client IDs currently connected to the session
         version (int): Version number for conflict resolution (incremented on each update)
         last_heartbeat (datetime): Timestamp of the last heartbeat from the creator
@@ -92,6 +92,7 @@ class SGDistributedSession:
             num_players_max=data.get('num_players_max', 4)
         )
         
+        # Note: 'started' is a valid state (session where game has begun)
         session.state = data.get('state', 'open')
         session.connected_instances = set(data.get('connected_instances', []))
         session.version = data.get('version', 1)
@@ -116,7 +117,7 @@ class SGDistributedSession:
         Returns:
             True if instance was added, False if already present or session is closed
         """
-        if self.state != 'open':
+        if not self.is_open():
             return False
         
         if client_id not in self.connected_instances:
@@ -145,12 +146,26 @@ class SGDistributedSession:
     
     def close(self):
         """
-        Close the session.
+        Close the session (cancelled/abandoned).
         
         Sets state to 'closed' and updates version and timestamp.
+        Note: Use start() to mark a session as started (game in progress), not close().
         """
-        if self.state != 'closed':
+        if not self.is_closed():
             self.state = 'closed'
+            self.version += 1
+            self.last_updated = datetime.now()
+    
+    def start(self):
+        """
+        Mark the session as started (game has begun).
+        
+        Sets state to 'started' and updates version and timestamp.
+        A started session is no longer joinable, but the game is active.
+        This is different from close(), which marks a session as cancelled/abandoned.
+        """
+        if self.state != 'started':
+            self.state = 'started'
             self.version += 1
             self.last_updated = datetime.now()
     
@@ -169,13 +184,16 @@ class SGDistributedSession:
         """
         Check if the session has expired (creator hasn't sent heartbeat).
         
+        Note: Sessions with state 'started' are never considered expired, as the game
+        is in progress and heartbeat may not be as critical.
+        
         Args:
             timeout_seconds: Number of seconds without heartbeat before considering expired
             
         Returns:
             True if session is expired, False otherwise
         """
-        if self.state == 'closed':
+        if self.is_closed():
             return True
         
         time_since_heartbeat = (datetime.now() - self.last_heartbeat).total_seconds()
@@ -188,7 +206,7 @@ class SGDistributedSession:
         Returns:
             True if session is open and has capacity, False otherwise
         """
-        if self.state != 'open':
+        if not self.is_open():
             return False
         
         return len(self.connected_instances) < self.num_players_max
@@ -213,6 +231,26 @@ class SGDistributedSession:
             True if client_id is the creator, False otherwise
         """
         return client_id == self.creator_client_id
+    
+    def is_open(self) -> bool:
+        """Check if session is open (accepting new instances)."""
+        return self.state == 'open'
+    
+    def is_started(self) -> bool:
+        """Check if session has started (game is in progress)."""
+        return self.state == 'started'
+    
+    def is_closed(self) -> bool:
+        """Check if session is closed (cancelled/abandoned)."""
+        return self.state == 'closed'
+    
+    def is_joinable(self) -> bool:
+        """Check if session can accept new instances (open only)."""
+        return self.state == 'open'
+    
+    def is_active(self) -> bool:
+        """Check if session is active (open or started, not closed)."""
+        return self.state in ('open', 'started')
     
     def __repr__(self) -> str:
         """String representation for debugging."""

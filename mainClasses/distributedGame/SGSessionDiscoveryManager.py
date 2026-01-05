@@ -235,8 +235,8 @@ class SGSessionDiscoveryManager:
                 # Update cache
                 self.session_states_cache[session_id] = session
                 
-                # If session is closed, remove it from available_sessions
-                if session.state == 'closed':
+                # If session is not joinable (closed or started), remove it from available_sessions
+                if not session.is_joinable():
                     if session_id in self.available_sessions:
                         del self.available_sessions[session_id]
                     # Also remove from session_manager's cache
