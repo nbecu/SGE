@@ -99,7 +99,7 @@ endGameRule = myModel.newEndGameRule()
 endGameRule.setLayoutOrder(3)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "greater", 90, name="Score greater than 90")
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 
 
 myModel.setCurrentPlayer("Player1")

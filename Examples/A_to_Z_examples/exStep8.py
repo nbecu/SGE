@@ -96,7 +96,7 @@ DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "greater", 90, name="Score greater than 90")
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 endGameRule.moveToCoords(610,450)
 
 

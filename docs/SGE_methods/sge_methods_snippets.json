@@ -34,6 +34,13 @@
     ],
     "description": "Get entity coordinates"
   },
+  "SGAgent.getGrid": {
+    "prefix": "sgagent.getGrid",
+    "body": [
+      "${1:result} = ${2:instance}.getGrid()"
+    ],
+    "description": "Get the grid associated with this entity."
+  },
   "SGAgent.getId": {
     "prefix": "sgagent.getId",
     "body": [
@@ -82,6 +89,13 @@
       "${1:result} = ${2:instance}.getNeighborsW(${3:agent_type})"
     ],
     "description": "Get neighbor agents to the West"
+  },
+  "SGAgent.getType": {
+    "prefix": "sgagent.getType",
+    "body": [
+      "${1:result} = ${2:instance}.getType()"
+    ],
+    "description": "Get the entity type (entity definition)."
   },
   "SGAgent.getValue": {
     "prefix": "sgagent.getValue",
@@ -283,6 +297,13 @@
     ],
     "description": "Get the first tile in this cell."
   },
+  "SGCell.getGrid": {
+    "prefix": "sgcell.getGrid",
+    "body": [
+      "${1:result} = ${2:instance}.getGrid()"
+    ],
+    "description": "Get the grid associated with this entity."
+  },
   "SGCell.getId": {
     "prefix": "sgcell.getId",
     "body": [
@@ -381,6 +402,13 @@
     ],
     "description": "Get all tiles on this cell"
   },
+  "SGCell.getType": {
+    "prefix": "sgcell.getType",
+    "body": [
+      "${1:result} = ${2:instance}.getType()"
+    ],
+    "description": "Get the entity type (entity definition)."
+  },
   "SGCell.getValue": {
     "prefix": "sgcell.getValue",
     "body": [
@@ -417,7 +445,7 @@
       "if ${1:instance}.hasTile(${2:tileType}):",
       "    ${3:pass}"
     ],
-    "description": "Check if this cell contains a tile of the given type"
+    "description": "Check if this cell contains a tile matching the criteria"
   },
   "SGCell.hasTiles": {
     "prefix": "sgcell.hasTiles",
@@ -549,27 +577,6 @@
     ],
     "description": "Set the inactive theme background color."
   },
-  "SGDashBoard.setDisplayTitle": {
-    "prefix": "sgdashboard.setDisplayTitle",
-    "body": [
-      "${1:instance}.setDisplayTitle(${2:value})"
-    ],
-    "description": "Set whether to display the title."
-  },
-  "SGDashBoard.setIndicatorStyle": {
-    "prefix": "sgdashboard.setIndicatorStyle",
-    "body": [
-      "${1:instance}.setIndicatorStyle(${2:value})"
-    ],
-    "description": "Set the style of all indicators."
-  },
-  "SGDashBoard.setLayoutOrientation": {
-    "prefix": "sgdashboard.setLayoutOrientation",
-    "body": [
-      "${1:instance}.setLayoutOrientation(${2:value})"
-    ],
-    "description": "Set the layout orientation of the dashboard."
-  },
   "SGDashBoard.setTitleText": {
     "prefix": "sgdashboard.setTitleText",
     "body": [
@@ -577,19 +584,117 @@
     ],
     "description": "Set the title text of the dashboard."
   },
-  "SGDashBoard.applyContainerAspectStyle": {
-    "prefix": "sgdashboard.applyContainerAspectStyle",
+  "SGDashBoard.addIndicator": {
+    "prefix": "sgdashboard.addIndicator",
     "body": [
-      "${1:result} = ${2:instance}.applyContainerAspectStyle()"
+      "${1:result} = ${2:instance}.addIndicator(${3:name}, ${4:method}, ${5:attribute}, ${6:value}, ${7:color}, ${8:logicOp}, ${9:title}, ${10:displayRefresh}, ${11:onTimeConditions}, ${12:isDisplay}, ${13:displayName}, ${14:conditionsOnEntities})"
     ],
-    "description": "Avoid QSS cascade; rely on paintEvent for container rendering."
+    "description": "Add an Indicator on the DashBoard."
   },
-  "SGDashBoard.onTextAspectsChanged": {
-    "prefix": "sgdashboard.onTextAspectsChanged",
+  "SGDashBoard.addIndicator_Avg": {
+    "prefix": "sgdashboard.addIndicator_Avg",
     "body": [
-      "${1:result} = ${2:instance}.onTextAspectsChanged()"
+      "${1:result} = ${2:instance}.addIndicator_Avg(${3:entity}, ${4:attribute}, ${5:title}, ${6:color}, ${7:displayRefresh}, ${8:isDisplay}, ${9:displayName}, ${10:conditionsOnEntities})"
     ],
-    "description": "Apply title and text aspects (color, font, size, weight, style, decoration, alignment)."
+    "description": "Add a average indicator"
+  },
+  "SGDashBoard.addIndicator_EqualTo": {
+    "prefix": "sgdashboard.addIndicator_EqualTo",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_EqualTo(${3:entity}, ${4:attribute}, ${5:value}, ${6:title}, ${7:color}, ${8:displayRefresh}, ${9:isDisplay}, ${10:displayName})"
+    ],
+    "description": "Add a equal to indicator"
+  },
+  "SGDashBoard.addIndicator_Max": {
+    "prefix": "sgdashboard.addIndicator_Max",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_Max(${3:entity}, ${4:attribute}, ${5:title}, ${6:color}, ${7:displayRefresh}, ${8:isDisplay}, ${9:displayName}, ${10:conditionsOnEntities})"
+    ],
+    "description": "Add a maximum indicator"
+  },
+  "SGDashBoard.addIndicator_Min": {
+    "prefix": "sgdashboard.addIndicator_Min",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_Min(${3:entity}, ${4:attribute}, ${5:title}, ${6:color}, ${7:displayRefresh}, ${8:isDisplay}, ${9:displayName}, ${10:conditionsOnEntities})"
+    ],
+    "description": "Add a minimum indicator"
+  },
+  "SGDashBoard.addIndicator_Nb": {
+    "prefix": "sgdashboard.addIndicator_Nb",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_Nb(${3:entity}, ${4:attribute}, ${5:value}, ${6:title}, ${7:color}, ${8:displayRefresh}, ${9:isDisplay}, ${10:displayName})"
+    ],
+    "description": "Add a sum indicator"
+  },
+  "SGDashBoard.addIndicator_Sum": {
+    "prefix": "sgdashboard.addIndicator_Sum",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_Sum(${3:entity}, ${4:attribute}, ${5:title}, ${6:color}, ${7:displayRefresh}, ${8:isDisplay}, ${9:displayName}, ${10:conditionsOnEntities})"
+    ],
+    "description": "Add a sum indicator"
+  },
+  "SGDashBoard.addIndicator_WithLess": {
+    "prefix": "sgdashboard.addIndicator_WithLess",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_WithLess(${3:entity}, ${4:attribute}, ${5:value}, ${6:title}, ${7:color}, ${8:displayRefresh}, ${9:isDisplay}, ${10:displayName})"
+    ],
+    "description": "Add a with less indicator"
+  },
+  "SGDashBoard.addIndicator_WithMore": {
+    "prefix": "sgdashboard.addIndicator_WithMore",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicator_WithMore(${3:entity}, ${4:attribute}, ${5:value}, ${6:title}, ${7:color}, ${8:displayRefresh}, ${9:isDisplay}, ${10:displayName})"
+    ],
+    "description": "Add a with more indicator"
+  },
+  "SGDashBoard.addIndicatorOnEntity": {
+    "prefix": "sgdashboard.addIndicatorOnEntity",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicatorOnEntity(${3:entity}, ${4:attribute}, ${5:color}, ${6:value}, ${7:logicOp}, ${8:title}, ${9:displayRefresh}, ${10:onTimeConditions}, ${11:isDisplay}, ${12:displayName}, ${13:conditionsOnEntities})"
+    ],
+    "description": "Add an Indicator on a particular entity on the DashBoard."
+  },
+  "SGDashBoard.addIndicatorOnSimVariable": {
+    "prefix": "sgdashboard.addIndicatorOnSimVariable",
+    "body": [
+      "${1:result} = ${2:instance}.addIndicatorOnSimVariable(${3:aSimulationVariable}, ${4:displayRefresh}, ${5:displayName}, ${6:conditionsOnEntities})"
+    ],
+    "description": ""
+  },
+  "SGDashBoard.addSeparator": {
+    "prefix": "sgdashboard.addSeparator",
+    "body": [
+      "${1:result} = ${2:instance}.addSeparator()"
+    ],
+    "description": ""
+  },
+  "SGEndGameRule.addEndGameCondition_onEntity": {
+    "prefix": "sgendgamerule.addEndGameCondition_onEntity",
+    "body": [
+      "${1:result} = ${2:instance}.addEndGameCondition_onEntity(${3:aEntity}, ${4:attribute}, ${5:logicalTest}, ${6:objective}, ${7:name}, ${8:type_name}, ${9:aGrid}, ${10:color}, ${11:isDisplay}, ${12:delay_rounds}, ${13:final_phase})"
+    ],
+    "description": "Create an EndGame Condition with an Entity"
+  },
+  "SGEndGameRule.addEndGameCondition_onGameRound": {
+    "prefix": "sgendgamerule.addEndGameCondition_onGameRound",
+    "body": [
+      "${1:result} = ${2:instance}.addEndGameCondition_onGameRound(${3:logicalTest}, ${4:objective}, ${5:name}, ${6:color}, ${7:isDisplay}, ${8:delay_rounds}, ${9:final_phase})"
+    ],
+    "description": "Create an EndGame Condition on the time (game rounds)"
+  },
+  "SGEndGameRule.addEndGameCondition_onIndicator": {
+    "prefix": "sgendgamerule.addEndGameCondition_onIndicator",
+    "body": [
+      "${1:result} = ${2:instance}.addEndGameCondition_onIndicator(${3:indicator}, ${4:logicalTest}, ${5:objective}, ${6:name}, ${7:color}, ${8:isDisplay}, ${9:delay_rounds}, ${10:final_phase})"
+    ],
+    "description": "Create an EndGame Condition with an Indicator"
+  },
+  "SGEndGameRule.addEndGameCondition_onLambda": {
+    "prefix": "sgendgamerule.addEndGameCondition_onLambda",
+    "body": [
+      "${1:result} = ${2:instance}.addEndGameCondition_onLambda(${3:lambda_function}, ${4:name}, ${5:color}, ${6:isDisplay}, ${7:delay_rounds}, ${8:final_phase})"
+    ],
+    "description": "Create an EndGame Condition based on a lambda function."
   },
   "SGEndGameRule.setBackgroundColor": {
     "prefix": "sgendgamerule.setBackgroundColor",
@@ -612,6 +717,90 @@
     ],
     "description": "Set the border size of the end game rule."
   },
+  "SGEndGameRule.setEndGameAnimationDuration": {
+    "prefix": "sgendgamerule.setEndGameAnimationDuration",
+    "body": [
+      "${1:instance}.setEndGameAnimationDuration(${2:value})"
+    ],
+    "description": "Set the animation duration in seconds."
+  },
+  "SGEndGameRule.setEndGameAnimationEnabled": {
+    "prefix": "sgendgamerule.setEndGameAnimationEnabled",
+    "body": [
+      "${1:instance}.setEndGameAnimationEnabled(${2:value})"
+    ],
+    "description": "Enable or disable the pulse animation when game ends."
+  },
+  "SGEndGameRule.setEndGameBannerColor": {
+    "prefix": "sgendgamerule.setEndGameBannerColor",
+    "body": [
+      "${1:instance}.setEndGameBannerColor(${2:value})"
+    ],
+    "description": "Set the banner background color."
+  },
+  "SGEndGameRule.setEndGameBannerPosition": {
+    "prefix": "sgendgamerule.setEndGameBannerPosition",
+    "body": [
+      "${1:instance}.setEndGameBannerPosition(${2:value})"
+    ],
+    "description": "Set the banner position: 'top' or 'bottom'"
+  },
+  "SGEndGameRule.setEndGameBannerText": {
+    "prefix": "sgendgamerule.setEndGameBannerText",
+    "body": [
+      "${1:instance}.setEndGameBannerText(${2:value})"
+    ],
+    "description": "Set the banner text displayed when game ends."
+  },
+  "SGEndGameRule.setEndGameConditionCountdownDisplayMode": {
+    "prefix": "sgendgamerule.setEndGameConditionCountdownDisplayMode",
+    "body": [
+      "${1:instance}.setEndGameConditionCountdownDisplayMode(${2:value})"
+    ],
+    "description": "Set the countdown display mode for all conditions."
+  },
+  "SGEndGameRule.setEndGameConditionCountdownSeparator": {
+    "prefix": "sgendgamerule.setEndGameConditionCountdownSeparator",
+    "body": [
+      "${1:instance}.setEndGameConditionCountdownSeparator(${2:value})"
+    ],
+    "description": "Set the separator between condition name and countdown."
+  },
+  "SGEndGameRule.setEndGameDisplay": {
+    "prefix": "sgendgamerule.setEndGameDisplay",
+    "body": [
+      "${1:instance}.setEndGameDisplay(${2:mode}, ${3:banner_text})"
+    ],
+    "description": "Configure all end game display options in a single call."
+  },
+  "SGEndGameRule.setEndGameDisplayMode": {
+    "prefix": "sgendgamerule.setEndGameDisplayMode",
+    "body": [
+      "${1:instance}.setEndGameDisplayMode(${2:value})"
+    ],
+    "description": "Set the end game display mode."
+  },
+  "SGEndGameRule.setEndGameRuleHighlightBackgroundColor": {
+    "prefix": "sgendgamerule.setEndGameRuleHighlightBackgroundColor",
+    "body": [
+      "${1:instance}.setEndGameRuleHighlightBackgroundColor(${2:value})"
+    ],
+    "description": "Set the highlight background color when game ends."
+  },
+  "SGEndGameRule.setEndGameRuleHighlightBorderColor": {
+    "prefix": "sgendgamerule.setEndGameRuleHighlightBorderColor",
+    "body": [
+      "${1:instance}.setEndGameRuleHighlightBorderColor(${2:value})"
+    ],
+    "description": "Set the highlight border color when game ends."
+  },
+  "SGEndGameRule.setEndGameRuleHighlightBorderSize": {
+    "prefix": "sgendgamerule.setEndGameRuleHighlightBorderSize",
+    "body": [
+      "${1:instance}.setEndGameRuleHighlightBorderSize(${2:value})"
+    ],
+    "description": "Set the highlight border size when game ends."
+  },
   "SGEndGameRule.setSuccessThemeColor": {
     "prefix": "sgendgamerule.setSuccessThemeColor",
     "body": [
@@ -625,6 +814,41 @@
       "${1:instance}.setTextColor(${2:value})"
     ],
     "description": "Set the text color of the end game rule."
+  },
+  "SGEndGameRule.disableEndGameBanner": {
+    "prefix": "sgendgamerule.disableEndGameBanner",
+    "body": [
+      "${1:result} = ${2:instance}.disableEndGameBanner()"
+    ],
+    "description": "Disable the end game banner display."
+  },
+  "SGEndGameRule.disableEndGameRuleHighlight": {
+    "prefix": "sgendgamerule.disableEndGameRuleHighlight",
+    "body": [
+      "${1:result} = ${2:instance}.disableEndGameRuleHighlight()"
+    ],
+    "description": "Disable highlighting of the endGameRule widget when game ends."
+  },
+  "SGEndGameRule.enableEndGameBanner": {
+    "prefix": "sgendgamerule.enableEndGameBanner",
+    "body": [
+      "${1:result} = ${2:instance}.enableEndGameBanner()"
+    ],
+    "description": "Enable the end game banner display."
+  },
+  "SGEndGameRule.enableEndGameRuleHighlight": {
+    "prefix": "sgendgamerule.enableEndGameRuleHighlight",
+    "body": [
+      "${1:result} = ${2:instance}.enableEndGameRuleHighlight()"
+    ],
+    "description": "Enable highlighting of the endGameRule widget when game ends."
+  },
+  "SGEndGameRule.displayEndGameConditions": {
+    "prefix": "sgendgamerule.displayEndGameConditions",
+    "body": [
+      "${1:result} = ${2:instance}.displayEndGameConditions()"
+    ],
+    "description": "Configure and display the EndGameRule widget with all conditions."
   },
   "SGCellType.calcValue": {
     "prefix": "sgcelltype.calcValue",
@@ -814,6 +1038,20 @@
       "${1:result} = ${2:instance}.getCell(${3:x}, ${4:y})"
     ],
     "description": "Retrieve a cell object from the grid."
+  },
+  "SGCellType.getEmptyCell": {
+    "prefix": "sgcelltype.getEmptyCell",
+    "body": [
+      "${1:result} = ${2:instance}.getEmptyCell(${3:condition})"
+    ],
+    "description": "Get the first empty cell found, optionally filtered by a condition."
+  },
+  "SGCellType.getEmptyCells": {
+    "prefix": "sgcelltype.getEmptyCells",
+    "body": [
+      "${1:result} = ${2:instance}.getEmptyCells(${3:condition})"
+    ],
+    "description": "Get all empty cells, optionally filtered by a condition."
   },
   "SGCellType.getEntities": {
     "prefix": "sgcelltype.getEntities",
@@ -1505,6 +1743,20 @@
     ],
     "description": "Create a stack of multiple tiles on a specific cell."
   },
+  "SGTileType.newStackOnCellFromCSV": {
+    "prefix": "sgtiletype.newStackOnCellFromCSV",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a stack of tiles from a CSV file with flexible column mapping."
+  },
+  "SGTileType.newStackOnCellWithPairedData": {
+    "prefix": "sgtiletype.newStackOnCellWithPairedData",
+    "body": [
+      "${1:entity} = ${2:entity_type}.${method_name}(${3:})"
+    ],
+    "description": "Create a stack of tiles where each tile gets a specific image and attributes in guaranteed correspondence."
+  },
   "SGTileType.newTileAtCoords": {
     "prefix": "sgtiletype.newTileAtCoords",
     "body": [
@@ -1920,6 +2172,84 @@
     ],
     "description": "Tests if the the value of an attribut if equal to a value"
   },
+  "SGGrid.setOwners": {
+    "prefix": "sggrid.setOwners",
+    "body": [
+      "${1:instance}.setOwners(${2:value})"
+    ],
+    "description": "Set the owners of this grid."
+  },
+  "SGGrid.getCell_withCoords": {
+    "prefix": "sggrid.getCell_withCoords",
+    "body": [
+      "${1:result} = ${2:instance}.getCell_withCoords(${3:x}, ${4:y})"
+    ],
+    "description": "Get the cell with the given coordinates"
+  },
+  "SGGrid.getCell_withId": {
+    "prefix": "sggrid.getCell_withId",
+    "body": [
+      "${1:result} = ${2:instance}.getCell_withId(${3:cell_id})"
+    ],
+    "description": "Get the cell with the given id"
+  },
+  "SGGrid.getCells": {
+    "prefix": "sggrid.getCells",
+    "body": [
+      "${1:result} = ${2:instance}.getCells()"
+    ],
+    "description": "Get the cells of this grid"
+  },
+  "SGGrid.getCells_withColumn": {
+    "prefix": "sggrid.getCells_withColumn",
+    "body": [
+      "${1:result} = ${2:instance}.getCells_withColumn(${3:columnNumber})"
+    ],
+    "description": "Return the cells at a specified column."
+  },
+  "SGGrid.getCells_withRow": {
+    "prefix": "sggrid.getCells_withRow",
+    "body": [
+      "${1:result} = ${2:instance}.getCells_withRow(${3:rowNumber})"
+    ],
+    "description": "Return the cells at a specified column."
+  },
+  "SGGrid.getCellType": {
+    "prefix": "sggrid.getCellType",
+    "body": [
+      "${1:result} = ${2:instance}.getCellType()"
+    ],
+    "description": "Get the cell type of this grid"
+  },
+  "SGGrid.getOwner": {
+    "prefix": "sggrid.getOwner",
+    "body": [
+      "${1:result} = ${2:instance}.getOwner()"
+    ],
+    "description": "Get the first owner of this grid"
+  },
+  "SGGrid.getOwners": {
+    "prefix": "sggrid.getOwners",
+    "body": [
+      "${1:result} = ${2:instance}.getOwners()"
+    ],
+    "description": "Get the owners of this grid"
+  },
+  "SGGrid.cellIdFromCoords": {
+    "prefix": "sggrid.cellIdFromCoords",
+    "body": [
+      "${1:result} = ${2:instance}.cellIdFromCoords(${3:x}, ${4:y})"
+    ],
+    "description": ""
+  },
+  "SGGrid.isOwnedBy": {
+    "prefix": "sggrid.isOwnedBy",
+    "body": [
+      "if ${1:instance}.isOwnedBy(${2:user}):",
+      "    ${3:pass}"
+    ],
+    "description": "Check if this grid is owned by a user."
+  },
   "SGLegend.setBorderColor": {
     "prefix": "sglegend.setBorderColor",
     "body": [
@@ -2158,6 +2488,13 @@
     ],
     "description": "Apply a saved theme configuration to listed GameSpaces."
   },
+  "SGModel.completeDistributedGameSetup": {
+    "prefix": "sgmodel.completeDistributedGameSetup",
+    "body": [
+      "${1:result} = ${2:instance}.completeDistributedGameSetup()"
+    ],
+    "description": "Complete distributed game setup by selecting assigned player and registering on MQTT."
+  },
   "SGModel.createVoid": {
     "prefix": "sgmodel.createVoid",
     "body": [
@@ -2171,6 +2508,13 @@
       "${1:result} = ${2:instance}.enableAutoSaveGameActionLogs(${3:format}, ${4:save_path})"
     ],
     "description": "Enable automatic saving of gameAction logs when the application is closed."
+  },
+  "SGModel.enableDistributedGame": {
+    "prefix": "sgmodel.enableDistributedGame",
+    "body": [
+      "${1:result} = ${2:instance}.enableDistributedGame(${3:num_players}, ${4:session_id}, ${5:shared_seed}, ${6:broker_host}, ${7:broker_port}, ${8:mqtt_update_type}, ${9:seed_sync_timeout})"
+    ],
+    "description": "Enable distributed multiplayer game mode."
   },
   "SGModel.exportGameActionLogs": {
     "prefix": "sgmodel.exportGameActionLogs",
@@ -2220,6 +2564,14 @@
       "${1:instance}.setShowIconsInContextMenu(${2:value})"
     ],
     "description": "Set whether to show icons in the context menu."
+  },
+  "SGModel.isDistributed": {
+    "prefix": "sgmodel.isDistributed",
+    "body": [
+      "if ${1:instance}.isDistributed():",
+      "    ${2:pass}"
+    ],
+    "description": "Check if distributed game mode is enabled."
   },
   "SGModel.getAgentsOfType": {
     "prefix": "sgmodel.getAgentsOfType",
@@ -2284,6 +2636,13 @@
     ],
     "description": ""
   },
+  "SGModel.getConnectedInstancesCount": {
+    "prefix": "sgmodel.getConnectedInstancesCount",
+    "body": [
+      "${1:result} = ${2:instance}.getConnectedInstancesCount(${3:default})"
+    ],
+    "description": "Get the number of connected instances in distributed game mode."
+  },
   "SGModel.getEntityType": {
     "prefix": "sgmodel.getEntityType",
     "body": [
@@ -2297,6 +2656,27 @@
       "${1:result} = ${2:instance}.getEntityTypes()"
     ],
     "description": ""
+  },
+  "SGModel.getGrid_withOwner": {
+    "prefix": "sgmodel.getGrid_withOwner",
+    "body": [
+      "${1:result} = ${2:instance}.getGrid_withOwner(${3:owner})"
+    ],
+    "description": "Get the first grid that belongs to a specific owner"
+  },
+  "SGModel.getGrids": {
+    "prefix": "sgmodel.getGrids",
+    "body": [
+      "${1:result} = ${2:instance}.getGrids()"
+    ],
+    "description": "Get all grids (gameSpaces that are SGGrid instances)"
+  },
+  "SGModel.getGrids_withOwner": {
+    "prefix": "sgmodel.getGrids_withOwner",
+    "body": [
+      "${1:result} = ${2:instance}.getGrids_withOwner(${3:owner})"
+    ],
+    "description": "Get all grids that belong to a specific owner"
   },
   "SGModel.deleteAllAgents": {
     "prefix": "sgmodel.deleteAllAgents",
@@ -2518,12 +2898,26 @@
     ],
     "description": "Get the tile with the lowest layer (bottom of the stack)"
   },
-  "SGStack.contains": {
-    "prefix": "sgstack.contains",
+  "SGStack.getLastSlotsFilled": {
+    "prefix": "sgstack.getLastSlotsFilled",
     "body": [
-      "${1:result} = ${2:instance}.contains(${3:tile})"
+      "${1:result} = ${2:instance}.getLastSlotsFilled()"
     ],
-    "description": "Check if a specific tile is in the stack"
+    "description": "Get the number of slots that were filled during the last call to refillAvailableSlots()."
+  },
+  "SGStack.getTilesWithFace": {
+    "prefix": "sgstack.getTilesWithFace",
+    "body": [
+      "${1:result} = ${2:instance}.getTilesWithFace(${3:face})"
+    ],
+    "description": "Get all tiles in the stack that have a specific face"
+  },
+  "SGStack.getTilesWithValue": {
+    "prefix": "sgstack.getTilesWithValue",
+    "body": [
+      "${1:result} = ${2:instance}.getTilesWithValue(${3:attribute}, ${4:value})"
+    ],
+    "description": "Get all tiles in the stack that have a specific attribute value"
   },
   "SGStack.maxLayer": {
     "prefix": "sgstack.maxLayer",
@@ -2538,20 +2932,6 @@
       "${1:result} = ${2:instance}.minLayer()"
     ],
     "description": "Get the minimum layer in the stack"
-  },
-  "SGStack.refillAvailableSlots": {
-    "prefix": "sgstack.refillAvailableSlots",
-    "body": [
-      "${1:result} = ${2:instance}.refillAvailableSlots()"
-    ],
-    "description": "Refill available slots using the Open Drafting configuration."
-  },
-  "SGStack.shuffle": {
-    "prefix": "sgstack.shuffle",
-    "body": [
-      "${1:result} = ${2:instance}.shuffle()"
-    ],
-    "description": "Shuffle the tiles in the stack and reassign layers from 1 to N"
   },
   "SGStack.size": {
     "prefix": "sgstack.size",
@@ -2574,26 +2954,12 @@
     ],
     "description": "Get the tile with the highest layer (top of the stack)"
   },
-  "SGStack.getLastSlotsFilled": {
-    "prefix": "sgstack.getLastSlotsFilled",
+  "SGStack.contains": {
+    "prefix": "sgstack.contains",
     "body": [
-      "${1:result} = ${2:instance}.getLastSlotsFilled()"
+      "${1:result} = ${2:instance}.contains(${3:tile})"
     ],
-    "description": "Get the number of slots that were filled during the last call to refillAvailableSlots()."
-  },
-  "SGStack.getTilesWithFace": {
-    "prefix": "sgstack.getTilesWithFace",
-    "body": [
-      "${1:result} = ${2:instance}.getTilesWithFace(${3:face})"
-    ],
-    "description": "Get all tiles in the stack that have a specific face"
-  },
-  "SGStack.getTilesWithValue": {
-    "prefix": "sgstack.getTilesWithValue",
-    "body": [
-      "${1:result} = ${2:instance}.getTilesWithValue(${3:attribute}, ${4:value})"
-    ],
-    "description": "Get all tiles in the stack that have a specific attribute value"
+    "description": "Check if a specific tile is in the stack"
   },
   "SGStack.isEmpty": {
     "prefix": "sgstack.isEmpty",
@@ -2602,6 +2968,27 @@
       "    ${2:pass}"
     ],
     "description": "Check if the stack is empty"
+  },
+  "SGStack.refillAvailableSlots": {
+    "prefix": "sgstack.refillAvailableSlots",
+    "body": [
+      "${1:result} = ${2:instance}.refillAvailableSlots()"
+    ],
+    "description": "Refill available slots using the Open Drafting configuration."
+  },
+  "SGStack.setTileAtLayer": {
+    "prefix": "sgstack.setTileAtLayer",
+    "body": [
+      "${1:instance}.setTileAtLayer(${2:tile}, ${3:target_layer})"
+    ],
+    "description": "Position a tile at a specific layer in the stack."
+  },
+  "SGStack.shuffle": {
+    "prefix": "sgstack.shuffle",
+    "body": [
+      "${1:result} = ${2:instance}.shuffle()"
+    ],
+    "description": "Shuffle the tiles in the stack and reassign layers from 1 to N"
   },
   "SGStack.setOpenDrafting": {
     "prefix": "sgstack.setOpenDrafting",
@@ -2813,6 +3200,13 @@
     ],
     "description": "Get the currently visible face of this tile."
   },
+  "SGTile.getGrid": {
+    "prefix": "sgtile.getGrid",
+    "body": [
+      "${1:result} = ${2:instance}.getGrid()"
+    ],
+    "description": "Get the grid associated with this entity."
+  },
   "SGTile.getId": {
     "prefix": "sgtile.getId",
     "body": [
@@ -2826,6 +3220,13 @@
       "${1:result} = ${2:instance}.getLayer()"
     ],
     "description": "Get the layer (z-index) of this tile in its stack."
+  },
+  "SGTile.getType": {
+    "prefix": "sgtile.getType",
+    "body": [
+      "${1:result} = ${2:instance}.getType()"
+    ],
+    "description": "Get the entity type (entity definition)."
   },
   "SGTile.getValue": {
     "prefix": "sgtile.getValue",
@@ -2929,6 +3330,27 @@
       "${1:instance}.setLabelStyle(${2:value})"
     ],
     "description": "Set the style of all labels."
+  },
+  "SGTimeLabel.setPhaseNameFormat": {
+    "prefix": "sgtimelabel.setPhaseNameFormat",
+    "body": [
+      "${1:instance}.setPhaseNameFormat(${2:value})"
+    ],
+    "description": "Set the format template for the phase name label."
+  },
+  "SGTimeLabel.setPhaseNumberFormat": {
+    "prefix": "sgtimelabel.setPhaseNumberFormat",
+    "body": [
+      "${1:instance}.setPhaseNumberFormat(${2:value})"
+    ],
+    "description": "Set the format template for the phase number label."
+  },
+  "SGTimeLabel.setRoundNumberFormat": {
+    "prefix": "sgtimelabel.setRoundNumberFormat",
+    "body": [
+      "${1:instance}.setRoundNumberFormat(${2:value})"
+    ],
+    "description": "Set the format template for the round number label."
   },
   "SGTimeLabel.setTitleText": {
     "prefix": "sgtimelabel.setTitleText",

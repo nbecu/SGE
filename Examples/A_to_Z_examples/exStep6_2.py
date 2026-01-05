@@ -62,7 +62,7 @@ myModel.newModelPhase(aModelAction4, name="Score Time!")
 # This game will be declared ended when the score declared in the DashBoard is equal to 90. 
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(i1, "equal", 90, name="Score equal to 90")
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 
 myModel.launch() 
 

@@ -42,6 +42,11 @@ class SGTimeManager():
             #reset GameActions count
             for action in self.model.getAllGameActions():
                 action.reset()
+            # Update end game conditions text after round change
+            # This ensures countdown is updated correctly when entering final round
+            for aCond in self.conditionOfEndGame:
+                if aCond.endGameRule.displayRefresh == 'instantaneous':
+                    aCond.updateText()
         ## This case is to advance to the next phase wthin the same round
         else :
             self.currentPhaseNumber += 1
@@ -115,6 +120,7 @@ class SGTimeManager():
     def checkEndGame(self):
         endGame = False
         counter = 0
+        endGameRule = None
         for aCond in self.conditionOfEndGame:
             aCond.verifStatus()
             # Note: Auto-show is now handled in byCalcType() when condition is first detected
@@ -125,9 +131,13 @@ class SGTimeManager():
                 counter = counter+1
                 if counter >= aCond.endGameRule.numberRequired:
                     endGame = True
+                    endGameRule = aCond.endGameRule
                     break
         if endGame:
             print("Game Over!")
+            # Activate end game display (banner and/or highlight)
+            if endGameRule and hasattr(endGameRule, 'activateEndGameDisplay'):
+                endGameRule.activateEndGameDisplay()
         return endGame
     
     #Update

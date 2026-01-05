@@ -33,7 +33,7 @@ score1_demo = myModel.newSimVariable("Score Demo", 0)
 dashboard_demo = myModel.newDashBoard("Demo Dashboard")
 indicator_demo = dashboard_demo.addIndicatorOnSimVariable(score1_demo)
 endGameRule_A.addEndGameCondition_onIndicator(indicator_demo, "greater", 50, name="Score > 50")
-endGameRule_A.showEndGameConditions()
+endGameRule_A.displayEndGameConditions()
 
 # ============================================================================
 # Syntax 2: Style methods after creation
@@ -58,7 +58,7 @@ endGameRule_B.setBackgroundColor(Qt.lightGreen)
 endGameRule_B.setTextColor(Qt.darkGreen)
 # Add an example condition to display text
 endGameRule_B.addEndGameCondition_onIndicator(indicator_demo, "greater", 75, name="Score > 75")
-endGameRule_B.showEndGameConditions()
+endGameRule_B.displayEndGameConditions()
 
 # ============================================================================
 # Syntax 3: Mix both syntaxes

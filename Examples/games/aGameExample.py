@@ -87,7 +87,7 @@ endGameRule.addEndGameCondition_onIndicator(
     i1, "greater", 100, name="Resource greater than 100")
 endGameRule.addEndGameCondition_onEntity(
     Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell(1-5) Resource is greater than 2",aGrid=Cell.grid)
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 
 # STEP7 TextBox
 TextBox = myModel.newTextBox(

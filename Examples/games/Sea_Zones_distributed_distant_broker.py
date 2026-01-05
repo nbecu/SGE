@@ -11,7 +11,7 @@ from mainClasses.SGSGE import *
 monApp = QtWidgets.QApplication([])
 
 # Model creation
-myModel = SGModel(1200, 900, windowTitle="Sea Zones")
+myModel = SGModel(1200, 850, windowTitle="Sea Zones")
 myModel.displayTimeInWindowTitle()
 
 # ============================================================================
@@ -24,7 +24,6 @@ myModel.displayTimeInWindowTitle()
 # 3. Player selection happens later when the game window opens
 
 myModel.enableDistributedGame(num_players=(2,4),broker_host="91.173.78.45", broker_port=18883)
-# myModel.enableDistributedGame(num_players=4)
 nb_players = myModel.getConnectedInstancesCount(default=4) 
 
 # The seed is synchronized and applied automatically by enableDistributedGame()
@@ -112,7 +111,6 @@ port_tile.flip()  # Show port tile face up
 ending_tile = SeaTile.getEntities_withValue("tile_name", "maree_basse")[0]
 # Position the ending tile at a random layer between 1 and 10
 target_layer = random.randint(1, 10)
-# target_layer = random.randint(49, 50)
 deck_stack.setTileAtLayer(ending_tile, target_layer)
 
 # ============================================================================
@@ -351,8 +349,8 @@ for i, player in enumerate(Players.values(), start=1):
 # ============================================================================
 scoreDashboard = myModel.newDashBoard()
 for player in Players.values():
-    scoreDashboard.addIndicatorOnEntity(player, "score",title= player.name)
-scoreDashboard.moveToCoords(670, 630)
+    scoreDashboard.addIndicatorOnEntity(player, "score",title= f'Score of {player.name}')
+scoreDashboard.moveToCoords(520, 700)
 
 # ============================================================================
 # Create pick tile action: Pick a tile from river to player's board
@@ -373,7 +371,8 @@ pickTileTemplate = myModel.newActivateAction(
     method=pickTileFromRiver,
     conditions=[
         lambda tile: tile.cell.type == River,  # Tile must be in river
-        lambda tile: tile.isFaceFront()  # Tile must be face front (visible)
+        lambda tile: tile.isFaceFront(),  # Tile must be face front (visible)
+        lambda tile: tile != ending_tile # Tile must not be the ending tile
     ],
     label="Pick Tile",
     action_controler={"directClick": True}
@@ -410,17 +409,26 @@ for i in range(1, nb_players + 1):
 TL = myModel.newTimeLabel(displayPhaseNumber=False,roundNumberFormat="Round {roundNumber}")
 TL.moveToCoords(1080, 25)
 
-endGameRule =myModel.newEndGameRule()
+endGameRule =myModel.newEndGameRule(title='The game ends when')
 # Add an end game condition with trigger delay
 # delay_rounds: number of remaining rounds after the condition is met (here 1 complete round)
 # final_phase: 'last phase' to end at the last phase of the round
 endGameRule.addEndGameCondition_onLambda(
     lambda: ending_tile.isFaceFront(), 
-    name="Last round of the game",
+    name='the tile  "low tide"  is drawn',
     delay_rounds=1,  # 1 round remaining after the condition is met
     # final_phase='last phase'  # End at the last phase of the round
     final_phase= (myModel.timeManager.numberOfPhases() -2)
 )
+endGameRule.displayEndGameConditions()
+endGameRule.moveToCoords(0, 750)
+endGameRule.setEndGameDisplay(
+    mode='highlight + banner',
+    countdown_display_mode='rounds_only',
+    banner_position='bottom',
+    banner_text='The game is over',
+    animation_enabled=True,
+    animation_duration=4)
 
 # Launch the game
 myModel.launch()

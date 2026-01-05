@@ -44,7 +44,7 @@ myModel.displayTimeInWindowTitle()
 endGameRule=myModel.newEndGameRule()
 endGameRule.addEndGameCondition_onIndicator(
     score_indicator, "equal", 30, name="All agents are happy")
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 endGameRule.setLayoutOrder(4)
 
 myModel.launch()

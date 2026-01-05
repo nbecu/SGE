@@ -202,7 +202,7 @@ def eat(aSheep):
 # Add end game condition
 endGameRule.addEndGameCondition_onIndicator(
     i1, "greater", 90, name="Score greater than 90")
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 
 myModel.setCurrentPlayer("Player1")
 

@@ -73,7 +73,7 @@ endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Resource equal to 90")
 endGameRule.addEndGameCondition_onEntity(
     Cell.getEntity(1,5), 'Resource', "greater", 2, name="Cell 1-5 Resource is greater than 2",aGrid=Cell.grid)
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 
 
 # Option 1: Use localhost (default)

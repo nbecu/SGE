@@ -137,7 +137,6 @@ i6 = DashBoard.addIndicator('Bird', "sumAtt", attribute='nb reproduction',color=
 
 
 myModel.launch()
-# myModel.launch_withMQTT("Instantaneous") # https://mosquitto.org/download/
 
 
 sys.exit(monApp.exec_())

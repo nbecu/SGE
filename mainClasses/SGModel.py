@@ -181,6 +181,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         self.userSelector = None
         self.myTimeLabel = None
+        self.endGameBanner = None  # Widget for end game banner
 
         self.listOfSubChannel = []
         self.listOfMajs = []
@@ -2540,7 +2541,10 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         return aDashBoard
 
     # To create a new end game rule
-    def newEndGameRule(self, title='EndGame Rules', numberRequired=1, displayRefresh='instantaneous', isDisplay=True, borderColor=Qt.black, backgroundColor=Qt.lightGray, layout="vertical", textColor=Qt.black):
+    def newEndGameRule(self, title='EndGame Rules', numberRequired=1, displayRefresh='instantaneous', isDisplay=True, borderColor=Qt.black, backgroundColor=Qt.lightGray, layout="vertical", textColor=Qt.black,
+                       endGameDisplayMode='highlight', endGameBannerText='Game over', endGameBannerColor=Qt.red, endGameBannerPosition='top',
+                       endGameHighlightEnabled=True, endGameHighlightBorderColor=Qt.green, endGameHighlightBorderSize=4, endGameHighlightBackgroundColor=Qt.lightGreen,
+                       endGameAnimationEnabled=False, endGameAnimationDuration=5):
         """
         Create the EndGame Rule Board of the game
 
@@ -2553,9 +2557,22 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             backgroundColor (QColor) : background color (default : Qt.lightGray)
             layout (str) : layout orientation (default : vertical)
             textColor (QColor) : text color (default : Qt.black)
+            endGameDisplayMode (str) : Display mode - 'banner', 'highlight', 'highlight + banner', or 'none' (default: 'highlight')
+            endGameBannerText (str) : Banner text displayed when game ends (default: 'Game over')
+            endGameBannerColor (QColor) : Banner background color (default: Qt.red)
+            endGameBannerPosition (str) : Banner position - 'top' or 'bottom' (default: 'top')
+            endGameHighlightEnabled (bool) : Enable highlighting of widget (default: True)
+            endGameHighlightBorderColor (QColor) : Highlight border color (default: Qt.green)
+            endGameHighlightBorderSize (int) : Highlight border size in pixels (default: 4)
+            endGameHighlightBackgroundColor (QColor) : Highlight background color (default: Qt.lightGreen)
+            endGameAnimationEnabled (bool) : Enable pulse animation (default: False)
+            endGameAnimationDuration (float) : Animation duration in seconds (default: 5)
         """
-        # Create with default values (will be overridden by setters below)
-        aEndGameRule = SGEndGameRule(self, title, numberRequired, displayRefresh, isDisplay)
+        # Create with all parameters including end game display configuration
+        aEndGameRule = SGEndGameRule(self, title, numberRequired, displayRefresh, isDisplay, borderColor, backgroundColor, layout, textColor,
+                                     endGameDisplayMode, endGameBannerText, endGameBannerColor, endGameBannerPosition,
+                                     endGameHighlightEnabled, endGameHighlightBorderColor, endGameHighlightBorderSize, endGameHighlightBackgroundColor,
+                                     endGameAnimationEnabled, endGameAnimationDuration)
         self.gameSpaces[title] = aEndGameRule
         self.endGameRule = aEndGameRule
 
@@ -3371,6 +3388,49 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             raise ValueError(f"No valid image files found in directory: {images_dir}")
         
         return valid_images
+    
+    def _showEndGameBanner(self, text, color, position='top'):
+        """
+        Show the end game banner at the top or bottom of the window.
+        This is called automatically by SGEndGameRule when the game ends.
+        
+        Args:
+            text (str): Banner text
+            color (QColor or GlobalColor): Banner background color (can be QColor or Qt color enum like Qt.red)
+            position (str): 'top' or 'bottom'
+        """
+        # Convert color to QColor if it's a GlobalColor (like Qt.red)
+        if not isinstance(color, QColor):
+            color = QColor(color)
+        
+        if self.endGameBanner is None:
+            # Create banner widget
+            self.endGameBanner = QtWidgets.QLabel(self)
+            self.endGameBanner.setAlignment(Qt.AlignCenter)
+            font = QFont()
+            font.setBold(True)
+            font.setPointSize(16)
+            self.endGameBanner.setFont(font)
+            self.endGameBanner.setStyleSheet(f"background-color: {color.name()}; color: white; padding: 10px;")
+            self.endGameBanner.setVisible(False)
+        
+        # Set text and position
+        self.endGameBanner.setText(text)
+        self.endGameBanner.adjustSize()
+        
+        # Position banner
+        window_width = self.width()
+        banner_height = self.endGameBanner.height()
+        if position == 'top':
+            self.endGameBanner.setGeometry(0, 0, window_width, banner_height)
+        else:  # bottom
+            window_height = self.height()
+            self.endGameBanner.setGeometry(0, window_height - banner_height, window_width, banner_height)
+        
+        # Show banner
+        self.endGameBanner.setVisible(True)
+        self.endGameBanner.raise_()  # Bring to front
+        self.endGameBanner.update()
 
 
     

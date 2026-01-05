@@ -28,6 +28,9 @@ class SGEndGameCondition(QtWidgets.QWidget):
         self.final_phase = final_phase  # Final phase: int (phase number), str (phase name or 'last phase'), or phase instance
         self.end_round = None  # Calculated round when the game should end
         self.end_phase = None  # Calculated phase number when the game should end
+        # Countdown display configuration
+        self.countdown_separator = ' ➜ '  # Separator between condition name and countdown
+        self.countdown_display_mode = 'rounds_and_phases'  # 'rounds_only' or 'rounds_and_phases'
         self.initUI()
 
     def initUI(self):
@@ -58,15 +61,30 @@ class SGEndGameCondition(QtWidgets.QWidget):
         # Only update UI if the endGameRule is displayed
         if not (hasattr(self.endGameRule, '_conditions_shown') and self.endGameRule._conditions_shown):
             return
-        if self.checkStatus:
+        
+        # Show checkmark if condition is detected (end_round calculated) OR if checkStatus is True
+        condition_detected = self.end_round is not None
+        if condition_detected or self.checkStatus:
             # Indicate validation with a green check mark label on the left
             color = self.endGameRule.success_aspect.color
             self.statusLabel.setText("✓")
             # Apply green from success aspect if available
             self.statusLabel.setStyleSheet(f"color: {color}; font-weight: bold;")
             self.statusLabel.setVisible(True)
+            
+            # Build text with countdown if condition detected but not yet ended
+            remaining_time_text = self.getRemainingTimeText()
+            if remaining_time_text:
+                # Condition detected but not ended: show countdown
+                full_text = self.name + self.countdown_separator + remaining_time_text
+            else:
+                # Game ended: show only condition name
+                full_text = self.name
+            self.label.setText(full_text)
         else:
             self.statusLabel.setVisible(False)
+            self.label.setText(self.name)
+        
         # Ask parent to update its size from layout
         if hasattr(self.endGameRule, 'updateSizeFromLayout'):
             self.endGameRule.updateSizeFromLayout(self.endGameRule.layout)
@@ -160,7 +178,11 @@ class SGEndGameCondition(QtWidgets.QWidget):
             # This informs players that they are entering the last round
             if not (hasattr(self.endGameRule, '_conditions_shown') and self.endGameRule._conditions_shown):
                 if self.endGameRule.isDisplay:
-                    self.endGameRule.showEndGameConditions()
+                    # Use displayEndGameConditions if available, otherwise fallback to showEndGameConditions
+                    if hasattr(self.endGameRule, 'displayEndGameConditions'):
+                        self.endGameRule.displayEndGameConditions()
+                    else:
+                        self.endGameRule.displayEndGameConditions()
         
         # Check if we have reached the end round and phase
         if condition_met:
@@ -237,6 +259,106 @@ class SGEndGameCondition(QtWidgets.QWidget):
             return current_phase >= self.end_phase
         else:
             return False
+    
+    def getRemainingTimeText(self):
+        """
+        Calculate and return the remaining time text (rounds/phases) as a formatted string.
+        Returns empty string if condition is not detected or game has ended.
+        
+        The display format depends on countdown_display_mode:
+        - 'rounds_only': Shows only rounds remaining
+        - 'rounds_and_phases': Shows both rounds and phases remaining (default)
+        
+        Returns:
+            str: Formatted text like "Last round (1 round, 2 phases remaining)" or "Last round (1 round remaining)" or empty string
+        """
+        # Only show countdown if condition is detected but game hasn't ended yet
+        if self.end_round is None or self.checkStatus:
+            return ""
+        
+        timeManager = self.endGameRule.model.timeManager
+        current_round = timeManager.currentRoundNumber
+        current_phase = timeManager.currentPhaseNumber
+        total_phases = timeManager.numberOfPhases()
+        
+        # Calculate remaining rounds
+        remaining_rounds = self.end_round - current_round
+        
+        # Special case: we're in the final round
+        # Check if we're in the final round (current_round == end_round) OR if remaining_rounds is 0 or negative
+        if current_round == self.end_round:
+            # We're in the final round
+            if self.countdown_display_mode == 'rounds_only':
+                # In rounds_only mode, just show "Final round" without phases
+                return "Final round"
+            else:
+                # In rounds_and_phases mode, show phases remaining
+                remaining_phases = max(0, self.end_phase - current_phase)
+                if remaining_phases > 0:
+                    return f"Final round ({remaining_phases} phase{'s' if remaining_phases > 1 else ''} remaining)"
+                else:
+                    # Should not happen (game should be ended), but handle gracefully
+                    return ""
+        elif remaining_rounds <= 0:
+            # Edge case: remaining_rounds is 0 or negative (shouldn't normally happen, but handle it)
+            # This means we're in or past the final round
+            if current_round > self.end_round:
+                # Past the end round (shouldn't happen, game should have ended)
+                return ""
+            else:
+                # remaining_rounds == 0: we're at the start of the final round
+                if self.countdown_display_mode == 'rounds_only':
+                    # In rounds_only mode, just show "Final round" without phases
+                    return "Final round"
+                else:
+                    # In rounds_and_phases mode, calculate and show phases remaining
+                    phases_in_current_round = total_phases - current_phase + 1  # +1 because we're in current phase
+                    phases_in_end_round = self.end_phase
+                    remaining_phases = phases_in_current_round + phases_in_end_round
+                    if remaining_phases > 0:
+                        return f"Final round ({remaining_phases} phase{'s' if remaining_phases > 1 else ''} remaining)"
+                    else:
+                        return ""
+        
+        # If rounds_only mode, only show rounds (same format as rounds_and_phases)
+        if self.countdown_display_mode == 'rounds_only':
+            if remaining_rounds <= 0:
+                return ""
+            elif remaining_rounds == 1:
+                return "Time before end game: 1 round remaining"
+            else:
+                return f"Time before end game: {remaining_rounds} rounds remaining"
+        
+        # rounds_and_phases mode: calculate and show both
+        # Calculate remaining phases (we know current_round < end_round here)
+        # Only count phases in the final round, NOT phases in intermediate rounds
+        # Example: Round 1 -> Round 2 phase 3: "1 round and 3 phases" (not all phases of Round 1 + Round 2)
+        # Example: Round 1 -> Round 3 phase 3: "2 rounds and 3 phases" (not all phases of Round 1 + Round 2 + Round 3)
+        remaining_phases = self.end_phase  # Only count phases in the final round until end_phase
+        
+        # Build text based on what's remaining (for rounds > 0)
+        parts = []
+        if remaining_rounds > 0:
+            if remaining_rounds == 1:
+                parts.append("1 round")
+            else:
+                parts.append(f"{remaining_rounds} rounds")
+        
+        if remaining_phases > 0:
+            if remaining_phases == 1:
+                parts.append("1 phase")
+            else:
+                parts.append(f"{remaining_phases} phases")
+        
+        if not parts:
+            return ""
+        
+        # Format: "Time before end game: X and Y remaining"
+        if len(parts) == 1:
+            return f"Time before end game: {parts[0]} remaining"
+        else:
+            # Join with "and" instead of comma
+            return f"Time before end game: {' and '.join(parts)} remaining"
 
     def logicalTests(self, valueToCheck, logicalTest, objective):
         if logicalTest == 'equal':

@@ -61,7 +61,7 @@ DashBoard.addIndicatorOnEntity(Cell.getCell(4,6),'landUse',logicOp='equal',value
 endGameRule = myModel.newEndGameRule(numberRequired=1)
 endGameRule.addEndGameCondition_onIndicator(
     i1, "equal", 90, name="Score equal to 90")
-endGameRule.showEndGameConditions()
+endGameRule.displayEndGameConditions()
 
 # You can add TextBoxes to your game
 # You can cuztomize the text, the title color and font by using the proper functions.
