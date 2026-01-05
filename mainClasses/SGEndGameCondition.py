@@ -53,6 +53,11 @@ class SGEndGameCondition(QtWidgets.QWidget):
 
     def updateText(self):
         self.verifStatus()
+        # Note: Auto-show is now handled in byCalcType() when condition is first detected
+        # This ensures the widget appears immediately when condition is met, even with delay_rounds
+        # Only update UI if the endGameRule is displayed
+        if not (hasattr(self.endGameRule, '_conditions_shown') and self.endGameRule._conditions_shown):
+            return
         if self.checkStatus:
             # Indicate validation with a green check mark label on the left
             color = self.endGameRule.success_aspect.color
@@ -150,6 +155,12 @@ class SGEndGameCondition(QtWidgets.QWidget):
             
             # Calculate end phase number from final_phase parameter
             self.end_phase = self._convertFinalPhaseToPhaseNumber(timeManager, current_phase)
+            
+            # Auto-show endGameRule when condition is first detected (even with delay_rounds)
+            # This informs players that they are entering the last round
+            if not (hasattr(self.endGameRule, '_conditions_shown') and self.endGameRule._conditions_shown):
+                if self.endGameRule.isDisplay:
+                    self.endGameRule.showEndGameConditions()
         
         # Check if we have reached the end round and phase
         if condition_met:

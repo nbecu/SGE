@@ -25,7 +25,7 @@ myModel.displayTimeInWindowTitle()
 
 myModel.enableDistributedGame(num_players=(2,4))
 # myModel.enableDistributedGame(num_players=4)
-nb_players = myModel.getConnectedInstancesCount(default=4) 
+nb_players = myModel.getConnectedInstancesCount(default=2) 
 
 # The seed is synchronized and applied automatically by enableDistributedGame()
 
@@ -112,7 +112,7 @@ port_tile.flip()  # Show port tile face up
 ending_tile = SeaTile.getEntities_withValue("tile_name", "maree_basse")[0]
 # Position the ending tile at a random layer between 1 and 10
 target_layer = random.randint(1, 10)
-# target_layer = random.randint(49, 50)
+target_layer = random.randint(49, 50)
 deck_stack.setTileAtLayer(ending_tile, target_layer)
 
 # ============================================================================
@@ -410,17 +410,19 @@ for i in range(1, nb_players + 1):
 TL = myModel.newTimeLabel(displayPhaseNumber=False,roundNumberFormat="Round {roundNumber}")
 TL.moveToCoords(1080, 25)
 
-endGameRule =myModel.newEndGameRule()
+endGameRule =myModel.newEndGameRule(title='The game ends when')
 # Add an end game condition with trigger delay
 # delay_rounds: number of remaining rounds after the condition is met (here 1 complete round)
 # final_phase: 'last phase' to end at the last phase of the round
 endGameRule.addEndGameCondition_onLambda(
     lambda: ending_tile.isFaceFront(), 
-    name="Last round of the game",
+    name='the tile  "low tide"  is drawn',
     delay_rounds=1,  # 1 round remaining after the condition is met
     # final_phase='last phase'  # End at the last phase of the round
     final_phase= (myModel.timeManager.numberOfPhases() -2)
 )
+endGameRule.showEndGameConditions()
+
 
 # Launch the game
 myModel.launch()

@@ -28,6 +28,10 @@ class SGEndGameRule(SGGameSpace):
         self.endGameConditions = []
         self.numberRequired = numberRequired
         self.isDisplay = isDisplay
+        # Flag to track if showEndGameConditions() has been called
+        self._conditions_shown = False
+        # Hide widget by default until showEndGameConditions() is called
+        self.setVisible(False)
         if layout == 'vertical':
             self.layout = QtWidgets.QVBoxLayout()
         elif layout == 'horizontal':
@@ -60,6 +64,9 @@ class SGEndGameRule(SGGameSpace):
             self.onTextAspectsChanged()
             # Adjust size after layout configuration
             self.adjustSizeAfterLayout()
+            # Mark that conditions have been shown and make widget visible
+            self._conditions_shown = True
+            self.setVisible(True)
             self.show()
 
     # To add a condition to end the game
@@ -212,7 +219,8 @@ class SGEndGameRule(SGGameSpace):
                 painter.drawRect(0, 0, width, height)
 
     def checkDisplay(self):
-        if self.isDisplay:
+        # Only display if isDisplay is True AND showEndGameConditions() has been called
+        if self.isDisplay and self._conditions_shown:
             return True
         else:
             return False

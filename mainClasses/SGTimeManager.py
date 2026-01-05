@@ -117,6 +117,8 @@ class SGTimeManager():
         counter = 0
         for aCond in self.conditionOfEndGame:
             aCond.verifStatus()
+            # Note: Auto-show is now handled in byCalcType() when condition is first detected
+            # This ensures the widget appears immediately when condition is met, even with delay_rounds
             if aCond.endGameRule.displayRefresh == 'instantaneous':
                 aCond.updateText()
             if aCond.checkStatus:
