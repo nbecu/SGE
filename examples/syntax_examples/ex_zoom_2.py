@@ -54,7 +54,7 @@ aLegend = myModel.newLegend()
 aTextBox = myModel.newTextBox(
     "Test zoom on the different grids.\n"
     "Move the mouse over the grids and use the mouse wheel to zoom in/out.",
-    title="Zoom Instructions", sizeY=100
+    title="Zoom Instructions", height=100
 )
 
 myModel.launch()

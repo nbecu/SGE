@@ -50,7 +50,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Implement BotPlayer system for automated gameplay and testing (see BOT_PLAYER_SYSTEM.md)
 
 ### Multiplayer & Configuration
-- [ ] Improve model configuration management for multiplayer games
+- [ ] Adapt Solutre game to the new Distributed Game Session system
 
 ### Documentation & Tools 
 

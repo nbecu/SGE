@@ -35,12 +35,11 @@ aLegend.moveToCoords(350, 50)
 
 # Create instructions
 aTextBox = myModel.newTextBox(
-    "Test zoom with agents in square grid:\n"
-    "Red agents are positioned at center of square cells.\n"
+    "Test zoom with agents in hexagonal grid:\n"
+    "Red agents are positioned at center of hexagonal cells.\n"
     "Move mouse over the grid and use mouse wheel to zoom in/out.\n"
-    "Check that agents maintain their center position in squares.",
-    title="Square Agent Zoom Test", sizeY=100
-)
+    "Check that agents maintain their center position in hexagons.",
+    title="Agents in Hexagons - Zoom Test")
 aTextBox.moveToCoords(350, 200)
 
 myModel.launch()

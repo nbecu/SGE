@@ -39,8 +39,7 @@ aTextBox = myModel.newTextBox(
     "Red agents are positioned at center of square cells.\n"
     "Move mouse over the grid and use mouse wheel to zoom in/out.\n"
     "Check that agents maintain their center position in squares.",
-    title="Square Agent Zoom Test", sizeY=100
-)
+    title="Agents in Squares - Zoom Test")
 aTextBox.moveToCoords(350, 200)
 
 myModel.launch()
