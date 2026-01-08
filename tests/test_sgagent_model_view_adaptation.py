@@ -129,8 +129,8 @@ class TestSGAgentModelViewAdaptation(unittest.TestCase):
         # Test position methods
         self.assertIsNotNone(agent.getRandomX())
         self.assertIsNotNone(agent.getRandomY())
-        # getPositionInEntity sets coordinates but doesn't return anything
-        agent.getPositionInEntity()  # Should set xCoord and yCoord
+        # updatePositionInEntity sets coordinates but doesn't return anything
+        agent.updatePositionInEntity()  # Should set xCoord and yCoord
         self.assertIsNotNone(agent.xCoord)
         self.assertIsNotNone(agent.yCoord)
 

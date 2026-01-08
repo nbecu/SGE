@@ -49,10 +49,10 @@ class SGAgentView(SGEntityView):
         self.setAcceptDrops(True)
         
         # Don't position immediately - wait for grid layout to be applied
-        # self.getPositionInEntity()
+        # self.updatePositionInEntity()
     
-    def getPositionInEntity(self, saved_cell_position=None):
-        """Get the absolute position of the agent within its cell"""
+    def updatePositionInEntity(self, saved_cell_position=None):
+        """Update the absolute position of the agent within its cell"""
         # Use the agent model's current cell, not the view's cached cell
         current_cell = self.agent_model.cell
         
@@ -107,7 +107,7 @@ class SGAgentView(SGEntityView):
         """Update agent position when cell moves"""
         # Update the view's cell reference to match the model
         self.cell = self.agent_model.cell
-        self.getPositionInEntity()
+        self.updatePositionInEntity()
     
     def paintEvent(self, event):
         """Paint the agent"""

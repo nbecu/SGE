@@ -122,7 +122,7 @@ class SGTileView(SGEntityView):
     def getPositionInCell(self):
         """
         Calculate the absolute position of the tile within its cell
-        Similar to SGAgentView.getPositionInEntity but for tiles
+        Similar to SGAgentView.updatePositionInEntity but for tiles
         """
         if self.cell is None or not hasattr(self.cell, 'view'):
             return

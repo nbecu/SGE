@@ -58,7 +58,7 @@ class SGAgent(SGEntity):
         self.saveSize = size
         
         # Initialize position
-        self.getPositionInEntity()
+        self.updatePositionInEntity()
         
         # Initialize attributes
         self.initAttributesAndValuesWith(attributesAndValues)
@@ -112,7 +112,7 @@ class SGAgent(SGEntity):
             y = random.randint(startY, startY + maxSize - self.size)
         return y
     
-    def getPositionInEntity(self):
+    def updatePositionInEntity(self):
         maxSize = self.cell.size
         # Use cell coordinates instead of pos()
         startX = self.cell.startXBase + (self.cell.xCoord - 1) * (self.cell.size + self.cell.gap) + self.cell.gap
@@ -382,12 +382,12 @@ class SGAgent(SGEntity):
             # First placement
             self.cell = aDestinationCell
             self.cell.updateIncomingAgent(self)
-            self.getPositionInEntity()  # Update position
+            self.updatePositionInEntity()  # Update position
             if hasattr(self, 'view') and self.view is not None:
                 # Force layout recalculation before positioning
                 from PyQt5.QtWidgets import QApplication
                 QApplication.processEvents()
-                self.view.getPositionInEntity()  # Force view repositioning
+                self.view.updatePositionInEntity()  # Force view repositioning
                 self.view.show()  # Ensure view is visible
                 self.updateView()
             return self
@@ -410,12 +410,12 @@ class SGAgent(SGEntity):
             self.cell.updateIncomingAgent(self)
             
             # Update position and view
-            self.getPositionInEntity()
+            self.updatePositionInEntity()
             if hasattr(self, 'view') and self.view is not None:
                 # Force layout recalculation before positioning
                 from PyQt5.QtWidgets import QApplication
                 QApplication.processEvents()
-                self.view.getPositionInEntity()  # Force view repositioning
+                self.view.updatePositionInEntity()  # Force view repositioning
                 self.view.show()  # Ensure view is visible
                 self.updateView()
             

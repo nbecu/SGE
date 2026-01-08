@@ -50,9 +50,9 @@ class SGCell(SGEntity):
         # Initialize attributes from type
         self.initAttributesAndValuesWith({})
         
-        # Create and link the view
-        self.view = SGCellView(self, type.grid)
-        self.setView(self.view)
+        # View will be created and linked by the factory (SGEntityFactory.newCellWithModelView)
+        # Don't create view here to avoid duplication
+        # The factory will call setView() to link the view
         
         # Type identification attributes
         self.isEntity = True

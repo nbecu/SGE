@@ -58,29 +58,49 @@ class SGCellView(SGEntityView):
             penColorAndWidth = self.getBorderColorAndWidth()
             painter.setPen(QPen(penColorAndWidth['color'], penColorAndWidth['width']))
             
-            # Calculate position based on current zoom
-            self.calculatePosition()
-            
             # Use current grid values for size
             current_size = self.grid.size
-                
-            # Base of the gameBoard
-            if(self.shape == "square"):
-                painter.drawRect(0, 0, current_size, current_size)
-                self.setMinimumSize(current_size, current_size + 1)
-                self.move(self.startX, self.startY)
-            elif(self.shape == "hexagonal"):
-                self.setMinimumSize(current_size, current_size)
-                points = QPolygon([
-                    QPoint(int(current_size / 2), 0),
-                    QPoint(current_size, int(current_size / 4)),
-                    QPoint(current_size, int(3 * current_size / 4)),
-                    QPoint(int(current_size / 2), current_size),
-                    QPoint(0, int(3 * current_size / 4)),
-                    QPoint(0, int(current_size / 4))              
-                ])
-                painter.drawPolygon(points)
-                self.move(self.startX, self.startY)
+            
+            # In magnifier mode, don't recalculate position or move cell
+            # Position is managed by grid's _updatePositionsForViewport()
+            if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
+                # Just draw the cell, position is managed by grid
+                if(self.shape == "square"):
+                    painter.drawRect(0, 0, current_size, current_size)
+                    self.setMinimumSize(current_size, current_size + 1)
+                elif(self.shape == "hexagonal"):
+                    self.setMinimumSize(current_size, current_size)
+                    points = QPolygon([
+                        QPoint(int(current_size / 2), 0),
+                        QPoint(current_size, int(current_size / 4)),
+                        QPoint(current_size, int(3 * current_size / 4)),
+                        QPoint(int(current_size / 2), current_size),
+                        QPoint(0, int(3 * current_size / 4)),
+                        QPoint(0, int(current_size / 4))              
+                    ])
+                    painter.drawPolygon(points)
+            else:
+                # In resize mode, calculate position and move cell
+                # Calculate position based on current zoom
+                self.calculatePosition()
+                    
+                # Base of the gameBoard
+                if(self.shape == "square"):
+                    painter.drawRect(0, 0, current_size, current_size)
+                    self.setMinimumSize(current_size, current_size + 1)
+                    self.move(self.startX, self.startY)
+                elif(self.shape == "hexagonal"):
+                    self.setMinimumSize(current_size, current_size)
+                    points = QPolygon([
+                        QPoint(int(current_size / 2), 0),
+                        QPoint(current_size, int(current_size / 4)),
+                        QPoint(current_size, int(3 * current_size / 4)),
+                        QPoint(int(current_size / 2), current_size),
+                        QPoint(0, int(3 * current_size / 4)),
+                        QPoint(0, int(current_size / 4))              
+                    ])
+                    painter.drawPolygon(points)
+                    self.move(self.startX, self.startY)
         else:
             # Cell is deleted/hidden, don't draw anything
             pass

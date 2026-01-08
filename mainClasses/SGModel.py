@@ -452,7 +452,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     agent.view.show()
                     agent.view.raise_()  # Bring to front
                     # Then position it
-                    agent.view.getPositionInEntity()
+                    agent.view.updatePositionInEntity()
                     # Force update to ensure positioning is applied
                     agent.view.update()
     
@@ -1863,7 +1863,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # NEW/ADD METHODS
 # ============================================================================
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open') -> SGCellType:
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode="resize") -> SGCellType:
         """
         Create a grid that contains cells.
         
@@ -1890,6 +1890,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             boundaries ("mopen","closed"): Boundary condition of the grid. Defaults to "open".
                 - "open": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.
                 - "closed": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).
+            zoomMode ("resize", "magnifier"): Zoom behavior mode. Defaults to "resize".
+                - "resize": Zoom changes the physical size of the grid widget (current behavior).
+                - "magnifier": Zoom creates a magnifying glass effect, keeping widget size fixed but zooming content.
 
         Returns:
             SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. 
@@ -1901,7 +1904,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             if name in self.gameSpaces:
                 name = name + 'bis'
         # Create a grid with default values (will be overridden by setters below)
-        aGrid = SGGrid(self, name, columns, rows, format, gap, size, None, moveable, backGroundImage, neighborhood, boundaries)
+        aGrid = SGGrid(self, name, columns, rows, format, gap, size, None, moveable, backGroundImage, neighborhood, boundaries, zoomMode)
         
         # Apply styles via modeler methods (ensures everything goes through gs_aspect)
         aGrid.setBackgroundColor(backgroundColor)
@@ -1916,6 +1919,13 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
         # add the gamespace to the layout
         self.layoutOfModel.addGameSpace(aGrid)
+        
+        # If in magnifier mode, initialize viewport and position cells
+        if aGrid.zoomMode == "magnifier":
+            # Initialize viewport to center
+            aGrid._resetViewport()
+            # Position all cells according to viewport
+            aGrid._updatePositionsForViewport()
         
         return aCellDef
     

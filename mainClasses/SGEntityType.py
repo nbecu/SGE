@@ -1206,8 +1206,14 @@ class SGCellType(SGEntityType):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         
-        # Show the view
-        cell_view.show()
+        # In magnifier mode, don't show cell until it's positioned by _updatePositionsForViewport()
+        # This prevents cells from appearing at 0,0 before being positioned
+        if hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier":
+            # Cell will be shown and positioned by _updatePositionsForViewport() in SGModel.newCellsOnGrid()
+            pass
+        else:
+            # In resize mode, show the view immediately (it will be positioned by calculatePosition in paintEvent)
+            cell_view.show()
         
         return cell_model, cell_view
 
@@ -1455,7 +1461,7 @@ class SGAgentType(SGEntityType):
         self.updateWatchersOnAllAttributes()
         
         # Position and show the agent
-        agent_view.getPositionInEntity()
+        agent_view.updatePositionInEntity()
         agent_view.show()
         
         return agent_model, agent_view
