@@ -424,7 +424,47 @@ class SGGrid(SGGameSpace):
                 entity_view.hide()
     
     def _updatePositionsForViewport(self):
-        """Update positions of all cells and agents based on viewport"""
+        """
+        Update positions of all cells, agents, and tiles based on viewport in magnifier mode.
+        
+        This is the central method of the magnifier mode system. It recalculates the positions
+        of all entities (cells, agents, tiles) when the viewport changes (zoom or pan).
+        
+        Flow of execution:
+        1. For each cell:
+           a. Calculate base position in grid coordinate space (using saveSize/saveGap)
+           b. Transform to widget coordinates using viewport and zoom:
+              widget_x = (grid_x - viewportX) * zoom + frameMargin
+              widget_y = (grid_y - viewportY) * zoom + frameMargin
+           c. Move cell to calculated position
+           d. Clip cell to visible area using _clipEntityToVisibleArea()
+        
+        2. For each agent on visible cells:
+           a. Calculate agent position relative to its cell (based on locationInEntity)
+           b. Calculate absolute position in widget coordinates
+           c. Move agent to calculated position
+           d. Clip agent to visible area using _clipEntityToVisibleArea()
+        
+        3. For each tile on visible cells:
+           a. Calculate tile position relative to its cell (based on position attribute)
+           b. Calculate absolute position in widget coordinates
+           c. Move tile to calculated position
+           d. Clip tile to visible area using _clipEntityToVisibleArea()
+        
+        This method is called from:
+        - updateGridSize(): When zoom level changes
+        - mouseMoveEvent(): During panning (Shift + drag)
+        - mouseReleaseEvent(): After panning ends
+        
+        Coordinate spaces:
+        - Grid coordinates: Unzoomed coordinates in grid space (without frameMargin)
+        - Widget coordinates: Zoomed coordinates relative to grid widget (with frameMargin)
+        - Viewport (viewportX, viewportY): Defines which part of grid is visible (in grid coordinates)
+        
+        Note:
+            This method only operates in magnifier mode. In resize mode, it returns immediately.
+            The viewport must be clamped (via _clampViewport()) before calling this method.
+        """
         if self.zoomMode != "magnifier":
             return
         
