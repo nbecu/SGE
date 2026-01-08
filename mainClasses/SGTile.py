@@ -412,6 +412,15 @@ class SGTile(SGEntity):
                 self.view.updatePositionFromCell()
                 self.view.show()  # Ensure view is visible
                 self.updateView()
+                
+                # Apply clipping if in magnifier mode
+                if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
+                    grid = aDestinationCell.type.grid
+                    if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                        tile_x = self.view.xCoord
+                        tile_y = self.view.yCoord
+                        tile_size = self.view.size if hasattr(self.view, 'size') else self.size
+                        grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
             return self
         else:
             # Movement from one cell to another
@@ -506,6 +515,15 @@ class SGTile(SGEntity):
                 self.view.updatePositionFromCell()
                 self.view.show()  # Ensure view is visible
                 self.updateView()
+                
+                # Apply clipping if in magnifier mode
+                if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
+                    grid = aDestinationCell.type.grid
+                    if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                        tile_x = self.view.xCoord
+                        tile_y = self.view.yCoord
+                        tile_size = self.view.size if hasattr(self.view, 'size') else self.size
+                        grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
             
             return self
 

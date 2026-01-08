@@ -455,6 +455,15 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                     agent.view.updatePositionInEntity()
                     # Force update to ensure positioning is applied
                     agent.view.update()
+                    
+                    # Apply clipping if in magnifier mode
+                    if hasattr(agent, 'cell') and agent.cell and hasattr(agent.cell, 'grid'):
+                        grid = agent.cell.grid
+                        if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                            agent_x = agent.view.xCoord
+                            agent_y = agent.view.yCoord
+                            agent_size = agent.view.size if hasattr(agent.view, 'size') else agent.size
+                            grid._clipEntityToVisibleArea(agent.view, agent_x, agent_y, agent_size)
     
     def positionAllTiles(self):
         """Position all tiles after grid layout is applied, respecting layer order"""

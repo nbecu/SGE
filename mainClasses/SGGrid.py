@@ -308,11 +308,9 @@ class SGGrid(SGGameSpace):
         if hasattr(self, '_viewport_locked') and self._viewport_locked:
             return
         
-        # getSizeXGlobal() and getSizeYGlobal() return dimensions WITHOUT frameMargin
-        # (except getSizeYGlobal() which includes it, but we'll handle that)
-        total_width = self.getSizeXGlobal()  # Without frameMargin
-        # getSizeYGlobal() includes frameMargin, so subtract it for consistency
-        total_height = self.getSizeYGlobal() - 2 * self.frameMargin  # Remove frameMargin for consistency
+        # Use getGridBoundsWidth/Height to get the actual boundaries (real position of last cell edges)
+        total_width = self.getGridBoundsWidth()
+        total_height = self.getGridBoundsHeight()
         
         # Use actual widget size if available, otherwise use original size
         widget_width = self.width() if self.width() > 0 else (self.originalWidth - 2 * self.frameMargin)
@@ -328,11 +326,13 @@ class SGGrid(SGGameSpace):
         
         self._clampViewport()
     
+    
     def _clampViewport(self):
         """Clamp viewport to grid boundaries"""
-        # getSizeXGlobal() returns without frameMargin, getSizeYGlobal() includes it
-        total_width = self.getSizeXGlobal()  # Without frameMargin
-        total_height = self.getSizeYGlobal() - 2 * self.frameMargin  # Remove frameMargin for consistency
+        # Use getGridBoundsWidth/Height to get the actual boundaries
+        total_width = self.getGridBoundsWidth()
+        total_height = self.getGridBoundsHeight()
+        
         widget_width = self.width() - 2 * self.frameMargin
         widget_height = self.height() - 2 * self.frameMargin
         
@@ -347,6 +347,60 @@ class SGGrid(SGGameSpace):
         # Clamp viewport to ensure no cells extend beyond boundaries
         self.viewportX = max(0, min(self.viewportX, max_viewport_x))
         self.viewportY = max(0, min(self.viewportY, max_viewport_y))
+    
+    def _clipEntityToVisibleArea(self, entity_view, entity_widget_x, entity_widget_y, entity_size):
+        """
+        Clip an entity (cell, agent, or tile) to the visible area in magnifier mode.
+        
+        Args:
+            entity_view: The view of the entity (SGCellView, SGAgentView, or SGTileView)
+            entity_widget_x: X position in widget coordinates
+            entity_widget_y: Y position in widget coordinates
+            entity_size: Size of the entity
+        """
+        if self.zoomMode != "magnifier":
+            return
+        
+        if entity_view is None:
+            return
+        
+        # Calculate visible area bounds (same as in _updatePositionsForViewport)
+        visible_left = self.frameMargin
+        visible_right = self.width() - self.frameMargin
+        visible_top = self.frameMargin
+        visible_bottom = self.height() - self.frameMargin
+        
+        # Calculate entity bounds
+        entity_left = entity_widget_x
+        entity_right = entity_widget_x + entity_size
+        entity_top = entity_widget_y
+        entity_bottom = entity_widget_y + entity_size
+        
+        # Check if entity is visible
+        if (entity_right > visible_left and entity_left < visible_right and 
+            entity_bottom > visible_top and entity_top < visible_bottom):
+            # Entity is at least partially visible - ensure it's shown
+            if not entity_view.isVisible():
+                entity_view.show()
+            
+            # Calculate clipping intersection
+            clip_x = max(0, visible_left - entity_left)
+            clip_y = max(0, visible_top - entity_top)
+            clip_right_in_entity = min(entity_size, visible_right - entity_left)
+            clip_bottom_in_entity = min(entity_size, visible_bottom - entity_top)
+            clip_width = max(0, clip_right_in_entity - clip_x)
+            clip_height = max(0, clip_bottom_in_entity - clip_y)
+            
+            # Apply clipping mask if entity overflows
+            if clip_x > 0 or clip_y > 0 or clip_width < entity_size or clip_height < entity_size:
+                clip_rect = QRect(int(clip_x), int(clip_y), int(clip_width), int(clip_height))
+                entity_view.setMask(QRegion(clip_rect))
+            else:
+                entity_view.clearMask()
+        else:
+            # Entity completely outside visible area
+            if entity_view.isVisible():
+                entity_view.hide()
     
     def _updatePositionsForViewport(self):
         """Update positions of all cells and agents based on viewport"""
@@ -482,12 +536,22 @@ class SGGrid(SGGameSpace):
                     # Move agent and force update
                     agent.view.move(int(agent_widget_x), int(agent_widget_y))
                     agent.view.update()  # Force repaint to update geometry
+                    
+                    # Clip agent to visible area
+                    self._clipEntityToVisibleArea(agent.view, agent_widget_x, agent_widget_y, agent_size)
             
             # Update tiles on this cell
             for tile in cell.getTilesHere():
                 if hasattr(tile, 'view') and tile.view:
                     # Update tile position relative to cell
                     tile.updatePositionFromCell()
+                    
+                    # Clip tile to visible area
+                    # Get tile position and size after updatePositionFromCell
+                    tile_widget_x = tile.view.xCoord
+                    tile_widget_y = tile.view.yCoord
+                    tile_size = tile.view.size if hasattr(tile.view, 'size') else (tile.entity_model.size if hasattr(tile.entity_model, 'size') else tile.view.size)
+                    self._clipEntityToVisibleArea(tile.view, tile_widget_x, tile_widget_y, tile_size)
         
         self.update()
     
@@ -749,19 +813,77 @@ class SGGrid(SGGameSpace):
 
     # Funtion to have the global size of a gameSpace
 
-    def getSizeXGlobal(self):
+    def getSizeXGlobal(self): #todo consider using getGridBoundsWidth instead
         if (self.cellShape == "square"):
             return int(self.columns*self.size+(self.columns+1)*self.gap+1)
         if (self.cellShape == "hexagonal"):
             return int(self.columns*self.size + self.columns*self.gap + self.size/2)
 
-    def getSizeYGlobal(self):
+    def getSizeYGlobal(self): #todo consider using getGridBoundsHeight instead
         if (self.cellShape == "square"):
             return int(self.rows*self.size+(self.rows+1)*self.gap + 2 * self.frameMargin)
         if (self.cellShape == "hexagonal"):
             adaptive_factor = self._calculate_hexagonal_adaptive_factor()
             hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
             return int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+    
+    def getGridBoundsWidth(self):
+        """
+        Get the actual width of the grid content (right edge of last cell).
+        This is the real boundary for viewport calculations, without extra pixels.
+        
+        Returns:
+            float: The X coordinate of the right edge of the last cell in grid coordinates
+        """
+        base_x = 0
+        
+        if self.cellShape == "square":
+            # Last column (xCoord = columns): grid_x = (columns - 1) * (saveSize + saveGap) + saveGap
+            # Right edge of last cell: grid_x + saveSize = columns * (saveSize + saveGap)
+            return self.columns * (self.saveSize + self.saveGap)
+        elif self.cellShape == "hexagonal":
+            # For hexagonal, calculate position of last cell (columns, rows)
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            
+            # Last cell position (columns, rows)
+            last_cell_grid_x = base_x + (self.columns - 1) * (self.saveSize + self.saveGap) + self.saveGap
+            # Apply hexagonal offset if last row is even
+            if self.rows % 2 == 0:
+                last_cell_grid_x += self.saveSize / 2
+            
+            # Right edge of last cell
+            return last_cell_grid_x + self.saveSize
+        else:
+            # Fallback to getSizeXGlobal if unknown shape
+            return self.getSizeXGlobal()
+    
+    def getGridBoundsHeight(self):
+        """
+        Get the actual height of the grid content (bottom edge of last cell).
+        This is the real boundary for viewport calculations, without extra pixels.
+        
+        Returns:
+            float: The Y coordinate of the bottom edge of the last cell in grid coordinates
+        """
+        base_y = 0
+        
+        if self.cellShape == "square":
+            # Last row (yCoord = rows): grid_y = (rows - 1) * (saveSize + saveGap) + saveGap
+            # Bottom edge of last cell: grid_y + saveSize = rows * (saveSize + saveGap)
+            return self.rows * (self.saveSize + self.saveGap)
+        elif self.cellShape == "hexagonal":
+            # For hexagonal, calculate position of last cell (columns, rows)
+            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_height = self.saveSize * adaptive_factor
+            
+            # Last cell position (columns, rows)
+            last_cell_grid_y = base_y + (self.rows - 1) * (hex_height + self.saveGap) + self.saveGap
+            
+            # Bottom edge of last cell
+            return last_cell_grid_y + hex_height
+        else:
+            # Fallback to getSizeYGlobal (without frameMargin) if unknown shape
+            return self.getSizeYGlobal() - 2 * self.frameMargin
 
     def sizeHint(self):
         """Return the recommended size for the grid widget"""

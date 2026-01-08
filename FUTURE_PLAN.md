@@ -18,6 +18,7 @@ This document contains the planned improvements and features for the SGE (Simula
    - Implement rendering logic in each GameSpace `paintEvent` without breaking existing zoom/rendu (notably `SGGrid`)
    - Expose modeler API: `setStyle({ 'background_image': 'path', 'background_image_mode': 'cover' })`
 - [ ] Bug on drag and move on SGGrid : impossible to drag by click and drag on the right border of the grid (although it works perfectly fine with the left top and bottom border of the grid)
+- [ ] In SGGid, consider using getGridBoundsWidth()/getGridBoundsHeight() instead of getSizeXGlobal()/getSizeYGlobal(), because these two last methods add 1px for an undertermined rease
 
 ### POV System & Visual Elements
 - [ ] Create a aspect system for entities to replace pov (résolution hierarchique des aspects) + create views to manage groups of symbologies
@@ -25,7 +26,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Add possibility to integrate image icons in dashboards and progressGauge
 
 ### New Entities & Features
-- [ ] New `entity`: Tile
+- [X] New `entity`: Tile
 - [ ] Add configurable min/max values for simulation variables
 - [ ] Add a method to cell entity: getLastArrivedAgent
 - [ ] Améliorer le systeme de addEndGameCondition_onIndicator    Pour l'instant pour une simVar, il faut prendre l'indicateur issu de la simVar --> il faudrait ajouter addEndGameCondition_onSimVar qui prend directement une simVar

@@ -1464,6 +1464,13 @@ class SGAgentType(SGEntityType):
         agent_view.updatePositionInEntity()
         agent_view.show()
         
+        # Apply clipping if in magnifier mode
+        if hasattr(aCell, 'grid') and hasattr(aCell.grid, 'zoomMode') and aCell.grid.zoomMode == "magnifier":
+            agent_x = agent_view.xCoord
+            agent_y = agent_view.yCoord
+            agent_size = agent_view.size if hasattr(agent_view, 'size') else agent_model.size
+            aCell.grid._clipEntityToVisibleArea(agent_view, agent_x, agent_y, agent_size)
+        
         return agent_model, agent_view
     
     # ============================================================================

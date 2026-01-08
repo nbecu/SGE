@@ -390,6 +390,15 @@ class SGAgent(SGEntity):
                 self.view.updatePositionInEntity()  # Force view repositioning
                 self.view.show()  # Ensure view is visible
                 self.updateView()
+                
+                # Apply clipping if in magnifier mode
+                if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
+                    grid = aDestinationCell.type.grid
+                    if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                        agent_x = self.view.xCoord
+                        agent_y = self.view.yCoord
+                        agent_size = self.view.size if hasattr(self.view, 'size') else self.size
+                        grid._clipEntityToVisibleArea(self.view, agent_x, agent_y, agent_size)
             return self
         else:
             # Movement from one cell to another
@@ -418,6 +427,15 @@ class SGAgent(SGEntity):
                 self.view.updatePositionInEntity()  # Force view repositioning
                 self.view.show()  # Ensure view is visible
                 self.updateView()
+                
+                # Apply clipping if in magnifier mode
+                if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
+                    grid = aDestinationCell.type.grid
+                    if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                        agent_x = self.view.xCoord
+                        agent_y = self.view.yCoord
+                        agent_size = self.view.size if hasattr(self.view, 'size') else self.size
+                        grid._clipEntityToVisibleArea(self.view, agent_x, agent_y, agent_size)
             
             return self
     # @CATEGORY: DO
