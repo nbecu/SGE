@@ -352,11 +352,32 @@ class SGGrid(SGGameSpace):
         """
         Clip an entity (cell, agent, or tile) to the visible area in magnifier mode.
         
+        This method ensures that entities do not overflow beyond the grid's visible area
+        (defined by frameMargin) when in magnifier mode. It handles:
+        - Visibility management (show/hide entities based on visibility)
+        - Clipping mask application (using QRegion.setMask() to clip overflowing parts)
+        - Mask cleanup (clearMask() when entity is fully visible)
+        
+        The clipping is calculated by finding the intersection between the entity's bounds
+        and the visible area. If the entity overflows, a QRegion mask is applied to show
+        only the visible portion.
+        
+        This method is called from multiple places:
+        - _updatePositionsForViewport(): Main update loop for all entities during viewport changes
+        - SGAgent.moveTo(): After moving an agent to maintain clipping
+        - SGTile.moveTo(): After moving a tile to maintain clipping
+        - SGModel.positionAllAgents(): After positioning all agents initially
+        - SGEntityType.newAgentOnCellWithModelView(): After creating a new agent
+        
         Args:
             entity_view: The view of the entity (SGCellView, SGAgentView, or SGTileView)
-            entity_widget_x: X position in widget coordinates
-            entity_widget_y: Y position in widget coordinates
-            entity_size: Size of the entity
+            entity_widget_x: X position in widget coordinates (relative to grid widget)
+            entity_widget_y: Y position in widget coordinates (relative to grid widget)
+            entity_size: Size of the entity in pixels (after zoom)
+            
+        Note:
+            This method only operates in magnifier mode. In resize mode, it returns immediately.
+            The entity must already be positioned (via move()) before calling this method.
         """
         if self.zoomMode != "magnifier":
             return
