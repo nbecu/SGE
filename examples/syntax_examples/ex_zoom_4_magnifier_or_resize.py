@@ -5,11 +5,11 @@ from mainClasses.SGSGE import *
 
 monApp = QtWidgets.QApplication([])
 
-myModel = SGModel(850, 600, windowTitle="Test zoom - magnifier",nb_columns=3)
-adminControlPanel = myModel.displayAdminControlPanel() 
+myModel = SGModel(850, 600, windowTitle="zoomMode - magnifier or resize",nb_columns=2)
+# adminControlPanel = myModel.displayAdminControlPanel() 
 
 # Create a second grid with magnifier mode
-SeaCell = myModel.newCellsOnGrid(8 ,10, "square", name="Sea",size=40,gap=4)
+SeaCell = myModel.newCellsOnGrid(8 ,6, "square", name="Sea",size=40,gap=4)
 SeaCell.grid.setBackgroundColor(Qt.orange)
 SeaCell.grid.setBorderColor(Qt.pink)
 SeaCell.grid.setBorderSize(10)
@@ -60,15 +60,29 @@ Fishes.newAgentsAtRandom(7, SeaCell)
 
 # aLegend = myModel.newLegend()
 
-aTextBox = myModel.newTextBox(
-    "Test zoom magnifier mode on the Sea grid.\n"
-    "- Use mouse wheel to zoom (centered on mouse position)\n"
-    "- Hold Shift + Left click + drag to pan\n"
-    "- The Sea grid uses magnifier mode (blue border indicator)\n"
-    "- The Land grid uses default resize mode",
-    title="Magnifier Instructions", height=120
+# TextBox for Magnifier mode (Sea grid)
+magnifierTextBox = myModel.newTextBox(
+    "Mode Magnifier (Sea grid) :\n"
+    "- La taille de la grid reste fixe\n"
+    "- Le zoom agrandit le contenu à l'intérieur\n"
+    "- Molette de la souris : zoom centré sur la position de la souris\n"
+    "- Shift + Clic gauche + glisser : pan (déplacer la vue)\n"
+    "- Permet d'explorer une grande grid dans un espace limité",
+    title="Mode Magnifier", height=140,width=300
 )
-aTextBox.moveToCoords(400, 350)
+magnifierTextBox.moveToCoords(20, 350)
+
+# TextBox for Resize mode (Land grid)
+resizeTextBox = myModel.newTextBox(
+    "Mode Resize (Land grid) :\n"
+    "- La taille de la grid change avec le zoom\n"
+    "- Le zoom agrandit/réduit toute la grid\n"
+    "- Molette de la souris : zoom centré sur la position de la souris\n"
+    "- La grid occupe plus ou moins d'espace selon le zoom\n"
+    "- Mode par défaut, adapté aux petites grids",
+    title="Mode Resize", height=140,width=300
+)
+resizeTextBox.moveToCoords(400, 400)
 
 myModel.launch()
 sys.exit(monApp.exec_())

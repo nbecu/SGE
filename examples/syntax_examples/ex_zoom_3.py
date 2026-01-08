@@ -8,7 +8,8 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(800, 600, windowTitle="Test zoom with agents in different locations")
 
 # Create a larger square grid
-squareCell = myModel.newCellsOnGrid(4, 4, "square", name="SquareGrid", size=50, gap=5)
+squareCell = myModel.newCellsOnGrid(4, 4, "square", name="SquareGrid", size=50, gap=3,borderColor=Qt.pink)
+squareCell.grid.setBorderSize(4)
 squareCell.setEntities("terrain", "grass")
 squareCell.setRandomEntities("terrain", "rock", 3)
 squareCell.newPov("base", "terrain", {
