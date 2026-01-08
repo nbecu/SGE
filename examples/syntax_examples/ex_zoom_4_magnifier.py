@@ -9,7 +9,7 @@ myModel = SGModel(850, 600, windowTitle="Test zoom - magnifier",nb_columns=3)
 adminControlPanel = myModel.displayAdminControlPanel() 
 
 # Create a second grid with magnifier mode
-SeaCell = myModel.newCellsOnGrid(8 ,10, "square", name="Sea",size=40,gap=4, zoomMode="magnifier")
+SeaCell = myModel.newCellsOnGrid(8 ,10, "square", name="Sea",size=40,gap=4)
 SeaCell.grid.setBackgroundColor(Qt.orange)
 SeaCell.grid.setBorderColor(Qt.pink)
 SeaCell.grid.setBorderSize(10)
@@ -29,7 +29,7 @@ SeaCell.newPov("base", "seascape", {
 
 
 # Create a first  grid
-LandCell = myModel.newCellsOnGrid(7, 6, "hexagonal", gap=5, size=40,name="Land")
+LandCell = myModel.newCellsOnGrid(7, 6, "hexagonal", gap=5, size=40,name="Land", zoomMode="resize")
 LandCell.grid.setBorderColor(Qt.red)
 LandCell.grid.setBorderSize(6)
 LandCell.grid.setBorderStyle('solid')

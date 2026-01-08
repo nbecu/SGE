@@ -15,6 +15,7 @@ myModel.displayTimeInWindowTitle()
 
 # Create a 4x4 grid for Memory
 Cell = myModel.newCellsOnGrid(4, 4, "square", size=150, gap=5)
+Cell.grid.setBorderSize(6)
 
 # Create a tile type for Memory cards
 # Tiles will have two faces: front face (with image) and back face (card back)

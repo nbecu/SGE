@@ -543,8 +543,8 @@ class SGGrid(SGGameSpace):
             # Update tiles on this cell
             for tile in cell.getTilesHere():
                 if hasattr(tile, 'view') and tile.view:
-                    # Update tile position relative to cell
-                    tile.updatePositionFromCell()
+                    # Update tile position relative to cell (call on view, not model)
+                    tile.view.updatePositionFromCell()
                     
                     # Clip tile to visible area
                     # Get tile position and size after updatePositionFromCell

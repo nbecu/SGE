@@ -1872,7 +1872,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 # NEW/ADD METHODS
 # ============================================================================
     # To create a grid
-    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode="resize") -> SGCellType:
+    def newCellsOnGrid(self, columns=10, rows=10, format="square", size=30, gap=0, backgroundColor=Qt.gray, borderColor=Qt.black, moveable=True, name=None, backGroundImage=None, defaultCellColor=Qt.white, defaultCellImage=None, neighborhood='moore', boundaries='open', zoomMode="magnifier") -> SGCellType:
         """
         Create a grid that contains cells.
         
@@ -1899,9 +1899,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
             boundaries ("mopen","closed"): Boundary condition of the grid. Defaults to "open".
                 - "open": The grid is toroidal (no boundaries); edges are connected (wrap-around), so every cell has the same number of neighbors.
                 - "closed": The grid has finite boundaries; Cells on the edge have fewer neighbors (no wrap-around).
-            zoomMode ("resize", "magnifier"): Zoom behavior mode. Defaults to "resize".
-                - "resize": Zoom changes the physical size of the grid widget (current behavior).
+            zoomMode ("magnifier", "resize"): Zoom behavior mode. Defaults to "magnifier".
                 - "magnifier": Zoom creates a magnifying glass effect, keeping widget size fixed but zooming content.
+                - "resize": Zoom changes the physical size of the grid widget (current behavior).
 
         Returns:
             SGCellType: the cellDef (SGCellType) that defines the cells that have been placed on a grid. 

@@ -309,3 +309,61 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
             pass
         
         return None
+    
+    def _forwardPanEventToGrid(self, event, grid, event_type='press'):
+        """
+        Forward pan event (Shift+LeftButton) to grid in magnifier mode.
+        
+        Args:
+            event: The mouse event (QMouseEvent)
+            grid: The grid widget (SGGrid) to forward the event to
+            event_type: Type of event ('press', 'move', or 'release')
+            
+        Returns:
+            bool: True if event was handled (forwarded to grid), False otherwise
+        """
+        if not grid or not hasattr(grid, 'zoomMode'):
+            return False
+        
+        # Check if we're in magnifier mode
+        if grid.zoomMode != "magnifier":
+            return False
+        
+        # Check for Shift+LeftButton
+        is_shift_left = False
+        if event_type == 'press':
+            is_shift_left = (event.button() == Qt.LeftButton and 
+                           event.modifiers() & Qt.ShiftModifier)
+        else:  # move or release
+            # For move/release, also check if panning is active
+            if not (hasattr(grid, 'panning') and grid.panning):
+                return False
+            is_shift_left = (event.buttons() & Qt.LeftButton and 
+                           event.modifiers() & Qt.ShiftModifier)
+        
+        if not is_shift_left:
+            return False
+        
+        # Convert coordinates from entity to grid
+        grid_pos = self.mapTo(grid, event.pos())
+        
+        # Create a new event with grid coordinates
+        from PyQt5.QtGui import QMouseEvent
+        grid_event = QMouseEvent(
+            event.type(),
+            grid_pos,
+            event.button(),
+            event.buttons(),
+            event.modifiers()
+        )
+        
+        # Forward to appropriate grid method
+        if event_type == 'press':
+            grid.mousePressEvent(grid_event)
+        elif event_type == 'move':
+            grid.mouseMoveEvent(grid_event)
+        elif event_type == 'release':
+            grid.mouseReleaseEvent(grid_event)
+        
+        event.accept()
+        return True
