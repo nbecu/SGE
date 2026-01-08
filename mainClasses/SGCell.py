@@ -615,6 +615,164 @@ class SGCell(SGEntity):
         """
         return self.type.getEntities_withColumn(self.xCoord, condition=condition)
 
+    def getMaxRangeOfCells_inRow(self, condition, includingSelf=False):
+        """
+        Get the maximum range (distance) between cells in the same row that satisfy a condition.
+        
+        Args:
+            condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.
+            includingSelf (bool, optional): If True, includes the current cell in the range calculation.
+                This is useful when checking if placing a tile on the current cell would exceed a maximum range.
+                Defaults to False.
+        
+        Returns:
+            int: The range (max_coord - min_coord + 1), or 0 if no cells satisfy the condition.
+        
+        Examples:
+            # Get the range of cells with tiles in the same row
+            range = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile())
+            # Returns the distance between the leftmost and rightmost cells with tiles
+            
+            # Get the range including current cell (useful to check if placing a tile would exceed max range)
+            range = cell.getMaxRangeOfCells_inRow(condition=lambda c: c.hasTile(), includingSelf=True)
+        """
+        cells_satisfying = self.getCellsInRow(condition=condition)
+        
+        # Collect x coordinates
+        x_coords = [cell.xCoord for cell in cells_satisfying]
+        
+        # Include self if requested
+        if includingSelf:
+            x_coords.append(self.xCoord)
+        
+        if not x_coords:
+            return 0
+        
+        min_x = min(x_coords)
+        max_x = max(x_coords)
+        
+        return max_x - min_x + 1
+
+    def getMaxRangeOfCells_inColumn(self, condition, includingSelf=False):
+        """
+        Get the maximum range (distance) between cells in the same column that satisfy a condition.
+        
+        Args:
+            condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.
+            includingSelf (bool, optional): If True, includes the current cell in the range calculation.
+                This is useful when checking if placing a tile on the current cell would exceed a maximum range.
+                Defaults to False.
+        
+        Returns:
+            int: The range (max_coord - min_coord + 1), or 0 if no cells satisfy the condition.
+        
+        Examples:
+            # Get the range of cells with tiles in the same column
+            range = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile())
+            # Returns the distance between the topmost and bottommost cells with tiles
+            
+            # Get the range including current cell (useful to check if placing a tile would exceed max range)
+            range = cell.getMaxRangeOfCells_inColumn(condition=lambda c: c.hasTile(), includingSelf=True)
+        """
+        cells_satisfying = self.getCellsInColumn(condition=condition)
+        
+        # Collect y coordinates
+        y_coords = [cell.yCoord for cell in cells_satisfying]
+        
+        # Include self if requested
+        if includingSelf:
+            y_coords.append(self.yCoord)
+        
+        if not y_coords:
+            return 0
+        
+        min_y = min(y_coords)
+        max_y = max(y_coords)
+        
+        return max_y - min_y + 1
+
+    def getMaxRangeOfCells_horizontally(self, condition, includingSelf=False):
+        """
+        Get the maximum horizontal range (distance) across the entire grid width (all rows) for cells that satisfy a condition.
+        This calculates the horizontal range between the leftmost and rightmost cells satisfying the condition,
+        regardless of which row they are in.
+        
+        Args:
+            condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.
+            includingSelf (bool, optional): If True, includes the current cell in the range calculation.
+                This is useful when checking if placing a tile on the current cell would exceed a maximum range.
+                Defaults to False.
+        
+        Returns:
+            int: The horizontal range (max_x_coord - min_x_coord + 1), or 0 if no cells satisfy the condition.
+        
+        Examples:
+            # Get the horizontal range of cells with tiles across the entire grid width
+            range = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile())
+            # Returns the distance between the leftmost and rightmost cells with tiles (any row)
+            
+            # Get the horizontal range including current cell (useful to check if placing a tile would exceed max range)
+            range = cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True)
+        """
+        # Get all cells in the grid that satisfy the condition
+        cells_satisfying = self.type.getEntities(condition=condition)
+        
+        # Collect x coordinates
+        x_coords = [cell.xCoord for cell in cells_satisfying]
+        
+        # Include self if requested
+        if includingSelf:
+            x_coords.append(self.xCoord)
+        
+        if not x_coords:
+            return 0
+        
+        min_x = min(x_coords)
+        max_x = max(x_coords)
+        
+        return max_x - min_x + 1
+
+    def getMaxRangeOfCells_vertically(self, condition, includingSelf=False):
+        """
+        Get the maximum vertical range (distance) across the entire grid height (all columns) for cells that satisfy a condition.
+        This calculates the vertical range between the topmost and bottommost cells satisfying the condition,
+        regardless of which column they are in.
+        
+        Args:
+            condition (callable): REQUIRED - A function that takes a cell and returns True if it should be included.
+            includingSelf (bool, optional): If True, includes the current cell in the range calculation.
+                This is useful when checking if placing a tile on the current cell would exceed a maximum range.
+                Defaults to False.
+        
+        Returns:
+            int: The vertical range (max_y_coord - min_y_coord + 1), or 0 if no cells satisfy the condition.
+        
+        Examples:
+            # Get the vertical range of cells with tiles across the entire grid height
+            range = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile())
+            # Returns the distance between the topmost and bottommost cells with tiles (any column)
+            
+            # Get the vertical range including current cell (useful to check if placing a tile would exceed max range)
+            range = cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True)
+        """
+        # Get all cells in the grid that satisfy the condition
+        cells_satisfying = self.type.getEntities(condition=condition)
+        
+        # Collect y coordinates
+        y_coords = [cell.yCoord for cell in cells_satisfying]
+        
+        # Include self if requested
+        if includingSelf:
+            y_coords.append(self.yCoord)
+        
+        if not y_coords:
+            return 0
+        
+        min_y = min(y_coords)
+        max_y = max(y_coords)
+        
+        return max_y - min_y + 1
+
     def getNeighborN(self):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """Get neighbor to the North"""
@@ -1055,6 +1213,26 @@ class SGCell(SGEntity):
         dx = self.xCoord - otherCell.xCoord
         dy = self.yCoord - otherCell.yCoord
         return (dx * dx + dy * dy) ** 0.5
+
+    def distanceToInGrid(self, otherCell):
+        """
+        Compute grid distance (Manhattan distance) to another cell.
+        This is the sum of absolute differences in x and y coordinates.
+        
+        Args:
+            otherCell (SGCell): The target cell.
+        
+        Returns:
+            int: Manhattan distance (|dx| + |dy|) between the two cells.
+        
+        Examples:
+            # Get grid distance between two cells
+            distance = cell1.distanceToInGrid(cell2)
+            # Returns the sum of horizontal and vertical differences
+        """
+        dx = abs(self.xCoord - otherCell.xCoord)
+        dy = abs(self.yCoord - otherCell.yCoord)
+        return dx + dy
 
     def nbAgents(self, type_name=None):
         """

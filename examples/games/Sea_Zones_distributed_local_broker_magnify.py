@@ -14,8 +14,17 @@ monApp = QtWidgets.QApplication([])
 myModel = SGModel(1200, 850, windowTitle="Sea Zones")
 myModel.displayTimeInWindowTitle()
 
+# ============================================================================
+# Distributed Game Configuration - MUST BE CALLED BEFORE ANY RANDOM OPERATIONS
+# ============================================================================
+# Enable distributed multiplayer game mode
+# This will:
+# 1. Open dialog to connect to MQTT broker and synchronize seed
+# 2. Seed is synchronized and applied immediately after this call
+# 3. Player selection happens later when the game window opens
 
-nb_players = 4
+myModel.enableDistributedGame(num_players=(2,4))
+nb_players = myModel.getConnectedInstancesCount(default=4) 
 
 # ============================================================================
 # Paths configuration
@@ -26,7 +35,7 @@ images_dir = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zone
 # ============================================================================
 # Create game board (13x13 grid)
 # ============================================================================
-Board = myModel.newCellsOnGrid(13, 13, "square", size=70, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
+Board = myModel.newCellsOnGrid(13, 13, "square", size=50, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
 Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 
 # ============================================================================
@@ -34,6 +43,7 @@ Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 # ============================================================================
 River = myModel.newCellsOnGrid(4, 1, "square", size=80, gap=10, name="River")
 deck_cell = River.getCell(1, 1)
+River.grid.moveToCoords(700, 25)
 
 # ============================================================================
 # Create individual player boards (3 cells each, positioned under river)
@@ -93,6 +103,41 @@ center_cell = Board.getCell(7, 7)
 port_tile = SeaTile.getEntities_withValue("tile_name", "port")[0]
 port_tile.moveTo(center_cell)
 port_tile.flip()  # Show port tile face up
+
+# ============================================================================
+# Function to adjust magnifier to show all tiles + one row of empty cells on each side
+# ============================================================================
+def adjustMagnifyToCoverAllTiles():
+    """Adjust magnifier to show all tiles on Board + one row of empty cells on each side"""
+    # Get all cells with tiles on the Board
+    cells_with_tiles = Board.getEntities(condition=lambda c: c.hasTile())
+    
+    if not cells_with_tiles:
+        # No tiles, do nothing
+        return
+    
+    # Calculate bounding box of cells with tiles
+    min_x = min(cell.xCoord for cell in cells_with_tiles)
+    max_x = max(cell.xCoord for cell in cells_with_tiles)
+    min_y = min(cell.yCoord for cell in cells_with_tiles)
+    max_y = max(cell.yCoord for cell in cells_with_tiles)
+    
+    # Extend by one row on each side (with bounds checking)
+    margin = 1
+    min_x_extended = max(1, min_x - margin)
+    max_x_extended = min(Board.grid.columns, max_x + margin)
+    min_y_extended = max(1, min_y - margin)
+    max_y_extended = min(Board.grid.rows, max_y + margin)
+    
+    # Get corner cells for the extended area
+    cell_min = Board.getCell(min_x_extended, min_y_extended)
+    cell_max = Board.getCell(max_x_extended, max_y_extended)
+    
+    # Set magnifier to show the extended area
+    Board.grid.setMagnifierOnArea(cell_min, cell_max)
+
+# Set initial magnifier view (tile at 7,7 -> magnify area from 6,6 to 8,8)
+adjustMagnifyToCoverAllTiles()
 
 # ============================================================================
 # Place end tile in the last 10 tiles of the stack 
@@ -268,6 +313,16 @@ for i in range(1, nb_players + 1):
             tile.moveTo(player_board.getCell(j, 1))
             tile.flip()  # Show front face
 
+# ============================================================================
+# Configure player board visibility (for distributed mode)
+# ============================================================================
+# Player selection happens automatically in initAfterOpening() when window opens
+# Visibility is configured automatically when player is selected
+if myModel.isDistributed():
+    for i in range(1, nb_players + 1):
+        player_board = PlayerBoards[i]
+        player = Players[i]
+        player_board.grid.setVisibilityForPlayers(player.name)
 
 # ============================================================================
 # Create game actions
@@ -303,10 +358,17 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile, cell: cell.type == Board,  # Can only move to main board
         lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
-        lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
+        lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0,
+        # Check that there are not already 7 tiles in the row
+        lambda tile, cell: len(cell.getCellsInRow(condition=lambda c: c.hasTile())) < 7,
+        # Check that there are not already 7 tiles in the column
+        lambda tile, cell: len(cell.getCellsInColumn(condition=lambda c: c.hasTile())) < 7
     ],
     action_controler={"directClick": True},
-    feedbacks=[lambda aTile: placeMarker(aTile.cell)]
+    feedbacks=[
+        lambda aTile: placeMarker(aTile.cell),
+        lambda : adjustMagnifyToCoverAllTiles()
+    ]
     )
 def placeMarker(cell):
     cell.deleteAllAgents()
