@@ -163,6 +163,26 @@ class SGCellView(SGEntityView):
 
     def mousePressEvent(self, event):
         """Handle mouse press events"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        if (hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier" and 
+            event.button() == Qt.LeftButton and 
+            event.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from cell to grid
+            grid_pos = self.mapTo(self.grid, event.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                event.type(),
+                grid_pos,
+                event.button(),
+                event.buttons(),
+                event.modifiers()
+            )
+            # Forward to grid's mousePressEvent
+            self.grid.mousePressEvent(grid_event)
+            event.accept()
+            return
+        
         if event.button() == Qt.LeftButton:
             # Validate that the click is within the cell bounds
             click_pos = event.pos()
@@ -281,6 +301,48 @@ class SGCellView(SGEntityView):
 
     def mouseMoveEvent(self, e):
         """Handle mouse move events to prevent cell dragging"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        if (hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier" and 
+            hasattr(self.grid, 'panning') and self.grid.panning and
+            e.buttons() & Qt.LeftButton and e.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from cell to grid
+            grid_pos = self.mapTo(self.grid, e.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                e.type(),
+                grid_pos,
+                e.button(),
+                e.buttons(),
+                e.modifiers()
+            )
+            # Forward to grid's mouseMoveEvent
+            self.grid.mouseMoveEvent(grid_event)
+            e.accept()
+            return
+        
         # This method is used to prevent the drag of a cell
         if e.buttons() != Qt.LeftButton:
+            return
+    
+    def mouseReleaseEvent(self, event):
+        """Handle mouse release events"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        if (hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier" and 
+            hasattr(self.grid, 'panning') and self.grid.panning and
+            event.button() == Qt.LeftButton and event.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from cell to grid
+            grid_pos = self.mapTo(self.grid, event.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                event.type(),
+                grid_pos,
+                event.button(),
+                event.buttons(),
+                event.modifiers()
+            )
+            # Forward to grid's mouseReleaseEvent
+            self.grid.mouseReleaseEvent(grid_event)
+            event.accept()
             return

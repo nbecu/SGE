@@ -365,6 +365,26 @@ class SGTileView(SGEntityView):
             super().mousePressEvent(event)
             return
         
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        if (self.grid and hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier" and 
+            event.button() == Qt.LeftButton and 
+            event.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from tile to grid
+            grid_pos = self.mapTo(self.grid, event.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                event.type(),
+                grid_pos,
+                event.button(),
+                event.buttons(),
+                event.modifiers()
+            )
+            # Forward to grid's mousePressEvent
+            self.grid.mousePressEvent(grid_event)
+            event.accept()
+            return
+        
         # Only handle left button clicks
         if event.button() == Qt.LeftButton:
             # Reset drag state
@@ -396,6 +416,26 @@ class SGTileView(SGEntityView):
     
     def mouseReleaseEvent(self, event):
         """Handle mouse release events"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        if (self.grid and hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier" and 
+            hasattr(self.grid, 'panning') and self.grid.panning and
+            event.button() == Qt.LeftButton and event.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from tile to grid
+            grid_pos = self.mapTo(self.grid, event.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                event.type(),
+                grid_pos,
+                event.button(),
+                event.buttons(),
+                event.modifiers()
+            )
+            # Forward to grid's mouseReleaseEvent
+            self.grid.mouseReleaseEvent(grid_event)
+            event.accept()
+            return
+        
         if event.button() == Qt.LeftButton:
             # If no drag occurred and we have a pending click action, execute it
             if not self.drag_occurred and self.pending_click_action is not None:
@@ -452,6 +492,26 @@ class SGTileView(SGEntityView):
     
     def mouseMoveEvent(self, e):
         """Handle mouse move events for dragging tiles"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        if (self.grid and hasattr(self.grid, 'zoomMode') and self.grid.zoomMode == "magnifier" and 
+            hasattr(self.grid, 'panning') and self.grid.panning and
+            e.buttons() & Qt.LeftButton and e.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from tile to grid
+            grid_pos = self.mapTo(self.grid, e.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                e.type(),
+                grid_pos,
+                e.button(),
+                e.buttons(),
+                e.modifiers()
+            )
+            # Forward to grid's mouseMoveEvent
+            self.grid.mouseMoveEvent(grid_event)
+            e.accept()
+            return
+        
         if e.buttons() != Qt.LeftButton:
             # If no button is pressed, reset dragging state
             if self.dragging:

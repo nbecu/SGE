@@ -265,6 +265,27 @@ class SGAgentView(SGEntityView):
     # Interaction methods
     def mousePressEvent(self, event):
         """Handle mouse press events"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        grid = self.agent_model.cell.grid if hasattr(self.agent_model, 'cell') and self.agent_model.cell else None
+        if (grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and 
+            event.button() == Qt.LeftButton and 
+            event.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from agent to grid
+            grid_pos = self.mapTo(grid, event.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                event.type(),
+                grid_pos,
+                event.button(),
+                event.buttons(),
+                event.modifiers()
+            )
+            # Forward to grid's mousePressEvent
+            grid.mousePressEvent(grid_event)
+            event.accept()
+            return
+        
         if event.button() == Qt.LeftButton:
             # Reset drag state
             self.dragging = True
@@ -285,6 +306,27 @@ class SGAgentView(SGEntityView):
 
     def mouseReleaseEvent(self, event):
         """Handle mouse release events"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        grid = self.agent_model.cell.grid if hasattr(self.agent_model, 'cell') and self.agent_model.cell else None
+        if (grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and 
+            hasattr(grid, 'panning') and grid.panning and
+            event.button() == Qt.LeftButton and event.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from agent to grid
+            grid_pos = self.mapTo(grid, event.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                event.type(),
+                grid_pos,
+                event.button(),
+                event.buttons(),
+                event.modifiers()
+            )
+            # Forward to grid's mouseReleaseEvent
+            grid.mouseReleaseEvent(grid_event)
+            event.accept()
+            return
+        
         if event.button() == Qt.LeftButton:
             # If no drag occurred and we have a pending click action, execute it
             if not self.drag_occurred and self.pending_click_action is not None:
@@ -345,6 +387,27 @@ class SGAgentView(SGEntityView):
 
     def mouseMoveEvent(self, e):
         """Handle mouse move events for dragging"""
+        # Check for pan in magnifier mode (Shift + LeftButton) - forward to grid
+        grid = self.agent_model.cell.grid if hasattr(self.agent_model, 'cell') and self.agent_model.cell else None
+        if (grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and 
+            hasattr(grid, 'panning') and grid.panning and
+            e.buttons() & Qt.LeftButton and e.modifiers() & Qt.ShiftModifier):
+            # Convert coordinates from agent to grid
+            grid_pos = self.mapTo(grid, e.pos())
+            # Create a new event with grid coordinates
+            from PyQt5.QtGui import QMouseEvent
+            grid_event = QMouseEvent(
+                e.type(),
+                grid_pos,
+                e.button(),
+                e.buttons(),
+                e.modifiers()
+            )
+            # Forward to grid's mouseMoveEvent
+            grid.mouseMoveEvent(grid_event)
+            e.accept()
+            return
+        
         if e.buttons() != Qt.LeftButton:
             # If no button is pressed, reset dragging state
             if self.dragging:
