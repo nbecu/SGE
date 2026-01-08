@@ -541,17 +541,69 @@ class SGGrid(SGGameSpace):
                     self._clipEntityToVisibleArea(agent.view, agent_widget_x, agent_widget_y, agent_size)
             
             # Update tiles on this cell
-            for tile in cell.getTilesHere():
-                if hasattr(tile, 'view') and tile.view:
-                    # Update tile position relative to cell (call on view, not model)
-                    tile.view.updatePositionFromCell()
-                    
-                    # Clip tile to visible area
-                    # Get tile position and size after updatePositionFromCell
-                    tile_widget_x = tile.view.xCoord
-                    tile_widget_y = tile.view.yCoord
-                    tile_size = tile.view.size if hasattr(tile.view, 'size') else (tile.entity_model.size if hasattr(tile.entity_model, 'size') else tile.view.size)
-                    self._clipEntityToVisibleArea(tile.view, tile_widget_x, tile_widget_y, tile_size)
+            # Only update tiles if cell is at least partially visible (same condition as cell)
+            if (cell_right > visible_left and cell_left < visible_right and 
+                cell_bottom > visible_top and cell_top < visible_bottom):
+                for tile in cell.getTilesHere():
+                    if hasattr(tile, 'view') and tile.view:
+                        # Update tile size to match zoom (if not already updated)
+                        if not hasattr(tile.view, 'saveSize'):
+                            tile.view.saveSize = tile.view.size
+                        tile.view.size = round(tile.view.saveSize * self.zoom)
+                        
+                        # Calculate tile position relative to cell using same logic as updatePositionFromCell
+                        # but using widget_x and widget_y instead of cell_view.x()/y() for consistency
+                        cell_size = self.size  # Current zoomed cell size
+                        tile_size = tile.view.size
+                        
+                        # Get tile position attribute
+                        tile_position = tile.view.position if hasattr(tile.view, 'position') else tile.model.position if hasattr(tile, 'model') and hasattr(tile.model, 'position') else "center"
+                        
+                        # Calculate relative position within cell
+                        if tile_position == "full":
+                            relX = 0
+                            relY = 0
+                            tile_size = cell_size
+                        elif tile_position == "center":
+                            relX = (cell_size - tile_size) / 2
+                            relY = (cell_size - tile_size) / 2
+                        elif tile_position == "topLeft":
+                            relX = 0
+                            relY = 0
+                        elif tile_position == "topRight":
+                            relX = cell_size - tile_size
+                            relY = 0
+                        elif tile_position == "bottomLeft":
+                            relX = 0
+                            relY = cell_size - tile_size
+                        elif tile_position == "bottomRight":
+                            relX = cell_size - tile_size
+                            relY = cell_size - tile_size
+                        else:
+                            # Default to center
+                            relX = (cell_size - tile_size) / 2
+                            relY = (cell_size - tile_size) / 2
+                        
+                        # Calculate absolute position in widget coordinates
+                        tile_widget_x = widget_x + round(relX)
+                        tile_widget_y = widget_y + round(relY)
+                        
+                        # Update tile view coordinates
+                        tile.view.xCoord = int(tile_widget_x)
+                        tile.view.yCoord = int(tile_widget_y)
+                        
+                        # Move tile and force update
+                        tile.view.move(int(tile_widget_x), int(tile_widget_y))
+                        tile.view.update()  # Force repaint to update geometry
+                        
+                        # Clip tile to visible area
+                        self._clipEntityToVisibleArea(tile.view, tile_widget_x, tile_widget_y, tile_size)
+            else:
+                # Cell is completely outside visible area, hide tiles too
+                for tile in cell.getTilesHere():
+                    if hasattr(tile, 'view') and tile.view:
+                        if tile.view.isVisible():
+                            tile.view.hide()
         
         self.update()
     
