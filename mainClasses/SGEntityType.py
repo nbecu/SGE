@@ -1334,29 +1334,57 @@ class SGCellType(SGEntityType):
                     return cell
         return None
     
-    def getEntities_withRow(self, aRowNumber):
+    def getEntities_withRow(self, aRowNumber, condition=None):
         """
         Get all entities (cells) in a specific row.
         
         Args:
             aRowNumber (int): Row number to retrieve entities from
+            condition (callable, optional): A function that takes a cell and returns True 
+                if the cell should be included. If None, all cells in the row are returned.
             
         Returns:
-            list[SGCell]: List of entities in the specified row
+            list[SGCell]: List of entities in the specified row, optionally filtered by condition.
+        
+        Examples:
+            # Get all cells in row 5
+            cells = cellDef.getEntities_withRow(5)
+            
+            # Get only cells with tiles in row 5
+            cells_with_tiles = cellDef.getEntities_withRow(5, condition=lambda c: c.hasTile())
         """
-        return self.grid.getCells_withRow(aRowNumber)
+        row_cells = self.grid.getCells_withRow(aRowNumber)
+        
+        if condition is None:
+            return row_cells
+        else:
+            return [aCell for aCell in row_cells if condition(aCell)]
 
-    def getEntities_withColumn(self, aColumnNumber):
+    def getEntities_withColumn(self, aColumnNumber, condition=None):
         """
         Get all entities (cells) in a specific column.
         
         Args:
             aColumnNumber (int): Column number to retrieve entities from
+            condition (callable, optional): A function that takes a cell and returns True 
+                if the cell should be included. If None, all cells in the column are returned.
             
         Returns:
-            list[SGCell]: List of entities in the specified column
+            list[SGCell]: List of entities in the specified column, optionally filtered by condition.
+        
+        Examples:
+            # Get all cells in column 3
+            cells = cellDef.getEntities_withColumn(3)
+            
+            # Get only cells with tiles in column 3
+            cells_with_tiles = cellDef.getEntities_withColumn(3, condition=lambda c: c.hasTile())
         """
-        return self.grid.getCells_withColumn(aColumnNumber)
+        column_cells = self.grid.getCells_withColumn(aColumnNumber)
+        
+        if condition is None:
+            return column_cells
+        else:
+            return [aCell for aCell in column_cells if condition(aCell)]
 
 
     def getRandomEntity(self, condition=None, listOfEntitiesToPickFrom=None) -> SGCell:

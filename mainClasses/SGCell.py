@@ -575,6 +575,46 @@ class SGCell(SGEntity):
         else:
             return [aCell for aCell in neighbors if condition(aCell)]
 
+    def getCellsInRow(self, condition=None):
+        """
+        Get all cells in the same row as the current cell.
+        
+        Args:
+            condition (callable, optional): A function that takes a cell and returns True 
+                if the cell should be included. If None, all cells in the row are returned.
+        
+        Returns:
+            list[SGCell]: List of cells in the same row (including self), optionally filtered by condition.
+        
+        Examples:
+            # Get all cells in the same row
+            row_cells = cell.getCellsInRow()
+            
+            # Get only cells with tiles in the same row
+            row_cells_with_tiles = cell.getCellsInRow(condition=lambda c: c.hasTile())
+        """
+        return self.type.getEntities_withRow(self.yCoord, condition=condition)
+
+    def getCellsInColumn(self, condition=None):
+        """
+        Get all cells in the same column as the current cell.
+        
+        Args:
+            condition (callable, optional): A function that takes a cell and returns True 
+                if the cell should be included. If None, all cells in the column are returned.
+        
+        Returns:
+            list[SGCell]: List of cells in the same column (including self), optionally filtered by condition.
+        
+        Examples:
+            # Get all cells in the same column
+            column_cells = cell.getCellsInColumn()
+            
+            # Get only cells with tiles in the same column
+            column_cells_with_tiles = cell.getCellsInColumn(condition=lambda c: c.hasTile())
+        """
+        return self.type.getEntities_withColumn(self.xCoord, condition=condition)
+
     def getNeighborN(self):
         #todo this method could be delegate to grid (SGGrid). For example SGCellDef.getEntities_withRow delegates to it.
         """Get neighbor to the North"""

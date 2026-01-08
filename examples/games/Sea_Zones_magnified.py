@@ -339,7 +339,11 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile, cell: cell.type == Board,  # Can only move to main board
         lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
-        lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
+        lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0,
+        # Check that there are not already 7 tiles in the row
+        lambda tile, cell: len(cell.getCellsInRow(condition=lambda c: c.hasTile())) < 7,
+        # Check that there are not already 7 tiles in the column
+        lambda tile, cell: len(cell.getCellsInColumn(condition=lambda c: c.hasTile())) < 7
     ],
     action_controler={"directClick": True},
     feedbacks=[
