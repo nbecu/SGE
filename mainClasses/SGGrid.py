@@ -150,15 +150,13 @@ class SGGrid(SGGameSpace):
         else:
             painter.drawRect(0, 0, border_width, border_height)
         
-        # TEMPORARILY DISABLED: In magnifier mode, apply mask to clip child widgets after border is drawn
-        # This ensures the border is visible but child widgets (cells, agents) are clipped
-        # if self.zoomMode == "magnifier":
-        #     # Clip to the visible area (excluding frame margin) for child widgets
-        #     clip_rect = QRect(self.frameMargin, self.frameMargin, 
-        #                      self.width() - 2 * self.frameMargin, 
-        #                      self.height() - 2 * self.frameMargin)
-        #     mask_region = QRegion(clip_rect)
-        #     self.setMask(mask_region)
+        # In magnifier mode, we clip cells individually in _updatePositionsForViewport()
+        # We don't use setMask() on the grid itself to avoid masking the border
+        # Individual cell masks are applied in _updatePositionsForViewport()
+        if self.zoomMode != "magnifier":
+            # In resize mode, remove any existing mask from cells
+            # (cells handle their own clipping in resize mode)
+            pass
         
         painter.end()
 
@@ -408,20 +406,25 @@ class SGGrid(SGGameSpace):
                 if not cell.view.isVisible():
                     cell.view.show()
                 
-                # TEMPORARILY DISABLED: Clip cell view to visible area using setMask to prevent overflow
+                # Clip cell view to visible area using setMask to prevent overflow
                 # Calculate intersection of cell with visible area
-                # clip_x = max(0, visible_left - cell_left)
-                # clip_y = max(0, visible_top - cell_top)
-                # clip_width = min(cell_size, visible_right - cell_left) - clip_x
-                # clip_height = min(cell_size, visible_bottom - cell_top) - clip_y
+                # clip_x and clip_y are relative to the cell view (0,0 is top-left of cell)
+                # We need to calculate what part of the cell is within the visible area
+                clip_x = max(0, visible_left - cell_left)
+                clip_y = max(0, visible_top - cell_top)
+                clip_right_in_cell = min(cell_size, visible_right - cell_left)
+                clip_bottom_in_cell = min(cell_size, visible_bottom - cell_top)
+                clip_width = max(0, clip_right_in_cell - clip_x)
+                clip_height = max(0, clip_bottom_in_cell - clip_y)
                 
-                # Apply clipping mask to cell view
-                # if clip_x > 0 or clip_y > 0 or clip_width < cell_size or clip_height < cell_size:
-                #     clip_rect = QRect(int(clip_x), int(clip_y), int(clip_width), int(clip_height))
-                #     cell.view.setMask(QRegion(clip_rect))
-                # else:
-                #     # No clipping needed, remove any existing mask
-                #     cell.view.clearMask()
+                # Apply clipping mask to cell view if cell overflows visible area
+                if clip_x > 0 or clip_y > 0 or clip_width < cell_size or clip_height < cell_size:
+                    # Cell overflows, create mask for visible portion
+                    clip_rect = QRect(int(clip_x), int(clip_y), int(clip_width), int(clip_height))
+                    cell.view.setMask(QRegion(clip_rect))
+                else:
+                    # No clipping needed, remove any existing mask
+                    cell.view.clearMask()
             else:
                 # Cell is completely outside visible area, hide it
                 if cell.view.isVisible():
