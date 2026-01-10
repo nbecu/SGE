@@ -96,9 +96,9 @@ class SGAgentView(SGEntityView):
         self.xCoord = cell_x + round(relX)
         self.yCoord = cell_y + round(relY)
         
-        # Update the view position
+        # Update the view position and size (use setGeometry to update both position and size)
         try:
-            self.move(self.xCoord, self.yCoord)
+            self.setGeometry(self.xCoord, self.yCoord, self.size, self.size)
         except RuntimeError:
             # Agent view has been deleted, ignore the error
             pass
@@ -456,6 +456,15 @@ class SGAgentView(SGEntityView):
         """
         # Calculate zoomed size from reference value
         self.size = round(self.saveSize * zoom_factor)
+        
+        # Update widget geometry if position is already set
+        if hasattr(self, 'xCoord') and hasattr(self, 'yCoord'):
+            try:
+                self.setGeometry(self.xCoord, self.yCoord, self.size, self.size)
+            except RuntimeError:
+                # Agent view has been deleted, ignore the error
+                pass
+        
         self.update()
     
     def zoomIn(self, zoom_factor=1.1):

@@ -1488,16 +1488,25 @@ class SGAgentType(SGEntityType):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         
+        # Get grid reference for magnifier mode check
+        grid = None
+        if hasattr(aCell, 'grid'):
+            grid = aCell.grid
+        
+        # Update zoom if in magnifier mode (must be done before updatePositionInEntity)
+        if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and hasattr(grid, 'zoom'):
+            agent_model.updateZoom(grid.zoom)
+        
         # Position and show the agent
         agent_view.updatePositionInEntity()
         agent_view.show()
         
         # Apply clipping if in magnifier mode
-        if hasattr(aCell, 'grid') and hasattr(aCell.grid, 'zoomMode') and aCell.grid.zoomMode == "magnifier":
+        if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
             agent_x = agent_view.xCoord
             agent_y = agent_view.yCoord
             agent_size = agent_view.size if hasattr(agent_view, 'size') else agent_model.size
-            aCell.grid._clipEntityToVisibleArea(agent_view, agent_x, agent_y, agent_size)
+            grid._clipEntityToVisibleArea(agent_view, agent_x, agent_y, agent_size)
         
         return agent_model, agent_view
     

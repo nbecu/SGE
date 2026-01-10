@@ -159,7 +159,7 @@ deck_stack.refillAvailableSlots()
 # ============================================================================
 # Create marker agent
 # ============================================================================
-Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=20,defaultColor=Qt.black,locationInEntity="topRight")
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,locationInEntity="topRight")
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
     "Player 1":QPixmap(f"{images_dir}/jeton_bleu.png"),
@@ -354,7 +354,7 @@ moveActionTemplate = myModel.newMoveAction(
     action_controler={"directClick": True},
     feedbacks=[
         lambda aTile: placeMarker(aTile.cell),
-        # lambda aTile: adjustMagnifyToCoverAllTiles(aTile)
+        lambda aTile: adjustMagnifyToCoverAllTiles(aTile)
     ]
     )
 def placeMarker(cell):

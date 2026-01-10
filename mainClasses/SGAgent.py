@@ -155,7 +155,10 @@ class SGAgent(SGEntity):
         """
         # Calculate zoomed size from reference value
         self.size = round(self.saveSize * zoom_factor)
-        self.updateView()
+        
+        # Update view if it exists (view.updateZoom will handle position update)
+        if self.view:
+            self.view.updateZoom(zoom_factor)
     
     def zoomIn(self, zoomFactor):
         """Zoom in the agent - legacy method for compatibility"""
