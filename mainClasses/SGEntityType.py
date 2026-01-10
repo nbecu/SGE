@@ -2031,9 +2031,25 @@ class SGTileType(SGEntityType):
         self.updateWatchersOnPop()
         self.updateWatchersOnAllAttributes()
         
+        # Get grid reference for magnifier mode check
+        grid = None
+        if hasattr(aCell, 'grid'):
+            grid = aCell.grid
+        
+        # Update zoom if in magnifier mode (must be done before getPositionInCell)
+        if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and hasattr(grid, 'zoom'):
+            tile_model.updateZoom(grid.zoom)
+        
         # Position and show the tile
         tile_view.getPositionInCell()
         tile_view.show()
+        
+        # Apply clipping if in magnifier mode
+        if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+            tile_x = tile_view.xCoord
+            tile_y = tile_view.yCoord
+            tile_size = tile_view.size if hasattr(tile_view, 'size') else tile_model.size
+            grid._clipEntityToVisibleArea(tile_view, tile_x, tile_y, tile_size)
         
         return tile_model, tile_view
     
