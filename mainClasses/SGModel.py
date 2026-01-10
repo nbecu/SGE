@@ -462,7 +462,7 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
                         if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
                             agent_x = agent.view.xCoord
                             agent_y = agent.view.yCoord
-                            agent_size = agent.view.size if hasattr(agent.view, 'size') else agent.size
+                            agent_size = agent.size  # Read from model (view.size property reads from model)
                             grid._clipEntityToVisibleArea(agent.view, agent_x, agent_y, agent_size)
     
     def positionAllTiles(self):

@@ -520,14 +520,12 @@ class SGGrid(SGGameSpace):
             # Update agents on this cell
             for agent in cell.getAgents():
                 if hasattr(agent, 'view') and agent.view:
-                    # Update agent size to match zoom (if not already updated)
-                    if not hasattr(agent.view, 'saveSize'):
-                        agent.view.saveSize = agent.view.size
-                    agent.view.size = round(agent.view.saveSize * self.zoom)
+                    # Ensure agent model zoom is updated (size is read from model via property)
+                    agent.updateZoom(self.zoom)
                     
                     # Calculate agent position relative to cell
                     grid_size = self.size  # Current zoomed size
-                    agent_size = agent.view.size
+                    agent_size = agent.size  # Read from model (view.size property reads from model)
                     
                     # Calculate relative position within cell (same logic as updatePositionInEntity)
                     location = agent.view.type.locationInEntity
@@ -579,15 +577,13 @@ class SGGrid(SGGameSpace):
                 cell_bottom > visible_top and cell_top < visible_bottom):
                 for tile in cell.getTilesHere():
                     if hasattr(tile, 'view') and tile.view:
-                        # Update tile size to match zoom (if not already updated)
-                        if not hasattr(tile.view, 'saveSize'):
-                            tile.view.saveSize = tile.view.size
-                        tile.view.size = round(tile.view.saveSize * self.zoom)
+                        # Ensure tile model zoom is updated (size is read from model via property)
+                        tile.updateZoom(self.zoom)
                         
                         # Calculate tile position relative to cell using same logic as updatePositionFromCell
                         # but using widget_x and widget_y instead of cell_view.x()/y() for consistency
                         cell_size = self.size  # Current zoomed cell size
-                        tile_size = tile.view.size
+                        tile_size = tile.size  # Read from model (view.size property reads from model)
                         
                         # Get tile position attribute
                         tile_position = tile.view.position if hasattr(tile.view, 'position') else tile.model.position if hasattr(tile, 'model') and hasattr(tile.model, 'position') else "center"
@@ -710,20 +706,9 @@ class SGGrid(SGGameSpace):
                 if self.zoomMode == "magnifier":
                     # In magnifier mode, don't recreate agents - just update their size and position
                     # This preserves the viewport positioning
-                    if hasattr(agent, 'view') and agent.view:
-                        # Initialize saveSize if not already set
-                        if not hasattr(agent.view, 'saveSize') or agent.view.saveSize is None:
-                            # Use model's saveSize if available, otherwise use current size
-                            if hasattr(agent, 'saveSize'):
-                                agent.view.saveSize = agent.saveSize
-                            else:
-                                agent.view.saveSize = agent.view.size
-                        # Update agent view size to match zoom
-                        agent.view.size = round(agent.view.saveSize * self.zoom)
-                        # Also update agent model size
-                        if hasattr(agent, 'saveSize'):
-                            agent.size = round(agent.saveSize * self.zoom)
-                        # Position will be updated by _updatePositionsForViewport() call below
+                    # Agent zoom is already updated above (line 704), size is read from model via property
+                    # Position will be updated by _updatePositionsForViewport() call below
+                    pass
                 else:
                     # In resize mode, recreate agents (original behavior)
                     # Destroy existing agent view immediately
@@ -736,12 +721,8 @@ class SGGrid(SGGameSpace):
                     from mainClasses.SGAgentView import SGAgentView
                     agent_view = SGAgentView(agent, self)  # self = grid as parent
                     
-                    # Update agent view size to match zoom
-                    if hasattr(agent_view, 'saveSize'):
-                        agent_view.size = round(agent_view.saveSize * self.zoom)
-                    else:
-                        agent_view.saveSize = agent_view.size
-                        agent_view.size = round(agent_view.saveSize * self.zoom)
+                    # Agent zoom is already updated above (line 708), size is read from model via property
+                    # No need to manually update view.size - it reads from model automatically
                     
                     # Link model and view
                     agent.setView(agent_view)

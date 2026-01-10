@@ -156,9 +156,17 @@ class SGAgent(SGEntity):
         # Calculate zoomed size from reference value
         self.size = round(self.saveSize * zoom_factor)
         
-        # Update view if it exists (view.updateZoom will handle position update)
+        # Update view if it exists (view reads size from model via property)
         if self.view:
-            self.view.updateZoom(zoom_factor)
+            # Update widget geometry if position is already set
+            if hasattr(self.view, 'xCoord') and hasattr(self.view, 'yCoord'):
+                try:
+                    self.view.setGeometry(self.view.xCoord, self.view.yCoord, self.size, self.size)
+                except RuntimeError:
+                    # Agent view has been deleted, ignore the error
+                    pass
+            # Force repaint with new size
+            self.view.update()
     
     def zoomIn(self, zoomFactor):
         """Zoom in the agent - legacy method for compatibility"""
@@ -400,7 +408,7 @@ class SGAgent(SGEntity):
                     if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
                         agent_x = self.view.xCoord
                         agent_y = self.view.yCoord
-                        agent_size = self.view.size if hasattr(self.view, 'size') else self.size
+                        agent_size = self.size  # Read from model (view.size property reads from model)
                         grid._clipEntityToVisibleArea(self.view, agent_x, agent_y, agent_size)
             return self
         else:
@@ -437,7 +445,7 @@ class SGAgent(SGEntity):
                     if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
                         agent_x = self.view.xCoord
                         agent_y = self.view.yCoord
-                        agent_size = self.view.size if hasattr(self.view, 'size') else self.size
+                        agent_size = self.size  # Read from model (view.size property reads from model)
                         grid._clipEntityToVisibleArea(self.view, agent_x, agent_y, agent_size)
             
             return self

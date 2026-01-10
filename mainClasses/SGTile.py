@@ -107,9 +107,15 @@ class SGTile(SGEntity):
         # Calculate new size based on saved size and zoom
         self.size = round(self.saveSize * zoom_factor)
         
-        # Update view if it exists (view.updateZoom will handle position update)
+        # Update view if it exists (view reads size from model via property)
         if self.view:
-            self.view.updateZoom(zoom_factor)
+            # Update position based on new size
+            if hasattr(self.view, 'updatePositionFromCell'):
+                self.view.updatePositionFromCell()
+            elif hasattr(self.view, 'getPositionInCell'):
+                self.view.getPositionInCell()
+            # Force repaint with new size
+            self.view.update()
 
     # Model-View specific methods
     def getView(self):
@@ -402,10 +408,7 @@ class SGTile(SGEntity):
             if self.position == "full" and hasattr(aDestinationCell, 'saveSize'):
                 self.size = aDestinationCell.saveSize
                 self.saveSize = aDestinationCell.saveSize  # Also update saveSize for zoom consistency
-                # Update view size to match model size
-                if self.view:
-                    self.view.size = self.size
-                    self.view.saveSize = self.saveSize
+                # View reads size from model via property - no manual synchronization needed
             
             # Get grid reference for magnifier mode check
             grid = None
@@ -426,7 +429,7 @@ class SGTile(SGEntity):
                 if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
                     tile_x = self.view.xCoord
                     tile_y = self.view.yCoord
-                    tile_size = self.view.size if hasattr(self.view, 'size') else self.size
+                    tile_size = self.size  # Read from model (view.size property reads from model)
                     grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
             return self
         else:
@@ -509,10 +512,7 @@ class SGTile(SGEntity):
             if self.position == "full" and hasattr(aDestinationCell, 'saveSize'):
                 self.size = aDestinationCell.saveSize
                 self.saveSize = aDestinationCell.saveSize  # Also update saveSize for zoom consistency
-                # Update view size to match model size
-                if self.view:
-                    self.view.size = self.size
-                    self.view.saveSize = self.saveSize
+                # View reads size from model via property - no manual synchronization needed
             
             # Get grid reference for magnifier mode check
             grid = None
@@ -536,7 +536,7 @@ class SGTile(SGEntity):
                 if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
                     tile_x = self.view.xCoord
                     tile_y = self.view.yCoord
-                    tile_size = self.view.size if hasattr(self.view, 'size') else self.size
+                    tile_size = self.size  # Read from model (view.size property reads from model)
                     grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
             
             return self

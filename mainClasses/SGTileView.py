@@ -42,8 +42,7 @@ class SGTileView(SGEntityView):
         self.xCoord = 0
         self.yCoord = 0
         
-        # Save reference size for zoom calculations
-        self.saveSize = self.size
+        # saveSize is now read from model via property (no duplication)
         
         # Get grid parent for positioning
         self.grid = None
@@ -139,8 +138,8 @@ class SGTileView(SGEntityView):
         cell_size = self.grid.size if self.grid else current_cell.saveSize
         
         # Calculate relative position based on position attribute
-        # Use size from model (updated by zoom)
-        tile_size = self.entity_model.size if hasattr(self.entity_model, 'size') else self.size
+        # Use size from model (read via property)
+        tile_size = self.size  # Property reads from model
         
         if self.position == "full":
             # Tile covers the entire cell
@@ -278,7 +277,7 @@ class SGTileView(SGEntityView):
         x = self.xCoord
         y = self.yCoord
         # Use size from model (updated by zoom)
-        tile_size = self.entity_model.size if hasattr(self.entity_model, 'size') else self.size
+        tile_size = self.size  # Property reads from model
         
         if self.isDisplay == True:
             if tileShape == "rectTile" or tileShape == "imageTile":
@@ -539,8 +538,7 @@ class SGTileView(SGEntityView):
     def updateFromModel(self):
         """Update view properties from model"""
         if self.tile_model:
-            self.size = self.tile_model.size  # Update size from model (for zoom)
-            self.saveSize = self.tile_model.saveSize
+            # size and saveSize are now read from model via properties (no manual sync needed)
             self.frontImage = self.tile_model.frontImage
             self.backImage = self.tile_model.backImage
             self.frontColor = self.tile_model.frontColor
@@ -552,17 +550,6 @@ class SGTileView(SGEntityView):
     # ============================================================================
     # ZOOM METHODS
     # ============================================================================
-    
-    def updateZoom(self, zoom_factor):
-        """
-        Update tile zoom based on zoom factor (like SGAgentView)
-        
-        Args:
-            zoom_factor: The zoom factor to apply
-        """
-        # Calculate zoomed size from reference value
-        self.size = round(self.saveSize * zoom_factor)
-        # Update position based on new size
-        self.updatePositionFromCell()
-        self.update()
+    # Note: updateZoom() has been removed - size is now read from model via property
+    # The model's updateZoom() method handles view updates directly
 

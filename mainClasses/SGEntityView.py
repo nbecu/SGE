@@ -25,7 +25,7 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         self.privateID = entity_model.privateID
         self.model = entity_model.model
         self.shape = entity_model.shape
-        self.size = entity_model.size
+        # Size is now read from model via property (no duplication)
         self.borderColor = entity_model.borderColor
         self.isDisplay = entity_model.isDisplay
         
@@ -35,6 +35,54 @@ class SGEntityView(QtWidgets.QWidget, SGEventHandlerGuide):
         
         # Set the contextual and gameAction controller
         self.init_contextMenu()
+    
+    @property
+    def size(self):
+        """
+        Get size from model (single source of truth)
+        
+        This property ensures that the View always reads size from the Model,
+        eliminating duplication and synchronization issues.
+        """
+        if not hasattr(self, 'entity_model') or self.entity_model is None:
+            return 0  # Fallback if model not yet initialized
+        return getattr(self.entity_model, 'size', 0)
+    
+    @size.setter
+    def size(self, value):
+        """
+        Set size on model (delegation for backward compatibility)
+        
+        Direct modification of view.size is deprecated. Use model.updateZoom() instead.
+        """
+        import warnings
+        warnings.warn("Direct modification of view.size is deprecated. Use model.updateZoom() instead.", DeprecationWarning, stacklevel=2)
+        if hasattr(self, 'entity_model') and self.entity_model:
+            self.entity_model.size = value
+    
+    @property
+    def saveSize(self):
+        """
+        Get saveSize from model (single source of truth)
+        
+        This property ensures that the View always reads saveSize from the Model,
+        eliminating duplication and synchronization issues.
+        """
+        if not hasattr(self, 'entity_model') or self.entity_model is None:
+            return 0  # Fallback if model not yet initialized
+        return getattr(self.entity_model, 'saveSize', 0)
+    
+    @saveSize.setter
+    def saveSize(self, value):
+        """
+        Set saveSize on model (delegation for backward compatibility)
+        
+        Direct modification of view.saveSize is deprecated. Modify model.saveSize instead.
+        """
+        import warnings
+        warnings.warn("Direct modification of view.saveSize is deprecated. Modify model.saveSize instead.", DeprecationWarning, stacklevel=2)
+        if hasattr(self, 'entity_model') and self.entity_model:
+            self.entity_model.saveSize = value
     
     def getColor(self):
         """Get the color for display based on POV settings"""

@@ -42,8 +42,7 @@ class SGAgentView(SGEntityView):
         self.xCoord = 0
         self.yCoord = 0
         
-        # Save reference size for zoom calculations
-        self.saveSize = self.size
+        # saveSize is now read from model via property (no duplication)
         
         # Allow drops
         self.setAcceptDrops(True)
@@ -449,23 +448,8 @@ class SGAgentView(SGEntityView):
     # ============================================================================
     # ZOOM METHODS
     # ============================================================================
-    
-    def updateZoom(self, zoom_factor):
-        """
-        Update agent zoom based on zoom factor
-        """
-        # Calculate zoomed size from reference value
-        self.size = round(self.saveSize * zoom_factor)
-        
-        # Update widget geometry if position is already set
-        if hasattr(self, 'xCoord') and hasattr(self, 'yCoord'):
-            try:
-                self.setGeometry(self.xCoord, self.yCoord, self.size, self.size)
-            except RuntimeError:
-                # Agent view has been deleted, ignore the error
-                pass
-        
-        self.update()
+    # Note: updateZoom() has been removed - size is now read from model via property
+    # The model's updateZoom() method handles view updates directly
     
     def zoomIn(self, zoom_factor=1.1):
         """Zoom in the agent - legacy method for compatibility"""

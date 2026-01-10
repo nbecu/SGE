@@ -1505,7 +1505,7 @@ class SGAgentType(SGEntityType):
         if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
             agent_x = agent_view.xCoord
             agent_y = agent_view.yCoord
-            agent_size = agent_view.size if hasattr(agent_view, 'size') else agent_model.size
+            agent_size = agent_model.size  # Read from model (view.size property reads from model)
             grid._clipEntityToVisibleArea(agent_view, agent_x, agent_y, agent_size)
         
         return agent_model, agent_view
@@ -2048,7 +2048,7 @@ class SGTileType(SGEntityType):
         if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
             tile_x = tile_view.xCoord
             tile_y = tile_view.yCoord
-            tile_size = tile_view.size if hasattr(tile_view, 'size') else tile_model.size
+            tile_size = tile_model.size  # Read from model (view.size property reads from model)
             grid._clipEntityToVisibleArea(tile_view, tile_x, tile_y, tile_size)
         
         return tile_model, tile_view
