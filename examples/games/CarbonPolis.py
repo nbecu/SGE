@@ -612,7 +612,6 @@ for i, aZHtype in enumerate(ordreZHs):
     if aZHtype in ["vide", "mer", "demi-herbier"]: continue
     num_col = (num_col + 1) % nbColumns_plateauxZH  # ajouter 1 à num_col et réinitialise sa valeur à 1 si le résultat est supérieur à 3 
     # if i in [7,13]: posY +=40 # permet de prendre en compte la taille plus grande des plateaux de la ligne précédente    
-    myModel.newLabel_stylised(aZHtype,(posX+5,listPosY[num_col]-2), size=10)
     aPZH = constructZH(aZHtype, (posX, listPosY[num_col]))
     aPZH_height = (aPZH.grid.rows * (aPZH.defaultsize + aPZH.grid.gap)) + aPZH.grid.frameMargin  +10
     # print(aPZH_height)
@@ -632,8 +631,8 @@ for i, aZHtype in enumerate(ordreZHs):
         aMonitorOnPotAC.addIndicatorOnEntity(aPZH.getEntity(1,1),'potentiel accueil', displayName=False)
         aMonitorOnPotAC.rightMargin = aMonitorOnPotAC.rightMargin + 5
         aMonitorOnPotAC.moveToCoords(
-            aPZH.grid.mapToParent(QPoint(0, 0)).x()+aPZH.grid.size+5,
-            aPZH.grid.mapToParent(QPoint(0, 0)).y()+5
+            aPZH.grid.mapToParent(QPoint(0, 0)).x()+aPZH.grid.size+10,
+            aPZH.grid.mapToParent(QPoint(0, 0)).y()+15
             )
 
 

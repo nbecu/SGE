@@ -56,21 +56,60 @@ builder.build_exe("mon_jeu.py", output_name="MonSuperJeu")
 builder.build_exe("mon_jeu.py", icon="mon_jeu/icone.ico")
 ```
 
-### Ressources supplémentaires
+### Intégrer des fichiers de données dans l'exe
 
-Pour inclure des fichiers supplémentaires (sons, textures, config), modifiez la classe `SGExeBuilder` :
+Si votre modèle utilise des fichiers externes (CSV, images, sons, config, etc.), vous devez les inclure dans l'exe et adapter votre code pour qu'il fonctionne à la fois en mode développement et en mode exe.
+
+#### Étape 1 : Ajouter les fichiers avec `add_custom_resources()`
+
+Utilisez la méthode `add_custom_resources()` pour inclure vos fichiers :
 
 ```python
-# Dans SGExeBuilder._generate_spec_file()
-datas=[
-    ('mainClasses', 'mainClasses'),
-    ('icon', 'icon'),
-    ('images', 'images'),
-    ('mon_jeu/sons', 'sons'),        # Sons personnalisés
-    ('mon_jeu/textures', 'textures'), # Textures personnalisées
-    ('mon_jeu/config', 'config'),     # Fichiers de config
-]
+from mainClasses.SGExeBuilder import SGExeBuilder
+
+builder = SGExeBuilder()
+
+# Ajouter des fichiers/dossiers à inclure dans l'exe
+# Format: (chemin_source, chemin_destination_dans_exe)
+builder.add_custom_resources([
+    ('data/import/mon_jeu', 'data/import/mon_jeu'),  # Dossier complet
+    ('config/settings.json', 'config'),              # Fichier dans un dossier
+    ('sons', 'sons'),                                # Dossier sons
+])
+
+# Créer l'exe
+builder.build_exe("examples/games/mon_jeu.py", output_name="MonJeu")
 ```
+
+#### Étape 2 : Adapter les chemins dans votre code
+
+Dans votre script Python, vous devez gérer les chemins différemment selon que vous êtes en mode développement ou en mode exe :
+
+```python
+import sys
+from pathlib import Path
+
+# Gérer les chemins pour développement ET exe
+if getattr(sys, 'frozen', False):
+    # Mode exe : PyInstaller crée un dossier temporaire dans sys._MEIPASS
+    base_path = Path(sys._MEIPASS)
+else:
+    # Mode développement : utiliser le chemin relatif normal
+    base_path = Path(__file__).parent.parent.parent
+
+# Utiliser base_path pour construire vos chemins
+csv_path = base_path / "data" / "import" / "mon_jeu" / "donnees.csv"
+images_dir = base_path / "data" / "import" / "mon_jeu"
+config_file = base_path / "config" / "settings.json"
+```
+
+
+#### Notes importantes
+
+- **Chemins relatifs** : Utilisez toujours des chemins relatifs depuis la racine du projet SGE
+- **Structure préservée** : La structure des dossiers est préservée dans l'exe (même hiérarchie)
+- **Test** : Testez toujours l'exe pour vérifier que les fichiers sont accessibles
+- **Taille** : L'inclusion de fichiers augmente la taille de l'exe
 
 ## Structure des fichiers générés
 
@@ -152,6 +191,26 @@ builder.build_exe(
     icon="icon/carbon_polis.ico"
 )
 # Génère : dist/CarbonPolis.exe
+```
+
+### Export avec fichiers de données
+
+```python
+from mainClasses.SGExeBuilder import SGExeBuilder
+
+builder = SGExeBuilder()
+
+# Ajouter les fichiers de données à inclure
+builder.add_custom_resources([
+    ('data/import/mon_jeu', 'data/import/mon_jeu'),
+])
+
+# Créer l'exe
+builder.build_exe(
+    model_path="examples/games/mon_jeu.py",
+    output_name="MonJeu"
+)
+# Génère : dist/MonJeu.exe avec les fichiers de données inclus
 ```
 
 ### Export en lot

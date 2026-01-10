@@ -31,13 +31,21 @@ nb_players = myModel.getConnectedInstancesCount(default=4)
 # ============================================================================
 # Paths configuration
 # ============================================================================
-csv_path = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zones" / "tiles.csv"
-images_dir = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zones"
+# Handle both development mode (Python) and executable mode (PyInstaller)
+if getattr(sys, 'frozen', False):
+    # Running as compiled executable (PyInstaller)
+    base_path = Path(sys._MEIPASS)
+else:
+    # Running as Python script
+    base_path = Path(__file__).parent.parent.parent
+
+csv_path = base_path / "data" / "import" / "sea_zones" / "tiles.csv"
+images_dir = base_path / "data" / "import" / "sea_zones"
 
 # ============================================================================
 # Create game board (13x13 grid)
 # ============================================================================
-Board = myModel.newCellsOnGrid(9, 9, "square", size=70, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
+Board = myModel.newCellsOnGrid(13, 13, "square", size=50, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
 Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 
 # ============================================================================
@@ -45,6 +53,7 @@ Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 # ============================================================================
 River = myModel.newCellsOnGrid(4, 1, "square", size=80, gap=10, name="River")
 deck_cell = River.getCell(1, 1)
+River.grid.moveToCoords(700, 25)
 
 # ============================================================================
 # Create individual player boards (3 cells each, positioned under river)
@@ -100,10 +109,51 @@ deck_stack = SeaTile.newStackOnCellFromCSV(
 # ============================================================================
 # Place starting port tile at center of board (7, 7)
 # ============================================================================
-center_cell = Board.getCell(5, 5)
+center_cell = Board.getCell(7, 7)
 port_tile = SeaTile.getEntities_withValue("tile_name", "port")[0]
 port_tile.moveTo(center_cell)
 port_tile.flip()  # Show port tile face up
+
+# ============================================================================
+# Function to adjust magnifier to show all tiles + one row of empty cells on each side
+# ============================================================================
+def adjustMagnifyToCoverAllTiles(aTile = None):
+    """Adjust magnifier to show all tiles on Board + one row of empty cells on each side"""
+
+    # Get all cells with tiles on the Board
+    cells_with_tiles = Board.getEntities(condition=lambda c: c.hasTile())
+    
+    if not cells_with_tiles:
+        # No tiles, do nothing
+        return
+    
+    # Calculate bounding box of cells with tiles
+    min_x = min(cell.xCoord for cell in cells_with_tiles)
+    max_x = max(cell.xCoord for cell in cells_with_tiles)
+    min_y = min(cell.yCoord for cell in cells_with_tiles)
+    max_y = max(cell.yCoord for cell in cells_with_tiles)
+    
+    # If the tile placed is not in the peripheral box, do nothing
+    if aTile is not None:
+        if not (aTile.cell.xCoord in [min_x, max_x] or aTile.cell.yCoord in [min_y, max_y]):
+            return
+    
+    # Extend by one row on each side (with bounds checking)
+    margin = 1
+    min_x_extended = max(1, min_x - margin)
+    max_x_extended = min(Board.grid.columns, max_x + margin)
+    min_y_extended = max(1, min_y - margin)
+    max_y_extended = min(Board.grid.rows, max_y + margin)
+    
+    # Get corner cells for the extended area
+    cell_min = Board.getCell(min_x_extended, min_y_extended)
+    cell_max = Board.getCell(max_x_extended, max_y_extended)
+    
+    # Set magnifier to show the extended area
+    Board.grid.setMagnifierOnArea(cell_min, cell_max)
+
+# Set initial magnifier view (tile at 7,7 -> magnify area from 6,6 to 8,8)
+adjustMagnifyToCoverAllTiles()
 
 # ============================================================================
 # Place end tile in the last 10 tiles of the stack 
@@ -111,6 +161,7 @@ port_tile.flip()  # Show port tile face up
 ending_tile = SeaTile.getEntities_withValue("tile_name", "maree_basse")[0]
 # Position the ending tile at a random layer between 1 and 10
 target_layer = random.randint(1, 10)
+# target_layer = random.randint(50, 51)
 deck_stack.setTileAtLayer(ending_tile, target_layer)
 
 # ============================================================================
@@ -127,7 +178,7 @@ deck_stack.refillAvailableSlots()
 # ============================================================================
 # Create marker agent
 # ============================================================================
-Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=20,defaultColor=Qt.black,locationInEntity="topRight")
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,locationInEntity="topRight")
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
     "Player 1":QPixmap(f"{images_dir}/jeton_bleu.png"),
@@ -323,10 +374,17 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile, cell: cell.type == Board,  # Can only move to main board
         lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
-        lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0
+        lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0,
+        # Check that placing a tile would not exceed horizontal range of 7 across entire grid
+        lambda tile, cell: cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True) <= 7,
+        # Check that placing a tile would not exceed vertical range of 7 across entire grid
+        lambda tile, cell: cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True) <= 7
     ],
     action_controler={"directClick": True},
-    feedbacks=[lambda aTile: placeMarker(aTile.cell)]
+    feedbacks=[
+        lambda aTile: placeMarker(aTile.cell),
+        lambda aTile: adjustMagnifyToCoverAllTiles(aTile)
+    ]
     )
 def placeMarker(cell):
     cell.deleteAllAgents()

@@ -37,7 +37,7 @@ images_dir = Path(__file__).parent.parent.parent / "data" / "import" / "sea_zone
 # ============================================================================
 # Create game board (13x13 grid)
 # ============================================================================
-Board = myModel.newCellsOnGrid(9, 9, "square", size=70, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
+Board = myModel.newCellsOnGrid(13, 13, "square", size=50, gap=1, name="Board",neighborhood="neumann",defaultCellColor=Qt.transparent)
 Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 
 # ============================================================================
@@ -45,6 +45,7 @@ Board.grid.setBackgroundImage(QPixmap(f"{images_dir}/fond_plateau.png"))
 # ============================================================================
 River = myModel.newCellsOnGrid(4, 1, "square", size=80, gap=10, name="River")
 deck_cell = River.getCell(1, 1)
+River.grid.moveToCoords(700, 25)
 
 # ============================================================================
 # Create individual player boards (3 cells each, positioned under river)
@@ -100,7 +101,7 @@ deck_stack = SeaTile.newStackOnCellFromCSV(
 # ============================================================================
 # Place starting port tile at center of board (7, 7)
 # ============================================================================
-center_cell = Board.getCell(5, 5)
+center_cell = Board.getCell(7, 7)
 port_tile = SeaTile.getEntities_withValue("tile_name", "port")[0]
 port_tile.moveTo(center_cell)
 port_tile.flip()  # Show port tile face up
@@ -108,8 +109,9 @@ port_tile.flip()  # Show port tile face up
 # ============================================================================
 # Function to adjust magnifier to show all tiles + one row of empty cells on each side
 # ============================================================================
-def adjustMagnifyToCoverAllTiles():
+def adjustMagnifyToCoverAllTiles(aTile = None):
     """Adjust magnifier to show all tiles on Board + one row of empty cells on each side"""
+
     # Get all cells with tiles on the Board
     cells_with_tiles = Board.getEntities(condition=lambda c: c.hasTile())
     
@@ -122,6 +124,11 @@ def adjustMagnifyToCoverAllTiles():
     max_x = max(cell.xCoord for cell in cells_with_tiles)
     min_y = min(cell.yCoord for cell in cells_with_tiles)
     max_y = max(cell.yCoord for cell in cells_with_tiles)
+    
+    # If the tile placed is not in the peripheral box, do nothing
+    if aTile is not None:
+        if not (aTile.cell.xCoord in [min_x, max_x] or aTile.cell.yCoord in [min_y, max_y]):
+            return
     
     # Extend by one row on each side (with bounds checking)
     margin = 1
@@ -146,6 +153,7 @@ adjustMagnifyToCoverAllTiles()
 ending_tile = SeaTile.getEntities_withValue("tile_name", "maree_basse")[0]
 # Position the ending tile at a random layer between 1 and 10
 target_layer = random.randint(1, 10)
+# target_layer = random.randint(50, 51)
 deck_stack.setTileAtLayer(ending_tile, target_layer)
 
 # ============================================================================
@@ -162,7 +170,7 @@ deck_stack.refillAvailableSlots()
 # ============================================================================
 # Create marker agent
 # ============================================================================
-Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=20,defaultColor=Qt.black,locationInEntity="topRight")
+Marker = myModel.newAgentType("Marker", "circleAgent", defaultSize=13,defaultColor=Qt.black,locationInEntity="topRight")
 # Marker.newPov("default", "owner", {"Player 1": Qt.blue,"Player 2": Qt.red})
 Marker.newPov("default", "owner", {
     "Player 1":QPixmap(f"{images_dir}/jeton_bleu.png"),
@@ -359,15 +367,15 @@ moveActionTemplate = myModel.newMoveAction(
         lambda tile: tile.getGrid().isOwnedBy(myModel.getCurrentPlayer()),  # Can only move from current player's board
         # Check orthogonal adjacency: at least one neighbor must have a SeaTile
         lambda tile, cell: len(cell.getNeighborCells(condition=lambda c: c.hasTile())) > 0,
-        # Check that there are not already 7 tiles in the row
-        lambda tile, cell: len(cell.getCellsInRow(condition=lambda c: c.hasTile())) < 7,
-        # Check that there are not already 7 tiles in the column
-        lambda tile, cell: len(cell.getCellsInColumn(condition=lambda c: c.hasTile())) < 7
+        # Check that placing a tile would not exceed horizontal range of 7 across entire grid
+        lambda tile, cell: cell.getMaxRangeOfCells_horizontally(condition=lambda c: c.hasTile(), includingSelf=True) <= 7,
+        # Check that placing a tile would not exceed vertical range of 7 across entire grid
+        lambda tile, cell: cell.getMaxRangeOfCells_vertically(condition=lambda c: c.hasTile(), includingSelf=True) <= 7
     ],
     action_controler={"directClick": True},
     feedbacks=[
         lambda aTile: placeMarker(aTile.cell),
-        lambda : adjustMagnifyToCoverAllTiles()
+        lambda aTile: adjustMagnifyToCoverAllTiles(aTile)
     ]
     )
 def placeMarker(cell):

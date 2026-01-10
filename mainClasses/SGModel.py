@@ -265,22 +265,29 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.symbologyMenu = None  # init in case no menu is created
         self.createMenu()
         self.nameOfPov = "default"
-        cursorPositionAction = QAction(" &" + "Cursor Position", self, checkable=True)
-        self.settingsMenu.addAction(cursorPositionAction)
-        cursorPositionAction.triggered.connect(lambda: self.showCursorCoords())
         self.label = QtWidgets.QLabel(self)
         self.label.setGeometry(10, 10, 350, 30)
         self.label.move(300, 0)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.maj_coordonnees)
         self.isLabelVisible = False
-        # Add GameAction Logs Export submenu
-        self.createGameActionLogsExportMenu()
+        # Ensure label is hidden initially (in case it was shown elsewhere)
+        if hasattr(self, 'label'):
+            self.label.hide()
+            self.timer.stop()
 
     def initBeforeShowing(self):
         """Initialize components that need to be ready before the window is shown"""
         # Initialize tooltip menu with all entity definitions
         self.updateTooltipMenu()
+        # Ensure cursor position display state is synchronized with menu action
+        if hasattr(self, 'cursorPositionAction') and hasattr(self, 'isLabelVisible'):
+            self.cursorPositionAction.setChecked(self.isLabelVisible)
+            if not self.isLabelVisible:
+                if hasattr(self, 'label'):
+                    self.label.hide()
+                if hasattr(self, 'timer'):
+                    self.timer.stop()
 
         # Reorganize Enhanced Grid Layout orders to eliminate gaps, then apply the layout
         # self.reorganizeEnhancedGridLayoutOrders()
@@ -509,6 +516,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def showCursorCoords(self):
         self.isLabelVisible = not self.isLabelVisible
+        # Synchronize action state with isLabelVisible
+        if hasattr(self, 'cursorPositionAction'):
+            self.cursorPositionAction.setChecked(self.isLabelVisible)
         if self.isLabelVisible:
             self.label.show()
             self.timer.start(100)
@@ -654,9 +664,20 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
         self.createGraphMenu()
 
         self.settingsMenu = self.menuBar().addMenu(QIcon(f"{path_icon}/settings.png"), " &Settings")
-        # Create Enhanced Grid Layout submenu and Theme Manager entries
+        # Create menu items in the desired order:
+        # 1. Entity Tooltips
+        self.createTooltipMenu()
+        # 2. Enhanced Grid Layout
         self.createEnhancedGridLayoutMenu()
+        # 3. Themes
         self.createThemeManagerMenu()
+        # 4. Export GameAction Logs
+        self.createGameActionLogsExportMenu()
+        # 5. Cursor Position
+        self.cursorPositionAction = QAction(" &" + "Cursor Position", self, checkable=True)
+        self.cursorPositionAction.setChecked(False)  # Initialize to unchecked state
+        self.settingsMenu.addAction(self.cursorPositionAction)
+        self.cursorPositionAction.triggered.connect(lambda: self.showCursorCoords())
         
     # ============================================================================
     # GAME ACTION LOGS EXPORT METHODS
@@ -1029,7 +1050,9 @@ class SGModel(QMainWindow, SGEventHandlerGuide):
 
     def createTooltipMenu(self):
         """Create tooltip selection submenu in Settings menu"""
-        self.tooltipMenu = self.settingsMenu.addMenu("&Entity Tooltips")
+        # Only create menu if it doesn't exist yet (to avoid duplicates)
+        if not hasattr(self, 'tooltipMenu') or self.tooltipMenu is None:
+            self.tooltipMenu = self.settingsMenu.addMenu("&Entity Tooltips")
 
         # Create tooltip options
         tooltipOptions = [
