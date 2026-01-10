@@ -407,6 +407,15 @@ class SGTile(SGEntity):
                     self.view.size = self.size
                     self.view.saveSize = self.saveSize
             
+            # Get grid reference for magnifier mode check
+            grid = None
+            if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
+                grid = aDestinationCell.type.grid
+            
+            # Update zoom if in magnifier mode (must be done before updatePositionFromCell)
+            if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and hasattr(grid, 'zoom'):
+                self.updateZoom(grid.zoom)
+            
             # Update view position
             if self.view:
                 self.view.updatePositionFromCell()
@@ -414,13 +423,11 @@ class SGTile(SGEntity):
                 self.updateView()
                 
                 # Apply clipping if in magnifier mode
-                if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
-                    grid = aDestinationCell.type.grid
-                    if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
-                        tile_x = self.view.xCoord
-                        tile_y = self.view.yCoord
-                        tile_size = self.view.size if hasattr(self.view, 'size') else self.size
-                        grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
+                if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                    tile_x = self.view.xCoord
+                    tile_y = self.view.yCoord
+                    tile_size = self.view.size if hasattr(self.view, 'size') else self.size
+                    grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
             return self
         else:
             # Movement from one cell to another
@@ -507,6 +514,15 @@ class SGTile(SGEntity):
                     self.view.size = self.size
                     self.view.saveSize = self.saveSize
             
+            # Get grid reference for magnifier mode check
+            grid = None
+            if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
+                grid = aDestinationCell.type.grid
+            
+            # Update zoom if in magnifier mode (must be done before updatePositionFromCell)
+            if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier" and hasattr(grid, 'zoom'):
+                self.updateZoom(grid.zoom)
+            
             # Update z-order after adding to cell (so z-order update includes this tile)
             self._updateZOrderInCell()
             
@@ -517,13 +533,11 @@ class SGTile(SGEntity):
                 self.updateView()
                 
                 # Apply clipping if in magnifier mode
-                if hasattr(aDestinationCell, 'type') and hasattr(aDestinationCell.type, 'grid'):
-                    grid = aDestinationCell.type.grid
-                    if hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
-                        tile_x = self.view.xCoord
-                        tile_y = self.view.yCoord
-                        tile_size = self.view.size if hasattr(self.view, 'size') else self.size
-                        grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
+                if grid and hasattr(grid, 'zoomMode') and grid.zoomMode == "magnifier":
+                    tile_x = self.view.xCoord
+                    tile_y = self.view.yCoord
+                    tile_size = self.view.size if hasattr(self.view, 'size') else self.size
+                    grid._clipEntityToVisibleArea(self.view, tile_x, tile_y, tile_size)
             
             return self
 
