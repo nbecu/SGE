@@ -54,10 +54,11 @@ class SGGrid(SGGameSpace):
             self.originalWidth = int(self.columns * self.saveSize + (self.columns + 1) * self.saveGap + 1) + 2 * self.frameMargin
             self.originalHeight = int(self.rows * self.saveSize + (self.rows + 1) * self.saveGap) + 1 + 2 * self.frameMargin
         elif self.cellShape == "hexagonal":
-            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-            hex_height = self.saveSize * adaptive_factor
+            hex_factor = self._get_hexagonal_vertical_factor()
+            hex_height = self.saveSize * hex_factor  # Vertical spacing between hexagon centers
             self.originalWidth = int(self.columns * self.saveSize + self.columns * self.saveGap + self.saveSize / 2 + 2 * self.frameMargin)
-            self.originalHeight = int((self.rows - 1) * (hex_height + self.saveGap) + hex_height + 2 * self.frameMargin)
+            # Height = (rows-1) * spacing + gap + full hexagon height (saveSize) + frame margins
+            self.originalHeight = int((self.rows - 1) * (hex_height + self.saveGap) + self.saveGap + self.saveSize + 2 * self.frameMargin)
         else:
             self.originalWidth = None
             self.originalHeight = None
@@ -127,12 +128,13 @@ class SGGrid(SGGameSpace):
             elif (self.cellShape == "hexagonal"):
                 #Note: The hexagonal grid is "Pointy-top hex grid with even-r offset".
                 # Width: columns * size + columns * gap + half hexagon for offset + frame margins
-                # Height: rows * (size * 0.75) + gap + frame margins
+                # Height: calculated using fixed factor for consistent spacing
                 new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
                 # Mathematical calculation for "Pointy-top hex grid with even-r offset"
-                adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-                hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
-                new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+                hex_factor = self._get_hexagonal_vertical_factor()
+                hex_height = self.size * hex_factor  # Vertical spacing between hexagon centers
+                # Height = (rows-1) * spacing + gap + full hexagon height (size) + frame margins
+                new_height = int((self.rows - 1) * (hex_height + self.gap) + self.gap + self.size + 2 * self.frameMargin)
                 self.setFixedSize(new_width, new_height)
         radius = getattr(self.gs_aspect, 'border_radius', None) or 0
         # In magnifier mode, use originalWidth/originalHeight (same values used for setFixedSize)
@@ -160,18 +162,18 @@ class SGGrid(SGGameSpace):
         
         painter.end()
 
-    def _calculate_hexagonal_adaptive_factor(self):
+    def _get_hexagonal_vertical_factor(self):
         """
-        Calculate adaptive factor for hexagonal grid height calculation.
-        Based on number of rows to prevent clipping with few rows.
+        Get fixed vertical spacing factor for hexagonal grids.
+        
+        This factor represents the vertical distance between hexagon centers
+        in a pointy-top hexagonal grid. Using a fixed value ensures consistency
+        between grid height calculation and cell positioning.
         
         Returns:
-            float: Adaptive factor for hex_height calculation
+            float: Fixed factor for hex_height calculation (0.75 for current hexagon shape)
         """
-        if self.rows >= 10:
-            return 0.78  # Stable value for grids with many rows
-        else:
-            return 0.78 + abs(10 - self.rows) * 0.025  # Progressive growth for few rows
+        return 0.75  # Fixed factor for consistent hexagonal grid spacing
 
     # ============================================================================
     # ZOOM FUNCTIONALITY
@@ -486,8 +488,8 @@ class SGGrid(SGGameSpace):
                 grid_y = base_y + (cell.yCoord - 1) * (self.saveSize + self.saveGap) + self.saveGap
             elif self.cellShape == "hexagonal":
                 grid_x = base_x + (cell.xCoord - 1) * (self.saveSize + self.saveGap) + self.saveGap
-                adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-                hex_height = self.saveSize * adaptive_factor
+                hex_factor = self._get_hexagonal_vertical_factor()
+                hex_height = self.saveSize * hex_factor
                 grid_y = base_y + (cell.yCoord - 1) * (hex_height + self.saveGap) + self.saveGap
                 if cell.yCoord % 2 == 0:
                     grid_x += self.saveSize / 2
@@ -658,12 +660,13 @@ class SGGrid(SGGameSpace):
                 new_height = int(self.rows * self.size + (self.rows + 1) * self.gap) + 1 + 2 * self.frameMargin
             elif self.cellShape == "hexagonal":
                 # Width: columns * size + columns * gap + half hexagon for offset + frame margins
-                # Height: rows * (size * 0.75) + (rows-1) * gap + frame margins
+                # Height: calculated using fixed factor for consistent spacing
                 new_width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
                 # Mathematical calculation for "Pointy-top hex grid with even-r offset"
-                adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-                hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
-                new_height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+                hex_factor = self._get_hexagonal_vertical_factor()
+                hex_height = self.size * hex_factor  # Vertical spacing between hexagon centers
+                # Height = (rows-1) * spacing + gap + full hexagon height (size) + frame margins
+                new_height = int((self.rows - 1) * (hex_height + self.gap) + self.gap + self.size + 2 * self.frameMargin)
             
             self.setFixedSize(new_width, new_height)
         
@@ -889,9 +892,10 @@ class SGGrid(SGGameSpace):
         if (self.cellShape == "square"):
             return int(self.rows*self.size+(self.rows+1)*self.gap + 2 * self.frameMargin)
         if (self.cellShape == "hexagonal"):
-            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
-            return int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+            hex_factor = self._get_hexagonal_vertical_factor()
+            hex_height = self.size * hex_factor  # Vertical spacing between hexagon centers
+            # Height = (rows-1) * spacing + gap + full hexagon height (size) + frame margins
+            return int((self.rows - 1) * (hex_height + self.gap) + self.gap + self.size + 2 * self.frameMargin)
     
     def getGridBoundsWidth(self):
         """
@@ -909,7 +913,7 @@ class SGGrid(SGGameSpace):
             return self.columns * (self.saveSize + self.saveGap)
         elif self.cellShape == "hexagonal":
             # For hexagonal, calculate position of last cell (columns, rows)
-            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
+            hex_factor = self._get_hexagonal_vertical_factor()
             
             # Last cell position (columns, rows)
             last_cell_grid_x = base_x + (self.columns - 1) * (self.saveSize + self.saveGap) + self.saveGap
@@ -939,14 +943,14 @@ class SGGrid(SGGameSpace):
             return self.rows * (self.saveSize + self.saveGap)
         elif self.cellShape == "hexagonal":
             # For hexagonal, calculate position of last cell (columns, rows)
-            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-            hex_height = self.saveSize * adaptive_factor
+            hex_factor = self._get_hexagonal_vertical_factor()
+            hex_height = self.saveSize * hex_factor
             
             # Last cell position (columns, rows)
             last_cell_grid_y = base_y + (self.rows - 1) * (hex_height + self.saveGap) + self.saveGap
             
-            # Bottom edge of last cell
-            return last_cell_grid_y + hex_height
+            # Bottom edge of last cell (hexagon has full height = saveSize, not hex_height)
+            return last_cell_grid_y + self.saveSize
         else:
             # Fallback to getSizeYGlobal (without frameMargin) if unknown shape
             return self.getSizeYGlobal() - 2 * self.frameMargin
@@ -958,9 +962,10 @@ class SGGrid(SGGameSpace):
             height = int(self.rows*self.size+(self.rows+1)*self.gap + 2*self.frameMargin)
         elif (self.cellShape == "hexagonal"):
             width = int(self.columns * self.size + self.columns * self.gap + self.size / 2 + 2 * self.frameMargin)
-            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-            hex_height = self.size * adaptive_factor  # Correct height for pointy-top hexagones
-            height = int((self.rows - 1) * (hex_height + self.gap) + hex_height + 2 * self.frameMargin)
+            hex_factor = self._get_hexagonal_vertical_factor()
+            hex_height = self.size * hex_factor  # Vertical spacing between hexagon centers
+            # Height = (rows-1) * spacing + gap + full hexagon height (size) + frame margins
+            height = int((self.rows - 1) * (hex_height + self.gap) + self.gap + self.size + 2 * self.frameMargin)
         else:
             width = height = 100  # Default fallback
         return QSize(width, height)
@@ -1190,8 +1195,8 @@ class SGGrid(SGGameSpace):
             cell2_grid_y = base_y + (cell2.yCoord - 1) * (self.saveSize + self.saveGap) + self.saveGap
         elif self.cellShape == "hexagonal":
             cell1_grid_x = base_x + (cell1.xCoord - 1) * (self.saveSize + self.saveGap) + self.saveGap
-            adaptive_factor = self._calculate_hexagonal_adaptive_factor()
-            hex_height = self.saveSize * adaptive_factor
+            hex_factor = self._get_hexagonal_vertical_factor()
+            hex_height = self.saveSize * hex_factor
             cell1_grid_y = base_y + (cell1.yCoord - 1) * (hex_height + self.saveGap) + self.saveGap
             if cell1.yCoord % 2 == 0:
                 cell1_grid_x += self.saveSize / 2

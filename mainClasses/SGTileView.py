@@ -547,9 +547,4 @@ class SGTileView(SGEntityView):
             self.position = self.tile_model.position
             self.update()
     
-    # ============================================================================
-    # ZOOM METHODS
-    # ============================================================================
-    # Note: updateZoom() has been removed - size is now read from model via property
-    # The model's updateZoom() method handles view updates directly
 

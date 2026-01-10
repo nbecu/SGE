@@ -133,9 +133,11 @@ class SGCellView(SGEntityView):
             # Base position calculation (similar to square)
             self.startX = int(self.startXBase + (self.xCoord - 1) * (grid_size + grid_gap) + grid_gap)
             
-            # Hexagonal Y position: each row is offset by 3/4 of hexagon height + gap
-            self.startY = int(self.startYBase + (self.yCoord - 1) * (grid_size * 0.75 + grid_gap) + grid_gap)
-            
+            # Hexagonal Y position: use fixed factor (same as SGGrid calculations)
+            # This ensures consistency with grid height calculations and prevents vertical spacing issues
+            hex_factor = self.grid._get_hexagonal_vertical_factor()
+            hex_height = grid_size * hex_factor
+            self.startY = int(self.startYBase + (self.yCoord - 1) * (hex_height + grid_gap) + grid_gap)
             
             # Apply hexagonal horizontal offset for even-r offset pattern
             if self.yCoord % 2 == 0:

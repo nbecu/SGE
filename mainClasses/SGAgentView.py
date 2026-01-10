@@ -448,8 +448,6 @@ class SGAgentView(SGEntityView):
     # ============================================================================
     # ZOOM METHODS
     # ============================================================================
-    # Note: updateZoom() has been removed - size is now read from model via property
-    # The model's updateZoom() method handles view updates directly
     
     def zoomIn(self, zoom_factor=1.1):
         """Zoom in the agent - legacy method for compatibility"""
