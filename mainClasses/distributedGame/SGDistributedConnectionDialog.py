@@ -96,6 +96,7 @@ class SGDistributedConnectionDialog(QDialog):
         # session_states_cache is now managed by session_discovery_manager (see above)
         self._temporary_session_id = None  # Temporary session_id used for connection (not a selected session)
         self._cleaning_up = False  # Flag to prevent MQTT callbacks during cleanup
+        self._reopen_with_new_broker = False  # Reopen dialog after broker change
         
         # MQTT Handler Manager for centralized handler management (refactoring)
         self._mqtt_handler_manager = None  # Will be initialized when MQTT client is available (SGMQTTHandlerManager instance)
@@ -243,9 +244,22 @@ class SGDistributedConnectionDialog(QDialog):
         connection_status_group.addWidget(self.status_label)
         
         # MQTT Broker Info (discrete, integrated in Connection Status section)
-        self.broker_info_label = QLabel(f"MQTT Broker: {self.config.broker_host}:{self.config.broker_port}")
+        broker_row = QHBoxLayout()
+        self.broker_info_label = QLabel(self._getBrokerInfoText())
         self.broker_info_label.setStyleSheet("color: #888; font-size: 9px; padding: 2px 5px;")
-        connection_status_group.addWidget(self.broker_info_label)
+        broker_row.addWidget(self.broker_info_label)
+        broker_row.addStretch()
+        
+        self.broker_settings_btn = QPushButton()
+        self.broker_settings_btn.setText("⚙")
+        self.broker_settings_btn.setToolTip("Broker parameters")
+        self.broker_settings_btn.setMaximumWidth(30)
+        self.broker_settings_btn.setMaximumHeight(24)
+        self.broker_settings_btn.setStyleSheet("color: #888; font-size: 12px; border: none; background: transparent; padding: 2px;")
+        self.broker_settings_btn.clicked.connect(self._openBrokerSettings)
+        broker_row.addWidget(self.broker_settings_btn)
+        
+        connection_status_group.addLayout(broker_row)
         
         layout.addLayout(connection_status_group)
         
@@ -257,7 +271,7 @@ class SGDistributedConnectionDialog(QDialog):
         self.seed_status_label = QLabel("Seed: Not synchronized")
         self.seed_status_label.setStyleSheet("padding: 5px; background-color: #fff8dc; border-radius: 3px;")
         instances_layout.addWidget(self.seed_status_label)
-        
+
         # Connected Instances line
         self.connected_instances_label = QLabel("Instances: No instances connected yet")
         self.connected_instances_label.setStyleSheet("padding: 5px; color: #666;")
@@ -297,6 +311,123 @@ class SGDistributedConnectionDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
+
+    def _isLocalhostHost(self, host):
+        """Return True if host is localhost or loopback."""
+        return host in ["localhost", "127.0.0.1", "::1"]
+
+    def _getBrokerDisplayName(self):
+        """Return broker display name without exposing host."""
+        if self.config.use_custom_broker:
+            return "Custom broker"
+        if self.config.selected_broker_name:
+            return self.config.selected_broker_name
+        return "main"
+
+    def _getBrokerInfoText(self):
+        """Return broker label text with safe display rules."""
+        name = self._getBrokerDisplayName()
+        host = self.config.broker_host
+        port = self.config.broker_port
+        if self._isLocalhostHost(host):
+            return f"MQTT Broker: {name} ({host}:{port})"
+        return f"MQTT Broker: {name}"
+
+    def _getBrokerDisplayText(self):
+        """Return broker display for messages without exposing host."""
+        name = self._getBrokerDisplayName()
+        host = self.config.broker_host
+        port = self.config.broker_port
+        if self._isLocalhostHost(host):
+            return f"{name} ({host}:{port})"
+        return name
+
+    def _updateBrokerInfoLabel(self):
+        """Refresh broker label."""
+        if hasattr(self, "broker_info_label") and self.broker_info_label:
+            self.broker_info_label.setText(self._getBrokerInfoText())
+
+    def _snapshotBrokerConfig(self):
+        """Return a snapshot of current broker config values."""
+        return {
+            "broker_host": self.config.broker_host,
+            "broker_port": self.config.broker_port,
+            "selected_broker_name": self.config.selected_broker_name,
+            "use_custom_broker": self.config.use_custom_broker,
+            "custom_broker_host": self.config.custom_broker_host,
+            "custom_broker_port": self.config.custom_broker_port,
+        }
+
+    def _restoreBrokerConfig(self, snapshot):
+        """Restore broker config values from a snapshot."""
+        self.config.broker_host = snapshot.get("broker_host")
+        self.config.broker_port = snapshot.get("broker_port")
+        self.config.selected_broker_name = snapshot.get("selected_broker_name")
+        self.config.use_custom_broker = snapshot.get("use_custom_broker")
+        self.config.custom_broker_host = snapshot.get("custom_broker_host")
+        self.config.custom_broker_port = snapshot.get("custom_broker_port")
+
+    def _hasBrokerConfigChanged(self, snapshot):
+        """Return True if broker config differs from snapshot."""
+        return (
+            self.config.broker_host != snapshot.get("broker_host") or
+            self.config.broker_port != snapshot.get("broker_port") or
+            self.config.selected_broker_name != snapshot.get("selected_broker_name") or
+            self.config.use_custom_broker != snapshot.get("use_custom_broker") or
+            self.config.custom_broker_host != snapshot.get("custom_broker_host") or
+            self.config.custom_broker_port != snapshot.get("custom_broker_port")
+        )
+
+    def _setNotConnectedStatus(self):
+        """Update UI to not connected status."""
+        self.connection_status = "Not connected"
+        self.status_label.setText(f"Connection Status: {self.connection_status}")
+        self.status_label.setStyleSheet("padding: 5px; background-color: #f8d7da; border-radius: 3px; color: #721c24;")
+
+    def shouldReopenAfterBrokerChange(self):
+        """Return True if dialog should reopen after broker change."""
+        return self._reopen_with_new_broker
+
+    def _openBrokerSettings(self):
+        """Open broker parameters dialog."""
+        if self._connection_in_progress:
+            QMessageBox.information(self, "Connection in Progress", "Please wait for the current connection attempt to finish.")
+            return
+        
+        from mainClasses.distributedGame.SGDistributedBrokerSettingsDialog import SGDistributedBrokerSettingsDialog
+        previous_config = self._snapshotBrokerConfig()
+        dialog = SGDistributedBrokerSettingsDialog(self, self.config)
+        if dialog.exec_() == QDialog.Accepted:
+            if not self._hasBrokerConfigChanged(previous_config):
+                self._updateBrokerInfoLabel()
+                return
+            
+            is_connected = (
+                self.model.mqttManager.client and
+                self.model.mqttManager.client.is_connected()
+            )
+            if is_connected:
+                response = QMessageBox.question(
+                    self,
+                    "Broker Changed",
+                    "The broker has changed. Disconnect and reconnect now?",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.Yes
+                )
+                if response != QMessageBox.Yes:
+                    self._restoreBrokerConfig(previous_config)
+                    self._updateBrokerInfoLabel()
+                    return
+                
+                # Cleanly leave current session before broker switch
+                self._cancelConnection()
+                self.model.mqttManager.disconnect()
+                self._setNotConnectedStatus()
+                self._updateBrokerInfoLabel()
+                self._reopen_with_new_broker = True
+                super().reject()
+                return
+            self._updateBrokerInfoLabel()
     
     def _setupTimers(self):
         """Setup timers for periodic updates"""
@@ -1298,7 +1429,7 @@ class SGDistributedConnectionDialog(QDialog):
                 f"{str(e)}\n\n"
                 f"Please verify that:\n"
                 f"- The MQTT broker is running\n"
-                f"- The broker address is correct ({self.config.broker_host}:{self.config.broker_port})\n"
+                f"- The broker address is correct ({self._getBrokerDisplayText()})\n"
                 f"- The port is not blocked by a firewall"
             )
         except Exception as e:
@@ -1317,7 +1448,7 @@ class SGDistributedConnectionDialog(QDialog):
                 self, 
                 "Connection Error",
                 f"Unable to connect to MQTT broker:\n\n{str(e)}\n\n"
-                f"Please verify that the broker is accessible at {self.config.broker_host}:{self.config.broker_port}"
+                f"Please verify that the broker is accessible ({self._getBrokerDisplayText()})"
             )
     
     def _onConnectionTimeout(self):
@@ -1333,7 +1464,7 @@ class SGDistributedConnectionDialog(QDialog):
                 self,
                 "Connection Timeout",
                 f"Connection to MQTT broker timed out.\n\n"
-                f"The broker at {self.config.broker_host}:{self.config.broker_port} "
+                f"The broker ({self._getBrokerDisplayText()}) "
                 f"is not responding or is not accessible.\n\n"
                 f"Please verify that:\n"
                 f"- The MQTT broker is running\n"

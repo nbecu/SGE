@@ -68,6 +68,7 @@ class SGDistributedSessionManager(QObject):
         # Session discovery state
         self.discovered_sessions = {}  # {session_id: {'timestamp': float, 'info': dict}}
         self.session_heartbeat_timer = None  # QTimer for heartbeat (initialized in _startSessionHeartbeat)
+        self._published_session_id = None  # Session ID used for discovery heartbeat
         self.session_discovery_handler = None  # Handler for discovery messages
         self._discovery_callback = None  # Callback for discovery updates
         self._pre_discovery_handler = None  # Handler before discovery was installed
@@ -482,6 +483,9 @@ class SGDistributedSessionManager(QObject):
             'model_name': model_name or getattr(self.model, 'name', 'Unknown'),
             'timestamp': datetime.now().isoformat()
         }
+        
+        # Track current discovery session_id (used for heartbeat cleanup)
+        self._published_session_id = session_id
         
         # Publish on session-specific topic within discovery namespace
         # Format: session_discovery/{session_id}
@@ -1080,6 +1084,19 @@ class SGDistributedSessionManager(QObject):
     
     def disconnect(self):
         """Disconnect from session (stop timer, clear cache, publish disconnect message)"""
+        # Stop discovery heartbeat timer (prevents phantom sessions)
+        self.stopSessionHeartbeat()
+        
+        # Clear retained discovery message for published session
+        if (self._published_session_id and 
+            self.mqtt_manager.client and 
+            self.mqtt_manager.client.is_connected()):
+            try:
+                discovery_topic = f"{self.DISCOVERY_TOPIC}/{self._published_session_id}"
+                self.mqtt_manager.client.publish(discovery_topic, "", qos=1, retain=True)
+            except Exception as e:
+                print(f"[SessionManager] Error clearing discovery message: {e}")
+        
         # Stop seed sync republishing
         self.stopSeedSyncRepublishing()
         

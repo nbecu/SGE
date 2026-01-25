@@ -140,7 +140,7 @@ class SGMQTTManager:
 
         def on_connect(client, userdata, flags, rc):
             if rc == 0:
-                print("Connected to MQTT Broker!")
+                print(f"Connected to MQTT Broker at {self.broker_host}:{self.broker_port}")
             else:
                 # Connection failed - error codes from paho-mqtt
                 error_messages = {

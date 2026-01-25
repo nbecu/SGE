@@ -25,10 +25,65 @@ class SGDistributedGameConfig:
         self.shared_seed = None  # int: Shared random seed
         self.broker_host = "localhost"  # str: MQTT broker host
         self.broker_port = 1883  # int: MQTT broker port
+        self.broker_servers = []  # list: Available brokers (list of dicts: name, host, port)
+        self.selected_broker_name = "main"  # str: Selected broker display name
+        self.use_custom_broker = False  # bool: Use custom broker host/port
+        self.custom_broker_host = ""  # str: Custom broker host (player input)
+        self.custom_broker_port = None  # int: Custom broker port (player input)
         self.mqtt_update_type = "Instantaneous"  # str: "Instantaneous" or "Phase"
         self.seed_sync_timeout = 1.0  # float: Timeout in seconds to wait for existing seed before becoming leader
         self.is_session_creator = False  # bool: True if this instance created the session
         self.connected_instances_count = 0  # int: Number of connected instances
+
+    def set_broker_servers(self, broker_servers):
+        """
+        Set available broker servers.
+        
+        Args:
+            broker_servers (list): List of dicts with keys: name, host, port
+        """
+        if broker_servers is None:
+            self.broker_servers = []
+            return
+        
+        if not isinstance(broker_servers, list):
+            raise ValueError("broker_servers must be a list of dicts")
+        
+        normalized = []
+        seen_names = set()
+        for entry in broker_servers:
+            if not isinstance(entry, dict):
+                raise ValueError("Each broker server must be a dict with keys: name, host, port")
+            name = entry.get("name")
+            host = entry.get("host")
+            port = entry.get("port")
+            if not name or not isinstance(name, str):
+                raise ValueError("Each broker server must define a non-empty string name")
+            if name in seen_names:
+                raise ValueError(f"Duplicate broker name: {name}")
+            if not host or not isinstance(host, str):
+                raise ValueError(f"Broker '{name}' must define a host string")
+            if not isinstance(port, int) or port < 1 or port > 65535:
+                raise ValueError(f"Broker '{name}' must define a valid port (1-65535)")
+            normalized.append({"name": name, "host": host, "port": port})
+            seen_names.add(name)
+        
+        self.broker_servers = normalized
+
+    def get_broker_by_name(self, name):
+        """
+        Retrieve broker entry by name.
+        
+        Args:
+            name (str): Broker name
+        
+        Returns:
+            dict or None: Broker entry
+        """
+        for entry in self.broker_servers:
+            if entry.get("name") == name:
+                return entry
+        return None
     
     def set_num_players(self, num_players):
         """
