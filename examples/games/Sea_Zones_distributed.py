@@ -31,16 +31,8 @@ nb_players = myModel.getConnectedInstancesCount(default=4)
 # ============================================================================
 # Paths configuration
 # ============================================================================
-# Handle both development mode (Python) and executable mode (PyInstaller)
-if getattr(sys, 'frozen', False):
-    # Running as compiled executable (PyInstaller)
-    base_path = Path(sys._MEIPASS)
-else:
-    # Running as Python script
-    base_path = Path(__file__).parent.parent.parent
-
-csv_path = base_path / "data" / "import" / "sea_zones" / "tiles.csv"
-images_dir = base_path / "data" / "import" / "sea_zones"
+csv_path = getResourcePath("data/import/sea_zones/tiles.csv")
+images_dir = getResourcePath("data/import/sea_zones")
 
 # ============================================================================
 # Create game board (13x13 grid)

@@ -4,8 +4,26 @@ This file groups all general utility methods, as well as class extensions (Qt or
 Example: methods dynamically added to QPainter, QWidget, list, dict, etc.
 """
 
+import sys
+from pathlib import Path
 from PyQt5.QtGui import QFontMetrics, QFont, QPainter, QPixmap
 from PyQt5.QtCore import QRectF, Qt
+
+__all__ = [
+    "drawTextAutoSized",
+    "fillTransparentAreas",
+    "first_value",
+    "first_key",
+    "first_item",
+    "execute_callable_with_entity",
+    "normalize_type_name",
+    "generate_color_gradient",
+    "serialize_any_object",
+    "mapAlignmentStringToQtFlags",
+    "position_dialog_to_right",
+    "getResourceBasePath",
+    "getResourcePath",
+]
 
 def drawTextAutoSized(self, aleft, atop, text, font=None, align=0, padding_width=0, padding_height=0):
     """
@@ -213,6 +231,38 @@ def _extend_qt_colors():
 _extend_qt_colors()
 
 # Utilities
+
+def getResourceBasePath(base_path=None):
+    """
+    Return a base path for reading resources.
+    - If base_path is provided, it is used as-is.
+    - In PyInstaller mode, use sys._MEIPASS.
+    - Otherwise, use the project root (parent of mainClasses).
+    """
+    if base_path is not None:
+        return Path(base_path)
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        return Path(sys._MEIPASS)
+    return Path(__file__).resolve().parent.parent
+
+def getResourcePath(relative_path=None, base_path=None):
+    """
+    Resolve a resource path for both dev and exe modes.
+    
+    Args:
+        relative_path (str, optional): Path relative to the base path.
+        base_path (str or Path, optional): Custom base path override.
+    
+    Returns:
+        Path: Resolved resource path.
+    """
+    base = getResourceBasePath(base_path)
+    if relative_path in (None, ""):
+        return base
+    rel = Path(relative_path)
+    if rel.is_absolute():
+        return rel
+    return base / rel
 
 def fillTransparentAreas(pixmap, fillColor):
     """

@@ -48,6 +48,7 @@ This document contains the planned improvements and features for the SGE (Simula
 - [ ] Allow to start the simulation at a specified time step
 - [ ] Add a item in SGModel menu bar to record the state of the world (state of model entities), and add the possibility to use a saved state of the world, as an initialization state for a new simulation
 - [ ] Add the possibility to export gameAction logs
+- [ ] Define writable export paths for exe mode (see notes for FUTURE_PLAN/EXPORT_WRITE_PATHS.md)
 - [ ] Implement BotPlayer system for automated gameplay and testing (see BOT_PLAYER_SYSTEM.md)
 
 ### Multiplayer & Configuration
